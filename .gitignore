@@ -1,0 +1,10 @@
+.idea/*
+.bsp/*
+out/
+dist/*
+target/
+project/boot/
+project/plugins/project/
+.history
+.cache
+.lib/
