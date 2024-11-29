@@ -20,8 +20,8 @@
 ---
 
 ### 🔗 Learn More  
-- **[Documentation](https://github.com/yourusername/code-epiphany/wiki)**  
-- **[Report Issues](https://github.com/yourusername/code-epiphany/issues)**  
+- **[Documentation](https://github.com/WenjunHuang/CodeEpiphany/wiki)**  
+- **[Report Issues](https://github.com/WenjunHuang/CodeEpiphany/issues)**  
 
 Start your journey to mastering algorithms and coding challenges with **Code Epiphany** today! 💡  
 
