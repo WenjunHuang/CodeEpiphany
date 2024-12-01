@@ -4,9 +4,9 @@ import cats.effect.IO
 import com.intellij.testFramework.fixtures.BasePlatformTestCase
 import com.wenjunhuang.codeepiphany.hackerrank.model.QuestionSkill.Intermediate
 import com.wenjunhuang.codeepiphany.hackerrank.model.QuestionStatus.{Solved, Unsolved}
-import com.wenjunhuang.codeepiphany.http.HttpClientKeeper
-import com.wenjunhuang.codeepiphany.runtime.intellijIORuntime
+import com.wenjunhuang.codeepiphany.utils.intellijIORuntime
 import cats.syntax.all.*
+import com.wenjunhuang.codeepiphany.controllers.http.HttpClientKeeper
 import org.hamcrest.CoreMatchers.*
 import org.hamcrest.MatcherAssert.assertThat
 

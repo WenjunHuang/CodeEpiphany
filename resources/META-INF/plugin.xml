@@ -4,7 +4,8 @@
     <name>CodeEpiphany</name>
     <version>0.0.1</version>
     <vendor>Huang wenjun</vendor>
-    <description><![CDATA[Your ultimate plugin for mastering coding challenges directly in Idea platforms!]]></description>
+    <description>
+        <![CDATA[Your ultimate plugin for mastering coding challenges directly in Idea platforms!]]></description>
 
     <idea-version since-build="231.0"/>
 
@@ -13,20 +14,21 @@
 
     <resource-bundle>messages.PluginBundle</resource-bundle>
     <actions>
-        <action id="com.wenjun.plugindev.actions.ApiTestAction"
-                class="com.wenjun.plugindev.actions.ApiTestAction">
-            <add-to-group group-id="ToolsMenu" anchor="first"/>
-        </action>
+        <!--        <action id="com.wenjun.plugindev.actions.ApiTestAction"-->
+        <!--                class="com.wenjun.plugindev.actions.ApiTestAction">-->
+        <!--            <add-to-group group-id="ToolsMenu" anchor="first"/>-->
+        <!--        </action>-->
     </actions>
 
-<!--    <applicationListeners>-->
-<!--        <listener class="com.wenjun.plugindev.listeners.FileOpenedListener"-->
-<!--                  topic="com.intellij.openapi.fileEditor.FileEditorManagerListener"/>-->
-<!--    </applicationListeners>-->
+    <!--    <applicationListeners>-->
+    <!--        <listener class="com.wenjun.plugindev.listeners.FileOpenedListener"-->
+    <!--                  topic="com.intellij.openapi.fileEditor.FileEditorManagerListener"/>-->
+    <!--    </applicationListeners>-->
 
-<!--    <extensions defaultExtensionNs="com.intellij">-->
-<!--        <notificationGroup displayType="BALLOON" id="My Plugin Notification"/>-->
-<!--        <toolWindow factoryClass="com.wenjun.plugindev.ui.MyToolWindowFactory" id="MyToolWindow" anchor="bottom"/>-->
-<!--    </extensions>-->
+    <extensions defaultExtensionNs="com.intellij">
+        <notificationGroup displayType="BALLOON" id="My Plugin Notification"/>
+        <toolWindow factoryClass="com.wenjunhuang.codeepiphany.controllers.project.QuestionToolWindowFactory"
+                    id="." anchor="bottom"/>
+    </extensions>
 
 </idea-plugin>

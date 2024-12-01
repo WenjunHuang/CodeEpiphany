@@ -1,4 +1,4 @@
-package com.wenjunhuang.codeepiphany.http
+package com.wenjunhuang.codeepiphany.controllers.http
 
 import cats.effect.{Async, Resource}
 import cats.effect.kernel.Ref.Make
@@ -12,7 +12,7 @@ import javax.net.ssl.{SSLContext, TrustManager, X509TrustManager}
 import scala.concurrent.duration.*
 import scala.jdk.CollectionConverters.*
 import scala.util.boundary
-import com.wenjunhuang.codeepiphany.runtime.intellijComputeContext
+import com.wenjunhuang.codeepiphany.utils.intellijComputeContext
 
 trait HttpClientKeeper[F[_]] {
   def getClient: Resource[F, Client[F]]

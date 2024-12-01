@@ -1,9 +1,9 @@
-package com.wenjunhuang.codeepiphany.http
+package com.wenjunhuang.codeepiphany.controllers.http
 
 import cats.effect.{Async, Resource}
 import cats.effect.std.Dispatcher
 import cats.syntax.all.*
-import com.wenjunhuang.codeepiphany.http.OkHttpBuilder.*
+import OkHttpBuilder.*
 import fs2.io.readInputStream
 import okhttp3.{Call, Callback, OkHttpClient, Protocol, RequestBody, Headers as OKHeaders, MediaType as OKMediaType, Request as OKRequest, Response as OKResponse}
 import okio.BufferedSink

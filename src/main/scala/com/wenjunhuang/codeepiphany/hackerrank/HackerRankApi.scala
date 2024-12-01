@@ -2,8 +2,8 @@ package com.wenjunhuang.codeepiphany.hackerrank
 
 import cats.effect.Concurrent
 import cats.syntax.all.*
+import com.wenjunhuang.codeepiphany.controllers.http.HttpClientKeeper
 import com.wenjunhuang.codeepiphany.hackerrank.model.*
-import com.wenjunhuang.codeepiphany.http.HttpClientKeeper
 import com.wenjunhuang.codeepiphany.model.CodeDojo.HackerRank
 import com.wenjunhuang.codeepiphany.model.{ ApiError, Language }
 import io.circe.optics.JsonPath
