@@ -1,20 +1,18 @@
 package com.wenjunhuang.codeepiphany.http
 
-import cats.effect.{ Async, Resource }
+import cats.effect.{Async, Resource}
 import cats.effect.kernel.Ref.Make
 import cats.effect.kernel.Sync
 import com.intellij.util.net.*
-import okhttp3.{ Authenticator, Credentials, Dispatcher, OkHttpClient, Request, Response, Route }
+import okhttp3.{Authenticator, ConnectionPool, Credentials, Dispatcher, OkHttpClient, Request, Response, Route}
 import org.http4s.client.Client
 
 import java.security.cert.X509Certificate
-import javax.net.ssl.{ SSLContext, TrustManager, X509TrustManager }
+import javax.net.ssl.{SSLContext, TrustManager, X509TrustManager}
 import scala.concurrent.duration.*
 import scala.jdk.CollectionConverters.*
 import scala.util.boundary
 import com.wenjunhuang.codeepiphany.runtime.intellijComputeContext
-
-import java.util.concurrent.Executors
 
 trait HttpClientKeeper[F[_]] {
   def getClient: Resource[F, Client[F]]
@@ -75,6 +73,7 @@ object HttpClientKeeper {
     OkHttpClient
       .Builder()
       .dispatcher(Dispatcher(intellijComputeContext))
+      .connectionPool(ConnectionPool())
       .connectTimeout(connectionTimeout.toMillis, java.util.concurrent.TimeUnit.MILLISECONDS)
       .writeTimeout(writeTimeout.toMillis, java.util.concurrent.TimeUnit.MILLISECONDS)
       .readTimeout(readTimeout.toMillis, java.util.concurrent.TimeUnit.MILLISECONDS)

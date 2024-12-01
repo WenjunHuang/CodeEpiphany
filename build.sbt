@@ -17,6 +17,9 @@ lazy val codeEpiphany = (project in file("."))
     intellijPlugins += "com.intellij.java".toPlugin,
     intellijPlugins += "com.intellij.properties".toPlugin,
     intellijVMOptions := intellijVMOptions.value.copy(xmx = 2048, xms = 256),
+    patchPluginXml := pluginXmlOptions { xml =>
+      xml.version = version.value
+    },
     libraryDependencies ++= Seq(
       "org.scalatest" %% "scalatest"   % "3.2.19" % Test,
       "org.typelevel" %% "cats-effect" % "3.5.7",
@@ -27,10 +30,10 @@ lazy val codeEpiphany = (project in file("."))
       // add jsoup
       "org.jsoup" % "jsoup" % "1.18.2",
       // add circe
-      "io.circe" %% "circe-core"    % "0.14.10",
-      "io.circe" %% "circe-generic" % "0.14.10",
-      "io.circe" %% "circe-parser"  % "0.14.10",
-      "io.circe" %% "circe-optics"  % "0.15.0",
+      "io.circe" %% "circe-core"           % "0.14.10",
+      "io.circe" %% "circe-generic"        % "0.14.10",
+      "io.circe" %% "circe-parser"         % "0.14.10",
+      "io.circe" %% "circe-optics"         % "0.15.0",
 
       // add fs2
       "co.fs2" %% "fs2-core" % "3.11.0",
