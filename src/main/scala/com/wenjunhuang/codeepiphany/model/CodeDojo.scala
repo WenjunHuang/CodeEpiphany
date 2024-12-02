@@ -13,4 +13,10 @@ object CodeDojo {
     case _ if s.contains("leetcode.cn")    => Some(CodeDojo.LeetCodeCN)
     case _                                 => None
   }
+
+  def optionValueOf(s: String): Option[CodeDojo] = try
+    Some(CodeDojo.valueOf(s))
+  catch {
+    case _: Throwable => None
+  }
 }

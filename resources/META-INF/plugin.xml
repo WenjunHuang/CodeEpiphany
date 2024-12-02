@@ -20,15 +20,19 @@
         <!--        </action>-->
     </actions>
 
-    <!--    <applicationListeners>-->
-    <!--        <listener class="com.wenjun.plugindev.listeners.FileOpenedListener"-->
-    <!--                  topic="com.intellij.openapi.fileEditor.FileEditorManagerListener"/>-->
-    <!--    </applicationListeners>-->
+    <applicationListeners>
+        <listener class="com.wenjunhuang.codeepiphany.controllers.sidebar.QuestionFileEditorListener"
+                  topic="com.intellij.openapi.fileEditor.FileEditorManagerListener"/>
+
+    </applicationListeners>
 
     <extensions defaultExtensionNs="com.intellij">
         <notificationGroup displayType="BALLOON" id="My Plugin Notification"/>
-        <toolWindow factoryClass="com.wenjunhuang.codeepiphany.controllers.project.QuestionToolWindowFactory"
+        <toolWindow factoryClass="com.wenjunhuang.codeepiphany.controllers.sidebar.QuestionInfoToolWindowFactory"
                     id="." anchor="bottom"/>
+
+        <projectService serviceImplementation="com.wenjunhuang.codeepiphany.controllers.sidebar.QuestionInfoPresenter"/>
+        <projectService serviceImplementation="com.wenjunhuang.codeepiphany.model.QuestionStorage"/>
     </extensions>
 
 </idea-plugin>

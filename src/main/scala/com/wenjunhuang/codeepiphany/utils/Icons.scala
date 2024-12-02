@@ -1,4 +1,4 @@
-package com.wenjunhuang.codeepiphany.ui.assets
+package com.wenjunhuang.codeepiphany.utils
 
 import com.intellij.openapi.util.IconLoader
 
