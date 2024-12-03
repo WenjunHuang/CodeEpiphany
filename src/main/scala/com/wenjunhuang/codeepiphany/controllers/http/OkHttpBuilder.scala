@@ -1,16 +1,17 @@
 package com.wenjunhuang.codeepiphany.controllers.http
 
-import cats.effect.{Async, Resource}
 import cats.effect.std.Dispatcher
+import cats.effect.{ Async, Resource }
 import cats.syntax.all.*
-import OkHttpBuilder.*
+import com.wenjunhuang.codeepiphany.controllers.http.OkHttpBuilder.*
+import com.wenjunhuang.codeepiphany.utils.Log
 import fs2.io.readInputStream
-import okhttp3.{Call, Callback, OkHttpClient, Protocol, RequestBody, Headers as OKHeaders, MediaType as OKMediaType, Request as OKRequest, Response as OKResponse}
+import okhttp3.{ Call, Callback, Headers as OKHeaders, MediaType as OKMediaType, OkHttpClient, Protocol, Request as OKRequest, RequestBody, Response as OKResponse }
 import okio.BufferedSink
-import org.http4s.{Headers, HttpVersion, Method, Request, Response, Status}
 import org.http4s.client.Client
 import org.http4s.internal.BackendBuilder
-import org.log4s.{Logger, getLogger}
+import org.http4s.{ Headers, HttpVersion, Method, Request, Response, Status }
+import org.log4s.{ getLogger, Logger }
 
 import java.io.IOException
 import scala.jdk.CollectionConverters.*
@@ -20,7 +21,7 @@ import scala.util.control.NonFatal
   *
   * @define WHYNOSHUTDOWN
   *   It is assumed that the OkHttp client is passed to us as a Resource, or that the caller will shut it down, or that the caller is comfortable letting OkHttp's resources expire on their own.
- * @param okHttpClient
+  * @param okHttpClient
   *   the underlying OkHttp client.
   */
 sealed abstract class OkHttpBuilder[F[_]] private (
@@ -152,7 +153,7 @@ sealed abstract class OkHttpBuilder[F[_]] private (
 /** Builder for a [[org.http4s.client.Client]] with an OkHttp backend
   */
 object OkHttpBuilder {
-  private[this] val logger: Logger = getLogger
+  private[this] val logger = Log
 
   /** Creates a builder.
     *
@@ -175,18 +176,18 @@ object OkHttpBuilder {
       try client.dispatcher.executorService().shutdown()
       catch {
         case NonFatal(t) =>
-          logger.warn(t)("Unable to shut down dispatcher when disposing of OkHttp client")
+          logger.warn("Unable to shut down dispatcher when disposing of OkHttp client", t)
       }
       try client.connectionPool().evictAll()
       catch {
         case NonFatal(t) =>
-          logger.warn(t)("Unable to evict connection pool when disposing of OkHttp client")
+          logger.warn("Unable to evict connection pool when disposing of OkHttp client", t)
       }
       if (client.cache() != null)
         try client.cache().close()
         catch {
           case NonFatal(t) =>
-            logger.warn(t)("Unable to close cache when disposing of OkHttp client")
+            logger.warn("Unable to close cache when disposing of OkHttp client", t)
         }
     }
 
@@ -196,7 +197,7 @@ object OkHttpBuilder {
       result: Result[F]
   )(implicit F: Async[F]): F[Either[Throwable, Resource[F, Response[F]]]] =
     (result match {
-      case Left(e)  => F.delay(logger.error(e)("Error in call back"))
+      case Left(e)  => F.delay(logger.error("Error in call back",e))
       case Right(_) => F.unit
     }).map(_ => result)
 }

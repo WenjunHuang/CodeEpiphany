@@ -15,7 +15,7 @@ package object utils {
   val scheduler: Scheduler                                    = Scheduler.fromScheduledExecutor(Executors.newSingleThreadScheduledExecutor())
   final val Log: Logger                                       = Logger.getInstance("com.wenjunhuang.codeepiphany")
 
-  given intellijIORuntime: IORuntime = IORuntime(
+  implicit val intellijIORuntime: IORuntime = IORuntime(
     compute = intellijComputeContext,
     blocking = intellijComputeContext,
     scheduler = scheduler,

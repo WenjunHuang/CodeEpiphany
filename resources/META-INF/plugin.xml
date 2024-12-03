@@ -29,10 +29,12 @@
     <extensions defaultExtensionNs="com.intellij">
         <notificationGroup displayType="BALLOON" id="My Plugin Notification"/>
         <toolWindow factoryClass="com.wenjunhuang.codeepiphany.controllers.sidebar.QuestionInfoToolWindowFactory"
-                    id="." anchor="bottom"/>
+                    id="codeepiphany.toolwindow.QuestionInfoToolWindowFactory" anchor="bottom"/>
 
         <projectService serviceImplementation="com.wenjunhuang.codeepiphany.controllers.sidebar.QuestionInfoPresenter"/>
         <projectService serviceImplementation="com.wenjunhuang.codeepiphany.model.QuestionStorage"/>
+
+        <projectService serviceImplementation="com.wenjunhuang.codeepiphany.controllers.http.HttpClientService"/>
     </extensions>
 
 </idea-plugin>

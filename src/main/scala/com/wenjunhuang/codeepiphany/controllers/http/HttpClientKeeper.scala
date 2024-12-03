@@ -37,7 +37,6 @@ object HttpClientKeeper {
               if credential != null then
                 val authenticator = new Authenticator {
                   override def authenticate(route: Route, response: Response): Request = {
-                    println("ok")
                     boundary:
                       for challenge <- response.challenges().asScala do
                         if challenge.scheme().equalsIgnoreCase("OkHttp-Preemptive") then
@@ -73,7 +72,6 @@ object HttpClientKeeper {
     OkHttpClient
       .Builder()
       .dispatcher(Dispatcher(intellijComputeContext))
-      .connectionPool(ConnectionPool())
       .connectTimeout(connectionTimeout.toMillis, java.util.concurrent.TimeUnit.MILLISECONDS)
       .writeTimeout(writeTimeout.toMillis, java.util.concurrent.TimeUnit.MILLISECONDS)
       .readTimeout(readTimeout.toMillis, java.util.concurrent.TimeUnit.MILLISECONDS)

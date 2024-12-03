@@ -78,7 +78,6 @@ object HackerRankApi {
             ),
           headers = Headers("User-Agent" -> "Mozilla/5.0")
         )
-        println(request.asCurl())
         client
           .expect[String](request)
           .map { response =>
