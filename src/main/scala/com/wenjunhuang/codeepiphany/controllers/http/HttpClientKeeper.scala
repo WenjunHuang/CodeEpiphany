@@ -72,6 +72,7 @@ object HttpClientKeeper {
     OkHttpClient
       .Builder()
       .dispatcher(Dispatcher(intellijComputeContext))
+      .connectionPool(ConnectionPool())
       .connectTimeout(connectionTimeout.toMillis, java.util.concurrent.TimeUnit.MILLISECONDS)
       .writeTimeout(writeTimeout.toMillis, java.util.concurrent.TimeUnit.MILLISECONDS)
       .readTimeout(readTimeout.toMillis, java.util.concurrent.TimeUnit.MILLISECONDS)
