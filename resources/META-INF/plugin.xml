@@ -35,6 +35,7 @@
         <projectService serviceImplementation="com.wenjunhuang.codeepiphany.model.QuestionStorage"/>
 
         <projectService serviceImplementation="com.wenjunhuang.codeepiphany.controllers.http.HttpClientService"/>
+        <registryKey defaultValue="false" description="Enable debug" key="codeepiphany.debug"/>
     </extensions>
 
 </idea-plugin>

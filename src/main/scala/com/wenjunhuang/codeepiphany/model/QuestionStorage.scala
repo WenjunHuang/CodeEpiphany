@@ -1,9 +1,10 @@
 package com.wenjunhuang.codeepiphany.model
 
-import com.intellij.openapi.components.{ PersistentStateComponent, State, Storage }
+import com.intellij.openapi.Disposable
+import com.intellij.openapi.components.{PersistentStateComponent, State, Storage}
 import com.intellij.openapi.project.Project
-import com.intellij.util.xmlb.annotations.{ MapAnnotation, Transient }
-import com.wenjunhuang.codeepiphany.model.QuestionStorage.{ QuestionItem, StorageState }
+import com.intellij.util.xmlb.annotations.{MapAnnotation, Transient}
+import com.wenjunhuang.codeepiphany.model.QuestionStorage.{QuestionItem, StorageState}
 import org.jetbrains.annotations.NotNull
 
 import java.util as ju
@@ -11,7 +12,7 @@ import scala.compiletime.uninitialized
 import scala.jdk.CollectionConverters.*
 
 @State(name = Constants.ProjectName, storages = Array(new Storage(value = Constants.QuestionStorageFile)))
-class QuestionStorage(private val project: Project) extends PersistentStateComponent[StorageState] {
+class QuestionStorage(private val project: Project) extends PersistentStateComponent[StorageState] with Disposable {
   private var questions = Map[String, QuestionItem]()
 
   override def getState: StorageState =
@@ -31,6 +32,11 @@ class QuestionStorage(private val project: Project) extends PersistentStateCompo
 
   def removeQuestionItem(filePath: String): Unit =
     questions -= filePath
+
+
+  override def dispose(): Unit = {
+    
+  }
 }
 
 object QuestionStorage {

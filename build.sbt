@@ -8,8 +8,9 @@ ThisBuild / intellijBuild    := "242.20224.300"
 
 lazy val codeEpiphany = (project in file("."))
   .settings(
-    name                  := "CodeEpiphany",
-    version               := "0.1.0",
+    name    := "CodeEpiphany",
+    version := "0.1.0",
+    scalacOptions ++= Seq("-Wunused:imports"),
     intellijAttachSources := true,
     javacOptions ++= "--release" :: "17" :: Nil,
     instrumentThreadingAnnotations := true,
@@ -28,12 +29,14 @@ lazy val codeEpiphany = (project in file("."))
       "org.typelevel" %% "cats-mtl" % "1.5.0",
 
       // add jsoup
-      "org.jsoup" % "jsoup" % "1.18.2",
+      "org.jsoup" % "jsoup" % "1.18.3",
+      // scalate template
+      "org.scalatra.scalate" %% "scalate-core" % "1.10.1",
       // add circe
-      "io.circe" %% "circe-core"           % "0.14.10",
-      "io.circe" %% "circe-generic"        % "0.14.10",
-      "io.circe" %% "circe-parser"         % "0.14.10",
-      "io.circe" %% "circe-optics"         % "0.15.0",
+      "io.circe" %% "circe-core"    % "0.14.10",
+      "io.circe" %% "circe-generic" % "0.14.10",
+      "io.circe" %% "circe-parser"  % "0.14.10",
+      "io.circe" %% "circe-optics"  % "0.15.0",
 
       // add fs2
       "co.fs2" %% "fs2-core" % "3.11.0",

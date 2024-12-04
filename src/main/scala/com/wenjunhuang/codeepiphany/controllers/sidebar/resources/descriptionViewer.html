@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="" data-overlayscrollbars-initialize>
+<head>
+    <meta charset="UTF-8">
+    <style>
+        body {
+            margin: 0;
+        }
+
+        #container {
+            transition: zoom 0.2s ease-in;
+        }
+    </style>
+    <title>Description Viewer</title>
+    <link type="text/css" href="overlayscrollbars.css" rel="stylesheet"/>
+    <script type="text/javascript" src="overlayscrollbars.browser.es6.js"></script>
+    <link id="scrollbarsStyle" rel="stylesheet" type="text/css" href="scrollbars.css"/>
+    <link id="dojoStyle" rel="stylesheet" type="text/css" href="dojo.css"/>
+    <script type="text/javascript" src="dojo.js"></script>
+</head>
+<body data-overlayscrollbars-initialize>
+<div id="container">
+    {{questionDescription}}
+</div>
+
+<script>
+    const MAX_ZOOM = 500;
+    const MIN_ZOOM = 25;
+    const ZOOMS = [25, 50, 75, 100, 125, 150, 175, 200, 250, 300, 350, 400, 450, 500];
+    const gIsDebug = (new URL(window.location.href).searchParams.get('debug') != null);
+
+    OverlayScrollbarsGlobal.OverlayScrollbars(document.body, {});
+
+    const gState = {
+        'zoom': 100,
+    }
+
+
+    const gStyles = {
+        'scrollbars': document.getElementById('scrollbarsStyle'),
+        'dojo': document.getElementById('dojoStyle'),
+    }
+
+    function setZoom(zoom = 100) {
+        zoom = normalizeZoom(zoom);
+
+        if (zoom === 100) {
+            document.getElementById("container").style.zoom = '';
+        } else {
+            document.getElementById("container").style.zoom = `${zoom}%`;
+        }
+
+        _updateInfo();
+    }
+
+    function normalizeZoom(zoom) {
+        zoom = Math.min(Math.max(zoom, MIN_ZOOM), MAX_ZOOM);
+        return ZOOMS.reduce((prev, curr) => Math.abs(curr - zoom) < Math.abs(prev - zoom) ? curr : prev);
+    }
+
+    let _init = function () {
+        if (dojoInit && typeof dojoInit === 'function') dojoInit();
+
+        // OverlayScrollbarsGlobal.OverlayScrollbars(document.body, {});
+        setZoom(gState.zoom);
+        window.removeEventListener('load', _init);
+    }
+
+    window.addEventListener('load', _init);
+
+    let sendInfo = function (info_string) {/** will set to be a plugin code invoker **/
+    }
+
+    function reloadStyles() {
+        gStyles.scrollbars.href = _setTimestamp(gStyles.scrollbars.href);
+        gStyles.dojo.href = _setTimestamp(gStyles.dojo.href);
+    }
+
+    function _setTimestamp(url) {
+        let patchedUrl = new URL(url);
+        patchedUrl.searchParams.set('timestamp', new Date().getTime().toString());
+        return patchedUrl.toString();
+    }
+
+    function _updateInfo() {
+        let info = {
+            'zoom': gState.zoom,
+            'zoomInPossible': gState.zoom < MAX_ZOOM,
+            'zoomOutPossible': gState.zoom > MIN_ZOOM,
+        }
+        sendInfo(JSON.stringify(info));
+    }
+
+    function loadScrollbarsStyle(url) {
+        document.getElementById('scrollbarsStyle').href = _setTimestamp(url);
+    }
+
+    function loadDojoStyle(url) {
+        document.getElementById('dojoStyle').href = _setTimestamp(url);
+    }
+</script>
+</body>
+
+</html>

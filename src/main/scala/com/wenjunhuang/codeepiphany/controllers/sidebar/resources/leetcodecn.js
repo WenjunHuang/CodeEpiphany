@@ -1,0 +1,2 @@
+let dojoInit = function () {
+}
