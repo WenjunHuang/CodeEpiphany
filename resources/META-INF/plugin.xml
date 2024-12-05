@@ -18,6 +18,30 @@
         <!--                class="com.wenjun.plugindev.actions.ApiTestAction">-->
         <!--            <add-to-group group-id="ToolsMenu" anchor="first"/>-->
         <!--        </action>-->
+
+        <action id="CodeEpiphany.Sidebar.Actions.ZoomIn"
+                class="com.wenjunhuang.codeepiphany.controllers.sidebar.actions.ZoomInAction"
+                icon="AllIcons.General.ZoomIn"/>
+        <action id="CodeEpiphany.Sidebar.Actions.ZoomOut"
+                class="com.wenjunhuang.codeepiphany.controllers.sidebar.actions.ZoomOutAction"
+                icon="AllIcons.General.ZoomOut"/>
+        <action id="CodeEpiphany.Sidebar.Actions.ActualZoom"
+                class="com.wenjunhuang.codeepiphany.controllers.sidebar.actions.ActualZoomAction"
+                icon="AllIcons.General.ActualZoom"/>
+
+        <group id="CodeEpiphany.Sidebar.Description.Toolbar">
+            <reference ref="CodeEpiphany.Sidebar.Actions.ZoomIn"/>
+            <reference ref="CodeEpiphany.Sidebar.Actions.ZoomOut"/>
+            <reference ref="CodeEpiphany.Sidebar.Actions.ActualZoom"/>
+        </group>
+        <group id="CodeEpiphany.Sidebar.Description.PopupMenu">
+            <reference ref="$Copy"/>
+            <separator/>
+            <reference ref="FindUsages"/>
+            <separator/>
+            <reference ref="CodeEpiphany.Sidebar.Description.Toolbar"/>
+        </group>
+
     </actions>
 
     <applicationListeners>
@@ -37,5 +61,6 @@
         <projectService serviceImplementation="com.wenjunhuang.codeepiphany.controllers.http.HttpClientService"/>
         <registryKey defaultValue="false" description="Enable debug" key="codeepiphany.debug"/>
     </extensions>
+
 
 </idea-plugin>

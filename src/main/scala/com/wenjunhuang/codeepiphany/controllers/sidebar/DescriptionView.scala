@@ -1,31 +1,103 @@
 package com.wenjunhuang.codeepiphany.controllers.sidebar
 
+import com.intellij.ide.CopyProvider
 import com.intellij.openapi.Disposable
-import com.intellij.openapi.actionSystem.{DataSink, UiDataProvider}
+import com.intellij.openapi.actionSystem.*
+import com.intellij.openapi.editor.colors.{ EditorColors, EditorColorsManager }
 import com.intellij.openapi.project.Project
-import com.intellij.ui.jcef.JBCefApp
-import com.wenjunhuang.codeepiphany.controllers.sidebar.jcef.JCefDescriptionView
+import com.intellij.ui.{ JBColor, PopupHandler }
+import com.intellij.ui.components.panels.NonOpaquePanel
+import com.intellij.util.ui.UIUtil
+import com.wenjunhuang.codeepiphany.controllers.sidebar.jcef.{ DescriptionStyleProvider, JCefDescriptionView }
 import com.wenjunhuang.codeepiphany.model.QuestionStorage.QuestionItem
-import org.intellij.images.options.OptionsManager
+import com.wenjunhuang.codeepiphany.utils.isDebug
 
-import java.awt.event.{MouseWheelEvent, MouseWheelListener}
+import java.awt.BorderLayout
+import java.awt.event.{ MouseWheelEvent, MouseWheelListener }
 import javax.swing.JPanel
 
-class DescriptionView(private val myProject: Project, private val myPresenter: DescriptionPresenter) extends JPanel() with UiDataProvider with Disposable {
-  private val myViewer = JCefDescriptionView(myProject, myPresenter)
+class DescriptionView(private val myProject: Project, private val myPresenter: DescriptionPresenter)
+    extends JPanel()
+    with DescriptionStyleProvider
+    with CopyProvider
+    with UiDataProvider
+    with Disposable {
+  private val myViewer = JCefDescriptionView(myProject, myPresenter, this)
+
   private val MOUSE_WHEEL_LISTENER = new MouseWheelListener {
-    override def mouseWheelMoved(e: MouseWheelEvent): Unit =  {
+    override def mouseWheelMoved(e: MouseWheelEvent): Unit =
       if e.isControlDown then
-        val rotation = e.getWheelRotation
-        if rotation < 0 then
-          myViewer.set
-    }
+        e.getWheelRotation match
+          case rotation if rotation < 0 => myViewer.zoom = myViewer.zoom * 1.2
+          case rotation if rotation > 0 => myViewer.zoom = myViewer.zoom / 1.2
+          case _                        => ()
+        e.consume()
   }
 
-  override def uiDataSnapshot(dataSink: DataSink): Unit = ???
+  setLayout(new BorderLayout())
+  private val actionManager = ActionManager.getInstance()
+  private val actionGroup   = actionManager.getAction(SidebarActions.GROUP_TOOLBAR).asInstanceOf[ActionGroup]
+  private val actionToolbar = actionManager.createActionToolbar(SidebarActions.ACTION_PLACE, actionGroup, true)
+  actionToolbar.setTargetComponent(this)
+
+  setBackground(JBColor.`lazy` { () =>
+    Option(EditorColorsManager.getInstance().getGlobalScheme.getColor(EditorColors.PREVIEW_BACKGROUND)).getOrElse(
+      EditorColorsManager.getInstance().getGlobalScheme.getDefaultBackground
+    )
+  })
+
+  private val toolbarPanel = actionToolbar.getComponent
+  toolbarPanel.setBackground(JBColor.`lazy`(() => Option(getBackground).getOrElse(UIUtil.getPanelBackground)))
+
+  private val topPanel = NonOpaquePanel(BorderLayout())
+  topPanel.add(toolbarPanel, BorderLayout.WEST)
+  add(topPanel, BorderLayout.NORTH)
+  add(myViewer.uiComponent, BorderLayout.CENTER)
+
+  myViewer.preferredFocusedComponent.addMouseWheelListener(MOUSE_WHEEL_LISTENER)
+
+  if !isDebug then PopupHandler.installPopupMenu(myViewer.preferredFocusedComponent, SidebarActions.GROUP_POPUP, SidebarActions.ACTION_PLACE)
+
+  override def uiDataSnapshot(dataSink: DataSink): Unit = {
+    dataSink.set(DescriptionView.DATA_KEY, this)
+    dataSink.set(PlatformDataKeys.COPY_PROVIDER, this)
+
+  }
 
   override def dispose(): Unit =
+    myViewer.preferredFocusedComponent.removeMouseWheelListener(MOUSE_WHEEL_LISTENER)
 
-  def updateCurrentQuestion(question: QuestionItem): Unit = {}
+  def updateCurrentQuestion(question: QuestionItem): Unit =
+    myViewer.updateCurrentQuestion(question)
 
+  def zoomIn(): Unit = myViewer.zoomIn()
+
+  def zoomOut(): Unit = myViewer.zoomOut()
+
+  def canZoomIn: Boolean = myViewer.canZoomIn
+
+  def canZoomOut: Boolean = myViewer.canZoomOut
+
+  def actualZoom(): Unit = myViewer.actualZoom()
+
+  def zoom: Double = myViewer.zoom
+
+  override def performCopy(dataContext: DataContext): Unit =
+    myViewer.performCopy()
+
+  override def isCopyEnabled(dataContext: DataContext): Boolean = true
+
+  override def isCopyVisible(dataContext: DataContext): Boolean = true
+
+  override def getActionUpdateThread: ActionUpdateThread = ActionUpdateThread.EDT
+
+  override def bodyPadding: Option[(Int, Int, Int, Int)] = {
+    toolbarPanel.getInsets match
+      case null => None
+      case insets => Some((insets.top, insets.right, insets.bottom, insets.left))
+  }
+}
+
+object DescriptionView {
+  val DATA_KEY: DataKey[DescriptionView] = DataKey.create[DescriptionView]("DescriptionView")
 }

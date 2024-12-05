@@ -3,18 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <style>
-        body {
-            margin: 0;
-        }
-
-        #container {
-            transition: zoom 0.2s ease-in;
-        }
     </style>
     <title>Description Viewer</title>
+    <!-- style of jcef scrollbar --->
     <link type="text/css" href="overlayscrollbars.css" rel="stylesheet"/>
     <script type="text/javascript" src="overlayscrollbars.browser.es6.js"></script>
     <link id="scrollbarsStyle" rel="stylesheet" type="text/css" href="scrollbars.css"/>
+    <!-- style of dojo -->
+    <link id="descriptionStyle" rel="stylesheet" type="text/css" href="descriptionStyle.css"/>
     <link id="dojoStyle" rel="stylesheet" type="text/css" href="dojo.css"/>
     <script type="text/javascript" src="dojo.js"></script>
 </head>
@@ -26,7 +22,6 @@
 <script>
     const MAX_ZOOM = 500;
     const MIN_ZOOM = 25;
-    const ZOOMS = [25, 50, 75, 100, 125, 150, 175, 200, 250, 300, 350, 400, 450, 500];
     const gIsDebug = (new URL(window.location.href).searchParams.get('debug') != null);
 
     OverlayScrollbarsGlobal.OverlayScrollbars(document.body, {});
@@ -38,6 +33,7 @@
 
     const gStyles = {
         'scrollbars': document.getElementById('scrollbarsStyle'),
+        'description': document.getElementById('descriptionStyle'),
         'dojo': document.getElementById('dojoStyle'),
     }
 
@@ -50,12 +46,26 @@
             document.getElementById("container").style.zoom = `${zoom}%`;
         }
 
+        gState.zoom = zoom;
+
         _updateInfo();
+    }
+
+    function zoomIn() {
+        setZoom(gState.zoom * 1.2);
+    }
+
+    function zoomOut() {
+        setZoom(gState.zoom / 1.2);
+    }
+
+    function actualZoom() {
+        setZoom(100);
     }
 
     function normalizeZoom(zoom) {
         zoom = Math.min(Math.max(zoom, MIN_ZOOM), MAX_ZOOM);
-        return ZOOMS.reduce((prev, curr) => Math.abs(curr - zoom) < Math.abs(prev - zoom) ? curr : prev);
+        return zoom;
     }
 
     let _init = function () {
@@ -73,6 +83,7 @@
 
     function reloadStyles() {
         gStyles.scrollbars.href = _setTimestamp(gStyles.scrollbars.href);
+        gStyles.description.href = _setTimestamp(gStyles.description.href);
         gStyles.dojo.href = _setTimestamp(gStyles.dojo.href);
     }
 
@@ -85,18 +96,10 @@
     function _updateInfo() {
         let info = {
             'zoom': gState.zoom,
-            'zoomInPossible': gState.zoom < MAX_ZOOM,
-            'zoomOutPossible': gState.zoom > MIN_ZOOM,
+            'canZoomIn': gState.zoom < MAX_ZOOM,
+            'canZoomOut': gState.zoom > MIN_ZOOM,
         }
         sendInfo(JSON.stringify(info));
-    }
-
-    function loadScrollbarsStyle(url) {
-        document.getElementById('scrollbarsStyle').href = _setTimestamp(url);
-    }
-
-    function loadDojoStyle(url) {
-        document.getElementById('dojoStyle').href = _setTimestamp(url);
     }
 </script>
 </body>

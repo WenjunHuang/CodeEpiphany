@@ -22,6 +22,7 @@ class DescriptionPresenter(private val project: Project) extends Disposable {
   private val myDescriptionView = DescriptionView(project, this)
 
   Disposer.register(project, this)
+
   /** Handle user clicked a link in the description view browser
     */
   def userClickedLink[F[_]: Async](url: String): F[Unit] =
@@ -31,14 +32,12 @@ class DescriptionPresenter(private val project: Project) extends Disposable {
 
   def getView: DescriptionView = myDescriptionView
 
-  def showError() = (myViewPort.layout as CardLayout).show(myViewPort, ERROR_PANEL)
-  def showImage() = (myViewPort.layout as CardLayout).show(myViewPort, IMAGE_PANEL)
   override def dispose(): Unit =
     Log.debug("DescriptionPresenter disposed")
 }
 
 object DescriptionPresenter {
-  private def openUrl[F[_]: Async](url: URL, project: Project): F[Unit] = {
+  private def openUrl[F[_]: Async](url: URL, project: Project): F[Unit] =
     if url.getProtocol == URLUtil.FILE_PROTOCOL then
       Async[F].delay {
         val file = File(url.toURI)
@@ -61,5 +60,4 @@ object DescriptionPresenter {
       Async[F].delay {
         BrowserUtil.browse(url.toExternalForm)
       }
-  }
 }
