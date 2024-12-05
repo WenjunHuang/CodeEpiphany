@@ -53,7 +53,7 @@
     <extensions defaultExtensionNs="com.intellij">
         <notificationGroup displayType="BALLOON" id="My Plugin Notification"/>
         <toolWindow factoryClass="com.wenjunhuang.codeepiphany.controllers.sidebar.QuestionInfoToolWindowFactory"
-                    id="codeepiphany.toolwindow.QuestionInfoToolWindowFactory" anchor="bottom"/>
+                    id="CodeEpiphany Sidebar" anchor="bottom"/>
 
         <projectService serviceImplementation="com.wenjunhuang.codeepiphany.controllers.sidebar.QuestionInfoPresenter"/>
         <projectService serviceImplementation="com.wenjunhuang.codeepiphany.model.QuestionStorage"/>

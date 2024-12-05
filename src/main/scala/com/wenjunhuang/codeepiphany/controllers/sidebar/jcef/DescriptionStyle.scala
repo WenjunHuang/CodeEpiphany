@@ -20,7 +20,7 @@ object DescriptionStyle {
        |$normalizeCss
        |
        |body {
-       |    line-height: 1.5;
+       |    line-height: ${styleProvider.lineHeight};
        |    min-height: 100%;
        |    position: relative;
        |    background-color: ${styleProvider.backgroundColor.webRgba()};
@@ -70,9 +70,8 @@ object DescriptionStyle {
     // language=CSS
     s"""
        |#container pre {
-       |    color: #fff9;
        |    background-color: unset;
-       |    border-left: 2px solid #fff9;
+       |    border-left: 2px solid ${styleProvider.foregroundColor.brighter().webRgba()};
        |    margin-bottom: 1rem;
        |    margin-top: 1rem;
        |    padding-left: 1rem;

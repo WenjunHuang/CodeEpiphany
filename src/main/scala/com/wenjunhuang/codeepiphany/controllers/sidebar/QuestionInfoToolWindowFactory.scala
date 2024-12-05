@@ -1,9 +1,10 @@
 package com.wenjunhuang.codeepiphany.controllers.sidebar
 
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.wm.{ ToolWindow, ToolWindowFactory }
+import com.intellij.openapi.wm.{ToolWindow, ToolWindowFactory, ToolWindowManager}
 import com.wenjunhuang.codeepiphany.model.CodeDojo.LeetCodeCN
 import com.wenjunhuang.codeepiphany.model.QuestionStorage.QuestionItem
+import kotlin.coroutines.Continuation
 
 class QuestionInfoToolWindowFactory extends ToolWindowFactory() {
 

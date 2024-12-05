@@ -22,6 +22,7 @@ trait DescriptionStyleProvider {
   def textColor: Color                 = colorsScheme.getAttributes(HighlighterColors.TEXT).getForegroundColor
   def fontName: String                 = colorsScheme.getEditorFontName
   def fontSize: Int                    = AppEditorFontOptions.getInstance().getState.FONT_SIZE
+  def lineHeight: Double               = AppEditorFontOptions.getInstance().getState.LINE_SPACING
   def scale: Float                     = UISettings.getInstance().getCurrentIdeScale
   def backgroundColor: Color           = colorsScheme.getDefaultBackground
   def foregroundColor: Color           = colorsScheme.getDefaultForeground

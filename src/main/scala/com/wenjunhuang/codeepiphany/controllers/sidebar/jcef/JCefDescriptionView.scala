@@ -161,7 +161,8 @@ class JCefDescriptionView(private val project: Project, private val presenter: D
 
   def actualZoom(): Unit = execute("actualZoom()")
 
-  def reloadStyles(): Unit = execute("reloadStyles()")
+  def reloadStyles(): Unit =
+    execute("reloadStyles()")
 
   def performCopy(): Unit = myBrowser.getCefBrowser.getMainFrame.copy()
 

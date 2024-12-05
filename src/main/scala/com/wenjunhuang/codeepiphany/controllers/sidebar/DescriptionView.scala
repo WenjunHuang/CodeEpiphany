@@ -5,19 +5,19 @@ import com.intellij.openapi.Disposable
 import com.intellij.openapi.actionSystem.*
 import com.intellij.openapi.editor.colors.{ EditorColors, EditorColorsManager }
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.ui.SimpleToolWindowPanel
 import com.intellij.ui.{ JBColor, PopupHandler }
-import com.intellij.ui.components.panels.NonOpaquePanel
 import com.intellij.util.ui.{ JBInsets, JBUI, UIUtil }
 import com.wenjunhuang.codeepiphany.controllers.sidebar.jcef.{ DescriptionStyleProvider, JCefDescriptionView }
 import com.wenjunhuang.codeepiphany.model.QuestionStorage.QuestionItem
 import com.wenjunhuang.codeepiphany.utils.isDebug
 
-import java.awt.{ BorderLayout, Insets }
+import java.awt.Insets
 import java.awt.event.{ MouseWheelEvent, MouseWheelListener }
-import javax.swing.{ JComponent, JPanel }
+import javax.swing.JComponent
 
 class DescriptionView(private val myProject: Project, private val myPresenter: DescriptionPresenter)
-    extends JPanel()
+    extends SimpleToolWindowPanel(true)
     with DescriptionStyleProvider
     with CopyProvider
     with UiDataProvider
@@ -34,25 +34,13 @@ class DescriptionView(private val myProject: Project, private val myPresenter: D
         e.consume()
   }
 
-  setLayout(new BorderLayout())
   private val actionManager = ActionManager.getInstance()
   private val actionGroup   = actionManager.getAction(SidebarActions.GROUP_TOOLBAR).asInstanceOf[ActionGroup]
   private val actionToolbar = actionManager.createActionToolbar(SidebarActions.ACTION_PLACE, actionGroup, true)
   actionToolbar.setTargetComponent(this)
 
-  setBackground(JBColor.`lazy` { () =>
-    Option(EditorColorsManager.getInstance().getGlobalScheme.getColor(EditorColors.PREVIEW_BACKGROUND)).getOrElse(
-      EditorColorsManager.getInstance().getGlobalScheme.getDefaultBackground
-    )
-  })
-
-  private val toolbarPanel = actionToolbar.getComponent
-  toolbarPanel.setBackground(JBColor.`lazy`(() => Option(getBackground).getOrElse(UIUtil.getPanelBackground)))
-
-  private val topPanel = NonOpaquePanel(BorderLayout())
-  topPanel.add(toolbarPanel, BorderLayout.WEST)
-  add(topPanel, BorderLayout.NORTH)
-  add(myViewer.uiComponent, BorderLayout.CENTER)
+  setToolbar(actionToolbar.getComponent)
+  setContent(myViewer.uiComponent)
 
   myViewer.preferredFocusedComponent.addMouseWheelListener(MOUSE_WHEEL_LISTENER)
 
@@ -61,7 +49,6 @@ class DescriptionView(private val myProject: Project, private val myPresenter: D
   override def uiDataSnapshot(dataSink: DataSink): Unit = {
     dataSink.set(DescriptionView.DATA_KEY, this)
     dataSink.set(PlatformDataKeys.COPY_PROVIDER, this)
-
   }
 
   override def dispose(): Unit =
@@ -93,13 +80,13 @@ class DescriptionView(private val myProject: Project, private val myPresenter: D
 
   override def bodyPadding: Option[(Int, Int, Int, Int)] = {
     val insets = JBInsets.addInsets(
-      Option(toolbarPanel.getInsets())
+      Option(actionToolbar.getComponent.getInsets())
         .map(JBInsets.create)
         .getOrElse(JBUI.emptyInsets()),
-      Option(toolbarPanel.getComponent(0)).map {
+      Option(actionToolbar.getComponent.getComponent(0)).map {
         case child: JComponent =>
           JBInsets.create(child.getInsets())
-        case _                 =>
+        case _ =>
           JBUI.emptyInsets()
       }.getOrElse(JBUI.emptyInsets())
     )
