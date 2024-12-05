@@ -81,22 +81,21 @@ class JCefDescriptionView(private val project: Project, private val presenter: D
     }
 
     requestHandler.addResource(DESCRIPTION_CSS_PATH) { () =>
-      CefStreamResourceHandler(ByteArrayInputStream(DescriptionStyle.getStyle(styleProvider).getBytes(StandardCharsets.UTF_8)), "text/css", this).some
+      CefStreamResourceHandler(ByteArrayInputStream(DescriptionStyle.getDefaultStyle(styleProvider).getBytes(StandardCharsets.UTF_8)), "text/css", this).some
     }
 
     requestHandler.addResource(DOJO_CSS_PATH) { () =>
       for {
         dojo <- questionItem.map(_.dojo)
-        is   <- Option(classOf[JCefDescriptionView].getResourceAsStream(cssOfDojo(dojo)))
-      } yield CefStreamResourceHandler(is, "text/css", this)
+      } yield {
+        val dojoCss = dojo match
+          case CodeDojo.LeetCodeCN =>
+            DescriptionStyle.getLeetcodeCNStyle(styleProvider)
+          case _ => ""
+        CefStreamResourceHandler(ByteArrayInputStream(dojoCss.getBytes(StandardCharsets.UTF_8)), "text/css", this)
+      }
     }
 
-    requestHandler.addResource(DOJO_JS_PATH) { () =>
-      for {
-        dojo <- questionItem.map(_.dojo)
-        is   <- Option(classOf[JCefDescriptionView].getResourceAsStream(jsOfDojo(dojo)))
-      } yield CefStreamResourceHandler(is, "text/javascript", this)
-    }
     requestHandler
   }
 
@@ -201,10 +200,6 @@ object JCefDescriptionView {
   final val DESCRIPTION_STYLE_URL       = s"$PROTOCOL://$HOST$DESCRIPTION_CSS_PATH"
   final val DOJO_CSS_PATH               = "/dojo.css"
   final val DOJO_STYLE_URL              = s"$PROTOCOL://$HOST$DOJO_CSS_PATH"
-  final val DOJO_JS_PATH                = "/dojo.js"
-
-  def cssOfDojo(dojo: CodeDojo): String = s"resources/${dojo.toString.toLowerCase}.css"
-  def jsOfDojo(dojo: CodeDojo): String  = s"resources/${dojo.toString.toLowerCase}.js"
 
   case class ViewerState(zoom: Double = 100.0, canZoomIn: Boolean = true, canZoomOut: Boolean = true)
 }
