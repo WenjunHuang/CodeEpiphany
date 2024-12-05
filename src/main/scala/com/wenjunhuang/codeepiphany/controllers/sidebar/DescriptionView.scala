@@ -7,14 +7,14 @@ import com.intellij.openapi.editor.colors.{ EditorColors, EditorColorsManager }
 import com.intellij.openapi.project.Project
 import com.intellij.ui.{ JBColor, PopupHandler }
 import com.intellij.ui.components.panels.NonOpaquePanel
-import com.intellij.util.ui.UIUtil
+import com.intellij.util.ui.{ JBInsets, JBUI, UIUtil }
 import com.wenjunhuang.codeepiphany.controllers.sidebar.jcef.{ DescriptionStyleProvider, JCefDescriptionView }
 import com.wenjunhuang.codeepiphany.model.QuestionStorage.QuestionItem
 import com.wenjunhuang.codeepiphany.utils.isDebug
 
-import java.awt.BorderLayout
+import java.awt.{ BorderLayout, Insets }
 import java.awt.event.{ MouseWheelEvent, MouseWheelListener }
-import javax.swing.JPanel
+import javax.swing.{ JComponent, JPanel }
 
 class DescriptionView(private val myProject: Project, private val myPresenter: DescriptionPresenter)
     extends JPanel()
@@ -92,9 +92,18 @@ class DescriptionView(private val myProject: Project, private val myPresenter: D
   override def getActionUpdateThread: ActionUpdateThread = ActionUpdateThread.EDT
 
   override def bodyPadding: Option[(Int, Int, Int, Int)] = {
-    toolbarPanel.getInsets match
-      case null => None
-      case insets => Some((insets.top, insets.right, insets.bottom, insets.left))
+    val insets = JBInsets.addInsets(
+      Option(toolbarPanel.getInsets())
+        .map(JBInsets.create)
+        .getOrElse(JBUI.emptyInsets()),
+      Option(toolbarPanel.getComponent(0)).map {
+        case child: JComponent =>
+          JBInsets.create(child.getInsets())
+        case _                 =>
+          JBUI.emptyInsets()
+      }.getOrElse(JBUI.emptyInsets())
+    )
+    Some(insets.top, insets.right, insets.bottom, insets.left)
   }
 }
 

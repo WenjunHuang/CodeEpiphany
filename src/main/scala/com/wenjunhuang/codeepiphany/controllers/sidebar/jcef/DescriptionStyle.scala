@@ -1,28 +1,15 @@
 package com.wenjunhuang.codeepiphany.controllers.sidebar.jcef
 
-import com.intellij.ide.ui.UISettings
-import com.intellij.openapi.editor.HighlighterColors
-import com.intellij.openapi.editor.colors.EditorColorsManager
-import com.intellij.openapi.editor.colors.impl.AppEditorFontOptions
 import com.intellij.ui.JBColor
-import com.intellij.util.ui.{ JBUI, UIUtil }
+import com.intellij.ui.jcef.JBCefScrollbarsHelper
+import com.wenjunhuang.codeepiphany.controllers.sidebar.jcef.DescriptionStyleProvider.*
+import com.wenjunhuang.codeepiphany.model.CodeDojo
+import com.wenjunhuang.codeepiphany.model.CodeDojo.LeetCodeCN
 
 import java.awt.Color
 
 object DescriptionStyle {
-  def getDefaultStyle(styleProvider: DescriptionStyleProvider): String = {
-    val panelBackground           = UIUtil.getPanelBackground
-    val colorsScheme              = EditorColorsManager.getInstance().getSchemeForCurrentUITheme
-    val contrastedForeground      = colorsScheme.getDefaultForeground.contrast(1.2)
-    val textColor                 = colorsScheme.getAttributes(HighlighterColors.TEXT).getForegroundColor
-    val fontSize                  = AppEditorFontOptions.getInstance().getState.FONT_SIZE
-    val scale                     = UISettings.getInstance().getCurrentIdeScale
-    val backgroundColor           = colorsScheme.getDefaultBackground.webRgba()
-    val foregroundColor           = colorsScheme.getDefaultForeground.webRgba()
-    val linkActiveForegroundColor = JBUI.CurrentTheme.Link.Foreground.ENABLED
-    val separatorColor            = JBColor.namedColor("Group.separatorColor", panelBackground).webRgba()
-    val infoForeground            = JBColor.namedColor("Component.infoForeground", contrastedForeground).webRgba()
-    val fenceBackgroundColor      = JBColor(Color(212, 222, 231, 255 / 4), Color(212, 222, 231, 25))
+  def getStyle(styleProvider: DescriptionStyleProvider, dojo: Option[CodeDojo]): String = {
 
     val padding = styleProvider.bodyPadding.map { case (top, right, bottom, left) =>
       s"${top}px ${right}px ${bottom}px ${left}px"
@@ -30,69 +17,56 @@ object DescriptionStyle {
 
     // language=CSS
     s"""
-       |:root {
-       | $FONT_SIZE: ${fontSize}px;
-       |}
-       |* {
-       | border: 0 solid;
-       | box-sizing: border-box;
-       |}
+       |$normalizeCss
        |
        |body {
        |    line-height: 1.5;
        |    min-height: 100%;
        |    position: relative;
-       |    background-color: ${backgroundColor};
-       |    font-family :${colorsScheme.getEditorFontName},-apple-system,BlinkMacSystemFont,Segoe UI,Helvetica,Arial,sans-serif,Apple Color Emoji,Segoe UI Emoji;
-       |    font-size: var(${FONT_SIZE}) !important;
+       |    background-color: ${styleProvider.backgroundColor.webRgba()};
+       |    font-family :${styleProvider.fontName},-apple-system,BlinkMacSystemFont,Segoe UI,Helvetica,Arial,sans-serif,Apple Color Emoji,Segoe UI Emoji;
+       |    font-size: ${styleProvider.fontSize}px;
        |    padding: $padding;
-       |}
-       |
-       |body, p, blockquote, ul, ol, dl, table, pre, code, tr {
-       |    color: ${foregroundColor};
-       |}
-       |
-       |menu, ol, ul {
-       |  list-style: none;
-       |}
-       |
-       |fieldset, menu, ol, ul {
-       |margin: 0;
-       |padding: 0;
+       |    color: ${styleProvider.foregroundColor.webRgba()};
        |}
        |
        |a {
-       |  color: ${linkActiveForegroundColor.webRgba()}
+       |  color: ${styleProvider.linkActiveForegroundColor.webRgba()}
        |}
        |
        |table td, table th {
-       |    border: 1px solid $separatorColor;
+       |    border: 1px solid ${styleProvider.separatorColor.webRgba()};
        |}
        |
        |hr {
-       |    background-color: $separatorColor;
+       |    background-color: ${styleProvider.separatorColor.webRgba()};
        |}
        |
        |kbd, tr {
-       |    border: 1px solid $separatorColor;
-       |}
-       |
-       |h6 {
-       |  color: $infoForeground;
+       |    border: 1px solid ${styleProvider.separatorColor.webRgba()};
        |}
        |
        |blockquote {
-       |    border-left: 2px solid ${linkActiveForegroundColor.webRgba(0.4)}
+       |    border-left: 2px solid ${styleProvider.linkActiveForegroundColor.webRgba(0.4)}
        |}
        |
        |blockquote, code, pre {
-       |    background-color: ${fenceBackgroundColor.webRgba(fenceBackgroundColor.getAlpha / 255.0)}
+       |    background-color: ${styleProvider.fenceBackgroundColor.webRgba(styleProvider.fenceBackgroundColor.getAlpha / 255.0)}
        |}
        |
+       |${JBCefScrollbarsHelper.getOverlayScrollbarStyle}
+       |
+       |${dojo.map(styleOfDojo(_, styleProvider)).getOrElse("")}
        |""".stripMargin
   }
 
-  def getLeetcodeCNStyle(styleProvider: DescriptionStyleProvider): String =
+  private def styleOfDojo(dojo: CodeDojo, styleProvider: DescriptionStyleProvider): String =
+    dojo match
+      case LeetCodeCN =>
+        getLeetcodeCNStyle(styleProvider)
+      case _ => ""
+
+  private def getLeetcodeCNStyle(styleProvider: DescriptionStyleProvider): String =
     // language=CSS
     s"""
        |#container pre {
@@ -119,17 +93,359 @@ object DescriptionStyle {
        |}
        |""".stripMargin
 
-  extension (color: Color) {
-    private def contrast(coefficient: Double): Color =
-      Color(
-        (coefficient * (color.getRed - 128) + 128).toInt,
-        (coefficient * (color.getGreen - 128) + 128).toInt,
-        (coefficient * (color.getBlue - 128) + 128).toInt
-      )
-
-    private def webRgba(alpha: Double = color.getAlpha.toDouble): String =
-      s"rgba(${color.getRed}, ${color.getGreen}, ${color.getBlue}, ${alpha})"
-  }
+  private val normalizeCss: String =
+    // language=CSS
+    """
+      |/*! normalize.css v8.0.1 | MIT License | github.com/necolas/normalize.css */
+      |
+      |/* Document
+      |   ========================================================================== */
+      |
+      |/**
+      | * 1. Correct the line height in all browsers.
+      | * 2. Prevent adjustments of font size after orientation changes in iOS.
+      | */
+      |
+      |html {
+      |  line-height: 1.15; /* 1 */
+      |  -webkit-text-size-adjust: 100%; /* 2 */
+      |}
+      |
+      |/* Sections
+      |   ========================================================================== */
+      |
+      |/**
+      | * Remove the margin in all browsers.
+      | */
+      |
+      |body {
+      |  margin: 0;
+      |}
+      |
+      |/**
+      | * Render the `main` element consistently in IE.
+      | */
+      |
+      |main {
+      |  display: block;
+      |}
+      |
+      |/**
+      | * Correct the font size and margin on `h1` elements within `section` and
+      | * `article` contexts in Chrome, Firefox, and Safari.
+      | */
+      |
+      |h1 {
+      |  font-size: 2em;
+      |  margin: 0.67em 0;
+      |}
+      |
+      |/* Grouping content
+      |   ========================================================================== */
+      |
+      |/**
+      | * 1. Add the correct box sizing in Firefox.
+      | * 2. Show the overflow in Edge and IE.
+      | */
+      |
+      |hr {
+      |  box-sizing: content-box; /* 1 */
+      |  height: 0; /* 1 */
+      |  overflow: visible; /* 2 */
+      |}
+      |
+      |/**
+      | * 1. Correct the inheritance and scaling of font size in all browsers.
+      | * 2. Correct the odd `em` font sizing in all browsers.
+      | */
+      |
+      |pre {
+      |  font-family: monospace, monospace; /* 1 */
+      |  font-size: 1em; /* 2 */
+      |}
+      |
+      |/* Text-level semantics
+      |   ========================================================================== */
+      |
+      |/**
+      | * Remove the gray background on active links in IE 10.
+      | */
+      |
+      |a {
+      |  background-color: transparent;
+      |}
+      |
+      |/**
+      | * 1. Remove the bottom border in Chrome 57-
+      | * 2. Add the correct text decoration in Chrome, Edge, IE, Opera, and Safari.
+      | */
+      |
+      |abbr[title] {
+      |  border-bottom: none; /* 1 */
+      |  text-decoration: underline; /* 2 */
+      |  text-decoration: underline dotted; /* 2 */
+      |}
+      |
+      |/**
+      | * Add the correct font weight in Chrome, Edge, and Safari.
+      | */
+      |
+      |b,
+      |strong {
+      |  font-weight: bolder;
+      |}
+      |
+      |/**
+      | * 1. Correct the inheritance and scaling of font size in all browsers.
+      | * 2. Correct the odd `em` font sizing in all browsers.
+      | */
+      |
+      |code,
+      |kbd,
+      |samp {
+      |  font-family: monospace, monospace; /* 1 */
+      |  font-size: 1em; /* 2 */
+      |}
+      |
+      |/**
+      | * Add the correct font size in all browsers.
+      | */
+      |
+      |small {
+      |  font-size: 80%;
+      |}
+      |
+      |/**
+      | * Prevent `sub` and `sup` elements from affecting the line height in
+      | * all browsers.
+      | */
+      |
+      |sub,
+      |sup {
+      |  font-size: 75%;
+      |  line-height: 0;
+      |  position: relative;
+      |  vertical-align: baseline;
+      |}
+      |
+      |sub {
+      |  bottom: -0.25em;
+      |}
+      |
+      |sup {
+      |  top: -0.5em;
+      |}
+      |
+      |/* Embedded content
+      |   ========================================================================== */
+      |
+      |/**
+      | * Remove the border on images inside links in IE 10.
+      | */
+      |
+      |img {
+      |  border-style: none;
+      |}
+      |
+      |/* Forms
+      |   ========================================================================== */
+      |
+      |/**
+      | * 1. Change the font styles in all browsers.
+      | * 2. Remove the margin in Firefox and Safari.
+      | */
+      |
+      |button,
+      |input,
+      |optgroup,
+      |select,
+      |textarea {
+      |  font-family: inherit; /* 1 */
+      |  font-size: 100%; /* 1 */
+      |  line-height: 1.15; /* 1 */
+      |  margin: 0; /* 2 */
+      |}
+      |
+      |/**
+      | * Show the overflow in IE.
+      | * 1. Show the overflow in Edge.
+      | */
+      |
+      |button,
+      |input { /* 1 */
+      |  overflow: visible;
+      |}
+      |
+      |/**
+      | * Remove the inheritance of text transform in Edge, Firefox, and IE.
+      | * 1. Remove the inheritance of text transform in Firefox.
+      | */
+      |
+      |button,
+      |select { /* 1 */
+      |  text-transform: none;
+      |}
+      |
+      |/**
+      | * Correct the inability to style clickable types in iOS and Safari.
+      | */
+      |
+      |button,
+      |[type="button"],
+      |[type="reset"],
+      |[type="submit"] {
+      |  -webkit-appearance: button;
+      |}
+      |
+      |/**
+      | * Remove the inner border and padding in Firefox.
+      | */
+      |
+      |button::-moz-focus-inner,
+      |[type="button"]::-moz-focus-inner,
+      |[type="reset"]::-moz-focus-inner,
+      |[type="submit"]::-moz-focus-inner {
+      |  border-style: none;
+      |  padding: 0;
+      |}
+      |
+      |/**
+      | * Restore the focus styles unset by the previous rule.
+      | */
+      |
+      |button:-moz-focusring,
+      |[type="button"]:-moz-focusring,
+      |[type="reset"]:-moz-focusring,
+      |[type="submit"]:-moz-focusring {
+      |  outline: 1px dotted ButtonText;
+      |}
+      |
+      |/**
+      | * Correct the padding in Firefox.
+      | */
+      |
+      |fieldset {
+      |  padding: 0.35em 0.75em 0.625em;
+      |}
+      |
+      |/**
+      | * 1. Correct the text wrapping in Edge and IE.
+      | * 2. Correct the color inheritance from `fieldset` elements in IE.
+      | * 3. Remove the padding so developers are not caught out when they zero out
+      | *    `fieldset` elements in all browsers.
+      | */
+      |
+      |legend {
+      |  box-sizing: border-box; /* 1 */
+      |  color: inherit; /* 2 */
+      |  display: table; /* 1 */
+      |  max-width: 100%; /* 1 */
+      |  padding: 0; /* 3 */
+      |  white-space: normal; /* 1 */
+      |}
+      |
+      |/**
+      | * Add the correct vertical alignment in Chrome, Firefox, and Opera.
+      | */
+      |
+      |progress {
+      |  vertical-align: baseline;
+      |}
+      |
+      |/**
+      | * Remove the default vertical scrollbar in IE 10+.
+      | */
+      |
+      |textarea {
+      |  overflow: auto;
+      |}
+      |
+      |/**
+      | * 1. Add the correct box sizing in IE 10.
+      | * 2. Remove the padding in IE 10.
+      | */
+      |
+      |[type="checkbox"],
+      |[type="radio"] {
+      |  box-sizing: border-box; /* 1 */
+      |  padding: 0; /* 2 */
+      |}
+      |
+      |/**
+      | * Correct the cursor style of increment and decrement buttons in Chrome.
+      | */
+      |
+      |[type="number"]::-webkit-inner-spin-button,
+      |[type="number"]::-webkit-outer-spin-button {
+      |  height: auto;
+      |}
+      |
+      |/**
+      | * 1. Correct the odd appearance in Chrome and Safari.
+      | * 2. Correct the outline style in Safari.
+      | */
+      |
+      |[type="search"] {
+      |  -webkit-appearance: textfield; /* 1 */
+      |  outline-offset: -2px; /* 2 */
+      |}
+      |
+      |/**
+      | * Remove the inner padding in Chrome and Safari on macOS.
+      | */
+      |
+      |[type="search"]::-webkit-search-decoration {
+      |  -webkit-appearance: none;
+      |}
+      |
+      |/**
+      | * 1. Correct the inability to style clickable types in iOS and Safari.
+      | * 2. Change font properties to `inherit` in Safari.
+      | */
+      |
+      |::-webkit-file-upload-button {
+      |  -webkit-appearance: button; /* 1 */
+      |  font: inherit; /* 2 */
+      |}
+      |
+      |/* Interactive
+      |   ========================================================================== */
+      |
+      |/*
+      | * Add the correct display in Edge, IE 10+, and Firefox.
+      | */
+      |
+      |details {
+      |  display: block;
+      |}
+      |
+      |/*
+      | * Add the correct display in all browsers.
+      | */
+      |
+      |summary {
+      |  display: list-item;
+      |}
+      |
+      |/* Misc
+      |   ========================================================================== */
+      |
+      |/**
+      | * Add the correct display in IE 10+.
+      | */
+      |
+      |template {
+      |  display: none;
+      |}
+      |
+      |/**
+      | * Add the correct display in IE 10.
+      | */
+      |
+      |[hidden] {
+      |  display: none;
+      |}
+      |""".stripMargin
 
   private val FONT_SIZE = "--default-font-size"
   private val SCALE     = "--scale"

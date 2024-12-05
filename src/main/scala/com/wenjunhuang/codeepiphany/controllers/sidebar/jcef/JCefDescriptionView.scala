@@ -81,19 +81,7 @@ class JCefDescriptionView(private val project: Project, private val presenter: D
     }
 
     requestHandler.addResource(DESCRIPTION_CSS_PATH) { () =>
-      CefStreamResourceHandler(ByteArrayInputStream(DescriptionStyle.getDefaultStyle(styleProvider).getBytes(StandardCharsets.UTF_8)), "text/css", this).some
-    }
-
-    requestHandler.addResource(DOJO_CSS_PATH) { () =>
-      for {
-        dojo <- questionItem.map(_.dojo)
-      } yield {
-        val dojoCss = dojo match
-          case CodeDojo.LeetCodeCN =>
-            DescriptionStyle.getLeetcodeCNStyle(styleProvider)
-          case _ => ""
-        CefStreamResourceHandler(ByteArrayInputStream(dojoCss.getBytes(StandardCharsets.UTF_8)), "text/css", this)
-      }
+      CefStreamResourceHandler(ByteArrayInputStream(DescriptionStyle.getStyle(styleProvider,questionItem.map(_.dojo)).getBytes(StandardCharsets.UTF_8)), "text/css", this).some
     }
 
     requestHandler

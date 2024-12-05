@@ -5,13 +5,9 @@
     <style>
     </style>
     <title>Description Viewer</title>
-    <!-- style of jcef scrollbar --->
     <link type="text/css" href="overlayscrollbars.css" rel="stylesheet"/>
     <script type="text/javascript" src="overlayscrollbars.browser.es6.js"></script>
-    <link id="scrollbarsStyle" rel="stylesheet" type="text/css" href="scrollbars.css"/>
-    <!-- style of dojo -->
     <link id="descriptionStyle" rel="stylesheet" type="text/css" href="descriptionStyle.css"/>
-    <link id="dojoStyle" rel="stylesheet" type="text/css" href="dojo.css"/>
 </head>
 <body data-overlayscrollbars-initialize>
 <div id="container">
@@ -31,9 +27,7 @@
 
 
     const gStyles = {
-        'scrollbars': document.getElementById('scrollbarsStyle'),
         'description': document.getElementById('descriptionStyle'),
-        'dojo': document.getElementById('dojoStyle'),
     }
 
     function setZoom(zoom = 100) {
@@ -68,9 +62,7 @@
     }
 
     let _init = function () {
-        if (dojoInit && typeof dojoInit === 'function') dojoInit();
-
-        // OverlayScrollbarsGlobal.OverlayScrollbars(document.body, {});
+        OverlayScrollbarsGlobal.OverlayScrollbars(document.body, {});
         setZoom(gState.zoom);
         window.removeEventListener('load', _init);
     }
@@ -81,9 +73,7 @@
     }
 
     function reloadStyles() {
-        gStyles.scrollbars.href = _setTimestamp(gStyles.scrollbars.href);
         gStyles.description.href = _setTimestamp(gStyles.description.href);
-        gStyles.dojo.href = _setTimestamp(gStyles.dojo.href);
     }
 
     function _setTimestamp(url) {
