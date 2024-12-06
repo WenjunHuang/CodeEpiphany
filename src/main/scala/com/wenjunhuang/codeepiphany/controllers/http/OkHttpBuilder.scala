@@ -9,11 +9,13 @@ import fs2.io.readInputStream
 import okhttp3.{ Call, Callback, Headers as OKHeaders, MediaType as OKMediaType, OkHttpClient, Protocol, Request as OKRequest, RequestBody, Response as OKResponse }
 import okio.BufferedSink
 import org.http4s.client.Client
+import org.http4s.headers.{ `Content-Type`, Cookie }
 import org.http4s.internal.BackendBuilder
 import org.http4s.{ Headers, HttpVersion, Method, Request, Response, Status }
 import org.log4s.{ getLogger, Logger }
-
+import org.typelevel.ci.CIString
 import java.io.IOException
+import java.net.HttpCookie
 import scala.jdk.CollectionConverters.*
 import scala.util.control.NonFatal
 
@@ -24,9 +26,7 @@ import scala.util.control.NonFatal
   * @param okHttpClient
   *   the underlying OkHttp client.
   */
-sealed abstract class OkHttpBuilder[F[_]] private (
-    val okHttpClient: OkHttpClient
-)(implicit protected val F: Async[F]) {
+sealed abstract class OkHttpBuilder[F[_]] private (val okHttpClient: OkHttpClient)(implicit val F: Async[F], val HttpClientKeeper: HttpClientKeeper[F]) {
 
   private def invokeCallback(result: Result[F], cb: Result[F] => Unit, dispatcher: Dispatcher[F])(implicit
       F: Async[F]
@@ -35,11 +35,6 @@ sealed abstract class OkHttpBuilder[F[_]] private (
     dispatcher.unsafeRunSync(f)
     ()
   }
-
-//  private def copy(okHttpClient: OkHttpClient) = new OkHttpBuilder[F](okHttpClient) {}
-//
-//  def withOkHttpClient(okHttpClient: OkHttpClient): OkHttpBuilder[F] =
-//    copy(okHttpClient = okHttpClient)
 
   /** Creates the [[org.http4s.client.Client]]
     *
@@ -50,14 +45,23 @@ sealed abstract class OkHttpBuilder[F[_]] private (
   def resource: Resource[F, Client[F]] =
     Dispatcher.parallel[F].flatMap(dispatcher => Resource.make(F.delay(create(dispatcher)))(client => F.unit))
 
-  private def run(dispatcher: Dispatcher[F])(req: Request[F]) =
-    Resource.suspend(F.async_[Resource[F, Response[F]]] { cb =>
-      okHttpClient.newCall(toOkHttpRequest(req, dispatcher)).enqueue(handler(cb, dispatcher))
-    })
+  private def run(dispatcher: Dispatcher[F])(req: Request[F]) = {
+    val getCookies = req.uri.host
+      .map(host => HttpClientKeeper.getCookiesForHost(CIString(host.value)))
+      .getOrElse(List.empty[HttpCookie].pure[F])
 
-  private def handler(cb: Result[F] => Unit, dispatcher: Dispatcher[F])(implicit
-      F: Async[F]
-  ): Callback =
+    Resource.suspend(
+      getCookies.map { cookies =>
+        cookies.foldLeft(req)((req, cookie) => req.addCookie(cookie.getName, cookie.getValue))
+      }.flatMap { req =>
+        F.async_[Resource[F, Response[F]]] { cb =>
+          okHttpClient.newCall(toOkHttpRequest(req, dispatcher)).enqueue(handler(cb, dispatcher))
+        }
+      }
+    )
+  }
+
+  private def handler(cb: Result[F] => Unit, dispatcher: Dispatcher[F])(implicit F: Async[F]): Callback =
     new Callback {
       override def onFailure(call: Call, e: IOException): Unit =
         invokeCallback(Left(e), cb, dispatcher)
@@ -104,14 +108,12 @@ sealed abstract class OkHttpBuilder[F[_]] private (
       response.headers().values(k).asScala.map(k -> _)
     })
 
-  private def toOkHttpRequest(req: Request[F], dispatcher: Dispatcher[F])(implicit
-      F: Async[F]
-  ): OKRequest = {
+  private def toOkHttpRequest(req: Request[F], dispatcher: Dispatcher[F])(implicit F: Async[F]): OKRequest = {
     val body = req match {
       case _ if req.isChunked || req.contentLength.isDefined =>
         new RequestBody {
           override def contentType(): OKMediaType =
-            req.contentType.map(c => OKMediaType.parse(c.toString)).orNull
+            req.contentType.map(c => OKMediaType.parse(`Content-Type`.headerInstance.value(c))).orNull
 
           // OKHttp will override the content-length header set below and always use "transfer-encoding: chunked" unless this method is overriden
           override def contentLength(): Long = req.contentLength.getOrElse(-1L)
@@ -121,15 +123,12 @@ sealed abstract class OkHttpBuilder[F[_]] private (
             // chunks get silently dropped.
             val f = req.body.chunks
               .map(_.toArray)
-              .evalMap { (b: Array[Byte]) =>
-                F.delay {
-                  sink.write(b); ()
-                }
+              .evalScan(sink) { (oldSink, b) =>
+                F.delay(oldSink.write(b))
               }
               .compile
               .drain
             dispatcher.unsafeRunSync(f)
-            ()
           }
         }
       // if it's a GET or HEAD, okhttp wants us to pass null
@@ -150,17 +149,16 @@ sealed abstract class OkHttpBuilder[F[_]] private (
   }
 }
 
-/** Builder for a [[org.http4s.client.Client]] with an OkHttp backend
-  */
+/** Builder for a [[org.http4s.client.Client]] with an OkHttp backend */
 object OkHttpBuilder {
-  private[this] val logger = Log
+  private val logger = Log
 
   /** Creates a builder.
     *
     * @param okHttpClient
     *   the underlying client.
     */
-  def apply[F[_]: Async](okHttpClient: OkHttpClient): OkHttpBuilder[F] =
+  def apply[F[_]: Async: HttpClientKeeper](okHttpClient: OkHttpClient): OkHttpBuilder[F] =
     new OkHttpBuilder[F](okHttpClient) {}
 
   /** Create a builder with a default OkHttp client. The builder is returned as a `Resource` so we shut down the OkHttp client that we create.
@@ -197,7 +195,7 @@ object OkHttpBuilder {
       result: Result[F]
   )(implicit F: Async[F]): F[Either[Throwable, Resource[F, Response[F]]]] =
     (result match {
-      case Left(e)  => F.delay(logger.error("Error in call back",e))
+      case Left(e)  => F.delay(logger.error("Error in call back", e))
       case Right(_) => F.unit
     }).map(_ => result)
 }

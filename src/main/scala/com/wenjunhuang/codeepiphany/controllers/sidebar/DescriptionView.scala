@@ -3,17 +3,15 @@ package com.wenjunhuang.codeepiphany.controllers.sidebar
 import com.intellij.ide.CopyProvider
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.actionSystem.*
-import com.intellij.openapi.editor.colors.{ EditorColors, EditorColorsManager }
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.SimpleToolWindowPanel
-import com.intellij.ui.{ JBColor, PopupHandler }
-import com.intellij.util.ui.{ JBInsets, JBUI, UIUtil }
-import com.wenjunhuang.codeepiphany.controllers.sidebar.jcef.{ DescriptionStyleProvider, JCefDescriptionView }
+import com.intellij.ui.PopupHandler
+import com.intellij.util.ui.{JBInsets, JBUI}
 import com.wenjunhuang.codeepiphany.model.QuestionStorage.QuestionItem
 import com.wenjunhuang.codeepiphany.utils.isDebug
 
 import java.awt.Insets
-import java.awt.event.{ MouseWheelEvent, MouseWheelListener }
+import java.awt.event.{MouseWheelEvent, MouseWheelListener}
 import javax.swing.JComponent
 
 class DescriptionView(private val myProject: Project, private val myPresenter: DescriptionPresenter)

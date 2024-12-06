@@ -1,8 +1,8 @@
-package com.wenjunhuang.codeepiphany.controllers.sidebar.jcef
+package com.wenjunhuang.codeepiphany.controllers.sidebar
 
 import com.intellij.ui.JBColor
 import com.intellij.ui.jcef.JBCefScrollbarsHelper
-import com.wenjunhuang.codeepiphany.controllers.sidebar.jcef.DescriptionStyleProvider.*
+import com.wenjunhuang.codeepiphany.controllers.sidebar.DescriptionStyleProvider.*
 import com.wenjunhuang.codeepiphany.model.CodeDojo
 import com.wenjunhuang.codeepiphany.model.CodeDojo.LeetCodeCN
 

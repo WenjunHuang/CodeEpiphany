@@ -1,8 +1,8 @@
-package com.wenjunhuang.codeepiphany.controllers.sidebar.jcef
+package com.wenjunhuang.codeepiphany.utils.jcef
 
-import org.cef.browser.{ CefBrowser, CefFrame }
+import org.cef.browser.{CefBrowser, CefFrame}
 import org.cef.callback.CefCallback
-import org.cef.handler.{ CefRequestHandlerAdapter, CefResourceHandler, CefResourceHandlerAdapter, CefResourceRequestHandler, CefResourceRequestHandlerAdapter }
+import org.cef.handler.*
 import org.cef.misc.BoolRef
 import org.cef.network.CefRequest
 

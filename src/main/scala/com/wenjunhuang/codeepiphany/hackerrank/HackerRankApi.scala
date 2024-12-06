@@ -23,12 +23,25 @@ trait HackerRankApi[F[_]] {
       difficulties: List[QuestionDifficulty] = Nil,
       subdomains: List[QuestionSubdomain] = Nil
   ): F[List[ChallengeListItem]]
+
+  def checkLogin(): F[Boolean]
 }
 
 object HackerRankApi {
-  def apply[F[_]: Concurrent](httpClientKeeper: HttpClientKeeper[F]): HackerRankApi[F] = new HackerRankApi[F] with Http4sClientDsl[F] {
+  def apply[F[_]: Concurrent: HttpClientKeeper](): HackerRankApi[F] = new HackerRankApi[F] with Http4sClientDsl[F] {
+    override def checkLogin(): F[Boolean] = HttpClientKeeper[F].getClient.use { client =>
+      client
+        .run(Request[F](Method.GET, uri"https://www.hackerrank.com/community/v1/promotion_slots/banner-dashboard"))
+        .use { response =>
+          response.status match {
+            case status if status.isSuccess => true.pure[F]
+            case _                          => false.pure[F]
+          }
+        }
+    }
+
     override def getQuestionContent(problemSlug: String, language: Language): F[Option[QuestionContent]] =
-      httpClientKeeper.getClient.use { client =>
+      HttpClientKeeper[F].getClient.use { client =>
         client
           .expect[String](
             Request[F](
@@ -63,7 +76,7 @@ object HackerRankApi {
         difficulties: List[QuestionDifficulty],
         subdomains: List[QuestionSubdomain]
     ): F[List[ChallengeListItem]] =
-      httpClientKeeper.getClient.use { client =>
+      HttpClientKeeper[F].getClient.use { client =>
         val request = Method.GET(
           uri"https://www.hackerrank.com/rest/contests/master/tracks/algorithms/challenges"
             .withQueryParam("offset", offset)

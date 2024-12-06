@@ -1,4 +1,4 @@
-package com.wenjunhuang.codeepiphany.controllers.sidebar.jcef
+package com.wenjunhuang.codeepiphany.controllers.sidebar
 
 import cats.effect.{ IO, Resource, SyncIO }
 import cats.syntax.all.*
@@ -10,9 +10,8 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
 import com.intellij.ui.jcef.*
 import com.wenjunhuang.codeepiphany.controllers.sidebar.DescriptionPresenter
-import com.wenjunhuang.codeepiphany.controllers.sidebar.jcef.JCefDescriptionView.*
-import com.wenjunhuang.codeepiphany.model.CodeDojo
 import com.wenjunhuang.codeepiphany.model.QuestionStorage.QuestionItem
+import com.wenjunhuang.codeepiphany.utils.jcef.{ CefLocalRequestHandler, CefStreamResourceHandler }
 import com.wenjunhuang.codeepiphany.utils.{ intellijIORuntime, isDebug, Log }
 import io.circe.*
 import io.circe.generic.auto.*
@@ -25,6 +24,8 @@ import org.intellij.lang.annotations.Language
 import java.io.{ ByteArrayInputStream, File, FileInputStream }
 import java.nio.charset.StandardCharsets
 import javax.swing.JComponent
+
+import JCefDescriptionView.*
 
 class JCefDescriptionView(private val project: Project, private val presenter: DescriptionPresenter, private val styleProvider: DescriptionStyleProvider) extends Disposable {
   private var questionItem: Option[QuestionItem] = None
@@ -81,7 +82,7 @@ class JCefDescriptionView(private val project: Project, private val presenter: D
     }
 
     requestHandler.addResource(DESCRIPTION_CSS_PATH) { () =>
-      CefStreamResourceHandler(ByteArrayInputStream(DescriptionStyle.getStyle(styleProvider,questionItem.map(_.dojo)).getBytes(StandardCharsets.UTF_8)), "text/css", this).some
+      CefStreamResourceHandler(ByteArrayInputStream(DescriptionStyle.getStyle(styleProvider, questionItem.map(_.dojo)).getBytes(StandardCharsets.UTF_8)), "text/css", this).some
     }
 
     requestHandler

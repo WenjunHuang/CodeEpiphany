@@ -1,13 +1,13 @@
-package com.wenjunhuang.codeepiphany.controllers.sidebar.jcef
+package com.wenjunhuang.codeepiphany.utils.jcef
 
 import cats.effect.SyncIO
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.util.Disposer
 import org.cef.callback.CefCallback
-import org.cef.handler.{ CefResourceHandler, CefResourceHandlerAdapter }
-import org.cef.misc.{ IntRef, StringRef }
-import org.cef.network.{ CefRequest, CefResponse }
+import org.cef.handler.{CefResourceHandler, CefResourceHandlerAdapter}
+import org.cef.misc.{IntRef, StringRef}
+import org.cef.network.{CefRequest, CefResponse}
 
 import java.io.InputStream
 

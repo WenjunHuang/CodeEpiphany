@@ -48,14 +48,17 @@ lazy val codeEpiphany = (project in file("."))
       // add cats retry
       "com.github.cb372" %% "cats-retry" % "3.1.3",
       // add log4cats
-      "org.typelevel" %% "log4cats-slf4j" % "2.7.0",
+      "org.typelevel" %% "log4cats-slf4j"   % "2.7.0",
+      "org.typelevel" %% "case-insensitive" % "1.4.2",
       // add http4s client
-      "org.http4s" %% "http4s-client" % "0.23.29",
-      "org.http4s" %% "http4s-dsl"    % "0.23.29",
-      "org.http4s" %% "http4s-circe"  % "0.23.29",
+      "org.http4s" %% "http4s-client" % "0.23.30",
+      "org.http4s" %% "http4s-dsl"    % "0.23.30",
+      "org.http4s" %% "http4s-circe"  % "0.23.30",
 
       // add ok http
-      "com.squareup.okhttp3" % "okhttp" % "4.12.0"
+      "com.squareup.okhttp3" % "okhttp"          % "4.12.0",
+      "com.novocode"         % "junit-interface" % "0.11"  % Test,
+      "org.opentest4j"       % "opentest4j"      % "1.3.0" % Test
     ),
     Compile / unmanagedResourceDirectories += baseDirectory.value / "resources",
     Test / unmanagedResourceDirectories += baseDirectory.value / "testResources"

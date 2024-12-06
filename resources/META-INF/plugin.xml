@@ -42,6 +42,11 @@
             <reference ref="CodeEpiphany.Sidebar.Description.Toolbar"/>
         </group>
 
+        <action id="com.wenjunhuang.codeepiphany.test.actions.ShowLoginDialogAction"
+                class="com.wenjunhuang.codeepiphany.test.actions.ShowLoginDialogAction" text="Show Login Dialog"
+                description="Show Login Dialog">
+            <add-to-group group-id="ToolsMenu" anchor="first"/>
+        </action>
     </actions>
 
     <applicationListeners>

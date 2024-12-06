@@ -1,4 +1,4 @@
-package com.wenjunhuang.codeepiphany.controllers.sidebar.jcef
+package com.wenjunhuang.codeepiphany.utils.jcef
 
 import cats.effect.IO
 import cats.syntax.all.*
@@ -47,7 +47,7 @@ class CefRemoteRequestHandler(private val project: Project) extends CefRequestHa
             val httpClientService = HttpClientService.getInstance(project)
             val requestUrl        = request.getURL
             val requestHeaders    = request.headers
-            httpClientService.client.use { client =>
+            httpClientService.http4sClient.use { client =>
               val h4sRequest = Method.GET(uri = Uri.unsafeFromString(requestUrl), headers = requestHeaders)
               client
                 .stream(h4sRequest)
