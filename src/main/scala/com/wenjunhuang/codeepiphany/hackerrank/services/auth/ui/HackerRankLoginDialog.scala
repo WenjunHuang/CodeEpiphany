@@ -2,49 +2,59 @@ package com.wenjunhuang.codeepiphany.hackerrank.services.auth.ui
 
 import cats.effect.IO
 import cats.effect.std.Queue
-import cats.syntax.all.*
-import com.intellij.icons.AllIcons
 import com.intellij.ide.BrowserUtil
 import com.intellij.openapi.Disposable
+import com.intellij.openapi.editor.colors.impl.AppEditorFontOptions
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.ui.{ ComponentValidator, DialogWrapper }
+import com.intellij.openapi.ui.{ ComponentValidator, DialogWrapper, ValidationInfo }
 import com.intellij.openapi.util.Disposer
-import com.intellij.ui.{ AnimatedIcon, DocumentAdapter }
 import com.intellij.ui.components.{ JBScrollPane, JBTextArea }
 import com.intellij.ui.content.impl.ContentManagerImpl
 import com.intellij.ui.content.{ ContentManagerEvent, ContentManagerListener, TabbedPaneContentUI }
 import com.intellij.ui.jcef.{ JBCefBrowser, JBCefBrowserBuilder }
+import com.intellij.ui.{ AnimatedIcon, DocumentAdapter }
+import com.intellij.util.FontUtil
+import com.intellij.util.ui.JBFont
 import com.wenjunhuang.codeepiphany.PluginBundle
 import com.wenjunhuang.codeepiphany.controllers.http.{ HttpClientKeeper, HttpClientService }
-import com.wenjunhuang.codeepiphany.hackerrank.HackerRankApi
 import com.wenjunhuang.codeepiphany.hackerrank.services.auth.{ saveAuthentication, validateUserCookieAndTestLogin, AskForLoginResult }
 import com.wenjunhuang.codeepiphany.model.CodeDojo
 import com.wenjunhuang.codeepiphany.model.CodeDojo.HackerRank
-import com.wenjunhuang.codeepiphany.utils.jcef.CefRemoteRequestHandler
 import com.wenjunhuang.codeepiphany.utils.implicits.*
 import fs2.Stream
 import org.cef.browser.{ CefBrowser, CefFrame }
 import org.cef.callback.CefCookieVisitor
-import org.cef.handler.{ CefLoadHandler, CefLoadHandlerAdapter }
+import org.cef.handler.{ CefLifeSpanHandlerAdapter, CefLoadHandler, CefLoadHandlerAdapter }
 import org.cef.misc.BoolRef
 import org.cef.network.CefCookie
+import org.typelevel.log4cats.LoggerFactory
 
 import java.awt.event.ActionEvent
+import java.awt.Font
 import java.net.HttpCookie
-import javax.swing.event.DocumentEvent
 import javax.swing.*
+import javax.swing.event.DocumentEvent
 
 class HackerRankLoginDialog(private val myProject: Project, private val callback: Either[Throwable, AskForLoginResult] => Unit)
     extends DialogWrapper(myProject, false, DialogWrapper.IdeModalityType.IDE) {
+  private val myLogger         = LoggerFactory[IO].getLogger
   private val myContentManager = ContentManagerImpl(TabbedPaneContentUI(SwingConstants.TOP), false, myProject, getDisposable)
 
   private val myCookieText = JBTextArea(10, 20)
   myCookieText.setLineWrap(true)
+  private val fontOptions = AppEditorFontOptions.getInstance().getState
+  myCookieText.setFont(Font(fontOptions.FONT_FAMILY, Font.PLAIN, fontOptions.FONT_SIZE))
+  ComponentValidator(myDisposable)
+    .installOn(myCookieText)
   myCookieText.getDocument.addDocumentListener(new DocumentAdapter {
-    override def textChanged(e: DocumentEvent): Unit =
+    override def textChanged(e: DocumentEvent): Unit = {
+      ComponentValidator
+        .getInstance(myCookieText)
+        .ifPresent(v => v.updateInfo(null))
       e.getDocument.getLength match
         case 0 => setOKActionEnabled(false)
         case _ => setOKActionEnabled(true)
+    }
   })
 
   private val myLoginViaCookiePanel = myContentManager.getFactory.createContent(
@@ -63,26 +73,25 @@ class HackerRankLoginDialog(private val myProject: Project, private val callback
   private val myOkAction: OkAction = new OkAction {
     override def doAction(e: ActionEvent): Unit = {
       val text = myCookieText.getText
-
-      IO.delay {
-        myOkAction.setEnabled(false)
-        myOkAction.putValue(Action.SMALL_ICON, AnimatedIcon.Default.INSTANCE)
-        myOkAction.putValue(Action.NAME, PluginBundle.message("hackerrank.ui.login.validating"))
-      }.evalOn(intellijUIContext)
-        .flatMap(_ => validateUserCookieAndTestLogin[IO](myProject, HackerRank, text))
-        .flatMap {
-          case true  => IO.delay(callback(Right(AskForLoginResult.Done)))
-          case false => throw Exception(PluginBundle.message("hackerrank.ui.login.error"))
-        }
-        .recoverWith(e =>
+      myCookieText.setEnabled(false)
+      myOkAction.setEnabled(false)
+      myOkAction.putValue(Action.SMALL_ICON, AnimatedIcon.Default.INSTANCE)
+      myOkAction.putValue(Action.NAME, PluginBundle.message("hackerrank.ui.login.validating"))
+      validateUserCookieAndTestLogin[IO](myProject, HackerRank, text).flatMap {
+        case true => IO.delay(callback(Right(AskForLoginResult.Done))) *> IO.delay(close(DialogWrapper.OK_EXIT_CODE, true)).evalOn(intellijUIContext)
+        case false =>
           IO.delay {
-            showLoginError(e.getMessage)
+            ComponentValidator
+              .getInstance(myCookieText)
+              .ifPresent(v => v.updateInfo(ValidationInfo(PluginBundle.message("hackerrank.ui.login.cookie.error"), myCookieText)))
+
+            myCookieText.setEnabled(true)
+            myCookieText.requestFocus()
             myOkAction.setEnabled(true)
             myOkAction.putValue(Action.SMALL_ICON, null)
             myOkAction.putValue(Action.NAME, PluginBundle.message("hackerrank.ui.login.ok"))
-          }
-        )
-        .unsafeRunAndForget()
+          }.evalOn(intellijUIContext)
+      }.unsafeRunAndForget()
     }
   }
 
@@ -114,41 +123,51 @@ class HackerRankLoginDialog(private val myProject: Project, private val callback
     Array(helpAction, myOkAction, getCancelAction)
   }
 
-  private def showLoginError(msg: String): Unit =
-    setErrorText(msg)
-
   private def createBrowserLoginPanel(): JBCefBrowser = {
     val browser = JBCefBrowserBuilder()
       .setUrl("https://www.hackerrank.com/auth/login")
       .build()
-//    val requestHandler = CefRemoteRequestHandler(myProject)
-//    browser.getJBCefClient.addRequestHandler(requestHandler, browser.getCefBrowser)
+
+    enum CookieCheck {
+      case Add(cookie: HttpCookie)
+      case Check
+    }
 
     @volatile
-    var queueHandle: Option[Queue[IO, Option[HttpCookie]]] = None
+    var queueHandle: Option[Queue[IO, Option[CookieCheck]]] = None
 
-    val program =
+    val cookieProcessingStream =
       for
-        queue <- Queue.unbounded[IO, Option[HttpCookie]]
+        queue <- Queue.unbounded[IO, Option[CookieCheck]]
         _     <- IO.delay { queueHandle = Some(queue) }
         _ <- Stream
           .fromQueueNoneTerminated(queue)
-          .fold(Nil: List[HttpCookie])((acc, elem) => elem +: acc)
+          .mapAccumulate(Nil: List[HttpCookie]) {
+            case (acc, CookieCheck.Add(cookie)) =>
+              (cookie +: acc, None)
+            case (acc, CookieCheck.Check) =>
+              (Nil, Some(acc))
+          }
+          .collect { case (_, Some(cookies)) => cookies }
           .evalTap { cookies =>
             cookies.find(_.getName == "remember_hacker_token") match
               case Some(cookie) =>
                 // found a candidate cookie, but need to test it to see if it's valid
                 implicit val k: HttpClientKeeper[IO] = HttpClientService.getInstance(myProject).httpClientKeeper
                 validateUserCookieAndTestLogin[IO](myProject, CodeDojo.HackerRank, cookies).flatMap {
-                  case true  => IO.delay(callback(Right(AskForLoginResult.Done)))
-                  case false => IO.delay(showLoginError(PluginBundle.message("hackerrank.ui.login.error"))).evalOn(intellijUIContext)
+                  case true =>
+                    IO.delay(callback(Right(AskForLoginResult.Done))) *> IO.delay {
+                      close(DialogWrapper.OK_EXIT_CODE)
+                    }.evalOn(intellijUIContext)
+                  case false => myLogger.warn("Browser login failed")
                 }
               case None => IO.unit
           }
+          .onFinalize(myLogger.info("Cookie processing stream finalized"))
           .compile
           .drain
       yield ()
-    program.unsafeRunAndForget()
+    cookieProcessingStream.unsafeRunAndForget()
 
     val loadHandler = new CefLoadHandlerAdapter {
       override def onLoadingStateChange(cefBrowser: CefBrowser, isLoading: Boolean, canGoBack: Boolean, canGoForward: Boolean): Unit =
@@ -158,20 +177,19 @@ class HackerRankLoginDialog(private val myProject: Project, private val callback
             cookie.setDomain(cefCookie.domain)
             cookie.setPath(cefCookie.path)
 
-            if count == total - 1 then queueHandle.foreach(q => (q.offer(Some(cookie)) *> q.offer(None)).unsafeRunAndForget())
-            else queueHandle.foreach(_.offer(Some(cookie)).unsafeRunAndForget())
+            if count == total - 1 then queueHandle.foreach(q => (q.offer(Some(CookieCheck.Add(cookie))) *> q.offer(Some(CookieCheck.Check))).unsafeRunAndForget())
+            else queueHandle.foreach(_.offer(Some(CookieCheck.Add(cookie))).unsafeRunAndForget())
           else if count == total - 1 then queueHandle.foreach(q => q.offer(None).unsafeRunAndForget())
           true
         }
-
-      override def onLoadError(browser: CefBrowser, frame: CefFrame, errorCode: CefLoadHandler.ErrorCode, errorText: String, failedUrl: String): Unit =
-        super.onLoadError(browser, frame, errorCode, errorText, failedUrl)
     }
     browser.getJBCefClient.addLoadHandler(loadHandler, browser.getCefBrowser)
+
     Disposer.register(
       getDisposable,
       { () =>
-//        browser.getJBCefClient.removeRequestHandler(requestHandler, browser.getCefBrowser)
+        queueHandle.foreach(_.offer(None).unsafeRunAndForget())
+        browser.getJBCefCookieManager.getCefCookieManager.deleteCookies(null, null)
         browser.getJBCefClient.removeLoadHandler(loadHandler, browser.getCefBrowser)
         Disposer.dispose(browser)
       }

@@ -46,39 +46,6 @@ object HttpClientKeeper {
           OkHttpBuilder[F](defaultHttpClient).resource
         })
       }
-//      override def getClient: Resource[F, Client[F]] =
-//        Resource.suspend(Sync[F].delay {
-//          val proxySettings                    = ProxySettings.getInstance()
-//          implicit val hk: HttpClientKeeper[F] = this
-//          proxySettings.getProxyConfiguration match {
-//            case _: ProxyConfiguration.DirectProxy =>
-//              OkHttpBuilder[F](defaultHttpClient).resource
-//            case configuration =>
-//              val builder = defaultHttpClient
-//                .newBuilder()
-//                .proxySelector(IdeProxySelector(ProxySettingsKt.asConfigurationProvider(proxySettings))) // IntelliJ proxy selector
-//
-//              // get optional proxy credentials
-//              val credential = ProxyUtils.getStaticProxyCredentials(proxySettings, ProxyCredentialStoreKt.asProxyCredentialProvider(ProxyCredentialStore.getInstance()))
-//              if credential != null then
-//                val authenticator = new Authenticator {
-//                  override def authenticate(route: Route, response: Response): Request =
-//                    boundary:
-//                      for challenge <- response.challenges().asScala do
-//                        if challenge.scheme().equalsIgnoreCase("OkHttp-Preemptive") then
-//                          boundary.break(
-//                            response
-//                              .request()
-//                              .newBuilder()
-//                              .header("Proxy-Authorization", Credentials.basic(credential.getUserName, credential.getPasswordAsString))
-//                              .build()
-//                          )
-//                      null
-//                }
-//                builder.proxyAuthenticator(authenticator)
-//              OkHttpBuilder[F](builder.build()).resource
-//          }
-//        })
 
       override def getCookiesForHost(host: CIString): F[List[HttpCookie]] =
         for {
