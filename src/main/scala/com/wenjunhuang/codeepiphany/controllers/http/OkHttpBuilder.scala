@@ -3,8 +3,9 @@ package com.wenjunhuang.codeepiphany.controllers.http
 import cats.effect.std.Dispatcher
 import cats.effect.{ Async, Resource }
 import cats.syntax.all.*
+import cats.effect.syntax.all.*
 import com.wenjunhuang.codeepiphany.controllers.http.OkHttpBuilder.*
-import com.wenjunhuang.codeepiphany.utils.Log
+import com.wenjunhuang.codeepiphany.utils.implicits.*
 import fs2.io.readInputStream
 import okhttp3.{ Call, Callback, Headers as OKHeaders, MediaType as OKMediaType, OkHttpClient, Protocol, Request as OKRequest, RequestBody, Response as OKResponse }
 import okio.BufferedSink
@@ -12,8 +13,9 @@ import org.http4s.client.Client
 import org.http4s.headers.{ `Content-Type`, Cookie }
 import org.http4s.internal.BackendBuilder
 import org.http4s.{ Headers, HttpVersion, Method, Request, Response, Status }
-import org.log4s.{ getLogger, Logger }
 import org.typelevel.ci.CIString
+import org.typelevel.log4cats.Logger
+
 import java.io.IOException
 import java.net.HttpCookie
 import scala.jdk.CollectionConverters.*
@@ -26,11 +28,9 @@ import scala.util.control.NonFatal
   * @param okHttpClient
   *   the underlying OkHttp client.
   */
-sealed abstract class OkHttpBuilder[F[_]] private (val okHttpClient: OkHttpClient)(implicit val F: Async[F], val HttpClientKeeper: HttpClientKeeper[F]) {
+sealed abstract class OkHttpBuilder[F[_]] private (val okHttpClient: OkHttpClient)(implicit val F: Async[F], val HttpClientKeeper: HttpClientKeeper[F], val logger: Logger[F]) {
 
-  private def invokeCallback(result: Result[F], cb: Result[F] => Unit, dispatcher: Dispatcher[F])(implicit
-      F: Async[F]
-  ): Unit = {
+  private def invokeCallback(result: Result[F], cb: Result[F] => Unit, dispatcher: Dispatcher[F]): Unit = {
     val f = logTap(result).flatMap(r => F.delay(cb(r)))
     dispatcher.unsafeRunSync(f)
     ()
@@ -151,51 +151,40 @@ sealed abstract class OkHttpBuilder[F[_]] private (val okHttpClient: OkHttpClien
 
 /** Builder for a [[org.http4s.client.Client]] with an OkHttp backend */
 object OkHttpBuilder {
-  private val logger = Log
 
   /** Creates a builder.
     *
     * @param okHttpClient
     *   the underlying client.
     */
-  def apply[F[_]: Async: HttpClientKeeper](okHttpClient: OkHttpClient): OkHttpBuilder[F] =
+  def apply[F[_]: Async: HttpClientKeeper: Logger](okHttpClient: OkHttpClient): OkHttpBuilder[F] =
     new OkHttpBuilder[F](okHttpClient) {}
 
-  /** Create a builder with a default OkHttp client. The builder is returned as a `Resource` so we shut down the OkHttp client that we create.
-    */
-//  def withDefaultClient[F[_]: Async]: Resource[F, OkHttpBuilder[F]] =
-//    defaultOkHttpClient.map(apply(_))
 
-  private def defaultOkHttpClient[F[_]](implicit F: Async[F]): Resource[F, OkHttpClient] =
-    Resource.make(F.delay(new OkHttpClient()))(shutdown(_))
+  private def defaultOkHttpClient[F[_]: Async: Logger]: Resource[F, OkHttpClient] =
+    Resource.make(Async[F].delay(new OkHttpClient()))(shutdown(_))
 
-  private def shutdown[F[_]](client: OkHttpClient)(implicit F: Async[F]) =
-    F.delay {
-      try client.dispatcher.executorService().shutdown()
-      catch {
-        case NonFatal(t) =>
-          logger.warn("Unable to shut down dispatcher when disposing of OkHttp client", t)
-      }
-      try client.connectionPool().evictAll()
-      catch {
-        case NonFatal(t) =>
-          logger.warn("Unable to evict connection pool when disposing of OkHttp client", t)
-      }
+  private def shutdown[F[_]](client: OkHttpClient)(implicit F: Async[F], logger: Logger[F]) =
+    F.delay(client.dispatcher.executorService().shutdown()).recoverWith { case NonFatal(t) =>
+      logger.warn(t)("Unable to shut down dispatcher when disposing of OkHttp client")
+    } *> F.delay {
+      client.connectionPool().evictAll()
+    }.recoverWith { case NonFatal(t) =>
+      logger.warn(t)("Unable to evict connection pool when disposing of OkHttp client")
+    } *> F.delay {
       if (client.cache() != null)
-        try client.cache().close()
-        catch {
-          case NonFatal(t) =>
-            logger.warn("Unable to close cache when disposing of OkHttp client", t)
-        }
+        client.cache().close()
+    }.recoverWith { case NonFatal(t) =>
+      logger.warn(t)("Unable to close cache when disposing of OkHttp client")
     }
 
   private type Result[F[_]] = Either[Throwable, Resource[F, Response[F]]]
 
   private def logTap[F[_]](
       result: Result[F]
-  )(implicit F: Async[F]): F[Either[Throwable, Resource[F, Response[F]]]] =
+  )(implicit F: Async[F], logger: Logger[F]): F[Either[Throwable, Resource[F, Response[F]]]] =
     (result match {
-      case Left(e)  => F.delay(logger.error("Error in call back", e))
+      case Left(e)  => logger.warn(e)(s"Error in call back")
       case Right(_) => F.unit
     }).map(_ => result)
 }

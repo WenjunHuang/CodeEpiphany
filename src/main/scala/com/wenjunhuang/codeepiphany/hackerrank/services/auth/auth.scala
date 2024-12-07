@@ -3,18 +3,16 @@ package com.wenjunhuang.codeepiphany.hackerrank.services
 import cats.effect.kernel.Async
 import cats.syntax.all.*
 import com.intellij.openapi.project.Project
-import com.wenjunhuang.codeepiphany.utils.intellijUIContext
-import com.wenjunhuang.codeepiphany.controllers.http.{ HttpClientKeeper, HttpClientService }
+import com.wenjunhuang.codeepiphany.controllers.http.HttpClientKeeper
 import com.wenjunhuang.codeepiphany.hackerrank.HackerRankApi
 import com.wenjunhuang.codeepiphany.hackerrank.services.auth.ui.HackerRankLoginDialog
 import com.wenjunhuang.codeepiphany.model.{ ApiError, CodeDojo }
 import com.wenjunhuang.codeepiphany.utils.SensitiveDataStore
-import org.apache.http.client.utils.HttpClientUtils
-import org.http4s.*
-import org.http4s.dsl.io.*
+import com.wenjunhuang.codeepiphany.utils.implicits.*
+import okhttp3.Cookie
 
-import scala.jdk.CollectionConverters.*
 import java.net.HttpCookie
+import scala.jdk.CollectionConverters.*
 
 package object auth {
   enum AskForLoginResult {
@@ -32,7 +30,7 @@ package object auth {
       case Some(authCookies) =>
         Async[F]
           .delay(HttpCookie.parse(authCookies).asScala.toList)
-          .flatMap(it => HttpClientKeeper[F].updateCookies(codeDojo.host, it))
+          .flatMap(it => HttpClientKeeper[F].updateCookiesForHost(codeDojo.domain, it))
       case None => ().pure[F]
     }
 
@@ -40,6 +38,26 @@ package object auth {
     Async[F].delay {
       SensitiveDataStore.saveData(codeDojo.show, authCookies.map(cookie => s"${cookie.getName}=${cookie.getValue}").mkString(";"))
     }
+
+  def validateUserCookieAndTestLogin[F[_]: Async: HttpClientKeeper](project: Project, codeDojo: CodeDojo, cookies: List[HttpCookie]): F[Boolean] =
+    HttpClientKeeper[F].updateCookiesForHost(codeDojo.domain, cookies) *> HackerRankApi[F]().checkLogin().flatMap {
+      case true =>
+        saveAuthentication[F](project, codeDojo, cookies) *> true.pure[F]
+      case false => HttpClientKeeper[F].clearCookiesForHost(CodeDojo.HackerRank.domain) *> false.pure[F]
+    }
+
+  def validateUserCookieAndTestLogin[F[_]: Async: HttpClientKeeper](project: Project, codeDojo: CodeDojo, cookie: String): F[Boolean] =
+    Async[F].delay {
+      cookie
+        .split(";")
+        .map(_.trim)
+        .collect {
+          case cookie if cookie.contains("=") =>
+            val Array(name, value) = cookie.trim.split("=", 2)
+            HttpCookie(name, value)
+        }
+        .toList
+    }.flatMap(validateUserCookieAndTestLogin(project, codeDojo, _))
 
   /** Invoke the login process * */
   def askForLogin[F[_]: Async](project: Project, codeDojo: CodeDojo): F[AskForLoginResult] =

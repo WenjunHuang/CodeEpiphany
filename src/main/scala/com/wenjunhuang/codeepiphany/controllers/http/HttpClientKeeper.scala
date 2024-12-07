@@ -3,13 +3,14 @@ package com.wenjunhuang.codeepiphany.controllers.http
 import cats.effect.kernel.Ref.Make
 import cats.effect.kernel.Sync
 import cats.effect.{ Async, Ref, Resource }
-import com.intellij.util.net.*
-import com.wenjunhuang.codeepiphany.utils.intellijComputeContext
-import okhttp3.*
-import org.http4s.Uri.Host
-import org.http4s.client.Client
 import cats.syntax.all.*
+import com.intellij.util.net.*
+import com.wenjunhuang.codeepiphany.model.CodeDojo
+import com.wenjunhuang.codeepiphany.utils.implicits.intellijComputeContext
+import okhttp3.*
+import org.http4s.client.Client
 import org.typelevel.ci.CIString
+import org.typelevel.log4cats.{ Logger, LoggerFactory }
 
 import java.net.HttpCookie
 import java.security.cert.X509Certificate
@@ -18,11 +19,11 @@ import scala.concurrent.duration.*
 import scala.jdk.CollectionConverters.*
 import scala.util.boundary
 
-type CookieJar = Map[CIString, Map[CIString, HttpCookie]]
+type CookieJar = Map[CodeDojo, Map[CIString, HttpCookie]]
 
 trait HttpClientKeeper[F[_]] {
   def getClient: Resource[F, Client[F]]
-  def updateCookies(host: CIString, cookies: List[HttpCookie]): F[Unit]
+  def updateCookiesForHost(host: CIString, cookies: List[HttpCookie]): F[Unit]
   def getCookiesForHost(host: CIString): F[List[HttpCookie]]
   def clearCookiesForHost(host: CIString): F[Unit]
 }
@@ -30,59 +31,66 @@ trait HttpClientKeeper[F[_]] {
 object HttpClientKeeper {
   def apply[F[_]: HttpClientKeeper]: HttpClientKeeper[F] = summon[HttpClientKeeper[F]]
 
-  def make[F[_]: Make: Async](): HttpClientKeeper[F] =
+  def make[F[_]: Make: Async: LoggerFactory](): HttpClientKeeper[F] =
     new HttpClientKeeper[F] {
-      val cookieManager: Ref[F, CookieJar] = Ref.unsafe[F, CookieJar](Map.empty[CIString, Map[CIString, HttpCookie]])
+      implicit val logger: Logger[F]       = LoggerFactory[F].getLogger
+      val cookieManager: Ref[F, CookieJar] = Ref.unsafe[F, CookieJar](Map.empty[CodeDojo, Map[CIString, HttpCookie]])
 
       override def clearCookiesForHost(host: CIString): F[Unit] = cookieManager.update { cookies =>
-        cookies.removed(host)
+        CodeDojo.fromHostname(host).fold(cookies)(cookies.removed)
       }
 
-      override def getClient: Resource[F, Client[F]] =
+      override def getClient: Resource[F, Client[F]] = {
+        implicit val hk: HttpClientKeeper[F] = this
         Resource.suspend(Sync[F].delay {
-          val proxySettings                    = ProxySettings.getInstance()
-          implicit val hk: HttpClientKeeper[F] = this
-          proxySettings.getProxyConfiguration match {
-            case _: ProxyConfiguration.DirectProxy =>
-              OkHttpBuilder[F](defaultHttpClient).resource
-            case configuration =>
-              val builder = defaultHttpClient
-                .newBuilder()
-                .proxySelector(IdeProxySelector(ProxySettingsKt.asConfigurationProvider(proxySettings))) // IntelliJ proxy selector
-
-              // get optional proxy credentials
-              val credential = ProxyUtils.getStaticProxyCredentials(proxySettings, ProxyCredentialStoreKt.asProxyCredentialProvider(ProxyCredentialStore.getInstance()))
-              if credential != null then
-                val authenticator = new Authenticator {
-                  override def authenticate(route: Route, response: Response): Request =
-                    boundary:
-                      for challenge <- response.challenges().asScala do
-                        if challenge.scheme().equalsIgnoreCase("OkHttp-Preemptive") then
-                          boundary.break(
-                            response
-                              .request()
-                              .newBuilder()
-                              .header("Proxy-Authorization", Credentials.basic(credential.getUserName, credential.getPasswordAsString))
-                              .build()
-                          )
-                      null
-                }
-                builder.proxyAuthenticator(authenticator)
-              OkHttpBuilder[F](builder.build()).resource
-          }
+          OkHttpBuilder[F](defaultHttpClient).resource
         })
+      }
+//      override def getClient: Resource[F, Client[F]] =
+//        Resource.suspend(Sync[F].delay {
+//          val proxySettings                    = ProxySettings.getInstance()
+//          implicit val hk: HttpClientKeeper[F] = this
+//          proxySettings.getProxyConfiguration match {
+//            case _: ProxyConfiguration.DirectProxy =>
+//              OkHttpBuilder[F](defaultHttpClient).resource
+//            case configuration =>
+//              val builder = defaultHttpClient
+//                .newBuilder()
+//                .proxySelector(IdeProxySelector(ProxySettingsKt.asConfigurationProvider(proxySettings))) // IntelliJ proxy selector
+//
+//              // get optional proxy credentials
+//              val credential = ProxyUtils.getStaticProxyCredentials(proxySettings, ProxyCredentialStoreKt.asProxyCredentialProvider(ProxyCredentialStore.getInstance()))
+//              if credential != null then
+//                val authenticator = new Authenticator {
+//                  override def authenticate(route: Route, response: Response): Request =
+//                    boundary:
+//                      for challenge <- response.challenges().asScala do
+//                        if challenge.scheme().equalsIgnoreCase("OkHttp-Preemptive") then
+//                          boundary.break(
+//                            response
+//                              .request()
+//                              .newBuilder()
+//                              .header("Proxy-Authorization", Credentials.basic(credential.getUserName, credential.getPasswordAsString))
+//                              .build()
+//                          )
+//                      null
+//                }
+//                builder.proxyAuthenticator(authenticator)
+//              OkHttpBuilder[F](builder.build()).resource
+//          }
+//        })
 
       override def getCookiesForHost(host: CIString): F[List[HttpCookie]] =
         for {
           cookies <- cookieManager.get
-        } yield cookies.getOrElse(host, Map.empty).values.toList
+        } yield CodeDojo.fromHostname(host).fold(List.empty[HttpCookie])(cookies.getOrElse(_, Map.empty).values.toList)
 
-      override def updateCookies(host: CIString, cookies: List[HttpCookie]): F[Unit] =
+      override def updateCookiesForHost(host: CIString, cookies: List[HttpCookie]): F[Unit] =
         Sync[F]
-          .delay(cookies.map(cookie => CIString(cookie.getName) -> cookie.getValue).toMap)
+          .delay(cookies.map(cookie => CIString(cookie.getName) -> cookie).toMap)
           .flatMap { cookiesByDomain =>
             cookieManager.update { cookies =>
-              cookies.updated(host, cookiesByDomain)
+              CodeDojo.fromHostname(host).fold(cookies)(codeDojo => cookies.updated(codeDojo, cookiesByDomain))
             }
           }
     }
@@ -99,7 +107,26 @@ object HttpClientKeeper {
     val sslContext = SSLContext.getInstance("SSL")
     sslContext.init(null, Array[TrustManager](trustAllManager), new java.security.SecureRandom())
     val sslSocketFactory = sslContext.getSocketFactory
-
+    val proxySettings    = ProxySettings.getInstance()
+    // get optional proxy credentials
+    val authenticator = new Authenticator {
+      override def authenticate(route: Route, response: Response): Request = {
+        val credential = ProxyUtils.getStaticProxyCredentials(proxySettings, ProxyCredentialStoreKt.asProxyCredentialProvider(ProxyCredentialStore.getInstance()))
+        if credential != null then
+          boundary:
+            for challenge <- response.challenges().asScala do
+              if challenge.scheme().equalsIgnoreCase("OkHttp-Preemptive") then
+                boundary.break(
+                  response
+                    .request()
+                    .newBuilder()
+                    .header("Proxy-Authorization", Credentials.basic(credential.getUserName, credential.getPasswordAsString))
+                    .build()
+                )
+            null
+        else null
+      }
+    }
     OkHttpClient
       .Builder()
       .dispatcher(Dispatcher(intellijComputeContext))
@@ -109,6 +136,8 @@ object HttpClientKeeper {
       .readTimeout(readTimeout.toMillis, java.util.concurrent.TimeUnit.MILLISECONDS)
       .sslSocketFactory(sslSocketFactory, trustAllManager)
       .hostnameVerifier((hostname, session) => true)
+      .proxySelector(IdeProxySelector(ProxySettingsKt.asConfigurationProvider(proxySettings))) // IntelliJ proxy selector
+      .proxyAuthenticator(authenticator)
       .build()
   }
 

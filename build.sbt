@@ -48,6 +48,7 @@ lazy val codeEpiphany = (project in file("."))
       // add cats retry
       "com.github.cb372" %% "cats-retry" % "3.1.3",
       // add log4cats
+      "org.typelevel" %% "log4cats-core"   % "2.7.0",
       "org.typelevel" %% "log4cats-slf4j"   % "2.7.0",
       "org.typelevel" %% "case-insensitive" % "1.4.2",
       // add http4s client

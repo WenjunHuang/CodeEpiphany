@@ -1,18 +1,19 @@
 package com.wenjunhuang.codeepiphany.controllers.sidebar
 
-import cats.effect.{ IO, Resource, SyncIO }
+import cats.effect.{IO, Resource, SyncIO}
 import cats.syntax.all.*
 import com.intellij.ide.ui.UISettingsListener
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.application.ApplicationManager
-import com.intellij.openapi.editor.colors.{ EditorColorsListener, EditorColorsManager }
+import com.intellij.openapi.editor.colors.{EditorColorsListener, EditorColorsManager}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
 import com.intellij.ui.jcef.*
-import com.wenjunhuang.codeepiphany.controllers.sidebar.DescriptionPresenter
+import com.wenjunhuang.codeepiphany.controllers.sidebar.JCefDescriptionView.*
 import com.wenjunhuang.codeepiphany.model.QuestionStorage.QuestionItem
-import com.wenjunhuang.codeepiphany.utils.jcef.{ CefLocalRequestHandler, CefStreamResourceHandler }
-import com.wenjunhuang.codeepiphany.utils.{ intellijIORuntime, isDebug, Log }
+import com.wenjunhuang.codeepiphany.utils.implicits.*
+import com.wenjunhuang.codeepiphany.utils.isDebug
+import com.wenjunhuang.codeepiphany.utils.jcef.{CefLocalRequestHandler, CefStreamResourceHandler}
 import io.circe.*
 import io.circe.generic.auto.*
 import io.circe.parser.parse
@@ -20,15 +21,15 @@ import org.apache.commons.io.IOUtils
 import org.cef.browser.*
 import org.cef.handler.*
 import org.intellij.lang.annotations.Language
+import org.typelevel.log4cats.{Logger, LoggerFactory}
 
-import java.io.{ ByteArrayInputStream, File, FileInputStream }
+import java.io.{ByteArrayInputStream, File, FileInputStream}
 import java.nio.charset.StandardCharsets
 import javax.swing.JComponent
 
-import JCefDescriptionView.*
-
 class JCefDescriptionView(private val project: Project, private val presenter: DescriptionPresenter, private val styleProvider: DescriptionStyleProvider) extends Disposable {
   private var questionItem: Option[QuestionItem] = None
+  implicit private val logger : Logger[SyncIO] = LoggerFactory[SyncIO].getLogger
 
   private val myLifeSpanHandler =
     new CefLifeSpanHandlerAdapter {
@@ -45,21 +46,20 @@ class JCefDescriptionView(private val project: Project, private val presenter: D
     requestHandler.addResource(VIEW_PATH) { () =>
       val content = (
         Resource
-          .fromAutoCloseable(SyncIO(getClass.getResourceAsStream("resources/descriptionViewer.html")))
+          .fromAutoCloseable(SyncIO.delay(getClass.getResourceAsStream("resources/descriptionViewer.html")))
           .use { is =>
-            SyncIO(IOUtils.toString(is, StandardCharsets.UTF_8))
+            IOUtils.toString(is, StandardCharsets.UTF_8).pure[SyncIO]
           },
         questionItem
           .map(_.descriptionFilePath)
           .map { path =>
             Resource
-              .fromAutoCloseable(SyncIO(FileInputStream(File(path))))
+              .fromAutoCloseable(SyncIO.delay(FileInputStream(File(path))))
               .use { is =>
-                SyncIO(IOUtils.toString(is, StandardCharsets.UTF_8))
+                IOUtils.toString(is, StandardCharsets.UTF_8).pure[SyncIO]
               }
               .handleErrorWith { e =>
-                Log.warn(s"Failed to read description file: $path", e)
-                SyncIO("")
+                Logger[SyncIO].warn(e)(s"Failed to read description file: $path") *> SyncIO("")
               }
           }
           .getOrElse(SyncIO(""))

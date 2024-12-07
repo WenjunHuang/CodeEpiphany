@@ -5,7 +5,7 @@ import cats.syntax.all.*
 import com.intellij.testFramework.fixtures.BasePlatformTestCase
 import com.wenjunhuang.codeepiphany.controllers.http.{ HttpClientKeeper, HttpClientService }
 import com.wenjunhuang.codeepiphany.hackerrank.model.QuestionSkill.Intermediate
-import com.wenjunhuang.codeepiphany.utils.intellijIORuntime
+import com.wenjunhuang.codeepiphany.utils.implicits.*
 import org.hamcrest.CoreMatchers.*
 import org.hamcrest.MatcherAssert.assertThat
 
