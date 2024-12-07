@@ -1,7 +1,8 @@
 package com.wenjunhuang.codeepiphany.controllers.sidebar
 
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.wm.{ToolWindow, ToolWindowFactory, ToolWindowManager}
+import com.intellij.openapi.wm.impl.content.ToolWindowContentUi
+import com.intellij.openapi.wm.{ ToolWindow, ToolWindowFactory, ToolWindowManager }
 import com.wenjunhuang.codeepiphany.model.CodeDojo.LeetCodeCN
 import com.wenjunhuang.codeepiphany.model.QuestionStorage.QuestionItem
 import kotlin.coroutines.Continuation
@@ -14,6 +15,7 @@ class QuestionInfoToolWindowFactory extends ToolWindowFactory() {
     val cf        = cm.getFactory
 
     cm.addContent(cf.createContent(presenter.getView, "Question Description", false))
+    toolWindow.getComponent.putClientProperty(ToolWindowContentUi.HIDE_ID_LABEL, "true")
 
     val testItem = QuestionItem()
     testItem.descriptionFilePath = """C:\Sources\Work\CodeEpiphany\leetcode_demo.html"""

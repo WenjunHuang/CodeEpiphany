@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <idea-plugin>
     <id>com.wenjunhuang.codeepiphany</id>
-    <name>CodeEpiphany</name>
+    <name>Code Epiphany</name>
     <version>0.0.1</version>
     <vendor>Huang wenjun</vendor>
     <description>
@@ -14,20 +14,24 @@
 
     <resource-bundle>messages.PluginBundle</resource-bundle>
     <actions>
-        <!--        <action id="com.wenjun.plugindev.actions.ApiTestAction"-->
-        <!--                class="com.wenjun.plugindev.actions.ApiTestAction">-->
-        <!--            <add-to-group group-id="ToolsMenu" anchor="first"/>-->
-        <!--        </action>-->
+        <group id="CodeEpiphany.Dojos">
+            <action id="CodeEpiphany.Dojos.Actions.Login"
+                    class="com.wenjunhuang.codeepiphany.controllers.dojo.actions.LoginAction"
+                    icon="CodeEpiphanyIcons.LOGIN_ICON"/>
+        </group>
 
-        <action id="CodeEpiphany.Sidebar.Actions.ZoomIn"
-                class="com.wenjunhuang.codeepiphany.controllers.sidebar.actions.ZoomInAction"
-                icon="AllIcons.General.ZoomIn"/>
-        <action id="CodeEpiphany.Sidebar.Actions.ZoomOut"
-                class="com.wenjunhuang.codeepiphany.controllers.sidebar.actions.ZoomOutAction"
-                icon="AllIcons.General.ZoomOut"/>
-        <action id="CodeEpiphany.Sidebar.Actions.ActualZoom"
-                class="com.wenjunhuang.codeepiphany.controllers.sidebar.actions.ActualZoomAction"
-                icon="AllIcons.General.ActualZoom"/>
+
+        <group id="CodeEpiphany.Sidebar">
+            <action id="CodeEpiphany.Sidebar.Actions.ZoomIn"
+                    class="com.wenjunhuang.codeepiphany.controllers.sidebar.actions.ZoomInAction"
+                    icon="AllIcons.General.ZoomIn"/>
+            <action id="CodeEpiphany.Sidebar.Actions.ZoomOut"
+                    class="com.wenjunhuang.codeepiphany.controllers.sidebar.actions.ZoomOutAction"
+                    icon="AllIcons.General.ZoomOut"/>
+            <action id="CodeEpiphany.Sidebar.Actions.ActualZoom"
+                    class="com.wenjunhuang.codeepiphany.controllers.sidebar.actions.ActualZoomAction"
+                    icon="AllIcons.General.ActualZoom"/>
+        </group>
 
         <group id="CodeEpiphany.Sidebar.Description.Toolbar">
             <reference ref="CodeEpiphany.Sidebar.Actions.ZoomIn"/>
@@ -58,8 +62,10 @@
     <extensions defaultExtensionNs="com.intellij">
         <notificationGroup displayType="BALLOON" id="My Plugin Notification"/>
         <toolWindow factoryClass="com.wenjunhuang.codeepiphany.controllers.sidebar.QuestionInfoToolWindowFactory"
-                    id="CodeEpiphany Sidebar" anchor="bottom"/>
-
+                    id="CodeEpiphany Sidebar" anchor="bottom"
+                    icon="CodeEpiphanyIcons.LOGIN_ICON"/>
+        <toolWindow factoryClass="com.wenjunhuang.codeepiphany.controllers.dojo.CodeDojoToolWindowFactory"
+                    id="CodeEpiphany Dojos" anchor="left"/>
         <projectService serviceImplementation="com.wenjunhuang.codeepiphany.controllers.sidebar.QuestionInfoPresenter"/>
         <projectService serviceImplementation="com.wenjunhuang.codeepiphany.model.QuestionStorage"/>
 
