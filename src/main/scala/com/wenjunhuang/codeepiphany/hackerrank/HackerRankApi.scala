@@ -1,21 +1,21 @@
 package com.wenjunhuang.codeepiphany.hackerrank
 
-import cats.effect.Concurrent
+import cats.effect.{Async, Concurrent}
 import cats.syntax.all.*
 import com.wenjunhuang.codeepiphany.controllers.http.HttpClientKeeper
 import com.wenjunhuang.codeepiphany.hackerrank.model.*
 import com.wenjunhuang.codeepiphany.model.CodeDojo.HackerRank
-import com.wenjunhuang.codeepiphany.model.{ ApiError, Language }
+import com.wenjunhuang.codeepiphany.model.{ApiError, Language}
 import io.circe.Json
 import io.circe.optics.JsonPath
 import io.circe.parser.parse
 import org.http4s.client.dsl.Http4sClientDsl
 import org.http4s.implicits.uri
-import org.http4s.{ EntityDecoder, Headers, Method, Request, Uri }
+import org.http4s.{EntityDecoder, Method, Request, Uri}
 import org.jsoup.Jsoup
 
 trait HackerRankApi[F[_]] {
-  def getChallengeDomains: F[List[ChallengeDomain]]
+  def getInitialData: F[(UserInfo, List[ChallengeDomain])]
   def getChallengeContent(problemSlug: String, contest: Option[String], language: Language): F[Option[QuestionContent]]
   def searchChallenges(
       offset: Int,
@@ -32,7 +32,7 @@ trait HackerRankApi[F[_]] {
 }
 
 object HackerRankApi {
-  def apply[F[_]: Concurrent: HttpClientKeeper](): HackerRankApi[F] = new HackerRankApi[F] with Http4sClientDsl[F] {
+  def apply[F[_]: Async: Concurrent: HttpClientKeeper](): HackerRankApi[F] = new HackerRankApi[F] with Http4sClientDsl[F] {
     override def checkLogin(): F[Boolean] = HttpClientKeeper[F].getClient.use { client =>
       client
         .run(Request[F](Method.GET, uri"https://www.hackerrank.com/community/v1/promotion_slots/banner-dashboard"))
@@ -142,20 +142,63 @@ object HackerRankApi {
           }
       }
 
-    override def getChallengeDomains: F[List[ChallengeDomain]] = HttpClientKeeper[F].getClient.use { client =>
+    override def getInitialData: F[(UserInfo, List[ChallengeDomain])] = HttpClientKeeper[F].getClient.use { client =>
       val request = Method.GET(uri = uri"https://www.hackerrank.com/dashboard")
-      client.expect[String](request).map { response =>
-        val doc = Jsoup.parse(response)
-        Option(doc.selectFirst("script[id=initialData]")).map { element =>
-          parse(Uri.decode(element.html())) match
-            case Left(e) => throw ApiError.InvalidContent(HackerRank, e.getMessage)
-            case Right(json) =>
-              json.asObject
-              (JsonPath.root.community.domains.list.arr.getOption(json), JsonPath.root.community.domains.dict.as[Map[String, Json]].getOption(json)).mapN { case (domains, dict) =>
+      client
+        .expect[String](request)
+        .flatMap { response =>
+          val doc = Jsoup.parse(response)
+          (Option(doc.selectFirst("script[id=initialUserData]")), Option(doc.selectFirst("script[id=initialData]")))
+            .mapN(_ -> _)
+            .toRight(ApiError.InvalidContent(HackerRank, "initial html not found"))
+            .flatMap { case (initialUserData, initialData) =>
+              (
+                parse(Uri.decode(initialUserData.html)).leftMap(e => ApiError.InvalidContent(HackerRank, e.getMessage)),
+                parse(Uri.decode(initialData.html)).leftMap(e => ApiError.InvalidContent(HackerRank, e.getMessage))
+              ).flatMapN { case (userData, data) =>
+                val userInfo = UserInfo(
+                  JsonPath.root.name.string.getOption(userData).getOrElse(""),
+                  JsonPath.root.username.string.getOption(userData).getOrElse(""),
+                  JsonPath.root.avatar.string.getOption(userData).getOrElse("")
+                )
+                (
+                  JsonPath.root.community.domains.list.arr.getOption(data),
+                  JsonPath.root.community.domains.dict.as[Map[String, Json]].getOption(data)
+                ).mapN((userInfo, _, _))
+                  .toRight(ApiError.InvalidContent(HackerRank, "invalid challenges list json"))
               }
+            }
+            .map { case (userInfo, domains, dict) =>
+              (
+                userInfo,
+                domains.mapFilter { domain =>
+                  for {
+                    name <- JsonPath.root.name.string.getOption(domain)
+                    slug <- JsonPath.root.slug.string.getOption(domain)
+                  } yield ChallengeDomain(
+                    name,
+                    slug,
+                    dict
+                      .get(slug)
+                      .map { d =>
+                        JsonPath.root.chapters.arr
+                          .getOption(d)
+                          .getOrElse(Vector.empty)
+                          .mapFilter { d =>
+                            for {
+                              name <- JsonPath.root.name.string.getOption(d)
+                              slug <- JsonPath.root.slug.string.getOption(d)
+                            } yield ChallengeSubdomain(name, slug)
+                          }
+                          .toList
+                      }
+                      .getOrElse(Nil)
+                  )
+                }.toList
+              )
+            }
+            .liftTo[F]
         }
-        Nil
-      }
     }
   }
 }

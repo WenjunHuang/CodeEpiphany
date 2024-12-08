@@ -30,7 +30,8 @@ package object model {
     def show: String = PluginBundle.message(s"hackerrank.model.question.difficulty.${this.toString}")
   }
 
-  case class ChallengeDomain(name:String,slug:String,subDomains:List[ChallengeSubdomain])
+  case class UserInfo(account: String, name: String, avatarUrl: String)
+  case class ChallengeDomain(name: String, slug: String, subDomains: List[ChallengeSubdomain])
   case class ChallengeSubdomain(name: String, slug: String)
 
   case class ChallengeListItem(slug: String, difficultyName: String, successRatio: Double, name: String)
