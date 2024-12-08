@@ -6,6 +6,7 @@ import com.wenjunhuang.codeepiphany.controllers.http.HttpClientKeeper
 import com.wenjunhuang.codeepiphany.hackerrank.model.*
 import com.wenjunhuang.codeepiphany.model.CodeDojo.HackerRank
 import com.wenjunhuang.codeepiphany.model.{ ApiError, Language }
+import io.circe.Json
 import io.circe.optics.JsonPath
 import io.circe.parser.parse
 import org.http4s.client.dsl.Http4sClientDsl
@@ -14,14 +15,17 @@ import org.http4s.{ EntityDecoder, Headers, Method, Request, Uri }
 import org.jsoup.Jsoup
 
 trait HackerRankApi[F[_]] {
-  def getQuestionContent(problemSlug: String, language: Language): F[Option[QuestionContent]]
-  def getAlgorithmsChallenges(
+  def getChallengeDomains: F[List[ChallengeDomain]]
+  def getChallengeContent(problemSlug: String, contest: Option[String], language: Language): F[Option[QuestionContent]]
+  def searchChallenges(
       offset: Int,
       limit: Int,
-      status: List[QuestionStatus] = Nil,
-      skills: List[QuestionSkill] = Nil,
-      difficulties: List[QuestionDifficulty] = Nil,
-      subdomains: List[QuestionSubdomain] = Nil
+      contest: Option[String],
+      topicSlug: Option[String],
+      status: List[ChallengeStatus] = Nil,
+      skills: List[ChallengeSkill] = Nil,
+      difficulties: List[ChallengeDifficulty] = Nil,
+      subdomains: List[ChallengeSubdomain] = Nil
   ): F[List[ChallengeListItem]]
 
   def checkLogin(): F[Boolean]
@@ -40,14 +44,25 @@ object HackerRankApi {
         }
     }
 
-    override def getQuestionContent(problemSlug: String, language: Language): F[Option[QuestionContent]] =
+    private def makeRequestUrl(problemSlug: String, contest: Option[String]): Uri = {
+      val baseUri = uri"https://www.hackerrank.com"
+      contest match {
+        case Some(contest) => baseUri / "contests" / contest / "challenges" / problemSlug / "problem"
+        case None          => baseUri / "challenges" / problemSlug / "problem"
+      }
+    }
+
+    override def getChallengeContent(
+        problemSlug: String,
+        contest: Option[String], // hackerrank contest such as 'projecteuler'
+        language: Language
+    ): F[Option[QuestionContent]] =
       HttpClientKeeper[F].getClient.use { client =>
         client
           .expect[String](
             Request[F](
               Method.GET,
-              uri"https://www.hackerrank.com/challenges" / problemSlug / "problem",
-              headers = Headers("User-Agent" -> "Mozilla/5.0")
+              makeRequestUrl(problemSlug, contest)
             )
           )
           .map { content =>
@@ -57,39 +72,61 @@ object HackerRankApi {
                 case Left(e) => throw ApiError.InvalidContent(HackerRank, e.getMessage)
                 case Right(json) =>
                   val codeTemplate =
-                    JsonPath.root.community.challenges.challenge.selectDynamic(s"master/$problemSlug").detail.selectDynamic(s"${language.value}_template").string.getOption(json)
+                    JsonPath.root.community.challenges.challenge
+                      .selectDynamic(s"${contest.getOrElse("master")}/$problemSlug")
+                      .detail
+                      .selectDynamic(s"${language.value}_template")
+                      .string
+                      .getOption(json)
                   val codeTemplateHead =
-                    JsonPath.root.community.challenges.challenge.selectDynamic(s"master/$problemSlug").detail.selectDynamic(s"${language.value}_template_head").string.getOption(json)
+                    JsonPath.root.community.challenges.challenge
+                      .selectDynamic(s"${contest.getOrElse("master")}/$problemSlug")
+                      .detail
+                      .selectDynamic(s"${language.value}_template_head")
+                      .string
+                      .getOption(json)
                   val codeTemplateTail =
-                    JsonPath.root.community.challenges.challenge.selectDynamic(s"master/$problemSlug").detail.selectDynamic(s"${language.value}_template_tail").string.getOption(json)
+                    JsonPath.root.community.challenges.challenge
+                      .selectDynamic(s"${contest.getOrElse("master")}/$problemSlug")
+                      .detail
+                      .selectDynamic(s"${language.value}_template_tail")
+                      .string
+                      .getOption(json)
                   QuestionContent(problemSlug, questionBody.html(), codeTemplateHead.getOrElse("") + codeTemplate.getOrElse("") + codeTemplateTail.getOrElse(""), language)
               }
             }
           }
       }
 
-    override def getAlgorithmsChallenges(
+    private def makeSearchChallengesUri(contest: Option[String], topicSlug: Option[String]): Uri =
+      val base = uri"https://www.hackerrank.com/rest/contests" / contest.getOrElse("master")
+      topicSlug match
+        case None       => base / "challenges"
+        case Some(slug) => base / "tracks" / slug / "challenges"
+
+    override def searchChallenges(
         offset: Int,
         limit: Int,
-        status: List[QuestionStatus],
-        skills: List[QuestionSkill],
-        difficulties: List[QuestionDifficulty],
-        subdomains: List[QuestionSubdomain]
+        contest: Option[String],
+        topicSlug: Option[String],
+        status: List[ChallengeStatus],
+        skills: List[ChallengeSkill],
+        difficulties: List[ChallengeDifficulty],
+        subdomains: List[ChallengeSubdomain]
     ): F[List[ChallengeListItem]] =
       HttpClientKeeper[F].getClient.use { client =>
         val request = Method.GET(
-          uri"https://www.hackerrank.com/rest/contests/master/tracks/algorithms/challenges"
+          makeSearchChallengesUri(contest, topicSlug)
             .withQueryParam("offset", offset)
             .withQueryParam("limit", limit)
             .withMultiValueQueryParams(
               Map(
-                "filters[subdomains][]" -> subdomains.map(_.value),
+                "filters[subdomains][]" -> subdomains.map(_.slug),
                 "filters[status][]"     -> status.map(_.value),
                 "filters[difficulty][]" -> difficulties.map(_.value),
                 "filters[skills][]"     -> skills.map(_.value)
               ).filter(_._2.nonEmpty)
-            ),
-          headers = Headers("User-Agent" -> "Mozilla/5.0")
+            )
         )
         client
           .expect[String](request)
@@ -104,5 +141,21 @@ object HackerRankApi {
                 }.toList
           }
       }
+
+    override def getChallengeDomains: F[List[ChallengeDomain]] = HttpClientKeeper[F].getClient.use { client =>
+      val request = Method.GET(uri = uri"https://www.hackerrank.com/dashboard")
+      client.expect[String](request).map { response =>
+        val doc = Jsoup.parse(response)
+        Option(doc.selectFirst("script[id=initialData]")).map { element =>
+          parse(Uri.decode(element.html())) match
+            case Left(e) => throw ApiError.InvalidContent(HackerRank, e.getMessage)
+            case Right(json) =>
+              json.asObject
+              (JsonPath.root.community.domains.list.arr.getOption(json), JsonPath.root.community.domains.dict.as[Map[String, Json]].getOption(json)).mapN { case (domains, dict) =>
+              }
+        }
+        Nil
+      }
+    }
   }
 }

@@ -7,47 +7,31 @@ import io.circe.Decoder
 package object model {
   case class QuestionContent(slug: String, description: String, codeTemplate: String, language: Language)
 
-  enum QuestionStatus(val value: String) {
-    case Solved   extends QuestionStatus("solved")
-    case Unsolved extends QuestionStatus("unsolved")
+  enum ChallengeStatus(val value: String) {
+    case Solved   extends ChallengeStatus("solved")
+    case Unsolved extends ChallengeStatus("unsolved")
 
     def show: String = PluginBundle.message(s"hackerrank.model.question.status.${this.toString}")
   }
 
-  enum QuestionSkill(val value: String) {
-    case Intermediate extends QuestionSkill("Problem Solving (Intermediate)")
-    case Advanced     extends QuestionSkill("Problem Solving (Advanced)")
-    case Basic        extends QuestionSkill("Problem Solving (Basic)")
+  enum ChallengeSkill(val value: String) {
+    case Intermediate extends ChallengeSkill("Problem Solving (Intermediate)")
+    case Advanced     extends ChallengeSkill("Problem Solving (Advanced)")
+    case Basic        extends ChallengeSkill("Problem Solving (Basic)")
 
     def show: String = PluginBundle.message(s"hackerrank.model.question.skill.${this.toString}")
   }
 
-  enum QuestionDifficulty(val value: String) {
-    case Easy   extends QuestionDifficulty("easy")
-    case Medium extends QuestionDifficulty("medium")
-    case Hard   extends QuestionDifficulty("hard")
+  enum ChallengeDifficulty(val value: String) {
+    case Easy   extends ChallengeDifficulty("easy")
+    case Medium extends ChallengeDifficulty("medium")
+    case Hard   extends ChallengeDifficulty("hard")
 
     def show: String = PluginBundle.message(s"hackerrank.model.question.difficulty.${this.toString}")
   }
 
-  enum QuestionSubdomain(val value: String) {
-    case Warmup                 extends QuestionSubdomain("warmup")
-    case Implementation         extends QuestionSubdomain("implementation")
-    case Strings                extends QuestionSubdomain("strings")
-    case Sorting                extends QuestionSubdomain("sorting")
-    case Search                 extends QuestionSubdomain("search")
-    case GraphTheory            extends QuestionSubdomain("graph-theory")
-    case Greedy                 extends QuestionSubdomain("greedy")
-    case DynamicProgramming     extends QuestionSubdomain("dynamic-programming")
-    case ConstructiveAlgorithms extends QuestionSubdomain("constructive-algorithms")
-    case BitManipulation        extends QuestionSubdomain("bit-manipulation")
-    case Recursion              extends QuestionSubdomain("recursion")
-    case GameTheory             extends QuestionSubdomain("game-theory")
-    case NPComplete             extends QuestionSubdomain("np-complete-problems")
-    case Debugging              extends QuestionSubdomain("debugging")
-
-    def show: String = PluginBundle.message(s"hackerrank.model.question.subdomains.${this.toString}")
-  }
+  case class ChallengeDomain(name:String,slug:String,subDomains:List[ChallengeSubdomain])
+  case class ChallengeSubdomain(name: String, slug: String)
 
   case class ChallengeListItem(slug: String, difficultyName: String, successRatio: Double, name: String)
   object ChallengeListItem {
