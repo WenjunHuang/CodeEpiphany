@@ -1,21 +1,22 @@
 package com.wenjunhuang.codeepiphany.hackerrank
 
-import cats.effect.{ Async, Concurrent }
+import cats.effect.{Async, Concurrent}
 import cats.syntax.all.*
 import com.wenjunhuang.codeepiphany.controllers.http.HttpClientKeeper
 import com.wenjunhuang.codeepiphany.hackerrank.model.*
 import com.wenjunhuang.codeepiphany.model.CodeDojo.HackerRank
-import com.wenjunhuang.codeepiphany.model.{ ApiError, Language }
+import com.wenjunhuang.codeepiphany.model.{ApiError, Language}
 import io.circe.Json
+import io.circe.generic.auto.*
 import io.circe.optics.JsonPath
 import io.circe.parser.parse
 import org.http4s.client.dsl.Http4sClientDsl
 import org.http4s.implicits.uri
-import org.http4s.{ EntityDecoder, Method, Request, Uri }
+import org.http4s.{EntityDecoder, Method, Request, Uri}
 import org.jsoup.Jsoup
 
 trait HackerRankApi[F[_]] {
-  def getInitialData: F[(UserInfo, List[ChallengeDomain])]
+  def getInitialData(): F[(UserInfo, List[ChallengeDomain])]
   def getChallengeContent(problemSlug: String, contest: Option[String], language: Language): F[Option[QuestionContent]]
   def searchChallenges(
       offset: Int,
@@ -142,7 +143,7 @@ object HackerRankApi {
           }
       }
 
-    override def getInitialData: F[(UserInfo, List[ChallengeDomain])] = HttpClientKeeper[F].getClient.use { client =>
+    override def getInitialData(): F[(UserInfo, List[ChallengeDomain])] = HttpClientKeeper[F].getClient.use { client =>
       val request = Method.GET(uri = uri"https://www.hackerrank.com/dashboard")
       client
         .expect[String](request)
@@ -157,11 +158,7 @@ object HackerRankApi {
                 parse(Uri.decode(initialData.html)).leftMap(e => ApiError.InvalidContent(HackerRank, "The initialData script is not valid JSON"))
               ).flatMapN { case (userData, data) =>
                 (
-                  (
-                    JsonPath.root.name.string.getOption(userData),
-                    JsonPath.root.username.string.getOption(userData),
-                    JsonPath.root.avatar.string.getOption(userData)
-                  ).mapN(UserInfo.apply).toRight(ApiError.InvalidContent(HackerRank, "invalid user data json")),
+                  userData.as[UserInfo],
                   (
                     JsonPath.root.community.domains.list.arr.getOption(data),
                     JsonPath.root.community.domains.dict.as[Map[String, Json]].getOption(data)
@@ -185,12 +182,7 @@ object HackerRankApi {
                         JsonPath.root.chapters.arr
                           .getOption(d)
                           .getOrElse(Vector.empty)
-                          .mapFilter { d =>
-                            for {
-                              name <- JsonPath.root.name.string.getOption(d)
-                              slug <- JsonPath.root.slug.string.getOption(d)
-                            } yield ChallengeSubdomain(name, slug)
-                          }
+                          .mapFilter { d => d.as[ChallengeSubdomain].toOption }
                           .toList
                       }
                       .getOrElse(Nil)

@@ -7,7 +7,7 @@ import com.wenjunhuang.codeepiphany.controllers.http.HttpClientKeeper
 import com.wenjunhuang.codeepiphany.hackerrank.HackerRankApi
 import com.wenjunhuang.codeepiphany.hackerrank.services.auth.ui.HackerRankLoginDialog
 import com.wenjunhuang.codeepiphany.model.{ ApiError, CodeDojo }
-import com.wenjunhuang.codeepiphany.utils.SensitiveDataStore
+import com.wenjunhuang.codeepiphany.utils.{ CookieUtil, SensitiveDataStore }
 import com.wenjunhuang.codeepiphany.utils.implicits.*
 import okhttp3.Cookie
 
@@ -29,7 +29,7 @@ package object auth {
     Async[F].blocking(SensitiveDataStore.loadData(codeDojo.show)).flatMap {
       case Some(authCookies) =>
         Async[F]
-          .delay(HttpCookie.parse(authCookies).asScala.toList)
+          .delay(CookieUtil.parseCookies(authCookies))
           .flatMap(it => HttpClientKeeper[F].updateCookiesForHost(codeDojo.domain, it))
       case None => ().pure[F]
     }
@@ -47,17 +47,9 @@ package object auth {
     }
 
   def validateUserCookieAndTestLogin[F[_]: Async: HttpClientKeeper](project: Project, codeDojo: CodeDojo, cookie: String): F[Boolean] =
-    Async[F].delay {
-      cookie
-        .split(";")
-        .map(_.trim)
-        .collect {
-          case cookie if cookie.contains("=") =>
-            val Array(name, value) = cookie.trim.split("=", 2)
-            HttpCookie(name, value)
-        }
-        .toList
-    }.flatMap(validateUserCookieAndTestLogin(project, codeDojo, _))
+    Async[F]
+      .delay(CookieUtil.parseCookies(cookie))
+      .flatMap(validateUserCookieAndTestLogin(project, codeDojo, _))
 
   /** Invoke the login process * */
   def askForLogin[F[_]: Async](project: Project, codeDojo: CodeDojo): F[AskForLoginResult] =

@@ -3,6 +3,7 @@ package com.wenjunhuang.codeepiphany.hackerrank
 import com.wenjunhuang.codeepiphany.PluginBundle
 import com.wenjunhuang.codeepiphany.model.Language
 import io.circe.Decoder
+import io.circe.generic.auto.*
 
 package object model {
   case class QuestionContent(slug: String, description: String, codeTemplate: String, language: Language)
@@ -30,7 +31,7 @@ package object model {
     def show: String = PluginBundle.message(s"hackerrank.model.question.difficulty.${this.toString}")
   }
 
-  case class UserInfo(account: String, name: String, avatarUrl: String)
+  case class UserInfo(username: String, name: String, avatar: String)
   case class ChallengeDomain(name: String, slug: String, subDomains: List[ChallengeSubdomain])
   case class ChallengeSubdomain(name: String, slug: String)
 
