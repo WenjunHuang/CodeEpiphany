@@ -6,7 +6,7 @@ import com.wenjunhuang.codeepiphany.controllers.http.HttpClientKeeper
 import com.wenjunhuang.codeepiphany.hackerrank.model.*
 import com.wenjunhuang.codeepiphany.model.CodeDojo.HackerRank
 import com.wenjunhuang.codeepiphany.model.{ApiError, Language}
-import io.circe.Json
+import io.circe.{Decoder, Json}
 import io.circe.generic.auto.*
 import io.circe.optics.JsonPath
 import io.circe.parser.parse
@@ -131,15 +131,14 @@ object HackerRankApi {
         )
         client
           .expect[String](request)
-          .map { response =>
+          .flatMap { response =>
             parse(response)
               .leftMap(e => ApiError.InvalidContent(HackerRank, e.getMessage))
-              .flatMap(JsonPath.root.models.arr.getOption(_).toRight(ApiError.InvalidContent(HackerRank, "invalid challenges list json"))) match
-              case Left(e) => throw e
-              case Right(json) =>
-                json.mapFilter { j =>
-                  j.as[ChallengeListItem].toOption
-                }.toList
+              .flatMap(JsonPath.root.models.json.getOption(_).toRight(ApiError.InvalidContent(HackerRank, "invalid challenges list json")))
+              .flatMap { json => 
+                json.as[List[ChallengeListItem]] 
+              }
+              .liftTo[F]
           }
       }
 

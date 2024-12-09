@@ -3,6 +3,7 @@ package com.wenjunhuang.codeepiphany.hackerrank
 import com.wenjunhuang.codeepiphany.PluginBundle
 import com.wenjunhuang.codeepiphany.model.Language
 import io.circe.Decoder
+import io.circe.derivation.{ Configuration, ConfiguredDecoder }
 import io.circe.generic.auto.*
 
 package object model {
@@ -31,12 +32,29 @@ package object model {
     def show: String = PluginBundle.message(s"hackerrank.model.question.difficulty.${this.toString}")
   }
 
-  case class UserInfo(username: String, name: String, avatar: String)
+  private given hackerRankConfig: Configuration = Configuration.default.withSnakeCaseMemberNames
+  case class UserInfo(username: String, name: String, avatar: String) derives ConfiguredDecoder
+
   case class ChallengeDomain(name: String, slug: String, subDomains: List[ChallengeSubdomain])
+
   case class ChallengeSubdomain(name: String, slug: String)
 
-  case class ChallengeListItem(slug: String, difficultyName: String, successRatio: Double, name: String)
-  object ChallengeListItem {
-    given decoder: Decoder[ChallengeListItem] = Decoder.forProduct4("slug", "difficulty_name", "success_ratio", "name")(ChallengeListItem.apply)
-  }
+  case class ChallengeListItem(
+      id: Int,
+      slug: String,
+      name: String,
+      bookmarked: Option[Boolean],
+      solved: Option[Boolean],
+      attempted: Option[Boolean],
+      contestSlug: String,
+      userScore: Double,
+      preview: String,
+      difficulty: Double,
+      difficultyName: String,
+      solvedScore: Double,
+      successRatio: Double,
+      totalCount: Int,
+      solvedCount: Int
+  ) derives ConfiguredDecoder
+
 }

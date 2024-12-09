@@ -8,5 +8,5 @@ project/plugins/project/
 .history
 .cache
 .lib/
-apiTestData/*
+testResources/apiTestData/*
 tempData/

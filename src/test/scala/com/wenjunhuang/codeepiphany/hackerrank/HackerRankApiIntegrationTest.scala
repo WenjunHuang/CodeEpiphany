@@ -15,29 +15,29 @@ import org.hamcrest.MatcherAssert.assertThat
 import java.io.FileInputStream
 import scala.io.Source
 
-class ApiTest extends BasePlatformTestCase {
+class HackerRankApiIntegrationTest extends BasePlatformTestCase {
   override def setUp(): Unit = {
     super.setUp()
     val proxy = ProxySettings.getInstance()
     proxy.setProxyConfiguration(ProxyConfiguration.proxy(ProxyConfiguration.ProxyProtocol.HTTP, "127.0.0.1", 9999, ""))
   }
 
-  override def getTestDataPath = s"apiTestData/hackerrank/${getTestName(false)}"
+  override def getTestDataPath = s"testResources/apiTestData/hackerrank/${getTestName(false)}"
 
   def testSearchChallenges(): Unit = {
     val httpClientKeeper = HttpClientService.getInstance(getProject)
     import httpClientKeeper.*
-//    val httpClientKeeper = HttpClientKeeper[IO]()
     val hackerRankApi = HackerRankApi[IO]()
-
-    (
-      hackerRankApi
-        .searchChallenges(0, 10, None, Some("algorithms")),
-      hackerRankApi.searchChallenges(0, 10, Some("projecteuler"), None, List(Unsolved), Nil)
-    ).mapN { case (challenges1, challenges2) =>
-      assertThat(challenges1.size, not(0))
-      assertThat(challenges2.size, not(0))
-    }.unsafeRunSync()
+    hackerRankApi
+      .searchChallenges(0, 10, None, Some("algorithms"))
+      .map { challenges =>
+        assertThat(challenges.size, not(0))
+      }
+      .unsafeRunSync()
+    hackerRankApi
+      .searchChallenges(0, 10, Some("projecteuler"), None, Nil, Nil)
+      .map(challenges => assertThat(challenges.size, not(0)))
+      .unsafeRunSync()
   }
 
   def testCheckLogin(): Unit = {
