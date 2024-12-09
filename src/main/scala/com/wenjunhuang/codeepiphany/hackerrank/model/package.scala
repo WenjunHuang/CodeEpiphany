@@ -34,10 +34,13 @@ package object model {
 
   private given hackerRankConfig: Configuration = Configuration.default.withSnakeCaseMemberNames
   case class UserInfo(username: String, name: String, avatar: String) derives ConfiguredDecoder
+  object UserInfo {
+    val empty: UserInfo = UserInfo("", "", "")
+  }
 
   case class ChallengeDomain(name: String, slug: String, subDomains: List[ChallengeSubdomain])
 
-  case class ChallengeSubdomain(name: String, slug: String)
+  case class ChallengeSubdomain(name: String, slug: String) derives ConfiguredDecoder
 
   case class ChallengeListItem(
       id: Int,

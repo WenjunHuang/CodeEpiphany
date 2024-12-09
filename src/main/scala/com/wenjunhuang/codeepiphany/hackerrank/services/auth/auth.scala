@@ -6,10 +6,9 @@ import com.intellij.openapi.project.Project
 import com.wenjunhuang.codeepiphany.controllers.http.HttpClientKeeper
 import com.wenjunhuang.codeepiphany.hackerrank.HackerRankApi
 import com.wenjunhuang.codeepiphany.hackerrank.services.auth.ui.HackerRankLoginDialog
-import com.wenjunhuang.codeepiphany.model.{ ApiError, CodeDojo }
-import com.wenjunhuang.codeepiphany.utils.{ CookieUtil, SensitiveDataStore }
+import com.wenjunhuang.codeepiphany.model.{ApiError, CodeDojo}
 import com.wenjunhuang.codeepiphany.utils.implicits.*
-import okhttp3.Cookie
+import com.wenjunhuang.codeepiphany.utils.{CookieUtil, SensitiveDataStore}
 
 import java.net.HttpCookie
 import scala.jdk.CollectionConverters.*
@@ -60,6 +59,9 @@ package object auth {
       },
       intellijUIContext
     )
+
+  def askForLogout[F[_]: Async: HttpClientKeeper](project: Project, codeDojo: CodeDojo): F[Unit] =
+    HttpClientKeeper[F].clearCookiesForHost(codeDojo.domain) *> Async[F].unit
 
   extension [F[_], A](effect: F[A]) {
 

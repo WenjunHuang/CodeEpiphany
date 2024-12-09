@@ -18,6 +18,9 @@
             <action id="CodeEpiphany.Dojos.Actions.Login"
                     class="com.wenjunhuang.codeepiphany.controllers.dojo.actions.LoginAction"
                     icon="CodeEpiphanyIcons.LOGIN_ICON"/>
+            <action id="CodeEpiphany.Dojos.Actions.Logout"
+                    class="com.wenjunhuang.codeepiphany.controllers.dojo.actions.LogoutAction"
+                    icon="CodeEpiphanyIcons.LOGOUT_ICON"/>
             <action id="CodeEpiphany.Dojos.Actions.QuestionSheets"
                     class="com.wenjunhuang.codeepiphany.controllers.dojo.actions.ListsComboBoxAction"/>
             <action id="CodeEpiphany.Dojos.Actions.Difficulty"
@@ -28,11 +31,15 @@
                     class="com.wenjunhuang.codeepiphany.controllers.dojo.actions.TagsPopupAction"/>
         </group>
 
-        <group id="CodeEpiphany.Dojos.Toolbar">
+        <group id="CodeEpiphany.Dojos.Hackerrank.Toolbar">
             <reference ref="CodeEpiphany.Dojos.Actions.QuestionSheets"/>
             <reference ref="CodeEpiphany.Dojos.Actions.Difficulty"/>
             <reference ref="CodeEpiphany.Dojos.Actions.Status"/>
             <reference ref="CodeEpiphany.Dojos.Actions.Tags"/>
+        </group>
+        <group id="CodeEpiphany.Dojos.TitleToolbar">
+            <reference ref="CodeEpiphany.Dojos.Actions.Login"/>
+            <reference ref="CodeEpiphany.Dojos.Actions.Logout"/>
         </group>
 
         <group id="CodeEpiphany.Sidebar">

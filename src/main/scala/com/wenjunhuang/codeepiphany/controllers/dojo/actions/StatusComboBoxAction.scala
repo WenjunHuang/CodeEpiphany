@@ -17,6 +17,8 @@ class StatusComboBoxAction extends ComboBoxAction {
     group.add(new StatusAction("Completed", "Completed", AllIcons.General.TodoImportant))
     group
   }
+  
+  override def getActionUpdateThread: ActionUpdateThread = ActionUpdateThread.BGT
 }
 
 class StatusAction(val text: String, val description: String, val icon: Icon) extends AnAction(text, description, icon) {

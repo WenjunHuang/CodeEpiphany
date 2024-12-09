@@ -22,15 +22,14 @@ class ListsComboBoxAction extends ComboBoxAction {
 
   override def update(e: AnActionEvent): Unit =
     Option(LISTS_PROVIDER_KEY.getData(e.getDataContext)).foreach { provider =>
-      (provider.getAllItems(), provider.getSelectedItems()).parMapN { (allItems, selectedItems) =>
-        myAllItems = allItems
-        mySelectedItems = selectedItems
-        e.getPresentation.setEnabledAndVisible(true)
-      }.unsafeRunAndForget()
+      myAllItems = provider.getAllItems()
+      mySelectedItems = provider.getSelectedItems()
+      e.getPresentation.setEnabledAndVisible(true)
     }
 
   override def getActionUpdateThread: ActionUpdateThread = ActionUpdateThread.BGT
 
+  
   private var myAllItems: List[ListQueryItem]      = List()
   private var mySelectedItems: List[ListQueryItem] = List()
 }
@@ -41,8 +40,7 @@ class QuestionSheetAction(private val myItem: ListQueryItem) extends AnAction(my
 
   override def actionPerformed(e: AnActionEvent): Unit = {}
 
-  override def update(e: AnActionEvent): Unit = {
-  }
+  override def update(e: AnActionEvent): Unit = {}
 
   override def getActionUpdateThread: ActionUpdateThread = ActionUpdateThread.EDT
 }
