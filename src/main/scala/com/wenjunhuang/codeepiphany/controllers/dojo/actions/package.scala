@@ -6,31 +6,42 @@ import com.intellij.openapi.project.Project
 
 package object actions {
   trait LoginLogoutProvider {
-    def login(): Unit 
+    def login(): Unit
     def logout(): Unit
-    def isLoggedIn(): Boolean
+    def isLoggedIn: Boolean
   }
 
   trait ListsQueryParamProvider {
-    def getAllItems(): List[ListQueryItem]
-    def isMultipleSelection(): Boolean
-    def getSelectedItems(): List[ListQueryItem]
+    def getAllItems: List[ListQueryItem]
+    def isMultipleSelection: Boolean
+    def getSelectedItems: List[ListQueryItem]
     def addSelectedItems(items: List[ListQueryItem]): Unit
     def removeSelectedItems(items: List[ListQueryItem]): Unit
   }
-
   case class ListQueryItem(name: String, id: String)
+
+  trait DifficultiesProvider {
+    def getDifficulties: List[Difficulty]
+    def isMultipleSelection: Boolean
+    def getSelected: List[Difficulty]
+    def addSelected(items: List[Difficulty]): Unit
+    def removeSelected(items: List[Difficulty]): Unit
+  }
+
+  case class Difficulty(name: String, value: String)
 
   object keys {
     final val LOGIN_LOGOUT_KEY = DataKey.create[LoginLogoutProvider]("LOGIN_LOGOUT_KEY")
 
     final val LISTS_PROVIDER_KEY = DataKey.create[ListsQueryParamProvider]("LISTS_QUERYPARAM_PROVIDER_KEY")
+
+    final val DIFFICULTIES_PROVIDER_KEY = DataKey.create[DifficultiesProvider]("DIFFICULTIES_PROVIDER_KEY")
   }
 
   object groups {
     final val HACKERRANK_TOOLBAR_GROUP = "CodeEpiphany.Dojos.Hackerrank.Toolbar"
-    final val TOOLBAR_PLACE = "CodeEpiphany.Dojos"
-    final val TITLE_TOOLBAR_GROUP = "CodeEpiphany.Dojos.TitleToolbar"
-    final val TITLE_TOOLBAR_PLACE = "CodeEpiphany.Dojos.TitleToolbar.Place"
+    final val TOOLBAR_PLACE            = "CodeEpiphany.Dojos"
+    final val TITLE_TOOLBAR_GROUP      = "CodeEpiphany.Dojos.TitleToolbar"
+    final val TITLE_TOOLBAR_PLACE      = "CodeEpiphany.Dojos.TitleToolbar.Place"
   }
 }

@@ -15,32 +15,26 @@ class ListsComboBoxAction extends ComboBoxAction {
       case null => DefaultActionGroup()
       case provider =>
         val group = new DefaultActionGroup()
-        myAllItems.foreach { item =>
-          group.add(new QuestionSheetAction(item))
+        provider.getAllItems().foreach { item =>
+          group.add(new ListsItemAction(item))
         }
         group
 
   override def update(e: AnActionEvent): Unit =
-    Option(LISTS_PROVIDER_KEY.getData(e.getDataContext)).foreach { provider =>
-      myAllItems = provider.getAllItems()
-      mySelectedItems = provider.getSelectedItems()
-      e.getPresentation.setEnabledAndVisible(true)
-    }
+    Option(LISTS_PROVIDER_KEY.getData(e.getDataContext)) match
+      case None           => e.getPresentation.setEnabled(false)
+      case Some(provider) => e.getPresentation.setEnabled(provider.getAllItems().nonEmpty)
 
   override def getActionUpdateThread: ActionUpdateThread = ActionUpdateThread.BGT
-
-  
-  private var myAllItems: List[ListQueryItem]      = List()
-  private var mySelectedItems: List[ListQueryItem] = List()
 }
 
 object ListsComboBoxAction {}
 
-class QuestionSheetAction(private val myItem: ListQueryItem) extends AnAction(myItem.name) {
+class ListsItemAction(private val myItem: ListQueryItem) extends AnAction(myItem.name) {
 
   override def actionPerformed(e: AnActionEvent): Unit = {}
 
   override def update(e: AnActionEvent): Unit = {}
 
-  override def getActionUpdateThread: ActionUpdateThread = ActionUpdateThread.EDT
+  override def getActionUpdateThread: ActionUpdateThread = ActionUpdateThread.BGT
 }
