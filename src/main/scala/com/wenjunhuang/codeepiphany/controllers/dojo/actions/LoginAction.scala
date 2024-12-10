@@ -14,7 +14,7 @@ class LoginAction extends AnAction {
       case null => 
         e.getPresentation.setEnabledAndVisible(false)
       case alg =>
-        e.getPresentation.setEnabledAndVisible(!alg.isLoggedIn())
+        e.getPresentation.setEnabledAndVisible(!alg.isLoggedIn)
     }
 
   override def getActionUpdateThread: ActionUpdateThread = ActionUpdateThread.BGT

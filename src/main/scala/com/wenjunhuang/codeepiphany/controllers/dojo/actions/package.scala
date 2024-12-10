@@ -11,24 +11,39 @@ package object actions {
     def isLoggedIn: Boolean
   }
 
+  trait QueryParamProvider[T] {
+    def getAllItems: List[T]
+    def isMultipleSelection: Boolean
+    def isSelected(item: T): Boolean
+    def getSelectedItems: List[T]
+    def addSelectedItems(items: List[T]): Unit
+    def toggleSelection(item: T): Unit
+    def removeSelectedItems(items: List[T]): Unit
+  }
+
+  case class ListQueryItem(name: String, id: String)
   trait ListsQueryParamProvider {
     def getAllItems: List[ListQueryItem]
     def isMultipleSelection: Boolean
     def getSelectedItems: List[ListQueryItem]
     def addSelectedItems(items: List[ListQueryItem]): Unit
+    def toggleSelection(item: ListQueryItem): Unit
     def removeSelectedItems(items: List[ListQueryItem]): Unit
   }
-  case class ListQueryItem(name: String, id: String)
 
+  case class Difficulty(name: String, value: String)
   trait DifficultiesProvider {
     def getDifficulties: List[Difficulty]
     def isMultipleSelection: Boolean
     def getSelected: List[Difficulty]
     def addSelected(items: List[Difficulty]): Unit
+    def toggleSelection(item: Difficulty): Unit
     def removeSelected(items: List[Difficulty]): Unit
+    def isSelected(item: Difficulty): Boolean
   }
 
-  case class Difficulty(name: String, value: String)
+  case class Status(name: String, value: String)
+  trait StatusProvider extends QueryParamProvider[Status]
 
   object keys {
     final val LOGIN_LOGOUT_KEY = DataKey.create[LoginLogoutProvider]("LOGIN_LOGOUT_KEY")
@@ -36,6 +51,8 @@ package object actions {
     final val LISTS_PROVIDER_KEY = DataKey.create[ListsQueryParamProvider]("LISTS_QUERYPARAM_PROVIDER_KEY")
 
     final val DIFFICULTIES_PROVIDER_KEY = DataKey.create[DifficultiesProvider]("DIFFICULTIES_PROVIDER_KEY")
+
+    final val STATUS_PROVIDER_KEY = DataKey.create[StatusProvider]("STATUS_PROVIDER_KEY")
   }
 
   object groups {

@@ -9,13 +9,13 @@ import com.wenjunhuang.codeepiphany.utils.implicits.*
 
 import javax.swing.JComponent
 
-class ListsComboBoxAction extends ComboBoxAction {
+class ListsAction extends ComboBoxAction {
   override def createPopupActionGroup(button: JComponent, dataContext: DataContext): DefaultActionGroup =
     LISTS_PROVIDER_KEY.getData(dataContext) match
       case null => DefaultActionGroup()
       case provider =>
         val group = new DefaultActionGroup()
-        provider.getAllItems().foreach { item =>
+        provider.getAllItems.foreach { item =>
           group.add(new ListsItemAction(item))
         }
         group
@@ -23,12 +23,12 @@ class ListsComboBoxAction extends ComboBoxAction {
   override def update(e: AnActionEvent): Unit =
     Option(LISTS_PROVIDER_KEY.getData(e.getDataContext)) match
       case None           => e.getPresentation.setEnabled(false)
-      case Some(provider) => e.getPresentation.setEnabled(provider.getAllItems().nonEmpty)
+      case Some(provider) => e.getPresentation.setEnabled(provider.getAllItems.nonEmpty)
 
   override def getActionUpdateThread: ActionUpdateThread = ActionUpdateThread.BGT
 }
 
-object ListsComboBoxAction {}
+object ListsAction {}
 
 class ListsItemAction(private val myItem: ListQueryItem) extends AnAction(myItem.name) {
 

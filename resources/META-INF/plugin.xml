@@ -22,11 +22,11 @@
                     class="com.wenjunhuang.codeepiphany.controllers.dojo.actions.LogoutAction"
                     icon="CodeEpiphanyIcons.LOGOUT_ICON"/>
             <action id="CodeEpiphany.Dojos.Actions.QuestionSheets"
-                    class="com.wenjunhuang.codeepiphany.controllers.dojo.actions.ListsComboBoxAction"/>
+                    class="com.wenjunhuang.codeepiphany.controllers.dojo.actions.ListsAction"/>
             <action id="CodeEpiphany.Dojos.Actions.Difficulty"
-                    class="com.wenjunhuang.codeepiphany.controllers.dojo.actions.DifficultyComboBoxAction"/>
+                    class="com.wenjunhuang.codeepiphany.controllers.dojo.actions.DifficultyAction"/>
             <action id="CodeEpiphany.Dojos.Actions.Status"
-                    class="com.wenjunhuang.codeepiphany.controllers.dojo.actions.StatusComboBoxAction"/>
+                    class="com.wenjunhuang.codeepiphany.controllers.dojo.actions.StatusAction"/>
             <action id="CodeEpiphany.Dojos.Actions.Tags"
                     class="com.wenjunhuang.codeepiphany.controllers.dojo.actions.TagsPopupAction"/>
         </group>

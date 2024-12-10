@@ -22,8 +22,7 @@ class HackerRankView(private val myProject: Project, private val myPresenter: Ha
   setContent(JBLabel("HackerRank"))
 
   override def uiDataSnapshot(dataSink: DataSink): Unit =
-    dataSink.set(LOGIN_LOGOUT_KEY, myPresenter)
-    dataSink.set(LISTS_PROVIDER_KEY, myPresenter)
+    myPresenter.uiDataSnapshot(dataSink)
 
   override def dispose(): Unit = {}
 }
