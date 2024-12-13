@@ -35,6 +35,7 @@ lazy val codeEpiphany = (project in file("."))
       "io.circe"            %% "circe-optics"     % "0.15.0",
       "co.fs2"              %% "fs2-core"         % "3.11.0",
       "dev.optics"          %% "monocle-core"     % "3.3.0",
+      "dev.optics"          %% "monocle-macro"     % "3.3.0",
       "com.github.cb372"    %% "cats-retry"       % "3.1.3",
       "org.typelevel"       %% "log4cats-core"    % "2.7.0",
       "org.typelevel"       %% "case-insensitive" % "1.4.2",

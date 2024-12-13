@@ -1,8 +1,6 @@
 package com.wenjunhuang.codeepiphany.controllers.dojo
 
-import cats.effect.{ Async, IO }
 import com.intellij.openapi.actionSystem.DataKey
-import com.intellij.openapi.project.Project
 
 package object actions {
   trait LoginLogoutProvider {
@@ -22,14 +20,7 @@ package object actions {
   }
 
   case class ListQueryItem(name: String, id: String)
-  trait ListsQueryParamProvider {
-    def getAllItems: List[ListQueryItem]
-    def isMultipleSelection: Boolean
-    def getSelectedItems: List[ListQueryItem]
-    def addSelectedItems(items: List[ListQueryItem]): Unit
-    def toggleSelection(item: ListQueryItem): Unit
-    def removeSelectedItems(items: List[ListQueryItem]): Unit
-  }
+  trait ListsQueryParamProvider extends QueryParamProvider[ListQueryItem] {}
 
   case class Difficulty(name: String, value: String)
   trait DifficultiesProvider {
@@ -45,6 +36,20 @@ package object actions {
   case class Status(name: String, value: String)
   trait StatusProvider extends QueryParamProvider[Status]
 
+  case class Skill(name: String, value: String)
+  trait SkillProvider extends QueryParamProvider[Skill]
+
+  case class TagGroup(name: String, value: String, tags: List[Tag])
+  case class Tag(name: String, value: String, groupValue: String)
+
+  sealed trait TagProvider extends QueryParamProvider[Tag] {}
+
+  trait SingleTagGroupProvider extends TagProvider {}
+  trait MultiTagGroupProvider extends TagProvider {
+    def isSearchEnabled: Boolean
+    def searchTags(query: String): List[Tag]
+  }
+
   object keys {
     final val LOGIN_LOGOUT_KEY = DataKey.create[LoginLogoutProvider]("LOGIN_LOGOUT_KEY")
 
@@ -53,6 +58,10 @@ package object actions {
     final val DIFFICULTIES_PROVIDER_KEY = DataKey.create[DifficultiesProvider]("DIFFICULTIES_PROVIDER_KEY")
 
     final val STATUS_PROVIDER_KEY = DataKey.create[StatusProvider]("STATUS_PROVIDER_KEY")
+
+    final val SKILL_PROVIDER_KEY = DataKey.create[SkillProvider]("SKILL_PROVIDER_KEY")
+
+    final val TAG_PROVIDER_KEY = DataKey.create[TagProvider]("TAG_PROVIDER_KEY")
   }
 
   object groups {

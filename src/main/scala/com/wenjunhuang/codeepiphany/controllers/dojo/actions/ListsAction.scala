@@ -1,11 +1,9 @@
 package com.wenjunhuang.codeepiphany.controllers.dojo.actions
 
-import cats.effect.IO
-import cats.syntax.all.*
+import com.intellij.icons.AllIcons
 import com.intellij.openapi.actionSystem.*
 import com.intellij.openapi.actionSystem.ex.ComboBoxAction
 import com.wenjunhuang.codeepiphany.controllers.dojo.actions.keys.LISTS_PROVIDER_KEY
-import com.wenjunhuang.codeepiphany.utils.implicits.*
 
 import javax.swing.JComponent
 
@@ -14,11 +12,7 @@ class ListsAction extends ComboBoxAction {
     LISTS_PROVIDER_KEY.getData(dataContext) match
       case null => DefaultActionGroup()
       case provider =>
-        val group = new DefaultActionGroup()
-        provider.getAllItems.foreach { item =>
-          group.add(new ListsItemAction(item))
-        }
-        group
+        DefaultActionGroup(provider.getAllItems.map(item => new ListsItemAction(item))*)
 
   override def update(e: AnActionEvent): Unit =
     Option(LISTS_PROVIDER_KEY.getData(e.getDataContext)) match
@@ -28,13 +22,20 @@ class ListsAction extends ComboBoxAction {
   override def getActionUpdateThread: ActionUpdateThread = ActionUpdateThread.BGT
 }
 
-object ListsAction {}
-
 class ListsItemAction(private val myItem: ListQueryItem) extends AnAction(myItem.name) {
 
-  override def actionPerformed(e: AnActionEvent): Unit = {}
+  override def actionPerformed(e: AnActionEvent): Unit =
+    Option(LISTS_PROVIDER_KEY.getData(e.getDataContext)).foreach(_.toggleSelection(myItem))
 
-  override def update(e: AnActionEvent): Unit = {}
+  override def update(e: AnActionEvent): Unit = {
+    val presentation = e.getPresentation
+    Option(LISTS_PROVIDER_KEY.getData(e.getDataContext))
+      .map(_.isSelected(myItem))
+      .foreach {
+        case true  => presentation.setIcon(AllIcons.Actions.Checked)
+        case false => presentation.setIcon(null)
+      }
+  }
 
   override def getActionUpdateThread: ActionUpdateThread = ActionUpdateThread.BGT
 }

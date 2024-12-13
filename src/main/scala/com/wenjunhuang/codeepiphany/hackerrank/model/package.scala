@@ -2,8 +2,9 @@ package com.wenjunhuang.codeepiphany.hackerrank
 
 import com.wenjunhuang.codeepiphany.PluginBundle
 import com.wenjunhuang.codeepiphany.model.Language
+import com.wenjunhuang.codeepiphany.utils.Colors
 import io.circe.Decoder
-import io.circe.derivation.{ Configuration, ConfiguredDecoder }
+import io.circe.derivation.{Configuration, ConfiguredDecoder}
 import io.circe.generic.auto.*
 
 package object model {
@@ -30,6 +31,12 @@ package object model {
     case Hard   extends ChallengeDifficulty("hard")
 
     def show: String = PluginBundle.message(s"hackerrank.model.question.difficulty.${this.toString}")
+
+    def showAsHtml: String =
+      this match
+        case Easy   => s"<html><font color='${Colors.DIFFICULTY_EASY_COLOR}'>${Easy.show}</font></html>"
+        case Medium => s"<html><font color='${Colors.DIFFICULTY_MEDIUM_COLOR}'>${Medium.show}</font></html>"
+        case Hard   => s"<html><font color='${Colors.DIFFICULTY_HARD_COLOR}'>${Hard.show}</font></html>"
   }
 
   private given hackerRankConfig: Configuration = Configuration.default.withSnakeCaseMemberNames

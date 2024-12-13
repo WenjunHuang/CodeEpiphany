@@ -21,20 +21,23 @@
             <action id="CodeEpiphany.Dojos.Actions.Logout"
                     class="com.wenjunhuang.codeepiphany.controllers.dojo.actions.LogoutAction"
                     icon="CodeEpiphanyIcons.LOGOUT_ICON"/>
-            <action id="CodeEpiphany.Dojos.Actions.QuestionSheets"
+            <action id="CodeEpiphany.Dojos.Actions.Lists"
                     class="com.wenjunhuang.codeepiphany.controllers.dojo.actions.ListsAction"/>
             <action id="CodeEpiphany.Dojos.Actions.Difficulty"
                     class="com.wenjunhuang.codeepiphany.controllers.dojo.actions.DifficultyAction"/>
             <action id="CodeEpiphany.Dojos.Actions.Status"
                     class="com.wenjunhuang.codeepiphany.controllers.dojo.actions.StatusAction"/>
+            <action id="CodeEpiphany.Dojos.Actions.Skill"
+                    class="com.wenjunhuang.codeepiphany.controllers.dojo.actions.SkillAction"/>
             <action id="CodeEpiphany.Dojos.Actions.Tags"
-                    class="com.wenjunhuang.codeepiphany.controllers.dojo.actions.TagsPopupAction"/>
+                    class="com.wenjunhuang.codeepiphany.controllers.dojo.actions.TagsAction"/>
         </group>
 
         <group id="CodeEpiphany.Dojos.Hackerrank.Toolbar">
-            <reference ref="CodeEpiphany.Dojos.Actions.QuestionSheets"/>
+            <reference ref="CodeEpiphany.Dojos.Actions.Lists"/>
             <reference ref="CodeEpiphany.Dojos.Actions.Difficulty"/>
             <reference ref="CodeEpiphany.Dojos.Actions.Status"/>
+            <reference ref="CodeEpiphany.Dojos.Actions.Skill"/>
             <reference ref="CodeEpiphany.Dojos.Actions.Tags"/>
         </group>
         <group id="CodeEpiphany.Dojos.TitleToolbar">

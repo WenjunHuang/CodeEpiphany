@@ -1,20 +1,17 @@
 package com.wenjunhuang.codeepiphany.controllers.dojo
 
-import cats.effect.IO
 import com.intellij.icons.AllIcons
-import com.intellij.openapi.actionSystem.{ActionManager, AnAction, DataProvider}
+import com.intellij.openapi.actionSystem.{ActionManager, AnAction}
 import com.intellij.openapi.project.{DumbAware, Project}
 import com.intellij.openapi.util.Key
-import com.intellij.openapi.wm.ex.ToolWindowEx
 import com.intellij.openapi.wm.impl.content.ToolWindowContentUi
 import com.intellij.openapi.wm.{ToolWindow, ToolWindowContentUiType, ToolWindowFactory}
 import com.intellij.ui.components.JBLabel
 import com.wenjunhuang.codeepiphany.controllers.dojo.CodeDojoToolWindowFactory.HACKERRANK_PRESENTER_KEY
 import com.wenjunhuang.codeepiphany.controllers.dojo.actions.groups.TITLE_TOOLBAR_GROUP
-import com.wenjunhuang.codeepiphany.controllers.dojo.actions.keys.LISTS_PROVIDER_KEY
 
-import scala.jdk.CollectionConverters.*
 import javax.swing.Icon
+import scala.jdk.CollectionConverters.*
 
 class CodeDojoToolWindowFactory extends ToolWindowFactory with DumbAware {
   override def createToolWindowContent(project: Project, toolWindow: ToolWindow): Unit = {
@@ -25,7 +22,7 @@ class CodeDojoToolWindowFactory extends ToolWindowFactory with DumbAware {
     toolWindow.setDefaultContentUiType(ToolWindowContentUiType.COMBO)
 
     val hackerRankPresenter = HackerRankPresenter(project)
-    val content             = contentFactory.createContent(hackerRankPresenter.getComponent(), "HackerRank", false)
+    val content             = contentFactory.createContent(hackerRankPresenter.getComponent, "HackerRank", false)
     content.putUserData(HACKERRANK_PRESENTER_KEY, hackerRankPresenter)
     contentManager.addContent(content)
     contentManager.addContent(contentFactory.createContent(JBLabel("Leetcode"), "Leetcode", false))
