@@ -8,12 +8,14 @@ import com.intellij.openapi.ui.SimpleToolWindowPanel
 import com.intellij.openapi.util.Disposer
 import com.intellij.ui.components.JBScrollPane
 import com.intellij.ui.table.JBTable
-import com.wenjunhuang.codeepiphany.controllers.dojo.actions.{ PageSizeAction, PaginationAction }
+import com.intellij.ui.table.TableView
+import com.wenjunhuang.codeepiphany.controllers.dojo.actions.PaginationActionGroup
 import com.wenjunhuang.codeepiphany.controllers.dojo.actions.groups.*
+import com.wenjunhuang.codeepiphany.hackerrank.model.ChallengeListItem
 
 import java.awt.BorderLayout
-import javax.swing.table.DefaultTableModel
 import javax.swing.{ JPanel, ScrollPaneConstants }
+import scala.jdk.CollectionConverters.*
 
 class HackerRankView(private val myProject: Project, private val myPresenter: HackerRankPresenter) extends SimpleToolWindowPanel(true, true) with AbstractCodeDojoView {
   private val actionManager = ActionManager.getInstance()
@@ -33,8 +35,8 @@ class HackerRankView(private val myProject: Project, private val myPresenter: Ha
   private val myContent = JPanel(BorderLayout())
   myContent.add(myTagToolbar.getComponent, BorderLayout.NORTH)
 
-  private val myQuestionsModel = DefaultTableModel(Array(Array[Any]("Solved", "Two Sum", "Easy", "Array, Hash Table")), Array[Any]("State", "Title", "Difficulty", "Tags"))
-  private val myQuestionsTable = JBTable(myQuestionsModel)
+  private val myQuestionsModel = HackerRankChallengesTableModel()
+  private val myQuestionsTable = TableView(myQuestionsModel)
   myQuestionsTable.setShowGrid(false)
   myQuestionsTable.setShowColumns(true)
   myContent.add(
@@ -46,19 +48,23 @@ class HackerRankView(private val myProject: Project, private val myPresenter: Ha
     BorderLayout.CENTER
   )
 
-  private val myQueryRangeActionGroup = DefaultActionGroup()
-  myQueryRangeActionGroup.add(PageSizeAction())
-  myQueryRangeActionGroup.add(PaginationAction())
-  private val myQueryRangeToolbar = actionManager.createActionToolbar(TOOLBAR_PLACE, myQueryRangeActionGroup, true)
+  private val myQueryRangeActionGroup = PaginationActionGroup()
+  private val myQueryRangeToolbar     = actionManager.createActionToolbar(TOOLBAR_PLACE, myQueryRangeActionGroup, true)
   myQueryRangeToolbar.setTargetComponent(this)
   myContent.add(myQueryRangeToolbar.getComponent, BorderLayout.SOUTH)
   setContent(myContent)
 
   def getTagActionGroup: DefaultActionGroup = myTagActionGroup
+
   def refreshTagToolbar(): Unit =
     ApplicationManager.getApplication.invokeLater(() => myTagToolbar.updateActionsAsync())
+
   def refreshPagination(): Unit =
     ApplicationManager.getApplication.invokeLater(() => myQueryRangeToolbar.updateActionsAsync())
+
+  def setChallengeItems(items: List[ChallengeListItem]): Unit =
+    myQuestionsModel.setItems(items.asJava)
+
   override def uiDataSnapshot(dataSink: DataSink): Unit =
     myPresenter.uiDataSnapshot(dataSink)
 

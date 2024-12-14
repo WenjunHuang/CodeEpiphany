@@ -14,7 +14,7 @@ import com.wenjunhuang.codeepiphany.controllers.dojo.actions.keys.*
 import com.wenjunhuang.codeepiphany.controllers.http.{ HttpClientKeeper, HttpClientService }
 import com.wenjunhuang.codeepiphany.hackerrank.HackerRankApi
 import com.wenjunhuang.codeepiphany.hackerrank.model.*
-import com.wenjunhuang.codeepiphany.hackerrank.services.auth.{ askForLogin, askForLogout, AskForLoginResult }
+import com.wenjunhuang.codeepiphany.hackerrank.services.auth.{ askForLogout, loadAuthenticationMayAskForLogin, AskForLoginResult }
 import com.wenjunhuang.codeepiphany.model.CodeDojo.HackerRank
 import com.wenjunhuang.codeepiphany.model.{ messages, CodeDojo }
 import com.wenjunhuang.codeepiphany.utils.implicits.*
@@ -48,17 +48,33 @@ class HackerRankPresenter(private val myProject: Project) extends Disposable {
     q <- Queue.unbounded[IO, Option[State]]
     _ <- IO.delay { myQueryQueue = Some(q) }
     _ <- Stream
-      .fromQueueNoneTerminated(q)
-      .debounce(200.millis)
-      .evalTap(state => IO.unit)
+      .fromQueueNoneTerminated(q, 1)
+      .debounce(1.seconds)
+      .evalMap { state =>
+        val from  = math.max((state.currentPage - 1) * state.pageSize.value, 0)
+        val limit = state.pageSize.value
+        myApi
+          .searchChallenges(from, limit, None, state.selectedDomain.map(_.slug), state.selectedStatus.toList, state.selectedSkills, state.selectedDifficulties, state.selectedSubdomains)
+      }
+      .evalMap { case (totalSize, items) =>
+        IO.delay {
+          myState = myState.copy(currentItems = items, totalSize = totalSize)
+          myQueryRangeProvider.refresh()
+          myView.setChallengeItems(items)
+        }.evalOn(intellijUIContext)
+      }
+      .attempt
+      .evalMap {
+        case Left(e) =>
+          myLogger.warn(e)("Error while querying challenges")
+        case _ => IO.unit
+      }
       .onFinalize(myLogger.info("Query worker is finalized"))
       .compile
       .drain
   } yield ()
 
   myQueryWorker.unsafeRunAndForget()
-
-  Disposer.register(myProject, this)
 
   myProject.getMessageBus
     .connect(this)
@@ -81,6 +97,8 @@ class HackerRankPresenter(private val myProject: Project) extends Disposable {
       }
     )
 
+  Disposer.register(myProject, this)
+
   protected[dojo] def uiDataSnapshot(dataSink: DataSink): Unit = {
     dataSink.set(LISTS_PROVIDER_KEY, myListsProvider)
     dataSink.set(LOGIN_LOGOUT_KEY, myLoginLogoutProvider)
@@ -91,8 +109,13 @@ class HackerRankPresenter(private val myProject: Project) extends Disposable {
     dataSink.set(PAGINATION_PROVIDER_KEY, myQueryRangeProvider)
   }
 
+  private def refreshQuery(): Unit =
+    myQueryQueue.foreach { q =>
+      q.offer(Some(myState)).unsafeRunAndForget()
+    }
+
   private val myLoginLogoutProvider = new LoginLogoutProvider {
-    override def login(): Unit = askForLogin[IO](myProject, CodeDojo.HackerRank).flatMap {
+    override def login(): Unit = loadAuthenticationMayAskForLogin[IO](myProject, CodeDojo.HackerRank).flatMap {
       case AskForLoginResult.Done =>
         IO.delay {
           myProject.getMessageBus
@@ -116,9 +139,9 @@ class HackerRankPresenter(private val myProject: Project) extends Disposable {
     override def toggleSelection(item: ListQueryItem): Unit =
       if !myState.selectedDomain.exists(_.slug == item.id) && myInitialData.challengeDomains.exists(_.slug == item.id) then
         val newSelected = myInitialData.challengeDomains.find(_.slug == item.id)
-        myState = myState.copy(selectedDomain = newSelected, selectedSubdomains = Nil)
-
+        myState = myState.copy(selectedDomain = newSelected, selectedSubdomains = Nil).resetPagination()
         refreshTags()
+        refreshQuery()
 
     override def isMultipleSelection: Boolean = false
 
@@ -157,15 +180,15 @@ class HackerRankPresenter(private val myProject: Project) extends Disposable {
         case None    => addSelected(List(item))
       }
 
-    override def getDifficulties: List[actions.Difficulty] =
+    override def getDifficulties: List[Difficulty] =
       List(
-        actions.Difficulty(ChallengeDifficulty.Easy.showAsHtml, ChallengeDifficulty.Easy.value),
-        actions.Difficulty(ChallengeDifficulty.Medium.showAsHtml, ChallengeDifficulty.Medium.value),
-        actions.Difficulty(ChallengeDifficulty.Hard.showAsHtml, ChallengeDifficulty.Hard.value)
+        Difficulty(ChallengeDifficulty.Easy.showAsHtml, ChallengeDifficulty.Easy.value),
+        Difficulty(ChallengeDifficulty.Medium.showAsHtml, ChallengeDifficulty.Medium.value),
+        Difficulty(ChallengeDifficulty.Hard.showAsHtml, ChallengeDifficulty.Hard.value)
       )
 
-    override def getSelected: List[actions.Difficulty] =
-      myState.selectedDifficulties.map(difficulty => actions.Difficulty(difficulty.show, difficulty.value))
+    override def getSelected: List[Difficulty] =
+      myState.selectedDifficulties.map(difficulty => Difficulty(difficulty.show, difficulty.value))
 
     override def addSelected(items: List[actions.Difficulty]): Unit =
       myState = myState.copy(selectedDifficulties = (myState.selectedDifficulties ++ items.collect {
@@ -174,6 +197,7 @@ class HackerRankPresenter(private val myProject: Project) extends Disposable {
         case Difficulty(_, value) if value == ChallengeDifficulty.Hard.value   => ChallengeDifficulty.Hard
       }).distinct)
       refreshTags()
+      refreshQuery()
 
     override def removeSelected(items: List[actions.Difficulty]): Unit =
       myState = myState.copy(selectedDifficulties =
@@ -185,6 +209,7 @@ class HackerRankPresenter(private val myProject: Project) extends Disposable {
         )
       )
       refreshTags()
+      refreshQuery()
   }
 
   private val myStatusProvider = new StatusProvider:
@@ -204,16 +229,19 @@ class HackerRankPresenter(private val myProject: Project) extends Disposable {
     override def addSelectedItems(items: List[Status]): Unit =
       myState = myState.copy(selectedStatus = items.headOption.flatMap(status => allItems.find(_.value == status.value)))
       refreshTags()
+      refreshQuery()
 
     override def toggleSelection(item: Status): Unit =
       if myState.selectedStatus.exists(_.value == item.value) then myState = myState.copy(selectedStatus = None)
       else myState = myState.copy(selectedStatus = allItems.find(_.value == item.value))
       refreshTags()
+      refreshQuery()
 
     override def removeSelectedItems(items: List[Status]): Unit =
       if myState.selectedStatus.exists(_.value == items.head.value) then
         myState = myState.copy(selectedStatus = None)
         refreshTags()
+        refreshQuery()
 
   private val myTagProvider = new SingleTagGroupProvider {
     override def getAllItems: List[Tag] = myState.selectedDomain.map { domain =>
@@ -239,10 +267,12 @@ class HackerRankPresenter(private val myProject: Project) extends Disposable {
         }).distinct
       )
       refreshTags()
+      refreshQuery()
 
     override def removeSelectedItems(items: List[Tag]): Unit =
       myState = myState.copy(selectedSubdomains = myState.selectedSubdomains.filterNot(subdomain => items.exists(_.value == subdomain.slug)))
       refreshTags()
+      refreshQuery()
 
     override def toggleSelection(item: Tag): Unit =
       if isSelected(item) then removeSelectedItems(List(item))
@@ -280,6 +310,7 @@ class HackerRankPresenter(private val myProject: Project) extends Disposable {
         case Skill(_, value) if value == ChallengeSkill.Advanced.value     => ChallengeSkill.Advanced
       }).distinct)
       refreshTags()
+      refreshQuery()
 
     override def toggleSelection(item: Skill): Unit =
       if myState.selectedSkills.exists(_.value == item.value) then removeSelectedItems(List(item))
@@ -295,6 +326,8 @@ class HackerRankPresenter(private val myProject: Project) extends Disposable {
         )
       )
       refreshTags()
+      refreshQuery()
+
   }
 
   private val myQueryRangeProvider = new PaginationProvider {
@@ -320,6 +353,8 @@ class HackerRankPresenter(private val myProject: Project) extends Disposable {
     override def toggleSelection(item: QueryPageSizeItem): Unit =
       PageSize.fromInt(item.value).foreach { pageSize =>
         myState = myState.copy(pageSize = pageSize)
+        if myState.currentPage * pageSize.value > myState.totalSize then myState = myState.copy(currentPage = 1)
+        refreshQuery()
       }
 
     override def removeSelectedItems(items: List[QueryPageSizeItem]): Unit = ()
@@ -331,11 +366,13 @@ class HackerRankPresenter(private val myProject: Project) extends Disposable {
 
     override def setCurrentPage(page: Int): Unit =
       myState = myState.copy(currentPage = page)
+      refreshQuery()
 
     override def getTotalPages: Int = math.ceil(myState.totalSize.toDouble / myState.pageSize.value).toInt
 
     override def getTotalItems: Int = myState.totalSize
   }
+
   private def createTagAction(id: String, text: String, icon: Option[Icon], radius: Float, onCloseAction: Option[() => Unit]): AnAction = DefaultCustomComponentAction { () =>
     val tag = JPanel(GridBagLayout())
     val gbc = GridBagConstraints()
@@ -391,6 +428,7 @@ class HackerRankPresenter(private val myProject: Project) extends Disposable {
 
   def getComponent: JComponent = myView
 }
+
 object HackerRankPresenter {
   private case class InitialData(userInfo: UserInfo, challengeDomains: List[ChallengeDomain])
   private case class State(
@@ -399,11 +437,13 @@ object HackerRankPresenter {
       selectedDifficulties: List[ChallengeDifficulty],
       selectedStatus: Option[ChallengeStatus],
       selectedSkills: List[ChallengeSkill],
-      currentItems: List[Any] = Nil,
+      currentItems: List[ChallengeListItem] = Nil,
       currentPage: Int = 1,
       totalSize: Int = 1,
       pageSize: PageSize = PageSize.Twenty
-  )
+  ) {
+    def resetPagination(): State = this.copy(currentPage = 1, totalSize = 1)
+  }
 
   private val DOMAIN_TAG_RADIUS     = 0.2f
   private val DIFFICULTY_TAG_RADIUS = 0.4f
@@ -430,6 +470,5 @@ object HackerRankPresenter {
         case Fifty.value      => Some(Fifty)
         case OneHundred.value => Some(OneHundred)
         case _                => None
-
   }
 }

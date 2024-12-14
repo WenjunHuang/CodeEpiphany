@@ -3,7 +3,7 @@ package com.wenjunhuang.codeepiphany.hackerrank
 import cats.effect.IO
 import cats.syntax.all.*
 import com.intellij.testFramework.fixtures.BasePlatformTestCase
-import com.intellij.util.net.{ ProxyConfiguration, ProxySettings }
+import com.intellij.util.net.{ProxyConfiguration, ProxySettings}
 import com.wenjunhuang.codeepiphany.controllers.http.HttpClientService
 import com.wenjunhuang.codeepiphany.hackerrank.model.ChallengeStatus.Unsolved
 import com.wenjunhuang.codeepiphany.model.CodeDojo

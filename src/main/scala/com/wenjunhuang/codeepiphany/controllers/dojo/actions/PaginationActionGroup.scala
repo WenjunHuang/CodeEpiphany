@@ -2,12 +2,13 @@ package com.wenjunhuang.codeepiphany.controllers.dojo.actions
 
 import com.intellij.icons.AllIcons
 import com.intellij.openapi.actionSystem.*
-import com.wenjunhuang.codeepiphany.controllers.dojo.actions.PaginationAction.INDEX_COUNT
+import com.intellij.openapi.actionSystem.ex.ComboBoxAction
+import com.wenjunhuang.codeepiphany.controllers.dojo.actions.PaginationActionGroup.INDEX_COUNT
 import com.wenjunhuang.codeepiphany.controllers.dojo.actions.keys.PAGINATION_PROVIDER_KEY
 
-import javax.swing.Icon
+import javax.swing.{ Icon, JComponent }
 
-class PaginationAction extends DefaultActionGroup {
+class PaginationActionGroup extends DefaultActionGroup {
   private var cache = (0, 0, 0)
 
   override def getActionUpdateThread: ActionUpdateThread = ActionUpdateThread.BGT
@@ -27,6 +28,8 @@ class PaginationAction extends DefaultActionGroup {
 
     if cache != (pageSize, currentPage, totalItems) then
       removeAll()
+      
+      add(PageSizeAction())
 
       add(createIconAction(AllIcons.General.ArrowLeft, if currentPage > 1 then Some(() => provider.setCurrentPage(currentPage - 1)) else None))
       if totalPages <= INDEX_COUNT then for (i <- 1 to totalPages) do add(createPageIndexAction(s"$i", currentPage == i, Some(() => provider.setCurrentPage(i))))
@@ -54,18 +57,17 @@ class PaginationAction extends DefaultActionGroup {
   }
 
   private def createIconAction(icon: Icon, action: Option[() => Unit]): AnAction =
-    new AnAction(icon) {
+    new AnAction(icon) with RightAlignedToolbarAction {
       override def actionPerformed(e: AnActionEvent): Unit = action.foreach(_())
 
-      override def update(e: AnActionEvent): Unit = {
+      override def update(e: AnActionEvent): Unit =
         e.getPresentation.setEnabled(action.nonEmpty)
-      }
 
       override def getActionUpdateThread: ActionUpdateThread = ActionUpdateThread.BGT
     }
 
   private def createPageIndexAction(text: String, selected: Boolean, action: Option[() => Unit]): AnAction =
-    new ToggleAction(text) {
+    new ToggleAction(text) with RightAlignedToolbarAction {
       override def isSelected(e: AnActionEvent): Boolean = selected
 
       override def setSelected(e: AnActionEvent, state: Boolean): Unit =
@@ -82,6 +84,46 @@ class PaginationAction extends DefaultActionGroup {
     }
 }
 
-object PaginationAction {
+object PaginationActionGroup {
   final val INDEX_COUNT = 8
+}
+
+class PageSizeAction extends ComboBoxAction {
+  override def createPopupActionGroup(button: JComponent, dataContext: DataContext): DefaultActionGroup =
+    Option(PAGINATION_PROVIDER_KEY.getData(dataContext)) match {
+      case None => DefaultActionGroup()
+      case Some(provider) =>
+        DefaultActionGroup(provider.getAllItems.map(item => new RangePageSizeItemAction(item))*)
+    }
+
+  override def getActionUpdateThread: ActionUpdateThread = ActionUpdateThread.BGT
+
+  override def update(e: AnActionEvent): Unit =
+    Option(PAGINATION_PROVIDER_KEY.getData(e.getDataContext)) match {
+      case None => e.getPresentation.setEnabled(false)
+      case Some(provider) =>
+        val presentation = e.getPresentation
+        presentation.setEnabled(true)
+        provider.getSelectedItems.headOption match {
+          case None       => presentation.setText("")
+          case Some(item) => presentation.setText(item.name)
+        }
+    }
+}
+
+class RangePageSizeItemAction(private val myItem: QueryPageSizeItem) extends AnAction(myItem.name) {
+  override def actionPerformed(e: AnActionEvent): Unit =
+    Option(PAGINATION_PROVIDER_KEY.getData(e.getDataContext)).foreach(_.toggleSelection(myItem))
+
+  override def update(e: AnActionEvent): Unit = {
+    val presentation = e.getPresentation
+    Option(PAGINATION_PROVIDER_KEY.getData(e.getDataContext))
+      .map(_.isSelected(myItem))
+      .foreach {
+        case true  => presentation.setIcon(AllIcons.Actions.Checked)
+        case false => presentation.setIcon(null)
+      }
+  }
+
+  override def getActionUpdateThread: ActionUpdateThread = ActionUpdateThread.BGT
 }

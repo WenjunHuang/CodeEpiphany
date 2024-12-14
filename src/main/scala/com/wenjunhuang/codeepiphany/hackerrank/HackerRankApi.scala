@@ -1,18 +1,17 @@
 package com.wenjunhuang.codeepiphany.hackerrank
 
-import cats.effect.{Async, Concurrent}
+import cats.effect.{ Async, Concurrent }
 import cats.syntax.all.*
 import com.wenjunhuang.codeepiphany.controllers.http.HttpClientKeeper
 import com.wenjunhuang.codeepiphany.hackerrank.model.*
 import com.wenjunhuang.codeepiphany.model.CodeDojo.HackerRank
-import com.wenjunhuang.codeepiphany.model.{ApiError, Language}
-import io.circe.{Decoder, Json}
-import io.circe.generic.auto.*
+import com.wenjunhuang.codeepiphany.model.{ ApiError, Language }
 import io.circe.optics.JsonPath
 import io.circe.parser.parse
+import io.circe.{ Decoder, Json }
 import org.http4s.client.dsl.Http4sClientDsl
 import org.http4s.implicits.uri
-import org.http4s.{EntityDecoder, Method, Request, Uri}
+import org.http4s.{ EntityDecoder, Method, Request, Uri }
 import org.jsoup.Jsoup
 
 trait HackerRankApi[F[_]] {
@@ -22,12 +21,12 @@ trait HackerRankApi[F[_]] {
       offset: Int,
       limit: Int,
       contest: Option[String],
-      topicSlug: Option[String],
+      domainSlug: Option[String],
       status: List[ChallengeStatus] = Nil,
       skills: List[ChallengeSkill] = Nil,
       difficulties: List[ChallengeDifficulty] = Nil,
       subdomains: List[ChallengeSubdomain] = Nil
-  ): F[List[ChallengeListItem]]
+  ): F[(Int, List[ChallengeListItem])]
 
   def checkLogin(): F[Boolean]
 }
@@ -109,15 +108,15 @@ object HackerRankApi {
         offset: Int,
         limit: Int,
         contest: Option[String],
-        topicSlug: Option[String],
+        domainSlug: Option[String],
         status: List[ChallengeStatus],
         skills: List[ChallengeSkill],
         difficulties: List[ChallengeDifficulty],
         subdomains: List[ChallengeSubdomain]
-    ): F[List[ChallengeListItem]] =
+    ): F[(Int, List[ChallengeListItem])] =
       HttpClientKeeper[F].getClient.use { client =>
         val request = Method.GET(
-          makeSearchChallengesUri(contest, topicSlug)
+          makeSearchChallengesUri(contest, domainSlug)
             .withQueryParam("offset", offset)
             .withQueryParam("limit", limit)
             .withMultiValueQueryParams(
@@ -134,9 +133,14 @@ object HackerRankApi {
           .flatMap { response =>
             parse(response)
               .leftMap(e => ApiError.InvalidContent(HackerRank, e.getMessage))
-              .flatMap(JsonPath.root.models.json.getOption(_).toRight(ApiError.InvalidContent(HackerRank, "invalid challenges list json")))
-              .flatMap { json => 
-                json.as[List[ChallengeListItem]] 
+              .flatMap { result =>
+                (
+                  JsonPath.root.total.int.getOption(result).toRight(ApiError.InvalidContent(HackerRank, "invalid challenges list json")),
+                  JsonPath.root.models.json.getOption(result).toRight(ApiError.InvalidContent(HackerRank, "invalid challenges list json"))
+                ).mapN((_, _))
+              }
+              .flatMap { (total, items) =>
+                items.as[List[ChallengeListItem]].map((total, _))
               }
               .liftTo[F]
           }
@@ -181,7 +185,7 @@ object HackerRankApi {
                         JsonPath.root.chapters.arr
                           .getOption(d)
                           .getOrElse(Vector.empty)
-                          .mapFilter { d => d.as[ChallengeSubdomain].toOption }
+                          .mapFilter(d => d.as[ChallengeSubdomain].toOption)
                           .toList
                       }
                       .getOrElse(Nil)

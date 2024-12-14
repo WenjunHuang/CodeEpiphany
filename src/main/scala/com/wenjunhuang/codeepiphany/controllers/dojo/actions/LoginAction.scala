@@ -1,8 +1,7 @@
 package com.wenjunhuang.codeepiphany.controllers.dojo.actions
 
-import com.intellij.openapi.actionSystem.{ ActionUpdateThread, AnAction, AnActionEvent }
-import keys.LOGIN_LOGOUT_KEY
-import com.wenjunhuang.codeepiphany.utils.implicits.*
+import com.intellij.openapi.actionSystem.{ActionUpdateThread, AnAction, AnActionEvent}
+import com.wenjunhuang.codeepiphany.controllers.dojo.actions.keys.LOGIN_LOGOUT_KEY
 
 class LoginAction extends AnAction {
   

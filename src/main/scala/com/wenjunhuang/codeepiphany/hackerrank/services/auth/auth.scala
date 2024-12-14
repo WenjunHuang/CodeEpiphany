@@ -2,13 +2,14 @@ package com.wenjunhuang.codeepiphany.hackerrank.services
 
 import cats.effect.kernel.Async
 import cats.syntax.all.*
+import cats.effect.syntax.all.*
 import com.intellij.openapi.project.Project
 import com.wenjunhuang.codeepiphany.controllers.http.HttpClientKeeper
 import com.wenjunhuang.codeepiphany.hackerrank.HackerRankApi
 import com.wenjunhuang.codeepiphany.hackerrank.services.auth.ui.HackerRankLoginDialog
-import com.wenjunhuang.codeepiphany.model.{ApiError, CodeDojo}
+import com.wenjunhuang.codeepiphany.model.{ ApiError, CodeDojo }
 import com.wenjunhuang.codeepiphany.utils.implicits.*
-import com.wenjunhuang.codeepiphany.utils.{CookieUtil, SensitiveDataStore}
+import com.wenjunhuang.codeepiphany.utils.{ CookieUtil, SensitiveDataStore }
 
 import java.net.HttpCookie
 import scala.jdk.CollectionConverters.*
@@ -49,6 +50,15 @@ package object auth {
     Async[F]
       .delay(CookieUtil.parseCookies(cookie))
       .flatMap(validateUserCookieAndTestLogin(project, codeDojo, _))
+
+  def loadAuthenticationMayAskForLogin[F[_]: Async: HttpClientKeeper](project: Project, codeDojo: CodeDojo): F[AskForLoginResult] =
+    for {
+      _ <- loadAuthentication(project, codeDojo)
+      r <- isAuthenticated(project, codeDojo)
+      loginResult <-
+        if !r then askForLogin(project, codeDojo)
+        else Async[F].delay(AskForLoginResult.Done)
+    } yield loginResult
 
   /** Invoke the login process * */
   def askForLogin[F[_]: Async](project: Project, codeDojo: CodeDojo): F[AskForLoginResult] =
