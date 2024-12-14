@@ -1,25 +1,26 @@
 package com.wenjunhuang.codeepiphany.controllers.dojo
 
 import cats.effect.IO
+import cats.effect.std.Queue
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.actionSystem.ex.DefaultCustomComponentAction
-import com.intellij.openapi.actionSystem.{ AnAction, DataSink }
+import com.intellij.openapi.actionSystem.{AnAction, DataSink}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
 import com.intellij.util.ui.JBInsets
 import com.wenjunhuang.codeepiphany.controllers.dojo.actions.*
 import com.wenjunhuang.codeepiphany.controllers.dojo.actions.keys.*
-import com.wenjunhuang.codeepiphany.controllers.http.{ HttpClientKeeper, HttpClientService }
+import com.wenjunhuang.codeepiphany.controllers.http.{HttpClientKeeper, HttpClientService}
 import com.wenjunhuang.codeepiphany.hackerrank.HackerRankApi
-import com.wenjunhuang.codeepiphany.hackerrank.model.{ ChallengeSkill, * }
-import com.wenjunhuang.codeepiphany.hackerrank.services.auth.{ askForLogin, askForLogout, AskForLoginResult }
+import com.wenjunhuang.codeepiphany.hackerrank.model.{ChallengeSkill, *}
+import com.wenjunhuang.codeepiphany.hackerrank.services.auth.{AskForLoginResult, askForLogin, askForLogout}
 import com.wenjunhuang.codeepiphany.model.CodeDojo.HackerRank
-import com.wenjunhuang.codeepiphany.model.{ messages, CodeDojo }
+import com.wenjunhuang.codeepiphany.model.{CodeDojo, messages}
 import com.wenjunhuang.codeepiphany.utils.implicits.*
 import com.wenjunhuang.codeepiphany.utils.ui.Tag as TagUI
 
-import java.awt.{ GridBagConstraints, GridBagLayout }
-import javax.swing.{ Icon, JComponent, JPanel }
+import java.awt.{GridBagConstraints, GridBagLayout}
+import javax.swing.{Icon, JComponent, JPanel}
 
 class HackerRankPresenter(private val myProject: Project) extends Disposable {
   import HackerRankPresenter.*
@@ -30,6 +31,9 @@ class HackerRankPresenter(private val myProject: Project) extends Disposable {
   private var myInitialData = InitialData(UserInfo.empty, Nil)
   @volatile
   private var myState = State(None, Nil, Nil, None, Nil)
+  
+  @volatile
+  private var myQueryQueue:Option[Queue[IO,State]] = None
 
   private val myView = HackerRankView(myProject, this)
 
@@ -48,13 +52,11 @@ class HackerRankPresenter(private val myProject: Project) extends Disposable {
                 myInitialData = InitialData(userInfo, challengeDomains)
               }
               .unsafeRunAndForget()
-//              *> IO.delay(myActionToolbar.updateActionsAsync()).evalOn(intellijUIContext)).unsafeRunAndForget()
 
         override def logout(codeDojo: CodeDojo): Unit =
           if codeDojo == HackerRank then
             myInitialData = InitialData(UserInfo.empty, Nil)
             myState = State(None, Nil, Nil, None, Nil)
-//            IO.delay(myActionToolbar.updateActionsAsync()).evalOn(intellijUIContext).unsafeRunAndForget()
       }
     )
 

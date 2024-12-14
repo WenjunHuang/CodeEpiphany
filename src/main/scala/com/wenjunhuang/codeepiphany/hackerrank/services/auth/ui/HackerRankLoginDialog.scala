@@ -2,9 +2,11 @@ package com.wenjunhuang.codeepiphany.hackerrank.services.auth.ui
 
 import cats.effect.IO
 import cats.effect.std.Queue
-import com.intellij.ide.BrowserUtil
+import com.intellij.ide.{ BrowserUtil, CopyPasteDelegator, CopyProvider, CutProvider, PasteProvider, TextCopyProvider }
 import com.intellij.openapi.Disposable
+import com.intellij.openapi.actionSystem.{ ActionPlaces, DataContext, DataSink, IdeActions, PlatformDataKeys, UiDataProvider }
 import com.intellij.openapi.editor.colors.impl.AppEditorFontOptions
+import com.intellij.openapi.ide.CopyPasteManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.{ ComponentValidator, DialogWrapper, ValidationInfo }
 import com.intellij.openapi.util.Disposer
@@ -12,15 +14,16 @@ import com.intellij.ui.components.{ JBScrollPane, JBTextArea }
 import com.intellij.ui.content.impl.ContentManagerImpl
 import com.intellij.ui.content.{ ContentManagerEvent, ContentManagerListener, TabbedPaneContentUI }
 import com.intellij.ui.jcef.{ JBCefBrowser, JBCefBrowserBuilder }
-import com.intellij.ui.{ AnimatedIcon, DocumentAdapter }
+import com.intellij.ui.{ AnimatedIcon, DocumentAdapter, PopupHandler }
 import com.intellij.util.FontUtil
-import com.intellij.util.ui.JBFont
+import com.intellij.util.ui.{ JBFont, JBUI }
 import com.wenjunhuang.codeepiphany.PluginBundle
 import com.wenjunhuang.codeepiphany.controllers.http.{ HttpClientKeeper, HttpClientService }
 import com.wenjunhuang.codeepiphany.hackerrank.services.auth.{ saveAuthentication, validateUserCookieAndTestLogin, AskForLoginResult }
 import com.wenjunhuang.codeepiphany.model.CodeDojo
 import com.wenjunhuang.codeepiphany.model.CodeDojo.HackerRank
 import com.wenjunhuang.codeepiphany.utils.implicits.*
+import com.wenjunhuang.codeepiphany.utils.isDebug
 import fs2.Stream
 import org.cef.browser.{ CefBrowser, CefFrame }
 import org.cef.callback.CefCookieVisitor
@@ -29,9 +32,12 @@ import org.cef.misc.BoolRef
 import org.cef.network.CefCookie
 import org.typelevel.log4cats.LoggerFactory
 
+import scala.jdk.CollectionConverters.*
 import java.awt.event.ActionEvent
 import java.awt.Font
+import java.awt.datatransfer.{ DataFlavor, StringSelection }
 import java.net.HttpCookie
+import java.util
 import javax.swing.*
 import javax.swing.event.DocumentEvent
 
@@ -42,10 +48,13 @@ class HackerRankLoginDialog(private val myProject: Project, private val callback
 
   private val myCookieText = JBTextArea(10, 20)
   myCookieText.setLineWrap(true)
+  myCookieText.setFont(JBUI.Fonts.label())
+
   private val fontOptions = AppEditorFontOptions.getInstance().getState
   myCookieText.setFont(Font(fontOptions.FONT_FAMILY, Font.PLAIN, fontOptions.FONT_SIZE))
   ComponentValidator(myDisposable)
     .installOn(myCookieText)
+
   myCookieText.getDocument.addDocumentListener(new DocumentAdapter {
     override def textChanged(e: DocumentEvent): Unit = {
       ComponentValidator
@@ -57,11 +66,19 @@ class HackerRankLoginDialog(private val myProject: Project, private val callback
     }
   })
 
+  private val myCookieLoginPane = createCookieLoginPane()
   private val myLoginViaCookiePanel = myContentManager.getFactory.createContent(
-    JBScrollPane(myCookieText, ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER),
+    myCookieLoginPane,
     PluginBundle.message("hackerrank.ui.login.viacookie"),
     true
   )
+
+  if !isDebug then
+    PopupHandler.installPopupMenu(
+      myCookieText,
+      IdeActions.GROUP_CUT_COPY_PASTE,
+      ActionPlaces.POPUP
+    )
   private val myLoginBrowser = createBrowserLoginPanel()
   private val myLoginViaBrowserPanel = myContentManager.getFactory.createContent(
     JBScrollPane(myLoginBrowser.getComponent, ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER),
@@ -123,6 +140,62 @@ class HackerRankLoginDialog(private val myProject: Project, private val callback
     Array(helpAction, myOkAction, getCancelAction)
   }
 
+  private def createCookieLoginPane(): JComponent =
+    new JBScrollPane(myCookieText, ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER) with UiDataProvider {
+      override def uiDataSnapshot(dataSink: DataSink): Unit = {
+        val delegator = CopyPasteDelegator(myProject, myCookieText)
+        dataSink.set(
+          PlatformDataKeys.CUT_PROVIDER,
+          new CutProvider {
+            override def performCut(dataContext: DataContext): Unit = {
+              val text      = myCookieText.getSelectedText
+              val selection = new StringSelection(text)
+              CopyPasteManager.getInstance().setContents(selection)
+              myCookieText.getDocument.remove(myCookieText.getSelectionStart, myCookieText.getSelectionEnd - myCookieText.getSelectionStart)
+            }
+
+            override def isCutEnabled(dataContext: DataContext): Boolean =
+              myCookieText.getSelectedText != null
+
+            override def isCutVisible(dataContext: DataContext): Boolean = true
+          }
+        );
+        dataSink.set(
+          PlatformDataKeys.COPY_PROVIDER,
+          new CopyProvider {
+            override def performCopy(dataContext: DataContext): Unit =
+              CopyPasteManager.getInstance().setContents(new StringSelection(myCookieText.getSelectedText))
+
+            override def isCopyEnabled(dataContext: DataContext): Boolean =
+              myCookieText.getSelectedText != null
+
+            override def isCopyVisible(dataContext: DataContext): Boolean = true
+          }
+        );
+        dataSink.set(
+          PlatformDataKeys.PASTE_PROVIDER,
+          new PasteProvider {
+            override def performPaste(dataContext: DataContext): Unit = {
+              val copyPasteManager = CopyPasteManager.getInstance()
+              val content          = copyPasteManager.getContents[String](DataFlavor.stringFlavor)
+              myCookieText.getDocument.insertString(myCookieText.getCaretPosition, content, null)
+            }
+
+            override def isPastePossible(dataContext: DataContext): Boolean = true
+
+            override def isPasteEnabled(dataContext: DataContext): Boolean = true
+          }
+        );
+//       dataSink.set(PlatformDataKeys.COPY_PROVIDER,new TextCopyProvider {
+//         override def getTextLinesToCopy: util.Collection[String] =
+//           myCookieText.getSelectedText match {
+//           case null => Nil.asJava
+//           case text => List(text).asJava
+//         }
+//       })
+//       dataSink.set(PlatformDataKeys.PASTE_PROVIDER, new TextPaste)
+      }
+    }
   private def createBrowserLoginPanel(): JBCefBrowser = {
     val browser = JBCefBrowserBuilder()
       .setUrl("https://www.hackerrank.com/auth/login")
