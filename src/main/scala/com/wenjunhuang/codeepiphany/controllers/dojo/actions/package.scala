@@ -50,6 +50,16 @@ package object actions {
     def searchTags(query: String): List[Tag]
   }
 
+  case class QueryPageSizeItem(name: String, value: Int)
+  trait PaginationProvider extends QueryParamProvider[QueryPageSizeItem] {
+    def getPageSize: Int
+    def getCurrentPage: Int
+    def setCurrentPage(page: Int): Unit
+    def getTotalPages: Int
+    def getTotalItems: Int
+    def refresh():Unit
+  }
+
   object keys {
     final val LOGIN_LOGOUT_KEY = DataKey.create[LoginLogoutProvider]("LOGIN_LOGOUT_KEY")
 
@@ -62,6 +72,8 @@ package object actions {
     final val SKILL_PROVIDER_KEY = DataKey.create[SkillProvider]("SKILL_PROVIDER_KEY")
 
     final val TAG_PROVIDER_KEY = DataKey.create[TagProvider]("TAG_PROVIDER_KEY")
+
+    final val PAGINATION_PROVIDER_KEY = DataKey.create[PaginationProvider]("PAGINATION_PROVIDER_KEY")
   }
 
   object groups {

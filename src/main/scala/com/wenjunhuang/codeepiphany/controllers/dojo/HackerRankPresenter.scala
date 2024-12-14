@@ -4,38 +4,59 @@ import cats.effect.IO
 import cats.effect.std.Queue
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.actionSystem.ex.DefaultCustomComponentAction
-import com.intellij.openapi.actionSystem.{AnAction, DataSink}
+import com.intellij.openapi.actionSystem.{ AnAction, DataSink }
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
 import com.intellij.util.ui.JBInsets
+import com.wenjunhuang.codeepiphany.PluginBundle
 import com.wenjunhuang.codeepiphany.controllers.dojo.actions.*
 import com.wenjunhuang.codeepiphany.controllers.dojo.actions.keys.*
-import com.wenjunhuang.codeepiphany.controllers.http.{HttpClientKeeper, HttpClientService}
+import com.wenjunhuang.codeepiphany.controllers.http.{ HttpClientKeeper, HttpClientService }
 import com.wenjunhuang.codeepiphany.hackerrank.HackerRankApi
-import com.wenjunhuang.codeepiphany.hackerrank.model.{ChallengeSkill, *}
-import com.wenjunhuang.codeepiphany.hackerrank.services.auth.{AskForLoginResult, askForLogin, askForLogout}
+import com.wenjunhuang.codeepiphany.hackerrank.model.*
+import com.wenjunhuang.codeepiphany.hackerrank.services.auth.{ askForLogin, askForLogout, AskForLoginResult }
 import com.wenjunhuang.codeepiphany.model.CodeDojo.HackerRank
-import com.wenjunhuang.codeepiphany.model.{CodeDojo, messages}
+import com.wenjunhuang.codeepiphany.model.{ messages, CodeDojo }
 import com.wenjunhuang.codeepiphany.utils.implicits.*
 import com.wenjunhuang.codeepiphany.utils.ui.Tag as TagUI
+import fs2.Stream
+import org.typelevel.log4cats.LoggerFactory
 
-import java.awt.{GridBagConstraints, GridBagLayout}
-import javax.swing.{Icon, JComponent, JPanel}
+import java.awt.{ GridBagConstraints, GridBagLayout }
+import javax.swing.{ Icon, JComponent, JPanel }
+import scala.concurrent.duration.*
 
 class HackerRankPresenter(private val myProject: Project) extends Disposable {
   import HackerRankPresenter.*
 
+  private val myLogger = LoggerFactory[IO].getLogger
+
   implicit private val httpClientKeeper: HttpClientKeeper[IO] = HttpClientService.getInstance(myProject).httpClientKeeper
   private val myApi                                           = HackerRankApi[IO]()
+
+  private val myView = HackerRankView(myProject, this)
+
   @volatile
   private var myInitialData = InitialData(UserInfo.empty, Nil)
   @volatile
   private var myState = State(None, Nil, Nil, None, Nil)
-  
-  @volatile
-  private var myQueryQueue:Option[Queue[IO,State]] = None
 
-  private val myView = HackerRankView(myProject, this)
+  @volatile
+  private var myQueryQueue: Option[Queue[IO, Option[State]]] = None
+
+  private val myQueryWorker = for {
+    q <- Queue.unbounded[IO, Option[State]]
+    _ <- IO.delay { myQueryQueue = Some(q) }
+    _ <- Stream
+      .fromQueueNoneTerminated(q)
+      .debounce(200.millis)
+      .evalTap(state => IO.unit)
+      .onFinalize(myLogger.info("Query worker is finalized"))
+      .compile
+      .drain
+  } yield ()
+
+  myQueryWorker.unsafeRunAndForget()
 
   Disposer.register(myProject, this)
 
@@ -67,6 +88,7 @@ class HackerRankPresenter(private val myProject: Project) extends Disposable {
     dataSink.set(STATUS_PROVIDER_KEY, myStatusProvider)
     dataSink.set(SKILL_PROVIDER_KEY, mySkillProvider)
     dataSink.set(TAG_PROVIDER_KEY, myTagProvider)
+    dataSink.set(PAGINATION_PROVIDER_KEY, myQueryRangeProvider)
   }
 
   private val myLoginLogoutProvider = new LoginLogoutProvider {
@@ -104,9 +126,9 @@ class HackerRankPresenter(private val myProject: Project) extends Disposable {
       myInitialData.challengeDomains.map(domain => ListQueryItem(domain.name, domain.slug))
 
     override def getSelectedItems: List[ListQueryItem] =
-      myState match {
-        case State(Some(selectedDomain), _, _, _, _) => ListQueryItem(selectedDomain.name, selectedDomain.slug) :: Nil
-        case _                                       => Nil
+      myState.selectedDomain match {
+        case Some(selectedDomain) => ListQueryItem(selectedDomain.name, selectedDomain.slug) :: Nil
+        case _                    => Nil
       }
 
     override def addSelectedItems(items: List[ListQueryItem]): Unit =
@@ -275,6 +297,45 @@ class HackerRankPresenter(private val myProject: Project) extends Disposable {
       refreshTags()
   }
 
+  private val myQueryRangeProvider = new PaginationProvider {
+    private val allItems = List(PageSize.Twenty, PageSize.Fifty, PageSize.OneHundred)
+    override def getAllItems: List[QueryPageSizeItem] =
+      allItems.map(range => QueryPageSizeItem(range.show, range.value))
+
+    override def refresh(): Unit =
+      myView.refreshPagination()
+
+    override def isMultipleSelection: Boolean = false
+
+    override def isSelected(item: QueryPageSizeItem): Boolean =
+      myState.pageSize.value == item.value
+
+    override def getSelectedItems: List[QueryPageSizeItem] = {
+      val pageSize = myState.pageSize
+      List(QueryPageSizeItem(pageSize.show, pageSize.value))
+    }
+
+    override def addSelectedItems(items: List[QueryPageSizeItem]): Unit = ()
+
+    override def toggleSelection(item: QueryPageSizeItem): Unit =
+      PageSize.fromInt(item.value).foreach { pageSize =>
+        myState = myState.copy(pageSize = pageSize)
+      }
+
+    override def removeSelectedItems(items: List[QueryPageSizeItem]): Unit = ()
+
+    override def getPageSize: Int =
+      myState.pageSize.value
+
+    override def getCurrentPage: Int = myState.currentPage
+
+    override def setCurrentPage(page: Int): Unit =
+      myState = myState.copy(currentPage = page)
+
+    override def getTotalPages: Int = math.ceil(myState.totalSize.toDouble / myState.pageSize.value).toInt
+
+    override def getTotalItems: Int = myState.totalSize
+  }
   private def createTagAction(id: String, text: String, icon: Option[Icon], radius: Float, onCloseAction: Option[() => Unit]): AnAction = DefaultCustomComponentAction { () =>
     val tag = JPanel(GridBagLayout())
     val gbc = GridBagConstraints()
@@ -337,7 +398,11 @@ object HackerRankPresenter {
       selectedSubdomains: List[ChallengeSubdomain],
       selectedDifficulties: List[ChallengeDifficulty],
       selectedStatus: Option[ChallengeStatus],
-      selectedSkills: List[ChallengeSkill]
+      selectedSkills: List[ChallengeSkill],
+      currentItems: List[Any] = Nil,
+      currentPage: Int = 1,
+      totalSize: Int = 1,
+      pageSize: PageSize = PageSize.Twenty
   )
 
   private val DOMAIN_TAG_RADIUS     = 0.2f
@@ -345,4 +410,26 @@ object HackerRankPresenter {
   private val STATUS_TAG_RADIUS     = 0.5f
   private val SKILL_TAG_RADIUS      = 0.6f
   private val SUBDOMAIN_TAG_RADIUS  = 1.0f
+
+  enum PageSize(val value: Int) {
+    case Twenty     extends PageSize(20)
+    case Fifty      extends PageSize(50)
+    case OneHundred extends PageSize(100)
+
+    def show: String =
+      this match
+        case Twenty     => PluginBundle.message("hackerrank.ui.query.pagesize.20")
+        case Fifty      => PluginBundle.message("hackerrank.ui.query.pagesize.50")
+        case OneHundred => PluginBundle.message("hackerrank.ui.query.pagesize.100")
+  }
+
+  object PageSize {
+    def fromInt(value: Int): Option[PageSize] =
+      value match
+        case Twenty.value     => Some(Twenty)
+        case Fifty.value      => Some(Fifty)
+        case OneHundred.value => Some(OneHundred)
+        case _                => None
+
+  }
 }

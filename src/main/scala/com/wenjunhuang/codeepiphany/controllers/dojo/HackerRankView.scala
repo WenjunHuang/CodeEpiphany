@@ -2,17 +2,20 @@ package com.wenjunhuang.codeepiphany.controllers.dojo
 
 import com.intellij.openapi.actionSystem.*
 import com.intellij.openapi.actionSystem.toolbarLayout.ToolbarLayoutStrategy
+import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.SimpleToolWindowPanel
 import com.intellij.openapi.util.Disposer
-import com.intellij.ui.components.{ JBLabel, JBScrollPane }
+import com.intellij.ui.components.JBScrollPane
 import com.intellij.ui.table.JBTable
+import com.wenjunhuang.codeepiphany.controllers.dojo.actions.{ PageSizeAction, PaginationAction }
 import com.wenjunhuang.codeepiphany.controllers.dojo.actions.groups.*
 
-import javax.swing.{ JScrollPane, ScrollPaneConstants, SwingConstants }
-import javax.swing.table.{ DefaultTableModel, JTableHeader }
+import java.awt.BorderLayout
+import javax.swing.table.DefaultTableModel
+import javax.swing.{ JPanel, ScrollPaneConstants }
 
-class HackerRankView(private val myProject: Project, private val myPresenter: HackerRankPresenter) extends SimpleToolWindowPanel(true, true) with AbstractCodeDojoViewPanel {
+class HackerRankView(private val myProject: Project, private val myPresenter: HackerRankPresenter) extends SimpleToolWindowPanel(true, true) with AbstractCodeDojoView {
   private val actionManager = ActionManager.getInstance()
   private val myActionGroup = actionManager.getAction(HACKERRANK_TOOLBAR_GROUP).asInstanceOf[ActionGroup]
   private val myMainToolbar = actionManager.createActionToolbar(TOOLBAR_PLACE, myActionGroup, true)
@@ -27,25 +30,35 @@ class HackerRankView(private val myProject: Project, private val myPresenter: Ha
 
   Disposer.register(myPresenter, this)
 
-  private val myContent = SimpleToolWindowPanel(true, true)
-  myContent.setToolbar(myTagToolbar.getComponent)
+  private val myContent = JPanel(BorderLayout())
+  myContent.add(myTagToolbar.getComponent, BorderLayout.NORTH)
 
   private val myQuestionsModel = DefaultTableModel(Array(Array[Any]("Solved", "Two Sum", "Easy", "Array, Hash Table")), Array[Any]("State", "Title", "Difficulty", "Tags"))
   private val myQuestionsTable = JBTable(myQuestionsModel)
   myQuestionsTable.setShowGrid(false)
   myQuestionsTable.setShowColumns(true)
-  myContent.setContent(
+  myContent.add(
     JBScrollPane(
       myQuestionsTable,
       ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
       ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED
-    )
+    ),
+    BorderLayout.CENTER
   )
+
+  private val myQueryRangeActionGroup = DefaultActionGroup()
+  myQueryRangeActionGroup.add(PageSizeAction())
+  myQueryRangeActionGroup.add(PaginationAction())
+  private val myQueryRangeToolbar = actionManager.createActionToolbar(TOOLBAR_PLACE, myQueryRangeActionGroup, true)
+  myQueryRangeToolbar.setTargetComponent(this)
+  myContent.add(myQueryRangeToolbar.getComponent, BorderLayout.SOUTH)
   setContent(myContent)
 
   def getTagActionGroup: DefaultActionGroup = myTagActionGroup
-  def refreshTagToolbar(): Unit             = myTagToolbar.updateActionsAsync()
-
+  def refreshTagToolbar(): Unit =
+    ApplicationManager.getApplication.invokeLater(() => myTagToolbar.updateActionsAsync())
+  def refreshPagination(): Unit =
+    ApplicationManager.getApplication.invokeLater(() => myQueryRangeToolbar.updateActionsAsync())
   override def uiDataSnapshot(dataSink: DataSink): Unit =
     myPresenter.uiDataSnapshot(dataSink)
 
