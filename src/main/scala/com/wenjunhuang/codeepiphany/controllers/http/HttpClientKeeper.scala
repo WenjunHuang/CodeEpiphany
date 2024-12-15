@@ -105,6 +105,17 @@ object HttpClientKeeper {
       .hostnameVerifier((hostname, session) => true)
       .proxySelector(IdeProxySelector(ProxySettingsKt.asConfigurationProvider(proxySettings))) // IntelliJ proxy selector
       .proxyAuthenticator(authenticator)
+      .addInterceptor(
+        (chain: Interceptor.Chain) => {
+          val request = chain.request()
+          val requestWithUserAgent =
+            request.newBuilder()
+              .header("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36 Edg/131.0.0.0")
+              .header("Accept","text/*,application/xml,application/json")
+              .build()
+          chain.proceed(requestWithUserAgent)
+        }
+      )
       .build()
   }
 

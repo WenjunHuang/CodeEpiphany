@@ -184,7 +184,7 @@ object OkHttpBuilder {
       result: Result[F]
   )(implicit F: Async[F], logger: Logger[F]): F[Either[Throwable, Resource[F, Response[F]]]] =
     (result match {
-      case Left(e)  => logger.warn(e)(s"Error in call back")
+      case Left(e)  => logger.warn(e)("Error in call back")
       case Right(_) => F.unit
     }).map(_ => result)
 }

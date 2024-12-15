@@ -69,6 +69,7 @@ class HackerRankPresenter(private val myProject: Project) extends Disposable {
           myLogger.warn(e)("Error while querying challenges")
         case _ => IO.unit
       }
+      .repeat
       .onFinalize(myLogger.info("Query worker is finalized"))
       .compile
       .drain
@@ -84,7 +85,7 @@ class HackerRankPresenter(private val myProject: Project) extends Disposable {
         override def login(codeDojo: CodeDojo): Unit =
           if codeDojo == HackerRank then
             myApi
-              .getInitialData()
+              .getInitialData
               .map { case (userInfo, challengeDomains) =>
                 myInitialData = InitialData(userInfo, challengeDomains)
               }
@@ -432,15 +433,15 @@ class HackerRankPresenter(private val myProject: Project) extends Disposable {
 object HackerRankPresenter {
   private case class InitialData(userInfo: UserInfo, challengeDomains: List[ChallengeDomain])
   private case class State(
-      selectedDomain: Option[ChallengeDomain],
-      selectedSubdomains: List[ChallengeSubdomain],
-      selectedDifficulties: List[ChallengeDifficulty],
-      selectedStatus: Option[ChallengeStatus],
-      selectedSkills: List[ChallengeSkill],
-      currentItems: List[ChallengeListItem] = Nil,
-      currentPage: Int = 1,
-      totalSize: Int = 1,
-      pageSize: PageSize = PageSize.Twenty
+                            selectedDomain: Option[ChallengeDomain],
+                            selectedSubdomains: List[ChallengeSubdomain],
+                            selectedDifficulties: List[ChallengeDifficulty],
+                            selectedStatus: Option[ChallengeStatus],
+                            selectedSkills: List[ChallengeSkill],
+                            currentItems: List[ChallengeDetail] = Nil,
+                            currentPage: Int = 1,
+                            totalSize: Int = 1,
+                            pageSize: PageSize = PageSize.Twenty
   ) {
     def resetPagination(): State = this.copy(currentPage = 1, totalSize = 1)
   }

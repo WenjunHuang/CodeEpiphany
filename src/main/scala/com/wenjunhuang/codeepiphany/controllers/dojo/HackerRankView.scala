@@ -11,7 +11,7 @@ import com.intellij.ui.table.JBTable
 import com.intellij.ui.table.TableView
 import com.wenjunhuang.codeepiphany.controllers.dojo.actions.PaginationActionGroup
 import com.wenjunhuang.codeepiphany.controllers.dojo.actions.groups.*
-import com.wenjunhuang.codeepiphany.hackerrank.model.ChallengeListItem
+import com.wenjunhuang.codeepiphany.hackerrank.model.ChallengeDetail
 
 import java.awt.BorderLayout
 import javax.swing.{ JPanel, ScrollPaneConstants }
@@ -62,7 +62,7 @@ class HackerRankView(private val myProject: Project, private val myPresenter: Ha
   def refreshPagination(): Unit =
     ApplicationManager.getApplication.invokeLater(() => myQueryRangeToolbar.updateActionsAsync())
 
-  def setChallengeItems(items: List[ChallengeListItem]): Unit =
+  def setChallengeItems(items: List[ChallengeDetail]): Unit =
     myQuestionsModel.setItems(items.asJava)
 
   override def uiDataSnapshot(dataSink: DataSink): Unit =

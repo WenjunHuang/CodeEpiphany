@@ -1,15 +1,15 @@
 package com.wenjunhuang.codeepiphany.hackerrank
 
+import cats.syntax.all.*
 import com.wenjunhuang.codeepiphany.PluginBundle
-import com.wenjunhuang.codeepiphany.model.Language
+import com.wenjunhuang.codeepiphany.model.{ Language, LanguageVersion }
 import com.wenjunhuang.codeepiphany.utils.Colors
-import io.circe.Decoder
 import io.circe.derivation.{ Configuration, ConfiguredDecoder }
-import io.circe.generic.auto.*
+import io.circe.{ Decoder, HCursor, Json }
+import monocle.Lens
+import monocle.macros.GenLens
 import org.typelevel.ci.CIString
-
 package object model {
-  case class QuestionContent(slug: String, description: String, codeTemplate: String, language: Language)
 
   enum ChallengeStatus(val value: String) {
     case Solved   extends ChallengeStatus("solved")
@@ -74,7 +74,9 @@ package object model {
 
   case class ChallengeSubdomain(name: String, slug: String) derives ConfiguredDecoder
 
-  case class ChallengeListItem(
+  case class ChallengeSearchByKeyWord(contestName: String, contestSlug: String, challengeId: Int, challengeName: String, challengeSlug: String, name: String) derives ConfiguredDecoder
+
+  case class ChallengeDetail(
       id: Int,
       slug: String,
       name: String,
@@ -94,4 +96,47 @@ package object model {
       maxScore: Int
   ) derives ConfiguredDecoder
 
+  case class LanguageTemplate(header: String, template: String, tail: String)
+
+  case class ChallengeContent(detail: ChallengeDetail, codeTemplates: Map[(Language, LanguageVersion), LanguageTemplate])
+  object ChallengeContent {
+    implicit val decoder: Decoder[ChallengeContent] = (c: HCursor) =>
+      for {
+        detail <- c.as[ChallengeDetail]
+        codes  <- c.as[Map[String, Json]]
+      } yield {
+        var templates    = Map.empty[(Language, LanguageVersion), LanguageTemplate]
+        val templateLens = GenLens[LanguageTemplate](_.template)
+        val headerLens   = GenLens[LanguageTemplate](_.header)
+        val tailLens     = GenLens[LanguageTemplate](_.tail)
+
+        def updateTemplates(langStr: String, verStr: String, value: String, lens: Lens[LanguageTemplate, String]): Unit =
+          Language.fromCIString(CIString(langStr)).foreach { lang =>
+            val ver = if verStr.isEmpty then LanguageVersion.All else LanguageVersion.Specific(verStr)
+            templates = templates.updatedWith((lang, ver)) {
+              case Some(t) => Some(lens.modify(_ => value)(t))
+              case None    => Some(lens.modify(_ => value)(LanguageTemplate("", "", "")))
+            }
+          }
+
+        codes.foreach { case (prop, json) =>
+          val templatePattern     = """^([a-zA-Z]*)(\d*)_template$""".r
+          val templateHeadPattern = """^([a-zA-Z]*)(\d*)_template_head$""".r
+          val templateTailPattern = """^([a-zA-Z]*)(\d*)_template_tail$""".r
+          val value               = json.as[String].getOrElse("")
+
+          prop match {
+            case templatePattern(lang, ver) =>
+              updateTemplates(lang, ver, value, templateLens)
+            case templateHeadPattern(lang, ver) =>
+              updateTemplates(lang, ver, value, headerLens)
+            case templateTailPattern(lang, ver) =>
+              updateTemplates(lang, ver, value, tailLens)
+            case _ => ()
+          }
+        }
+        ChallengeContent(detail, templates)
+      }
+
+  }
 }

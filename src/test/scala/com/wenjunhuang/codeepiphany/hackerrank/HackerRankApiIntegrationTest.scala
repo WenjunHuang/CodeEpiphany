@@ -6,7 +6,7 @@ import com.intellij.testFramework.fixtures.BasePlatformTestCase
 import com.intellij.util.net.{ProxyConfiguration, ProxySettings}
 import com.wenjunhuang.codeepiphany.controllers.http.HttpClientService
 import com.wenjunhuang.codeepiphany.hackerrank.model.ChallengeStatus.Unsolved
-import com.wenjunhuang.codeepiphany.model.CodeDojo
+import com.wenjunhuang.codeepiphany.model.{ApiError, CodeDojo}
 import com.wenjunhuang.codeepiphany.utils.CookieUtil
 import com.wenjunhuang.codeepiphany.utils.implicits.*
 import org.hamcrest.CoreMatchers.*
@@ -54,7 +54,7 @@ class HackerRankApiIntegrationTest extends BasePlatformTestCase {
     val httpClientKeeper = HttpClientService.getInstance(getProject)
     import httpClientKeeper.*
     val hackerRankApi = HackerRankApi[IO]()
-    (httpClientKeeper.httpClientKeeper.updateCookiesForHost(CodeDojo.HackerRank.domain, CookieUtil.parseCookies(content)) *> hackerRankApi.getInitialData()).attempt.unsafeRunSync() match {
+    (httpClientKeeper.httpClientKeeper.updateCookiesForHost(CodeDojo.HackerRank.domain, CookieUtil.parseCookies(content)) *> hackerRankApi.getInitialData).attempt.unsafeRunSync() match {
       case Left(e) => throw e
       case Right((userInfo, challengeDomains)) =>
         assertThat(userInfo.username, allOf(notNullValue(), not("")))
@@ -64,5 +64,56 @@ class HackerRankApiIntegrationTest extends BasePlatformTestCase {
         println(userInfo)
         println(challengeDomains)
     }
+  }
+
+  def testGetChallengeDetail():Unit = {
+    val httpClientKeeper = HttpClientService.getInstance(getProject)
+    import httpClientKeeper.*
+    val hackerRankApi = HackerRankApi[IO]()
+
+    val result = hackerRankApi.getChallengeDetail("birthday-cake-candles", None)
+      .handleErrorWith {
+        case ApiError.InvalidContent(e, message) =>
+          IO.println(message)
+        case e => IO.raiseError(e)
+      }
+      .unsafeRunSync()
+    println(result)   
+  }
+  
+  def testGetChallengeContent(): Unit = {
+    val httpClientKeeper = HttpClientService.getInstance(getProject)
+    import httpClientKeeper.*
+    val hackerRankApi = HackerRankApi[IO]()
+
+    val result = hackerRankApi.getChallengeContent("birthday-cake-candles", None)
+      .handleErrorWith{
+        case ApiError.InvalidContent(e,message) => 
+            IO.println(message)
+        case e => IO.raiseError(e)
+      }
+      .unsafeRunSync()
+    println(result)
+  }
+  
+  def testSearchWithKeyword():Unit = {
+
+    val httpClientKeeper = HttpClientService.getInstance(getProject)
+    import httpClientKeeper.*
+    val hackerRankApi = HackerRankApi[IO]()
+
+    val result = hackerRankApi.searchChallengesWithKeyword(None,"sum")
+      .flatMap(challenges =>
+        challenges.map(challenge =>
+          hackerRankApi.getChallengeDetail(challenge.challengeSlug, Some(challenge.contestSlug))
+        ).parUnorderedSequence
+      )
+      .handleErrorWith{
+        case ApiError.InvalidContent(e,message) =>
+          IO.println(message) *> IO.delay(Nil)
+        case e => IO.raiseError(e)
+      }
+      .unsafeRunSync()
+    println(result)
   }
 }

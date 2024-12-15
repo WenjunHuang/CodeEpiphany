@@ -1,6 +1,6 @@
-package com.wenjunhuang.codeepiphany.utils
+package com.wenjunhuang.codeepiphany.model
 
-import com.intellij.credentialStore.{ CredentialAttributes, CredentialAttributesKt }
+import com.intellij.credentialStore.{CredentialAttributes, CredentialAttributesKt}
 import com.intellij.ide.passwordSafe.PasswordSafe
 import com.wenjunhuang.codeepiphany.model.Constants
 

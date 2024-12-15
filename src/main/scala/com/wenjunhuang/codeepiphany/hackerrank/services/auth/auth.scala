@@ -2,14 +2,13 @@ package com.wenjunhuang.codeepiphany.hackerrank.services
 
 import cats.effect.kernel.Async
 import cats.syntax.all.*
-import cats.effect.syntax.all.*
 import com.intellij.openapi.project.Project
 import com.wenjunhuang.codeepiphany.controllers.http.HttpClientKeeper
 import com.wenjunhuang.codeepiphany.hackerrank.HackerRankApi
 import com.wenjunhuang.codeepiphany.hackerrank.services.auth.ui.HackerRankLoginDialog
-import com.wenjunhuang.codeepiphany.model.{ ApiError, CodeDojo }
+import com.wenjunhuang.codeepiphany.model.{ApiError, CodeDojo, SensitiveDataStore}
+import com.wenjunhuang.codeepiphany.utils.CookieUtil
 import com.wenjunhuang.codeepiphany.utils.implicits.*
-import com.wenjunhuang.codeepiphany.utils.{ CookieUtil, SensitiveDataStore }
 
 import java.net.HttpCookie
 import scala.jdk.CollectionConverters.*
