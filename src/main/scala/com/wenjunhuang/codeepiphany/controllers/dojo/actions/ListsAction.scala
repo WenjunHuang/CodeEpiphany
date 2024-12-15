@@ -22,7 +22,7 @@ class ListsAction extends ComboBoxAction {
   override def getActionUpdateThread: ActionUpdateThread = ActionUpdateThread.BGT
 }
 
-class ListsItemAction(private val myItem: ListQueryItem) extends AnAction(myItem.name) {
+class ListsItemAction(private val myItem: Category) extends AnAction(myItem.name) {
 
   override def actionPerformed(e: AnActionEvent): Unit =
     Option(LISTS_PROVIDER_KEY.getData(e.getDataContext)).foreach(_.toggleSelection(myItem))

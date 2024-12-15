@@ -3,10 +3,11 @@ package com.wenjunhuang.codeepiphany.hackerrank
 import cats.effect.IO
 import cats.syntax.all.*
 import com.intellij.testFramework.fixtures.BasePlatformTestCase
-import com.intellij.util.net.{ProxyConfiguration, ProxySettings}
+import com.intellij.util.net.{ ProxyConfiguration, ProxySettings }
 import com.wenjunhuang.codeepiphany.controllers.http.HttpClientService
 import com.wenjunhuang.codeepiphany.hackerrank.model.ChallengeStatus.Unsolved
-import com.wenjunhuang.codeepiphany.model.{ApiError, CodeDojo}
+import com.wenjunhuang.codeepiphany.hackerrank.model.Contest.{ Master, ProjectEuler }
+import com.wenjunhuang.codeepiphany.model.{ ApiError, CodeDojo }
 import com.wenjunhuang.codeepiphany.utils.CookieUtil
 import com.wenjunhuang.codeepiphany.utils.implicits.*
 import org.hamcrest.CoreMatchers.*
@@ -29,13 +30,13 @@ class HackerRankApiIntegrationTest extends BasePlatformTestCase {
     import httpClientKeeper.*
     val hackerRankApi = HackerRankApi[IO]()
     hackerRankApi
-      .searchChallenges(0, 10, None, Some("algorithms"))
+      .searchChallenges(0, 10, Master, "algorithms")
       .map { challenges =>
         assertThat(challenges.size, not(0))
       }
       .unsafeRunSync()
     hackerRankApi
-      .searchChallenges(0, 10, Some("projecteuler"), None, Nil, Nil)
+      .searchChallenges(0, 10, ProjectEuler, "projecteuler", Nil, Nil)
       .map(challenges => assertThat(challenges.size, not(0)))
       .unsafeRunSync()
   }
@@ -66,50 +67,64 @@ class HackerRankApiIntegrationTest extends BasePlatformTestCase {
     }
   }
 
-  def testGetChallengeDetail():Unit = {
+  def testGetChallengeDetail(): Unit = {
     val httpClientKeeper = HttpClientService.getInstance(getProject)
     import httpClientKeeper.*
     val hackerRankApi = HackerRankApi[IO]()
 
-    val result = hackerRankApi.getChallengeDetail("birthday-cake-candles", None)
+    val result = hackerRankApi
+      .getChallengeDetail("birthday-cake-candles", Master)
       .handleErrorWith {
         case ApiError.InvalidContent(e, message) =>
           IO.println(message)
         case e => IO.raiseError(e)
       }
       .unsafeRunSync()
-    println(result)   
+    println(result)
   }
-  
+
   def testGetChallengeContent(): Unit = {
     val httpClientKeeper = HttpClientService.getInstance(getProject)
     import httpClientKeeper.*
     val hackerRankApi = HackerRankApi[IO]()
 
-    val result = hackerRankApi.getChallengeContent("birthday-cake-candles", None)
-      .handleErrorWith{
-        case ApiError.InvalidContent(e,message) => 
-            IO.println(message)
+    val result = hackerRankApi
+      .getChallengeContent("birthday-cake-candles", Master)
+      .handleErrorWith {
+        case ApiError.InvalidContent(e, message) =>
+          IO.println(message)
         case e => IO.raiseError(e)
       }
       .unsafeRunSync()
     println(result)
   }
-  
-  def testSearchWithKeyword():Unit = {
 
+  def testSearchMasterWithKeyword(): Unit = {
     val httpClientKeeper = HttpClientService.getInstance(getProject)
     import httpClientKeeper.*
     val hackerRankApi = HackerRankApi[IO]()
 
-    val result = hackerRankApi.searchChallengesWithKeyword(None,"sum")
-      .flatMap(challenges =>
-        challenges.map(challenge =>
-          hackerRankApi.getChallengeDetail(challenge.challengeSlug, Some(challenge.contestSlug))
-        ).parUnorderedSequence
-      )
-      .handleErrorWith{
-        case ApiError.InvalidContent(e,message) =>
+    val result = hackerRankApi
+      .searchChallengesWithKeyword(Master, "sum")
+      .flatMap(challenges => challenges.map(challenge => hackerRankApi.getChallengeDetail(challenge.challengeSlug, Master)).parUnorderedSequence)
+      .handleErrorWith {
+        case ApiError.InvalidContent(e, message) =>
+          IO.println(message) *> IO.delay(Nil)
+        case e => IO.raiseError(e)
+      }
+      .unsafeRunSync()
+    println(result)
+  }
+  def testSearchProjectEulerWithKeyword(): Unit = {
+    val httpClientKeeper = HttpClientService.getInstance(getProject)
+    import httpClientKeeper.*
+    val hackerRankApi = HackerRankApi[IO]()
+
+    val result = hackerRankApi
+      .searchChallengesWithKeyword(ProjectEuler, "project")
+      .flatMap(challenges => challenges.map(challenge => hackerRankApi.getChallengeDetail(challenge.challengeSlug, ProjectEuler)).parUnorderedSequence)
+      .handleErrorWith {
+        case ApiError.InvalidContent(e, message) =>
           IO.println(message) *> IO.delay(Nil)
         case e => IO.raiseError(e)
       }

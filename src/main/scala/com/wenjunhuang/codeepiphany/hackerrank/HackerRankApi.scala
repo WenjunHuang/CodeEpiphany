@@ -16,26 +16,27 @@ import org.jsoup.Jsoup
 
 trait HackerRankApi[F[_]] {
   def getInitialData: F[(UserInfo, List[ChallengeDomain])]
-  def getChallengeContent(problemSlug: String, contest: Option[String]): F[Option[ChallengeContent]]
-  def getChallengeDetail(problemSlug: String, contest: Option[String]): F[Option[ChallengeDetail]]
+  def getChallengeContent(problemSlug: String, contest: Contest): F[Option[ChallengeContent]]
+  def getChallengeDetail(problemSlug: String, contest: Contest): F[Option[ChallengeDetail]]
   def searchChallenges(
       offset: Int,
       limit: Int,
-      contest: Option[String],
-      domainSlug: Option[String],
+      contest: Contest,
+      domainSlug: String,
       status: List[ChallengeStatus] = Nil,
       skills: List[ChallengeSkill] = Nil,
       difficulties: List[ChallengeDifficulty] = Nil,
       subdomains: List[ChallengeSubdomain] = Nil
   ): F[(Int, List[ChallengeDetail])]
 
-  def searchChallengesWithKeyword(contest: Option[String], keyword: String): F[List[ChallengeSearchByKeyWord]]
+  def searchChallengesWithKeyword(contest: Contest, keyword: String): F[List[ChallengeSearchByKeyWord]]
 
   def checkLogin(): F[Boolean]
 }
 
 object HackerRankApi {
   def apply[F[_]: Async: Concurrent: HttpClientKeeper](): HackerRankApi[F] = new HackerRankApi[F] with Http4sClientDsl[F] {
+
     override def checkLogin(): F[Boolean] = HttpClientKeeper[F].getClient.use { client =>
       client
         .run(Request[F](Method.GET, uri"https://www.hackerrank.com/community/v1/promotion_slots/banner-dashboard"))
@@ -47,16 +48,15 @@ object HackerRankApi {
         }
     }
 
-    private def makeGetChallengeContentRequestUrl(problemSlug: String, contest: Option[String]): Uri = {
+    private def makeGetChallengeContentRequestUrl(problemSlug: String, contest: Contest): Uri = {
       val baseUri = uri"https://www.hackerrank.com"
       contest match {
-        case None                                 => baseUri / "challenges" / problemSlug / "problem"
-        case Some(contest) if contest == "master" => baseUri / "challenges" / problemSlug / "problem"
-        case Some(contest)                        => baseUri / "contests" / contest / "challenges" / problemSlug / "problem"
+        case Contest.Master       => baseUri / "challenges" / problemSlug / "problem"
+        case Contest.ProjectEuler => baseUri / "contests" / "projecteuler" / "challenges" / problemSlug / "problem"
       }
     }
 
-    override def getChallengeDetail(problemSlug: String, contest: Option[String]): F[Option[ChallengeDetail]] = HttpClientKeeper[F].getClient.use { client =>
+    override def getChallengeDetail(problemSlug: String, contest: Contest): F[Option[ChallengeDetail]] = HttpClientKeeper[F].getClient.use { client =>
       client
         .expect[String](
           Request[F](
@@ -71,7 +71,7 @@ object HackerRankApi {
               case Left(e) => throw ApiError.InvalidContent(HackerRank, e.getMessage)
               case Right(json) =>
                 JsonPath.root.community.challenges.challenge
-                  .selectDynamic(s"${contest.getOrElse("master")}/$problemSlug")
+                  .selectDynamic(s"${contest.slug}/$problemSlug")
                   .detail
                   .json
                   .getOption(json)
@@ -87,7 +87,7 @@ object HackerRankApi {
 
     override def getChallengeContent(
         problemSlug: String,
-        contest: Option[String] // hackerrank contest such as 'projecteuler'
+        contest: Contest // hackerrank contest such as 'projecteuler'
     ): F[Option[ChallengeContent]] =
       HttpClientKeeper[F].getClient.use { client =>
         client
@@ -104,7 +104,7 @@ object HackerRankApi {
                 case Left(e) => throw ApiError.InvalidContent(HackerRank, e.getMessage)
                 case Right(json) =>
                   JsonPath.root.community.challenges.challenge
-                    .selectDynamic(s"${contest.getOrElse("master")}/$problemSlug")
+                    .selectDynamic(s"${contest.slug}/$problemSlug")
                     .detail
                     .json
                     .getOption(json)
@@ -118,17 +118,16 @@ object HackerRankApi {
           }
       }
 
-    private def makeSearchChallengesUri(contest: Option[String], topicSlug: Option[String]): Uri =
-      val base = uri"https://www.hackerrank.com/rest/contests" / contest.getOrElse("master")
-      topicSlug match
-        case None       => base / "challenges"
-        case Some(slug) => base / "tracks" / slug / "challenges"
+    private def makeSearchChallengesUri(contest: Contest, domainSlug: String): Uri =
+      val base = uri"https://www.hackerrank.com/rest/contests" / contest.slug
+      if contest == Contest.ProjectEuler then base / "challenges"
+      else base / "tracks" / domainSlug / "challenges"
 
     override def searchChallenges(
         offset: Int,
         limit: Int,
-        contest: Option[String],
-        domainSlug: Option[String],
+        contest: Contest,
+        domainSlug: String,
         status: List[ChallengeStatus],
         skills: List[ChallengeSkill],
         difficulties: List[ChallengeDifficulty],
@@ -166,12 +165,12 @@ object HackerRankApi {
           }
       }
 
-    override def searchChallengesWithKeyword(contestSlug: Option[String], keyword: String): F[List[ChallengeSearchByKeyWord]] = HttpClientKeeper[F].getClient.use { client =>
+    override def searchChallengesWithKeyword(contest: Contest, keyword: String): F[List[ChallengeSearchByKeyWord]] = HttpClientKeeper[F].getClient.use { client =>
       client
         .expect[String](
           Method.GET(
             uri = uri"https://www.hackerrank.com/appsearch"
-              .withQueryParam("contest_slug", contestSlug.getOrElse("master"))
+              .withQueryParam("contest_slug", contest.slug)
               .withQueryParam("query", keyword)
           )
         )
@@ -216,11 +215,14 @@ object HackerRankApi {
                 userInfo,
                 domains.mapFilter { domain =>
                   for {
+                    id   <- JsonPath.root.id.int.getOption(domain)
                     name <- JsonPath.root.name.string.getOption(domain)
                     slug <- JsonPath.root.slug.string.getOption(domain)
                   } yield ChallengeDomain(
+                    id,
                     name,
                     slug,
+                    Contest.Master,
                     dict
                       .get(slug)
                       .map { d =>

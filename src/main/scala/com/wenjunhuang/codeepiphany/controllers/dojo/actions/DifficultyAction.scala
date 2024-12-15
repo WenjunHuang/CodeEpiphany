@@ -16,7 +16,7 @@ class DifficultyAction extends ComboBoxAction {
 
   override def createPopupActionGroup(button: JComponent, dataContext: DataContext): DefaultActionGroup =
     Option(DIFFICULTIES_PROVIDER_KEY.getData(dataContext))
-      .map(_.getDifficulties)
+      .map(_.getAllItems)
       .map(diffs => diffs.map(new DifficultySubAction(_)))
       .map(actions => new DefaultActionGroup(actions*))
       .getOrElse(new DefaultActionGroup())

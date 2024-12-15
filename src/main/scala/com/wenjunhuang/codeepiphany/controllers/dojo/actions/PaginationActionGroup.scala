@@ -28,7 +28,7 @@ class PaginationActionGroup extends DefaultActionGroup {
 
     if cache != (pageSize, currentPage, totalItems) then
       removeAll()
-      
+
       add(PageSizeAction())
 
       add(createIconAction(AllIcons.General.ArrowLeft, if currentPage > 1 then Some(() => provider.setCurrentPage(currentPage - 1)) else None))
@@ -106,12 +106,12 @@ class PageSizeAction extends ComboBoxAction {
         presentation.setEnabled(true)
         provider.getSelectedItems.headOption match {
           case None       => presentation.setText("")
-          case Some(item) => presentation.setText(item.name)
+          case Some(item) => presentation.setText(item.show)
         }
     }
 }
 
-class RangePageSizeItemAction(private val myItem: QueryPageSizeItem) extends AnAction(myItem.name) {
+class RangePageSizeItemAction(private val myItem: PageSize) extends AnAction(myItem.show) {
   override def actionPerformed(e: AnActionEvent): Unit =
     Option(PAGINATION_PROVIDER_KEY.getData(e.getDataContext)).foreach(_.toggleSelection(myItem))
 

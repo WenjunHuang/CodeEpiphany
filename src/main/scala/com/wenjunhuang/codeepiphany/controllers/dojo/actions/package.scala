@@ -1,6 +1,7 @@
 package com.wenjunhuang.codeepiphany.controllers.dojo
 
 import com.intellij.openapi.actionSystem.DataKey
+import com.wenjunhuang.codeepiphany.PluginBundle
 
 package object actions {
   trait LoginLogoutProvider {
@@ -19,19 +20,11 @@ package object actions {
     def removeSelectedItems(items: List[T]): Unit
   }
 
-  case class ListQueryItem(name: String, id: String)
-  trait ListsQueryParamProvider extends QueryParamProvider[ListQueryItem] {}
+  case class Category(name: String, value: String, marker: Any = null)
+  trait CategoryProvider extends QueryParamProvider[Category] {}
 
   case class Difficulty(name: String, value: String)
-  trait DifficultiesProvider {
-    def getDifficulties: List[Difficulty]
-    def isMultipleSelection: Boolean
-    def getSelected: List[Difficulty]
-    def addSelected(items: List[Difficulty]): Unit
-    def toggleSelection(item: Difficulty): Unit
-    def removeSelected(items: List[Difficulty]): Unit
-    def isSelected(item: Difficulty): Boolean
-  }
+  trait DifficultiesProvider extends QueryParamProvider[Difficulty] {}
 
   case class Status(name: String, value: String)
   trait StatusProvider extends QueryParamProvider[Status]
@@ -45,25 +38,45 @@ package object actions {
   sealed trait TagProvider extends QueryParamProvider[Tag] {}
 
   trait SingleTagGroupProvider extends TagProvider {}
+
   trait MultiTagGroupProvider extends TagProvider {
     def isSearchEnabled: Boolean
     def searchTags(query: String): List[Tag]
   }
 
-  case class QueryPageSizeItem(name: String, value: Int)
-  trait PaginationProvider extends QueryParamProvider[QueryPageSizeItem] {
+  enum PageSize(val value: Int) {
+    case Twenty     extends PageSize(20)
+    case Fifty      extends PageSize(50)
+    case OneHundred extends PageSize(100)
+
+    def show: String =
+      this match
+        case Twenty     => PluginBundle.message("hackerrank.ui.query.pagesize.20")
+        case Fifty      => PluginBundle.message("hackerrank.ui.query.pagesize.50")
+        case OneHundred => PluginBundle.message("hackerrank.ui.query.pagesize.100")
+  }
+
+  object PageSize {
+    def fromInt(value: Int): Option[PageSize] =
+      value match
+        case Twenty.value     => Some(Twenty)
+        case Fifty.value      => Some(Fifty)
+        case OneHundred.value => Some(OneHundred)
+        case _                => None
+  }
+  trait PaginationProvider extends QueryParamProvider[PageSize] {
     def getPageSize: Int
     def getCurrentPage: Int
     def setCurrentPage(page: Int): Unit
     def getTotalPages: Int
     def getTotalItems: Int
-    def refresh():Unit
+    def refresh(): Unit
   }
 
   object keys {
     final val LOGIN_LOGOUT_KEY = DataKey.create[LoginLogoutProvider]("LOGIN_LOGOUT_KEY")
 
-    final val LISTS_PROVIDER_KEY = DataKey.create[ListsQueryParamProvider]("LISTS_QUERYPARAM_PROVIDER_KEY")
+    final val LISTS_PROVIDER_KEY = DataKey.create[CategoryProvider]("LISTS_QUERYPARAM_PROVIDER_KEY")
 
     final val DIFFICULTIES_PROVIDER_KEY = DataKey.create[DifficultiesProvider]("DIFFICULTIES_PROVIDER_KEY")
 

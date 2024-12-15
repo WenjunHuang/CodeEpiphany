@@ -65,12 +65,18 @@ package object model {
   private given hackerRankConfig: Configuration = Configuration.default.withSnakeCaseMemberNames
 
   case class UserInfo(username: String, name: String, avatar: String) derives ConfiguredDecoder
+  final val EMPTY_USERINFO: UserInfo = UserInfo("", "", "")
 
-  object UserInfo {
-    val empty: UserInfo = UserInfo("", "", "")
+  enum Contest(val slug: String) {
+    case Master       extends Contest("master")
+    case ProjectEuler extends Contest("projecteuler")
   }
 
-  case class ChallengeDomain(name: String, slug: String, subDomains: List[ChallengeSubdomain])
+  case class ChallengeDomain(id: Int, name: String, slug: String, contest: Contest, subDomains: List[ChallengeSubdomain])
+
+  // constant for project euler contest
+  // project euler contest seems to be a special case, so we need to define it here
+  final val PROJECT_EULER_DOMAIN: ChallengeDomain = ChallengeDomain(99, "Project Euler", "projecteuler", Contest.ProjectEuler, List.empty)
 
   case class ChallengeSubdomain(name: String, slug: String) derives ConfiguredDecoder
 
