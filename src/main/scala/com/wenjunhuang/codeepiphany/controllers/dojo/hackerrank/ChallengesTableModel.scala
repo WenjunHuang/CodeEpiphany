@@ -1,18 +1,18 @@
-package com.wenjunhuang.codeepiphany.controllers.dojo
+package com.wenjunhuang.codeepiphany.controllers.dojo.hackerrank
 
 import com.intellij.icons.AllIcons
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.util.text.StringUtil.repeat
 import com.intellij.util.ui.table.IconTableCellRenderer
 import com.intellij.util.ui.{ ColumnInfo, ListTableModel }
-import com.wenjunhuang.codeepiphany.controllers.dojo.HackerRankChallengesTableModel.Column.*
-import com.wenjunhuang.codeepiphany.hackerrank.model.{ ChallengeDifficulty, ChallengeDetail, ChallengeSkill, ChallengeStatus }
+import com.wenjunhuang.codeepiphany.hackerrank.model.{ ChallengeDetail, ChallengeDifficulty, ChallengeSkill, ChallengeStatus }
 import org.typelevel.ci.CIString
 
-import javax.swing.{ Icon, JTable, SwingConstants }
 import javax.swing.table.{ DefaultTableCellRenderer, TableCellRenderer }
+import javax.swing.{ Icon, JTable, SwingConstants }
+import ChallengesTableModel.Column.*
 
-class HackerRankChallengesTableModel extends ListTableModel[ChallengeDetail]() {
+class ChallengesTableModel extends ListTableModel[ChallengeDetail]() {
 
   setColumnInfos(
     Array(
@@ -73,7 +73,7 @@ class HackerRankChallengesTableModel extends ListTableModel[ChallengeDetail]() {
   )
 }
 
-object HackerRankChallengesTableModel {
+object ChallengesTableModel {
   enum Column(val title: String) {
     case Status      extends Column("Status")
     case Title       extends Column("Title")
@@ -81,5 +81,4 @@ object HackerRankChallengesTableModel {
     case MaxScore    extends Column("Max Score")
     case SuccessRate extends Column("Success Rate")
   }
-
 }

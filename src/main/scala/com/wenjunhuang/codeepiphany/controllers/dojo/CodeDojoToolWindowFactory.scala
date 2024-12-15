@@ -1,16 +1,15 @@
 package com.wenjunhuang.codeepiphany.controllers.dojo
 
-import com.intellij.icons.AllIcons
-import com.intellij.openapi.actionSystem.{ ActionManager, AnAction }
-import com.intellij.openapi.project.{ DumbAware, Project }
-import com.intellij.openapi.util.Key
-import com.intellij.openapi.wm.impl.content.ToolWindowContentUi
-import com.intellij.openapi.wm.{ ToolWindow, ToolWindowContentUiType, ToolWindowFactory }
-import com.intellij.ui.components.JBLabel
-import com.wenjunhuang.codeepiphany.controllers.dojo.CodeDojoToolWindowFactory.HACKERRANK_PRESENTER_KEY
-import com.wenjunhuang.codeepiphany.controllers.dojo.actions.groups.TITLE_TOOLBAR_GROUP
-import com.wenjunhuang.codeepiphany.model.CodeDojo
 import cats.syntax.all.*
+import com.intellij.icons.AllIcons
+import com.intellij.openapi.actionSystem.{ActionManager, AnAction}
+import com.intellij.openapi.project.{DumbAware, Project}
+import com.intellij.openapi.wm.impl.content.ToolWindowContentUi
+import com.intellij.openapi.wm.{ToolWindow, ToolWindowContentUiType, ToolWindowFactory}
+import com.intellij.ui.components.JBLabel
+import com.wenjunhuang.codeepiphany.controllers.dojo.actions.groups.TITLE_TOOLBAR_GROUP
+import com.wenjunhuang.codeepiphany.controllers.dojo.hackerrank.HackerRankView
+import com.wenjunhuang.codeepiphany.model.CodeDojo
 
 import javax.swing.Icon
 import scala.jdk.CollectionConverters.*
@@ -23,9 +22,8 @@ class CodeDojoToolWindowFactory extends ToolWindowFactory with DumbAware {
     toolWindow.getComponent.putClientProperty(ToolWindowContentUi.HIDE_ID_LABEL, "true")
     toolWindow.setDefaultContentUiType(ToolWindowContentUiType.COMBO)
 
-    val hackerRankPresenter = HackerRankPresenter(project)
-    val content             = contentFactory.createContent(hackerRankPresenter.getComponent, CodeDojo.HackerRank.show, false)
-    content.putUserData(HACKERRANK_PRESENTER_KEY, hackerRankPresenter)
+    val hackerRankView = HackerRankView(project)
+    val content        = contentFactory.createContent(hackerRankView, CodeDojo.HackerRank.show, false)
     contentManager.addContent(content)
     contentManager.addContent(contentFactory.createContent(JBLabel("Leetcode"), CodeDojo.LeetCodeCN.show, false))
     contentManager.addContent(contentFactory.createContent(JBLabel("CodeWars"), CodeDojo.LeetCode.show, false))
@@ -40,5 +38,4 @@ class CodeDojoToolWindowFactory extends ToolWindowFactory with DumbAware {
 }
 
 object CodeDojoToolWindowFactory {
-  val HACKERRANK_PRESENTER_KEY: Key[HackerRankPresenter] = Key.create[HackerRankPresenter]("HACKERRANK_PRESENTER_KEY")
 }

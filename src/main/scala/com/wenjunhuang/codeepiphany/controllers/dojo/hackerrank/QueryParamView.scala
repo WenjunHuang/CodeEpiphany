@@ -1,4 +1,4 @@
-package com.wenjunhuang.codeepiphany.controllers.dojo
+package com.wenjunhuang.codeepiphany.controllers.dojo.hackerrank
 
 import com.intellij.openapi.actionSystem.*
 import com.intellij.openapi.actionSystem.toolbarLayout.ToolbarLayoutStrategy
@@ -7,17 +7,17 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.SimpleToolWindowPanel
 import com.intellij.openapi.util.Disposer
 import com.intellij.ui.components.JBScrollPane
-import com.intellij.ui.table.JBTable
 import com.intellij.ui.table.TableView
+import com.wenjunhuang.codeepiphany.controllers.dojo.AbstractCodeDojoView
 import com.wenjunhuang.codeepiphany.controllers.dojo.actions.PaginationActionGroup
 import com.wenjunhuang.codeepiphany.controllers.dojo.actions.groups.*
 import com.wenjunhuang.codeepiphany.hackerrank.model.ChallengeDetail
 
 import java.awt.BorderLayout
-import javax.swing.{ JPanel, ScrollPaneConstants }
+import javax.swing.{JPanel, ScrollPaneConstants}
 import scala.jdk.CollectionConverters.*
 
-class HackerRankView(private val myProject: Project, private val myPresenter: HackerRankPresenter) extends SimpleToolWindowPanel(true, true) with AbstractCodeDojoView {
+class QueryParamView(private val myProject: Project, private val myPresenter: QueryParametersViewPresenter) extends SimpleToolWindowPanel(true, true) with AbstractCodeDojoView {
   private val actionManager = ActionManager.getInstance()
   private val myActionGroup = actionManager.getAction(HACKERRANK_TOOLBAR_GROUP).asInstanceOf[ActionGroup]
   private val myMainToolbar = actionManager.createActionToolbar(TOOLBAR_PLACE, myActionGroup, true)
@@ -35,7 +35,7 @@ class HackerRankView(private val myProject: Project, private val myPresenter: Ha
   private val myContent = JPanel(BorderLayout())
   myContent.add(myTagToolbar.getComponent, BorderLayout.NORTH)
 
-  private val myQuestionsModel = HackerRankChallengesTableModel()
+  private val myQuestionsModel = ChallengesTableModel()
   private val myQuestionsTable = TableView(myQuestionsModel)
   myQuestionsTable.setShowGrid(false)
   myQuestionsTable.setShowColumns(true)
@@ -53,7 +53,7 @@ class HackerRankView(private val myProject: Project, private val myPresenter: Ha
   myQueryRangeToolbar.setTargetComponent(this)
   myContent.add(myQueryRangeToolbar.getComponent, BorderLayout.SOUTH)
   setContent(myContent)
-
+  
   def getTagActionGroup: DefaultActionGroup = myTagActionGroup
 
   def refreshTagToolbar(): Unit =
