@@ -2,6 +2,7 @@ package com.wenjunhuang.codeepiphany.controllers.dojo
 
 import com.intellij.openapi.actionSystem.DataKey
 import com.wenjunhuang.codeepiphany.PluginBundle
+import com.wenjunhuang.codeepiphany.controllers.dojo.actions.providers.SwitchUIProvider
 
 package object actions {
   trait LoginLogoutProvider {
@@ -87,6 +88,8 @@ package object actions {
     final val TAG_PROVIDER_KEY = DataKey.create[TagProvider]("TAG_PROVIDER_KEY")
 
     final val PAGINATION_PROVIDER_KEY = DataKey.create[PaginationProvider]("PAGINATION_PROVIDER_KEY")
+    
+    final val SWITCHUI_PROVIDER_KEY = DataKey.create[SwitchUIProvider]("SWITCHUI_PROVIDER_KEY")
   }
 
   object groups {

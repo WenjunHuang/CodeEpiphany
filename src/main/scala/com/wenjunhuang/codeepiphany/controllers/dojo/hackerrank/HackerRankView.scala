@@ -6,7 +6,8 @@ import com.intellij.openapi.project.Project
 import com.intellij.ui.CardLayoutPanel
 import com.wenjunhuang.codeepiphany.controllers.dojo.AbstractCodeDojoView
 import com.wenjunhuang.codeepiphany.controllers.dojo.actions.LoginLogoutProvider
-import com.wenjunhuang.codeepiphany.controllers.dojo.actions.keys.LOGIN_LOGOUT_KEY
+import com.wenjunhuang.codeepiphany.controllers.dojo.actions.keys.{ LOGIN_LOGOUT_KEY, SWITCHUI_PROVIDER_KEY }
+import com.wenjunhuang.codeepiphany.controllers.dojo.actions.providers.{ DojoUI, SwitchUIProvider }
 import com.wenjunhuang.codeepiphany.controllers.http.{ HttpClientKeeper, HttpClientService }
 import com.wenjunhuang.codeepiphany.hackerrank.HackerRankApi
 import com.wenjunhuang.codeepiphany.hackerrank.services.auth.{ askForLogout, loadAuthenticationMayAskForLogin, AskForLoginResult }
@@ -15,13 +16,7 @@ import com.wenjunhuang.codeepiphany.utils.implicits.*
 
 import javax.swing.JComponent
 
-enum HackerRankViewType {
-  case Unauthenticated
-  case QueryParameters
-  case SearchByKeyword
-}
-
-class HackerRankView(private val myProject: Project) extends CardLayoutPanel[HackerRankViewType, HackerRankViewType, JComponent] with AbstractCodeDojoView {
+class HackerRankView(private val myProject: Project) extends CardLayoutPanel[DojoUI, DojoUI, JComponent] with AbstractCodeDojoView {
 
   implicit private val httpClientKeeper: HttpClientKeeper[IO] = HttpClientService.getInstance(myProject).httpClientKeeper
   private val myApi                                           = HackerRankApi[IO]()
@@ -29,9 +24,11 @@ class HackerRankView(private val myProject: Project) extends CardLayoutPanel[Hac
   private val myUnauthenticatedView    = UnauthenticatedView()
   private val myQueryParamPresenter    = QueryParametersViewPresenter(myProject)
   private val myKeywordSearchPresenter = KeywordSearchViewPresenter(myProject)
-
+  private var myCurrentUI              = DojoUI.Unauthenticated
   @volatile
   private var myIsLoggedIn = false
+
+  select(myCurrentUI, false)
 
   private val myLoginLogoutProvider = new LoginLogoutProvider {
     override def login(): Unit = loadAuthenticationMayAskForLogin[IO](myProject, CodeDojo.HackerRank).flatMap {
@@ -41,7 +38,7 @@ class HackerRankView(private val myProject: Project) extends CardLayoutPanel[Hac
             .syncPublisher(messages.LOGIN_LOGOUT_TOPIC)
             .login(CodeDojo.HackerRank)
           myIsLoggedIn = true
-        } *> IO.delay(select(HackerRankViewType.SearchByKeyword, false)).evalOn(intellijUIContext)
+        } *> IO.delay {mySwitchUIProvider.switchTo(DojoUI.QueryParameters)}.evalOn(intellijUIContext)
       case _ => IO.unit
     }.unsafeRunAndForget()
 
@@ -49,22 +46,29 @@ class HackerRankView(private val myProject: Project) extends CardLayoutPanel[Hac
       *> IO.delay(myProject.getMessageBus.syncPublisher(messages.LOGIN_LOGOUT_TOPIC).logout(CodeDojo.HackerRank))
       *> IO.delay {
         myIsLoggedIn = false
-        select(HackerRankViewType.Unauthenticated, false)
+        select(DojoUI.Unauthenticated, false)
       }.evalOn(intellijUIContext)).unsafeRunAndForget()
 
     override def isLoggedIn: Boolean = myIsLoggedIn
   }
 
-  select(HackerRankViewType.Unauthenticated, false)
+  private val mySwitchUIProvider = new SwitchUIProvider {
+    override def switchTo(ui: DojoUI): Unit =
+      myCurrentUI = ui
+      select(ui, false)
 
-  override def prepare(key: HackerRankViewType): HackerRankViewType = key
+    override def getCurrentUI: DojoUI = myCurrentUI
+  }
 
-  override def create(ui: HackerRankViewType): JComponent = ui match {
-    case HackerRankViewType.Unauthenticated => myUnauthenticatedView
-    case HackerRankViewType.QueryParameters => myQueryParamPresenter.getComponent
-    case HackerRankViewType.SearchByKeyword => myKeywordSearchPresenter.getComponent
+  override def prepare(key: DojoUI): DojoUI = key
+
+  override def create(ui: DojoUI): JComponent = ui match {
+    case DojoUI.Unauthenticated => myUnauthenticatedView
+    case DojoUI.QueryParameters => myQueryParamPresenter.getComponent
+    case DojoUI.SearchByKeyword => myKeywordSearchPresenter.getComponent
   }
 
   override def uiDataSnapshot(dataSink: DataSink): Unit =
     dataSink.set(LOGIN_LOGOUT_KEY, myLoginLogoutProvider)
+    dataSink.set(SWITCHUI_PROVIDER_KEY, mySwitchUIProvider)
 }

@@ -21,6 +21,9 @@
             <action id="CodeEpiphany.Dojos.Actions.Logout"
                     class="com.wenjunhuang.codeepiphany.controllers.dojo.actions.LogoutAction"
                     icon="CodeEpiphanyIcons.LOGOUT_ICON"/>
+            <action id="CodeEpiphany.Dojos.Actions.SwitchUI"
+                    class="com.wenjunhuang.codeepiphany.controllers.dojo.actions.SwitchUIAction">
+            </action>
             <action id="CodeEpiphany.Dojos.Actions.Lists"
                     class="com.wenjunhuang.codeepiphany.controllers.dojo.actions.ListsAction"/>
             <action id="CodeEpiphany.Dojos.Actions.Difficulty"
@@ -41,6 +44,7 @@
             <reference ref="CodeEpiphany.Dojos.Actions.Tags"/>
         </group>
         <group id="CodeEpiphany.Dojos.TitleToolbar">
+            <reference ref="CodeEpiphany.Dojos.Actions.SwitchUI"/>
             <reference ref="CodeEpiphany.Dojos.Actions.Login"/>
             <reference ref="CodeEpiphany.Dojos.Actions.Logout"/>
         </group>
