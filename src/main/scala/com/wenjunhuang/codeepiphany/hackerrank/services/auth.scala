@@ -5,7 +5,7 @@ import cats.syntax.all.*
 import com.intellij.openapi.project.Project
 import com.wenjunhuang.codeepiphany.hackerrank.HackerRankApi
 import com.wenjunhuang.codeepiphany.hackerrank.ui.HackerRankLoginDialog
-import com.wenjunhuang.codeepiphany.model.{ApiError, CodeDojo, SensitiveDataStore}
+import com.wenjunhuang.codeepiphany.model.{ ApiError, CodeDojo, SensitiveDataStore }
 import com.wenjunhuang.codeepiphany.services.http.HttpClientKeeper
 import com.wenjunhuang.codeepiphany.utils.CookieUtil
 import com.wenjunhuang.codeepiphany.utils.implicits.*
@@ -13,7 +13,7 @@ import com.wenjunhuang.codeepiphany.utils.implicits.*
 import java.net.HttpCookie
 import scala.jdk.CollectionConverters.*
 
-package object auth {
+object auth {
   enum AskForLoginResult {
     case Done
     case Cancelled

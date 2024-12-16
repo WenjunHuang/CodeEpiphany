@@ -14,7 +14,7 @@ import com.wenjunhuang.codeepiphany.toolwindows.dojo.actions.groups.*
 import com.wenjunhuang.codeepiphany.hackerrank.model.ChallengeDetail
 
 import java.awt.BorderLayout
-import javax.swing.{JPanel, ListSelectionModel, ScrollPaneConstants}
+import javax.swing.{ JPanel, ListSelectionModel, ScrollPaneConstants }
 import scala.jdk.CollectionConverters.*
 
 class QueryParamView(private val myProject: Project, private val myPresenter: QueryParametersViewPresenter) extends SimpleToolWindowPanel(true, true) with AbstractCodeDojoView {
@@ -35,15 +35,9 @@ class QueryParamView(private val myProject: Project, private val myPresenter: Qu
   private val myContent = JPanel(BorderLayout())
   myContent.add(myTagToolbar.getComponent, BorderLayout.NORTH)
 
-  private val myChallengesModel = ChallengesTableModel()
-  private val myChallengesTable = TableView(myChallengesModel)
-  myChallengesTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION)
-  myChallengesTable.setShowGrid(false)
-  myChallengesTable.setShowColumns(true)
-  
   myContent.add(
     JBScrollPane(
-      myChallengesTable,
+      myPresenter.getTableView,
       ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
       ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED
     ),
@@ -55,7 +49,7 @@ class QueryParamView(private val myProject: Project, private val myPresenter: Qu
   myQueryRangeToolbar.setTargetComponent(this)
   myContent.add(myQueryRangeToolbar.getComponent, BorderLayout.SOUTH)
   setContent(myContent)
-  
+
   def getTagActionGroup: DefaultActionGroup = myTagActionGroup
 
   def refreshTagToolbar(): Unit =
@@ -64,8 +58,7 @@ class QueryParamView(private val myProject: Project, private val myPresenter: Qu
   def refreshPagination(): Unit =
     ApplicationManager.getApplication.invokeLater(() => myQueryRangeToolbar.updateActionsAsync())
 
-  def setChallengeItems(items: List[ChallengeDetail]): Unit =
-    myChallengesModel.setItems(items.asJava)
+
 
   override def uiDataSnapshot(dataSink: DataSink): Unit =
     myPresenter.uiDataSnapshot(dataSink)

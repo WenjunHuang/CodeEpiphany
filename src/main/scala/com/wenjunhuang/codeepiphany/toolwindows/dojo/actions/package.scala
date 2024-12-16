@@ -2,23 +2,13 @@ package com.wenjunhuang.codeepiphany.toolwindows.dojo
 
 import com.intellij.openapi.actionSystem.DataKey
 import com.wenjunhuang.codeepiphany.PluginBundle
-import com.wenjunhuang.codeepiphany.toolwindows.dojo.actions.providers.SwitchUIProvider
+import com.wenjunhuang.codeepiphany.toolwindows.dojo.actions.providers.*
 
 package object actions {
   trait LoginLogoutProvider {
     def login(): Unit
     def logout(): Unit
     def isLoggedIn: Boolean
-  }
-
-  trait QueryParamProvider[T] {
-    def getAllItems: List[T]
-    def isMultipleSelection: Boolean
-    def isSelected(item: T): Boolean
-    def getSelectedItems: List[T]
-    def addSelectedItems(items: List[T]): Unit
-    def toggleSelection(item: T): Unit
-    def removeSelectedItems(items: List[T]): Unit
   }
 
   case class Category(name: String, value: String, marker: Any = null)
@@ -88,14 +78,18 @@ package object actions {
     final val TAG_PROVIDER_KEY = DataKey.create[TagProvider]("TAG_PROVIDER_KEY")
 
     final val PAGINATION_PROVIDER_KEY = DataKey.create[PaginationProvider]("PAGINATION_PROVIDER_KEY")
-    
+
     final val SWITCHUI_PROVIDER_KEY = DataKey.create[SwitchUIProvider]("SWITCHUI_PROVIDER_KEY")
+
+    final val CHALLENGE_PROVIDER_KEY = DataKey.create[ChallengeProvider]("CHALLENGE_PROVIDER_KEY")
   }
 
   object groups {
-    final val HACKERRANK_TOOLBAR_GROUP = "CodeEpiphany.Dojos.Hackerrank.Toolbar"
-    final val TOOLBAR_PLACE            = "CodeEpiphany.Dojos"
-    final val TITLE_TOOLBAR_GROUP      = "CodeEpiphany.Dojos.TitleToolbar"
-    final val TITLE_TOOLBAR_PLACE      = "CodeEpiphany.Dojos.TitleToolbar.Place"
+    final val HACKERRANK_TOOLBAR_GROUP     = "CodeEpiphany.Dojos.Hackerrank.Toolbar"
+    final val TOOLBAR_PLACE                = "CodeEpiphany.Dojos"
+    final val TITLE_TOOLBAR_GROUP          = "CodeEpiphany.Dojos.TitleToolbar"
+    final val TITLE_TOOLBAR_PLACE          = "CodeEpiphany.Dojos.TitleToolbar.Place"
+    final val CHALLENGES_TABLE_POPUP_GROUP = "CodeEpiphany.Dojos.ChallengesTable.Popupmenu"
+    final val CHALLENGES_TABLE_POPUP_PLACE = "CodeEpiphany.Dojos.ChallengesTable.Place"
   }
 }

@@ -72,6 +72,13 @@ package object model {
     case ProjectEuler extends Contest("projecteuler")
   }
 
+  object Contest {
+    def fromCIString(cis: CIString): Option[Contest] =
+      if cis == CIString(Master.slug) then Some(Master)
+      else if cis == CIString(ProjectEuler.slug) then Some(ProjectEuler)
+      else None
+  }
+
   case class ChallengeDomain(id: Int, name: String, slug: String, contest: Contest, subDomains: List[ChallengeSubdomain])
 
   // constant for project euler contest
@@ -118,7 +125,7 @@ package object model {
 
         def updateTemplates(langStr: String, verStr: String, value: String, lens: Lens[LanguageTemplate, String]): Unit =
           Language.fromCIString(CIString(langStr)).foreach { lang =>
-            val ver = if verStr.isEmpty then LanguageVersion.All else LanguageVersion.Specific(verStr)
+            val ver = if verStr.isEmpty then LanguageVersion.AnyVersion else LanguageVersion.SpecificVersion(verStr)
             templates = templates.updatedWith((lang, ver)) {
               case Some(t) => Some(lens.modify(_ => value)(t))
               case None    => Some(lens.modify(_ => value)(LanguageTemplate("", "", "")))

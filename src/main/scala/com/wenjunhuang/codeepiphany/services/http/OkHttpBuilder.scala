@@ -1,20 +1,20 @@
 package com.wenjunhuang.codeepiphany.services.http
 
 import cats.effect.std.Dispatcher
-import cats.effect.{ Async, Resource }
+import cats.effect.{Async, Resource}
 import cats.syntax.all.*
 import cats.effect.syntax.all.*
 import OkHttpBuilder.*
 import com.wenjunhuang.codeepiphany.utils.implicits.*
 import fs2.io.readInputStream
-import okhttp3.{ Call, Callback, Headers as OKHeaders, MediaType as OKMediaType, OkHttpClient, Protocol, Request as OKRequest, RequestBody, Response as OKResponse }
+import okhttp3.{Call, Callback, OkHttpClient, Protocol, RequestBody, Headers as OKHeaders, MediaType as OKMediaType, Request as OKRequest, Response as OKResponse}
 import okio.BufferedSink
 import org.http4s.client.Client
-import org.http4s.headers.{ `Content-Type`, Cookie }
+import org.http4s.headers.{Cookie, `Content-Type`}
 import org.http4s.internal.BackendBuilder
-import org.http4s.{ Headers, HttpVersion, Method, Request, Response, Status }
+import org.http4s.{Headers, HttpVersion, Method, Request, Response, Status}
 import org.typelevel.ci.CIString
-import org.typelevel.log4cats.Logger
+import org.typelevel.log4cats.{Logger, LoggerFactory}
 
 import java.io.IOException
 import java.net.HttpCookie
@@ -28,7 +28,8 @@ import scala.util.control.NonFatal
   * @param okHttpClient
   *   the underlying OkHttp client.
   */
-sealed abstract class OkHttpBuilder[F[_]] private (val okHttpClient: OkHttpClient)(implicit val F: Async[F], val HttpClientKeeper: HttpClientKeeper[F], val logger: Logger[F]) {
+sealed abstract class OkHttpBuilder[F[_]] private (val okHttpClient: OkHttpClient)(implicit val F: Async[F], val HttpClientKeeper: HttpClientKeeper[F], val loggerFactory: LoggerFactory[F]) {
+  private val myLogger = loggerFactory.getLogger
 
   private def invokeCallback(result: Result[F], cb: Result[F] => Unit, dispatcher: Dispatcher[F]): Unit = {
     val f = logTap(result).flatMap(r => F.delay(cb(r)))
@@ -147,6 +148,12 @@ sealed abstract class OkHttpBuilder[F[_]] private (val okHttpClient: OkHttpClien
       .url(req.uri.toString())
       .build()
   }
+
+  private def logTap(result: Result[F]): F[Either[Throwable, Resource[F, Response[F]]]] =
+    (result match {
+      case Left(e)  => myLogger.warn(e)("Error in call back")
+      case Right(_) => F.unit
+    }).map(_ => result)
 }
 
 /** Builder for a [[org.http4s.client.Client]] with an OkHttp backend */
@@ -157,14 +164,15 @@ object OkHttpBuilder {
     * @param okHttpClient
     *   the underlying client.
     */
-  def apply[F[_]: Async: HttpClientKeeper: Logger](okHttpClient: OkHttpClient): OkHttpBuilder[F] =
+  def apply[F[_]: Async: HttpClientKeeper: LoggerFactory](okHttpClient: OkHttpClient): OkHttpBuilder[F] =
     new OkHttpBuilder[F](okHttpClient) {}
 
 
-  private def defaultOkHttpClient[F[_]: Async: Logger]: Resource[F, OkHttpClient] =
+  private def defaultOkHttpClient[F[_]: Async: LoggerFactory]: Resource[F, OkHttpClient] =
     Resource.make(Async[F].delay(new OkHttpClient()))(shutdown(_))
 
-  private def shutdown[F[_]](client: OkHttpClient)(implicit F: Async[F], logger: Logger[F]) =
+  private def shutdown[F[_]](client: OkHttpClient)(implicit F: Async[F], loggerFactory: LoggerFactory[F]) =
+    val logger = loggerFactory.getLogger
     F.delay(client.dispatcher.executorService().shutdown()).recoverWith { case NonFatal(t) =>
       logger.warn(t)("Unable to shut down dispatcher when disposing of OkHttp client")
     } *> F.delay {
@@ -180,11 +188,5 @@ object OkHttpBuilder {
 
   private type Result[F[_]] = Either[Throwable, Resource[F, Response[F]]]
 
-  private def logTap[F[_]](
-      result: Result[F]
-  )(implicit F: Async[F], logger: Logger[F]): F[Either[Throwable, Resource[F, Response[F]]]] =
-    (result match {
-      case Left(e)  => logger.warn(e)("Error in call back")
-      case Right(_) => F.unit
-    }).map(_ => result)
+
 }

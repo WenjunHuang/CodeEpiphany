@@ -34,6 +34,8 @@
                     class="com.wenjunhuang.codeepiphany.toolwindows.dojo.actions.SkillAction"/>
             <action id="CodeEpiphany.Dojos.Actions.Tags"
                     class="com.wenjunhuang.codeepiphany.toolwindows.dojo.actions.TagsAction"/>
+            <action id="CodeEpiphany.Dojos.Actions.OpenChallenge"
+                    class="com.wenjunhuang.codeepiphany.toolwindows.dojo.actions.OpenChallengeAction"/>
         </group>
 
         <group id="CodeEpiphany.Dojos.Hackerrank.Toolbar">
@@ -47,6 +49,9 @@
             <reference ref="CodeEpiphany.Dojos.Actions.SwitchUI"/>
             <reference ref="CodeEpiphany.Dojos.Actions.Login"/>
             <reference ref="CodeEpiphany.Dojos.Actions.Logout"/>
+        </group>
+        <group id="CodeEpiphany.Dojos.ChallengesTable.Popupmenu">
+            <reference ref="CodeEpiphany.Dojos.Actions.OpenChallenge"/>
         </group>
 
         <group id="CodeEpiphany.Sidebar">

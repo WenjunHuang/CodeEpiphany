@@ -16,8 +16,8 @@ import org.jsoup.Jsoup
 
 trait HackerRankApi[F[_]] {
   def getInitialData: F[(UserInfo, List[ChallengeDomain])]
-  def getChallengeContent(problemSlug: String, contest: Contest): F[Option[ChallengeContent]]
-  def getChallengeDetail(problemSlug: String, contest: Contest): F[Option[ChallengeDetail]]
+  def getChallengeContent(challengeSlug: String, contest: Contest): F[Option[ChallengeContent]]
+  def getChallengeDetail(challengeSlug: String, contest: Contest): F[Option[ChallengeDetail]]
   def searchChallenges(
       offset: Int,
       limit: Int,

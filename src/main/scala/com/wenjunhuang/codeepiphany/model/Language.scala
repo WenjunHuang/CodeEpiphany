@@ -3,8 +3,8 @@ package com.wenjunhuang.codeepiphany.model
 import org.typelevel.ci.CIString
 
 enum LanguageVersion {
-  case All
-  case Specific(version: String)
+  case AnyVersion
+  case SpecificVersion(version: String)
 }
 
 enum Language(val value: String, val fileExt: String) {

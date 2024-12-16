@@ -21,23 +21,14 @@ class KeywordSearchView(private val myProject: Project, private val myPresenter:
     .appendText(PluginBundle.message("hackerrank.ui.query.searchhint"), new SimpleTextAttributes(SimpleTextAttributes.STYLE_PLAIN, ListPluginComponent.GRAY_COLOR))
   mySearchTextField.addDocumentListener(myPresenter)
 
-  private val myChallengesTableModel = ChallengesTableModel()
-
-  private val myChallengesTable = TableView(myChallengesTableModel)
-  myChallengesTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION)
-  myChallengesTable.setShowGrid(false)
-  myChallengesTable.setShowColumns(true)
-
   add(mySearchTextField, BorderLayout.NORTH)
   add(
     JBScrollPane(
-      myChallengesTable,
+      myPresenter.getTableView,
       ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
       ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED
     ),
     BorderLayout.CENTER
   )
 
-  def updateChallenges(challenges: List[ChallengeDetail]): Unit =
-    myChallengesTableModel.setItems(challenges.asJava)
 }

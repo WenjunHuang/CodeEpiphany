@@ -1,16 +1,19 @@
 package com.wenjunhuang.codeepiphany.toolwindows.dojo.hackerrank
 
 import com.intellij.icons.AllIcons
+import com.intellij.openapi.actionSystem.{ ActionGroup, ActionManager, DataSink, UiDataProvider }
 import com.intellij.openapi.util.text.StringUtil
-import com.intellij.openapi.util.text.StringUtil.repeat
+import com.intellij.ui.PopupHandler
+import com.intellij.ui.table.TableView
 import com.intellij.util.ui.table.IconTableCellRenderer
 import com.intellij.util.ui.{ ColumnInfo, ListTableModel }
 import com.wenjunhuang.codeepiphany.hackerrank.model.{ ChallengeDetail, ChallengeDifficulty, ChallengeSkill, ChallengeStatus }
+import com.wenjunhuang.codeepiphany.toolwindows.dojo.actions.groups.*
+import com.wenjunhuang.codeepiphany.toolwindows.dojo.hackerrank.ChallengesTableModel.Column.*
 import org.typelevel.ci.CIString
 
 import javax.swing.table.{ DefaultTableCellRenderer, TableCellRenderer }
-import javax.swing.{ Icon, JTable, SwingConstants }
-import ChallengesTableModel.Column.*
+import javax.swing.{ Icon, JTable, ListSelectionModel, SwingConstants }
 
 class ChallengesTableModel extends ListTableModel[ChallengeDetail]() {
   setColumnInfos(
@@ -70,6 +73,20 @@ class ChallengesTableModel extends ListTableModel[ChallengeDetail]() {
       }
     )
   )
+
+  def createTableView(setDataSink: DataSink => Unit): TableView[ChallengeDetail] = {
+    val tableView = new TableView(this) with UiDataProvider {
+      override def uiDataSnapshot(dataSink: DataSink): Unit =
+        setDataSink(dataSink)
+    }
+   
+    tableView.setSelectionMode(ListSelectionModel.SINGLE_SELECTION)
+    tableView.setShowGrid(false)
+    tableView.setShowColumns(true)
+
+    PopupHandler.installRowSelectionTablePopup(tableView, ActionManager.getInstance().getAction(CHALLENGES_TABLE_POPUP_GROUP).asInstanceOf[ActionGroup], CHALLENGES_TABLE_POPUP_PLACE)
+    tableView
+  }
 }
 
 object ChallengesTableModel {

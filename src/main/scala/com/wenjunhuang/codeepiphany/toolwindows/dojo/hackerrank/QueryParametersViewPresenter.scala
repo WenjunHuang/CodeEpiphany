@@ -2,26 +2,32 @@ package com.wenjunhuang.codeepiphany.toolwindows.dojo.hackerrank
 
 import cats.effect.IO
 import cats.effect.std.Queue
-import cats.effect.syntax.all.*
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.actionSystem.ex.DefaultCustomComponentAction
 import com.intellij.openapi.actionSystem.{ AnAction, DataSink }
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
+import com.intellij.ui.table.JBTable
 import com.intellij.util.ui.JBInsets
-import com.wenjunhuang.codeepiphany.toolwindows.dojo.actions.*
-import com.wenjunhuang.codeepiphany.toolwindows.dojo.actions.keys.*
 import com.wenjunhuang.codeepiphany.hackerrank.HackerRankApi
 import com.wenjunhuang.codeepiphany.hackerrank.model.*
+import com.wenjunhuang.codeepiphany.hackerrank.services.editor.openChallenge
 import com.wenjunhuang.codeepiphany.model.CodeDojo.HackerRank
+import com.wenjunhuang.codeepiphany.model.Language.Haskell
+import com.wenjunhuang.codeepiphany.model.LanguageVersion.AnyVersion
 import com.wenjunhuang.codeepiphany.model.{ messages, CodeDojo }
-import com.wenjunhuang.codeepiphany.services.http.{HttpClientKeeper, HttpClientService}
+import com.wenjunhuang.codeepiphany.services.http.{ HttpClientKeeper, HttpClientService }
+import com.wenjunhuang.codeepiphany.toolwindows.dojo.actions.*
+import com.wenjunhuang.codeepiphany.toolwindows.dojo.actions.keys.*
+import com.wenjunhuang.codeepiphany.toolwindows.dojo.actions.providers.ChallengeProvider
 import com.wenjunhuang.codeepiphany.utils.implicits.*
 import com.wenjunhuang.codeepiphany.utils.ui.Tag as TagUI
 import fs2.Stream
 import fs2.concurrent.SignallingRef
+import org.typelevel.ci.CIString
 import org.typelevel.log4cats.LoggerFactory
 
+import scala.jdk.CollectionConverters.*
 import java.awt.{ GridBagConstraints, GridBagLayout }
 import javax.swing.{ Icon, JComponent, JPanel }
 import scala.concurrent.duration.*
@@ -34,6 +40,9 @@ class QueryParametersViewPresenter(private val myProject: Project) extends Dispo
   implicit private val httpClientKeeper: HttpClientKeeper[IO] = HttpClientService.getInstance(myProject).httpClientKeeper
   private val myApi                                           = HackerRankApi[IO]()
 
+  private val myChallengesModel = ChallengesTableModel()
+  private val myChallengesTable = myChallengesModel.createTableView(uiDataSnapshot)
+ 
   private val myView = QueryParamView(myProject, this)
 
   @volatile
@@ -78,7 +87,7 @@ class QueryParametersViewPresenter(private val myProject: Project) extends Dispo
                 IO.delay {
                   myState = state
                   myPaginationProvider.refresh()
-                  myView.setChallengeItems(state.currentItems)
+                  setChallengeItems(state.currentItems)
                 }.evalOn(intellijUIContext)
               }
           )
@@ -129,6 +138,7 @@ class QueryParametersViewPresenter(private val myProject: Project) extends Dispo
     dataSink.set(SKILL_PROVIDER_KEY, mySkillProvider)
     dataSink.set(TAG_PROVIDER_KEY, myTagProvider)
     dataSink.set(PAGINATION_PROVIDER_KEY, myPaginationProvider)
+    dataSink.set(CHALLENGE_PROVIDER_KEY, myChallengeProvider)
   }
 
   private def refreshQuery(resetToFirstPage: Boolean = true): Unit =
@@ -137,6 +147,13 @@ class QueryParametersViewPresenter(private val myProject: Project) extends Dispo
       q.offer(Some(state)).unsafeRunAndForget()
     }
 
+  private val myChallengeProvider = new ChallengeProvider {
+    override def openCurrentSelectedChallenge(): Unit =
+      Option(myChallengesTable.getSelectedObject) match
+        case Some(selected) =>
+          openChallenge[IO](myProject, selected.slug, Contest.fromCIString(CIString(selected.contestSlug)).get, Haskell, AnyVersion).unsafeRunAndForget()
+        case None => ()
+  }
   private val myListsProvider = new CategoryProvider {
     override def isSelected(item: Category): Boolean =
       myState.selectedDomain.slug == item.value
@@ -431,6 +448,11 @@ class QueryParametersViewPresenter(private val myProject: Project) extends Dispo
   override def dispose(): Unit = {}
 
   def getComponent: JComponent = myView
+
+  def getTableView: JBTable = myChallengesTable
+
+  def setChallengeItems(items: List[ChallengeDetail]): Unit =
+    myChallengesModel.setItems(items.asJava)
 }
 
 object QueryParametersViewPresenter {
