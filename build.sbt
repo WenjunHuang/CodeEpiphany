@@ -1,7 +1,5 @@
 import sbt.Keys.libraryDependencies
 
-import scala.collection.Seq
-
 ThisBuild / scalaVersion     := "3.5.2"
 ThisBuild / intellijPlatform := IntelliJPlatform.IdeaCommunity
 ThisBuild / intellijBuild    := "242.20224.300"

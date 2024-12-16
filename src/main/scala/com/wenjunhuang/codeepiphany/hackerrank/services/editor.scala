@@ -1,15 +1,15 @@
 package com.wenjunhuang.codeepiphany.hackerrank.services
 
-import cats.effect.{ Async, Concurrent }
+import cats.effect.{Async, Concurrent}
 import cats.syntax.all.*
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.ui.{ MessageUtil, Messages }
+import com.intellij.openapi.ui.Messages
 import com.wenjunhuang.codeepiphany.hackerrank.HackerRankApi
-import com.wenjunhuang.codeepiphany.services.http.HttpClientKeeper
 import com.wenjunhuang.codeepiphany.hackerrank.model.Contest
-import com.wenjunhuang.codeepiphany.model.{ Language, LanguageVersion }
-import com.wenjunhuang.codeepiphany.utils.implicits.*
+import com.wenjunhuang.codeepiphany.model.{Language, LanguageVersion}
 import com.wenjunhuang.codeepiphany.services.editor.*
+import com.wenjunhuang.codeepiphany.services.http.HttpClientKeeper
+import com.wenjunhuang.codeepiphany.utils.implicits.*
 import org.typelevel.log4cats.LoggerFactory
 
 import java.io.File
