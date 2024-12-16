@@ -16,24 +16,24 @@
     <actions>
         <group id="CodeEpiphany.Dojos">
             <action id="CodeEpiphany.Dojos.Actions.Login"
-                    class="com.wenjunhuang.codeepiphany.controllers.dojo.actions.LoginAction"
+                    class="com.wenjunhuang.codeepiphany.toolwindows.dojo.actions.LoginAction"
                     icon="CodeEpiphanyIcons.LOGIN_ICON"/>
             <action id="CodeEpiphany.Dojos.Actions.Logout"
-                    class="com.wenjunhuang.codeepiphany.controllers.dojo.actions.LogoutAction"
+                    class="com.wenjunhuang.codeepiphany.toolwindows.dojo.actions.LogoutAction"
                     icon="CodeEpiphanyIcons.LOGOUT_ICON"/>
             <action id="CodeEpiphany.Dojos.Actions.SwitchUI"
-                    class="com.wenjunhuang.codeepiphany.controllers.dojo.actions.SwitchUIAction">
+                    class="com.wenjunhuang.codeepiphany.toolwindows.dojo.actions.SwitchUIAction">
             </action>
             <action id="CodeEpiphany.Dojos.Actions.Lists"
-                    class="com.wenjunhuang.codeepiphany.controllers.dojo.actions.ListsAction"/>
+                    class="com.wenjunhuang.codeepiphany.toolwindows.dojo.actions.ListsAction"/>
             <action id="CodeEpiphany.Dojos.Actions.Difficulty"
-                    class="com.wenjunhuang.codeepiphany.controllers.dojo.actions.DifficultyAction"/>
+                    class="com.wenjunhuang.codeepiphany.toolwindows.dojo.actions.DifficultyAction"/>
             <action id="CodeEpiphany.Dojos.Actions.Status"
-                    class="com.wenjunhuang.codeepiphany.controllers.dojo.actions.StatusAction"/>
+                    class="com.wenjunhuang.codeepiphany.toolwindows.dojo.actions.StatusAction"/>
             <action id="CodeEpiphany.Dojos.Actions.Skill"
-                    class="com.wenjunhuang.codeepiphany.controllers.dojo.actions.SkillAction"/>
+                    class="com.wenjunhuang.codeepiphany.toolwindows.dojo.actions.SkillAction"/>
             <action id="CodeEpiphany.Dojos.Actions.Tags"
-                    class="com.wenjunhuang.codeepiphany.controllers.dojo.actions.TagsAction"/>
+                    class="com.wenjunhuang.codeepiphany.toolwindows.dojo.actions.TagsAction"/>
         </group>
 
         <group id="CodeEpiphany.Dojos.Hackerrank.Toolbar">
@@ -51,13 +51,13 @@
 
         <group id="CodeEpiphany.Sidebar">
             <action id="CodeEpiphany.Sidebar.Actions.ZoomIn"
-                    class="com.wenjunhuang.codeepiphany.controllers.sidebar.actions.ZoomInAction"
+                    class="com.wenjunhuang.codeepiphany.toolwindows.sidebar.actions.ZoomInAction"
                     icon="AllIcons.General.ZoomIn"/>
             <action id="CodeEpiphany.Sidebar.Actions.ZoomOut"
-                    class="com.wenjunhuang.codeepiphany.controllers.sidebar.actions.ZoomOutAction"
+                    class="com.wenjunhuang.codeepiphany.toolwindows.sidebar.actions.ZoomOutAction"
                     icon="AllIcons.General.ZoomOut"/>
             <action id="CodeEpiphany.Sidebar.Actions.ActualZoom"
-                    class="com.wenjunhuang.codeepiphany.controllers.sidebar.actions.ActualZoomAction"
+                    class="com.wenjunhuang.codeepiphany.toolwindows.sidebar.actions.ActualZoomAction"
                     icon="AllIcons.General.ActualZoom"/>
         </group>
 
@@ -82,22 +82,22 @@
     </actions>
 
     <applicationListeners>
-        <listener class="com.wenjunhuang.codeepiphany.controllers.sidebar.QuestionFileEditorListener"
+        <listener class="com.wenjunhuang.codeepiphany.toolwindows.sidebar.QuestionFileEditorListener"
                   topic="com.intellij.openapi.fileEditor.FileEditorManagerListener"/>
 
     </applicationListeners>
 
     <extensions defaultExtensionNs="com.intellij">
         <notificationGroup displayType="BALLOON" id="My Plugin Notification"/>
-        <toolWindow factoryClass="com.wenjunhuang.codeepiphany.controllers.sidebar.QuestionInfoToolWindowFactory"
+        <toolWindow factoryClass="com.wenjunhuang.codeepiphany.toolwindows.sidebar.QuestionInfoToolWindowFactory"
                     id="CodeEpiphany Sidebar" anchor="bottom"
                     icon="CodeEpiphanyIcons.LOGIN_ICON"/>
-        <toolWindow factoryClass="com.wenjunhuang.codeepiphany.controllers.dojo.CodeDojoToolWindowFactory"
+        <toolWindow factoryClass="com.wenjunhuang.codeepiphany.toolwindows.dojo.CodeDojoToolWindowFactory"
                     id="CodeEpiphany Dojos" anchor="left"/>
-        <projectService serviceImplementation="com.wenjunhuang.codeepiphany.controllers.sidebar.QuestionInfoPresenter"/>
+        <projectService serviceImplementation="com.wenjunhuang.codeepiphany.toolwindows.sidebar.QuestionInfoPresenter"/>
         <projectService serviceImplementation="com.wenjunhuang.codeepiphany.model.QuestionStorage"/>
 
-        <projectService serviceImplementation="com.wenjunhuang.codeepiphany.controllers.http.HttpClientService"/>
+        <projectService serviceImplementation="com.wenjunhuang.codeepiphany.services.http.HttpClientService"/>
         <registryKey defaultValue="false" description="Enable debug" key="codeepiphany.debug"/>
     </extensions>
 

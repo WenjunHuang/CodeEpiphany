@@ -4,7 +4,7 @@ import cats.effect.{ IO, Resource, SyncIO }
 import cats.syntax.all.*
 import cats.effect.std.Queue
 import com.intellij.openapi.project.Project
-import com.wenjunhuang.codeepiphany.controllers.http.HttpClientService
+import com.wenjunhuang.codeepiphany.services.http.HttpClientService
 import com.wenjunhuang.codeepiphany.utils.*
 import fs2.Stream
 import fs2.concurrent.SignallingRef

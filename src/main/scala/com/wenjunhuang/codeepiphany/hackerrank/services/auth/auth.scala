@@ -3,10 +3,10 @@ package com.wenjunhuang.codeepiphany.hackerrank.services
 import cats.effect.kernel.Async
 import cats.syntax.all.*
 import com.intellij.openapi.project.Project
-import com.wenjunhuang.codeepiphany.controllers.http.HttpClientKeeper
 import com.wenjunhuang.codeepiphany.hackerrank.HackerRankApi
-import com.wenjunhuang.codeepiphany.hackerrank.services.auth.ui.HackerRankLoginDialog
+import com.wenjunhuang.codeepiphany.hackerrank.ui.HackerRankLoginDialog
 import com.wenjunhuang.codeepiphany.model.{ApiError, CodeDojo, SensitiveDataStore}
+import com.wenjunhuang.codeepiphany.services.http.HttpClientKeeper
 import com.wenjunhuang.codeepiphany.utils.CookieUtil
 import com.wenjunhuang.codeepiphany.utils.implicits.*
 

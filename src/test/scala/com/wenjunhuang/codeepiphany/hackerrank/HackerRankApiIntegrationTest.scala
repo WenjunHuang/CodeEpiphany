@@ -4,10 +4,10 @@ import cats.effect.IO
 import cats.syntax.all.*
 import com.intellij.testFramework.fixtures.BasePlatformTestCase
 import com.intellij.util.net.{ ProxyConfiguration, ProxySettings }
-import com.wenjunhuang.codeepiphany.controllers.http.HttpClientService
 import com.wenjunhuang.codeepiphany.hackerrank.model.ChallengeStatus.Unsolved
 import com.wenjunhuang.codeepiphany.hackerrank.model.Contest.{ Master, ProjectEuler }
 import com.wenjunhuang.codeepiphany.model.{ ApiError, CodeDojo }
+import com.wenjunhuang.codeepiphany.services.http.HttpClientService
 import com.wenjunhuang.codeepiphany.utils.CookieUtil
 import com.wenjunhuang.codeepiphany.utils.implicits.*
 import org.hamcrest.CoreMatchers.*
