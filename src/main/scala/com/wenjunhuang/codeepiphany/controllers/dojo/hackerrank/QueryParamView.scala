@@ -39,6 +39,7 @@ class QueryParamView(private val myProject: Project, private val myPresenter: Qu
   private val myQuestionsTable = TableView(myQuestionsModel)
   myQuestionsTable.setShowGrid(false)
   myQuestionsTable.setShowColumns(true)
+  
   myContent.add(
     JBScrollPane(
       myQuestionsTable,

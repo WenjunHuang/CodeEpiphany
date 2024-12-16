@@ -29,7 +29,7 @@ trait HackerRankApi[F[_]] {
       subdomains: List[ChallengeSubdomain] = Nil
   ): F[(Int, List[ChallengeDetail])]
 
-  def searchChallengesWithKeyword(contest: Contest, keyword: String): F[List[ChallengeSearchByKeyWord]]
+  def searchChallengesWithKeyword(contest: Contest, keyword: String): F[List[(Contest,ChallengeSearchByKeyWord)]]
 
   def checkLogin(): F[Boolean]
 }
@@ -165,7 +165,7 @@ object HackerRankApi {
           }
       }
 
-    override def searchChallengesWithKeyword(contest: Contest, keyword: String): F[List[ChallengeSearchByKeyWord]] = HttpClientKeeper[F].getClient.use { client =>
+    override def searchChallengesWithKeyword(contest: Contest, keyword: String): F[List[(Contest,ChallengeSearchByKeyWord)]] = HttpClientKeeper[F].getClient.use { client =>
       client
         .expect[String](
           Method.GET(
@@ -182,7 +182,7 @@ object HackerRankApi {
             }
             .flatMap { items =>
               items.as[List[ChallengeSearchByKeyWord]]
-            }
+            }.map(_.map((contest,_)))
             .liftTo[F]
         }
     }

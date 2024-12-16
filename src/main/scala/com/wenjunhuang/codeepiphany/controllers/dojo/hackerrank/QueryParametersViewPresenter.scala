@@ -2,6 +2,7 @@ package com.wenjunhuang.codeepiphany.controllers.dojo.hackerrank
 
 import cats.effect.IO
 import cats.effect.std.Queue
+import cats.effect.syntax.all.*
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.actionSystem.ex.DefaultCustomComponentAction
 import com.intellij.openapi.actionSystem.{ AnAction, DataSink }
@@ -18,6 +19,7 @@ import com.wenjunhuang.codeepiphany.model.{ messages, CodeDojo }
 import com.wenjunhuang.codeepiphany.utils.implicits.*
 import com.wenjunhuang.codeepiphany.utils.ui.Tag as TagUI
 import fs2.Stream
+import fs2.concurrent.SignallingRef
 import org.typelevel.log4cats.LoggerFactory
 
 import java.awt.{ GridBagConstraints, GridBagLayout }
@@ -43,41 +45,53 @@ class QueryParametersViewPresenter(private val myProject: Project) extends Dispo
   private var myQueryQueue: Option[Queue[IO, Option[State]]] = None
 
   private val myQueryWorker = for {
-    q <- Queue.unbounded[IO, Option[State]]
-    _ <- IO.delay { myQueryQueue = Some(q) }
+    q              <- Queue.unbounded[IO, Option[State]]
+    _              <- IO.delay { myQueryQueue = Some(q) }
+    notInterrupted <- SignallingRef.of[IO, Boolean](false)
     _ <- Stream
-      .fromQueueNoneTerminated(q, 1)
-      .debounce(1.seconds)
-      .evalMap { state =>
+      .fromQueueNoneTerminated(q)
+      .evalMapAccumulate(notInterrupted) { case (signal, state) =>
+        for {
+          _         <- signal.set(true)
+          newSignal <- SignallingRef.of[IO, Boolean](false)
+        } yield (newSignal, state)
+      }
+      .debounce(200.millis)
+      .evalTap { case (signal, state) =>
         val from  = math.max((state.currentPage - 1) * state.pageSize.value, 0)
         val limit = state.pageSize.value
-        myApi
-          .searchChallenges(
-            from,
-            limit,
-            state.selectedDomain.contest,
-            state.selectedDomain.slug,
-            state.selectedStatus.toList,
-            state.selectedSkills,
-            state.selectedDifficulties,
-            state.selectedSubdomains
+        Stream
+          .eval(
+            myApi
+              .searchChallenges(
+                from,
+                limit,
+                state.selectedDomain.contest,
+                state.selectedDomain.slug,
+                state.selectedStatus.toList,
+                state.selectedSkills,
+                state.selectedDifficulties,
+                state.selectedSubdomains
+              )
+              .map { case (totalSize, items) => state.copy(currentItems = items, totalSize = totalSize) }
+              .flatMap { state =>
+                IO.delay {
+                  myState = state
+                  myPaginationProvider.refresh()
+                  myView.setChallengeItems(state.currentItems)
+                }.evalOn(intellijUIContext)
+              }
           )
-          .map { case (totalSize, items) => state.copy(currentItems = items, totalSize = totalSize) }
+          .interruptWhen(signal)
+          .attempt
+          .evalMap {
+            case Left(e) =>
+              myLogger.warn(e)("Error while querying challenges")
+            case _ => IO.unit
+          }
+          .compile
+          .drain
       }
-      .evalMap { state =>
-        IO.delay {
-          myState = state
-          myPaginationProvider.refresh()
-          myView.setChallengeItems(state.currentItems)
-        }.evalOn(intellijUIContext)
-      }
-      .attempt
-      .evalMap {
-        case Left(e) =>
-          myLogger.warn(e)("Error while querying challenges")
-        case _ => IO.unit
-      }
-      .repeat
       .onFinalize(myLogger.info("Query worker is finalized"))
       .compile
       .drain

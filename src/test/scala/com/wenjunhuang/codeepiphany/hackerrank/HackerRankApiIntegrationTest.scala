@@ -106,7 +106,7 @@ class HackerRankApiIntegrationTest extends BasePlatformTestCase {
 
     val result = hackerRankApi
       .searchChallengesWithKeyword(Master, "sum")
-      .flatMap(challenges => challenges.map(challenge => hackerRankApi.getChallengeDetail(challenge.challengeSlug, Master)).parUnorderedSequence)
+      .flatMap(challenges => challenges.map { case (contest, challenge) => hackerRankApi.getChallengeDetail(challenge.challengeSlug, contest) }.parUnorderedSequence)
       .handleErrorWith {
         case ApiError.InvalidContent(e, message) =>
           IO.println(message) *> IO.delay(Nil)
@@ -122,7 +122,7 @@ class HackerRankApiIntegrationTest extends BasePlatformTestCase {
 
     val result = hackerRankApi
       .searchChallengesWithKeyword(ProjectEuler, "project")
-      .flatMap(challenges => challenges.map(challenge => hackerRankApi.getChallengeDetail(challenge.challengeSlug, ProjectEuler)).parUnorderedSequence)
+      .flatMap(challenges => challenges.map{ case (contest,challenge) => hackerRankApi.getChallengeDetail(challenge.challengeSlug, contest) }.parUnorderedSequence)
       .handleErrorWith {
         case ApiError.InvalidContent(e, message) =>
           IO.println(message) *> IO.delay(Nil)

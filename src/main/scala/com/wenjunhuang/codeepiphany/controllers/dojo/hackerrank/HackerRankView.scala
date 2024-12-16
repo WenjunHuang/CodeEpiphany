@@ -26,9 +26,9 @@ class HackerRankView(private val myProject: Project) extends CardLayoutPanel[Hac
   implicit private val httpClientKeeper: HttpClientKeeper[IO] = HttpClientService.getInstance(myProject).httpClientKeeper
   private val myApi                                           = HackerRankApi[IO]()
 
-  private val myUnauthenticatedView = UnauthenticatedView()
-  private val myQueryParamPresenter = QueryParametersViewPresenter(myProject)
-  private val myKeywordSearchView   = KeywordSearchView(myProject)
+  private val myUnauthenticatedView    = UnauthenticatedView()
+  private val myQueryParamPresenter    = QueryParametersViewPresenter(myProject)
+  private val myKeywordSearchPresenter = KeywordSearchViewPresenter(myProject)
 
   @volatile
   private var myIsLoggedIn = false
@@ -41,7 +41,7 @@ class HackerRankView(private val myProject: Project) extends CardLayoutPanel[Hac
             .syncPublisher(messages.LOGIN_LOGOUT_TOPIC)
             .login(CodeDojo.HackerRank)
           myIsLoggedIn = true
-        } *> IO.delay(select(HackerRankViewType.QueryParameters, false)).evalOn(intellijUIContext)
+        } *> IO.delay(select(HackerRankViewType.SearchByKeyword, false)).evalOn(intellijUIContext)
       case _ => IO.unit
     }.unsafeRunAndForget()
 
@@ -62,7 +62,7 @@ class HackerRankView(private val myProject: Project) extends CardLayoutPanel[Hac
   override def create(ui: HackerRankViewType): JComponent = ui match {
     case HackerRankViewType.Unauthenticated => myUnauthenticatedView
     case HackerRankViewType.QueryParameters => myQueryParamPresenter.getComponent
-    case HackerRankViewType.SearchByKeyword => myKeywordSearchView
+    case HackerRankViewType.SearchByKeyword => myKeywordSearchPresenter.getComponent
   }
 
   override def uiDataSnapshot(dataSink: DataSink): Unit =
