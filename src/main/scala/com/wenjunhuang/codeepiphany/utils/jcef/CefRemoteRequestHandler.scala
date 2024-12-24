@@ -21,7 +21,7 @@ import com.wenjunhuang.codeepiphany.utils.implicits.*
 import org.typelevel.log4cats.{ Logger, LoggerFactory }
 
 import java.nio.ByteBuffer
-import java.{ util, util as ju }
+import java.util as ju 
 import java.util.concurrent.ArrayBlockingQueue
 import java.util.concurrent.atomic.AtomicInteger
 import scala.jdk.CollectionConverters.*
@@ -68,7 +68,7 @@ class CefRemoteRequestHandler(private val project: Project) extends CefRequestHa
                 val body = request.getPostData match
                   case null => Vector.empty
                   case b =>
-                    val bodyVector = new util.Vector[CefPostDataElement](b.getElementCount)
+                    val bodyVector = new ju.Vector[CefPostDataElement](b.getElementCount)
                     b.getElements(bodyVector)
                     bodyVector.asScala.toVector
                 HttpClientService

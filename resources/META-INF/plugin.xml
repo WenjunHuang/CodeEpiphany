@@ -99,11 +99,20 @@
                     icon="CodeEpiphanyIcons.LOGIN_ICON"/>
         <toolWindow factoryClass="com.wenjunhuang.codeepiphany.toolwindows.dojo.CodeDojoToolWindowFactory"
                     id="CodeEpiphany Dojos" anchor="left"/>
-        <projectService serviceImplementation="com.wenjunhuang.codeepiphany.toolwindows.sidebar.QuestionInfoPresenter"/>
-        <projectService serviceImplementation="com.wenjunhuang.codeepiphany.model.QuestionStorage"/>
+        <!--        <projectService serviceImplementation="com.wenjunhuang.codeepiphany.toolwindows.sidebar.QuestionInfoPresenter"/>-->
+        <projectService serviceImplementation="com.wenjunhuang.codeepiphany.model.ChallengeStorage"/>
 
-        <projectService serviceImplementation="com.wenjunhuang.codeepiphany.services.http.HttpClientService"/>
         <registryKey defaultValue="false" description="Enable debug" key="codeepiphany.debug"/>
+
+        <projectConfigurable parentId="tools"
+                             displayName="Code Epiphany"
+                             id="CodeEpiphany.Settings"
+                             instance="com.wenjunhuang.codeepiphany.CodeEpiphanyConfigurable">
+            <configurable
+                    id="CodeEpiphany.Settings.HackerRank"
+                    instance="com.wenjunhuang.codeepiphany.hackerrank.HackerRankSettingsConfigurable"
+                    key="hackerrank.settings.title"/>
+        </projectConfigurable>
     </extensions>
 
 

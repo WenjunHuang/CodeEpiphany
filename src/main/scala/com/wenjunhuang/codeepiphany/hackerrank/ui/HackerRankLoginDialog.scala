@@ -2,44 +2,42 @@ package com.wenjunhuang.codeepiphany.hackerrank.ui
 
 import cats.effect.IO
 import cats.effect.std.Queue
-import com.intellij.ide.{ BrowserUtil, CopyPasteDelegator, CopyProvider, CutProvider, PasteProvider, TextCopyProvider }
+import com.intellij.ide.*
 import com.intellij.openapi.Disposable
-import com.intellij.openapi.actionSystem.{ ActionPlaces, DataContext, DataSink, IdeActions, PlatformDataKeys, UiDataProvider }
+import com.intellij.openapi.actionSystem.*
 import com.intellij.openapi.editor.colors.impl.AppEditorFontOptions
 import com.intellij.openapi.ide.CopyPasteManager
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.ui.{ ComponentValidator, DialogWrapper, ValidationInfo }
+import com.intellij.openapi.ui.{ComponentValidator, DialogWrapper, ValidationInfo}
 import com.intellij.openapi.util.Disposer
-import com.intellij.ui.components.{ JBScrollPane, JBTextArea }
+import com.intellij.ui.components.{JBScrollPane, JBTextArea}
 import com.intellij.ui.content.impl.ContentManagerImpl
-import com.intellij.ui.content.{ ContentManagerEvent, ContentManagerListener, TabbedPaneContentUI }
-import com.intellij.ui.jcef.{ JBCefBrowser, JBCefBrowserBuilder }
-import com.intellij.ui.{ AnimatedIcon, DocumentAdapter, PopupHandler }
-import com.intellij.util.FontUtil
-import com.intellij.util.ui.{ JBFont, JBUI }
+import com.intellij.ui.content.{ContentManagerEvent, ContentManagerListener, TabbedPaneContentUI}
+import com.intellij.ui.jcef.{JBCefBrowser, JBCefBrowserBuilder}
+import com.intellij.ui.{AnimatedIcon, DocumentAdapter, PopupHandler}
+import com.intellij.util.ui.JBUI
 import com.wenjunhuang.codeepiphany.PluginBundle
-import com.wenjunhuang.codeepiphany.hackerrank.services.auth.{ saveAuthentication, validateUserCookieAndTestLogin, AskForLoginResult }
+import com.wenjunhuang.codeepiphany.hackerrank.services.auth.{AskForLoginResult, validateUserCookieAndTestLogin}
 import com.wenjunhuang.codeepiphany.model.CodeDojo
 import com.wenjunhuang.codeepiphany.model.CodeDojo.HackerRank
 import com.wenjunhuang.codeepiphany.services.http.{HttpClientKeeper, HttpClientService}
 import com.wenjunhuang.codeepiphany.utils.implicits.*
 import com.wenjunhuang.codeepiphany.utils.isDebug
 import fs2.Stream
-import org.cef.browser.{ CefBrowser, CefFrame }
+import org.cef.browser.CefBrowser
 import org.cef.callback.CefCookieVisitor
-import org.cef.handler.{ CefLifeSpanHandlerAdapter, CefLoadHandler, CefLoadHandlerAdapter }
+import org.cef.handler.CefLoadHandlerAdapter
 import org.cef.misc.BoolRef
 import org.cef.network.CefCookie
 import org.typelevel.log4cats.LoggerFactory
 
-import scala.jdk.CollectionConverters.*
-import java.awt.event.ActionEvent
 import java.awt.Font
-import java.awt.datatransfer.{ DataFlavor, StringSelection }
+import java.awt.datatransfer.{DataFlavor, StringSelection}
+import java.awt.event.ActionEvent
 import java.net.HttpCookie
-import java.util
 import javax.swing.*
 import javax.swing.event.DocumentEvent
+import scala.jdk.CollectionConverters.*
 
 class HackerRankLoginDialog(private val myProject: Project, private val callback: Either[Throwable, AskForLoginResult] => Unit)
     extends DialogWrapper(myProject, false, DialogWrapper.IdeModalityType.IDE) {
@@ -79,6 +77,7 @@ class HackerRankLoginDialog(private val myProject: Project, private val callback
       IdeActions.GROUP_CUT_COPY_PASTE,
       ActionPlaces.POPUP
     )
+    
   private val myLoginBrowser = createBrowserLoginPanel()
   private val myLoginViaBrowserPanel = myContentManager.getFactory.createContent(
     JBScrollPane(myLoginBrowser.getComponent, ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER),

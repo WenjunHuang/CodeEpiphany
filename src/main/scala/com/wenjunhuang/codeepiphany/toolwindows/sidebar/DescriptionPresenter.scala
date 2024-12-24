@@ -13,7 +13,7 @@ import com.intellij.openapi.util.Disposer
 import com.intellij.openapi.vfs.LocalFileSystem
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.util.io.URLUtil
-import com.wenjunhuang.codeepiphany.model.QuestionStorage.QuestionItem
+import com.wenjunhuang.codeepiphany.model.ChallengeStorage.Challenge
 import com.wenjunhuang.codeepiphany.utils.implicits.*
 
 import java.io.File
@@ -30,7 +30,7 @@ class DescriptionPresenter(private val project: Project) extends Disposable {
   def userClickedLink[F[_]: Async](url: String): F[Unit] =
     Async[F].delay(URL(url)).flatMap(url => DescriptionPresenter.openUrl(url, project))
 
-  def updateCurrentQuestion(question: QuestionItem): Unit = myDescriptionView.updateCurrentQuestion(question)
+  def updateCurrentQuestion(question: Challenge): Unit = myDescriptionView.updateCurrentQuestion(question)
 
   def getView: DescriptionView = myDescriptionView
 

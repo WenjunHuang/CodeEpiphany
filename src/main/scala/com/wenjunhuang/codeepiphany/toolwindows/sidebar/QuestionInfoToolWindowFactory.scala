@@ -4,7 +4,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.wm.impl.content.ToolWindowContentUi
 import com.intellij.openapi.wm.{ ToolWindow, ToolWindowFactory, ToolWindowManager }
 import com.wenjunhuang.codeepiphany.model.CodeDojo.LeetCodeCN
-import com.wenjunhuang.codeepiphany.model.QuestionStorage.QuestionItem
+import com.wenjunhuang.codeepiphany.model.ChallengeStorage.Challenge
 import kotlin.coroutines.Continuation
 
 class QuestionInfoToolWindowFactory extends ToolWindowFactory() {
@@ -17,7 +17,7 @@ class QuestionInfoToolWindowFactory extends ToolWindowFactory() {
     cm.addContent(cf.createContent(presenter.getView, "Question Description", false))
     toolWindow.getComponent.putClientProperty(ToolWindowContentUi.HIDE_ID_LABEL, "true")
 
-    val testItem = QuestionItem()
+    val testItem = Challenge()
     testItem.descriptionFilePath = """C:\Sources\Work\CodeEpiphany\leetcode_demo.html"""
     testItem.dojo = LeetCodeCN
     presenter.updateCurrentQuestion(testItem)

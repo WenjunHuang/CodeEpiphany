@@ -4,7 +4,7 @@ import cats.effect.IO
 import cats.effect.std.Queue
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.actionSystem.ex.DefaultCustomComponentAction
-import com.intellij.openapi.actionSystem.{ AnAction, DataSink }
+import com.intellij.openapi.actionSystem.{AnAction, DataSink}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
 import com.intellij.ui.table.JBTable
@@ -13,10 +13,10 @@ import com.wenjunhuang.codeepiphany.hackerrank.HackerRankApi
 import com.wenjunhuang.codeepiphany.hackerrank.model.*
 import com.wenjunhuang.codeepiphany.hackerrank.services.editor.openChallenge
 import com.wenjunhuang.codeepiphany.model.CodeDojo.HackerRank
-import com.wenjunhuang.codeepiphany.model.Language.Haskell
+import com.wenjunhuang.codeepiphany.model.Language.{Haskell, Scala}
 import com.wenjunhuang.codeepiphany.model.LanguageVersion.AnyVersion
-import com.wenjunhuang.codeepiphany.model.{ messages, CodeDojo }
-import com.wenjunhuang.codeepiphany.services.http.{ HttpClientKeeper, HttpClientService }
+import com.wenjunhuang.codeepiphany.model.{CodeDojo, messages}
+import com.wenjunhuang.codeepiphany.services.http.{HttpClientKeeper, HttpClientService}
 import com.wenjunhuang.codeepiphany.toolwindows.dojo.actions.*
 import com.wenjunhuang.codeepiphany.toolwindows.dojo.actions.keys.*
 import com.wenjunhuang.codeepiphany.toolwindows.dojo.actions.providers.ChallengeProvider
@@ -28,8 +28,8 @@ import org.typelevel.ci.CIString
 import org.typelevel.log4cats.LoggerFactory
 
 import scala.jdk.CollectionConverters.*
-import java.awt.{ GridBagConstraints, GridBagLayout }
-import javax.swing.{ Icon, JComponent, JPanel }
+import java.awt.{GridBagConstraints, GridBagLayout}
+import javax.swing.{Icon, JComponent, JPanel}
 import scala.concurrent.duration.*
 
 class QueryParametersViewPresenter(private val myProject: Project) extends Disposable {
@@ -146,12 +146,11 @@ class QueryParametersViewPresenter(private val myProject: Project) extends Dispo
       val state = if resetToFirstPage then myState.resetToFirstPage() else myState
       q.offer(Some(state)).unsafeRunAndForget()
     }
-
   private val myChallengeProvider = new ChallengeProvider {
     override def openCurrentSelectedChallenge(): Unit =
       Option(myChallengesTable.getSelectedObject) match
         case Some(selected) =>
-          openChallenge[IO](myProject, selected.slug, Contest.fromCIString(CIString(selected.contestSlug)).get, Haskell, AnyVersion).unsafeRunAndForget()
+          openChallenge[IO](myProject, selected.slug, Contest.fromCIString(CIString(selected.contestSlug)).get, Scala, AnyVersion).unsafeRunAndForget()
         case None => ()
   }
   private val myListsProvider = new CategoryProvider {

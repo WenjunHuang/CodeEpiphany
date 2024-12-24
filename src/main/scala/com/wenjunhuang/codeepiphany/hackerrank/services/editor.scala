@@ -1,12 +1,12 @@
 package com.wenjunhuang.codeepiphany.hackerrank.services
 
-import cats.effect.{Async, Concurrent}
+import cats.effect.{ Async, Concurrent }
 import cats.syntax.all.*
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.Messages
 import com.wenjunhuang.codeepiphany.hackerrank.HackerRankApi
 import com.wenjunhuang.codeepiphany.hackerrank.model.Contest
-import com.wenjunhuang.codeepiphany.model.{Language, LanguageVersion}
+import com.wenjunhuang.codeepiphany.model.{ Language, LanguageVersion }
 import com.wenjunhuang.codeepiphany.services.editor.*
 import com.wenjunhuang.codeepiphany.services.http.HttpClientKeeper
 import com.wenjunhuang.codeepiphany.utils.implicits.*
@@ -22,7 +22,19 @@ object editor {
       .map {
         case Some(content) =>
           content.codeTemplates.find { case ((lang, ver), _) => lang == language && ver == version }.map { case (_, template) =>
-            template.header + template.template + template.tail
+            s"""
+               |/** begin header */
+               |${template.header}
+               |/** end header */
+               |
+               |/** begin template */
+               |${template.template}
+               |/** end template */
+               |
+               |/** begin tail */
+               |${template.tail}
+               |/** end tail */
+               |""".stripMargin
           }
         case None => None
       }

@@ -1,12 +1,13 @@
 package com.wenjunhuang.codeepiphany.services.http
 
-import cats.effect.kernel.Async
-import cats.effect.{ IO, Resource }
+import cats.effect.{IO, Resource}
+import com.intellij.openapi.components.Service
 import com.intellij.openapi.project.Project
-import org.http4s.client.Client
 import com.wenjunhuang.codeepiphany.utils.implicits.*
+import org.http4s.client.Client
 
-class HttpClientService(private val project: Project) {
+@Service
+final class HttpClientService(private val project: Project) {
   implicit val httpClientKeeper: HttpClientKeeper[IO] = HttpClientKeeper.make[IO]()
   implicit val http4sClient: Resource[IO, Client[IO]] = httpClientKeeper.getClient
 }

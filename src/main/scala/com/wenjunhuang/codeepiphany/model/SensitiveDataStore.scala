@@ -24,6 +24,6 @@ object SensitiveDataStore {
   }
 
   private def createCredentialAttributes(key: String): CredentialAttributes =
-    new CredentialAttributes(CredentialAttributesKt.generateServiceName(Constants.ProjectId, key))
+    new CredentialAttributes(CredentialAttributesKt.generateServiceName(Constants.PROJECT_ID, key))
 
 }

@@ -7,7 +7,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.SimpleToolWindowPanel
 import com.intellij.ui.PopupHandler
 import com.intellij.util.ui.{JBInsets, JBUI}
-import com.wenjunhuang.codeepiphany.model.QuestionStorage.QuestionItem
+import com.wenjunhuang.codeepiphany.model.ChallengeStorage.Challenge
 import com.wenjunhuang.codeepiphany.utils.isDebug
 
 import java.awt.Insets
@@ -52,7 +52,7 @@ class DescriptionView(private val myProject: Project, private val myPresenter: D
   override def dispose(): Unit =
     myViewer.preferredFocusedComponent.removeMouseWheelListener(MOUSE_WHEEL_LISTENER)
 
-  def updateCurrentQuestion(question: QuestionItem): Unit =
+  def updateCurrentQuestion(question: Challenge): Unit =
     myViewer.updateCurrentQuestion(question)
 
   def zoomIn(): Unit = myViewer.zoomIn()

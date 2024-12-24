@@ -3,6 +3,7 @@ package com.wenjunhuang.codeepiphany.model
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.project.Project
 import com.intellij.util.messages.Topic
+import com.wenjunhuang.codeepiphany.model.Constants.PROJECT_ID
 
 import scala.util.control.NoStackTrace
 
@@ -25,8 +26,11 @@ trait DojoLoginNotifier {
 }
 
 object DojoLoginNotifier {
+
+  final val HACKERRANK_LOGIN_LOGOUT_TOPIC: String = PROJECT_ID + ".hackerrank.login_logout.topic"
+  
   @Topic.AppLevel
-  val HackerRankLoginTopic = new Topic(Constants.HackerRankLoginTopic, classOf[DojoLoginNotifier])
+  val HackerRankLoginTopic = new Topic(HACKERRANK_LOGIN_LOGOUT_TOPIC, classOf[DojoLoginNotifier])
 
   def getLoginTopic(dojo: CodeDojo): Option[Topic[DojoLoginNotifier]] = dojo match
     case CodeDojo.HackerRank => Some(HackerRankLoginTopic)

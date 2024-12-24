@@ -10,7 +10,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
 import com.intellij.ui.jcef.*
 import com.wenjunhuang.codeepiphany.toolwindows.sidebar.JCefDescriptionView.*
-import com.wenjunhuang.codeepiphany.model.QuestionStorage.QuestionItem
+import com.wenjunhuang.codeepiphany.model.ChallengeStorage.Challenge
 import com.wenjunhuang.codeepiphany.utils.implicits.*
 import com.wenjunhuang.codeepiphany.utils.isDebug
 import com.wenjunhuang.codeepiphany.utils.jcef.{CefLocalRequestHandler, CefStreamResourceHandler}
@@ -28,7 +28,7 @@ import java.nio.charset.StandardCharsets
 import javax.swing.JComponent
 
 class JCefDescriptionView(private val project: Project, private val presenter: DescriptionPresenter, private val styleProvider: DescriptionStyleProvider) extends Disposable {
-  private var questionItem: Option[QuestionItem] = None
+  private var questionItem: Option[Challenge] = None
   implicit private val logger : Logger[SyncIO] = LoggerFactory[SyncIO].getLogger
 
   private val myLifeSpanHandler =
@@ -143,7 +143,7 @@ class JCefDescriptionView(private val project: Project, private val presenter: D
 
   def preferredFocusedComponent: JComponent = myBrowser.getCefBrowser.getUIComponent.asInstanceOf[JComponent]
 
-  def updateCurrentQuestion(item: QuestionItem): Unit =
+  def updateCurrentQuestion(item: Challenge): Unit =
     questionItem = Some(item)
     reload()
 
