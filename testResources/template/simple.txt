@@ -1,0 +1,3 @@
+$challenge.header
+${challenge.template}
+$!{challenge.tail}

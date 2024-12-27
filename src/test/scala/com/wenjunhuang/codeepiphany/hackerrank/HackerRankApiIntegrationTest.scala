@@ -20,7 +20,7 @@ class HackerRankApiIntegrationTest extends BasePlatformTestCase {
   override def setUp(): Unit = {
     super.setUp()
     val proxy = ProxySettings.getInstance()
-    proxy.setProxyConfiguration(ProxyConfiguration.proxy(ProxyConfiguration.ProxyProtocol.HTTP, "127.0.0.1", 9999, ""))
+    proxy.setProxyConfiguration(ProxyConfiguration.proxy(ProxyConfiguration.ProxyProtocol.HTTP, "127.0.0.1", 9799, ""))
   }
 
   override def getTestDataPath = s"testResources/apiTestData/hackerrank/${getTestName(false)}"

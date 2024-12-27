@@ -4,27 +4,15 @@ import com.intellij.icons.AllIcons
 import com.intellij.openapi.actionSystem.impl.ActionButton
 import com.intellij.openapi.actionSystem.{ ActionPlaces, AnAction }
 import com.intellij.openapi.application.{ ApplicationManager, ModalityState }
-import com.intellij.openapi.fileChooser.{
-  FileChooserDescriptor,
-  FileChooserDescriptorFactory
-}
+import com.intellij.openapi.fileChooser.{ FileChooserDescriptor, FileChooserDescriptorFactory }
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.ui.{
-  ComboBox,
-  DialogPanel,
-  TextFieldWithBrowseButton
-}
+import com.intellij.openapi.ui.{ ComboBox, DialogPanel, TextFieldWithBrowseButton }
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.ui.JBIntSpinner
 import com.intellij.ui.components.fields.ExpandableTextField
 import com.intellij.ui.components.*
 import com.intellij.ui.dsl.builder.*
-import com.intellij.ui.layout.{
-  CellKt,
-  ComponentPredicate,
-  ComponentPredicateKt,
-  RowKt
-}
+import com.intellij.ui.layout.{ CellKt, ComponentPredicate, ComponentPredicateKt, RowKt }
 import com.intellij.util.execution.ParametersListUtil
 import com.intellij.util.ui.ThreeStateCheckBox
 import kotlin.ranges.{ ClosedRange, IntRange, RangesKt }
@@ -40,26 +28,23 @@ import scala.concurrent.ExecutionContext
 import scala.jdk.CollectionConverters.*
 import scala.reflect.{ classTag, ClassTag }
 import com.intellij.ui.dsl.builder.{ AlignX, RightGap, RowLayout, TextFieldKt }
-
 import com.intellij.openapi.ui.Splitter
+import com.intellij.ui.dsl.builder.impl.CellImpl
 
-/** A Scala DSL for creating UI components in IntelliJ IDEA, serving as a simple
-  * wrapper around the Kotlin UI DSL.
+/** A Scala DSL for creating UI components in IntelliJ IDEA, serving as a simple wrapper around the
+  * Kotlin UI DSL.
   */
 object dsl {
 
   private val intellijUIContext: ExecutionContext =
     ExecutionContext.fromExecutor { runnable =>
-      ApplicationManager.getApplication.invokeLater(
-        runnable,
-        ModalityState.any()
-      )
+      ApplicationManager.getApplication.invokeLater(runnable, ModalityState.any())
     }
   given any2KtUnit: Conversion[Any, kotlin.Unit] = _ => kotlin.Unit.INSTANCE
 
-  given abstractButton2ComponentPredicate
-    : Conversion[AbstractButton, ComponentPredicate] = { button =>
-    ComponentPredicateKt.getSelected(button)
+  given abstractButton2ComponentPredicate: Conversion[AbstractButton, ComponentPredicate] = {
+    button =>
+      ComponentPredicateKt.getSelected(button)
   }
 
   given cell2ComponentPredicate[T <: JComponent](using
@@ -74,9 +59,7 @@ object dsl {
 
   extension (component: JComponent) {
     def bold(isBold: Boolean): Unit =
-      component.setFont(
-        component.getFont.deriveFont(if isBold then Font.BOLD else Font.PLAIN)
-      )
+      component.setFont(component.getFont.deriveFont(if isBold then Font.BOLD else Font.PLAIN))
   }
 
   extension [T <: JComponent](cell: Cell[T]) {
@@ -88,27 +71,55 @@ object dsl {
       )
 
     def comment(comment: String, maxLineLength: Int): Cell[T] =
-      cell.comment(
-        comment,
-        maxLineLength,
-        HyperlinkEventAction.HTML_HYPERLINK_INSTANCE
-      )
+      cell.comment(comment, maxLineLength, HyperlinkEventAction.HTML_HYPERLINK_INSTANCE)
 
     def comment(comment: String, action: HyperlinkEventAction): Cell[T] =
       cell.comment(comment, UtilsKt.DEFAULT_COMMENT_WIDTH, action)
 
     def label(label: String): Cell[T] =
       cell.label(label, LabelPosition.LEFT)
-      
-      
 
+    def bind[V](
+      componentGet: (T) => V,
+      componentSet: (T, V) => Unit,
+      propGetter: () => V,
+      propSetter: (V) => Unit
+    ) =
+      cell.bind(
+        comp => componentGet(comp),
+        (comp, value) => componentSet(comp, value),
+        MutablePropertyKt.MutableProperty(() => propGetter(), v => propSetter(v))
+      )
   }
 
+//  extension (cell: Cell[Splitter]) {
+//    def bindFirstValue[V](
+//      firstComponentGet: JComponent => V,
+//      firstComponentSet: (JComponent, V) => Unit,
+//      firstPropGetter: () => V,
+//      firstPropSetter: V => Unit
+//    ):Cell[Splitter] =
+//      cell.bind(
+//        (splitter: Splitter) => firstComponentGet(splitter.getFirstComponent),
+//        (splitter: Splitter, value: V) => firstComponentSet(splitter.getFirstComponent, value),
+//        MutablePropertyKt.MutableProperty(() => firstPropGetter(), v => firstPropSetter(v))
+//      )
+//
+//    def bindSecondValue[U](
+//      secondComponentGet: JComponent => U,
+//      secondComponentSet: (JComponent, U) => Unit,
+//      secondPropGetter: () => U,
+//      secondPropSetter: U => Unit
+//    ):Cell[Splitter] =
+//      cell.bind(
+//        (splitter: Splitter) => secondComponentGet(splitter.getSecondComponent),
+//        (splitter: Splitter, value: U) => secondComponentSet(splitter.getSecondComponent, value),
+//        MutablePropertyKt.MutableProperty(() => secondPropGetter(), v => secondPropSetter(v))
+//      )
+//  }
+
   extension (group: ButtonsGroup) {
-    def bind[T <: AnyRef: ClassTag](
-      getter: () => T,
-      setter: T => Unit
-    ): ButtonsGroup =
+    def bind[T <: AnyRef: ClassTag](getter: () => T, setter: T => Unit): ButtonsGroup =
       group.bind(
         MutablePropertyKt.MutableProperty[T](() => getter(), v => setter(v)),
         classTag[T].runtimeClass.asInstanceOf[Class[T]]
@@ -122,9 +133,7 @@ object dsl {
       HyperlinkEventAction.HTML_HYPERLINK_INSTANCE
     )
 
-    def comment(comment: String)(
-      action: HyperlinkEventAction
-    ): Cell[JEditorPane] =
+    def comment(comment: String)(action: HyperlinkEventAction): Cell[JEditorPane] =
       row.comment(comment, UtilsKt.DEFAULT_COMMENT_WIDTH, action)
 
     def comment(comment: String): Cell[JEditorPane] =
@@ -137,10 +146,7 @@ object dsl {
 
   extension (slider: Cell[JSlider]) {
     def labelTable(labelTable: Map[Int, JLabel]): Cell[JSlider] =
-      SliderKt.labelTable(
-        slider,
-        labelTable.map { case (k, v) => int2Integer(k) -> v }.asJava
-      )
+      SliderKt.labelTable(slider, labelTable.map { case (k, v) => int2Integer(k) -> v }.asJava)
   }
 
   extension (cell: Cell[JBTextField]) {
@@ -152,10 +158,7 @@ object dsl {
       TextFieldKt.columns(cell, cols)
 
     @targetName("tfBindText")
-    def bindText(
-      getter: () => String,
-      setter: String => Unit
-    ): Cell[JBTextField] =
+    def bindText(getter: () => String, setter: String => Unit): Cell[JBTextField] =
       TextFieldKt.bindText(cell, () => getter(), v => setter(v))
   }
 
@@ -176,6 +179,16 @@ object dsl {
       ButtonKt.selected(button, s)
   }
 
+  extension [T](combobox: Cell[ComboBox[T]]) {
+    def bindItem(getter: () => T, setter: T => Unit): Cell[ComboBox[T]] =
+      ComboBoxKt.bindItem(combobox, () => getter(), v => setter(v))
+  }
+
+  extension (tf: Cell[TextFieldWithBrowseButton]) {
+    def bindText(getter: () => String, setter: String => Unit): Cell[TextFieldWithBrowseButton] =
+      TextFieldWithBrowseButtonKt.bindText(tf, () => getter(), v => setter(v))
+  }
+
   def dialogPanel(f: Panel ?=> Unit): DialogPanel = BuilderKt.panel { panel =>
     f(using panel); panel
   }
@@ -192,14 +205,12 @@ object dsl {
   def indent(using panel: Panel)(f: Panel ?=> Unit): RowsRange =
     panel.indent(p => f(using p))
 
-  def twoColumnsRow(first: Row ?=> Unit, second: Row ?=> Unit)(using
-    panel: Panel
-  ): Row =
+  def twoColumnsRow(first: Row ?=> Unit, second: Row ?=> Unit)(using panel: Panel): Row =
     panel.twoColumnsRow(row => first(using row), row => second(using row))
 
-  def buttonsGroup(title: String = null, indent: Boolean = false)(
-    f: Panel ?=> Unit
-  )(using panel: Panel): ButtonsGroup =
+  def buttonsGroup(title: String = null, indent: Boolean = false)(f: Panel ?=> Unit)(using
+    panel: Panel
+  ): ButtonsGroup =
     panel.buttonsGroup(title, indent, panel => f(using panel))
 
   def row(label: String)(f: Row ?=> Unit)(using panel: Panel): Row =
@@ -219,9 +230,8 @@ object dsl {
   def button(label: String)(using row: Row): Cell[JButton] =
     row.button(label, e => ())
 
-  def button(label: String, action: ActionEvent => Unit)(using
-    row: Row
-  ): Cell[JButton] = row.button(label, e => action(e))
+  def button(label: String, action: ActionEvent => Unit)(using row: Row): Cell[JButton] =
+    row.button(label, e => action(e))
 
   def button(label: String, action: () => Unit)(using row: Row): Cell[JButton] =
     row.button(label, e => action())
@@ -237,9 +247,9 @@ object dsl {
       AllIcons.General.GearPlain
     )
 
-  def segmentedButton[T](list: List[T])(
-    f: (pre: SegmentedButton.ItemPresentation, v: T) => Unit
-  )(using row: Row): SegmentedButton[T] =
+  def segmentedButton[T](list: List[T])(f: (pre: SegmentedButton.ItemPresentation, v: T) => Unit)(
+    using row: Row
+  ): SegmentedButton[T] =
     row.segmentedButton(list.asJava, (presentation, v) => f(presentation, v))
 
   def tabbedPaneHeader(list: List[String])(using row: Row): Cell[JBTabbedPane] =
@@ -247,15 +257,11 @@ object dsl {
 
   def label(text: String)(using row: Row): Cell[JLabel] = row.label(text)
 
-  def text(text: String)(using row: Row): Cell[JEditorPane] = row.text(
-    text,
-    UtilsKt.MAX_LINE_LENGTH_WORD_WRAP,
-    HyperlinkEventAction.HTML_HYPERLINK_INSTANCE
-  )
+  def text(text: String)(using row: Row): Cell[JEditorPane] =
+    row.text(text, UtilsKt.MAX_LINE_LENGTH_WORD_WRAP, HyperlinkEventAction.HTML_HYPERLINK_INSTANCE)
 
-  def threeStateCheckBox(label: String)(using
-    row: Row
-  ): Cell[ThreeStateCheckBox] = row.threeStateCheckBox(label)
+  def threeStateCheckBox(label: String)(using row: Row): Cell[ThreeStateCheckBox] =
+    row.threeStateCheckBox(label)
 
   def comment(comment: String)(using row: Row): Cell[JEditorPane] =
     row.comment(
@@ -264,54 +270,38 @@ object dsl {
       HyperlinkEventAction.HTML_HYPERLINK_INSTANCE
     )
 
-  def comment(comment: String, maxLineLength: Int)(using
-    row: Row
-  ): Cell[JEditorPane] =
+  def comment(comment: String, maxLineLength: Int)(using row: Row): Cell[JEditorPane] =
     row.comment(
       comment,
       UtilsKt.DEFAULT_COMMENT_WIDTH,
       HyperlinkEventAction.HTML_HYPERLINK_INSTANCE
     )
 
-  def comment(comment: String, action: HyperlinkEventAction)(using
-    row: Row
-  ): Cell[JEditorPane] =
+  def comment(comment: String, action: HyperlinkEventAction)(using row: Row): Cell[JEditorPane] =
     row.comment(comment, UtilsKt.DEFAULT_COMMENT_WIDTH, action)
 
-  def comment(
-    comment: String,
-    maxLineLength: Int,
-    action: HyperlinkEventAction
-  )(using row: Row): Cell[JEditorPane] =
+  def comment(comment: String, maxLineLength: Int, action: HyperlinkEventAction)(using
+    row: Row
+  ): Cell[JEditorPane] =
     row.comment(comment, maxLineLength, action)
 
-  def radioButton[T](label: String, value: T)(using
-    row: Row
-  ): Cell[JBRadioButton] =
+  def radioButton[T](label: String, value: T)(using row: Row): Cell[JBRadioButton] =
     row.radioButton(label, value)
 
   def link(label: String)(using row: Row): Cell[ActionLink] =
     row.link(label, e => ())
-  def link(label: String)(f: ActionEvent => Unit)(using
-    row: Row
-  ): Cell[ActionLink] =
+  def link(label: String)(f: ActionEvent => Unit)(using row: Row): Cell[ActionLink] =
     row.link(label, e => f(e))
 
-  def browserLink(label: String, url: String)(using
-    row: Row
-  ): Cell[BrowserLink] =
+  def browserLink(label: String, url: String)(using row: Row): Cell[BrowserLink] =
     row.browserLink(label, url)
 
-  def dropDownLink[T](item: T, items: List[T])(using
-    row: Row
-  ): Cell[DropDownLink[T]] =
+  def dropDownLink[T](item: T, items: List[T])(using row: Row): Cell[DropDownLink[T]] =
     row.dropDownLink(item, items.asJava)
 
   def icon(icon: Icon)(using row: Row): Cell[JLabel] = row.icon(icon)
 
-  def contextHelp(description: String, title: String)(using
-    row: Row
-  ): Cell[JLabel] =
+  def contextHelp(description: String, title: String)(using row: Row): Cell[JLabel] =
     row.contextHelp(description, title)
 
   def passwordField()(using row: Row): Cell[JBPasswordField] =
@@ -360,8 +350,8 @@ object dsl {
       double2Double(range.step.toDouble)
     )
 
-  def slider(min: Int, max: Int, minorTickSpacing: Int, majorTickSpacing: Int)(
-    using row: Row
+  def slider(min: Int, max: Int, minorTickSpacing: Int, majorTickSpacing: Int)(using
+    row: Row
   ): Cell[JSlider] =
     row.slider(min, max, minorTickSpacing, majorTickSpacing)
 
@@ -395,33 +385,27 @@ object dsl {
     topGroupGap: Boolean = false,
     bottomGroupGap: Boolean = false
   )(f: Panel ?=> Unit)(using p: Panel) =
-    p.groupRowsRange(
-      title,
-      indent,
-      topGroupGap,
-      bottomGroupGap,
-      p => f(using p)
-    )
+    p.groupRowsRange(title, indent, topGroupGap, bottomGroupGap, p => f(using p))
 
-  def collapsibleGroup(title: String, indent: Boolean = true)(
-    f: Panel ?=> Unit
-  )(using p: Panel): CollapsibleRow =
+  def collapsibleGroup(title: String, indent: Boolean = true)(f: Panel ?=> Unit)(using
+    p: Panel
+  ): CollapsibleRow =
     p.collapsibleGroup(title, indent, p => f(using p))
 
   def separator(background: Color = null)(using p: Panel) =
     p.separator(background)
 
-  def splitter(
-    first: JComponent,
-    second: JComponent,
-    vertical: Boolean = false,
-    proportion: Float = 0.5
-  )(using row: Row) = {
-    val splitter = Splitter(vertical, proportion)
-    splitter.setFirstComponent(first)
-    splitter.setSecondComponent(second)
-    row.cell(splitter)
-  }
+//  def splitter(
+//    first: JComponent,
+//    second: JComponent,
+//    vertical: Boolean = false,
+//    proportion: Float = 0.5
+//  )(using row: Row): Cell[Splitter] = {
+//    val splitter = Splitter(vertical, proportion)
+//    splitter.setFirstComponent(first)
+//    splitter.setSecondComponent(second)
+//    row.cell(splitter)
+//  }
 
   object constants {
     final val COLUMNS_MEDIUM = TextFieldKt.COLUMNS_MEDIUM

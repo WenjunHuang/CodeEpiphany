@@ -7,15 +7,12 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.SimpleToolWindowPanel
 import com.intellij.openapi.util.Disposer
 import com.intellij.ui.components.JBScrollPane
-import com.intellij.ui.table.TableView
 import com.wenjunhuang.codeepiphany.toolwindows.dojo.AbstractCodeDojoView
 import com.wenjunhuang.codeepiphany.toolwindows.dojo.actions.PaginationActionGroup
 import com.wenjunhuang.codeepiphany.toolwindows.dojo.actions.groups.*
-import com.wenjunhuang.codeepiphany.hackerrank.model.ChallengeDetail
 
 import java.awt.BorderLayout
-import javax.swing.{ JPanel, ListSelectionModel, ScrollPaneConstants }
-import scala.jdk.CollectionConverters.*
+import javax.swing.{JPanel, ScrollPaneConstants}
 
 class QueryParamView(private val myProject: Project, private val myPresenter: QueryParametersViewPresenter) extends SimpleToolWindowPanel(true, true) with AbstractCodeDojoView {
   private val actionManager = ActionManager.getInstance()

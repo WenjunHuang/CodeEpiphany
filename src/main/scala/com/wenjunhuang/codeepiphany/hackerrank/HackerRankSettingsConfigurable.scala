@@ -1,17 +1,25 @@
 package com.wenjunhuang.codeepiphany.hackerrank
+
+import cats.effect.SyncIO
 import com.intellij.icons.AllIcons
-import com.intellij.ide.fileTemplates.FileTemplate
-import com.intellij.ide.fileTemplates.impl.FileTemplateHighlighter
-import com.intellij.openapi.actionSystem.impl.ActionButton
-import com.intellij.openapi.actionSystem.{ ActionPlaces, AnActionEvent }
+import com.intellij.ide.fileTemplates.{ FileTemplate, FileTemplateManager }
+import com.intellij.openapi.fileChooser.FileChooserDescriptorFactory
+import com.intellij.openapi.Disposable
+import com.intellij.openapi.actionSystem.ex.ActionManagerEx
+import com.intellij.openapi.actionSystem.impl.ActionToolbarImpl
+import com.intellij.openapi.actionSystem.{
+  ActionManager,
+  AnActionEvent,
+  DefaultActionGroup,
+  ToggleAction
+}
+import com.intellij.openapi.application.WriteAction
 import com.intellij.openapi.editor.colors.EditorColorsManager
 import com.intellij.openapi.editor.event.{ DocumentEvent, DocumentListener }
 import com.intellij.openapi.editor.ex.EditorEx
 import com.intellij.openapi.editor.ex.util.{ LayerDescriptor, LayeredLexerEditorHighlighter }
 import com.intellij.openapi.editor.highlighter.{ EditorHighlighter, EditorHighlighterFactory }
-import com.intellij.openapi.editor.impl.EditorImpl
-import com.intellij.openapi.editor.{ Document, Editor, EditorFactory }
-import com.intellij.openapi.fileChooser.FileChooserDescriptorFactory
+import com.intellij.openapi.editor.{ Document, EditorFactory }
 import com.intellij.openapi.fileTypes.{
   FileTypeManager,
   FileTypes,
@@ -19,140 +27,270 @@ import com.intellij.openapi.fileTypes.{
   SyntaxHighlighterFactory
 }
 import com.intellij.openapi.observable.properties.AtomicBooleanProperty
+import com.intellij.openapi.observable.util.BindUtil
 import com.intellij.openapi.options.Configurable
 import com.intellij.openapi.project.{ DumbAwareAction, Project }
-import com.intellij.openapi.ui.TextFieldWithBrowseButton
-import com.intellij.psi.{ PsiDocumentManager, PsiFile }
+import com.intellij.openapi.ui.{ ComboBox, DialogPanel, Splitter }
+import com.intellij.openapi.util.Disposer
+import com.intellij.openapi.util.text.StringUtil
 import com.intellij.testFramework.LightVirtualFile
 import com.intellij.ui.components.JBLabel
 import com.intellij.ui.dsl.builder.*
 import com.intellij.util.ui.JBUI
 import com.wenjunhuang.codeepiphany.PluginBundle
-import com.wenjunhuang.codeepiphany.hackerrank.HackerRankSettingsConfigurable.DEMO_CODE
-import com.wenjunhuang.codeepiphany.model.template.{ ChallengeFileTemplateHighlighter, ChallengeFileTemplateTokenType }
-import com.wenjunhuang.codeepiphany.utils.ui.dsl.*
+import com.wenjunhuang.codeepiphany.hackerrank.HackerRankSettingsConfigurable.LANGUAGES
+import com.wenjunhuang.codeepiphany.hackerrank.model.demo.DEMOS
+import com.wenjunhuang.codeepiphany.model.template.ChallengeFileTemplateHighlighter
+import com.wenjunhuang.codeepiphany.model.template.lexer.ChallengeFileTemplateTokenType
 
-import java.awt.{ BorderLayout, Dimension }
-import javax.swing.JComponent
+import com.wenjunhuang.codeepiphany.model.{ CodeDojo, Language, LanguageVersion }
+import com.wenjunhuang.codeepiphany.utils.ui.dsl.*
+import org.typelevel.log4cats.{ Logger, LoggerFactory }
+import com.wenjunhuang.codeepiphany.utils.implicits.*
+import com.wenjunhuang.codeepiphany.utils.template.VelocityUtils
+
+import java.awt.{ BorderLayout, Dimension, FlowLayout, GridBagConstraints, GridBagLayout }
+import javax.swing.{ JComponent, JList, JPanel, ListCellRenderer, SwingConstants }
 import scala.compiletime.uninitialized
 
-class HackerRankSettingsConfigurable(private val myProject: Project) extends Configurable {
+class HackerRankSettingsConfigurable(private val myProject: Project)
+    extends Configurable
+    with Disposable {
+  private val myLogger: Logger[SyncIO] = LoggerFactory[SyncIO].getLogger
+  private val mySettings               = HackerRankSettings.getInstance(myProject)
   private val myVelocityFileType =
     FileTypeManager.getInstance().getFileTypeByExtension("ft")
 
-  private var myTFSourceFolder: TextFieldWithBrowseButton = uninitialized
-
-  private var myCodeFileNameEditor: Editor = uninitialized
-
-  private var myCodeSourceTemplate: Option[FileTemplate] = None
-  private var myCodeSourceTemplateEditor: Editor         = uninitialized
-  private val myCodePreviewVisible                       = AtomicBooleanProperty(true)
-  private val myPanel = dialogPanel {
-    row("Source Folder:") {
-      myTFSourceFolder = textFieldWithBrowseButton(
-        "Choose the folder where you want to save your HackerRank solutions",
-        myProject,
-        FileChooserDescriptorFactory.createSingleFolderDescriptor()
-      ).align(AlignX.FILL.INSTANCE)
-        .resizableColumn()
-        .getComponent
-    }
-
-    row() {
-      comboBox(List("Java", "Kotlin", "Python", "Scala"))
-        .align(AlignX.FILL.INSTANCE)
-        .resizableColumn()
-        .label("Language:")
-      comboBox(List("8", "11", "14", "17"))
-        .align(AlignX.FILL.INSTANCE)
-        .resizableColumn()
-        .label("Version:")
-    }.layout(RowLayout.PARENT_GRID)
-
-    row() {
-      val togglePreview =
-        new DumbAwareAction("Preview", "Toggle Preview", AllIcons.General.PreviewHorizontally) {
-          override def actionPerformed(e: AnActionEvent): Unit =
-            myCodePreviewVisible.set(!myCodePreviewVisible.get)
+  private var myLanguageComboBox: ComboBox[Language] = uninitialized
+  private val myCodeFileNameDocument        = EditorFactory.getInstance().createDocument("")
+  private val myCodeFileNameEditor          = createFileNameEditor(myCodeFileNameDocument, false)
+  private val myCodeFileNamePreviewDocument = EditorFactory.getInstance().createDocument("")
+  private val myCodeFileNamePreviewEditor =
+    createFileNameEditor(myCodeFileNamePreviewDocument, true)
+  myCodeFileNameDocument.addDocumentListener(
+    new DocumentListener() {
+      override def documentChanged(event: DocumentEvent): Unit = {
+        val language = myLanguageComboBox.getItem
+        DEMOS.get(language) match {
+          case Some(demo) =>
+            VelocityUtils
+              .generateContent(event.getDocument.getText, Map("challenge" -> demo)) match {
+              case Right(content) =>
+                WriteAction.run(() =>
+                  myCodeFileNamePreviewDocument.setText(
+                    s"${StringUtil.convertLineSeparators(content)}.${language.fileExt}"
+                  )
+                )
+              case Left(e) =>
+                myLogger.warn(e)(s"Failed to generate content for ${language.show}").unsafeRunSync()
+            }
+          case None =>
         }
+      }
+    },
+    this
+  )
 
-      val l = JBLabel("Code File Name:")
-      val s = l.getPreferredSize.height
+  private val myCodeSourceTemplateDocument        = EditorFactory.getInstance().createDocument("")
+  private val myCodeSourceTemplatePreviewDocument = EditorFactory.getInstance().createDocument("")
 
-      val component = ActionButton(
-        togglePreview,
-        togglePreview.getTemplatePresentation.clone(),
-        ActionPlaces.UNKNOWN,
-        Dimension(s, s)
-      )
-      l.setCopyable(true)
+  myCodeSourceTemplateDocument.addDocumentListener(
+    new DocumentListener() {
+      override def documentChanged(event: DocumentEvent): Unit = {
+        val language = myLanguageComboBox.getItem
+        DEMOS.get(language) match {
+          case Some(demo) =>
+            VelocityUtils.generateContent(event.getDocument.getText, Map("challenge" -> demo)) match
+              case Right(content) =>
+                WriteAction.run(() =>
+                  myCodeSourceTemplatePreviewDocument.setText(
+                    StringUtil.convertLineSeparators(content)
+                  )
+                )
+              case Left(e) =>
+                myLogger.warn(e)(s"Failed to generate content for ${language.show}").unsafeRunSync()
+          case None =>
+        }
+      }
+    },
+    this
+  )
 
-      component.setBorder(JBUI.Borders.emptyLeft(5))
-      l.add(component, BorderLayout.EAST)
-      val nameDoc = EditorFactory.getInstance().createDocument("${CHALLENGE_ID}.java")
-      myCodeFileNameEditor = createFileNameEditor(nameDoc, false)
-      cell(myCodeFileNameEditor.getComponent)
-        .label(l, LabelPosition.TOP)
-        .align(AlignX.FILL.INSTANCE)
-        .resizableColumn()
-    }
+  private val myCodeSourceTemplateEditor =
+    createCodeTemplateEditor(myCodeSourceTemplateDocument, false)
+  private val myCodeSourceTemplatePreviewEditor =
+    createCodeTemplateEditor(myCodeSourceTemplatePreviewDocument, true)
 
-    row() {
-      myCodeSourceTemplateEditor = createCodeTemplateEditor(None, false)
-      cell(myCodeSourceTemplateEditor.getComponent)
-        .label("Code File Template:", LabelPosition.TOP)
-        .align(AlignX.FILL.INSTANCE)
-        .resizableColumn()
-    }.rowComment("Choose the template for the code file")
+  private val myCodePreviewVisible         = AtomicBooleanProperty(true)
+  private val myCodeFileNamePreviewVisible = AtomicBooleanProperty(true)
 
-//      val right = dialogPanel {
-//        row() {
-//          val label = JBLabel("File Name:")
-//          label.setCopyable(true)
-//          textField()
-//            .label(label, LabelPosition.TOP)
-//            .align(AlignX.FILL.INSTANCE)
-//            .resizableColumn()
-//
-//        }
-//
-//        row() {
-//          myCodeSourceTemplateEditor = createCodeTemplateEditor(None,true)
-//          cell(myCodeSourceTemplateEditor.getComponent)
-//            .label("Code File:", LabelPosition.TOP)
-//            .align(AlignX.FILL.INSTANCE)
-//            .resizableColumn()
-//        }.rowComment("Choose the template for the code file")
-//      }
-
-//      BindUtil.bindVisible(right, myCodePreviewVisible)
-
-//      splitter(left, right)
-//        .align(AlignX.FILL.INSTANCE)
-//        .resizableColumn()
-//    }
-
-//    row() {
-//      splitter(templatePanel.getComponent, previewPanel.getComponent)
-//        .align(AlignX.FILL.INSTANCE)
-//        .resizableColumn()
-//    }
-  }
+  private var myPanel: DialogPanel = uninitialized
 
   override def getDisplayName: String =
     PluginBundle.message("hackerrank.settings.title")
 
-  override def createComponent(): JComponent = myPanel
+  override def createComponent(): JComponent = {
+    if myPanel == null then
+      myPanel = dialogPanel {
+        row("Source Folder:") {
+          textFieldWithBrowseButton(
+            "Choose the folder where you want to save your HackerRank solutions",
+            myProject,
+            FileChooserDescriptorFactory.createSingleFolderDescriptor()
+          ).bindText(
+            () => mySettings.getState.sourceFolder,
+            (s: String) => mySettings.getState.sourceFolder = s
+          ).align(AlignX.FILL.INSTANCE)
+            .resizableColumn()
+            .getComponent
+        }
 
-  override def isModified: Boolean = myPanel.isModified
+        row("Language:") {
+          myLanguageComboBox = comboBox(
+            LANGUAGES,
+            (
+              list: JList[? <: Language],
+              value: Language,
+              index: Int,
+              isSelected: Boolean,
+              cellHasFocus: Boolean
+            ) =>
+              if value == null then
+                JBLabel(PluginBundle.message("hackerrank.ui.settings.language.hint"))
+              else JBLabel(value.show, value.icon, SwingConstants.LEFT)
+          ).bindItem(
+            () => Option(HackerRankSettings.getInstance(myProject).getState.language).orNull,
+            (l: Language) => HackerRankSettings.getInstance(myProject).getState.language = l
+          ).align(AlignX.FILL.INSTANCE)
+            .resizableColumn()
+            .getComponent
+        }
 
-  override def apply(): Unit = {}
+        row() {
+          val togglePreview =
+            new ToggleAction(
+              PluginBundle.message("hackerrank.ui.settings.togglePreview"),
+              null,
+              AllIcons.Actions.ToggleVisibility
+            ) {
+              override def isSelected(e: AnActionEvent): Boolean = myCodeFileNamePreviewVisible.get
 
-  override def reset(): Unit = {
-    val settings = HackerRankSettings.getInstance(myProject)
+              override def setSelected(e: AnActionEvent, state: Boolean): Unit =
+                myCodeFileNamePreviewVisible.set(state)
+            }
+
+          val applyTemplate =
+            new DumbAwareAction(
+              PluginBundle.message("hackerrank.ui.settings.useDefaultTemplate"),
+              null,
+              AllIcons.Actions.Refresh
+            ) {
+              override def actionPerformed(e: AnActionEvent): Unit = {
+                val language = myLanguageComboBox.getItem
+                updateCodeFileNameTemplateDocumentText(language)
+              }
+            }
+
+          val panel       = JPanel(BorderLayout())
+          val actionGroup = DefaultActionGroup()
+          actionGroup.add(togglePreview)
+          actionGroup.add(applyTemplate)
+
+          val toolbar = ActionManager
+            .getInstance()
+            .asInstanceOf[ActionManagerEx]
+            .createActionToolbar("HackerRankSetting.FileName", actionGroup, true, false, false)
+            .asInstanceOf[ActionToolbarImpl]
+          toolbar.setActionButtonBorder(JBUI.Borders.empty(0, 0, 0, 5))
+          toolbar.setBorder(JBUI.Borders.empty(2, 0, 5, 0))
+          toolbar.setTargetComponent(panel)
+
+          val editor  = myCodeFileNameEditor.getComponent
+          val preview = myCodeFileNamePreviewEditor.getComponent
+
+          BindUtil.bindVisible(preview, myCodeFileNamePreviewVisible)
+          val splitter = Splitter(false, 0.6)
+          splitter.setFirstComponent(editor)
+          splitter.setSecondComponent(preview)
+
+          panel.add(toolbar, BorderLayout.NORTH)
+          panel.add(splitter, BorderLayout.CENTER)
+          cell(panel)
+            .label("File Name:", LabelPosition.TOP)
+            .align(AlignX.FILL.INSTANCE)
+            .resizableColumn()
+        }
+
+        row() {
+          val togglePreview =
+            new ToggleAction(
+              PluginBundle.message("hackerrank.ui.settings.togglePreview"),
+              null,
+              AllIcons.Actions.ToggleVisibility
+            ) {
+              override def isSelected(e: AnActionEvent): Boolean = myCodePreviewVisible.get
+
+              override def setSelected(e: AnActionEvent, state: Boolean): Unit =
+                myCodePreviewVisible.set(state)
+            }
+
+          val applyTemplate =
+            new DumbAwareAction(
+              PluginBundle.message("hackerrank.ui.settings.useDefaultTemplate"),
+              null,
+              AllIcons.Actions.Refresh
+            ) {
+              override def actionPerformed(e: AnActionEvent): Unit = {
+                val language = myLanguageComboBox.getItem
+                updateCodeTemplateDocumentTextToTemplate(language)
+              }
+            }
+
+          val panel = JPanel(BorderLayout())
+
+          val actionGroup = DefaultActionGroup()
+          actionGroup.add(togglePreview)
+          actionGroup.add(applyTemplate)
+
+          val toolbar = ActionManager
+            .getInstance()
+            .asInstanceOf[ActionManagerEx]
+            .createActionToolbar("HackerRankSetting.FileName", actionGroup, true, false, false)
+            .asInstanceOf[ActionToolbarImpl]
+          toolbar.setActionButtonBorder(JBUI.Borders.empty())
+          toolbar.setBorder(JBUI.Borders.empty(2, 0, 5, 0))
+          toolbar.setTargetComponent(panel)
+
+          val templateEditor  = myCodeSourceTemplateEditor.getComponent
+          val templatePreview = myCodeSourceTemplatePreviewEditor.getComponent
+
+          BindUtil.bindVisible(templatePreview, myCodePreviewVisible)
+          val splitter = Splitter(false, 0.6f)
+          splitter.setFirstComponent(templateEditor)
+          splitter.setSecondComponent(templatePreview)
+
+          panel.add(toolbar.getComponent, BorderLayout.NORTH)
+          panel.add(splitter, BorderLayout.CENTER)
+          panel.setPreferredSize(JBUI.size(400, 300))
+          cell(panel)
+            .label("Code Template:", LabelPosition.TOP)
+            .align(AlignX.FILL.INSTANCE)
+            .resizableColumn()
+        }
+      }
+
+    myPanel
   }
 
-  private def createFileNameEditor(document: Document, preview: Boolean): Editor = {
+  override def isModified: Boolean = Option(myPanel).exists(_.isModified)
+
+  override def apply(): Unit =
+    myPanel.apply()
+
+  override def reset(): Unit =
+    myPanel.reset()
+
+  private def createFileNameEditor(document: Document, preview: Boolean): EditorEx = {
     val editorFactory = EditorFactory.getInstance()
     val editor =
       if preview then editorFactory.createViewer(document, myProject)
@@ -170,15 +308,14 @@ class HackerRankSettingsConfigurable(private val myProject: Project) extends Con
     editorSettings.setCaretRowShown(false)
     editorSettings.setAdditionalPageAtBottom(true)
 
-    editor
+    editor.asInstanceOf[EditorEx]
   }
 
-  private def createCodeTemplateEditor(file: Option[PsiFile], viewer: Boolean): Editor = {
+  private def createCodeTemplateEditor(document: Document, viewer: Boolean): EditorEx = {
     val editorFactory = EditorFactory.getInstance()
-    val doc           = createDocument(file)
     val editor =
-      if !viewer then editorFactory.createEditor(doc, myProject)
-      else editorFactory.createViewer(doc, myProject)
+      if !viewer then editorFactory.createEditor(document, myProject)
+      else editorFactory.createViewer(document, myProject)
 
     val editorSettings = editor.getSettings
     editorSettings.setVirtualSpace(false)
@@ -186,120 +323,87 @@ class HackerRankSettingsConfigurable(private val myProject: Project) extends Con
     editorSettings.setIndentGuidesShown(false)
     editorSettings.setFoldingOutlineShown(false)
     editorSettings.setLineNumbersShown(false)
-    editorSettings.setAdditionalColumnsCount(3)
-    editorSettings.setAdditionalLinesCount(6)
+    editorSettings.setAdditionalColumnsCount(0)
+    editorSettings.setAdditionalLinesCount(0)
     editorSettings.setCaretRowShown(false)
 
-    editor.getDocument.addDocumentListener(
-      new DocumentListener {
-        override def documentChanged(event: DocumentEvent): Unit =
-          onTextChanged()
-      },
-      editor.asInstanceOf[EditorImpl].getDisposable
-    )
-
-    editor.asInstanceOf[EditorEx].setHighlighter(createHighlighter())
-
-    editor
+    editor.asInstanceOf[EditorEx]
   }
 
-  private def onTextChanged(): Unit = {}
+  override def disposeUIResources(): Unit = {
+    val editorFactory = EditorFactory.getInstance()
+    editorFactory.releaseEditor(myCodeFileNameEditor)
+    editorFactory.releaseEditor(myCodeFileNamePreviewEditor)
+    editorFactory.releaseEditor(myCodeSourceTemplateEditor)
+    editorFactory.releaseEditor(myCodeSourceTemplatePreviewEditor)
 
-  private def createDocument(file: Option[PsiFile]): Document =
-    file match {
-      case Some(f) => PsiDocumentManager.getInstance(myProject).getDocument(f)
-      case None    => EditorFactory.getInstance().createDocument(DEMO_CODE)
-    }
+    Disposer.dispose(this)
+  }
 
-  private def createHighlighter(): EditorHighlighter =
-    if myCodeSourceTemplate.isDefined && myVelocityFileType != FileTypes.UNKNOWN
-    then
+  private def getLanguageTemplate(language: Language): FileTemplate = {
+    val templateName = s"${CodeDojo.HackerRank.value}_code.${language.fileExt}"
+    val template     = FileTemplateManager.getInstance(myProject).findInternalTemplate(templateName)
+    template
+  }
+
+  private def getFileNameTemplate(language: Language): FileTemplate = {
+    val templateName = s"${CodeDojo.HackerRank.value}_filename.${language.fileExt}"
+    val template     = FileTemplateManager.getInstance(myProject).findInternalTemplate(templateName)
+    template
+  }
+
+  private def updateCodeFileNameTemplateDocumentText(language: Language): Unit = {
+    val template = getFileNameTemplate(language)
+    if template != null then
+      val highlighterEdit    = createHighlighter(language)
+      val highlighterPreview = createHighlighter(language)
+      WriteAction.run { () =>
+        myCodeFileNameDocument.setText(template.getText.trim)
+        myCodeFileNameEditor.setHighlighter(highlighterEdit)
+        myCodeFileNamePreviewEditor.setHighlighter(highlighterPreview)
+      }
+
+  }
+  private def updateCodeTemplateDocumentTextToTemplate(language: Language): Unit = {
+    val template = getLanguageTemplate(language)
+    if template != null then
+      val highlighterEdit    = createHighlighter(language)
+      val highlighterPreview = createHighlighter(language)
+      WriteAction.run { () =>
+        myCodeSourceTemplateDocument.setText(template.getText)
+        myCodeSourceTemplateEditor.setHighlighter(highlighterEdit)
+        myCodeSourceTemplatePreviewEditor.setHighlighter(highlighterPreview)
+      }
+  }
+
+  private def createHighlighter(language: Language): EditorHighlighter =
+    if myVelocityFileType != FileTypes.UNKNOWN then
       EditorHighlighterFactory
         .getInstance()
-        .createEditorHighlighter(
-          myProject,
-          LightVirtualFile(s"template.${myCodeSourceTemplate.map(_.getExtension)}.ft")
-        )
+        .createEditorHighlighter(myProject, LightVirtualFile(s"template.${language.fileExt}.ft"))
     else
-      val fileType = myCodeSourceTemplate
-        .map(tmp => FileTypeManager.getInstance().getFileTypeByExtension(tmp.getExtension))
-        .getOrElse(FileTypeManager.getInstance.getFileTypeByExtension("java"))
+      val fileType =
+        Option(FileTypeManager.getInstance().getFileTypeByExtension(language.fileExt)).map {
+          fileType => if fileType == FileTypes.UNKNOWN then FileTypes.PLAIN_TEXT else fileType
+        }.getOrElse(FileTypes.PLAIN_TEXT)
 
       val originalHighlighter =
-        Option(
-          SyntaxHighlighterFactory
-            .getSyntaxHighlighter(fileType, null, null)
-        ).getOrElse(PlainSyntaxHighlighter())
-      val scheme = EditorColorsManager.getInstance().getGlobalScheme
-//      val highlighter = LexerEditorHighlighter(originalHighlighter, scheme)
-      val highlighter =
-        LayeredLexerEditorHighlighter(ChallengeFileTemplateHighlighter(), scheme)
-      highlighter.registerLayer(ChallengeFileTemplateTokenType.TEXT, LayerDescriptor(originalHighlighter, ""))
+        Option(SyntaxHighlighterFactory.getSyntaxHighlighter(fileType, myProject, null))
+          .getOrElse(PlainSyntaxHighlighter())
+      val highlighter = LayeredLexerEditorHighlighter(
+        ChallengeFileTemplateHighlighter(),
+        EditorColorsManager.getInstance().getGlobalScheme
+      )
+      highlighter.registerLayer(
+        ChallengeFileTemplateTokenType.TEXT,
+        LayerDescriptor(originalHighlighter, "")
+      )
 
       highlighter
 
+  override def dispose(): Unit = {}
 }
 
 object HackerRankSettingsConfigurable {
-  val DEMO_CODE =
-    """package leetcode.editor.cn;
-      |
-      |public class FindACorrespondingNodeOfABinaryTreeInACloneOfThatTree {
-      |    public static void main(String[] args) {
-      |        Solution solution = new FindACorrespondingNodeOfABinaryTreeInACloneOfThatTree().new Solution();
-      |    }
-      |    //leetcode submit region begin(Prohibit modification and deletion)
-      |
-      |    /**
-      |     * Definition for a binary tree node.
-      |     * public class TreeNode {
-      |     * int val;
-      |     * TreeNode left;
-      |     * TreeNode right;
-      |     * TreeNode(int x) { val = x; }
-      |     * }
-      |     */
-      |
-      |    class Solution {
-      |        public final TreeNode getTargetCopy(final TreeNode original, final TreeNode cloned, final TreeNode target) {
-      |            return traverse(original, cloned, target);
-      |
-      |//            return getTargetCopyImpl(original, cloned, target);
-      |        }
-      |
-      |        /**
-      |         * 分解问题
-      |         */
-      |        private TreeNode getTargetCopyImpl(final TreeNode original, final TreeNode cloned, final TreeNode target) {
-      |            if (original == null) return null;
-      |            if (original == target) return cloned;
-      |
-      |            TreeNode left = getTargetCopyImpl(original.left, cloned.left, target);
-      |            if (left != null) return left;
-      |            return getTargetCopyImpl(original.right, cloned.right, target);
-      |        }
-      |
-      |        private TreeNode res = null;
-      |
-      |        private TreeNode traverse(final TreeNode original, final TreeNode cloned, final TreeNode target) {
-      |            res = null;
-      |            traverseImpl(original, cloned, target);
-      |            return res;
-      |        }
-      |
-      |        private void traverseImpl(final TreeNode original, final TreeNode cloned, final TreeNode target) {
-      |            if (original == null || res != null) return;
-      |            if (original == target) {
-      |                res = cloned;
-      |            } else {
-      |                traverseImpl(original.left, cloned.left, target);
-      |                traverseImpl(original.right, cloned.right, target);
-      |            }
-      |
-      |        }
-      |    }
-      |//leetcode submit region end(Prohibit modification and deletion)
-      |
-      |}
-      |""".stripMargin.replace("\r\n", "\n")
+  val LANGUAGES: List[Language] = Language.values.toList
 }
