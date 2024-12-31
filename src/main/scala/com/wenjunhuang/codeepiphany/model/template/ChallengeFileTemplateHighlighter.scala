@@ -55,13 +55,18 @@ class ChallengeFileTemplateHighlighter extends SyntaxHighlighterBase {
 object ChallengeFileTemplateHighlighter {
   def createVelocityTemplateLanguageEditorHighlighter(
     project: Project,
-    language: Language
+    language: Option[Language]
   ): EditorHighlighter = {
     val velocityFiletype = FileTypeManager.getInstance.getFileTypeByExtension("ft")
     if velocityFiletype != FileTypes.UNKNOWN then
       EditorHighlighterFactory
         .getInstance()
-        .createEditorHighlighter(project, LightVirtualFile(s"template.${language.fileExt}.ft"))
+        .createEditorHighlighter(
+          project,
+          LightVirtualFile(
+            s"template.${language.map(_.fileExt).getOrElse(FileTypes.PLAIN_TEXT.getDefaultExtension)}.ft"
+          )
+        )
     else
       val syntaxHighlighter = createLanguageSyntaxHighlighter(project, language)
       val editorHighlighter = LayeredLexerEditorHighlighter(
@@ -101,16 +106,24 @@ object ChallengeFileTemplateHighlighter {
 
   }
 
-  def createLanguageEditorHighlighter(project: Project, language: Language): EditorHighlighter = {
+  def createLanguageEditorHighlighter(
+    project: Project,
+    language: Option[Language]
+  ): EditorHighlighter = {
     val syntaxHighlighter = createLanguageSyntaxHighlighter(project, language)
     LexerEditorHighlighter(syntaxHighlighter, EditorColorsManager.getInstance().getGlobalScheme)
   }
 
-  def createLanguageSyntaxHighlighter(project: Project, language: Language): SyntaxHighlighter = {
-    val fileType =
-      Option(FileTypeManager.getInstance().getFileTypeByExtension(language.fileExt)).map {
-        fileType => if fileType == FileTypes.UNKNOWN then FileTypes.PLAIN_TEXT else fileType
-      }.getOrElse(FileTypes.PLAIN_TEXT)
+  def createLanguageSyntaxHighlighter(
+    project: Project,
+    language: Option[Language]
+  ): SyntaxHighlighter = {
+    val fileType = language match
+      case None => FileTypes.PLAIN_TEXT
+      case Some(lang) =>
+        Option(FileTypeManager.getInstance().getFileTypeByExtension(lang.fileExt)).map { fileType =>
+          if fileType == FileTypes.UNKNOWN then FileTypes.PLAIN_TEXT else fileType
+        }.getOrElse(FileTypes.PLAIN_TEXT)
 
     Option(SyntaxHighlighterFactory.getSyntaxHighlighter(fileType, project, null))
       .getOrElse(PlainSyntaxHighlighter())

@@ -96,7 +96,7 @@ class HackerRankApiIntegrationTest extends BasePlatformTestCase {
         case e => IO.raiseError(e)
       }
       .unsafeRunSync()
-    println(result)
+     println(result)
   }
 
   def testSearchMasterWithKeyword(): Unit = {

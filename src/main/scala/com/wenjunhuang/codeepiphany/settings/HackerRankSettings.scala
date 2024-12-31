@@ -52,6 +52,7 @@ object HackerRankSettings {
     override def fromString(value: String): String = value
     override def toString(value: String): String   = value
   }
+  
   class OptionConverter[T: Converter] extends Converter[Option[T]] {
     override def fromString(value: String): Option[T] =
       if (value == null || value.isEmpty) None else Some(implicitly[Converter[T]].fromString(value))

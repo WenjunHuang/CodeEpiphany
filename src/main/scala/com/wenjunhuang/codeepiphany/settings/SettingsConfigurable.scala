@@ -1,6 +1,7 @@
 package com.wenjunhuang.codeepiphany.settings
 
 import com.intellij.openapi.options.Configurable
+import com.intellij.openapi.util.Disposer
 
 import javax.swing.JComponent
 
@@ -25,6 +26,7 @@ abstract class SettingsConfigurable extends Configurable {
   override def reset(): Unit = currentPanel.get.reset()
 
   override def disposeUIResources(): Unit = {
+    currentPanel.foreach{panel=> Disposer.dispose(panel.getDisposable) }
     currentPanel = None
   }
 }

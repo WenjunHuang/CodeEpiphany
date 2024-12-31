@@ -12,6 +12,8 @@ class $velocity.camelCaseName($challenge.slug) {
     $challenge.tail
     //[[hackerrank tail end]]
 
-public static void main(String[] args) {
-}
+    public static void main(String[] args) {
+        // add your test code
+
+    }
 }
