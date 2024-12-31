@@ -1,6 +1,5 @@
 ThisBuild / scalaVersion     := "3.3.4"
 ThisBuild / intellijPlatform := IntelliJPlatform.IdeaCommunity
-//ThisBuild / intellijBuild    := "243.22562.218"
 ThisBuild / intellijBuild := "242.20224.300"
 
 lazy val codeEpiphany = (project in file("."))

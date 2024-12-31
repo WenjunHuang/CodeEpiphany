@@ -2,40 +2,57 @@ package com.wenjunhuang.codeepiphany.settings;
 
 import com.intellij.codeInsight.hint.EditorFragmentComponent;
 import com.intellij.icons.AllIcons;
+import com.intellij.ide.IdeBundle;
 import com.intellij.ide.fileTemplates.FileTemplateManager;
 import com.intellij.ide.ui.laf.darcula.ui.DarculaEditorTextFieldBorder;
+import com.intellij.lang.documentation.DocumentationSettings;
 import com.intellij.openapi.actionSystem.*;
 import com.intellij.openapi.actionSystem.ex.ActionManagerEx;
 import com.intellij.openapi.actionSystem.impl.ActionToolbarImpl;
 import com.intellij.openapi.editor.EditorFactory;
+import com.intellij.openapi.editor.colors.EditorColorsManager;
 import com.intellij.openapi.editor.colors.EditorFontType;
 import com.intellij.openapi.editor.event.DocumentEvent;
 import com.intellij.openapi.editor.event.DocumentListener;
 import com.intellij.openapi.editor.ex.EditorEx;
+import com.intellij.openapi.fileChooser.FileChooserDescriptorFactory;
 import com.intellij.openapi.fileTypes.FileTypes;
 import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.project.DumbAwareAction;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.*;
 import com.intellij.openapi.util.text.StringUtil;
+import com.intellij.ui.BrowserHyperlinkListener;
 import com.intellij.ui.EditorTextField;
+import com.intellij.ui.components.JBHtmlPane;
+import com.intellij.ui.components.JBHtmlPaneConfiguration;
+import com.intellij.ui.components.JBHtmlPaneStyleConfiguration;
 import com.intellij.ui.components.JBLabel;
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.uiDesigner.core.Spacer;
+import com.intellij.util.io.IOUtil;
+import com.intellij.util.ui.HTMLEditorKitBuilder;
 import com.intellij.util.ui.JBUI;
+import com.intellij.xml.util.XmlStringUtil;
+import com.intellij.xml.util.XmlUtil;
 import com.wenjunhuang.codeepiphany.PluginBundle;
 import com.wenjunhuang.codeepiphany.model.Language;
 import com.wenjunhuang.codeepiphany.model.template.ChallengeFileTemplateHighlighter;
 import com.wenjunhuang.codeepiphany.utils.JavaUtils;
 import com.wenjunhuang.codeepiphany.utils.template.VelocityUtils;
+import org.apache.commons.io.IOUtils;
 import org.jetbrains.annotations.NotNull;
+import scala.Option;
 
 import javax.swing.*;
+import javax.swing.border.TitledBorder;
 import java.awt.*;
 import java.awt.event.ItemEvent;
 import java.lang.reflect.Method;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.stream.Stream;
@@ -54,10 +71,15 @@ public class HackerRankSettingsPanel extends SettingsPanel {
     private JPanel myCodeTemplateLabel;
     private ActionToolbarImpl myCodeTemplateToolbar;
     private Splitter myCodeTemplateSplitter;
+    private JEditorPane myDescription;
 
     public HackerRankSettingsPanel(Project project) {
         super(project);
         $$$setupUI$$$();
+
+        mySourceFolder.addBrowseFolderListener(PluginBundle.message("hackerrank.ui.settings.sourceFolder.title"),
+                null,
+                project, FileChooserDescriptorFactory.createSingleFolderDescriptor());
 
         initLanguageComboBox();
         reset();
@@ -94,6 +116,20 @@ public class HackerRankSettingsPanel extends SettingsPanel {
                         return new ValidationInfo(PluginBundle.message("hackerrank.ui.settings.codeTemplate.error.empty"), myCodeTemplateEditor);
                     return null;
                 }).installOn(myCodeTemplateEditor);
+
+        myDescription.setEditorKit(HTMLEditorKitBuilder.simple());
+        myDescription.setEditable(false);
+        myDescription.addHyperlinkListener(new BrowserHyperlinkListener());
+
+        try {
+            var description =
+                    StringUtil.join(IOUtils.readLines(getClass().getResourceAsStream("/settings/TemplateDescription.html"), StandardCharsets.UTF_8), "");
+            description = XmlStringUtil.stripHtml(description);
+            description = IdeBundle.message("http.velocity", description);
+            myDescription.setText(description);
+            myDescription.setCaretPosition(0);
+        } catch (Exception ignored) {
+        }
     }
 
     private void initLanguageComboBox() {
@@ -115,6 +151,7 @@ public class HackerRankSettingsPanel extends SettingsPanel {
                                         JavaUtils.toOption((Language) myLanguages.getSelectedItem()))));
 
                 updateCodeTemplatePreview();
+                updateFileNamePreview();
             }
         });
     }
@@ -122,6 +159,12 @@ public class HackerRankSettingsPanel extends SettingsPanel {
     private void createUIComponents() {
         createFileNameGroup();
         createCodeTemplateGroup();
+
+        var paneStyleConf = JBHtmlPaneStyleConfiguration.builder()
+                .colorScheme(EditorColorsManager.getInstance().getGlobalScheme())
+                .enableInlineCodeBackground(DocumentationSettings.isCodeBackgroundEnabled())
+                .enableCodeBlocksBackground(DocumentationSettings.isCodeBackgroundEnabled())
+                .build();
     }
 
     private void createCodeTemplateGroup() {
@@ -237,20 +280,22 @@ public class HackerRankSettingsPanel extends SettingsPanel {
 
     private void updateFileNamePreview() {
         var language = (Language) myLanguages.getSelectedItem();
-        var result = VelocityUtils.generateContent(myFileNameEditor.getText(),
-                HackerRankSettingsConfigurable.getDemoTemplate(language).get());
-        if (result.isLeft()) {
-            ComponentValidator.getInstance(myFileNameEditor).ifPresent(validator -> {
-                validator.updateInfo(new ValidationInfo(result.left().get().getMessage(), myFileNameEditor));
-            });
+        if (language != null) {
+            var result = VelocityUtils.generateContent(myFileNameEditor.getText(),
+                    HackerRankSettingsConfigurable.getDemoTemplate(language).get());
+            if (result.isLeft()) {
+                ComponentValidator.getInstance(myFileNameEditor).ifPresent(validator -> {
+                    validator.updateInfo(new ValidationInfo(result.left().get().getMessage(), myFileNameEditor));
+                });
 
-            myFileNamePreview.setText(PluginBundle.message("hackerrank.ui.settings.fileName.error.invalid"));
-        } else {
-            ComponentValidator.getInstance(myFileNameEditor).ifPresent(validator -> {
-                validator.updateInfo(null);
-            });
-            var content = result.right().get().trim();
-            myFileNamePreview.setText(content + "." + language.fileExt());
+                myFileNamePreview.setText(PluginBundle.message("hackerrank.ui.settings.fileName.error.invalid"));
+            } else {
+                ComponentValidator.getInstance(myFileNameEditor).ifPresent(validator -> {
+                    validator.updateInfo(null);
+                });
+                var content = result.right().get().trim();
+                myFileNamePreview.setText(content + "." + language.fileExt());
+            }
         }
     }
 
@@ -299,7 +344,12 @@ public class HackerRankSettingsPanel extends SettingsPanel {
                         AllIcons.Actions.Refresh) {
                     @Override
                     public void actionPerformed(@NotNull AnActionEvent e) {
-                        Language language = myLanguages.getItem();
+                        var language = myLanguages.getItem();
+                        var template = FileTemplateManager.getInstance(myProject())
+                                .findInternalTemplate("hackerrank_filename." + language.fileExt());
+                        if (template != null) {
+                            myFileNameEditor.setText(template.getText());
+                        }
                     }
                 };
 
@@ -332,16 +382,26 @@ public class HackerRankSettingsPanel extends SettingsPanel {
                         if (result != null) validationInfos.add(result);
                     });
                 });
+        if (validationInfos.isEmpty()) {
+            var settings = HackerRankSettings.getInstance(myProject());
+            var state = settings.getState();
+            state.codeTemplate_$eq(Option.apply(myCodeTemplateEditor.getText()));
+            state.fileNameTemplate_$eq(Option.apply(myFileNameEditor.getText()));
+            state.language_$eq(Option.apply((Language) myLanguages.getSelectedItem()));
+            state.sourceFolder_$eq(Option.apply(mySourceFolder.getText()));
+        }
+
     }
 
     @Override
     public boolean isModified() {
         var settings = HackerRankSettings.getInstance(myProject());
         HackerRankSettings.HackerRankState state = settings.getState();
-        return !(JavaUtils.toOptional(state.sourceFolder()).equals(Optional.of(mySourceFolder.getText())) &&
-                JavaUtils.toOptional(state.language()).equals(Optional.of(myLanguages.getSelectedItem())) &&
-                JavaUtils.toOptional(state.codeTemplate()).equals(Optional.of(myCodeTemplateEditor.getText())) &&
-                JavaUtils.toOptional(state.fileNameTemplate()).equals(Optional.of(myFileNameEditor.getText())));
+        var sourceFolder = StringUtil.equals(state.sourceFolder().getOrElse(() -> ""), mySourceFolder.getText());
+        var language = Objects.equals(state.language().getOrElse(() -> null), myLanguages.getSelectedItem());
+        var codeTemplate = StringUtil.equals(state.codeTemplate().getOrElse(() -> ""), myCodeTemplateEditor.getText());
+        var fileName = StringUtil.equals(state.fileNameTemplate().getOrElse(() -> ""), myFileNameEditor.getText());
+        return !sourceFolder || !language || !codeTemplate || !fileName;
     }
 
     @Override
@@ -369,12 +429,12 @@ public class HackerRankSettingsPanel extends SettingsPanel {
     private void $$$setupUI$$$() {
         createUIComponents();
         rootPanel = new JPanel();
-        rootPanel.setLayout(new GridLayoutManager(7, 2, new Insets(0, 0, 0, 0), -1, -1));
+        rootPanel.setLayout(new GridLayoutManager(8, 2, new Insets(0, 0, 0, 0), -1, -1));
         final JLabel label1 = new JLabel();
         this.$$$loadLabelText$$$(label1, this.$$$getMessageFromBundle$$$("messages/PluginBundle", "hackerrank.ui.settings.sourceFolder.label"));
         rootPanel.add(label1, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         final Spacer spacer1 = new Spacer();
-        rootPanel.add(spacer1, new GridConstraints(6, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_VERTICAL, 1, GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
+        rootPanel.add(spacer1, new GridConstraints(7, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_VERTICAL, 1, GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
         mySourceFolder = new TextFieldWithBrowseButton();
         rootPanel.add(mySourceFolder, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
         final JLabel label2 = new JLabel();
@@ -406,6 +466,13 @@ public class HackerRankSettingsPanel extends SettingsPanel {
         myCodeTemplateLabel.add(spacer3, BorderLayout.CENTER);
         myCodeTemplateLabel.add(myCodeTemplateToolbar, BorderLayout.EAST);
         rootPanel.add(myCodeTemplateSplitter, new GridConstraints(5, 0, 1, 2, GridConstraints.ANCHOR_NORTH, GridConstraints.FILL_HORIZONTAL, 1, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, new Dimension(-1, 300), null, 0, false));
+        final JScrollPane scrollPane1 = new JScrollPane();
+        rootPanel.add(scrollPane1, new GridConstraints(6, 0, 1, 2, GridConstraints.ANCHOR_NORTH, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, new Dimension(-1, 200), null, 0, false));
+        scrollPane1.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEmptyBorder(4, 4, 0, 4), null, TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION, null, null));
+        myDescription = new JEditorPane();
+        myDescription.setEditable(false);
+        myDescription.setMargin(new Insets(0, 0, 0, 0));
+        scrollPane1.setViewportView(myDescription);
     }
 
     private static Method $$$cachedGetBundleMethod$$$ = null;

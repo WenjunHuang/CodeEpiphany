@@ -6,8 +6,6 @@ import com.wenjunhuang.codeepiphany.hackerrank.model.ChallengeCodeTemplate
 import com.wenjunhuang.codeepiphany.model.Language
 import com.wenjunhuang.codeepiphany.model.Language.*
 
-import scala.annotation.static
-
 class HackerRankSettingsConfigurable(private val myProject: Project) extends SettingsConfigurable {
   override def createPanel(): SettingsPanel = new HackerRankSettingsPanel(myProject)
 
