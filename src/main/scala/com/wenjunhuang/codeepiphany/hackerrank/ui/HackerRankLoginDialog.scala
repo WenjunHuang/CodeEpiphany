@@ -184,15 +184,7 @@ class HackerRankLoginDialog(private val myProject: Project, private val callback
 
             override def isPasteEnabled(dataContext: DataContext): Boolean = true
           }
-        );
-//       dataSink.set(PlatformDataKeys.COPY_PROVIDER,new TextCopyProvider {
-//         override def getTextLinesToCopy: util.Collection[String] =
-//           myCookieText.getSelectedText match {
-//           case null => Nil.asJava
-//           case text => List(text).asJava
-//         }
-//       })
-//       dataSink.set(PlatformDataKeys.PASTE_PROVIDER, new TextPaste)
+        )
       }
     }
   private def createBrowserLoginPanel(): JBCefBrowser = {

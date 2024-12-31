@@ -1,0 +1,17 @@
+//[[hackerrank header begin]]
+$challenge.header
+//[[hackerrank header end]]
+
+class $velocity.camelCaseName($challenge.slug) {
+
+    //[[hackerrank template begin]]
+    $challenge.template
+    //[[hackerrank template end]]
+
+    //[[hackerrank tail begin]]
+    $challenge.tail
+    //[[hackerrank tail end]]
+
+public static void main(String[] args) {
+}
+}

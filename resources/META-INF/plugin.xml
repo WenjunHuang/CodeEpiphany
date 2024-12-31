@@ -79,6 +79,7 @@
             <reference ref="CodeEpiphany.Sidebar.Description.Toolbar"/>
         </group>
 
+        <!-- test -->
         <action id="com.wenjunhuang.codeepiphany.test.actions.ShowLoginDialogAction"
                 class="com.wenjunhuang.codeepiphany.test.actions.ShowLoginDialogAction" text="Show Login Dialog"
                 description="Show Login Dialog">
@@ -101,6 +102,7 @@
                     id="CodeEpiphany Dojos" anchor="left"/>
         <!--        <projectService serviceImplementation="com.wenjunhuang.codeepiphany.toolwindows.sidebar.QuestionInfoPresenter"/>-->
         <projectService serviceImplementation="com.wenjunhuang.codeepiphany.model.ChallengeStorage"/>
+        <projectService serviceImplementation="com.wenjunhuang.codeepiphany.settings.HackerRankSettings"/>
 
         <registryKey defaultValue="false" description="Enable debug" key="codeepiphany.debug"/>
 
@@ -110,7 +112,7 @@
                              instance="com.wenjunhuang.codeepiphany.CodeEpiphanyConfigurable">
             <configurable
                     id="CodeEpiphany.Settings.HackerRank"
-                    instance="com.wenjunhuang.codeepiphany.hackerrank.HackerRankSettingsConfigurable"
+                    instance="com.wenjunhuang.codeepiphany.settings.HackerRankSettingsConfigurable"
                     key="hackerrank.settings.title"/>
         </projectConfigurable>
     </extensions>

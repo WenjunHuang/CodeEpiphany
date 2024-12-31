@@ -1,7 +1,6 @@
-import sbt.Keys.libraryDependencies
-
-ThisBuild / scalaVersion     := "3.5.2"
+ThisBuild / scalaVersion     := "3.3.4"
 ThisBuild / intellijPlatform := IntelliJPlatform.IdeaCommunity
+//ThisBuild / intellijBuild    := "243.22562.218"
 ThisBuild / intellijBuild    := "242.20224.300"
 
 lazy val codeEpiphany = (project in file("."))
@@ -10,12 +9,13 @@ lazy val codeEpiphany = (project in file("."))
     version := "0.1.0",
     scalacOptions ++= Seq(
       "-Wunused:imports",
+      "-language:implicitConversions",
       "-source:future", // enabling better-monadic-for syntax
       "-feature",
-      "-Xkind-projector:underscores" // enabling underscore type lambdas will disable usage of _ as a wildcard
+      "-deprecation"
     ),
     intellijAttachSources := true,
-//    javacOptions ++= "--release" :: "17" :: Nil,
+    javacOptions ++= "--release" :: "17" :: Nil,
     instrumentThreadingAnnotations := true,
     bundleScalaLibrary             := true,
     intellijPlugins += "com.intellij.java".toPlugin,
@@ -44,6 +44,8 @@ lazy val codeEpiphany = (project in file("."))
       "com.squareup.okhttp3" % "okhttp"           % "4.12.0",
       "org.jsoup"            % "jsoup"            % "1.18.3",
       "org.scalatest"       %% "scalatest"        % "3.2.19" % Test,
+      "junit"                % "junit"            % "4.13.2" % Test,
+      "org.hamcrest"         % "hamcrest"         % "3.0"    % Test,
       "com.novocode"         % "junit-interface"  % "0.11"   % Test,
       "org.opentest4j"       % "opentest4j"       % "1.3.0"  % Test
     ),
@@ -52,15 +54,3 @@ lazy val codeEpiphany = (project in file("."))
     Test / unmanagedResourceDirectories += baseDirectory.value / "testResources"
   )
   .enablePlugins(SbtIdeaPlugin)
-
-// add a task to run jflex to generate the lexer
-val generateLexer = taskKey[Unit]("Generate the lexer")
-generateLexer := {
-  import sys.process.*
-  val jflex = "jflex"
-  val lexer = "src/main/jflex/ChallengeFileTemplateTextLexer.flex"
-  val output =
-    "src/main/scala/com/wenjunhuang/codeepiphany/model/template/ChallengeFileTemplateTextLexer.scala"
-  val command = s"$jflex -d src/main/scala/com/wenjunhuang/codeepiphany/model/template $lexer"
-  command.!
-}

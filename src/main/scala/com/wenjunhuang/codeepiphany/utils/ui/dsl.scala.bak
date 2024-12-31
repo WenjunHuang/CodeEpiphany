@@ -3,7 +3,6 @@ package com.wenjunhuang.codeepiphany.utils.ui
 import com.intellij.icons.AllIcons
 import com.intellij.openapi.actionSystem.impl.ActionButton
 import com.intellij.openapi.actionSystem.{ ActionPlaces, AnAction }
-import com.intellij.openapi.application.{ ApplicationManager, ModalityState }
 import com.intellij.openapi.fileChooser.{ FileChooserDescriptor, FileChooserDescriptorFactory }
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.{ ComboBox, DialogPanel, TextFieldWithBrowseButton }
@@ -12,10 +11,10 @@ import com.intellij.ui.JBIntSpinner
 import com.intellij.ui.components.fields.ExpandableTextField
 import com.intellij.ui.components.*
 import com.intellij.ui.dsl.builder.*
-import com.intellij.ui.layout.{ CellKt, ComponentPredicate, ComponentPredicateKt, RowKt }
+import com.intellij.ui.layout.{ ComponentPredicate, ComponentPredicateKt, RowKt }
 import com.intellij.util.execution.ParametersListUtil
 import com.intellij.util.ui.ThreeStateCheckBox
-import kotlin.ranges.{ ClosedRange, IntRange, RangesKt }
+import kotlin.ranges.{ ClosedRange, IntRange }
 
 import java.awt.{ Color, Font }
 import java.awt.event.ActionEvent
@@ -24,24 +23,15 @@ import javax.swing.*
 import scala.annotation.targetName
 import scala.collection.immutable.NumericRange.Inclusive as NumInclusive
 import scala.collection.immutable.Range.Inclusive
-import scala.concurrent.ExecutionContext
 import scala.jdk.CollectionConverters.*
 import scala.reflect.{ classTag, ClassTag }
-import com.intellij.ui.dsl.builder.{ AlignX, RightGap, RowLayout, TextFieldKt }
-import com.intellij.openapi.ui.Splitter
-import com.intellij.ui.dsl.builder.impl.CellImpl
+import com.intellij.ui.dsl.builder.TextFieldKt
+import com.wenjunhuang.codeepiphany.utils.implicits.*
 
 /** A Scala DSL for creating UI components in IntelliJ IDEA, serving as a simple wrapper around the
   * Kotlin UI DSL.
   */
 object dsl {
-
-  private val intellijUIContext: ExecutionContext =
-    ExecutionContext.fromExecutor { runnable =>
-      ApplicationManager.getApplication.invokeLater(runnable, ModalityState.any())
-    }
-  given any2KtUnit: Conversion[Any, kotlin.Unit] = _ => kotlin.Unit.INSTANCE
-
   given abstractButton2ComponentPredicate: Conversion[AbstractButton, ComponentPredicate] = {
     button =>
       ComponentPredicateKt.getSelected(button)
@@ -52,11 +42,6 @@ object dsl {
   ): Conversion[Cell[T], ComponentPredicate] = { cell =>
     conv(cell.getComponent)
   }
-
-  extension [T](a: T) {
-    def void: Unit = ()
-  }
-
   extension (component: JComponent) {
     def bold(isBold: Boolean): Unit =
       component.setFont(component.getFont.deriveFont(if isBold then Font.BOLD else Font.PLAIN))
@@ -79,7 +64,7 @@ object dsl {
     def label(label: String): Cell[T] =
       cell.label(label, LabelPosition.LEFT)
 
-    def bind[V](
+    def bindComponent[V](
       componentGet: (T) => V,
       componentSet: (T, V) => Unit,
       propGetter: () => V,
@@ -92,39 +77,13 @@ object dsl {
       )
   }
 
-//  extension (cell: Cell[Splitter]) {
-//    def bindFirstValue[V](
-//      firstComponentGet: JComponent => V,
-//      firstComponentSet: (JComponent, V) => Unit,
-//      firstPropGetter: () => V,
-//      firstPropSetter: V => Unit
-//    ):Cell[Splitter] =
-//      cell.bind(
-//        (splitter: Splitter) => firstComponentGet(splitter.getFirstComponent),
-//        (splitter: Splitter, value: V) => firstComponentSet(splitter.getFirstComponent, value),
-//        MutablePropertyKt.MutableProperty(() => firstPropGetter(), v => firstPropSetter(v))
-//      )
-//
-//    def bindSecondValue[U](
-//      secondComponentGet: JComponent => U,
-//      secondComponentSet: (JComponent, U) => Unit,
-//      secondPropGetter: () => U,
-//      secondPropSetter: U => Unit
-//    ):Cell[Splitter] =
-//      cell.bind(
-//        (splitter: Splitter) => secondComponentGet(splitter.getSecondComponent),
-//        (splitter: Splitter, value: U) => secondComponentSet(splitter.getSecondComponent, value),
-//        MutablePropertyKt.MutableProperty(() => secondPropGetter(), v => secondPropSetter(v))
+//  extension (group: ButtonsGroup) {
+//    def bind[T <: AnyRef: ClassTag](getter: () => T, setter: T => Unit): ButtonsGroup =
+//      group.bind(
+//        MutablePropertyKt.MutableProperty[T](() => getter(), v => setter(v)),
+//        classTag[T].runtimeClass.asInstanceOf[Class[T]]
 //      )
 //  }
-
-  extension (group: ButtonsGroup) {
-    def bind[T <: AnyRef: ClassTag](getter: () => T, setter: T => Unit): ButtonsGroup =
-      group.bind(
-        MutablePropertyKt.MutableProperty[T](() => getter(), v => setter(v)),
-        classTag[T].runtimeClass.asInstanceOf[Class[T]]
-      )
-  }
 
   extension (row: Row) {
     def rowComment(comment: String): Row = row.rowComment(
@@ -394,18 +353,6 @@ object dsl {
 
   def separator(background: Color = null)(using p: Panel) =
     p.separator(background)
-
-//  def splitter(
-//    first: JComponent,
-//    second: JComponent,
-//    vertical: Boolean = false,
-//    proportion: Float = 0.5
-//  )(using row: Row): Cell[Splitter] = {
-//    val splitter = Splitter(vertical, proportion)
-//    splitter.setFirstComponent(first)
-//    splitter.setSecondComponent(second)
-//    row.cell(splitter)
-//  }
 
   object constants {
     final val COLUMNS_MEDIUM = TextFieldKt.COLUMNS_MEDIUM

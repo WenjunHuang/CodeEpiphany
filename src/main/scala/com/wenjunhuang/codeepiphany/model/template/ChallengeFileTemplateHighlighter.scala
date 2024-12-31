@@ -2,10 +2,29 @@ package com.wenjunhuang.codeepiphany.model.template
 
 import com.intellij.lexer.Lexer
 import com.intellij.openapi.editor.DefaultLanguageHighlighterColors
-import com.intellij.openapi.editor.colors.TextAttributesKey
-import com.intellij.openapi.fileTypes.SyntaxHighlighterBase
+import com.intellij.openapi.editor.colors.{ EditorColorsManager, TextAttributesKey }
+import com.intellij.openapi.editor.ex.util.{
+  LayerDescriptor,
+  LayeredLexerEditorHighlighter,
+  LexerEditorHighlighter
+}
+import com.intellij.openapi.editor.highlighter.{ EditorHighlighter, EditorHighlighterFactory }
+import com.intellij.openapi.fileTypes.{
+  FileTypeManager,
+  FileTypes,
+  PlainSyntaxHighlighter,
+  SyntaxHighlighter,
+  SyntaxHighlighterBase,
+  SyntaxHighlighterFactory
+}
+import com.intellij.openapi.project.Project
 import com.intellij.psi.tree.IElementType
-import com.wenjunhuang.codeepiphany.model.template.lexer.{ChallengeFileTemplateTextLexer, ChallengeFileTemplateTokenType}
+import com.intellij.testFramework.LightVirtualFile
+import com.wenjunhuang.codeepiphany.model.template.lexer.{
+  ChallengeFileTemplateTextLexer,
+  ChallengeFileTemplateTokenType
+}
+import com.wenjunhuang.codeepiphany.model.Language
 
 class ChallengeFileTemplateHighlighter extends SyntaxHighlighterBase {
   private val myLexer = ChallengeFileTemplateTextLexer()
@@ -31,4 +50,69 @@ class ChallengeFileTemplateHighlighter extends SyntaxHighlighterBase {
         SyntaxHighlighterBase.pack(DefaultLanguageHighlighterColors.STATIC_FIELD)
       case _ => Array.empty
     }
+}
+
+object ChallengeFileTemplateHighlighter {
+  def createVelocityTemplateLanguageEditorHighlighter(
+    project: Project,
+    language: Language
+  ): EditorHighlighter = {
+    val velocityFiletype = FileTypeManager.getInstance.getFileTypeByExtension("ft")
+    if velocityFiletype != FileTypes.UNKNOWN then
+      EditorHighlighterFactory
+        .getInstance()
+        .createEditorHighlighter(project, LightVirtualFile(s"template.${language.fileExt}.ft"))
+    else
+      val syntaxHighlighter = createLanguageSyntaxHighlighter(project, language)
+      val editorHighlighter = LayeredLexerEditorHighlighter(
+        ChallengeFileTemplateHighlighter(),
+        EditorColorsManager.getInstance().getGlobalScheme
+      )
+      editorHighlighter.registerLayer(
+        ChallengeFileTemplateTokenType.TEXT,
+        LayerDescriptor(syntaxHighlighter, "")
+      )
+
+      editorHighlighter
+  }
+
+  def createVelocityTemplatePlainTextHighlighter(project: Project): EditorHighlighter = {
+    val velocityFiletype = FileTypeManager.getInstance.getFileTypeByExtension("ft")
+    if velocityFiletype != FileTypes.UNKNOWN then
+      EditorHighlighterFactory
+        .getInstance()
+        .createEditorHighlighter(
+          project,
+          LightVirtualFile(s"template.${FileTypes.PLAIN_TEXT.getDefaultExtension}.ft")
+        )
+    else
+      val syntaxHighlighter =
+        SyntaxHighlighterFactory.getSyntaxHighlighter(FileTypes.PLAIN_TEXT, project, null)
+      val editorHighlighter = LayeredLexerEditorHighlighter(
+        ChallengeFileTemplateHighlighter(),
+        EditorColorsManager.getInstance().getGlobalScheme
+      )
+      editorHighlighter.registerLayer(
+        ChallengeFileTemplateTokenType.TEXT,
+        LayerDescriptor(syntaxHighlighter, "")
+      )
+
+      editorHighlighter
+
+  }
+
+  def createLanguageEditorHighlighter(project: Project, language: Language): EditorHighlighter = {
+    val syntaxHighlighter = createLanguageSyntaxHighlighter(project, language)
+    LexerEditorHighlighter(syntaxHighlighter, EditorColorsManager.getInstance().getGlobalScheme)
+  }
+
+  def createLanguageSyntaxHighlighter(project: Project, language: Language): SyntaxHighlighter = {
+    val fileType =
+      Option(FileTypeManager.getInstance().getFileTypeByExtension(language.fileExt)).map {
+        fileType => if fileType == FileTypes.UNKNOWN then FileTypes.PLAIN_TEXT else fileType
+      }.getOrElse(FileTypes.PLAIN_TEXT)
+
+    Option(SyntaxHighlighterFactory.getSyntaxHighlighter(fileType, project, null))
+      .getOrElse(PlainSyntaxHighlighter())
+  }
 }
