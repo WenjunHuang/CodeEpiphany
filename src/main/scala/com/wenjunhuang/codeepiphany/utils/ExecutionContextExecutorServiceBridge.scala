@@ -1,9 +1,9 @@
 package com.wenjunhuang.codeepiphany.utils
 
 import java.util
-import scala.concurrent.{ExecutionContext, ExecutionContextExecutorService}
 import java.util.concurrent.{AbstractExecutorService, TimeUnit}
 import java.util.Collections
+import scala.concurrent.{ExecutionContext, ExecutionContextExecutorService}
 
 object ExecutionContextExecutorServiceBridge {
   def apply(ec: ExecutionContext): ExecutionContextExecutorService = ec match {

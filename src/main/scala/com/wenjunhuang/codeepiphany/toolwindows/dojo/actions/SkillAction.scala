@@ -1,8 +1,8 @@
 package com.wenjunhuang.codeepiphany.toolwindows.dojo.actions
 
 import com.intellij.icons.AllIcons
-import com.intellij.openapi.actionSystem.ex.ComboBoxAction
 import com.intellij.openapi.actionSystem.*
+import com.intellij.openapi.actionSystem.ex.ComboBoxAction
 import com.wenjunhuang.codeepiphany.toolwindows.dojo.actions.keys.SKILL_PROVIDER_KEY
 
 import javax.swing.JComponent

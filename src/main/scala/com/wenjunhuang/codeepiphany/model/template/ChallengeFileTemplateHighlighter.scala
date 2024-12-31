@@ -2,28 +2,14 @@ package com.wenjunhuang.codeepiphany.model.template
 
 import com.intellij.lexer.Lexer
 import com.intellij.openapi.editor.DefaultLanguageHighlighterColors
-import com.intellij.openapi.editor.colors.{ EditorColorsManager, TextAttributesKey }
-import com.intellij.openapi.editor.ex.util.{
-  LayerDescriptor,
-  LayeredLexerEditorHighlighter,
-  LexerEditorHighlighter
-}
-import com.intellij.openapi.editor.highlighter.{ EditorHighlighter, EditorHighlighterFactory }
-import com.intellij.openapi.fileTypes.{
-  FileTypeManager,
-  FileTypes,
-  PlainSyntaxHighlighter,
-  SyntaxHighlighter,
-  SyntaxHighlighterBase,
-  SyntaxHighlighterFactory
-}
+import com.intellij.openapi.editor.colors.{EditorColorsManager, TextAttributesKey}
+import com.intellij.openapi.editor.ex.util.{LayerDescriptor, LayeredLexerEditorHighlighter, LexerEditorHighlighter}
+import com.intellij.openapi.editor.highlighter.{EditorHighlighter, EditorHighlighterFactory}
+import com.intellij.openapi.fileTypes.*
 import com.intellij.openapi.project.Project
 import com.intellij.psi.tree.IElementType
 import com.intellij.testFramework.LightVirtualFile
-import com.wenjunhuang.codeepiphany.model.template.lexer.{
-  ChallengeFileTemplateTextLexer,
-  ChallengeFileTemplateTokenType
-}
+import com.wenjunhuang.codeepiphany.model.template.lexer.{ChallengeFileTemplateTextLexer, ChallengeFileTemplateTokenType}
 import com.wenjunhuang.codeepiphany.model.Language
 
 class ChallengeFileTemplateHighlighter extends SyntaxHighlighterBase {

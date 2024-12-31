@@ -6,7 +6,7 @@ import com.intellij.openapi.actionSystem.ex.ComboBoxAction
 import com.wenjunhuang.codeepiphany.toolwindows.dojo.actions.PaginationActionGroup.INDEX_COUNT
 import com.wenjunhuang.codeepiphany.toolwindows.dojo.actions.keys.PAGINATION_PROVIDER_KEY
 
-import javax.swing.{ Icon, JComponent }
+import javax.swing.{Icon, JComponent}
 
 class PaginationActionGroup extends DefaultActionGroup {
   private var cache = (0, 0, 0)

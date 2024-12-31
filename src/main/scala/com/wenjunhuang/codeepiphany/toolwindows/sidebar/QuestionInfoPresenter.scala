@@ -1,5 +1,6 @@
 package com.wenjunhuang.codeepiphany.toolwindows.sidebar
 
+import cats.syntax.all.*
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.fileEditor.FileEditorManagerListener
 import com.intellij.openapi.project.Project
@@ -8,7 +9,6 @@ import com.intellij.openapi.wm.ToolWindow
 import com.intellij.ui.content.ContentManager
 import com.wenjunhuang.codeepiphany.model.ChallengeStorage
 import org.jetbrains.annotations.NotNull
-import cats.syntax.all.*
 
 class QuestionInfoPresenter(val project: Project) extends Disposable {
   private var toolWindow: Option[ToolWindow] = None

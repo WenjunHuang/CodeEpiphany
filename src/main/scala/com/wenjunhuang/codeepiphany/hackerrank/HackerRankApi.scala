@@ -1,17 +1,17 @@
 package com.wenjunhuang.codeepiphany.hackerrank
 
-import cats.effect.{ Async, Concurrent }
+import cats.effect.{Async, Concurrent}
 import cats.syntax.all.*
 import com.wenjunhuang.codeepiphany.hackerrank.model.*
 import com.wenjunhuang.codeepiphany.model.ApiError
 import com.wenjunhuang.codeepiphany.model.CodeDojo.HackerRank
 import com.wenjunhuang.codeepiphany.services.http.HttpClientKeeper
+import io.circe.{Decoder, Json}
 import io.circe.optics.JsonPath
 import io.circe.parser.parse
-import io.circe.{ Decoder, Json }
+import org.http4s.{EntityDecoder, Method, Request, Uri}
 import org.http4s.client.dsl.Http4sClientDsl
 import org.http4s.implicits.uri
-import org.http4s.{ EntityDecoder, Method, Request, Uri }
 import org.jsoup.Jsoup
 
 trait HackerRankApi[F[_]] {

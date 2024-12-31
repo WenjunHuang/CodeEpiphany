@@ -3,8 +3,8 @@ package com.wenjunhuang.codeepiphany.toolwindows.dojo.hackerrank
 import cats.effect.IO
 import cats.effect.std.Queue
 import com.intellij.openapi.Disposable
-import com.intellij.openapi.actionSystem.ex.DefaultCustomComponentAction
 import com.intellij.openapi.actionSystem.{AnAction, DataSink}
+import com.intellij.openapi.actionSystem.ex.DefaultCustomComponentAction
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
 import com.intellij.ui.table.JBTable
@@ -12,10 +12,10 @@ import com.intellij.util.ui.JBInsets
 import com.wenjunhuang.codeepiphany.hackerrank.HackerRankApi
 import com.wenjunhuang.codeepiphany.hackerrank.model.*
 import com.wenjunhuang.codeepiphany.hackerrank.services.editor.openChallenge
+import com.wenjunhuang.codeepiphany.model.{messages, CodeDojo}
 import com.wenjunhuang.codeepiphany.model.CodeDojo.HackerRank
 import com.wenjunhuang.codeepiphany.model.Language.{Haskell, Scala}
 import com.wenjunhuang.codeepiphany.model.LanguageVersion.AnyVersion
-import com.wenjunhuang.codeepiphany.model.{CodeDojo, messages}
 import com.wenjunhuang.codeepiphany.services.http.{HttpClientKeeper, HttpClientService}
 import com.wenjunhuang.codeepiphany.toolwindows.dojo.actions.*
 import com.wenjunhuang.codeepiphany.toolwindows.dojo.actions.keys.*
@@ -27,10 +27,10 @@ import fs2.concurrent.SignallingRef
 import org.typelevel.ci.CIString
 import org.typelevel.log4cats.LoggerFactory
 
-import scala.jdk.CollectionConverters.*
 import java.awt.{GridBagConstraints, GridBagLayout}
 import javax.swing.{Icon, JComponent, JPanel}
 import scala.concurrent.duration.*
+import scala.jdk.CollectionConverters.*
 
 class QueryParametersViewPresenter(private val myProject: Project) extends Disposable {
   import QueryParametersViewPresenter.*

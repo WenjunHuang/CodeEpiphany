@@ -1,16 +1,16 @@
 package com.wenjunhuang.codeepiphany.services
+import cats.effect.{Resource, Sync}
 import cats.effect.kernel.Async
 import cats.effect.syntax.all.*
-import cats.effect.{ Resource, Sync }
 import cats.syntax.all.*
 import com.intellij.openapi.editor.Editor
-import com.intellij.openapi.fileEditor.{ FileDocumentManager, FileEditorManager, OpenFileDescriptor }
+import com.intellij.openapi.fileEditor.{FileDocumentManager, FileEditorManager, OpenFileDescriptor}
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.vfs.{ LocalFileSystem, VirtualFile }
+import com.intellij.openapi.vfs.{LocalFileSystem, VirtualFile}
 import com.wenjunhuang.codeepiphany.utils.implicits.*
 import org.typelevel.log4cats.LoggerFactory
 
-import java.io.{ File, PrintWriter }
+import java.io.{File, PrintWriter}
 
 object editor {
   def saveTextToFileAndRefresh[F[_]: Sync](file: File, content: String): F[VirtualFile] =

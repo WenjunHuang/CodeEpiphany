@@ -5,13 +5,13 @@ import cats.effect.syntax.all.*
 import cats.syntax.all.*
 import com.intellij.ide.BrowserUtil
 import com.intellij.openapi.Disposable
+import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.fileTypes.FileTypes
 import com.intellij.openapi.fileTypes.ex.FileTypeChooser
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
 import com.intellij.openapi.vfs.LocalFileSystem
-import com.intellij.openapi.diagnostic.Logger
 import com.intellij.util.io.URLUtil
 import com.wenjunhuang.codeepiphany.model.ChallengeStorage.Challenge
 import com.wenjunhuang.codeepiphany.utils.implicits.*

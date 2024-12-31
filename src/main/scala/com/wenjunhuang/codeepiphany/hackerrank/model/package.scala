@@ -4,14 +4,12 @@ import cats.syntax.all.*
 import com.wenjunhuang.codeepiphany.PluginBundle
 import com.wenjunhuang.codeepiphany.model.{Language, LanguageVersion}
 import com.wenjunhuang.codeepiphany.utils.Colors
-import io.circe.derivation.{Configuration, ConfiguredDecoder}
 import io.circe.{Decoder, HCursor, Json}
+import io.circe.derivation.{Configuration, ConfiguredDecoder}
 import monocle.Lens
 import monocle.macros.GenLens
 import org.typelevel.ci.CIString
 
-import scala.annotation.meta.getter
-import scala.beans.BeanProperty
 package object model {
 
   enum ChallengeStatus(val value: String) {
@@ -194,13 +192,13 @@ package object model {
     template: String,
     tail: String
   ) {
-    def getId:Int = id
-    def getName:String = name
-    def getSlug:String = slug
-    def getDescription:String = description
-    def getHeader:String = header
-    def getTemplate:String = template
-    def getTail:String = tail
+    def getId: Int             = id
+    def getName: String        = name
+    def getSlug: String        = slug
+    def getDescription: String = description
+    def getHeader: String      = header
+    def getTemplate: String    = template
+    def getTail: String        = tail
   }
 
 }

@@ -4,14 +4,14 @@ import cats.effect.IO
 import com.intellij.openapi.actionSystem.DataSink
 import com.intellij.openapi.project.Project
 import com.intellij.ui.CardLayoutPanel
+import com.wenjunhuang.codeepiphany.hackerrank.HackerRankApi
+import com.wenjunhuang.codeepiphany.hackerrank.services.auth.{askForLogout, loadAuthenticationMayAskForLogin, AskForLoginResult}
+import com.wenjunhuang.codeepiphany.model.{messages, CodeDojo}
+import com.wenjunhuang.codeepiphany.services.http.{HttpClientKeeper, HttpClientService}
 import com.wenjunhuang.codeepiphany.toolwindows.dojo.AbstractCodeDojoView
 import com.wenjunhuang.codeepiphany.toolwindows.dojo.actions.LoginLogoutProvider
-import com.wenjunhuang.codeepiphany.toolwindows.dojo.actions.keys.{ LOGIN_LOGOUT_KEY, SWITCHUI_PROVIDER_KEY }
-import com.wenjunhuang.codeepiphany.toolwindows.dojo.actions.providers.{ DojoUI, SwitchUIProvider }
-import com.wenjunhuang.codeepiphany.hackerrank.HackerRankApi
-import com.wenjunhuang.codeepiphany.hackerrank.services.auth.{ askForLogout, loadAuthenticationMayAskForLogin, AskForLoginResult }
-import com.wenjunhuang.codeepiphany.model.{ messages, CodeDojo }
-import com.wenjunhuang.codeepiphany.services.http.{HttpClientKeeper, HttpClientService}
+import com.wenjunhuang.codeepiphany.toolwindows.dojo.actions.keys.{LOGIN_LOGOUT_KEY, SWITCHUI_PROVIDER_KEY}
+import com.wenjunhuang.codeepiphany.toolwindows.dojo.actions.providers.{DojoUI, SwitchUIProvider}
 import com.wenjunhuang.codeepiphany.utils.implicits.*
 
 import javax.swing.JComponent

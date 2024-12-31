@@ -1,6 +1,6 @@
 package com.wenjunhuang.codeepiphany.toolwindows.sidebar.actions
 
-import com.intellij.openapi.actionSystem.{ ActionUpdateThread, AnAction, AnActionEvent }
+import com.intellij.openapi.actionSystem.{ActionUpdateThread, AnAction, AnActionEvent}
 import com.intellij.openapi.project.DumbAware
 import com.wenjunhuang.codeepiphany.toolwindows.sidebar.DescriptionView
 

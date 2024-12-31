@@ -1,16 +1,18 @@
 package com.wenjunhuang.codeepiphany.model
 
 import com.intellij.openapi.Disposable
-import com.intellij.openapi.components.{ PersistentStateComponent, State, Storage }
+import com.intellij.openapi.components.{PersistentStateComponent, Service, State, Storage}
+import com.intellij.openapi.components.Service.Level
 import com.intellij.openapi.project.Project
-import com.intellij.util.xmlb.annotations.{ MapAnnotation, Transient }
-import com.wenjunhuang.codeepiphany.model.ChallengeStorage.{ Challenge, StorageState }
+import com.intellij.util.xmlb.annotations.{MapAnnotation, Transient}
+import com.wenjunhuang.codeepiphany.model.ChallengeStorage.{Challenge, StorageState}
 import org.jetbrains.annotations.NotNull
 
 import java.util as ju
 import scala.compiletime.uninitialized
 import scala.jdk.CollectionConverters.*
 
+@Service(Array(Level.PROJECT))
 @State(name = Constants.PROJECT_NAME, storages = Array(new Storage(value = Constants.CHALLENGE_STORAGE_FILE)))
 class ChallengeStorage(private val project: Project) extends PersistentStateComponent[StorageState] with Disposable {
   private var questions = Map[String, Challenge]()

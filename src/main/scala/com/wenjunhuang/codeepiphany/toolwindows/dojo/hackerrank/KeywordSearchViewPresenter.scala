@@ -9,8 +9,8 @@ import com.intellij.openapi.util.Disposer
 import com.intellij.ui.DocumentAdapter
 import com.intellij.ui.table.JBTable
 import com.wenjunhuang.codeepiphany.hackerrank.HackerRankApi
-import com.wenjunhuang.codeepiphany.hackerrank.model.{ ChallengeDetail, Contest }
-import com.wenjunhuang.codeepiphany.services.http.{ HttpClientKeeper, HttpClientService }
+import com.wenjunhuang.codeepiphany.hackerrank.model.{ChallengeDetail, Contest}
+import com.wenjunhuang.codeepiphany.services.http.{HttpClientKeeper, HttpClientService}
 import com.wenjunhuang.codeepiphany.utils.implicits.*
 import fs2.Stream
 import fs2.concurrent.SignallingRef

@@ -1,10 +1,11 @@
-package com.wenjunhuang.codeepiphany.settings
+package com.wenjunhuang.codeepiphany.hackerrank.settings
 
 import com.intellij.openapi.project.Project
 import com.wenjunhuang.codeepiphany.PluginBundle
 import com.wenjunhuang.codeepiphany.hackerrank.model.ChallengeCodeTemplate
 import com.wenjunhuang.codeepiphany.model.Language
 import com.wenjunhuang.codeepiphany.model.Language.*
+import com.wenjunhuang.codeepiphany.settings.{SettingsConfigurable, SettingsPanel}
 
 class HackerRankSettingsConfigurable(private val myProject: Project) extends SettingsConfigurable {
   override def createPanel(): SettingsPanel = new HackerRankSettingsPanel(myProject)

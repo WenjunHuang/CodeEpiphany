@@ -1,12 +1,12 @@
 package com.wenjunhuang.codeepiphany.utils
 
 import cats.effect.kernel.Async
-import cats.effect.unsafe.{ IORuntime, IORuntimeConfig, Scheduler }
-import com.intellij.openapi.application.{ ApplicationManager, ModalityState }
+import cats.effect.unsafe.{IORuntime, IORuntimeConfig, Scheduler}
+import com.intellij.openapi.application.{ApplicationManager, ModalityState}
 import com.intellij.openapi.application.ex.ApplicationManagerEx
 
 import java.util.concurrent.Executors
-import scala.concurrent.{ ExecutionContext, ExecutionContextExecutorService }
+import scala.concurrent.{ExecutionContext, ExecutionContextExecutorService}
 
 private trait IOOps {
   val intellijComputeContext: ExecutionContextExecutorService = ExecutionContextExecutorServiceBridge(ExecutionContext.fromExecutor(ApplicationManagerEx.getApplicationEx.executeOnPooledThread(_)))

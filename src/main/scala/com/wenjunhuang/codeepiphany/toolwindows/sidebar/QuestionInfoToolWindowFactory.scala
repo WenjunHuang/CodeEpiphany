@@ -1,10 +1,10 @@
 package com.wenjunhuang.codeepiphany.toolwindows.sidebar
 
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.wm.{ToolWindow, ToolWindowFactory, ToolWindowManager}
 import com.intellij.openapi.wm.impl.content.ToolWindowContentUi
-import com.intellij.openapi.wm.{ ToolWindow, ToolWindowFactory, ToolWindowManager }
-import com.wenjunhuang.codeepiphany.model.CodeDojo.LeetCodeCN
 import com.wenjunhuang.codeepiphany.model.ChallengeStorage.Challenge
+import com.wenjunhuang.codeepiphany.model.CodeDojo.LeetCodeCN
 import kotlin.coroutines.Continuation
 
 class QuestionInfoToolWindowFactory extends ToolWindowFactory() {

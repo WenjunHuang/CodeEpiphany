@@ -1,19 +1,19 @@
 package com.wenjunhuang.codeepiphany.toolwindows.dojo.hackerrank
 
 import com.intellij.icons.AllIcons
-import com.intellij.openapi.actionSystem.{ ActionGroup, ActionManager, DataSink, UiDataProvider }
+import com.intellij.openapi.actionSystem.{ActionGroup, ActionManager, DataSink, UiDataProvider}
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.ui.PopupHandler
 import com.intellij.ui.table.TableView
+import com.intellij.util.ui.{ColumnInfo, ListTableModel}
 import com.intellij.util.ui.table.IconTableCellRenderer
-import com.intellij.util.ui.{ ColumnInfo, ListTableModel }
-import com.wenjunhuang.codeepiphany.hackerrank.model.{ ChallengeDetail, ChallengeDifficulty, ChallengeSkill, ChallengeStatus }
+import com.wenjunhuang.codeepiphany.hackerrank.model.{ChallengeDetail, ChallengeDifficulty, ChallengeSkill, ChallengeStatus}
 import com.wenjunhuang.codeepiphany.toolwindows.dojo.actions.groups.*
 import com.wenjunhuang.codeepiphany.toolwindows.dojo.hackerrank.ChallengesTableModel.Column.*
 import org.typelevel.ci.CIString
 
-import javax.swing.table.{ DefaultTableCellRenderer, TableCellRenderer }
-import javax.swing.{ Icon, JTable, ListSelectionModel, SwingConstants }
+import javax.swing.{Icon, JTable, ListSelectionModel, SwingConstants}
+import javax.swing.table.{DefaultTableCellRenderer, TableCellRenderer}
 
 class ChallengesTableModel extends ListTableModel[ChallengeDetail]() {
   setColumnInfos(

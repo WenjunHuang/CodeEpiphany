@@ -1,27 +1,27 @@
 package com.wenjunhuang.codeepiphany.utils.jcef
 
-import cats.effect.{ IO, Resource, SyncIO }
-import cats.syntax.all.*
+import cats.effect.{IO, Resource, SyncIO}
 import cats.effect.std.Queue
+import cats.syntax.all.*
 import com.intellij.openapi.project.Project
 import com.wenjunhuang.codeepiphany.services.http.HttpClientService
 import com.wenjunhuang.codeepiphany.utils.*
-import fs2.Stream
-import fs2.concurrent.SignallingRef
-import org.cef.browser.{ CefBrowser, CefFrame }
-import org.cef.callback.CefCallback
-import org.cef.handler.*
-import org.cef.misc.{ BoolRef, IntRef, StringRef }
-import org.cef.network.{ CefPostDataElement, CefRequest, CefResponse }
-import org.http4s.client.dsl.Http4sClientDsl
-import org.http4s.headers.{ `Content-Length`, `Content-Type` }
-import org.http4s.{ Headers, Method, Status, Uri }
 import com.wenjunhuang.codeepiphany.utils.extensions.*
 import com.wenjunhuang.codeepiphany.utils.implicits.*
-import org.typelevel.log4cats.{ Logger, LoggerFactory }
+import fs2.Stream
+import fs2.concurrent.SignallingRef
+import org.cef.browser.{CefBrowser, CefFrame}
+import org.cef.callback.CefCallback
+import org.cef.handler.*
+import org.cef.misc.{BoolRef, IntRef, StringRef}
+import org.cef.network.{CefPostDataElement, CefRequest, CefResponse}
+import org.http4s.{Headers, Method, Status, Uri}
+import org.http4s.client.dsl.Http4sClientDsl
+import org.http4s.headers.{`Content-Length`, `Content-Type`}
+import org.typelevel.log4cats.{Logger, LoggerFactory}
 
+import java.util as ju
 import java.nio.ByteBuffer
-import java.util as ju 
 import java.util.concurrent.ArrayBlockingQueue
 import java.util.concurrent.atomic.AtomicInteger
 import scala.jdk.CollectionConverters.*

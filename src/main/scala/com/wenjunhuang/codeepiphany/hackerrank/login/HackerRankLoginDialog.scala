@@ -1,4 +1,4 @@
-package com.wenjunhuang.codeepiphany.hackerrank.ui
+package com.wenjunhuang.codeepiphany.hackerrank.login
 
 import cats.effect.IO
 import cats.effect.std.Queue
@@ -10,14 +10,14 @@ import com.intellij.openapi.ide.CopyPasteManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.{ComponentValidator, DialogWrapper, ValidationInfo}
 import com.intellij.openapi.util.Disposer
-import com.intellij.ui.components.{JBScrollPane, JBTextArea}
-import com.intellij.ui.content.impl.ContentManagerImpl
-import com.intellij.ui.content.{ContentManagerEvent, ContentManagerListener, TabbedPaneContentUI}
-import com.intellij.ui.jcef.{JBCefBrowser, JBCefBrowserBuilder}
 import com.intellij.ui.{AnimatedIcon, DocumentAdapter, PopupHandler}
+import com.intellij.ui.components.{JBScrollPane, JBTextArea}
+import com.intellij.ui.content.{ContentManagerEvent, ContentManagerListener, TabbedPaneContentUI}
+import com.intellij.ui.content.impl.ContentManagerImpl
+import com.intellij.ui.jcef.{JBCefBrowser, JBCefBrowserBuilder}
 import com.intellij.util.ui.JBUI
 import com.wenjunhuang.codeepiphany.PluginBundle
-import com.wenjunhuang.codeepiphany.hackerrank.services.auth.{AskForLoginResult, validateUserCookieAndTestLogin}
+import com.wenjunhuang.codeepiphany.hackerrank.services.auth.{validateUserCookieAndTestLogin, AskForLoginResult}
 import com.wenjunhuang.codeepiphany.model.CodeDojo
 import com.wenjunhuang.codeepiphany.model.CodeDojo.HackerRank
 import com.wenjunhuang.codeepiphany.services.http.{HttpClientKeeper, HttpClientService}

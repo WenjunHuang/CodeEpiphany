@@ -1,16 +1,17 @@
-package com.wenjunhuang.codeepiphany.settings
+package com.wenjunhuang.codeepiphany.hackerrank.settings
 
-import com.intellij.openapi.components.{ BaseState, PersistentStateComponent, State, Storage }
+import com.intellij.openapi.components.{PersistentStateComponent, Service, State, Storage}
+import com.intellij.openapi.components.Service.Level
 import com.intellij.openapi.project.Project
 import com.intellij.util.xmlb.Converter
-import com.intellij.util.xmlb.annotations.{ Attribute, OptionTag }
-import com.wenjunhuang.codeepiphany.model.{ Constants, Language }
-import com.wenjunhuang.codeepiphany.settings.HackerRankSettings.*
+import com.intellij.util.xmlb.annotations.Attribute
+import com.wenjunhuang.codeepiphany.hackerrank.settings.HackerRankSettings.HackerRankState
+import com.wenjunhuang.codeepiphany.model.{Constants, Language}
 import org.typelevel.ci.CIString
 
-import scala.annotation.meta.{ beanGetter, beanSetter, field, getter }
-import scala.beans.BeanProperty
+import scala.annotation.meta.field
 
+@Service(Array(Level.PROJECT))
 @State(name = Constants.HACKERRANK_SETTING, storages = Array(new Storage(Constants.HACKERRANK_SETTING_FILE)))
 final class HackerRankSettings(private val myProject: Project) extends PersistentStateComponent[HackerRankState] {
   private var state = HackerRankState()

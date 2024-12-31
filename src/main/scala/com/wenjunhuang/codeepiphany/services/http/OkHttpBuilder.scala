@@ -1,18 +1,18 @@
 package com.wenjunhuang.codeepiphany.services.http
 
-import cats.effect.std.Dispatcher
 import cats.effect.{Async, Resource}
-import cats.syntax.all.*
+import cats.effect.std.Dispatcher
 import cats.effect.syntax.all.*
-import OkHttpBuilder.*
+import cats.syntax.all.*
+import com.wenjunhuang.codeepiphany.services.http.OkHttpBuilder.*
 import com.wenjunhuang.codeepiphany.utils.implicits.*
 import fs2.io.readInputStream
 import okhttp3.{Call, Callback, OkHttpClient, Protocol, RequestBody, Headers as OKHeaders, MediaType as OKMediaType, Request as OKRequest, Response as OKResponse}
 import okio.BufferedSink
-import org.http4s.client.Client
-import org.http4s.headers.{Cookie, `Content-Type`}
-import org.http4s.internal.BackendBuilder
 import org.http4s.{Headers, HttpVersion, Method, Request, Response, Status}
+import org.http4s.client.Client
+import org.http4s.headers.{`Content-Type`, Cookie}
+import org.http4s.internal.BackendBuilder
 import org.typelevel.ci.CIString
 import org.typelevel.log4cats.{Logger, LoggerFactory}
 

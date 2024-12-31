@@ -2,15 +2,15 @@ package com.wenjunhuang.codeepiphany.toolwindows.dojo.actions
 
 import com.intellij.icons.AllIcons
 import com.intellij.openapi.Disposable
+import com.intellij.openapi.actionSystem.*
 import com.intellij.openapi.actionSystem.ex.ComboBoxAction
-import com.intellij.openapi.actionSystem.{ ActionUpdateThread, AnAction, AnActionEvent, DataContext, DefaultActionGroup }
-import com.intellij.openapi.ui.popup.{ JBPopup, JBPopupFactory }
+import com.intellij.openapi.ui.popup.{JBPopup, JBPopupFactory}
 import com.intellij.openapi.util.Disposer
-import com.intellij.ui.components.{ JBLabel, JBTabbedPane }
-import com.wenjunhuang.codeepiphany.toolwindows.dojo.actions.keys.{ LISTS_PROVIDER_KEY, TAG_PROVIDER_KEY }
+import com.intellij.ui.components.{JBLabel, JBTabbedPane}
+import com.wenjunhuang.codeepiphany.toolwindows.dojo.actions.keys.{LISTS_PROVIDER_KEY, TAG_PROVIDER_KEY}
 
 import java.awt.Dimension
-import javax.swing.{ JComponent, SwingConstants }
+import javax.swing.{JComponent, SwingConstants}
 
 class TagsAction extends ComboBoxAction {
   override def update(e: AnActionEvent): Unit =

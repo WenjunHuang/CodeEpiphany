@@ -1,4 +1,4 @@
-package com.wenjunhuang.codeepiphany.settings;
+package com.wenjunhuang.codeepiphany.hackerrank.settings;
 
 import com.intellij.codeInsight.hint.EditorFragmentComponent;
 import com.intellij.icons.AllIcons;
@@ -24,21 +24,18 @@ import com.intellij.openapi.ui.*;
 import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.ui.BrowserHyperlinkListener;
 import com.intellij.ui.EditorTextField;
-import com.intellij.ui.components.JBHtmlPane;
-import com.intellij.ui.components.JBHtmlPaneConfiguration;
 import com.intellij.ui.components.JBHtmlPaneStyleConfiguration;
 import com.intellij.ui.components.JBLabel;
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.uiDesigner.core.Spacer;
-import com.intellij.util.io.IOUtil;
 import com.intellij.util.ui.HTMLEditorKitBuilder;
 import com.intellij.util.ui.JBUI;
 import com.intellij.xml.util.XmlStringUtil;
-import com.intellij.xml.util.XmlUtil;
 import com.wenjunhuang.codeepiphany.PluginBundle;
 import com.wenjunhuang.codeepiphany.model.Language;
 import com.wenjunhuang.codeepiphany.model.template.ChallengeFileTemplateHighlighter;
+import com.wenjunhuang.codeepiphany.settings.SettingsPanel;
 import com.wenjunhuang.codeepiphany.utils.JavaUtils;
 import com.wenjunhuang.codeepiphany.utils.template.VelocityUtils;
 import org.apache.commons.io.IOUtils;

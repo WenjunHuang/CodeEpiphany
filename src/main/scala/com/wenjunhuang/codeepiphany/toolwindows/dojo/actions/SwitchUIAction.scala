@@ -1,6 +1,6 @@
 package com.wenjunhuang.codeepiphany.toolwindows.dojo.actions
 
-import com.intellij.openapi.actionSystem.{ ActionUpdateThread, AnAction, AnActionEvent, Presentation }
+import com.intellij.openapi.actionSystem.{ActionUpdateThread, AnAction, AnActionEvent, Presentation}
 import com.wenjunhuang.codeepiphany.toolwindows.dojo.actions.keys.SWITCHUI_PROVIDER_KEY
 import com.wenjunhuang.codeepiphany.toolwindows.dojo.actions.providers.DojoUI
 import com.wenjunhuang.codeepiphany.toolwindows.dojo.actions.providers.DojoUI.*

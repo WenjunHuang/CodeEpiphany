@@ -9,8 +9,8 @@ import com.intellij.openapi.editor.colors.{EditorColorsListener, EditorColorsMan
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
 import com.intellij.ui.jcef.*
-import com.wenjunhuang.codeepiphany.toolwindows.sidebar.JCefDescriptionView.*
 import com.wenjunhuang.codeepiphany.model.ChallengeStorage.Challenge
+import com.wenjunhuang.codeepiphany.toolwindows.sidebar.JCefDescriptionView.*
 import com.wenjunhuang.codeepiphany.utils.implicits.*
 import com.wenjunhuang.codeepiphany.utils.isDebug
 import com.wenjunhuang.codeepiphany.utils.jcef.{CefLocalRequestHandler, CefStreamResourceHandler}

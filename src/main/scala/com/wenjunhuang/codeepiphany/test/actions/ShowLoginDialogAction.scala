@@ -1,9 +1,9 @@
 package com.wenjunhuang.codeepiphany.test.actions
 
 import cats.effect.SyncIO
-import com.intellij.openapi.actionSystem.{ ActionUpdateThread, AnAction, AnActionEvent }
+import com.intellij.openapi.actionSystem.{ActionUpdateThread, AnAction, AnActionEvent}
+import com.wenjunhuang.codeepiphany.hackerrank.login.HackerRankLoginDialog
 import com.wenjunhuang.codeepiphany.hackerrank.services.auth.AskForLoginResult
-import com.wenjunhuang.codeepiphany.hackerrank.ui.HackerRankLoginDialog
 import com.wenjunhuang.codeepiphany.utils.implicits.*
 import org.typelevel.log4cats.LoggerFactory
 

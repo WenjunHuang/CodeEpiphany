@@ -2,13 +2,13 @@ package com.wenjunhuang.codeepiphany.utils.ui
 
 import com.intellij.icons.AllIcons
 import com.intellij.openapi.ui.popup.IconButton
-import com.intellij.ui.components.{ JBLabel, JBLayeredPane }
-import com.intellij.ui.{ Gray, InplaceButton, JBColor }
-import com.intellij.util.ui.{ JBInsets, JBUI }
+import com.intellij.ui.{Gray, InplaceButton, JBColor}
+import com.intellij.ui.components.{JBLabel, JBLayeredPane}
+import com.intellij.util.ui.{JBInsets, JBUI}
 
+import java.awt.{Color, Dimension, Graphics}
 import java.awt.event.ActionEvent
-import java.awt.{ Color, Dimension, Graphics }
-import javax.swing.{ Icon, JLayeredPane, SwingConstants }
+import javax.swing.{Icon, JLayeredPane, SwingConstants}
 
 class Tag(val id: String, text: String, icon: Option[Icon], radius: Float, onCloseAction: Option[() => Unit]) extends JBLayeredPane {
   import Tag.*
