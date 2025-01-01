@@ -1,11 +1,13 @@
 package com.wenjunhuang.codeepiphany.toolwindows.sidebar
 
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.wm.{ ToolWindow, ToolWindowFactory, ToolWindowManager }
+import com.intellij.openapi.wm.{ToolWindow, ToolWindowFactory, ToolWindowManager}
 import com.intellij.openapi.wm.impl.content.ToolWindowContentUi
 import com.wenjunhuang.codeepiphany.model.ChallengeStorage.Challenge
 import com.wenjunhuang.codeepiphany.model.CodeDojo.LeetCodeCN
 import kotlin.coroutines.Continuation
+
+import scala.annotation.static
 
 class SidebarWindowFactory extends ToolWindowFactory() {
 
@@ -15,7 +17,7 @@ class SidebarWindowFactory extends ToolWindowFactory() {
     val cf        = cm.getFactory
 
     cm.addContent(cf.createContent(presenter.getView, "Challenge Description", false))
-    cm.addContent(cf.createContent(ConsoleView(project), "Console", false))
+    cm.addContent(cf.createContent(LogConsoleView(project), LogConsoleView.DISPLAY_NAME, false))
     toolWindow.getComponent.putClientProperty(ToolWindowContentUi.HIDE_ID_LABEL, "true")
 
     val testItem = Challenge()
@@ -23,4 +25,9 @@ class SidebarWindowFactory extends ToolWindowFactory() {
     testItem.dojo = LeetCodeCN
     presenter.updateCurrentQuestion(testItem)
   }
+}
+
+object SidebarWindowFactory {
+  @static
+  final val TOOL_WINDOW_ID = "CodeEpiphany.Sidebar"
 }

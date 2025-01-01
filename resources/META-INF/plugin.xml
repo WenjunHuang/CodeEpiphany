@@ -96,10 +96,10 @@
     <extensions defaultExtensionNs="com.intellij">
         <notificationGroup displayType="BALLOON" id="My Plugin Notification"/>
         <toolWindow factoryClass="com.wenjunhuang.codeepiphany.toolwindows.sidebar.SidebarWindowFactory"
-                    id="CodeEpiphany Sidebar" anchor="bottom"
+                    id="CodeEpiphany.Sidebar" anchor="bottom"
                     icon="CodeEpiphanyIcons.LOGIN_ICON"/>
         <toolWindow factoryClass="com.wenjunhuang.codeepiphany.toolwindows.dojo.CodeDojoToolWindowFactory"
-                    id="CodeEpiphany Dojos" anchor="left"/>
+                    id="CodeEpiphany.Dojos" anchor="left"/>
 
         <registryKey defaultValue="false" description="Enable debug" key="codeepiphany.debug"/>
 

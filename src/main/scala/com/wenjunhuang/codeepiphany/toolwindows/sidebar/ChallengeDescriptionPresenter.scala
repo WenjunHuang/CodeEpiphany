@@ -56,7 +56,7 @@ object ChallengeDescriptionPresenter {
                   FileEditorManager.getInstance(project).openFile(vf, false)
                   ()
             case _ => ()
-        }.evalOn(intellijUIContext)
+        }.evalOnEDTAny()
       }
     else
       Async[F].delay {

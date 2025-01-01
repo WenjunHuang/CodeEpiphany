@@ -4,7 +4,7 @@ import cats.effect.kernel.Async
 import cats.syntax.all.*
 import com.intellij.openapi.project.Project
 import com.wenjunhuang.codeepiphany.hackerrank.login.HackerRankLoginDialog
-import com.wenjunhuang.codeepiphany.model.{ApiError, CodeDojo, SensitiveDataStore}
+import com.wenjunhuang.codeepiphany.model.{ ApiError, CodeDojo, SensitiveDataStore }
 import com.wenjunhuang.codeepiphany.services.http.HttpClientKeeper
 import com.wenjunhuang.codeepiphany.utils.CookieUtil
 import com.wenjunhuang.codeepiphany.utils.implicits.*
@@ -78,13 +78,12 @@ object auth {
 
   /** Invoke the login process * */
   def askForLogin[F[_]: Async](project: Project, codeDojo: CodeDojo): F[AskForLoginResult] =
-    Async[F].evalOn(
-      Async[F].async_ { cb =>
+    Async[F]
+      .async_[AskForLoginResult] { cb =>
         val dialog = new HackerRankLoginDialog(project, cb)
         dialog.show()
-      },
-      intellijUIContext
-    )
+      }
+      .evalOnEDTAny()
 
   def askForLogout[F[_]: Async: HttpClientKeeper](project: Project, codeDojo: CodeDojo): F[Unit] =
     HttpClientKeeper[F].clearCookiesForHost(codeDojo.domain) *> Async[F].unit

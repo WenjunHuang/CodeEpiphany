@@ -86,7 +86,7 @@ class QueryParametersViewPresenter(private val myProject: Project) extends Dispo
                   myState = state
                   myPaginationProvider.refresh()
                   setChallengeItems(state.currentItems)
-                }.evalOn(intellijUIContext)
+                }.evalOnEDTAny()
               }
           )
           .interruptWhen(signal)

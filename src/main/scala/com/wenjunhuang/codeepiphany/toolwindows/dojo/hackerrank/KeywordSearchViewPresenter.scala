@@ -58,7 +58,7 @@ class KeywordSearchViewPresenter(private val myProject: Project) extends Documen
         }.evalTap { challenges =>
           IO.delay {
             updateChallenges(challenges)
-          }.evalOn(intellijUIContext)
+          }.evalOnEDTAny()
         }.interruptWhen(signal)
           .attempt
           .evalMap {

@@ -1,18 +1,28 @@
 package com.wenjunhuang.codeepiphany.toolwindows.dojo.hackerrank
 
 import cats.effect.IO
+import cats.effect.syntax.all.*
+import cats.syntax.all.*
 import com.intellij.openapi.actionSystem.DataSink
+import com.intellij.openapi.progress.{ ProgressIndicator, ProgressManager, Task }
 import com.intellij.openapi.project.Project
 import com.intellij.ui.CardLayoutPanel
-import com.wenjunhuang.codeepiphany.hackerrank.services.auth.{askForLogout, loadAuthenticationMayAskForLogin, AskForLoginResult}
+import com.wenjunhuang.codeepiphany.hackerrank.services.auth.{
+  askForLogout,
+  loadAuthenticationMayAskForLogin,
+  AskForLoginResult
+}
 import com.wenjunhuang.codeepiphany.hackerrank.services.HackerRankApi
-import com.wenjunhuang.codeepiphany.model.{messages, CodeDojo}
-import com.wenjunhuang.codeepiphany.services.http.{HttpClientKeeper, HttpClientService}
+import com.wenjunhuang.codeepiphany.model.{ messages, CodeDojo }
+import com.wenjunhuang.codeepiphany.services.console
+import com.wenjunhuang.codeepiphany.services.http.{ HttpClientKeeper, HttpClientService }
 import com.wenjunhuang.codeepiphany.toolwindows.dojo.AbstractCodeDojoView
 import com.wenjunhuang.codeepiphany.toolwindows.dojo.actions.LoginLogoutProvider
-import com.wenjunhuang.codeepiphany.toolwindows.dojo.actions.keys.{LOGIN_LOGOUT_KEY, SWITCHUI_PROVIDER_KEY}
-import com.wenjunhuang.codeepiphany.toolwindows.dojo.actions.providers.{DojoUI, SwitchUIProvider}
+import com.wenjunhuang.codeepiphany.toolwindows.dojo.actions.keys.{ LOGIN_LOGOUT_KEY, SWITCHUI_PROVIDER_KEY }
+import com.wenjunhuang.codeepiphany.toolwindows.dojo.actions.providers.{ DojoUI, SwitchUIProvider }
 import com.wenjunhuang.codeepiphany.utils.implicits.*
+import com.wenjunhuang.codeepiphany.utils.extensions.*
+import scala.concurrent.duration.*
 
 import javax.swing.JComponent
 
@@ -34,23 +44,27 @@ class HackerRankView(private val myProject: Project)
   select(myCurrentUI, false)
 
   private val myLoginLogoutProvider = new LoginLogoutProvider {
-    override def login(): Unit = loadAuthenticationMayAskForLogin[IO](myProject, CodeDojo.HackerRank).flatMap {
-      case AskForLoginResult.Done =>
-        IO.delay {
-          myProject.getMessageBus
-            .syncPublisher(messages.LOGIN_LOGOUT_TOPIC)
-            .login(CodeDojo.HackerRank)
-          myIsLoggedIn = true
-        } *> IO.delay { mySwitchUIProvider.switchTo(DojoUI.QueryParameters) }.evalOn(intellijUIContext)
-      case _ => IO.unit
-    }.unsafeRunAndForget()
+    override def login(): Unit =
+      (console.info[IO](myProject, "Logging in to HackerRank...") *>
+        loadAuthenticationMayAskForLogin[IO](myProject, CodeDojo.HackerRank).flatMap {
+          case AskForLoginResult.Done =>
+            IO.delay {
+              myProject.getMessageBus
+                .syncPublisher(messages.LOGIN_LOGOUT_TOPIC)
+                .login(CodeDojo.HackerRank)
+              myIsLoggedIn = true
+            } *> IO.delay {
+              mySwitchUIProvider.switchTo(DojoUI.QueryParameters)
+            }.evalOnEDTAny() *> console.info[IO](myProject, "Logged in to HackerRank.")
+          case _ => console.info[IO](myProject, "Login to HackerRank canceled.")
+        }).unsafeRunAsBackgroundProgressCancellable(myProject, "Logging in to HackerRank...")
 
     override def logout(): Unit = (askForLogout[IO](myProject, CodeDojo.HackerRank)
       *> IO.delay(myProject.getMessageBus.syncPublisher(messages.LOGIN_LOGOUT_TOPIC).logout(CodeDojo.HackerRank))
       *> IO.delay {
         myIsLoggedIn = false
         select(DojoUI.Unauthenticated, false)
-      }.evalOn(intellijUIContext)).unsafeRunAndForget()
+      }.evalOnEDTAny()).unsafeRunAndForget()
 
     override def isLoggedIn: Boolean = myIsLoggedIn
   }

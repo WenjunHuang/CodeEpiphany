@@ -33,7 +33,7 @@ object editor {
 
         None
       else Some((state.sourceFolder.get, state.language.get, state.fileNameTemplate.get, state.codeTemplate.get))
-    }.evalOnUI().flatMap {
+    }.evalOnEDTAny().flatMap {
       case None => Async[F].unit
       case Some((sourceFolder, language, fileNameTemplate, codeTemplate)) =>
         fetchChallengeContentAndOpen(
@@ -78,7 +78,7 @@ object editor {
         case None => None
       }
       .flatMap {
-        case None => Async[F].delay(Messages.showInfoMessage("Failed to open challenge", "Error")).evalOnUI()
+        case None => Async[F].delay(Messages.showInfoMessage("Failed to open challenge", "Error")).evalOnEDTAny()
         case Some(template) =>
           (
             VelocityUtils.generateContent(fileNameTemplate, template),
@@ -89,7 +89,7 @@ object editor {
               .flatMap(vf => openTextEditor(vf, project))
               .void
           }.sequence.flatMap {
-            case Left(e)  => Async[F].delay(Messages.showErrorDialog(e.getMessage, "Error")).evalOnUI()
+            case Left(e)  => Async[F].delay(Messages.showErrorDialog(e.getMessage, "Error")).evalOnEDTAny()
             case Right(_) => Async[F].unit
           }
       }
