@@ -19,26 +19,26 @@ import com.wenjunhuang.codeepiphany.utils.implicits.*
 import java.io.File
 import java.net.URL
 
-class DescriptionPresenter(private val project: Project) extends Disposable {
+class ChallengeDescriptionPresenter(private val project: Project) extends Disposable {
   private val logger            = Logger.getInstance(this.getClass)
-  private val myDescriptionView = DescriptionView(project, this)
+  private val myDescriptionView = ChallengeChallengeDescriptionView(project, this)
 
   Disposer.register(project, this)
 
   /** Handle user clicked a link in the description view browser
     */
   def userClickedLink[F[_]: Async](url: String): F[Unit] =
-    Async[F].delay(URL(url)).flatMap(url => DescriptionPresenter.openUrl(url, project))
+    Async[F].delay(URL(url)).flatMap(url => ChallengeDescriptionPresenter.openUrl(url, project))
 
   def updateCurrentQuestion(question: Challenge): Unit = myDescriptionView.updateCurrentQuestion(question)
 
-  def getView: DescriptionView = myDescriptionView
+  def getView: ChallengeChallengeDescriptionView = myDescriptionView
 
   override def dispose(): Unit =
     logger.debug("DescriptionPresenter disposed")
 }
 
-object DescriptionPresenter {
+object ChallengeDescriptionPresenter {
   private def openUrl[F[_]: Async](url: URL, project: Project): F[Unit] =
     if url.getProtocol == URLUtil.FILE_PROTOCOL then
       Async[F].delay {

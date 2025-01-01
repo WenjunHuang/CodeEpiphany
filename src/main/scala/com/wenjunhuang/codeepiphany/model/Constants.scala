@@ -8,7 +8,10 @@ object Constants {
   final inline val PROJECT_NAME = "CodeEpiphany"
   
   @static
-  final val PROJECT_ID = "com.wenjun.codeEpiphany"
+  final val PROJECT_ID = "com.wenjun.codeepiphany"
+  
+  @static
+  final val ACTION_PREFIX = PROJECT_NAME + ".actions"
 
   @static
   final val SETTINGS_FOLDER = PROJECT_NAME + "/settings"

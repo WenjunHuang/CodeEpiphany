@@ -14,9 +14,9 @@ import java.awt.Insets
 import java.awt.event.{MouseWheelEvent, MouseWheelListener}
 import javax.swing.JComponent
 
-class DescriptionView(private val myProject: Project, private val myPresenter: DescriptionPresenter)
+class ChallengeChallengeDescriptionView(private val myProject: Project, private val myPresenter: ChallengeDescriptionPresenter)
     extends SimpleToolWindowPanel(true)
-    with DescriptionStyleProvider
+    with ChallengeDescriptionStyleProvider
     with CopyProvider
     with UiDataProvider
     with Disposable {
@@ -45,7 +45,7 @@ class DescriptionView(private val myProject: Project, private val myPresenter: D
   if !isDebug then PopupHandler.installPopupMenu(myViewer.preferredFocusedComponent, SidebarActions.GROUP_POPUP, SidebarActions.ACTION_PLACE)
 
   override def uiDataSnapshot(dataSink: DataSink): Unit = {
-    dataSink.set(DescriptionView.DATA_KEY, this)
+    dataSink.set(ChallengeChallengeDescriptionView.DATA_KEY, this)
     dataSink.set(PlatformDataKeys.COPY_PROVIDER, this)
   }
 
@@ -92,6 +92,6 @@ class DescriptionView(private val myProject: Project, private val myPresenter: D
   }
 }
 
-object DescriptionView {
-  val DATA_KEY: DataKey[DescriptionView] = DataKey.create[DescriptionView]("DescriptionView")
+object ChallengeChallengeDescriptionView {
+  val DATA_KEY: DataKey[ChallengeChallengeDescriptionView] = DataKey.create[ChallengeChallengeDescriptionView]("DescriptionView")
 }

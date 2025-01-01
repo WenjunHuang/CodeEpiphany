@@ -4,12 +4,12 @@ import com.intellij.ui.JBColor
 import com.intellij.ui.jcef.JBCefScrollbarsHelper
 import com.wenjunhuang.codeepiphany.model.CodeDojo
 import com.wenjunhuang.codeepiphany.model.CodeDojo.LeetCodeCN
-import com.wenjunhuang.codeepiphany.toolwindows.sidebar.DescriptionStyleProvider.*
+import com.wenjunhuang.codeepiphany.toolwindows.sidebar.ChallengeDescriptionStyleProvider.*
 
 import java.awt.Color
 
-object DescriptionStyle {
-  def getStyle(styleProvider: DescriptionStyleProvider, dojo: Option[CodeDojo]): String = {
+object ChallengeDescriptionStyle {
+  def getStyle(styleProvider: ChallengeDescriptionStyleProvider, dojo: Option[CodeDojo]): String = {
 
     val padding = styleProvider.bodyPadding.map { case (top, right, bottom, left) =>
       s"${top}px ${right}px ${bottom}px ${left}px"
@@ -60,13 +60,13 @@ object DescriptionStyle {
        |""".stripMargin
   }
 
-  private def styleOfDojo(dojo: CodeDojo, styleProvider: DescriptionStyleProvider): String =
+  private def styleOfDojo(dojo: CodeDojo, styleProvider: ChallengeDescriptionStyleProvider): String =
     dojo match
       case LeetCodeCN =>
         getLeetcodeCNStyle(styleProvider)
       case _ => ""
 
-  private def getLeetcodeCNStyle(styleProvider: DescriptionStyleProvider): String =
+  private def getLeetcodeCNStyle(styleProvider: ChallengeDescriptionStyleProvider): String =
     // language=CSS
     s"""
        |#container pre {

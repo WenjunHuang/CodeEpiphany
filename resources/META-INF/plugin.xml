@@ -88,14 +88,14 @@
     </actions>
 
     <applicationListeners>
-        <listener class="com.wenjunhuang.codeepiphany.toolwindows.sidebar.QuestionFileEditorListener"
+        <listener class="com.wenjunhuang.codeepiphany.toolwindows.sidebar.ChallengeCodeFileEditorListener"
                   topic="com.intellij.openapi.fileEditor.FileEditorManagerListener"/>
 
     </applicationListeners>
 
     <extensions defaultExtensionNs="com.intellij">
         <notificationGroup displayType="BALLOON" id="My Plugin Notification"/>
-        <toolWindow factoryClass="com.wenjunhuang.codeepiphany.toolwindows.sidebar.QuestionInfoToolWindowFactory"
+        <toolWindow factoryClass="com.wenjunhuang.codeepiphany.toolwindows.sidebar.SidebarWindowFactory"
                     id="CodeEpiphany Sidebar" anchor="bottom"
                     icon="CodeEpiphanyIcons.LOGIN_ICON"/>
         <toolWindow factoryClass="com.wenjunhuang.codeepiphany.toolwindows.dojo.CodeDojoToolWindowFactory"

@@ -6,11 +6,11 @@ import com.intellij.openapi.editor.colors.{EditorColorsManager, EditorColorsSche
 import com.intellij.openapi.editor.colors.impl.AppEditorFontOptions
 import com.intellij.ui.JBColor
 import com.intellij.util.ui.{JBUI, UIUtil}
-import com.wenjunhuang.codeepiphany.toolwindows.sidebar.DescriptionStyleProvider.*
+import com.wenjunhuang.codeepiphany.toolwindows.sidebar.ChallengeDescriptionStyleProvider.*
 
 import java.awt.Color
 
-trait DescriptionStyleProvider {
+trait ChallengeDescriptionStyleProvider {
 
   /** The padding of the body element in the description view with css padding property order: top, right, bottom, left
     */
@@ -31,7 +31,7 @@ trait DescriptionStyleProvider {
   def infoForeground: JBColor          = JBColor.namedColor("Component.infoForeground", contrastedForeground)
   def fenceBackgroundColor             = JBColor(Color(212, 222, 231, 255 / 4), Color(212, 222, 231, 25))
 }
-object DescriptionStyleProvider {
+object ChallengeDescriptionStyleProvider {
   extension (color: Color) {
     def contrast(coefficient: Double): Color =
       Color(

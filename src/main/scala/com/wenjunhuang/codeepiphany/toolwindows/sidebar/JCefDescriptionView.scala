@@ -27,7 +27,7 @@ import java.io.{ByteArrayInputStream, File, FileInputStream}
 import java.nio.charset.StandardCharsets
 import javax.swing.JComponent
 
-class JCefDescriptionView(private val project: Project, private val presenter: DescriptionPresenter, private val styleProvider: DescriptionStyleProvider) extends Disposable {
+class JCefDescriptionView(private val project: Project, private val presenter: ChallengeDescriptionPresenter, private val styleProvider: ChallengeDescriptionStyleProvider) extends Disposable {
   private var questionItem: Option[Challenge] = None
   implicit private val logger : Logger[SyncIO] = LoggerFactory[SyncIO].getLogger
 
@@ -82,7 +82,7 @@ class JCefDescriptionView(private val project: Project, private val presenter: D
     }
 
     requestHandler.addResource(DESCRIPTION_CSS_PATH) { () =>
-      CefStreamResourceHandler(ByteArrayInputStream(DescriptionStyle.getStyle(styleProvider, questionItem.map(_.dojo)).getBytes(StandardCharsets.UTF_8)), "text/css", this).some
+      CefStreamResourceHandler(ByteArrayInputStream(ChallengeDescriptionStyle.getStyle(styleProvider, questionItem.map(_.dojo)).getBytes(StandardCharsets.UTF_8)), "text/css", this).some
     }
 
     requestHandler

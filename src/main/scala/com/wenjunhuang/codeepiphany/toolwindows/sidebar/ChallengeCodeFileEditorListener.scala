@@ -5,7 +5,7 @@ import com.intellij.openapi.vfs.VirtualFile
 
 /** Monitor the current file selection changes and update the question sidebar accordingly.
   */
-class QuestionFileEditorListener extends FileEditorManagerListener {
+class ChallengeCodeFileEditorListener extends FileEditorManagerListener {
   override def selectionChanged(event: FileEditorManagerEvent): Unit = {
   }
 
