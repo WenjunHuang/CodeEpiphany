@@ -7,11 +7,20 @@ import javax.swing.Icon
 
 enum LanguageVersion {
   case AnyVersion
-  case SpecificVersion(value: String)
+  case SpecificVersion(value: Int)
 
-  def version: String = this match {
-    case AnyVersion           => ""
+  def version: Int = this match {
+    case AnyVersion           => 0
     case SpecificVersion(ver) => ver
+  }
+}
+
+object LanguageVersion {
+  implicit val ordering: Ordering[LanguageVersion] = (x: LanguageVersion, y: LanguageVersion) => (x, y) match {
+    case (AnyVersion, AnyVersion) => 0
+    case (AnyVersion, SpecificVersion(_)) => -1
+    case (SpecificVersion(_), AnyVersion) => 1
+    case (SpecificVersion(ver1), SpecificVersion(ver2)) => ver1.compareTo(ver2)
   }
 }
 

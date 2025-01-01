@@ -18,7 +18,7 @@ class KeywordSearchView(private val myProject: Project, private val myPresenter:
   private val mySearchTextField = SearchTextField(true)
 
   mySearchTextField.getTextEditor.getEmptyText
-    .appendText(PluginBundle.message("hackerrank.ui.query.searchhint"), new SimpleTextAttributes(SimpleTextAttributes.STYLE_PLAIN, ListPluginComponent.GRAY_COLOR))
+    .appendText(PluginBundle.message("hackerrank.ui.query.searchHint"), new SimpleTextAttributes(SimpleTextAttributes.STYLE_PLAIN, ListPluginComponent.GRAY_COLOR))
   mySearchTextField.addDocumentListener(myPresenter)
 
   add(mySearchTextField, BorderLayout.NORTH)

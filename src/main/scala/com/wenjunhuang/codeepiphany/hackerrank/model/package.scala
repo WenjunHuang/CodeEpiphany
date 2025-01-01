@@ -2,10 +2,10 @@ package com.wenjunhuang.codeepiphany.hackerrank
 
 import cats.syntax.all.*
 import com.wenjunhuang.codeepiphany.PluginBundle
-import com.wenjunhuang.codeepiphany.model.{Language, LanguageVersion}
+import com.wenjunhuang.codeepiphany.model.{ Language, LanguageVersion }
 import com.wenjunhuang.codeepiphany.utils.Colors
-import io.circe.{Decoder, HCursor, Json}
-import io.circe.derivation.{Configuration, ConfiguredDecoder}
+import io.circe.{ Decoder, HCursor, Json }
+import io.circe.derivation.{ Configuration, ConfiguredDecoder }
 import monocle.Lens
 import monocle.macros.GenLens
 import org.typelevel.ci.CIString
@@ -136,6 +136,7 @@ package object model {
     detail: ChallengeDetail,
     codeTemplates: Map[(Language, LanguageVersion), LanguageTemplate]
   )
+
   object ChallengeContent {
     implicit val decoder: Decoder[ChallengeContent] = (c: HCursor) =>
       for {
@@ -156,7 +157,7 @@ package object model {
           Language.fromCIString(CIString(langStr)).foreach { lang =>
             val ver =
               if verStr.isEmpty then LanguageVersion.AnyVersion
-              else LanguageVersion.SpecificVersion(verStr)
+              else LanguageVersion.SpecificVersion(verStr.toIntOption.getOrElse(0))
             templates = templates.updatedWith((lang, ver)) {
               case Some(t) => Some(lens.modify(_ => value)(t))
               case None    => Some(lens.modify(_ => value)(LanguageTemplate("", "", "")))
@@ -199,6 +200,7 @@ package object model {
     def getHeader: String      = header
     def getTemplate: String    = template
     def getTail: String        = tail
+    def getCode: String        = s"$header\n$template\n$tail"
   }
 
 }

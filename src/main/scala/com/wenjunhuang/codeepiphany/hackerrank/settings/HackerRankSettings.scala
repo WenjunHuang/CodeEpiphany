@@ -1,12 +1,12 @@
 package com.wenjunhuang.codeepiphany.hackerrank.settings
 
-import com.intellij.openapi.components.{PersistentStateComponent, Service, State, Storage}
+import com.intellij.openapi.components.{ PersistentStateComponent, Service, State, Storage }
 import com.intellij.openapi.components.Service.Level
 import com.intellij.openapi.project.Project
 import com.intellij.util.xmlb.Converter
 import com.intellij.util.xmlb.annotations.Attribute
 import com.wenjunhuang.codeepiphany.hackerrank.settings.HackerRankSettings.HackerRankState
-import com.wenjunhuang.codeepiphany.model.{Constants, Language}
+import com.wenjunhuang.codeepiphany.model.{ Constants, Language }
 import org.typelevel.ci.CIString
 
 import scala.annotation.meta.field
@@ -37,7 +37,7 @@ object HackerRankSettings {
     var codeTemplate: Option[String] = None
   }
 
-  class LanguageConverter extends Converter[Language] {
+  private class LanguageConverter extends Converter[Language] {
     override def fromString(value: String): Language =
       Language.fromCIString(CIString(value)).orNull
     override def toString(value: Language): String =
@@ -57,8 +57,8 @@ object HackerRankSettings {
       value.map(it => implicitly[Converter[T]].toString(it)).orNull
   }
 
-  class StringOptionConverter   extends OptionConverter[String]
-  class LanguageOptionConverter extends OptionConverter[Language]
+  private class StringOptionConverter   extends OptionConverter[String]
+  private class LanguageOptionConverter extends OptionConverter[Language]
 
   def getInstance(project: Project): HackerRankSettings =
     project.getService(classOf[HackerRankSettings])

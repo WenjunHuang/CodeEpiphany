@@ -25,7 +25,7 @@ import com.wenjunhuang.codeepiphany.utils.ui.Tag as TagUI
 import fs2.Stream
 import fs2.concurrent.SignallingRef
 import org.typelevel.ci.CIString
-import org.typelevel.log4cats.LoggerFactory
+import org.typelevel.log4cats.{Logger, LoggerFactory, SelfAwareStructuredLogger}
 
 import java.awt.{GridBagConstraints, GridBagLayout}
 import javax.swing.{Icon, JComponent, JPanel}
@@ -35,7 +35,7 @@ import scala.jdk.CollectionConverters.*
 class QueryParametersViewPresenter(private val myProject: Project) extends Disposable {
   import QueryParametersViewPresenter.*
 
-  private val myLogger = LoggerFactory[IO].getLogger
+  implicit private val myLogger: Logger[IO] = LoggerFactory[IO].getLogger
 
   implicit private val httpClientKeeper: HttpClientKeeper[IO] = HttpClientService.getInstance(myProject).httpClientKeeper
   private val myApi                                           = HackerRankApi[IO]()
@@ -150,7 +150,7 @@ class QueryParametersViewPresenter(private val myProject: Project) extends Dispo
     override def openCurrentSelectedChallenge(): Unit =
       Option(myChallengesTable.getSelectedObject) match
         case Some(selected) =>
-          openChallenge[IO](myProject, selected.slug, Contest.fromCIString(CIString(selected.contestSlug)).get, Scala, AnyVersion).unsafeRunAndForget()
+          openChallenge[IO](myProject, selected.slug, Contest.fromCIString(CIString(selected.contestSlug)).get).unsafeRunAndForget()
         case None => ()
   }
   private val myListsProvider = new CategoryProvider {

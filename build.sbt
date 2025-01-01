@@ -1,6 +1,6 @@
 ThisBuild / scalaVersion     := "3.3.4"
 ThisBuild / intellijPlatform := IntelliJPlatform.IdeaCommunity
-ThisBuild / intellijBuild := "242.20224.300"
+ThisBuild / intellijBuild    := "242.20224.300"
 
 lazy val codeEpiphany = (project in file("."))
   .settings(
@@ -13,8 +13,8 @@ lazy val codeEpiphany = (project in file("."))
       "-feature",
       "-deprecation"
     ),
-    intellijAttachSources := true,
-    javacOptions ++= "--release" :: "17" :: Nil,
+    javacOptions ++= Seq("--enable-preview"),
+    intellijAttachSources          := true,
     instrumentThreadingAnnotations := true,
     bundleScalaLibrary             := true,
     intellijPlugins += "com.intellij.java".toPlugin,

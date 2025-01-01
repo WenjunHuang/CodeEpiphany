@@ -1,21 +1,28 @@
 package com.wenjunhuang.codeepiphany.hackerrank.settings
 
+import com.intellij.openapi.options.ConfigurableBase
 import com.intellij.openapi.project.Project
 import com.wenjunhuang.codeepiphany.PluginBundle
 import com.wenjunhuang.codeepiphany.hackerrank.model.ChallengeCodeTemplate
 import com.wenjunhuang.codeepiphany.model.Language
-import com.wenjunhuang.codeepiphany.model.Language.*
-import com.wenjunhuang.codeepiphany.settings.{SettingsConfigurable, SettingsPanel}
+import com.wenjunhuang.codeepiphany.model.Language.* 
 
-class HackerRankSettingsConfigurable(private val myProject: Project) extends SettingsConfigurable {
-  override def createPanel(): SettingsPanel = new HackerRankSettingsPanel(myProject)
+class HackerRankSettingsConfigurable(private val myProject: Project)
+    extends ConfigurableBase[HackerRankSettingsPanel, HackerRankSettings.HackerRankState](
+      "CodeEpiphany.Settings.HackerRank",
+      PluginBundle.message("hackerrank.settings.title"),
+      "CodeEpiphany.Settings.HackerRank.HelpTopic"
+    ) {
+  override def getSettings: HackerRankSettings.HackerRankState = {
+    val settings = HackerRankSettings.getInstance(myProject)
+    settings.getState
+  }
 
-  override def getDisplayName: String =
-    PluginBundle.message("hackerrank.settings.title")
+  override def createUi(): HackerRankSettingsPanel = HackerRankSettingsPanel(myProject)
 }
 
 object HackerRankSettingsConfigurable {
-  val DEMO_JULIA_TEMPLATE: ChallengeCodeTemplate = ChallengeCodeTemplate(
+  private val DEMO_JULIA_TEMPLATE: ChallengeCodeTemplate = ChallengeCodeTemplate(
     23074,
     "Birthday Cake Candles",
     "birthday-cake-candles",
@@ -49,7 +56,7 @@ object HackerRankSettingsConfigurable {
         |""".stripMargin
   )
 
-  val DEMO_JAVA_TEMPLATE: ChallengeCodeTemplate = ChallengeCodeTemplate(
+  private val DEMO_JAVA_TEMPLATE: ChallengeCodeTemplate = ChallengeCodeTemplate(
     23074,
     "Birthday Cake Candles",
     "birthday-cake-candles",
@@ -108,7 +115,7 @@ object HackerRankSettingsConfigurable {
         |""".stripMargin
   )
 
-  val DEMO_R_TEMPLATE = ChallengeCodeTemplate(
+  private val DEMO_R_TEMPLATE = ChallengeCodeTemplate(
     23074,
     "Birthday Cake Candles",
     "birthday-cake-candles",
@@ -146,7 +153,7 @@ object HackerRankSettingsConfigurable {
         |""".stripMargin.replace("\r\n", "\n")
   )
 
-  val DEMO_KOTLIN_TEMPLATE = ChallengeCodeTemplate(
+  private val DEMO_KOTLIN_TEMPLATE = ChallengeCodeTemplate(
     23074,
     "Birthday Cake Candles",
     "birthday-cake-candles",
@@ -200,7 +207,7 @@ object HackerRankSettingsConfigurable {
         |""".stripMargin.replace("\r\n", "\n")
   )
 
-  val DEMO_TYPESCRIPT_TEMPLATE = ChallengeCodeTemplate(
+  private val DEMO_TYPESCRIPT_TEMPLATE = ChallengeCodeTemplate(
     23074,
     "Birthday Cake Candles",
     "birthday-cake-candles",
@@ -260,7 +267,7 @@ object HackerRankSettingsConfigurable {
         |""".stripMargin.replace("\r\n", "\n")
   )
 
-  val DEMO_ERLANG_TEMPLATE = ChallengeCodeTemplate(
+  private val DEMO_ERLANG_TEMPLATE = ChallengeCodeTemplate(
     23074,
     "Birthday Cake Candles",
     "birthday-cake-candles",
@@ -306,7 +313,7 @@ object HackerRankSettingsConfigurable {
         |""".stripMargin
   )
 
-  val DEMO_CPP_TEMPLATE = ChallengeCodeTemplate(
+  private val DEMO_CPP_TEMPLATE = ChallengeCodeTemplate(
     23074,
     "Birthday Cake Candles",
     "birthday-cake-candles",
@@ -410,7 +417,7 @@ object HackerRankSettingsConfigurable {
         |""".stripMargin
   )
 
-  val DEMO_PHP_TEMPLATE = ChallengeCodeTemplate(
+  private val DEMO_PHP_TEMPLATE = ChallengeCodeTemplate(
     23074,
     "Birthday Cake Candles",
     "birthday-cake-candles",
@@ -453,7 +460,7 @@ object HackerRankSettingsConfigurable {
         |""".stripMargin
   )
 
-  val DEMO_JAVASCRIPT_TEMPLATE = ChallengeCodeTemplate(
+  private val DEMO_JAVASCRIPT_TEMPLATE = ChallengeCodeTemplate(
     23074,
     "Birthday Cake Candles",
     "birthday-cake-candles",
@@ -515,7 +522,7 @@ object HackerRankSettingsConfigurable {
         |""".stripMargin.replace("\r\n", "\n")
   )
 
-  val DEMO_SWIFT_TEMPLATE = ChallengeCodeTemplate(
+  private val DEMO_SWIFT_TEMPLATE = ChallengeCodeTemplate(
     23074,
     "Birthday Cake Candles",
     "birthday-cake-candles",
@@ -559,7 +566,7 @@ object HackerRankSettingsConfigurable {
         |""".stripMargin.replace("\r\n", "\n")
   )
 
-  val DEMO_RUST_TEMPLATE = ChallengeCodeTemplate(
+  private val DEMO_RUST_TEMPLATE = ChallengeCodeTemplate(
     23074,
     "Birthday Cake Candles",
     "birthday-cake-candles",
@@ -605,7 +612,7 @@ object HackerRankSettingsConfigurable {
         |""".stripMargin.replace("\r\n", "\n")
   )
 
-  val DEMO_SCALA_TEMPLATE = ChallengeCodeTemplate(
+  private val DEMO_SCALA_TEMPLATE = ChallengeCodeTemplate(
     23074,
     "Birthday Cake Candles",
     "birthday-cake-candles",
@@ -668,7 +675,7 @@ object HackerRankSettingsConfigurable {
         |""".stripMargin.replace("\r\n", "\n")
   )
 
-  val DEMO_PERL_TEMPLATE = ChallengeCodeTemplate(
+  private val DEMO_PERL_TEMPLATE = ChallengeCodeTemplate(
     23074,
     "Birthday Cake Candles",
     "birthday-cake-candles",
@@ -727,7 +734,7 @@ object HackerRankSettingsConfigurable {
         |""".stripMargin.replace("\r\n", "\n")
   )
 
-  val DEMO_CSHARP_TEMPLATE = ChallengeCodeTemplate(
+  private val DEMO_CSHARP_TEMPLATE = ChallengeCodeTemplate(
     23074,
     "Birthday Cake Candles",
     "birthday-cake-candles",
@@ -789,7 +796,7 @@ object HackerRankSettingsConfigurable {
         |""".stripMargin.replace("\r\n", "\n")
   )
 
-  val DEMO_HASKELL_TEMPLATE = ChallengeCodeTemplate(
+  private val DEMO_HASKELL_TEMPLATE = ChallengeCodeTemplate(
     23074,
     "Birthday Cake Candles",
     "birthday-cake-candles",
@@ -849,7 +856,7 @@ object HackerRankSettingsConfigurable {
         |""".stripMargin.replace("\r\n", "\n")
   )
 
-  val DEMO_GO_TEMPLATE = ChallengeCodeTemplate(
+  private val DEMO_GO_TEMPLATE = ChallengeCodeTemplate(
     23074,
     "Birthday Cake Candles",
     "birthday-cake-candles",
@@ -931,7 +938,7 @@ object HackerRankSettingsConfigurable {
         |""".stripMargin.replace("\r\n", "\n")
   )
 
-  val DEMO_RUBY_TEMPLATE = ChallengeCodeTemplate(
+  private val DEMO_RUBY_TEMPLATE = ChallengeCodeTemplate(
     23074,
     "Birthday Cake Candles",
     "birthday-cake-candles",
@@ -976,7 +983,7 @@ object HackerRankSettingsConfigurable {
         |""".stripMargin.replace("\r\n", "\n")
   )
 
-  val DEMO_CLOJURE_TEMPLATE = ChallengeCodeTemplate(
+  private val DEMO_CLOJURE_TEMPLATE = ChallengeCodeTemplate(
     23074,
     "Birthday Cake Candles",
     "birthday-cake-candles",
@@ -1010,7 +1017,7 @@ object HackerRankSettingsConfigurable {
         |""".stripMargin.replace("\r\n", "\n")
   )
 
-  val DEMO_C_TEMPLATE = ChallengeCodeTemplate(
+  private val DEMO_C_TEMPLATE = ChallengeCodeTemplate(
     23074,
     "Birthday Cake Candles",
     "birthday-cake-candles",
@@ -1198,7 +1205,7 @@ object HackerRankSettingsConfigurable {
         |""".stripMargin
   )
 
-  val DEMO_OBJECTIVEC_TEMPLATE = ChallengeCodeTemplate(
+  private val DEMO_OBJECTIVEC_TEMPLATE = ChallengeCodeTemplate(
     23074,
     "Birthday Cake Candles",
     "birthday-cake-candles",
@@ -1317,7 +1324,7 @@ object HackerRankSettingsConfigurable {
         |""".stripMargin.replace("\r\n", "\n")
   )
 
-  val DEMOS = Map(
+  private val DEMOS = Map(
     Julia      -> DEMO_JULIA_TEMPLATE,
     Java       -> DEMO_JAVA_TEMPLATE,
     Javascript -> DEMO_JAVASCRIPT_TEMPLATE,
@@ -1340,7 +1347,7 @@ object HackerRankSettingsConfigurable {
     ObjectiveC -> DEMO_OBJECTIVEC_TEMPLATE
   )
 
-  val HACKERRANK_LANGUAGES:Array[Language] = DEMOS.keys.toArray.sortBy(_.value)
+  val HACKERRANK_LANGUAGES: Array[Language] = DEMOS.keys.toArray.sortBy(_.value)
 
   def getDemoTemplate(language: Language): Option[ChallengeCodeTemplate] = DEMOS.get(language)
 

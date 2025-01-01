@@ -67,7 +67,7 @@ class HackerRankLoginDialog(private val myProject: Project, private val callback
   private val myCookieLoginPane = createCookieLoginPane()
   private val myLoginViaCookiePanel = myContentManager.getFactory.createContent(
     myCookieLoginPane,
-    PluginBundle.message("hackerrank.ui.login.viacookie"),
+    PluginBundle.message("hackerrank.ui.login.viaCookie"),
     true
   )
 
@@ -81,7 +81,7 @@ class HackerRankLoginDialog(private val myProject: Project, private val callback
   private val myLoginBrowser = createBrowserLoginPanel()
   private val myLoginViaBrowserPanel = myContentManager.getFactory.createContent(
     JBScrollPane(myLoginBrowser.getComponent, ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER),
-    PluginBundle.message("hackerrank.ui.login.viabrowser"),
+    PluginBundle.message("hackerrank.ui.login.viaBrowser"),
     true
   )
   implicit private val myHttpClientKeeper: HttpClientKeeper[IO] = HttpClientService.getInstance(myProject).httpClientKeeper
@@ -142,7 +142,6 @@ class HackerRankLoginDialog(private val myProject: Project, private val callback
   private def createCookieLoginPane(): JComponent =
     new JBScrollPane(myCookieText, ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER) with UiDataProvider {
       override def uiDataSnapshot(dataSink: DataSink): Unit = {
-        val delegator = CopyPasteDelegator(myProject, myCookieText)
         dataSink.set(
           PlatformDataKeys.CUT_PROVIDER,
           new CutProvider {
@@ -158,7 +157,7 @@ class HackerRankLoginDialog(private val myProject: Project, private val callback
 
             override def isCutVisible(dataContext: DataContext): Boolean = true
           }
-        );
+        )
         dataSink.set(
           PlatformDataKeys.COPY_PROVIDER,
           new CopyProvider {
@@ -170,7 +169,7 @@ class HackerRankLoginDialog(private val myProject: Project, private val callback
 
             override def isCopyVisible(dataContext: DataContext): Boolean = true
           }
-        );
+        )
         dataSink.set(
           PlatformDataKeys.PASTE_PROVIDER,
           new PasteProvider {
@@ -215,9 +214,8 @@ class HackerRankLoginDialog(private val myProject: Project, private val callback
           .collect { case (_, Some(cookies)) => cookies }
           .evalTap { cookies =>
             cookies.find(_.getName == "remember_hacker_token") match
-              case Some(cookie) =>
+              case Some(_) =>
                 // found a candidate cookie, but need to test it to see if it's valid
-                implicit val k: HttpClientKeeper[IO] = HttpClientService.getInstance(myProject).httpClientKeeper
                 validateUserCookieAndTestLogin[IO](myProject, CodeDojo.HackerRank, cookies).flatMap {
                   case true =>
                     IO.delay(callback(Right(AskForLoginResult.Done))) *> IO.delay {
@@ -235,7 +233,7 @@ class HackerRankLoginDialog(private val myProject: Project, private val callback
 
     val loadHandler = new CefLoadHandlerAdapter {
       override def onLoadingStateChange(cefBrowser: CefBrowser, isLoading: Boolean, canGoBack: Boolean, canGoForward: Boolean): Unit =
-        browser.getJBCefCookieManager.getCefCookieManager.visitAllCookies { (cefCookie: CefCookie, count: Int, total: Int, delete: BoolRef) =>
+        browser.getJBCefCookieManager.getCefCookieManager.visitAllCookies { (cefCookie: CefCookie, count: Int, total: Int, _: BoolRef) =>
           if cefCookie.domain.contains("hackerrank.com") then
             val cookie = new HttpCookie(cefCookie.name, cefCookie.value)
             cookie.setDomain(cefCookie.domain)
