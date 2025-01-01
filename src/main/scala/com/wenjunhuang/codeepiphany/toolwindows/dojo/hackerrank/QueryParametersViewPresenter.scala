@@ -9,13 +9,11 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
 import com.intellij.ui.table.JBTable
 import com.intellij.util.ui.JBInsets
-import com.wenjunhuang.codeepiphany.hackerrank.HackerRankApi
 import com.wenjunhuang.codeepiphany.hackerrank.model.*
 import com.wenjunhuang.codeepiphany.hackerrank.services.editor.openChallenge
+import com.wenjunhuang.codeepiphany.hackerrank.services.HackerRankApi
 import com.wenjunhuang.codeepiphany.model.{messages, CodeDojo}
 import com.wenjunhuang.codeepiphany.model.CodeDojo.HackerRank
-import com.wenjunhuang.codeepiphany.model.Language.{Haskell, Scala}
-import com.wenjunhuang.codeepiphany.model.LanguageVersion.AnyVersion
 import com.wenjunhuang.codeepiphany.services.http.{HttpClientKeeper, HttpClientService}
 import com.wenjunhuang.codeepiphany.toolwindows.dojo.actions.*
 import com.wenjunhuang.codeepiphany.toolwindows.dojo.actions.keys.*
@@ -25,7 +23,7 @@ import com.wenjunhuang.codeepiphany.utils.ui.Tag as TagUI
 import fs2.Stream
 import fs2.concurrent.SignallingRef
 import org.typelevel.ci.CIString
-import org.typelevel.log4cats.{Logger, LoggerFactory, SelfAwareStructuredLogger}
+import org.typelevel.log4cats.{Logger, LoggerFactory}
 
 import java.awt.{GridBagConstraints, GridBagLayout}
 import javax.swing.{Icon, JComponent, JPanel}

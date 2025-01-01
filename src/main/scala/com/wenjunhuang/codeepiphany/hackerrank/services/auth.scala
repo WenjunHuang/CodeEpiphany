@@ -3,7 +3,6 @@ package com.wenjunhuang.codeepiphany.hackerrank.services
 import cats.effect.kernel.Async
 import cats.syntax.all.*
 import com.intellij.openapi.project.Project
-import com.wenjunhuang.codeepiphany.hackerrank.HackerRankApi
 import com.wenjunhuang.codeepiphany.hackerrank.login.HackerRankLoginDialog
 import com.wenjunhuang.codeepiphany.model.{ApiError, CodeDojo, SensitiveDataStore}
 import com.wenjunhuang.codeepiphany.services.http.HttpClientKeeper
@@ -33,24 +32,42 @@ object auth {
       case None => ().pure[F]
     }
 
-  def saveAuthentication[F[_]: Async: HttpClientKeeper](project: Project, codeDojo: CodeDojo, authCookies: List[HttpCookie]): F[Unit] =
+  def saveAuthentication[F[_]: Async: HttpClientKeeper](
+    project: Project,
+    codeDojo: CodeDojo,
+    authCookies: List[HttpCookie]
+  ): F[Unit] =
     Async[F].delay {
-      SensitiveDataStore.saveData(codeDojo.show, authCookies.map(cookie => s"${cookie.getName}=${cookie.getValue}").mkString(";"))
+      SensitiveDataStore.saveData(
+        codeDojo.show,
+        authCookies.map(cookie => s"${cookie.getName}=${cookie.getValue}").mkString(";")
+      )
     }
 
-  def validateUserCookieAndTestLogin[F[_]: Async: HttpClientKeeper](project: Project, codeDojo: CodeDojo, cookies: List[HttpCookie]): F[Boolean] =
+  def validateUserCookieAndTestLogin[F[_]: Async: HttpClientKeeper](
+    project: Project,
+    codeDojo: CodeDojo,
+    cookies: List[HttpCookie]
+  ): F[Boolean] =
     HttpClientKeeper[F].updateCookiesForHost(codeDojo.domain, cookies) *> HackerRankApi[F]().checkLogin().flatMap {
       case true =>
         saveAuthentication[F](project, codeDojo, cookies) *> true.pure[F]
       case false => HttpClientKeeper[F].clearCookiesForHost(CodeDojo.HackerRank.domain) *> false.pure[F]
     }
 
-  def validateUserCookieAndTestLogin[F[_]: Async: HttpClientKeeper](project: Project, codeDojo: CodeDojo, cookie: String): F[Boolean] =
+  def validateUserCookieAndTestLogin[F[_]: Async: HttpClientKeeper](
+    project: Project,
+    codeDojo: CodeDojo,
+    cookie: String
+  ): F[Boolean] =
     Async[F]
       .delay(CookieUtil.parseCookies(cookie))
       .flatMap(validateUserCookieAndTestLogin(project, codeDojo, _))
 
-  def loadAuthenticationMayAskForLogin[F[_]: Async: HttpClientKeeper](project: Project, codeDojo: CodeDojo): F[AskForLoginResult] =
+  def loadAuthenticationMayAskForLogin[F[_]: Async: HttpClientKeeper](
+    project: Project,
+    codeDojo: CodeDojo
+  ): F[AskForLoginResult] =
     for {
       _ <- loadAuthentication(project, codeDojo)
       r <- isAuthenticated(project, codeDojo)
@@ -78,8 +95,9 @@ object auth {
     def askForLoginIfUnauthorized(project: Project)(implicit E: Async[F]): F[AskForLoginResult | A] =
       effect.redeemWith(
         recover = {
-          case ApiError.Unauthorized(codeDojo, _) => askForLogin(project, codeDojo).map(_.asInstanceOf[AskForLoginResult | A])
-          case e                                  => E.raiseError(e)
+          case ApiError.Unauthorized(codeDojo, _) =>
+            askForLogin(project, codeDojo).map(_.asInstanceOf[AskForLoginResult | A])
+          case e => E.raiseError(e)
         },
         bind = E.pure
       )

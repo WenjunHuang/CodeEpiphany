@@ -4,8 +4,8 @@ import cats.effect.IO
 import com.intellij.openapi.actionSystem.DataSink
 import com.intellij.openapi.project.Project
 import com.intellij.ui.CardLayoutPanel
-import com.wenjunhuang.codeepiphany.hackerrank.HackerRankApi
 import com.wenjunhuang.codeepiphany.hackerrank.services.auth.{askForLogout, loadAuthenticationMayAskForLogin, AskForLoginResult}
+import com.wenjunhuang.codeepiphany.hackerrank.services.HackerRankApi
 import com.wenjunhuang.codeepiphany.model.{messages, CodeDojo}
 import com.wenjunhuang.codeepiphany.services.http.{HttpClientKeeper, HttpClientService}
 import com.wenjunhuang.codeepiphany.toolwindows.dojo.AbstractCodeDojoView
@@ -16,10 +16,13 @@ import com.wenjunhuang.codeepiphany.utils.implicits.*
 
 import javax.swing.JComponent
 
-class HackerRankView(private val myProject: Project) extends CardLayoutPanel[DojoUI, DojoUI, JComponent] with AbstractCodeDojoView {
+class HackerRankView(private val myProject: Project)
+    extends CardLayoutPanel[DojoUI, DojoUI, JComponent]
+    with AbstractCodeDojoView {
 
-  implicit private val httpClientKeeper: HttpClientKeeper[IO] = HttpClientService.getInstance(myProject).httpClientKeeper
-  private val myApi                                           = HackerRankApi[IO]()
+  implicit private val httpClientKeeper: HttpClientKeeper[IO] =
+    HttpClientService.getInstance(myProject).httpClientKeeper
+  private val myApi = HackerRankApi[IO]()
 
   private val myUnauthenticatedView    = UnauthenticatedView()
   private val myQueryParamPresenter    = QueryParametersViewPresenter(myProject)
@@ -38,7 +41,7 @@ class HackerRankView(private val myProject: Project) extends CardLayoutPanel[Doj
             .syncPublisher(messages.LOGIN_LOGOUT_TOPIC)
             .login(CodeDojo.HackerRank)
           myIsLoggedIn = true
-        } *> IO.delay {mySwitchUIProvider.switchTo(DojoUI.QueryParameters)}.evalOn(intellijUIContext)
+        } *> IO.delay { mySwitchUIProvider.switchTo(DojoUI.QueryParameters) }.evalOn(intellijUIContext)
       case _ => IO.unit
     }.unsafeRunAndForget()
 
