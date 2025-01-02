@@ -13,6 +13,7 @@ import com.wenjunhuang.codeepiphany.services.http.HttpClientKeeper
 import com.wenjunhuang.codeepiphany.utils.implicits.*
 import com.wenjunhuang.codeepiphany.utils.template.VelocityUtils
 import org.typelevel.log4cats.Logger
+import com.wenjunhuang.codeepiphany.services.console
 
 import java.io.File
 

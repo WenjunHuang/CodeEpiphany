@@ -15,7 +15,7 @@ import com.wenjunhuang.codeepiphany.utils.implicits.*
 
 class LogConsoleView(private val myProject: Project) extends SimpleToolWindowPanel(false, true) {
 
-  private val myConsoleView = TextConsoleBuilderFactory.getInstance().createBuilder(myProject).getConsole
+  private val myConsoleView: ConsoleView = TextConsoleBuilderFactory.getInstance().createBuilder(myProject).getConsole
 
   init()
 

@@ -19,8 +19,8 @@ class SwitchUIAction extends AnAction {
   private def updateIcon(ui: DojoUI, present: Presentation): Unit =
     ui match
       case Unauthenticated => ()
-      case QueryParameters => present.setIcon(CodeEpiphanyIcons.DojoKeywordUIIcon)
-      case SearchByKeyword => present.setIcon(CodeEpiphanyIcons.DojoQueryParamUIIcon)
+      case QueryParameters => present.setIcon(CodeEpiphanyIcons.SEARCH)
+      case SearchByKeyword => present.setIcon(CodeEpiphanyIcons.QUERY_PARAM)
 
   override def update(e: AnActionEvent): Unit =
     Option(SWITCHUI_PROVIDER_KEY.getData(e.getDataContext)) match

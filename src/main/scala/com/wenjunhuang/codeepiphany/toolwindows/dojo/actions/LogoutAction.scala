@@ -14,7 +14,7 @@ class LogoutAction extends AnAction with DumbAware {
     LOGIN_LOGOUT_KEY.getData(e.getDataContext) match {
       case null => presentation.setEnabledAndVisible(false)
       case alg =>
-        presentation.setEnabledAndVisible(alg.isLoggedIn)
+        presentation.setEnabledAndVisible(alg.hasLoggedIn)
     }
 
   override def getActionUpdateThread: ActionUpdateThread = ActionUpdateThread.BGT

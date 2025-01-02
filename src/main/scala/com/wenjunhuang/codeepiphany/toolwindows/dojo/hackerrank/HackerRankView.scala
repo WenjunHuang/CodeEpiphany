@@ -38,35 +38,42 @@ class HackerRankView(private val myProject: Project)
   private val myQueryParamPresenter    = QueryParametersViewPresenter(myProject)
   private val myKeywordSearchPresenter = KeywordSearchViewPresenter(myProject)
   private var myCurrentUI              = DojoUI.Unauthenticated
+
   @volatile
-  private var myIsLoggedIn = false
+  private var myHasLoggedIn = false
+
+  @volatile
+  private var myIsLoggingIn = false
 
   select(myCurrentUI, false)
 
   private val myLoginLogoutProvider = new LoginLogoutProvider {
-    override def login(): Unit =
+    override def login(): Unit = {
+      myIsLoggingIn = true
       (console.info[IO](myProject, "Logging in to HackerRank...") *>
         loadAuthenticationMayAskForLogin[IO](myProject, CodeDojo.HackerRank).flatMap {
           case AskForLoginResult.Done =>
             IO.delay {
-              myProject.getMessageBus
-                .syncPublisher(messages.LOGIN_LOGOUT_TOPIC)
-                .login(CodeDojo.HackerRank)
-              myIsLoggedIn = true
-            } *> IO.delay {
+              myProject.getMessageBus.syncPublisher(messages.LOGIN_LOGOUT_TOPIC).login(CodeDojo.HackerRank)
+              myHasLoggedIn = true
               mySwitchUIProvider.switchTo(DojoUI.QueryParameters)
             }.evalOnEDTAny() *> console.info[IO](myProject, "Logged in to HackerRank.")
           case _ => console.info[IO](myProject, "Login to HackerRank canceled.")
-        }).unsafeRunAsBackgroundProgressCancellable(myProject, "Logging in to HackerRank...")
+        }.handleErrorWith { e => console.error[IO](myProject, s"Login failed because of \"${e.getMessage}\"") })
+        .guarantee(IO.delay { myIsLoggingIn = false })
+        .unsafeRunAsBackgroundProgressCancellable(myProject, "Logging in to HackerRank...")
+    }
 
     override def logout(): Unit = (askForLogout[IO](myProject, CodeDojo.HackerRank)
       *> IO.delay(myProject.getMessageBus.syncPublisher(messages.LOGIN_LOGOUT_TOPIC).logout(CodeDojo.HackerRank))
       *> IO.delay {
-        myIsLoggedIn = false
+        myHasLoggedIn = false
         select(DojoUI.Unauthenticated, false)
       }.evalOnEDTAny()).unsafeRunAndForget()
 
-    override def isLoggedIn: Boolean = myIsLoggedIn
+    override def hasLoggedIn: Boolean = myHasLoggedIn
+
+    override def isLoggingIn: Boolean = myIsLoggingIn
   }
 
   private val mySwitchUIProvider = new SwitchUIProvider {

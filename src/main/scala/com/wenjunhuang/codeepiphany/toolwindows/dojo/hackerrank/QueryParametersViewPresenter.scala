@@ -3,7 +3,7 @@ package com.wenjunhuang.codeepiphany.toolwindows.dojo.hackerrank
 import cats.effect.IO
 import cats.effect.std.Queue
 import com.intellij.openapi.Disposable
-import com.intellij.openapi.actionSystem.{AnAction, DataSink}
+import com.intellij.openapi.actionSystem.{ AnAction, DataSink }
 import com.intellij.openapi.actionSystem.ex.DefaultCustomComponentAction
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
@@ -12,9 +12,9 @@ import com.intellij.util.ui.JBInsets
 import com.wenjunhuang.codeepiphany.hackerrank.model.*
 import com.wenjunhuang.codeepiphany.hackerrank.services.editor.openChallenge
 import com.wenjunhuang.codeepiphany.hackerrank.services.HackerRankApi
-import com.wenjunhuang.codeepiphany.model.{messages, CodeDojo}
+import com.wenjunhuang.codeepiphany.model.{ messages, CodeDojo }
 import com.wenjunhuang.codeepiphany.model.CodeDojo.HackerRank
-import com.wenjunhuang.codeepiphany.services.http.{HttpClientKeeper, HttpClientService}
+import com.wenjunhuang.codeepiphany.services.http.{ HttpClientKeeper, HttpClientService }
 import com.wenjunhuang.codeepiphany.toolwindows.dojo.actions.*
 import com.wenjunhuang.codeepiphany.toolwindows.dojo.actions.keys.*
 import com.wenjunhuang.codeepiphany.toolwindows.dojo.actions.providers.ChallengeProvider
@@ -23,10 +23,10 @@ import com.wenjunhuang.codeepiphany.utils.ui.Tag as TagUI
 import fs2.Stream
 import fs2.concurrent.SignallingRef
 import org.typelevel.ci.CIString
-import org.typelevel.log4cats.{Logger, LoggerFactory}
+import org.typelevel.log4cats.{ Logger, LoggerFactory }
 
-import java.awt.{GridBagConstraints, GridBagLayout}
-import javax.swing.{Icon, JComponent, JPanel}
+import java.awt.{ GridBagConstraints, GridBagLayout }
+import javax.swing.{ Icon, JComponent, JPanel }
 import scala.concurrent.duration.*
 import scala.jdk.CollectionConverters.*
 
@@ -35,12 +35,10 @@ class QueryParametersViewPresenter(private val myProject: Project) extends Dispo
 
   implicit private val myLogger: Logger[IO] = LoggerFactory[IO].getLogger
 
-  implicit private val httpClientKeeper: HttpClientKeeper[IO] = HttpClientService.getInstance(myProject).httpClientKeeper
-  private val myApi                                           = HackerRankApi[IO]()
+  implicit private val httpClientKeeper: HttpClientKeeper[IO] =
+    HttpClientService.getInstance(myProject).httpClientKeeper
+  private val myApi = HackerRankApi[IO]()
 
-  private val myChallengesModel = ChallengesTableModel()
-  private val myChallengesTable = myChallengesModel.createTableView(uiDataSnapshot)
- 
   private val myView = QueryParamView(myProject, this)
 
   @volatile
@@ -85,7 +83,7 @@ class QueryParametersViewPresenter(private val myProject: Project) extends Dispo
                 IO.delay {
                   myState = state
                   myPaginationProvider.refresh()
-                  setChallengeItems(state.currentItems)
+                  updateChallengeItems(state.currentItems)
                 }.evalOnEDTAny()
               }
           )
@@ -146,11 +144,13 @@ class QueryParametersViewPresenter(private val myProject: Project) extends Dispo
     }
   private val myChallengeProvider = new ChallengeProvider {
     override def openCurrentSelectedChallenge(): Unit =
-      Option(myChallengesTable.getSelectedObject) match
+      Option(myView.getTable.getSelectedObject) match
         case Some(selected) =>
-          openChallenge[IO](myProject, selected.slug, Contest.fromCIString(CIString(selected.contestSlug)).get).unsafeRunAndForget()
+          openChallenge[IO](myProject, selected.slug, Contest.fromCIString(CIString(selected.contestSlug)).get)
+            .unsafeRunAndForget()
         case None => ()
   }
+
   private val myListsProvider = new CategoryProvider {
     override def isSelected(item: Category): Boolean =
       myState.selectedDomain.slug == item.value
@@ -175,10 +175,7 @@ class QueryParametersViewPresenter(private val myProject: Project) extends Dispo
       myInitialData.challengeDomains.find(_.slug == items.head.value) match
         case Some(newSelected) =>
           if myState.selectedDomain.slug != newSelected.slug then
-            myState = myState.copy(
-              selectedDomain = newSelected,
-              selectedSubdomains = Nil
-            )
+            myState = myState.copy(selectedDomain = newSelected, selectedSubdomains = Nil)
             refreshTags()
         case _ =>
 
@@ -244,7 +241,8 @@ class QueryParametersViewPresenter(private val myProject: Project) extends Dispo
       myState.selectedStatus.map(status => Status(status.show, status.value)).toList
 
     override def addSelectedItems(items: List[Status]): Unit =
-      myState = myState.copy(selectedStatus = items.headOption.flatMap(status => allItems.find(_.value == status.value)))
+      myState =
+        myState.copy(selectedStatus = items.headOption.flatMap(status => allItems.find(_.value == status.value)))
       refreshTags()
       refreshQuery()
 
@@ -277,17 +275,18 @@ class QueryParametersViewPresenter(private val myProject: Project) extends Dispo
     }
 
     override def addSelectedItems(items: List[Tag]): Unit =
-      myState = myState.copy(
-        selectedSubdomains = (myState.selectedSubdomains ++ items.collect {
-          case Tag(_, value, groupValue) if myState.selectedDomain.slug == groupValue && myState.selectedDomain.subDomains.exists(_.slug == value) =>
-            myState.selectedDomain.subDomains.find(_.slug == value).get
-        }).distinct
-      )
+      myState = myState.copy(selectedSubdomains = (myState.selectedSubdomains ++ items.collect {
+        case Tag(_, value, groupValue)
+            if myState.selectedDomain.slug == groupValue && myState.selectedDomain.subDomains.exists(_.slug == value) =>
+          myState.selectedDomain.subDomains.find(_.slug == value).get
+      }).distinct)
       refreshTags()
       refreshQuery()
 
     override def removeSelectedItems(items: List[Tag]): Unit =
-      myState = myState.copy(selectedSubdomains = myState.selectedSubdomains.filterNot(subdomain => items.exists(_.value == subdomain.slug)))
+      myState = myState.copy(selectedSubdomains =
+        myState.selectedSubdomains.filterNot(subdomain => items.exists(_.value == subdomain.slug))
+      )
       refreshTags()
       refreshQuery()
 
@@ -298,18 +297,9 @@ class QueryParametersViewPresenter(private val myProject: Project) extends Dispo
 
   private val mySkillProvider = new SkillProvider {
     override def getAllItems: List[Skill] = List(
-      Skill(
-        ChallengeSkill.Basic.show,
-        ChallengeSkill.Basic.value
-      ),
-      Skill(
-        ChallengeSkill.Intermediate.show,
-        ChallengeSkill.Intermediate.value
-      ),
-      Skill(
-        ChallengeSkill.Advanced.show,
-        ChallengeSkill.Advanced.value
-      )
+      Skill(ChallengeSkill.Basic.show, ChallengeSkill.Basic.value),
+      Skill(ChallengeSkill.Intermediate.show, ChallengeSkill.Intermediate.value),
+      Skill(ChallengeSkill.Advanced.show, ChallengeSkill.Advanced.value)
     )
 
     override def isMultipleSelection: Boolean = true
@@ -390,7 +380,13 @@ class QueryParametersViewPresenter(private val myProject: Project) extends Dispo
     override def getTotalItems: Int = myState.totalSize
   }
 
-  private def createTagAction(id: String, text: String, icon: Option[Icon], radius: Float, onCloseAction: Option[() => Unit]): AnAction = DefaultCustomComponentAction { () =>
+  private def createTagAction(
+    id: String,
+    text: String,
+    icon: Option[Icon],
+    radius: Float,
+    onCloseAction: Option[() => Unit]
+  ): AnAction = DefaultCustomComponentAction { () =>
     val tag = JPanel(GridBagLayout())
     val gbc = GridBagConstraints()
     gbc.gridx = 0
@@ -406,7 +402,9 @@ class QueryParametersViewPresenter(private val myProject: Project) extends Dispo
     val tagActionGroup = myView.getTagActionGroup
     tagActionGroup.removeAll()
 
-    tagActionGroup.add(createTagAction(myState.selectedDomain.slug, myState.selectedDomain.name, None, DOMAIN_TAG_RADIUS, None))
+    tagActionGroup.add(
+      createTagAction(myState.selectedDomain.slug, myState.selectedDomain.name, None, DOMAIN_TAG_RADIUS, None)
+    )
 
     myState.selectedDifficulties.foreach { difficulty =>
       tagActionGroup.add(
@@ -420,11 +418,27 @@ class QueryParametersViewPresenter(private val myProject: Project) extends Dispo
       )
     }
     myState.selectedStatus.foreach { status =>
-      tagActionGroup.add(createTagAction(status.value, status.show, None, STATUS_TAG_RADIUS, Some(() => myStatusProvider.removeSelectedItems(List(Status(status.show, status.value))))))
+      tagActionGroup.add(
+        createTagAction(
+          status.value,
+          status.show,
+          None,
+          STATUS_TAG_RADIUS,
+          Some(() => myStatusProvider.removeSelectedItems(List(Status(status.show, status.value))))
+        )
+      )
     }
 
     myState.selectedSkills.foreach { skill =>
-      tagActionGroup.add(createTagAction(skill.value, skill.show, None, SKILL_TAG_RADIUS, Some(() => mySkillProvider.removeSelectedItems(List(Skill(skill.show, skill.value))))))
+      tagActionGroup.add(
+        createTagAction(
+          skill.value,
+          skill.show,
+          None,
+          SKILL_TAG_RADIUS,
+          Some(() => mySkillProvider.removeSelectedItems(List(Skill(skill.show, skill.value))))
+        )
+      )
     }
     myState.selectedSubdomains.foreach { subdomain =>
       tagActionGroup.add(
@@ -433,7 +447,9 @@ class QueryParametersViewPresenter(private val myProject: Project) extends Dispo
           subdomain.name,
           None,
           SUBDOMAIN_TAG_RADIUS,
-          Some(() => myTagProvider.removeSelectedItems(List(Tag(subdomain.name, subdomain.slug, myState.selectedDomain.slug))))
+          Some(() =>
+            myTagProvider.removeSelectedItems(List(Tag(subdomain.name, subdomain.slug, myState.selectedDomain.slug)))
+          )
         )
       )
     }
@@ -446,24 +462,22 @@ class QueryParametersViewPresenter(private val myProject: Project) extends Dispo
 
   def getComponent: JComponent = myView
 
-  def getTableView: JBTable = myChallengesTable
-
-  def setChallengeItems(items: List[ChallengeDetail]): Unit =
-    myChallengesModel.setItems(items.asJava)
+  private def updateChallengeItems(items: List[ChallengeDetail]): Unit =
+    myView.getTableModel.setItems(items.asJava)
 }
 
 object QueryParametersViewPresenter {
   private case class InitialData(userInfo: UserInfo, challengeDomains: List[ChallengeDomain])
   private case class State(
-      selectedDomain: ChallengeDomain,
-      selectedSubdomains: List[ChallengeSubdomain],
-      selectedDifficulties: List[ChallengeDifficulty],
-      selectedStatus: Option[ChallengeStatus],
-      selectedSkills: List[ChallengeSkill],
-      currentItems: List[ChallengeDetail] = Nil,
-      currentPage: Int = 1,
-      totalSize: Int = 1,
-      pageSize: PageSize = PageSize.Twenty
+    selectedDomain: ChallengeDomain,
+    selectedSubdomains: List[ChallengeSubdomain],
+    selectedDifficulties: List[ChallengeDifficulty],
+    selectedStatus: Option[ChallengeStatus],
+    selectedSkills: List[ChallengeSkill],
+    currentItems: List[ChallengeDetail] = Nil,
+    currentPage: Int = 1,
+    totalSize: Int = 1,
+    pageSize: PageSize = PageSize.Twenty
   ) {
     def resetToFirstPage(): State = this.copy(currentPage = 1)
     def resetPagination(): State  = this.copy(currentPage = 1, totalSize = 1)

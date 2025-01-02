@@ -78,7 +78,8 @@ object HackerRankApi {
               Option(doc.selectFirst("script[id=initialData]"))
             ).mapN { case (questionBody, questionCode) =>
               parse(Uri.decode(questionCode.html())) match {
-                case Left(e) => throw ApiError.InvalidContent(HackerRank, e.getMessage)
+                case Left(e) =>
+                  throw ApiError.InvalidContent(HackerRank, e.getMessage)
                 case Right(json) =>
                   JsonPath.root.community.challenges.challenge
                     .selectDynamic(s"${contest.slug}/$problemSlug")
@@ -87,7 +88,10 @@ object HackerRankApi {
                     .getOption(json)
                     .toRight(ApiError.InvalidContent(HackerRank, "invalid challenge content json"))
                     .flatMap { json =>
-                      json.as[ChallengeDetail].leftMap(e => ApiError.InvalidContent(HackerRank, e.getMessage))
+                      json.as[ChallengeDetail]
+                        .leftMap{ e =>
+                          ApiError.InvalidContent(HackerRank, e.getMessage)
+                        }
                     }
                     .fold(throw _, identity)
               }

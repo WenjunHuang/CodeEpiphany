@@ -23,7 +23,10 @@ object console {
   private def print[F[_]: Async](project: Project, message: String, cvct: ConsoleViewContentType): F[Unit] =
     LogConsoleView.getConsoleViewF(project).map { consoleView =>
       consoleView.requestScrollingToEnd()
-      consoleView.print(s"ℹ️ ${currentDateTime()}\n", cvct)
+      cvct match
+        case ConsoleViewContentType.LOG_ERROR_OUTPUT   => consoleView.print(s"❌ ${currentDateTime()}\n", cvct)
+        case ConsoleViewContentType.LOG_WARNING_OUTPUT => consoleView.print(s"⚠️ ${currentDateTime()}\n", cvct)
+        case _                                         => consoleView.print(s"ℹ️ ${currentDateTime()}\n", cvct)
       consoleView.print(message + "\n", cvct)
     }
 

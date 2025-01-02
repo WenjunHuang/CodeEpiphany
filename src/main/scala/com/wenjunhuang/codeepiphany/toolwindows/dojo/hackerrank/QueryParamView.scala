@@ -7,14 +7,18 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.SimpleToolWindowPanel
 import com.intellij.openapi.util.Disposer
 import com.intellij.ui.components.JBScrollPane
+import com.intellij.ui.table.TableView
+import com.wenjunhuang.codeepiphany.hackerrank.model
 import com.wenjunhuang.codeepiphany.toolwindows.dojo.AbstractCodeDojoView
 import com.wenjunhuang.codeepiphany.toolwindows.dojo.actions.PaginationActionGroup
 import com.wenjunhuang.codeepiphany.toolwindows.dojo.actions.groups.*
 
 import java.awt.BorderLayout
-import javax.swing.{JPanel, ScrollPaneConstants}
+import javax.swing.{ JPanel, ScrollPaneConstants }
 
-class QueryParamView(private val myProject: Project, private val myPresenter: QueryParametersViewPresenter) extends SimpleToolWindowPanel(true, true) with AbstractCodeDojoView {
+class QueryParamView(private val myProject: Project, private val myPresenter: QueryParametersViewPresenter)
+    extends SimpleToolWindowPanel(true, true)
+    with AbstractCodeDojoView {
   private val actionManager = ActionManager.getInstance()
   private val myActionGroup = actionManager.getAction(HACKERRANK_TOOLBAR_GROUP).asInstanceOf[ActionGroup]
   private val myMainToolbar = actionManager.createActionToolbar(TOOLBAR_PLACE, myActionGroup, true)
@@ -32,9 +36,13 @@ class QueryParamView(private val myProject: Project, private val myPresenter: Qu
   private val myContent = JPanel(BorderLayout())
   myContent.add(myTagToolbar.getComponent, BorderLayout.NORTH)
 
+  private val myChallengesTableModel: ChallengesTableModel = ChallengesTableModel()
+  private val myChallengesTable: TableView[model.ChallengeDetail] =
+    myChallengesTableModel.createTableView(uiDataSnapshot)
+
   myContent.add(
     JBScrollPane(
-      myPresenter.getTableView,
+      myChallengesTable,
       ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
       ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED
     ),
@@ -47,6 +55,8 @@ class QueryParamView(private val myProject: Project, private val myPresenter: Qu
   myContent.add(myQueryRangeToolbar.getComponent, BorderLayout.SOUTH)
   setContent(myContent)
 
+  def getTableModel: ChallengesTableModel   = myChallengesTableModel
+  def getTable = myChallengesTable
   def getTagActionGroup: DefaultActionGroup = myTagActionGroup
 
   def refreshTagToolbar(): Unit =
@@ -54,8 +64,6 @@ class QueryParamView(private val myProject: Project, private val myPresenter: Qu
 
   def refreshPagination(): Unit =
     ApplicationManager.getApplication.invokeLater(() => myQueryRangeToolbar.updateActionsAsync())
-
-
 
   override def uiDataSnapshot(dataSink: DataSink): Unit =
     myPresenter.uiDataSnapshot(dataSink)

@@ -33,6 +33,4 @@ class CodeDojoToolWindowFactory extends ToolWindowFactory with DumbAware {
   }
 
   private def createTitleActions(): List[AnAction] = List(ActionManager.getInstance().getAction(TITLE_TOOLBAR_GROUP))
-
-  override def getIcon: Icon = AllIcons.General.Alpha
 }

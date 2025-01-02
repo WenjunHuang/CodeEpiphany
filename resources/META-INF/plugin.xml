@@ -17,10 +17,10 @@
         <group id="CodeEpiphany.Dojos">
             <action id="CodeEpiphany.Dojos.Actions.Login"
                     class="com.wenjunhuang.codeepiphany.toolwindows.dojo.actions.LoginAction"
-                    icon="CodeEpiphanyIcons.LOGIN_ICON"/>
+                    icon="CodeEpiphanyIcons.LOGIN"/>
             <action id="CodeEpiphany.Dojos.Actions.Logout"
                     class="com.wenjunhuang.codeepiphany.toolwindows.dojo.actions.LogoutAction"
-                    icon="CodeEpiphanyIcons.LOGOUT_ICON"/>
+                    icon="CodeEpiphanyIcons.LOGOUT"/>
             <action id="CodeEpiphany.Dojos.Actions.SwitchUI"
                     class="com.wenjunhuang.codeepiphany.toolwindows.dojo.actions.SwitchUIAction">
             </action>
@@ -97,8 +97,9 @@
         <notificationGroup displayType="BALLOON" id="My Plugin Notification"/>
         <toolWindow factoryClass="com.wenjunhuang.codeepiphany.toolwindows.sidebar.SidebarWindowFactory"
                     id="CodeEpiphany.Sidebar" anchor="bottom"
-                    icon="CodeEpiphanyIcons.LOGIN_ICON"/>
+                    icon="AllIcons.General.Alpha"/>
         <toolWindow factoryClass="com.wenjunhuang.codeepiphany.toolwindows.dojo.CodeDojoToolWindowFactory"
+                    icon="AllIcons.General.Alpha"
                     id="CodeEpiphany.Dojos" anchor="left"/>
 
         <registryKey defaultValue="false" description="Enable debug" key="codeepiphany.debug"/>

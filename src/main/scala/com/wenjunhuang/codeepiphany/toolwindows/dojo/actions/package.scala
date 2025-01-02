@@ -8,7 +8,8 @@ package object actions {
   trait LoginLogoutProvider {
     def login(): Unit
     def logout(): Unit
-    def isLoggedIn: Boolean
+    def isLoggingIn: Boolean
+    def hasLoggedIn: Boolean
   }
 
   case class Category(name: String, value: String, marker: Any = null)

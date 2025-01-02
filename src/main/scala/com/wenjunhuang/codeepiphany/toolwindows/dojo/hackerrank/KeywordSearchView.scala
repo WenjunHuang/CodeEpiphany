@@ -16,7 +16,9 @@ import scala.jdk.CollectionConverters.*
 
 class KeywordSearchView(private val myProject: Project, private val myPresenter: KeywordSearchViewPresenter) extends SimpleToolWindowPanel(true, true) {
   private val mySearchTextField = SearchTextField(true)
-
+  private val myChallengesTableModel: ChallengesTableModel = ChallengesTableModel()
+  private val myChallengesTable: TableView[ChallengeDetail] = myChallengesTableModel.createTableView(myPresenter.uiDataSnapshot)
+  
   mySearchTextField.getTextEditor.getEmptyText
     .appendText(PluginBundle.message("hackerrank.ui.query.searchHint"), new SimpleTextAttributes(SimpleTextAttributes.STYLE_PLAIN, ListPluginComponent.GRAY_COLOR))
   mySearchTextField.addDocumentListener(myPresenter)
@@ -24,11 +26,14 @@ class KeywordSearchView(private val myProject: Project, private val myPresenter:
   add(mySearchTextField, BorderLayout.NORTH)
   add(
     JBScrollPane(
-      myPresenter.getTableView,
+      myChallengesTable,
       ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
       ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED
     ),
     BorderLayout.CENTER
   )
+  
+  def getTable: TableView[ChallengeDetail] = myChallengesTable
+  def getTableModel: ChallengesTableModel = myChallengesTableModel
 
 }

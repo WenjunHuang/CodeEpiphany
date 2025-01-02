@@ -11,22 +11,22 @@ trait CodeEpiphanyIcons {}
 
 object CodeEpiphanyIcons {
   @static
-  val LOGIN_ICON: Icon =
+  val LOGIN: Icon =
     IconLoader.getIcon("/icons/login.svg", CodeEpiphanyIcons.getClass.getClassLoader)
   @static
-  val LOGOUT_ICON: Icon =
+  val LOGOUT: Icon =
     IconLoader.getIcon("/icons/logout.svg", CodeEpiphanyIcons.getClass.getClassLoader)
   @static
   val QuestionToolWindowIcon: Icon =
     IconLoader.getIcon("/icons/file-lines-regular.svg", CodeEpiphanyIcons.getClass.getClassLoader)
 
   @static
-  val DojoKeywordUIIcon: Icon = AllIcons.Actions.Search
+  val SEARCH: Icon = AllIcons.Actions.Search
   @static
-  val DojoQueryParamUIIcon: Icon = AllIcons.Actions.ShortcutFilter
+  val QUERY_PARAM: Icon = AllIcons.Actions.ShortcutFilter
 
   @static
-  val Loading: AnimatedIcon = AnimatedIcon.Default.INSTANCE
+  val LOADING: AnimatedIcon = AnimatedIcon.Default.INSTANCE
 
   object Languages {
     final val C: Icon =
