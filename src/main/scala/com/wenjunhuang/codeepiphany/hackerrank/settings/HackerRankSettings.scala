@@ -21,24 +21,25 @@ final class HackerRankSettings(private val myProject: Project) extends Persisten
 
   override def loadState(newState: HackerRankState): Unit =
     state = newState
+
+  def getSelectedLanguages: List[Language] = List(Language.Java, Language.Kotlin)
 }
 
 object HackerRankSettings {
 
   class HackerRankState {
-    @(OptionTag @beanSetter @beanGetter)(converter = classOf[StringOptionConverter])
-    @BeanProperty
+    @(Attribute @field)(converter = classOf[StringOptionConverter])
     var sourceFolder: Option[String] = None
 
-    @(OptionTag @beanSetter @beanGetter)(converter = classOf[LanguageOptionConverter])
+    @(Attribute @field)(converter = classOf[LanguageOptionConverter])
     @BeanProperty
     var language: Option[Language] = None
 
-    @(OptionTag @beanSetter @beanGetter)(converter = classOf[StringOptionConverter])
+    @(Attribute @field)(converter = classOf[StringOptionConverter])
     @BeanProperty
     var fileNameTemplate: Option[String] = None
 
-    @(OptionTag @beanSetter @beanGetter)(converter = classOf[StringOptionConverter])
+    @(Attribute @field)(converter = classOf[StringOptionConverter])
     @BeanProperty
     var codeTemplate: Option[String] = None
   }

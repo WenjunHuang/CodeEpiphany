@@ -26,9 +26,18 @@ object Constants {
   final val SETTING_FILE = SETTINGS_FOLDER + "/settings.xml"
 
   @static
+  final val CHALLENGE_SETTING = PROJECT_ID + ".challenge.settings"
+  @static
+  final val CHALLENGE_SETTING_FILE = SETTINGS_FOLDER + "/challenge.xml"
+
+  @static
   final val HACKERRANK_SETTING = PROJECT_ID + ".hackerrank.settings"
 
   @static
   final val HACKERRANK_SETTING_FILE = SETTINGS_FOLDER + "/hackerrank.xml"
 
+  @static
+  final val SUBMIT_CODE_REGION_BEGIN = ">>>IMPORTANT!! Submit Code Region Begin(Do not remove this line)<<<"
+  @static
+  final val SUBMIT_CODE_REGION_END = ">>>IMPORTANT!! Submit Code Region End(Do not remove this line)<<<"
 }

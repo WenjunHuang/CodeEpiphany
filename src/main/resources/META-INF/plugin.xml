@@ -34,9 +34,11 @@
                     class="com.wenjunhuang.codeepiphany.toolwindows.dojo.actions.SkillAction"/>
             <action id="CodeEpiphany.Dojos.Actions.Tags"
                     class="com.wenjunhuang.codeepiphany.toolwindows.dojo.actions.TagsAction"/>
-            <action id="CodeEpiphany.Dojos.Actions.OpenChallenge"
-                    class="com.wenjunhuang.codeepiphany.toolwindows.dojo.actions.OpenChallengeAction"/>
         </group>
+
+        <group id="CodeEpiphany.Dojos.Actions.OpenChallengeGroup"
+               popup="true"
+               class="com.wenjunhuang.codeepiphany.toolwindows.dojo.actions.OpenChallengeActionGroup"/>
 
         <group id="CodeEpiphany.Dojos.Hackerrank.Toolbar">
             <reference ref="CodeEpiphany.Dojos.Actions.Lists"/>
@@ -45,13 +47,15 @@
             <reference ref="CodeEpiphany.Dojos.Actions.Skill"/>
             <reference ref="CodeEpiphany.Dojos.Actions.Tags"/>
         </group>
+
         <group id="CodeEpiphany.Dojos.TitleToolbar">
             <reference ref="CodeEpiphany.Dojos.Actions.SwitchUI"/>
             <reference ref="CodeEpiphany.Dojos.Actions.Login"/>
             <reference ref="CodeEpiphany.Dojos.Actions.Logout"/>
         </group>
+
         <group id="CodeEpiphany.Dojos.ChallengesTable.Popupmenu">
-            <reference ref="CodeEpiphany.Dojos.Actions.OpenChallenge"/>
+            <reference ref="CodeEpiphany.Dojos.Actions.OpenChallengeGroup"/>
         </group>
 
         <group id="CodeEpiphany.Sidebar">
@@ -119,7 +123,10 @@
                     instance="com.wenjunhuang.codeepiphany.hackerrank.settings.HackerRankSettingsConfigurable"
                     key="hackerrank.settings.displayName"/>
         </projectConfigurable>
+
+        <lang.foldingBuilder language="JAVA"
+                             implementationClass="com.wenjunhuang.codeepiphany.lang.SubmissionRegionFoldingBuilder"/>
+        <fileIconPatcher implementation="com.wenjunhuang.codeepiphany.editor.ChallengeEditorIconProvider" order="last"/>
+
     </extensions>
-
-
 </idea-plugin>

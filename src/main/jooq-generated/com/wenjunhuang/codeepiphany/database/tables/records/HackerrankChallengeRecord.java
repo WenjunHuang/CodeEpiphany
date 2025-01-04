@@ -19,17 +19,17 @@ public class HackerrankChallengeRecord extends UpdatableRecordImpl<HackerrankCha
     private static final long serialVersionUID = 1L;
 
     /**
-     * Setter for <code>hackerrank_challenge.challengeId</code>.
+     * Setter for <code>hackerrank_challenge.id</code>.
      */
-    public HackerrankChallengeRecord setChallengeid(Integer value) {
+    public HackerrankChallengeRecord setId(Integer value) {
         set(0, value);
         return this;
     }
 
     /**
-     * Getter for <code>hackerrank_challenge.challengeId</code>.
+     * Getter for <code>hackerrank_challenge.id</code>.
      */
-    public Integer getChallengeid() {
+    public Integer getId() {
         return (Integer) get(0);
     }
 
@@ -63,51 +63,6 @@ public class HackerrankChallengeRecord extends UpdatableRecordImpl<HackerrankCha
         return (String) get(2);
     }
 
-    /**
-     * Setter for <code>hackerrank_challenge.codeHeader</code>.
-     */
-    public HackerrankChallengeRecord setCodeheader(String value) {
-        set(3, value);
-        return this;
-    }
-
-    /**
-     * Getter for <code>hackerrank_challenge.codeHeader</code>.
-     */
-    public String getCodeheader() {
-        return (String) get(3);
-    }
-
-    /**
-     * Setter for <code>hackerrank_challenge.codeTemplate</code>.
-     */
-    public HackerrankChallengeRecord setCodetemplate(String value) {
-        set(4, value);
-        return this;
-    }
-
-    /**
-     * Getter for <code>hackerrank_challenge.codeTemplate</code>.
-     */
-    public String getCodetemplate() {
-        return (String) get(4);
-    }
-
-    /**
-     * Setter for <code>hackerrank_challenge.codeTail</code>.
-     */
-    public HackerrankChallengeRecord setCodetail(String value) {
-        set(5, value);
-        return this;
-    }
-
-    /**
-     * Getter for <code>hackerrank_challenge.codeTail</code>.
-     */
-    public String getCodetail() {
-        return (String) get(5);
-    }
-
     // -------------------------------------------------------------------------
     // Primary key information
     // -------------------------------------------------------------------------
@@ -131,15 +86,12 @@ public class HackerrankChallengeRecord extends UpdatableRecordImpl<HackerrankCha
     /**
      * Create a detached, initialised HackerrankChallengeRecord
      */
-    public HackerrankChallengeRecord(Integer challengeid, String contestslug, String contest, String codeheader, String codetemplate, String codetail) {
+    public HackerrankChallengeRecord(Integer id, String contestslug, String contest) {
         super(HackerrankChallenge.HACKERRANK_CHALLENGE);
 
-        setChallengeid(challengeid);
+        setId(id);
         setContestslug(contestslug);
         setContest(contest);
-        setCodeheader(codeheader);
-        setCodetemplate(codetemplate);
-        setCodetail(codetail);
         resetChangedOnNotNull();
     }
 }

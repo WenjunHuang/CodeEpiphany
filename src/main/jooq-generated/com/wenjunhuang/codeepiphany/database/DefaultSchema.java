@@ -5,7 +5,12 @@ package com.wenjunhuang.codeepiphany.database;
 
 
 import com.wenjunhuang.codeepiphany.database.tables.Challenge;
+import com.wenjunhuang.codeepiphany.database.tables.ChallengeLanguage;
 import com.wenjunhuang.codeepiphany.database.tables.HackerrankChallenge;
+import com.wenjunhuang.codeepiphany.database.tables.HackerrankChallengeLanguage;
+import com.wenjunhuang.codeepiphany.database.tables.HackerrankSolutionSubmissionResult;
+import com.wenjunhuang.codeepiphany.database.tables.Solution;
+import com.wenjunhuang.codeepiphany.database.tables.SolutionSubmission;
 
 import java.util.Arrays;
 import java.util.List;
@@ -34,9 +39,34 @@ public class DefaultSchema extends SchemaImpl {
     public final Challenge CHALLENGE = Challenge.CHALLENGE;
 
     /**
+     * The table <code>challenge_language</code>.
+     */
+    public final ChallengeLanguage CHALLENGE_LANGUAGE = ChallengeLanguage.CHALLENGE_LANGUAGE;
+
+    /**
      * The table <code>hackerrank_challenge</code>.
      */
     public final HackerrankChallenge HACKERRANK_CHALLENGE = HackerrankChallenge.HACKERRANK_CHALLENGE;
+
+    /**
+     * The table <code>hackerrank_challenge_language</code>.
+     */
+    public final HackerrankChallengeLanguage HACKERRANK_CHALLENGE_LANGUAGE = HackerrankChallengeLanguage.HACKERRANK_CHALLENGE_LANGUAGE;
+
+    /**
+     * The table <code>hackerrank_solution_submission_result</code>.
+     */
+    public final HackerrankSolutionSubmissionResult HACKERRANK_SOLUTION_SUBMISSION_RESULT = HackerrankSolutionSubmissionResult.HACKERRANK_SOLUTION_SUBMISSION_RESULT;
+
+    /**
+     * The table <code>solution</code>.
+     */
+    public final Solution SOLUTION = Solution.SOLUTION;
+
+    /**
+     * The table <code>solution_submission</code>.
+     */
+    public final SolutionSubmission SOLUTION_SUBMISSION = SolutionSubmission.SOLUTION_SUBMISSION;
 
     /**
      * No further instances allowed
@@ -55,7 +85,12 @@ public class DefaultSchema extends SchemaImpl {
     public final List<Table<?>> getTables() {
         return Arrays.asList(
             Challenge.CHALLENGE,
-            HackerrankChallenge.HACKERRANK_CHALLENGE
+            ChallengeLanguage.CHALLENGE_LANGUAGE,
+            HackerrankChallenge.HACKERRANK_CHALLENGE,
+            HackerrankChallengeLanguage.HACKERRANK_CHALLENGE_LANGUAGE,
+            HackerrankSolutionSubmissionResult.HACKERRANK_SOLUTION_SUBMISSION_RESULT,
+            Solution.SOLUTION,
+            SolutionSubmission.SOLUTION_SUBMISSION
         );
     }
 }

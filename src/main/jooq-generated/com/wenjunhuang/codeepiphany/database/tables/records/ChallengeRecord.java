@@ -109,25 +109,10 @@ public class ChallengeRecord extends UpdatableRecordImpl<ChallengeRecord> {
     }
 
     /**
-     * Setter for <code>challenge.language</code>.
-     */
-    public ChallengeRecord setLanguage(String value) {
-        set(6, value);
-        return this;
-    }
-
-    /**
-     * Getter for <code>challenge.language</code>.
-     */
-    public String getLanguage() {
-        return (String) get(6);
-    }
-
-    /**
      * Setter for <code>challenge.description</code>.
      */
     public ChallengeRecord setDescription(String value) {
-        set(7, value);
+        set(6, value);
         return this;
     }
 
@@ -135,29 +120,14 @@ public class ChallengeRecord extends UpdatableRecordImpl<ChallengeRecord> {
      * Getter for <code>challenge.description</code>.
      */
     public String getDescription() {
-        return (String) get(7);
-    }
-
-    /**
-     * Setter for <code>challenge.codeTemplate</code>.
-     */
-    public ChallengeRecord setCodetemplate(String value) {
-        set(8, value);
-        return this;
-    }
-
-    /**
-     * Getter for <code>challenge.codeTemplate</code>.
-     */
-    public String getCodetemplate() {
-        return (String) get(8);
+        return (String) get(6);
     }
 
     /**
      * Setter for <code>challenge.tags</code>.
      */
     public ChallengeRecord setTags(String value) {
-        set(9, value);
+        set(7, value);
         return this;
     }
 
@@ -165,14 +135,14 @@ public class ChallengeRecord extends UpdatableRecordImpl<ChallengeRecord> {
      * Getter for <code>challenge.tags</code>.
      */
     public String getTags() {
-        return (String) get(9);
+        return (String) get(7);
     }
 
     /**
      * Setter for <code>challenge.remark</code>.
      */
     public ChallengeRecord setRemark(String value) {
-        set(10, value);
+        set(8, value);
         return this;
     }
 
@@ -180,7 +150,7 @@ public class ChallengeRecord extends UpdatableRecordImpl<ChallengeRecord> {
      * Getter for <code>challenge.remark</code>.
      */
     public String getRemark() {
-        return (String) get(10);
+        return (String) get(8);
     }
 
     // -------------------------------------------------------------------------
@@ -206,7 +176,7 @@ public class ChallengeRecord extends UpdatableRecordImpl<ChallengeRecord> {
     /**
      * Create a detached, initialised ChallengeRecord
      */
-    public ChallengeRecord(Integer id, String title, String slug, String dojo, String dojoid, String difficulty, String language, String description, String codetemplate, String tags, String remark) {
+    public ChallengeRecord(Integer id, String title, String slug, String dojo, String dojoid, String difficulty, String description, String tags, String remark) {
         super(Challenge.CHALLENGE);
 
         setId(id);
@@ -215,9 +185,7 @@ public class ChallengeRecord extends UpdatableRecordImpl<ChallengeRecord> {
         setDojo(dojo);
         setDojoid(dojoid);
         setDifficulty(difficulty);
-        setLanguage(language);
         setDescription(description);
-        setCodetemplate(codetemplate);
         setTags(tags);
         setRemark(remark);
         resetChangedOnNotNull();

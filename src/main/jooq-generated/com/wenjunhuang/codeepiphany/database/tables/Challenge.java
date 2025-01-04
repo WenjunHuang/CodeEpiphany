@@ -6,7 +6,9 @@ package com.wenjunhuang.codeepiphany.database.tables;
 
 import com.wenjunhuang.codeepiphany.database.DefaultSchema;
 import com.wenjunhuang.codeepiphany.database.Keys;
+import com.wenjunhuang.codeepiphany.database.tables.ChallengeLanguage.ChallengeLanguagePath;
 import com.wenjunhuang.codeepiphany.database.tables.HackerrankChallenge.HackerrankChallengePath;
+import com.wenjunhuang.codeepiphany.database.tables.Solution.SolutionPath;
 import com.wenjunhuang.codeepiphany.database.tables.records.ChallengeRecord;
 
 import java.util.Collection;
@@ -14,6 +16,7 @@ import java.util.Collection;
 import org.jooq.Condition;
 import org.jooq.Field;
 import org.jooq.ForeignKey;
+import org.jooq.Identity;
 import org.jooq.InverseForeignKey;
 import org.jooq.Name;
 import org.jooq.Path;
@@ -57,7 +60,7 @@ public class Challenge extends TableImpl<ChallengeRecord> {
     /**
      * The column <code>challenge.id</code>.
      */
-    public final TableField<ChallengeRecord, Integer> ID = createField(DSL.name("id"), SQLDataType.INTEGER.nullable(false), this, "");
+    public final TableField<ChallengeRecord, Integer> ID = createField(DSL.name("id"), SQLDataType.INTEGER.nullable(false).identity(true), this, "");
 
     /**
      * The column <code>challenge.title</code>.
@@ -85,19 +88,9 @@ public class Challenge extends TableImpl<ChallengeRecord> {
     public final TableField<ChallengeRecord, String> DIFFICULTY = createField(DSL.name("difficulty"), SQLDataType.CLOB.nullable(false), this, "");
 
     /**
-     * The column <code>challenge.language</code>.
-     */
-    public final TableField<ChallengeRecord, String> LANGUAGE = createField(DSL.name("language"), SQLDataType.CLOB.nullable(false), this, "");
-
-    /**
      * The column <code>challenge.description</code>.
      */
     public final TableField<ChallengeRecord, String> DESCRIPTION = createField(DSL.name("description"), SQLDataType.CLOB.nullable(false), this, "");
-
-    /**
-     * The column <code>challenge.codeTemplate</code>.
-     */
-    public final TableField<ChallengeRecord, String> CODETEMPLATE = createField(DSL.name("codeTemplate"), SQLDataType.CLOB.nullable(false), this, "");
 
     /**
      * The column <code>challenge.tags</code>.
@@ -177,8 +170,26 @@ public class Challenge extends TableImpl<ChallengeRecord> {
     }
 
     @Override
+    public Identity<ChallengeRecord, Integer> getIdentity() {
+        return (Identity<ChallengeRecord, Integer>) super.getIdentity();
+    }
+
+    @Override
     public UniqueKey<ChallengeRecord> getPrimaryKey() {
         return Keys.CHALLENGE__PK_CHALLENGE;
+    }
+
+    private transient ChallengeLanguagePath _challengeLanguage;
+
+    /**
+     * Get the implicit to-many join path to the <code>challenge_language</code>
+     * table
+     */
+    public ChallengeLanguagePath challengeLanguage() {
+        if (_challengeLanguage == null)
+            _challengeLanguage = new ChallengeLanguagePath(this, null, Keys.CHALLENGE_LANGUAGE__FK_CHALLENGE_LANGUAGE_PK_CHALLENGE.getInverseKey());
+
+        return _challengeLanguage;
     }
 
     private transient HackerrankChallengePath _hackerrankChallenge;
@@ -192,6 +203,18 @@ public class Challenge extends TableImpl<ChallengeRecord> {
             _hackerrankChallenge = new HackerrankChallengePath(this, null, Keys.HACKERRANK_CHALLENGE__FK_HACKERRANK_CHALLENGE_PK_CHALLENGE.getInverseKey());
 
         return _hackerrankChallenge;
+    }
+
+    private transient SolutionPath _solution;
+
+    /**
+     * Get the implicit to-many join path to the <code>solution</code> table
+     */
+    public SolutionPath solution() {
+        if (_solution == null)
+            _solution = new SolutionPath(this, null, Keys.SOLUTION__FK_SOLUTION_PK_CHALLENGE.getInverseKey());
+
+        return _solution;
     }
 
     @Override

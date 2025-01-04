@@ -11,6 +11,8 @@ import com.intellij.ui.table.{JBTable, TableView}
 import com.wenjunhuang.codeepiphany.hackerrank.model.{ChallengeDetail, Contest}
 import com.wenjunhuang.codeepiphany.hackerrank.services.HackerRankApi
 import com.wenjunhuang.codeepiphany.hackerrank.services.editor.openChallenge
+import com.wenjunhuang.codeepiphany.model.Language
+import com.wenjunhuang.codeepiphany.model.Language.Kotlin
 import com.wenjunhuang.codeepiphany.services.http.{HttpClientKeeper, HttpClientService}
 import com.wenjunhuang.codeepiphany.toolwindows.dojo.actions.keys.CHALLENGE_PROVIDER_KEY
 import com.wenjunhuang.codeepiphany.toolwindows.dojo.actions.providers.ChallengeProvider
@@ -81,12 +83,19 @@ class KeywordSearchViewPresenter(private val myProject: Project) extends Documen
   mySearchStream.unsafeRunAndForget()
 
   private val myChallengeProvider = new ChallengeProvider {
-    override def openCurrentSelectedChallenge(): Unit =
+    override def openCurrentSelectedChallenge(language: Language): Unit = {
       Option(myView.getTable.getSelectedObject) match
         case Some(selected) =>
-          openChallenge[IO](myProject, selected.slug, Contest.fromCIString(CIString(selected.contestSlug)).get)
-            .unsafeRunAndForget()
+          openChallenge[IO](
+            myProject,
+            selected.slug,
+            Contest.fromCIString(CIString(selected.contestSlug)).get,
+            language
+          ).unsafeRunAndForget()
         case None => ()
+    }
+
+    override def getLanguages: List[Language] = List(Language.Java,Kotlin)
   }
 
   Disposer.register(myProject, this)

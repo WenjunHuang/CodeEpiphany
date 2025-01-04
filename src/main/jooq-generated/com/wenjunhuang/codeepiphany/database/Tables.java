@@ -5,7 +5,12 @@ package com.wenjunhuang.codeepiphany.database;
 
 
 import com.wenjunhuang.codeepiphany.database.tables.Challenge;
+import com.wenjunhuang.codeepiphany.database.tables.ChallengeLanguage;
 import com.wenjunhuang.codeepiphany.database.tables.HackerrankChallenge;
+import com.wenjunhuang.codeepiphany.database.tables.HackerrankChallengeLanguage;
+import com.wenjunhuang.codeepiphany.database.tables.HackerrankSolutionSubmissionResult;
+import com.wenjunhuang.codeepiphany.database.tables.Solution;
+import com.wenjunhuang.codeepiphany.database.tables.SolutionSubmission;
 
 
 /**
@@ -20,7 +25,32 @@ public class Tables {
     public static final Challenge CHALLENGE = Challenge.CHALLENGE;
 
     /**
+     * The table <code>challenge_language</code>.
+     */
+    public static final ChallengeLanguage CHALLENGE_LANGUAGE = ChallengeLanguage.CHALLENGE_LANGUAGE;
+
+    /**
      * The table <code>hackerrank_challenge</code>.
      */
     public static final HackerrankChallenge HACKERRANK_CHALLENGE = HackerrankChallenge.HACKERRANK_CHALLENGE;
+
+    /**
+     * The table <code>hackerrank_challenge_language</code>.
+     */
+    public static final HackerrankChallengeLanguage HACKERRANK_CHALLENGE_LANGUAGE = HackerrankChallengeLanguage.HACKERRANK_CHALLENGE_LANGUAGE;
+
+    /**
+     * The table <code>hackerrank_solution_submission_result</code>.
+     */
+    public static final HackerrankSolutionSubmissionResult HACKERRANK_SOLUTION_SUBMISSION_RESULT = HackerrankSolutionSubmissionResult.HACKERRANK_SOLUTION_SUBMISSION_RESULT;
+
+    /**
+     * The table <code>solution</code>.
+     */
+    public static final Solution SOLUTION = Solution.SOLUTION;
+
+    /**
+     * The table <code>solution_submission</code>.
+     */
+    public static final SolutionSubmission SOLUTION_SUBMISSION = SolutionSubmission.SOLUTION_SUBMISSION;
 }

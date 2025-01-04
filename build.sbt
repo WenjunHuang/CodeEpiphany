@@ -63,8 +63,7 @@ lazy val codeEpiphany = (project in file("."))
     ),
     Compile / unmanagedSourceDirectories += baseDirectory.value / "gen",
     Compile / unmanagedSourceDirectories += baseDirectory.value / "src" / "main" / "jooq-generated",
-    Compile / unmanagedResourceDirectories += baseDirectory.value / "resources",
-    Test / unmanagedResourceDirectories += baseDirectory.value / "testResources",
+    Test / managedResourceDirectories += baseDirectory.value / "testResources",
 
     // jooq
     jooqVersion       := "3.19.16",

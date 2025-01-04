@@ -28,6 +28,11 @@ object CodeEpiphanyIcons {
   @static
   val LOADING: AnimatedIcon = AnimatedIcon.Default.INSTANCE
 
+  object Dojos {
+    val LEETCODE: Icon   = IconLoader.getIcon("/icons/dojos/leetcode.svg", CodeEpiphanyIcons.getClass.getClassLoader)
+    val HACKERRANK: Icon = IconLoader.getIcon("/icons/dojos/hackerrank.svg", CodeEpiphanyIcons.getClass.getClassLoader)
+  }
+
   object Languages {
     final val C: Icon =
       IconLoader.getIcon("/icons/languages/c.svg", CodeEpiphanyIcons.getClass.getClassLoader)
@@ -47,18 +52,14 @@ object CodeEpiphanyIcons {
       IconLoader.getIcon("/icons/languages/haskell.svg", CodeEpiphanyIcons.getClass.getClassLoader)
     final val JAVA: Icon =
       IconLoader.getIcon("/icons/languages/java.svg", CodeEpiphanyIcons.getClass.getClassLoader)
-    final val JAVASCRIPT: Icon = IconLoader.getIcon(
-      "/icons/languages/javascript.svg",
-      CodeEpiphanyIcons.getClass.getClassLoader
-    )
+    final val JAVASCRIPT: Icon =
+      IconLoader.getIcon("/icons/languages/javascript.svg", CodeEpiphanyIcons.getClass.getClassLoader)
     final val JULIA: Icon =
       IconLoader.getIcon("/icons/languages/julia.svg", CodeEpiphanyIcons.getClass.getClassLoader)
     final val KOTLIN: Icon =
       IconLoader.getIcon("/icons/languages/kotlin.svg", CodeEpiphanyIcons.getClass.getClassLoader)
-    final val OBJECTIVEC: Icon = IconLoader.getIcon(
-      "/icons/languages/objectivec.svg",
-      CodeEpiphanyIcons.getClass.getClassLoader
-    )
+    final val OBJECTIVEC: Icon =
+      IconLoader.getIcon("/icons/languages/objectivec.svg", CodeEpiphanyIcons.getClass.getClassLoader)
     final val PERL: Icon =
       IconLoader.getIcon("/icons/languages/perl.svg", CodeEpiphanyIcons.getClass.getClassLoader)
     final val PHP: Icon =
@@ -75,9 +76,7 @@ object CodeEpiphanyIcons {
       IconLoader.getIcon("/icons/languages/scala.svg", CodeEpiphanyIcons.getClass.getClassLoader)
     final val SWIFT: Icon =
       IconLoader.getIcon("/icons/languages/swift.svg", CodeEpiphanyIcons.getClass.getClassLoader)
-    final val TYPESCRIPT: Icon = IconLoader.getIcon(
-      "/icons/languages/typescript.svg",
-      CodeEpiphanyIcons.getClass.getClassLoader
-    )
+    final val TYPESCRIPT: Icon =
+      IconLoader.getIcon("/icons/languages/typescript.svg", CodeEpiphanyIcons.getClass.getClassLoader)
   }
 }

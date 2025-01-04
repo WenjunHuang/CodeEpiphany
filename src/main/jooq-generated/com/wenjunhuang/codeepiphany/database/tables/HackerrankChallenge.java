@@ -57,9 +57,9 @@ public class HackerrankChallenge extends TableImpl<HackerrankChallengeRecord> {
     }
 
     /**
-     * The column <code>hackerrank_challenge.challengeId</code>.
+     * The column <code>hackerrank_challenge.id</code>.
      */
-    public final TableField<HackerrankChallengeRecord, Integer> CHALLENGEID = createField(DSL.name("challengeId"), SQLDataType.INTEGER.nullable(false), this, "");
+    public final TableField<HackerrankChallengeRecord, Integer> ID = createField(DSL.name("id"), SQLDataType.INTEGER.nullable(false), this, "");
 
     /**
      * The column <code>hackerrank_challenge.contestSlug</code>.
@@ -70,21 +70,6 @@ public class HackerrankChallenge extends TableImpl<HackerrankChallengeRecord> {
      * The column <code>hackerrank_challenge.contest</code>.
      */
     public final TableField<HackerrankChallengeRecord, String> CONTEST = createField(DSL.name("contest"), SQLDataType.CLOB.nullable(false), this, "");
-
-    /**
-     * The column <code>hackerrank_challenge.codeHeader</code>.
-     */
-    public final TableField<HackerrankChallengeRecord, String> CODEHEADER = createField(DSL.name("codeHeader"), SQLDataType.CLOB.nullable(false), this, "");
-
-    /**
-     * The column <code>hackerrank_challenge.codeTemplate</code>.
-     */
-    public final TableField<HackerrankChallengeRecord, String> CODETEMPLATE = createField(DSL.name("codeTemplate"), SQLDataType.CLOB.nullable(false), this, "");
-
-    /**
-     * The column <code>hackerrank_challenge.codeTail</code>.
-     */
-    public final TableField<HackerrankChallengeRecord, String> CODETAIL = createField(DSL.name("codeTail"), SQLDataType.CLOB.nullable(false), this, "");
 
     private HackerrankChallenge(Name alias, Table<HackerrankChallengeRecord> aliased) {
         this(alias, aliased, (Field<?>[]) null, null);

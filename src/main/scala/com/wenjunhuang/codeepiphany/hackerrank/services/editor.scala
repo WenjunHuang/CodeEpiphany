@@ -21,7 +21,8 @@ object editor {
   def openChallenge[F[_]: Async: Concurrent: HttpClientKeeper: Logger](
     project: Project,
     challengeSlug: String,
-    contest: Contest
+    contest: Contest,
+    language: Language
   ): F[Unit] = {
     Async[F].delay {
       val settings = HackerRankSettings.getInstance(project)
@@ -33,7 +34,7 @@ object editor {
         if r then ShowSettingsUtil.getInstance().showSettingsDialog(project, classOf[HackerRankSettingsConfigurable])
 
         None
-      else Some((state.sourceFolder.get, state.language.get, state.fileNameTemplate.get, state.codeTemplate.get))
+      else Some((state.sourceFolder.get, language, state.fileNameTemplate.get, state.codeTemplate.get))
     }.evalOnEDTAny().flatMap {
       case None => Async[F].unit
       case Some((sourceFolder, language, fileNameTemplate, codeTemplate)) =>
