@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<configuration>
+    <!-- Configure the database connection here -->
+    <jdbc>
+        <driver>org.sqlite.JDBC</driver>
+        <url>jdbc:sqlite:./database/design.sqlite</url>
+    </jdbc>
+    <generator>
+        <database>
+            <name>org.jooq.meta.sqlite.SQLiteDatabase</name>
+            <includes>.*</includes>
+            <excludes></excludes>
+            <outputSchemaToDefault>true</outputSchemaToDefault>
+        </database>
+
+        <generate>
+            <javaTimeTypes>true</javaTimeTypes>
+            <relations>true</relations>
+            <deprecated>false</deprecated>
+            <generatedAnnotation>false</generatedAnnotation>
+            <records>true</records>
+            <pojos>false</pojos>
+            <interfaces>false</interfaces>
+            <daos>false</daos>
+            <jpaAnnotations>false</jpaAnnotations>
+            <validationAnnotations>false</validationAnnotations>
+            <globalObjectReferences>true</globalObjectReferences>
+            <fluentSetters>true</fluentSetters>
+        </generate>
+
+        <target>
+            <packageName>com.wenjunhuang.codeepiphany.database</packageName>
+<!--            <directory>src/managed/scala</directory>-->
+        </target>
+    </generator>
+</configuration>

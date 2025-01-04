@@ -1,19 +1,19 @@
 package com.wenjunhuang.codeepiphany.toolwindows.sidebar
 
-import cats.effect.{IO, Resource, SyncIO}
+import cats.effect.{ IO, Resource, SyncIO }
 import cats.syntax.all.*
 import com.intellij.ide.ui.UISettingsListener
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.application.ApplicationManager
-import com.intellij.openapi.editor.colors.{EditorColorsListener, EditorColorsManager}
+import com.intellij.openapi.editor.colors.{ EditorColorsListener, EditorColorsManager }
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
 import com.intellij.ui.jcef.*
-import com.wenjunhuang.codeepiphany.model.ChallengeStorage.Challenge
+import com.wenjunhuang.codeepiphany.model.Repository.ChallengeStorageItem
 import com.wenjunhuang.codeepiphany.toolwindows.sidebar.JCefDescriptionView.*
 import com.wenjunhuang.codeepiphany.utils.implicits.*
 import com.wenjunhuang.codeepiphany.utils.isDebug
-import com.wenjunhuang.codeepiphany.utils.jcef.{CefLocalRequestHandler, CefStreamResourceHandler}
+import com.wenjunhuang.codeepiphany.utils.jcef.{ CefLocalRequestHandler, CefStreamResourceHandler }
 import io.circe.*
 import io.circe.generic.auto.*
 import io.circe.parser.parse
@@ -21,19 +21,27 @@ import org.apache.commons.io.IOUtils
 import org.cef.browser.*
 import org.cef.handler.*
 import org.intellij.lang.annotations.Language
-import org.typelevel.log4cats.{Logger, LoggerFactory}
+import org.typelevel.log4cats.{ Logger, LoggerFactory }
 
-import java.io.{ByteArrayInputStream, File, FileInputStream}
+import java.io.{ ByteArrayInputStream, File, FileInputStream }
 import java.nio.charset.StandardCharsets
 import javax.swing.JComponent
 
-class JCefDescriptionView(private val project: Project, private val presenter: ChallengeDescriptionPresenter, private val styleProvider: ChallengeDescriptionStyleProvider) extends Disposable {
-  private var questionItem: Option[Challenge] = None
-  implicit private val logger : Logger[SyncIO] = LoggerFactory[SyncIO].getLogger
+class JCefDescriptionView(
+  private val presenter: ChallengeDescriptionPresenter,
+  private val styleProvider: ChallengeDescriptionStyleProvider
+) extends Disposable {
+  private var questionItem: Option[ChallengeStorageItem] = None
+  implicit private val logger: Logger[SyncIO] = LoggerFactory[SyncIO].getLogger
 
   private val myLifeSpanHandler =
     new CefLifeSpanHandlerAdapter {
-      override def onBeforePopup(browser: CefBrowser, frame: CefFrame, target_url: String, target_frame_name: String): Boolean = {
+      override def onBeforePopup(
+        browser: CefBrowser,
+        frame: CefFrame,
+        target_url: String,
+        target_frame_name: String
+      ): Boolean = {
         presenter.userClickedLink[IO](target_url).unsafeRunAndForget()
         true
       }
@@ -70,19 +78,37 @@ class JCefDescriptionView(private val project: Project, private val presenter: C
     }
 
     requestHandler.addResource(OVERLAY_SCROLLBARS_CSS_PATH) { () =>
-      CefStreamResourceHandler(ByteArrayInputStream(JBCefScrollbarsHelper.getOverlayScrollbarsSourceCSS.getBytes(StandardCharsets.UTF_8)), "text/css", this).some
+      CefStreamResourceHandler(
+        ByteArrayInputStream(JBCefScrollbarsHelper.getOverlayScrollbarsSourceCSS.getBytes(StandardCharsets.UTF_8)),
+        "text/css",
+        this
+      ).some
     }
 
     requestHandler.addResource(OVERLAY_SCROLLBARS_JS_PATH) { () =>
-      CefStreamResourceHandler(ByteArrayInputStream(JBCefScrollbarsHelper.getOverlayScrollbarsSourceJS.getBytes(StandardCharsets.UTF_8)), "text/javascript", this).some
+      CefStreamResourceHandler(
+        ByteArrayInputStream(JBCefScrollbarsHelper.getOverlayScrollbarsSourceJS.getBytes(StandardCharsets.UTF_8)),
+        "text/javascript",
+        this
+      ).some
     }
 
     requestHandler.addResource(SCROLLBARS_CSS_PATH) { () =>
-      CefStreamResourceHandler(ByteArrayInputStream(JBCefScrollbarsHelper.getOverlayScrollbarStyle.getBytes(StandardCharsets.UTF_8)), "text/css", this).some
+      CefStreamResourceHandler(
+        ByteArrayInputStream(JBCefScrollbarsHelper.getOverlayScrollbarStyle.getBytes(StandardCharsets.UTF_8)),
+        "text/css",
+        this
+      ).some
     }
 
     requestHandler.addResource(DESCRIPTION_CSS_PATH) { () =>
-      CefStreamResourceHandler(ByteArrayInputStream(ChallengeDescriptionStyle.getStyle(styleProvider, questionItem.map(_.dojo)).getBytes(StandardCharsets.UTF_8)), "text/css", this).some
+      CefStreamResourceHandler(
+        ByteArrayInputStream(
+          ChallengeDescriptionStyle.getStyle(styleProvider, questionItem.map(_.dojo)).getBytes(StandardCharsets.UTF_8)
+        ),
+        "text/css",
+        this
+      ).some
     }
 
     requestHandler
@@ -143,7 +169,7 @@ class JCefDescriptionView(private val project: Project, private val presenter: C
 
   def preferredFocusedComponent: JComponent = myBrowser.getCefBrowser.getUIComponent.asInstanceOf[JComponent]
 
-  def updateCurrentQuestion(item: Challenge): Unit =
+  def updateCurrentQuestion(item: ChallengeStorageItem): Unit =
     questionItem = Some(item)
     reload()
 
@@ -167,12 +193,14 @@ class JCefDescriptionView(private val project: Project, private val presenter: C
 
   def performCopy(): Unit = myBrowser.getCefBrowser.getMainFrame.copy()
 
-  private def execute(@Language("javascript") script: String): Unit = myBrowser.getCefBrowser.executeJavaScript(script, myBrowser.getCefBrowser.getURL(), 0)
+  private def execute(@Language("javascript") script: String): Unit =
+    myBrowser.getCefBrowser.executeJavaScript(script, myBrowser.getCefBrowser.getURL(), 0)
 
   override def dispose(): Unit = {
     myBrowser.getJBCefClient.removeRequestHandler(myLocalRequestHandler, myBrowser.getCefBrowser)
     myBrowser.getJBCefClient.removeLifeSpanHandler(myLifeSpanHandler, myBrowser.getCefBrowser)
     myBrowser.getJBCefClient.removeLoadHandler(myLoadHandler, myBrowser.getCefBrowser)
+    Disposer.dispose(myBrowser)
   }
 }
 

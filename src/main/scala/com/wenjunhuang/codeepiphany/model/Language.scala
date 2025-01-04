@@ -51,7 +51,7 @@ enum Language(val value: String, val fileExt: String, val show: String, val icon
 }
 
 object Language {
-  val ALL_LANGUAGES: Map[CIString, Language] =
+  private val ALL_LANGUAGES: Map[CIString, Language] =
     Language.values.map(v => CIString(v.value) -> v).toMap
   def fromCIString(str: CIString): Option[Language] = ALL_LANGUAGES.get(str)
 }

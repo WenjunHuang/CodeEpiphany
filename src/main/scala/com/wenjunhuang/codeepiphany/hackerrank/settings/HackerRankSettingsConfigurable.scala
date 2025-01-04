@@ -10,7 +10,7 @@ import com.wenjunhuang.codeepiphany.model.Language.*
 class HackerRankSettingsConfigurable(private val myProject: Project)
     extends ConfigurableBase[HackerRankSettingsPanel, HackerRankSettings.HackerRankState](
       "CodeEpiphany.Settings.HackerRank",
-      PluginBundle.message("hackerrank.settings.title"),
+      PluginBundle.message("hackerrank.settings.displayName"),
       "CodeEpiphany.Settings.HackerRank.HelpTopic"
     ) {
   override def getSettings: HackerRankSettings.HackerRankState = {

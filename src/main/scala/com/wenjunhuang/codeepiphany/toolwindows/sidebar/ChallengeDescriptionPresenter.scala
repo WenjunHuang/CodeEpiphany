@@ -13,7 +13,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
 import com.intellij.openapi.vfs.LocalFileSystem
 import com.intellij.util.io.URLUtil
-import com.wenjunhuang.codeepiphany.model.ChallengeStorage.Challenge
+import com.wenjunhuang.codeepiphany.model.Repository.ChallengeStorageItem
 import com.wenjunhuang.codeepiphany.utils.implicits.*
 
 import java.io.File
@@ -21,7 +21,7 @@ import java.net.URL
 
 class ChallengeDescriptionPresenter(private val project: Project) extends Disposable {
   private val logger            = Logger.getInstance(this.getClass)
-  private val myDescriptionView = ChallengeChallengeDescriptionView(project, this)
+  private val myDescriptionView = ChallengeChallengeDescriptionView(this)
 
   Disposer.register(project, this)
 
@@ -30,7 +30,7 @@ class ChallengeDescriptionPresenter(private val project: Project) extends Dispos
   def userClickedLink[F[_]: Async](url: String): F[Unit] =
     Async[F].delay(URL(url)).flatMap(url => ChallengeDescriptionPresenter.openUrl(url, project))
 
-  def updateCurrentQuestion(question: Challenge): Unit = myDescriptionView.updateCurrentQuestion(question)
+  def updateCurrentQuestion(question: ChallengeStorageItem): Unit = myDescriptionView.updateCurrentQuestion(question)
 
   def getView: ChallengeChallengeDescriptionView = myDescriptionView
 

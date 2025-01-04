@@ -85,6 +85,12 @@
                 description="Show Login Dialog">
             <add-to-group group-id="ToolsMenu" anchor="first"/>
         </action>
+        <action id="com.wenjunhuang.codeepiphany.test.actions.ChallengeSettingsTestAction"
+                class="com.wenjunhuang.codeepiphany.test.actions.ChallengeSettingsTestAction"
+                text="Challenge Settings Test"
+                description="Challenge Settings Test">
+            <add-to-group group-id="ToolsMenu" anchor="first"/>
+        </action>
     </actions>
 
     <applicationListeners>
@@ -107,11 +113,11 @@
         <projectConfigurable parentId="tools"
                              displayName="Code Epiphany"
                              id="CodeEpiphany.Settings"
-                             instance="com.wenjunhuang.codeepiphany.CodeEpiphanyConfigurable">
+                             instance="com.wenjunhuang.codeepiphany.settings.CodeEpiphanySettingsConfigurable">
             <configurable
                     id="CodeEpiphany.Settings.HackerRank"
                     instance="com.wenjunhuang.codeepiphany.hackerrank.settings.HackerRankSettingsConfigurable"
-                    key="hackerrank.settings.title"/>
+                    key="hackerrank.settings.displayName"/>
         </projectConfigurable>
     </extensions>
 

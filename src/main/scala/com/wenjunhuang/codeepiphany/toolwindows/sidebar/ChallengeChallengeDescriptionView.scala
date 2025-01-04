@@ -5,22 +5,23 @@ import com.intellij.openapi.Disposable
 import com.intellij.openapi.actionSystem.*
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.SimpleToolWindowPanel
+import com.intellij.openapi.util.Disposer
 import com.intellij.ui.PopupHandler
 import com.intellij.util.ui.{JBInsets, JBUI}
-import com.wenjunhuang.codeepiphany.model.ChallengeStorage.Challenge
+import com.wenjunhuang.codeepiphany.model.Repository.ChallengeStorageItem
 import com.wenjunhuang.codeepiphany.utils.isDebug
 
 import java.awt.Insets
 import java.awt.event.{MouseWheelEvent, MouseWheelListener}
 import javax.swing.JComponent
 
-class ChallengeChallengeDescriptionView(private val myProject: Project, private val myPresenter: ChallengeDescriptionPresenter)
+class ChallengeChallengeDescriptionView(private val myPresenter: ChallengeDescriptionPresenter)
     extends SimpleToolWindowPanel(true)
     with ChallengeDescriptionStyleProvider
     with CopyProvider
     with UiDataProvider
     with Disposable {
-  private val myViewer = JCefDescriptionView(myProject, myPresenter, this)
+  private val myViewer = JCefDescriptionView(myPresenter, this)
 
   private val MOUSE_WHEEL_LISTENER = new MouseWheelListener {
     override def mouseWheelMoved(e: MouseWheelEvent): Unit =
@@ -42,6 +43,8 @@ class ChallengeChallengeDescriptionView(private val myProject: Project, private 
 
   myViewer.preferredFocusedComponent.addMouseWheelListener(MOUSE_WHEEL_LISTENER)
 
+  Disposer.register(myPresenter, this)
+
   if !isDebug then PopupHandler.installPopupMenu(myViewer.preferredFocusedComponent, SidebarActions.GROUP_POPUP, SidebarActions.ACTION_PLACE)
 
   override def uiDataSnapshot(dataSink: DataSink): Unit = {
@@ -51,8 +54,9 @@ class ChallengeChallengeDescriptionView(private val myProject: Project, private 
 
   override def dispose(): Unit =
     myViewer.preferredFocusedComponent.removeMouseWheelListener(MOUSE_WHEEL_LISTENER)
+    Disposer.dispose(myViewer)
 
-  def updateCurrentQuestion(question: Challenge): Unit =
+  def updateCurrentQuestion(question: ChallengeStorageItem): Unit =
     myViewer.updateCurrentQuestion(question)
 
   def zoomIn(): Unit = myViewer.zoomIn()

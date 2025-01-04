@@ -115,6 +115,7 @@ class HackerRankApiIntegrationTest extends BasePlatformTestCase {
       .unsafeRunSync()
     println(result)
   }
+
   def testSearchProjectEulerWithKeyword(): Unit = {
     val httpClientKeeper = HttpClientService.getInstance(getProject)
     import httpClientKeeper.*

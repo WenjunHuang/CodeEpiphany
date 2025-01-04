@@ -3,13 +3,14 @@ package com.wenjunhuang.codeepiphany.hackerrank.settings
 import com.intellij.openapi.components.{ PersistentStateComponent, Service, State, Storage }
 import com.intellij.openapi.components.Service.Level
 import com.intellij.openapi.project.Project
-import com.intellij.util.xmlb.Converter
-import com.intellij.util.xmlb.annotations.Attribute
+import com.intellij.util.xmlb.annotations.{ Attribute, OptionTag }
 import com.wenjunhuang.codeepiphany.hackerrank.settings.HackerRankSettings.HackerRankState
 import com.wenjunhuang.codeepiphany.model.{ Constants, Language }
-import org.typelevel.ci.CIString
+import com.wenjunhuang.codeepiphany.utils.XmlUtils.*
 
-import scala.annotation.meta.field
+import scala.annotation.meta.{ beanGetter, beanSetter, field }
+import scala.beans.BeanProperty
+import java.util as ju
 
 @Service(Array(Level.PROJECT))
 @State(name = Constants.HACKERRANK_SETTING, storages = Array(new Storage(Constants.HACKERRANK_SETTING_FILE)))
@@ -23,42 +24,24 @@ final class HackerRankSettings(private val myProject: Project) extends Persisten
 }
 
 object HackerRankSettings {
+
   class HackerRankState {
-    @(Attribute @field)(converter = classOf[StringOptionConverter])
+    @(OptionTag @beanSetter @beanGetter)(converter = classOf[StringOptionConverter])
+    @BeanProperty
     var sourceFolder: Option[String] = None
 
-    @(Attribute @field)(converter = classOf[LanguageOptionConverter])
+    @(OptionTag @beanSetter @beanGetter)(converter = classOf[LanguageOptionConverter])
+    @BeanProperty
     var language: Option[Language] = None
 
-    @(Attribute @field)(converter = classOf[StringOptionConverter])
+    @(OptionTag @beanSetter @beanGetter)(converter = classOf[StringOptionConverter])
+    @BeanProperty
     var fileNameTemplate: Option[String] = None
 
-    @(Attribute @field)(converter = classOf[StringOptionConverter])
+    @(OptionTag @beanSetter @beanGetter)(converter = classOf[StringOptionConverter])
+    @BeanProperty
     var codeTemplate: Option[String] = None
   }
-
-  private class LanguageConverter extends Converter[Language] {
-    override def fromString(value: String): Language =
-      Language.fromCIString(CIString(value)).orNull
-    override def toString(value: Language): String =
-      value.value
-  }
-
-  implicit val languageConverter: Converter[Language] = new LanguageConverter
-  implicit val stringConverter: Converter[String] = new Converter[String] {
-    override def fromString(value: String): String = value
-    override def toString(value: String): String   = value
-  }
-
-  class OptionConverter[T: Converter] extends Converter[Option[T]] {
-    override def fromString(value: String): Option[T] =
-      if (value == null || value.isEmpty) None else Some(implicitly[Converter[T]].fromString(value))
-    override def toString(value: Option[T]): String =
-      value.map(it => implicitly[Converter[T]].toString(it)).orNull
-  }
-
-  private class StringOptionConverter   extends OptionConverter[String]
-  private class LanguageOptionConverter extends OptionConverter[Language]
 
   def getInstance(project: Project): HackerRankSettings =
     project.getService(classOf[HackerRankSettings])

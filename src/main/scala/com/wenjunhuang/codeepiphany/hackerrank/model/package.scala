@@ -11,7 +11,6 @@ import monocle.macros.GenLens
 import org.typelevel.ci.CIString
 
 package object model {
-
   enum ChallengeStatus(val value: String) {
     case Solved   extends ChallengeStatus("solved")
     case Unsolved extends ChallengeStatus("unsolved")

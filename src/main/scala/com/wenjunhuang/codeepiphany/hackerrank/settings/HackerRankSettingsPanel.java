@@ -79,7 +79,6 @@ public class HackerRankSettingsPanel extends SettingsUi<HackerRankSettings.Hacke
                 project, FileChooserDescriptorFactory.createSingleFolderDescriptor());
 
         initLanguageComboBox();
-//        reset();
 
         new ComponentValidator(this)
                 .withOutlineProvider(ComponentValidator.CWBB_PROVIDER)
@@ -381,8 +380,8 @@ public class HackerRankSettingsPanel extends SettingsUi<HackerRankSettings.Hacke
         Stream.of(mySourceFolder, myLanguages, myFileNameEditor, myCodeTemplateEditor)
                 .map(ComponentValidator::getInstance)
                 .forEach(validator -> {
-                    validator.ifPresent(ComponentValidator::revalidate);
                     validator.ifPresent(v -> {
+                        v.revalidate();
                         ValidationInfo result = v.getValidationInfo();
                         if (result != null) validationInfos.add(result);
                     });

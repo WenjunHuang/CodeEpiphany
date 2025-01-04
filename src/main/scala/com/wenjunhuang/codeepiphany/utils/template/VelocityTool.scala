@@ -12,7 +12,7 @@ object VelocityTool {
     case _ =>
       str.split("[\\s-_]").map(_.capitalize).mkString("") match
         case "" => ""
-        case s  => s.head.toLower + s.tail
+        case s  => s"${s.head.toLower}${s.tail}"
 
   // change from camel case to snake case
   def snakeCaseName(str: String): String = str match
