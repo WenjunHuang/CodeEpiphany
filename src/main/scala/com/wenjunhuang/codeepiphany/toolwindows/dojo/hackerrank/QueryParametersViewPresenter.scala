@@ -19,6 +19,7 @@ import com.wenjunhuang.codeepiphany.toolwindows.dojo.actions.*
 import com.wenjunhuang.codeepiphany.toolwindows.dojo.actions.keys.*
 import com.wenjunhuang.codeepiphany.toolwindows.dojo.actions.providers.ChallengeProvider
 import com.wenjunhuang.codeepiphany.utils.implicits.*
+import com.wenjunhuang.codeepiphany.utils.extensions.*
 import com.wenjunhuang.codeepiphany.utils.ui.Tag as TagUI
 import fs2.Stream
 import fs2.concurrent.SignallingRef
@@ -151,8 +152,7 @@ class QueryParametersViewPresenter(private val myProject: Project) extends Dispo
             selected.slug,
             Contest.fromCIString(CIString(selected.contestSlug)).get,
             language
-          )
-            .unsafeRunAndForget()
+          ).unsafeRunAsBackgroundProgress(myProject, "Opening challenge")
         case None => ()
     }
 

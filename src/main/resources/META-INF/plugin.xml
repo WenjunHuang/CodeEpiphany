@@ -127,6 +127,8 @@
         <lang.foldingBuilder language="JAVA"
                              implementationClass="com.wenjunhuang.codeepiphany.lang.SubmissionRegionFoldingBuilder"/>
         <fileIconPatcher implementation="com.wenjunhuang.codeepiphany.editor.ChallengeEditorIconProvider" order="last"/>
+        <editorTabTitleProvider implementation="com.wenjunhuang.codeepiphany.editor.ChallengeEditorTabTitleProvider"
+                                order="last"/>
 
     </extensions>
 </idea-plugin>

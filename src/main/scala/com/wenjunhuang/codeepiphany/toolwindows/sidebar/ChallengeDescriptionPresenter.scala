@@ -13,7 +13,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
 import com.intellij.openapi.vfs.LocalFileSystem
 import com.intellij.util.io.URLUtil
-import com.wenjunhuang.codeepiphany.model.Repository.ChallengeStorageItem
+import com.wenjunhuang.codeepiphany.model.ChallengeRepository.ChallengeStorageItem
 import com.wenjunhuang.codeepiphany.utils.implicits.*
 
 import java.io.File

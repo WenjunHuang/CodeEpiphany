@@ -5,18 +5,22 @@ package com.wenjunhuang.codeepiphany.database.tables;
 
 
 import com.wenjunhuang.codeepiphany.database.DefaultSchema;
+import com.wenjunhuang.codeepiphany.database.Indexes;
 import com.wenjunhuang.codeepiphany.database.Keys;
 import com.wenjunhuang.codeepiphany.database.tables.ChallengeLanguage.ChallengeLanguagePath;
 import com.wenjunhuang.codeepiphany.database.tables.HackerrankChallenge.HackerrankChallengePath;
 import com.wenjunhuang.codeepiphany.database.tables.Solution.SolutionPath;
 import com.wenjunhuang.codeepiphany.database.tables.records.ChallengeRecord;
 
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
 
 import org.jooq.Condition;
 import org.jooq.Field;
 import org.jooq.ForeignKey;
 import org.jooq.Identity;
+import org.jooq.Index;
 import org.jooq.InverseForeignKey;
 import org.jooq.Name;
 import org.jooq.Path;
@@ -167,6 +171,11 @@ public class Challenge extends TableImpl<ChallengeRecord> {
     @Override
     public Schema getSchema() {
         return aliased() ? null : DefaultSchema.DEFAULT_SCHEMA;
+    }
+
+    @Override
+    public List<Index> getIndexes() {
+        return Arrays.asList(Indexes.CHALLENGE_DOJOID_DOJO_UINDEX);
     }
 
     @Override

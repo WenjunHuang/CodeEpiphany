@@ -13,7 +13,7 @@ import com.wenjunhuang.codeepiphany.settings.CodeEpiphanySettings
 import com.wenjunhuang.codeepiphany.utils.XmlUtils.*
 import com.zaxxer.hikari.HikariDataSource
 import org.flywaydb.core.Flyway
-import org.jooq.{ DSLContext, SQLDialect }
+import org.jooq.{DSLContext, SQLDialect}
 import org.jooq.impl.DSL
 
 import java.util as ju
@@ -22,10 +22,12 @@ import scala.annotation.meta.field
 import scala.beans.BeanProperty
 import scala.compiletime.uninitialized
 import cats.effect.IO
+import cats.effect.kernel.Resource
 import com.wenjunhuang.codeepiphany.utils.implicits.*
 
+
 @Service(Array(Level.PROJECT))
-final class Repository(private val myProject: Project) extends Disposable {
+final class ChallengeRepository(private val myProject: Project) extends Disposable {
   Disposer.register(myProject, this)
 
   myProject.getMessageBus
@@ -80,15 +82,16 @@ final class Repository(private val myProject: Project) extends Disposable {
 
   def getDSLContext: DSLContext = DSL.using(dataSource.get, SQLDialect.SQLITE)
 
-  def getDSLContextF[F[_]: Async]: F[DSLContext] = Async[F].delay(getDSLContext)
+  def getDSLContextResource[F[_]: Async]: Resource[F, DSLContext] =
+    Resource.make(Async[F].delay(getDSLContext))(dsl => Async[F].pure(()))
 
   override def dispose(): Unit = {
     closeDataSource(true)
   }
 }
 
-object Repository {
-  def getInstance(project: Project): Repository = project.getService(classOf[Repository])
+object ChallengeRepository {
+  def getInstance(project: Project): ChallengeRepository = project.getService(classOf[ChallengeRepository])
 
   class ChallengeStorageItem {
     @BeanProperty
@@ -115,4 +118,29 @@ object Repository {
     @BeanProperty
     var challenges: ju.Map[String, ChallengeStorageItem] = new ju.HashMap[String, ChallengeStorageItem]()
   }
+
+  opaque type ChallengeId = Int
+  object ChallengeId {
+    def apply(value: Int): ChallengeId = value
+    extension (id: ChallengeId) {
+      def value: Int = id
+    }
+  }
+
+  opaque type ChallengeLanguageId = Int
+  object ChallengeLanguageId {
+    def apply(value: Int): ChallengeLanguageId = value
+    extension (id: ChallengeLanguageId) {
+      def value: Int = id
+    }
+  }
+
+  opaque type SolutionId = Int
+  object SolutionId {
+    def apply(value: Int): SolutionId = value
+    extension (id: SolutionId) {
+      def value: Int = id
+    }
+  }
+
 }

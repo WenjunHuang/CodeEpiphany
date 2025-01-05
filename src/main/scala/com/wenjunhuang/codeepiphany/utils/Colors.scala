@@ -1,5 +1,4 @@
 package com.wenjunhuang.codeepiphany.utils
-import org.intellij.lang.annotations.Language
 
 object Colors {
   val DIFFICULTY_EASY_COLOR   = "#1ab8a3"

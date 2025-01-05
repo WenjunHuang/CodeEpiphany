@@ -9,7 +9,7 @@ import com.intellij.openapi.editor.colors.{ EditorColorsListener, EditorColorsMa
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
 import com.intellij.ui.jcef.*
-import com.wenjunhuang.codeepiphany.model.Repository.ChallengeStorageItem
+import com.wenjunhuang.codeepiphany.model.ChallengeRepository.ChallengeStorageItem
 import com.wenjunhuang.codeepiphany.toolwindows.sidebar.JCefDescriptionView.*
 import com.wenjunhuang.codeepiphany.utils.implicits.*
 import com.wenjunhuang.codeepiphany.utils.isDebug

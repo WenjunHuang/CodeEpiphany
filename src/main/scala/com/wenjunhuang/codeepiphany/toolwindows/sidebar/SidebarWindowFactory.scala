@@ -3,7 +3,7 @@ package com.wenjunhuang.codeepiphany.toolwindows.sidebar
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.wm.{ToolWindow, ToolWindowFactory, ToolWindowManager}
 import com.intellij.openapi.wm.impl.content.ToolWindowContentUi
-import com.wenjunhuang.codeepiphany.model.Repository.ChallengeStorageItem
+import com.wenjunhuang.codeepiphany.model.ChallengeRepository.ChallengeStorageItem
 import com.wenjunhuang.codeepiphany.model.CodeDojo.LeetCodeCN
 import kotlin.coroutines.Continuation
 

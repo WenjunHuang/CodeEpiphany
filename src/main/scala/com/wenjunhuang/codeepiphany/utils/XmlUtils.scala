@@ -23,7 +23,15 @@ object XmlUtils {
 
   class LanguageOptionConverter extends OptionConverter[Language]
 
+  class IntOptionConverter extends OptionConverter[Int]
+
   implicit val languageConverter: Converter[Language] = new LanguageConverter
+
+  implicit val intConverter: Converter[Int] = new Converter[Int] {
+    override def fromString(s: String): Int = s.toInt
+
+    override def toString(t: Int): String = t.toString
+  }
 
   implicit val stringConverter: Converter[String] = new Converter[String] {
     override def fromString(value: String): String = value

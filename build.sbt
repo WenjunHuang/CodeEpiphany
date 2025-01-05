@@ -44,18 +44,20 @@ lazy val codeEpiphany = (project in file("."))
       "com.squareup.okhttp3" % "okhttp"           % "4.12.0",
       "org.jsoup"            % "jsoup"            % "1.18.3",
       // add jooq and sqlite,
-      "org.jooq"       % "jooq"            % "3.19.16",
-      "org.jooq"       % "jooq-meta"       % "3.19.16",
-      "org.jooq"       % "jooq-codegen"    % "3.19.16",
-      "org.xerial"     % "sqlite-jdbc"     % "3.47.2.0",
-      "org.xerial"     % "sqlite-jdbc"     % "3.47.2.0" % JooqCodegen,
-      "org.flywaydb"   % "flyway-core"     % "11.1.0",
-      "com.zaxxer"     % "HikariCP"        % "6.2.1",
-      "org.scalatest" %% "scalatest"       % "3.2.19"   % Test,
-      "junit"          % "junit"           % "4.13.2"   % Test,
-      "org.hamcrest"   % "hamcrest"        % "3.0"      % Test,
-      "com.novocode"   % "junit-interface" % "0.11"     % Test,
-      "org.opentest4j" % "opentest4j"      % "1.3.0"    % Test
+      "org.jooq"            % "jooq"             % "3.19.16",
+      "org.reactivestreams" % "reactive-streams" % "1.0.4",
+      "io.r2dbc"            % "r2dbc-spi"        % "1.0.0.RELEASE",
+      "org.xerial"          % "sqlite-jdbc"      % "3.47.2.0",
+      "org.jooq"            % "jooq-meta"        % "3.19.16"  % JooqCodegen,
+      "org.jooq"            % "jooq-codegen"     % "3.19.16"  % JooqCodegen,
+      "org.xerial"          % "sqlite-jdbc"      % "3.47.2.0" % JooqCodegen,
+      "org.flywaydb"        % "flyway-core"      % "11.1.0",
+      "com.zaxxer"          % "HikariCP"         % "6.2.1",
+      "org.scalatest"      %% "scalatest"        % "3.2.19"   % Test,
+      "junit"               % "junit"            % "4.13.2"   % Test,
+      "org.hamcrest"        % "hamcrest"         % "3.0"      % Test,
+      "com.novocode"        % "junit-interface"  % "0.11"     % Test,
+      "org.opentest4j"      % "opentest4j"       % "1.3.0"    % Test
     ).map(
       _.exclude("org.slf4j", "*")
         .exclude("org.typelevel", "log4cats-slf4j_3")

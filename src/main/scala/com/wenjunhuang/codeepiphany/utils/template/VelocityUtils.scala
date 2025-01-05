@@ -1,7 +1,6 @@
 package com.wenjunhuang.codeepiphany.utils.template
 
-import com.wenjunhuang.codeepiphany.hackerrank.model.ChallengeCodeTemplate
-import com.wenjunhuang.codeepiphany.model.Constants
+import com.wenjunhuang.codeepiphany.model.{ChallengeCodeTemplate, Constants}
 import org.apache.velocity.VelocityContext
 import org.apache.velocity.app.Velocity
 

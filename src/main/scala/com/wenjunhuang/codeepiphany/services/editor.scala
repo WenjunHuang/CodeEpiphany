@@ -13,13 +13,18 @@ import org.typelevel.log4cats.LoggerFactory
 import java.io.{ File, PrintWriter }
 
 object editor {
-  def saveTextToFileAndRefresh[F[_]: Sync](file: File, content: String): F[VirtualFile] =
+  def saveTextToFile[F[_]: Sync](file: File, content: String): F[File] = {
     Resource.make(Sync[F].blocking(PrintWriter(file)))(writer => Sync[F].blocking(writer.close())).use { writer =>
       Sync[F].blocking {
         writer.write(content)
         writer.flush()
+        file
       }
-    } *> Sync[F].blocking(LocalFileSystem.getInstance().refreshAndFindFileByIoFile(file))
+    }
+  }
+
+  def refreshAndFindFileByIoFile[F[_]: Sync](file: File): F[Option[VirtualFile]] =
+    Sync[F].blocking(Option(LocalFileSystem.getInstance().refreshAndFindFileByIoFile(file)))
 
   def openTextEditor[F[_]: Async](vf: VirtualFile, project: Project): F[Editor] =
     Async[F].delay {

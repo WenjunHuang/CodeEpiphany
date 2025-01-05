@@ -3,9 +3,11 @@ package com.wenjunhuang.codeepiphany.hackerrank.settings
 import com.intellij.openapi.options.ConfigurableBase
 import com.intellij.openapi.project.Project
 import com.wenjunhuang.codeepiphany.PluginBundle
-import com.wenjunhuang.codeepiphany.hackerrank.model.ChallengeCodeTemplate
-import com.wenjunhuang.codeepiphany.model.Language
-import com.wenjunhuang.codeepiphany.model.Language.* 
+import com.wenjunhuang.codeepiphany.hackerrank.model.ChallengeDifficulty
+import com.wenjunhuang.codeepiphany.hackerrank.model.Contest.Master
+import com.wenjunhuang.codeepiphany.model.{ ChallengeCodeTemplate, Language }
+import com.wenjunhuang.codeepiphany.model.CodeDojo.HackerRank
+import com.wenjunhuang.codeepiphany.model.Language.*
 
 class HackerRankSettingsConfigurable(private val myProject: Project)
     extends ConfigurableBase[HackerRankSettingsPanel, HackerRankSettings.HackerRankState](
@@ -23,7 +25,8 @@ class HackerRankSettingsConfigurable(private val myProject: Project)
 
 object HackerRankSettingsConfigurable {
   private val DEMO_JULIA_TEMPLATE: ChallengeCodeTemplate = ChallengeCodeTemplate(
-    23074,
+    "23074",
+    HackerRank,
     "Birthday Cake Candles",
     "birthday-cake-candles",
     "Determine the number of candles that are blown out.",
@@ -53,11 +56,15 @@ object HackerRankSettingsConfigurable {
         |
         |close(fptr)
         |
-        |""".stripMargin
+        |""".stripMargin,
+    Master.slug,
+    ChallengeDifficulty.Easy.value,
+    Language.Julia
   )
 
   private val DEMO_JAVA_TEMPLATE: ChallengeCodeTemplate = ChallengeCodeTemplate(
-    23074,
+    "23074",
+    HackerRank,
     "Birthday Cake Candles",
     "birthday-cake-candles",
     "Determine the number of candles that are blown out.",
@@ -112,11 +119,15 @@ object HackerRankSettingsConfigurable {
         |    }
         |}
         |
-        |""".stripMargin
+        |""".stripMargin,
+    Master.slug,
+    ChallengeDifficulty.Easy.value,
+    Language.Java
   )
 
   private val DEMO_R_TEMPLATE = ChallengeCodeTemplate(
-    23074,
+    "23074",
+    HackerRank,
     "Birthday Cake Candles",
     "birthday-cake-candles",
     "Determine the number of candles that are blown out.",
@@ -132,7 +143,7 @@ object HackerRankSettingsConfigurable {
         |    # Write your code here
         |
         |}
-        |""".stripMargin.replace("\r\n", "\n"),
+        |""".stripMargin,
     """stdin <- file('stdin')
         |open(stdin)
         |
@@ -150,11 +161,15 @@ object HackerRankSettingsConfigurable {
         |close(stdin)
         |close(fptr)
         |
-        |""".stripMargin.replace("\r\n", "\n")
+        |""".stripMargin,
+    Master.slug,
+    ChallengeDifficulty.Easy.value,
+    Language.R
   )
 
   private val DEMO_KOTLIN_TEMPLATE = ChallengeCodeTemplate(
-    23074,
+    "23074",
+    HackerRank,
     "Birthday Cake Candles",
     "birthday-cake-candles",
     "Determine the number of candles that are blown out.",
@@ -178,7 +193,7 @@ object HackerRankSettingsConfigurable {
         |import kotlin.text.*
         |
         |
-        |""".stripMargin.replace("\r\n", "\n"),
+        |""".stripMargin,
     """/*
         | * Complete the 'birthdayCakeCandles' function below.
         | *
@@ -192,7 +207,7 @@ object HackerRankSettingsConfigurable {
         |}
         |
         |
-        |""".stripMargin.replace("\r\n", "\n"),
+        |""".stripMargin,
     """
         |fun main(args: Array<String>) {
         |    val candlesCount = readLine()!!.trim().toInt()
@@ -204,11 +219,15 @@ object HackerRankSettingsConfigurable {
         |    println(result)
         |}
         |
-        |""".stripMargin.replace("\r\n", "\n")
+        |""".stripMargin,
+    Master.slug,
+    ChallengeDifficulty.Easy.value,
+    Language.Kotlin
   )
 
   private val DEMO_TYPESCRIPT_TEMPLATE = ChallengeCodeTemplate(
-    23074,
+    "23074",
+    HackerRank,
     "Birthday Cake Candles",
     "birthday-cake-candles",
     "Determine the number of candles that are blown out.",
@@ -238,7 +257,7 @@ object HackerRankSettingsConfigurable {
         |}
         |
         |
-        |""".stripMargin.replace("\r\n", "\n"),
+        |""".stripMargin,
     """/*
         | * Complete the 'birthdayCakeCandles' function below.
         | *
@@ -250,7 +269,7 @@ object HackerRankSettingsConfigurable {
         |    // Write your code here
         |
         |}
-        |""".stripMargin.replace("\r\n", "\n"),
+        |""".stripMargin,
     """function main() {
         |    const ws: WriteStream = createWriteStream(process.env['OUTPUT_PATH']);
         |
@@ -264,11 +283,15 @@ object HackerRankSettingsConfigurable {
         |
         |    ws.end();
         |}
-        |""".stripMargin.replace("\r\n", "\n")
+        |""".stripMargin,
+    Master.slug,
+    ChallengeDifficulty.Easy.value,
+    Language.Typescript
   )
 
   private val DEMO_ERLANG_TEMPLATE = ChallengeCodeTemplate(
-    23074,
+    "23074",
+    HackerRank,
     "Birthday Cake Candles",
     "birthday-cake-candles",
     "Determine the number of candles that are blown out.",
@@ -310,11 +333,15 @@ object HackerRankSettingsConfigurable {
         |
         |    ok.
         |
-        |""".stripMargin
+        |""".stripMargin,
+    Master.slug,
+    ChallengeDifficulty.Easy.value,
+    Language.ERLANG
   )
 
   private val DEMO_CPP_TEMPLATE = ChallengeCodeTemplate(
-    23074,
+    "23074",
+    HackerRank,
     "Birthday Cake Candles",
     "birthday-cake-candles",
     "Determine the number of candles that are blown out.",
@@ -414,11 +441,15 @@ object HackerRankSettingsConfigurable {
         |    return tokens;
         |}
         |
-        |""".stripMargin
+        |""".stripMargin,
+    Master.slug,
+    ChallengeDifficulty.Easy.value,
+    Language.Cpp
   )
 
   private val DEMO_PHP_TEMPLATE = ChallengeCodeTemplate(
-    23074,
+    "23074",
+    HackerRank,
     "Birthday Cake Candles",
     "birthday-cake-candles",
     "Determine the number of candles that are blown out.",
@@ -457,11 +488,15 @@ object HackerRankSettingsConfigurable {
         |
         |fclose($fptr);
         |
-        |""".stripMargin
+        |""".stripMargin,
+    Master.slug,
+    ChallengeDifficulty.Easy.value,
+    Language.PHP
   )
 
   private val DEMO_JAVASCRIPT_TEMPLATE = ChallengeCodeTemplate(
-    23074,
+    "23074",
+    HackerRank,
     "Birthday Cake Candles",
     "birthday-cake-candles",
     "Determine the number of candles that are blown out.",
@@ -490,7 +525,7 @@ object HackerRankSettingsConfigurable {
         |}
         |
         |
-        |""".stripMargin.replace("\r\n", "\n"),
+        |""".stripMargin,
     """/*
         | * Complete the 'birthdayCakeCandles' function below.
         | *
@@ -504,7 +539,7 @@ object HackerRankSettingsConfigurable {
         |}
         |
         |
-        |""".stripMargin.replace("\r\n", "\n"),
+        |""".stripMargin,
     """function main() {
         |    const ws = fs.createWriteStream(process.env.OUTPUT_PATH);
         |
@@ -519,16 +554,20 @@ object HackerRankSettingsConfigurable {
         |    ws.end();
         |}
         |
-        |""".stripMargin.replace("\r\n", "\n")
+        |""".stripMargin,
+    Master.slug,
+    ChallengeDifficulty.Easy.value,
+    Language.Javascript
   )
 
   private val DEMO_SWIFT_TEMPLATE = ChallengeCodeTemplate(
-    23074,
+    "23074",
+    HackerRank,
     "Birthday Cake Candles",
     "birthday-cake-candles",
     "Determine the number of candles that are blown out.",
     """import Foundation
-        |""".stripMargin.replace("\r\n", "\n"),
+        |""".stripMargin,
     """/*
         | * Complete the 'birthdayCakeCandles' function below.
         | *
@@ -540,7 +579,7 @@ object HackerRankSettingsConfigurable {
         |    // Write your code here
         |
         |}
-        |""".stripMargin.replace("\r\n", "\n"),
+        |""".stripMargin,
     """let stdout = ProcessInfo.processInfo.environment["OUTPUT_PATH"]!
         |FileManager.default.createFile(atPath: stdout, contents: nil, attributes: nil)
         |let fileHandle = FileHandle(forWritingAtPath: stdout)!
@@ -563,11 +602,15 @@ object HackerRankSettingsConfigurable {
         |fileHandle.write(String(result).data(using: .utf8)!)
         |fileHandle.write("\n".data(using: .utf8)!)
         |
-        |""".stripMargin.replace("\r\n", "\n")
+        |""".stripMargin,
+    Master.slug,
+    ChallengeDifficulty.Easy.value,
+    Language.Swift
   )
 
   private val DEMO_RUST_TEMPLATE = ChallengeCodeTemplate(
-    23074,
+    "23074",
+    HackerRank,
     "Birthday Cake Candles",
     "birthday-cake-candles",
     "Determine the number of candles that are blown out.",
@@ -576,7 +619,7 @@ object HackerRankSettingsConfigurable {
         |use std::io::{self, BufRead, Write};
         |
         |
-        |""".stripMargin.replace("\r\n", "\n"),
+        |""".stripMargin,
     """/*
         | * Complete the 'birthdayCakeCandles' function below.
         | *
@@ -589,7 +632,7 @@ object HackerRankSettingsConfigurable {
         |}
         |
         |
-        |""".stripMargin.replace("\r\n", "\n"),
+        |""".stripMargin,
     """fn main() {
         |    let stdin = io::stdin();
         |    let mut stdin_iterator = stdin.lock().lines();
@@ -609,11 +652,15 @@ object HackerRankSettingsConfigurable {
         |    writeln!(&mut fptr, "{}", result).ok();
         |}
         |
-        |""".stripMargin.replace("\r\n", "\n")
+        |""".stripMargin,
+    Master.slug,
+    ChallengeDifficulty.Easy.value,
+    Language.Rust
   )
 
   private val DEMO_SCALA_TEMPLATE = ChallengeCodeTemplate(
-    23074,
+    "23074",
+    HackerRank,
     "Birthday Cake Candles",
     "birthday-cake-candles",
     "Determine the number of candles that are blown out.",
@@ -637,7 +684,7 @@ object HackerRankSettingsConfigurable {
         |import scala.reflect._
         |
         |
-        |""".stripMargin.replace("\r\n", "\n"),
+        |""".stripMargin,
     """object Result {
         |
         |    /*
@@ -655,7 +702,7 @@ object HackerRankSettingsConfigurable {
         |}
         |
         |
-        |""".stripMargin.replace("\r\n", "\n"),
+        |""".stripMargin,
     """object Solution {
         |    def main(args: Array[String]) {
         |        val printWriter = new PrintWriter(sys.env("OUTPUT_PATH"))
@@ -672,11 +719,15 @@ object HackerRankSettingsConfigurable {
         |    }
         |}
         |
-        |""".stripMargin.replace("\r\n", "\n")
+        |""".stripMargin,
+    Master.slug,
+    ChallengeDifficulty.Easy.value,
+    Language.Scala
   )
 
   private val DEMO_PERL_TEMPLATE = ChallengeCodeTemplate(
-    23074,
+    "23074",
+    HackerRank,
     "Birthday Cake Candles",
     "birthday-cake-candles",
     "Determine the number of candles that are blown out.",
@@ -686,7 +737,7 @@ object HackerRankSettingsConfigurable {
         |use warnings;
         |
         |
-        |""".stripMargin.replace("\r\n", "\n"),
+        |""".stripMargin,
     """#
         |# Complete the 'birthdayCakeCandles' function below.
         |#
@@ -700,7 +751,7 @@ object HackerRankSettingsConfigurable {
         |}
         |
         |
-        |""".stripMargin.replace("\r\n", "\n"),
+        |""".stripMargin,
     """open(my $fptr, '>', $ENV{'OUTPUT_PATH'});
         |
         |my $candles_count = ltrim(rtrim(my $candles_count_temp = <STDIN>));
@@ -731,11 +782,15 @@ object HackerRankSettingsConfigurable {
         |    return $str;
         |}
         |
-        |""".stripMargin.replace("\r\n", "\n")
+        |""".stripMargin,
+    Master.slug,
+    ChallengeDifficulty.Easy.value,
+    Language.Perl
   )
 
   private val DEMO_CSHARP_TEMPLATE = ChallengeCodeTemplate(
-    23074,
+    "23074",
+    HackerRank,
     "Birthday Cake Candles",
     "birthday-cake-candles",
     "Determine the number of candles that are blown out.",
@@ -773,7 +828,7 @@ object HackerRankSettingsConfigurable {
         |}
         |
         |
-        |""".stripMargin.replace("\r\n", "\n"),
+        |""".stripMargin,
     """class Solution
         |{
         |    public static void Main(string[] args)
@@ -793,11 +848,15 @@ object HackerRankSettingsConfigurable {
         |    }
         |}
         |
-        |""".stripMargin.replace("\r\n", "\n")
+        |""".stripMargin,
+    Master.slug,
+    ChallengeDifficulty.Easy.value,
+    Language.CSharp
   )
 
   private val DEMO_HASKELL_TEMPLATE = ChallengeCodeTemplate(
-    23074,
+    "23074",
+    HackerRank,
     "Birthday Cake Candles",
     "birthday-cake-candles",
     "Determine the number of candles that are blown out.",
@@ -818,7 +877,7 @@ object HackerRankSettingsConfigurable {
         |import System.IO.Unsafe
         |
         |
-        |""".stripMargin.replace("\r\n", "\n"),
+        |""".stripMargin,
     """--
         |-- Complete the 'birthdayCakeCandles' function below.
         |--
@@ -830,7 +889,7 @@ object HackerRankSettingsConfigurable {
         |    -- Write your code here
         |
         |
-        |""".stripMargin.replace("\r\n", "\n"),
+        |""".stripMargin,
     """lstrip = Data.Text.unpack . Data.Text.stripStart . Data.Text.pack
         |rstrip = Data.Text.unpack . Data.Text.stripEnd . Data.Text.pack
         |
@@ -853,11 +912,15 @@ object HackerRankSettingsConfigurable {
         |    hFlush fptr
         |    hClose fptr
         |
-        |""".stripMargin.replace("\r\n", "\n")
+        |""".stripMargin,
+    Master.slug,
+    ChallengeDifficulty.Easy.value,
+    Language.Haskell
   )
 
   private val DEMO_GO_TEMPLATE = ChallengeCodeTemplate(
-    23074,
+    "23074",
+    HackerRank,
     "Birthday Cake Candles",
     "birthday-cake-candles",
     "Determine the number of candles that are blown out.",
@@ -873,7 +936,7 @@ object HackerRankSettingsConfigurable {
         |)
         |
         |
-        |""".stripMargin.replace("\r\n", "\n"),
+        |""".stripMargin,
     """/*
         | * Complete the 'birthdayCakeCandles' function below.
         | *
@@ -887,7 +950,7 @@ object HackerRankSettingsConfigurable {
         |}
         |
         |
-        |""".stripMargin.replace("\r\n", "\n"),
+        |""".stripMargin,
     """
         |func main() {
         |    reader := bufio.NewReaderSize(os.Stdin, 16 * 1024 * 1024)
@@ -935,11 +998,15 @@ object HackerRankSettingsConfigurable {
         |    }
         |}
         |
-        |""".stripMargin.replace("\r\n", "\n")
+        |""".stripMargin,
+    Master.slug,
+    ChallengeDifficulty.Easy.value,
+    Language.GO
   )
 
   private val DEMO_RUBY_TEMPLATE = ChallengeCodeTemplate(
-    23074,
+    "23074",
+    HackerRank,
     "Birthday Cake Candles",
     "birthday-cake-candles",
     "Determine the number of candles that are blown out.",
@@ -950,7 +1017,7 @@ object HackerRankSettingsConfigurable {
         |require 'stringio'
         |
         |
-        |""".stripMargin.replace("\r\n", "\n"),
+        |""".stripMargin,
     """
         |#
         |# Complete the 'birthdayCakeCandles' function below.
@@ -965,7 +1032,7 @@ object HackerRankSettingsConfigurable {
         |end
         |
         |
-        |""".stripMargin.replace("\r\n", "\n"),
+        |""".stripMargin,
     """
         |fptr = File.open(ENV['OUTPUT_PATH'], 'w')
         |
@@ -980,11 +1047,15 @@ object HackerRankSettingsConfigurable {
         |
         |fptr.close()
         |
-        |""".stripMargin.replace("\r\n", "\n")
+        |""".stripMargin,
+    Master.slug,
+    ChallengeDifficulty.Easy.value,
+    Language.Ruby
   )
 
   private val DEMO_CLOJURE_TEMPLATE = ChallengeCodeTemplate(
-    23074,
+    "23074",
+    HackerRank,
     "Birthday Cake Candles",
     "birthday-cake-candles",
     "Determine the number of candles that are blown out.",
@@ -1002,7 +1073,7 @@ object HackerRankSettingsConfigurable {
         |)
         |
         |
-        |""".stripMargin.replace("\r\n", "\n"),
+        |""".stripMargin,
     """
         |(def fptr (get (System/getenv) "OUTPUT_PATH"))
         |
@@ -1014,11 +1085,15 @@ object HackerRankSettingsConfigurable {
         |
         |(spit fptr (str result "\n") :append true)
         |
-        |""".stripMargin.replace("\r\n", "\n")
+        |""".stripMargin,
+    Master.slug,
+    ChallengeDifficulty.Easy.value,
+    Language.Clojure
   )
 
   private val DEMO_C_TEMPLATE = ChallengeCodeTemplate(
-    23074,
+    "23074",
+    HackerRank,
     "Birthday Cake Candles",
     "birthday-cake-candles",
     "Determine the number of candles that are blown out.",
@@ -1041,7 +1116,7 @@ object HackerRankSettingsConfigurable {
         |int parse_int(char*);
         |
         |
-        |""".stripMargin.replace("\r\n", "\n"),
+        |""".stripMargin,
     """
         |/*
         | * Complete the 'birthdayCakeCandles' function below.
@@ -1202,11 +1277,15 @@ object HackerRankSettingsConfigurable {
         |    return value;
         |}
         |
-        |""".stripMargin
+        |""".stripMargin,
+    Master.slug,
+    ChallengeDifficulty.Easy.value,
+    Language.C
   )
 
   private val DEMO_OBJECTIVEC_TEMPLATE = ChallengeCodeTemplate(
-    23074,
+    "23074",
+    HackerRank,
     "Birthday Cake Candles",
     "birthday-cake-candles",
     "Determine the number of candles that are blown out.",
@@ -1258,7 +1337,7 @@ object HackerRankSettingsConfigurable {
         |@end
         |
         |
-        |""".stripMargin.replace("\r\n", "\n"),
+        |""".stripMargin,
     """
         |@interface Solution:NSObject
         |- (NSNumber *) birthdayCakeCandles:(NSArray *)candles;
@@ -1280,7 +1359,7 @@ object HackerRankSettingsConfigurable {
         |@end
         |
         |
-        |""".stripMargin.replace("\r\n", "\n"),
+        |""".stripMargin,
     """
         |int main(int argc, const char* argv[]) {
         |    @autoreleasepool {
@@ -1321,7 +1400,10 @@ object HackerRankSettingsConfigurable {
         |    return 0;
         |}
         |
-        |""".stripMargin.replace("\r\n", "\n")
+        |""".stripMargin,
+    Master.slug,
+    ChallengeDifficulty.Easy.value,
+    Language.ObjectiveC
   )
 
   private val DEMOS = Map(

@@ -8,7 +8,7 @@ import com.intellij.openapi.ui.SimpleToolWindowPanel
 import com.intellij.openapi.util.Disposer
 import com.intellij.ui.PopupHandler
 import com.intellij.util.ui.{JBInsets, JBUI}
-import com.wenjunhuang.codeepiphany.model.Repository.ChallengeStorageItem
+import com.wenjunhuang.codeepiphany.model.ChallengeRepository.ChallengeStorageItem
 import com.wenjunhuang.codeepiphany.utils.isDebug
 
 import java.awt.Insets

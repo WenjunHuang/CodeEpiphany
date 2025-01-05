@@ -1,1 +1,1 @@
-$velocity.camelCaseName(${challenge.slug})
+$velocity.camelCaseName($challenge.slug+[$challenge.dojoId])
