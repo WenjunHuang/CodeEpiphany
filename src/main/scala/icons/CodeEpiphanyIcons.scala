@@ -16,6 +16,13 @@ object CodeEpiphanyIcons {
   @static
   val LOGOUT: Icon =
     IconLoader.getIcon("/icons/logout.svg", CodeEpiphanyIcons.getClass.getClassLoader)
+
+  @static
+  val RUN: Icon = IconLoader.getIcon("/icons/run.svg", CodeEpiphanyIcons.getClass.getClassLoader)
+
+  @static
+  val SUBMIT: Icon = IconLoader.getIcon("/icons/submit.svg", CodeEpiphanyIcons.getClass.getClassLoader)
+
   @static
   val QuestionToolWindowIcon: Icon =
     IconLoader.getIcon("/icons/file-lines-regular.svg", CodeEpiphanyIcons.getClass.getClassLoader)

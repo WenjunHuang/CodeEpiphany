@@ -1,9 +1,11 @@
 package com.wenjunhuang.codeepiphany.model
 
+import com.intellij.openapi.util.text.StringUtil
 import icons.CodeEpiphanyIcons
 import org.typelevel.ci.CIString
 
 import javax.swing.Icon
+import scala.collection.mutable
 
 enum LanguageVersion {
   case AnyVersion
@@ -66,6 +68,26 @@ enum Language(val value: String, val fileExt: String, val show: String, val icon
 
   def makeCodeRegion(code: String): String =
     s"${createComment(Constants.SUBMIT_CODE_REGION_BEGIN)}\n$code\n${createComment(Constants.SUBMIT_CODE_REGION_END)}"
+
+  def extractSubmitCode(code: String): String = {
+    val begin = createComment(Constants.SUBMIT_CODE_REGION_BEGIN)
+    val end   = createComment(Constants.SUBMIT_CODE_REGION_END)
+
+    val result   = mutable.ListBuffer.empty[String]
+    val accum    = mutable.ListBuffer.empty[String]
+    var inRegion = false
+    StringUtil.splitByLines(code, false).foreach { line =>
+      val trimmed = line.trim
+      if StringUtil.equals(trimmed, begin) then inRegion = true
+      else if line.contains(end) then
+        if inRegion then inRegion = false
+      else if inRegion then accum += line
+      else if accum.nonEmpty then
+        result.addAll(accum)
+        accum.clear()
+    }
+    result.mkString("\n")
+  }
 }
 
 object Language {

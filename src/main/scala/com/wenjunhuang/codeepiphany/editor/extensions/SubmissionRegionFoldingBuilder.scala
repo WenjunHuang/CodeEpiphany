@@ -1,11 +1,11 @@
-package com.wenjunhuang.codeepiphany.lang
+package com.wenjunhuang.codeepiphany.editor.extensions
 
-import com.intellij.lang.folding.{ FoldingBuilderEx, FoldingDescriptor }
+import com.intellij.lang.folding.{FoldingBuilderEx, FoldingDescriptor}
 import com.intellij.lang.ASTNode
-import com.intellij.openapi.editor.{ Document, FoldingGroup }
+import com.intellij.openapi.editor.{Document, FoldingGroup}
 import com.intellij.openapi.project.DumbAware
 import com.intellij.openapi.util.TextRange
-import com.intellij.psi.{ PsiComment, PsiElement }
+import com.intellij.psi.{PsiComment, PsiElement}
 import com.intellij.psi.util.PsiTreeUtil
 import com.wenjunhuang.codeepiphany.model.Constants
 

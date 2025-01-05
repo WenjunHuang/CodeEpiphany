@@ -1,10 +1,10 @@
-package com.wenjunhuang.codeepiphany.editor
+package com.wenjunhuang.codeepiphany.editor.extensions
 
 import com.intellij.ide.FileIconPatcher
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
 import com.wenjunhuang.codeepiphany.database.Tables.*
-import com.wenjunhuang.codeepiphany.model.{CodeDojo, ChallengeRepository}
+import com.wenjunhuang.codeepiphany.model.{ChallengeRepository, CodeDojo}
 import com.wenjunhuang.codeepiphany.settings.ChallengeSettings
 import org.typelevel.ci.CIString
 

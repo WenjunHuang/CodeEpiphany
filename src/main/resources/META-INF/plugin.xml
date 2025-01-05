@@ -34,6 +34,22 @@
                     class="com.wenjunhuang.codeepiphany.toolwindows.dojo.actions.SkillAction"/>
             <action id="CodeEpiphany.Dojos.Actions.Tags"
                     class="com.wenjunhuang.codeepiphany.toolwindows.dojo.actions.TagsAction"/>
+            <action id="CodeEpiphany.Editor.Actions.RunCode"
+                    class="com.wenjunhuang.codeepiphany.editor.actions.RunCodeAction"
+                    icon="CodeEpiphanyIcons.RUN"/>
+            <action id="CodeEpiphany.Editor.Actions.SubmitCode"
+                    class="com.wenjunhuang.codeepiphany.editor.actions.SubmitCodeAction"
+                    icon="CodeEpiphanyIcons.SUBMIT"/>
+        </group>
+
+        <group id="CodeEpiphany.Editor.Group">
+            <reference ref="CodeEpiphany.Editor.Actions.RunCode"/>
+            <reference ref="CodeEpiphany.Editor.Actions.SubmitCode"/>
+        </group>
+        <group id="CodeEpiphany.Editor.Menu" class="com.wenjunhuang.codeepiphany.editor.actions.EditorMenuActionGroup"
+               popup="true">
+            <reference ref="CodeEpiphany.Editor.Group"/>
+            <add-to-group group-id="EditorPopupMenu" anchor="first"/>
         </group>
 
         <group id="CodeEpiphany.Dojos.Actions.OpenChallengeGroup"
@@ -125,10 +141,12 @@
         </projectConfigurable>
 
         <lang.foldingBuilder language="JAVA"
-                             implementationClass="com.wenjunhuang.codeepiphany.lang.SubmissionRegionFoldingBuilder"/>
-        <fileIconPatcher implementation="com.wenjunhuang.codeepiphany.editor.ChallengeEditorIconProvider" order="last"/>
-        <editorTabTitleProvider implementation="com.wenjunhuang.codeepiphany.editor.ChallengeEditorTabTitleProvider"
-                                order="last"/>
+                             implementationClass="com.wenjunhuang.codeepiphany.editor.extensions.SubmissionRegionFoldingBuilder"/>
+        <fileIconPatcher implementation="com.wenjunhuang.codeepiphany.editor.extensions.ChallengeEditorIconProvider"
+                         order="last"/>
+        <editorTabTitleProvider
+                implementation="com.wenjunhuang.codeepiphany.editor.extensions.ChallengeEditorTabTitleProvider"
+                order="last"/>
 
     </extensions>
 </idea-plugin>

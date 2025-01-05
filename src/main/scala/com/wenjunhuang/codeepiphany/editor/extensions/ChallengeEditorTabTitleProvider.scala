@@ -1,4 +1,4 @@
-package com.wenjunhuang.codeepiphany.editor
+package com.wenjunhuang.codeepiphany.editor.extensions
 
 import com.intellij.openapi.fileEditor.impl.EditorTabTitleProvider
 import com.intellij.openapi.project.Project
