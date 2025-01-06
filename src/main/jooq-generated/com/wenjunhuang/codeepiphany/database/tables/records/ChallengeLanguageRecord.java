@@ -78,6 +78,21 @@ public class ChallengeLanguageRecord extends UpdatableRecordImpl<ChallengeLangua
         return (Integer) get(3);
     }
 
+    /**
+     * Setter for <code>challenge_language.languageVersion</code>.
+     */
+    public ChallengeLanguageRecord setLanguageversion(String value) {
+        set(4, value);
+        return this;
+    }
+
+    /**
+     * Getter for <code>challenge_language.languageVersion</code>.
+     */
+    public String getLanguageversion() {
+        return (String) get(4);
+    }
+
     // -------------------------------------------------------------------------
     // Primary key information
     // -------------------------------------------------------------------------
@@ -101,13 +116,14 @@ public class ChallengeLanguageRecord extends UpdatableRecordImpl<ChallengeLangua
     /**
      * Create a detached, initialised ChallengeLanguageRecord
      */
-    public ChallengeLanguageRecord(Integer challengeid, String language, String codetemplate, Integer id) {
+    public ChallengeLanguageRecord(Integer challengeid, String language, String codetemplate, Integer id, String languageversion) {
         super(ChallengeLanguage.CHALLENGE_LANGUAGE);
 
         setChallengeid(challengeid);
         setLanguage(language);
         setCodetemplate(codetemplate);
         setId(id);
+        setLanguageversion(languageversion);
         resetChangedOnNotNull();
     }
 }

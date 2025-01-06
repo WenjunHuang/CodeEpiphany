@@ -3,27 +3,39 @@ package com.wenjunhuang.codeepiphany.hackerrank
 import cats.effect.IO
 import cats.syntax.all.*
 import com.intellij.testFramework.fixtures.BasePlatformTestCase
-import com.intellij.util.net.{ProxyConfiguration, ProxySettings}
-import com.wenjunhuang.codeepiphany.hackerrank.model.Contest.{Master, ProjectEuler}
+import com.intellij.util.net.{ ProxyConfiguration, ProxySettings }
+import com.wenjunhuang.codeepiphany.hackerrank.model.Contest.{ Master, ProjectEuler }
+import com.wenjunhuang.codeepiphany.hackerrank.model.Contest
 import com.wenjunhuang.codeepiphany.hackerrank.services.HackerRankApi
-import com.wenjunhuang.codeepiphany.model.{ApiError, CodeDojo}
-import com.wenjunhuang.codeepiphany.services.http.HttpClientService
+import com.wenjunhuang.codeepiphany.model.{ ApiError, CodeDojo, Language }
+import com.wenjunhuang.codeepiphany.services.http.{ HttpClientKeeper, HttpClientService }
 import com.wenjunhuang.codeepiphany.utils.CookieUtil
 import com.wenjunhuang.codeepiphany.utils.implicits.*
 import org.hamcrest.CoreMatchers.*
 import org.hamcrest.MatcherAssert.assertThat
 
 import java.io.FileInputStream
+import java.net.HttpCookie
 import scala.io.Source
 
 class HackerRankApiIntegrationTest extends BasePlatformTestCase {
+  private var cookies: List[HttpCookie] = Nil
+
+  private def setCookie(httpClientKeeper: HttpClientKeeper[IO]): IO[Unit] = {
+    httpClientKeeper.updateCookiesForHost(CodeDojo.HackerRank.domain, cookies)
+  }
+
   override def setUp(): Unit = {
     super.setUp()
     val proxy = ProxySettings.getInstance()
-    proxy.setProxyConfiguration(ProxyConfiguration.proxy(ProxyConfiguration.ProxyProtocol.HTTP, "127.0.0.1", 9799, ""))
+    proxy.setProxyConfiguration(ProxyConfiguration.proxy(ProxyConfiguration.ProxyProtocol.HTTP, "127.0.0.1", 9999, ""))
+
+    val loginCookie = Source.fromInputStream(new FileInputStream(getBasePath + "/cookie")).getLines().mkString("\n")
+    cookies = CookieUtil.parseCookies(loginCookie)
   }
 
-  override def getTestDataPath = s"testResources/apiTestData/hackerrank/${getTestName(false)}"
+  override def getBasePath: String = s"testResources/apiTestData/hackerrank"
+  override def getTestDataPath     = s"${getBasePath}/${getTestName(false)}"
 
   def testSearchChallenges(): Unit = {
     val httpClientKeeper = HttpClientService.getInstance(getProject)
@@ -51,11 +63,10 @@ class HackerRankApiIntegrationTest extends BasePlatformTestCase {
   }
 
   def testGetInitialData(): Unit = {
-    val content          = Source.fromInputStream(new FileInputStream(getTestDataPath + "/cookie")).getLines().mkString("\n")
     val httpClientKeeper = HttpClientService.getInstance(getProject)
     import httpClientKeeper.*
     val hackerRankApi = HackerRankApi[IO]()
-    (httpClientKeeper.httpClientKeeper.updateCookiesForHost(CodeDojo.HackerRank.domain, CookieUtil.parseCookies(content)) *> hackerRankApi.getInitialData).attempt.unsafeRunSync() match {
+    (setCookie(httpClientKeeper.httpClientKeeper) *> hackerRankApi.getInitialData).attempt.unsafeRunSync() match {
       case Left(e) => throw e
       case Right((userInfo, challengeDomains)) =>
         assertThat(userInfo.username, allOf(notNullValue(), not("")))
@@ -96,7 +107,7 @@ class HackerRankApiIntegrationTest extends BasePlatformTestCase {
         case e => IO.raiseError(e)
       }
       .unsafeRunSync()
-     println(result)
+    println(result)
   }
 
   def testSearchMasterWithKeyword(): Unit = {
@@ -106,7 +117,11 @@ class HackerRankApiIntegrationTest extends BasePlatformTestCase {
 
     val result = hackerRankApi
       .searchChallengesWithKeyword(Master, "sum")
-      .flatMap(challenges => challenges.map { case (contest, challenge) => hackerRankApi.getChallengeDetail(challenge.challengeSlug, contest) }.parUnorderedSequence)
+      .flatMap(challenges =>
+        challenges.map { case (contest, challenge) =>
+          hackerRankApi.getChallengeDetail(challenge.challengeSlug, contest)
+        }.parUnorderedSequence
+      )
       .handleErrorWith {
         case ApiError.InvalidContent(e, message) =>
           IO.println(message) *> IO.delay(Nil)
@@ -123,7 +138,11 @@ class HackerRankApiIntegrationTest extends BasePlatformTestCase {
 
     val result = hackerRankApi
       .searchChallengesWithKeyword(ProjectEuler, "project")
-      .flatMap(challenges => challenges.map{ case (contest,challenge) => hackerRankApi.getChallengeDetail(challenge.challengeSlug, contest) }.parUnorderedSequence)
+      .flatMap(challenges =>
+        challenges.map { case (contest, challenge) =>
+          hackerRankApi.getChallengeDetail(challenge.challengeSlug, contest)
+        }.parUnorderedSequence
+      )
       .handleErrorWith {
         case ApiError.InvalidContent(e, message) =>
           IO.println(message) *> IO.delay(Nil)
@@ -131,5 +150,23 @@ class HackerRankApiIntegrationTest extends BasePlatformTestCase {
       }
       .unsafeRunSync()
     println(result)
+  }
+
+  def testRunCode(): Unit = {
+    val httpClientKeeper = HttpClientService.getInstance(getProject)
+    import httpClientKeeper.*
+    val hackerRankApi = HackerRankApi[IO]()
+    val code = Source.fromInputStream(new FileInputStream(getTestDataPath + "/Code.java")).getLines().mkString("\n")
+    (setCookie(httpClientKeeper.httpClientKeeper) *>
+      hackerRankApi
+        .runAnswer("a-very-big-sum", Contest.Master, Language.Java, "15", code)
+        .evalTap(response => IO.println(response))
+        .compile
+        .drain).handleErrorWith {
+      case ApiError.InvalidContent(e, message) =>
+        IO.println(message) *> IO.delay(Nil)
+      case e => IO.raiseError(e)
+    }.unsafeRunSync()
+
   }
 }

@@ -96,6 +96,11 @@ public class Solution extends TableImpl<SolutionRecord> {
      */
     public final TableField<SolutionRecord, String> TITLE = createField(DSL.name("title"), SQLDataType.CLOB.nullable(false), this, "");
 
+    /**
+     * The column <code>solution.isDefault</code>.
+     */
+    public final TableField<SolutionRecord, Integer> ISDEFAULT = createField(DSL.name("isDefault"), SQLDataType.INTEGER.nullable(false).defaultValue(DSL.field(DSL.raw("0"), SQLDataType.INTEGER)), this, "");
+
     private Solution(Name alias, Table<SolutionRecord> aliased) {
         this(alias, aliased, (Field<?>[]) null, null);
     }

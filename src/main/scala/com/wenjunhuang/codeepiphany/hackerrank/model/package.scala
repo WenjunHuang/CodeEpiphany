@@ -2,14 +2,15 @@ package com.wenjunhuang.codeepiphany.hackerrank
 
 import cats.syntax.all.*
 import com.wenjunhuang.codeepiphany.PluginBundle
-import com.wenjunhuang.codeepiphany.model.{ CodeDojo, Constants, Language, LanguageVersion }
+import com.wenjunhuang.codeepiphany.model.{CodeDojo, Constants, Language, LanguageVersion}
 import com.wenjunhuang.codeepiphany.utils.Colors
-import io.circe.{ Decoder, HCursor, Json }
-import io.circe.derivation.{ Configuration, ConfiguredDecoder }
+import io.circe.{Decoder, HCursor, Json}
+import io.circe.derivation.{Configuration, ConfiguredDecoder}
 import monocle.Lens
 import monocle.macros.GenLens
 import org.typelevel.ci.CIString
 
+import scala.annotation.unused
 import scala.beans.BeanProperty
 
 package object model {
@@ -70,7 +71,7 @@ package object model {
       else None
   }
 
-  private given hackerRankConfig: Configuration = Configuration.default.withSnakeCaseMemberNames
+  private given hackerRankConfig: Configuration = Configuration.default.withSnakeCaseMemberNames.withDefaults
 
   case class UserInfo(username: String, name: String, avatar: String) derives ConfiguredDecoder
   final val EMPTY_USERINFO: UserInfo = UserInfo("", "", "")
@@ -185,6 +186,26 @@ package object model {
       }
   }
 
-
+  case class RunCodeResponse(
+    id: Int,
+    status: Int, // 0: progressing; 1: done
+    challengeId: Int,
+    stdinUrl: List[String] = Nil,
+    expectedOutputUrl: List[String] = Nil,
+    stdin: List[String] = Nil,
+    stdout: List[String] = Nil,
+    stderr: List[String] = Nil,
+    signal: List[Int] = Nil,
+    testcaseMessage: List[String] = Nil,
+    testcaseStatus: List[Int] = Nil,
+    memory: List[Int] = Nil,
+    time: List[Double] = Nil,
+    timeLimit: Option[Int] = None,
+    result: Option[Int] = None,
+    expectedOutput: List[String] = Nil,
+    compileCommand: Option[String] = None,
+    compilemessage: Option[String] = None,
+    errorCode: Option[Int] = None
+  ) derives ConfiguredDecoder
 
 }

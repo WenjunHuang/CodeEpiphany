@@ -111,7 +111,7 @@ object editor {
                   val settings = ChallengeSettings.getInstance(project)
                   settings.addChallenge(
                     file.get.getCanonicalPath,
-                    ChallengeSettingsStateItem(challengeId, challengeLangId, None)
+                    ChallengeSettingsStateItem(challengeId, challengeLangId, HackerRank, language, None)
                   )
                   file
                 }

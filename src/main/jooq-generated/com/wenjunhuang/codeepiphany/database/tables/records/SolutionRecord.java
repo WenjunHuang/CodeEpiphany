@@ -123,6 +123,21 @@ public class SolutionRecord extends UpdatableRecordImpl<SolutionRecord> {
         return (String) get(6);
     }
 
+    /**
+     * Setter for <code>solution.isDefault</code>.
+     */
+    public SolutionRecord setIsdefault(Integer value) {
+        set(7, value);
+        return this;
+    }
+
+    /**
+     * Getter for <code>solution.isDefault</code>.
+     */
+    public Integer getIsdefault() {
+        return (Integer) get(7);
+    }
+
     // -------------------------------------------------------------------------
     // Primary key information
     // -------------------------------------------------------------------------
@@ -146,7 +161,7 @@ public class SolutionRecord extends UpdatableRecordImpl<SolutionRecord> {
     /**
      * Create a detached, initialised SolutionRecord
      */
-    public SolutionRecord(Integer id, Integer challengeid, Integer challengelanguageid, Integer createdatetime, String tags, String remark, String title) {
+    public SolutionRecord(Integer id, Integer challengeid, Integer challengelanguageid, Integer createdatetime, String tags, String remark, String title, Integer isdefault) {
         super(Solution.SOLUTION);
 
         setId(id);
@@ -156,6 +171,7 @@ public class SolutionRecord extends UpdatableRecordImpl<SolutionRecord> {
         setTags(tags);
         setRemark(remark);
         setTitle(title);
+        setIsdefault(isdefault);
         resetChangedOnNotNull();
     }
 }

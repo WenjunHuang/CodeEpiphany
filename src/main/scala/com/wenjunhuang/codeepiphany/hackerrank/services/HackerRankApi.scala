@@ -1,20 +1,26 @@
 package com.wenjunhuang.codeepiphany.hackerrank.services
 
-import cats.effect.{Async, Concurrent}
+import cats.effect.{Async, Concurrent, Temporal}
 import cats.syntax.all.*
 import com.wenjunhuang.codeepiphany.hackerrank.model.*
-import com.wenjunhuang.codeepiphany.model.{ApiError, Language, LanguageVersion}
+import com.wenjunhuang.codeepiphany.hackerrank.model.Contest.{Master, ProjectEuler}
+import com.wenjunhuang.codeepiphany.model.{ApiError, Language}
 import com.wenjunhuang.codeepiphany.model.CodeDojo.HackerRank
 import com.wenjunhuang.codeepiphany.services.http.HttpClientKeeper
-import io.circe.{Decoder, Json}
+import fs2.Stream
+import io.circe.*
 import io.circe.optics.JsonPath
 import io.circe.parser.parse
 import io.circe.syntax.*
-import org.http4s.{EntityDecoder, Method, Request, Uri}
+import org.http4s.{Headers, Method, Request, Uri}
 import org.http4s.circe.*
+import org.http4s.circe.CirceEntityEncoder.*
 import org.http4s.client.dsl.Http4sClientDsl
+import org.http4s.client.Client
 import org.http4s.implicits.uri
 import org.jsoup.Jsoup
+
+import scala.concurrent.duration.*
 
 trait HackerRankApi[F[_]] {
   def getInitialData: F[(UserInfo, List[ChallengeDomain])]
@@ -39,9 +45,17 @@ trait HackerRankApi[F[_]] {
     challengeSlug: String,
     contest: Contest,
     language: Language,
-    langVer: LanguageVersion,
+    langVer: String,
     code: String
-  ): F[Unit]
+  ): Stream[F, Any]
+
+  def runAnswer(
+    challengeSlug: String,
+    contest: Contest,
+    language: Language,
+    langVer: String,
+    code: String
+  ): Stream[F, RunCodeResponse]
 }
 
 object HackerRankApi {
@@ -88,10 +102,9 @@ object HackerRankApi {
                     .getOption(json)
                     .toRight(ApiError.InvalidContent(HackerRank, "invalid challenge content json"))
                     .flatMap { json =>
-                      json.as[ChallengeDetail]
-                        .leftMap{ e =>
-                          ApiError.InvalidContent(HackerRank, e.getMessage)
-                        }
+                      json.as[ChallengeDetail].leftMap { e =>
+                        ApiError.InvalidContent(HackerRank, e.getMessage)
+                      }
                     }
                     .fold(throw _, identity)
               }
@@ -269,24 +282,113 @@ object HackerRankApi {
         }
     }
 
+    override def runAnswer(
+      challengeSlug: String,
+      contest: Contest,
+      language: Language,
+      langVer: String,
+      code: String
+    ): Stream[F, RunCodeResponse] = {
+      Stream
+        .eval(HttpClientKeeper[F].getClient.use { client =>
+          getChallengeCSRFToken(client, contest, challengeSlug).flatMap { csrfToken =>
+            val request = Method
+              .POST(
+                uri"https://www.hackerrank.com/rest/contests" / contest.slug / "challenges" / challengeSlug / "compile_tests",
+                Headers("x-csrf-token" -> csrfToken)
+              )
+              .withEntity(
+                JsonObject.fromMap(
+                  Map(
+                    "language" -> s"${language.value}$langVer".asJson,
+                    "playlist_slug" -> "".asJson,
+                    "customtestcase" -> false.asJson,
+                    "code" -> code.asJson
+                  )
+                )
+              )
+            client.expect[String](request).flatMap { response =>
+              parse(response)
+                .leftMap(e => ApiError.InvalidContent(HackerRank, e.getMessage))
+                .flatMap { json =>
+                  JsonPath.root.model.id.int
+                    .getOption(json)
+                    .toRight(ApiError.InvalidContent(HackerRank, s"invalid run code response json with ${json.noSpaces}"))
+                }
+                .liftTo[F]
+            }
+          }
+        })
+        .flatMap { runId =>
+          // keep running getRunCodeResult until RunCodeResponse.status is 1 (still pass to next step) and pass RunCodeResponse to the next step
+          Stream
+            .repeatEval(
+              Temporal[F].sleep(1.second) *>
+                getRunCodeResult(contest, challengeSlug, runId)
+            )
+            .flatMap { result =>
+              if result.status == 1 then Stream(Option(result), None)
+              else Stream.emit(Option(result))
+            }
+            .unNoneTerminate
+        }
+
+    }
+
+    private def getChallengeCSRFToken(client: Client[F], contest: Contest, challengeSlug: String): F[String] = {
+      val request = Method.GET(contest match
+        case Master => uri"https://www.hackerrank.com/challenges" / challengeSlug / "problem"
+        case ProjectEuler =>
+          uri"https://www.hackerrank.com/contests/projecteuler/challenges" / challengeSlug / "problem"
+      )
+      client.expect[String](request).flatMap { response =>
+        val doc = Jsoup.parse(response)
+        Option(doc.selectFirst("meta[id=csrf-token]"))
+          .map(_.attr("content"))
+          .toRight(ApiError.InvalidContent(HackerRank, "cannot find csrf token"))
+          .liftTo[F]
+      }
+    }
+
+    private def getRunCodeResult(contest: Contest, challengeSlug: String, runId: Int): F[RunCodeResponse] =
+      HttpClientKeeper[F].getClient.use { client =>
+        val request = Method.GET(
+          uri"https://www.hackerrank.com/rest/contests" / contest.slug / "challenges" / challengeSlug / "compile_tests" / runId.toString
+        )
+        client.expect[String](request).flatMap { response =>
+          parse(response)
+            .leftMap(e => ApiError.InvalidContent(HackerRank, e.getMessage))
+            .flatMap { json =>
+              JsonPath.root.model.json
+                .getOption(json)
+                .toRight(ApiError.InvalidContent(HackerRank, s"invalid run code response json with ${json.noSpaces}"))
+                .flatMap(_.as[RunCodeResponse].leftMap(e => ApiError.InvalidContent(HackerRank, e.getMessage)))
+            }
+            .liftTo[F]
+        }
+      }
+
     override def submitAnswer(
       challengeSlug: String,
       contest: Contest,
       language: Language,
-      langVer: LanguageVersion,
+      langVer: String,
       code: String
-    ): F[Unit] = HttpClientKeeper[F].getClient.use { client =>
-      val request = Method
-        .POST(uri"https://www.hackerrank.com/rest/contests" / contest.slug / "challenges "/ challengeSlug / "submissions")
-        .withEntity(
-          Map(
-            "language"       -> s"${language.value}${langVer.version}",
-            "contest_slug"   -> contest.slug,
-            "challenge_slug" -> challengeSlug,
-            "code"           -> code
-          ).asJson
-        )
-      client.expect[String](request).void
-    }
+    ): Stream[F, Unit] = ???
+//      HttpClientKeeper[F].getClient.use { client =>
+//      val request = Method
+//        .POST(
+//          uri"https://www.hackerrank.com/rest/contests" / contest.slug / "challenges " / challengeSlug / "submissions"
+//        )
+//        .withEntity(
+//          Map(
+//            "language"       -> s"${language.value}$langVer",
+//            "contest_slug"   -> contest.slug,
+//            "challenge_slug" -> challengeSlug,
+//            "code"           -> code
+//          ).asJson
+//        )
+//      client.expect[String](request).void
+//    }
   }
 }

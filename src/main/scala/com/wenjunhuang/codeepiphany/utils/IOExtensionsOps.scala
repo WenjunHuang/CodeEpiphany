@@ -1,9 +1,9 @@
 package com.wenjunhuang.codeepiphany.utils
 
-import cats.effect.IO
-import com.intellij.openapi.progress.{ PerformInBackgroundOption, ProgressIndicator, ProgressManager, Task }
+import cats.effect.{Async, IO}
+import com.intellij.openapi.progress.{PerformInBackgroundOption, ProgressIndicator, ProgressManager, Task}
 import com.intellij.openapi.project.Project
-
+import kotlinx.coroutines.BuildersKt
 import scala.concurrent.duration.*
 import com.wenjunhuang.codeepiphany.utils.implicits.*
 
@@ -49,6 +49,7 @@ trait IOExtensionsOps {
         }
       })
   }
+
 
   private def runCancellable[A](io: IO[A], indicator: ProgressIndicator): Unit = {
     def waitForCancel(): IO[Unit] =

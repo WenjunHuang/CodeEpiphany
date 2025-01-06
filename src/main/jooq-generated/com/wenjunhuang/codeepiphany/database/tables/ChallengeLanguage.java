@@ -81,6 +81,11 @@ public class ChallengeLanguage extends TableImpl<ChallengeLanguageRecord> {
      */
     public final TableField<ChallengeLanguageRecord, Integer> ID = createField(DSL.name("id"), SQLDataType.INTEGER.nullable(false).identity(true), this, "");
 
+    /**
+     * The column <code>challenge_language.languageVersion</code>.
+     */
+    public final TableField<ChallengeLanguageRecord, String> LANGUAGEVERSION = createField(DSL.name("languageVersion"), SQLDataType.CLOB.nullable(false).defaultValue(DSL.field(DSL.raw("''"), SQLDataType.CLOB)), this, "");
+
     private ChallengeLanguage(Name alias, Table<ChallengeLanguageRecord> aliased) {
         this(alias, aliased, (Field<?>[]) null, null);
     }
