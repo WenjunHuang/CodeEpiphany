@@ -37,7 +37,7 @@ object Constants {
   final val HACKERRANK_SETTING_FILE = SETTINGS_FOLDER + "/hackerrank.xml"
 
   @static
-  final val SUBMIT_CODE_REGION_BEGIN = ">>>IMPORTANT!! Submit Code Region Begin(Do not remove this line)<<<"
+  final val SUBMIT_CODE_REGION_BEGIN = "IMPORTANT!! Submit Code Region Begin(Do not remove this line)"
   @static
-  final val SUBMIT_CODE_REGION_END = ">>>IMPORTANT!! Submit Code Region End(Do not remove this line)<<<"
+  final val SUBMIT_CODE_REGION_END = "IMPORTANT!! Submit Code Region End(Do not remove this line)"
 }

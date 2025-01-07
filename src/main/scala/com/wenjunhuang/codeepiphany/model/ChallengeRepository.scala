@@ -13,7 +13,7 @@ import com.wenjunhuang.codeepiphany.settings.CodeEpiphanySettings
 import com.wenjunhuang.codeepiphany.utils.XmlUtils.*
 import com.zaxxer.hikari.HikariDataSource
 import org.flywaydb.core.Flyway
-import org.jooq.{DSLContext, SQLDialect}
+import org.jooq.{ DSLContext, SQLDialect }
 import org.jooq.impl.DSL
 
 import java.util as ju
@@ -24,7 +24,6 @@ import scala.compiletime.uninitialized
 import cats.effect.IO
 import cats.effect.kernel.Resource
 import com.wenjunhuang.codeepiphany.utils.implicits.*
-
 
 @Service(Array(Level.PROJECT))
 final class ChallengeRepository(private val myProject: Project) extends Disposable {
@@ -61,16 +60,15 @@ final class ChallengeRepository(private val myProject: Project) extends Disposab
 
   private def getDatabaseFile: File = {
     val settings = CodeEpiphanySettings.getInstance(myProject).getState
-    val folder = settings.databaseFolder match {
+    val folder = settings.databaseFolder match
       case Some(folder) => File(folder)
       case None =>
         val path = File(myProject.getWorkspaceFile.getParent.findChild(Constants.PROJECT_NAME).getPath)
         FileUtil.createDirectory(path)
-        val file = File(path, Constants.CHALLENGE_STORAGE_FILE)
-        FileUtil.createIfDoesntExist(file)
-        file
-    }
+        path
+
     val file = File(folder, Constants.CHALLENGE_STORAGE_FILE)
+    FileUtil.createIfDoesntExist(file)
     file
   }
 

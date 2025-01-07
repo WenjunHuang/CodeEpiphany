@@ -142,6 +142,10 @@
 
         <lang.foldingBuilder language="JAVA"
                              implementationClass="com.wenjunhuang.codeepiphany.editor.extensions.SubmissionRegionFoldingBuilder"/>
+        <lang.foldingBuilder language="Haskell"
+                             implementationClass="com.wenjunhuang.codeepiphany.editor.extensions.SubmissionRegionFoldingBuilder"/>
+        <lang.foldingBuilder language="kotlin"
+                             implementationClass="com.wenjunhuang.codeepiphany.editor.extensions.SubmissionRegionFoldingBuilder"/>
         <fileIconPatcher implementation="com.wenjunhuang.codeepiphany.editor.extensions.ChallengeEditorIconProvider"
                          order="last"/>
         <editorTabTitleProvider

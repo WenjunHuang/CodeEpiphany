@@ -1,11 +1,11 @@
 package com.wenjunhuang.codeepiphany.hackerrank.settings
 
-import com.intellij.openapi.components.{PersistentStateComponent, Service, State, Storage}
+import com.intellij.openapi.components.{ PersistentStateComponent, Service, State, Storage }
 import com.intellij.openapi.components.Service.Level
 import com.intellij.openapi.project.Project
 import com.intellij.util.xmlb.annotations.Attribute
 import com.wenjunhuang.codeepiphany.hackerrank.settings.HackerRankSettings.HackerRankState
-import com.wenjunhuang.codeepiphany.model.{Constants, Language, LanguageVersion}
+import com.wenjunhuang.codeepiphany.model.{ Constants, Language, LanguageVersion }
 import com.wenjunhuang.codeepiphany.utils.XmlUtils.*
 
 import scala.annotation.meta.field
@@ -21,7 +21,8 @@ final class HackerRankSettings(private val myProject: Project) extends Persisten
   override def loadState(newState: HackerRankState): Unit =
     state = newState
 
-  def getSelectedLanguages: List[(Language,LanguageVersion)] = List((Language.Java,LanguageVersion.SpecificVersion("15")), (Language.Kotlin,LanguageVersion.AnyVersion))
+  def getSelectedLanguages: List[(Language, LanguageVersion)] =
+    state.language.zip(state.languageVersion).map((_, _)).toList
 }
 
 object HackerRankSettings {

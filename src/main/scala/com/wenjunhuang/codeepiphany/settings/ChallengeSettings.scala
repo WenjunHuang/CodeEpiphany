@@ -29,6 +29,7 @@ final class ChallengeSettings extends PersistentStateComponent[ChallengeSettings
     newItem.challengeId = item.challengeId
     newItem.challengeLanguageId = item.challengeLanguageId
     newItem.solutionId = item.solutionId
+    newItem.dojo = item.dojo
     myState.challenges.put(key, newItem)
   }
 

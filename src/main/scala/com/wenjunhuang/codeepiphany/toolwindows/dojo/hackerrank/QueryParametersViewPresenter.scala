@@ -3,7 +3,7 @@ package com.wenjunhuang.codeepiphany.toolwindows.dojo.hackerrank
 import cats.effect.IO
 import cats.effect.std.Queue
 import com.intellij.openapi.Disposable
-import com.intellij.openapi.actionSystem.{ AnAction, DataSink }
+import com.intellij.openapi.actionSystem.{AnAction, DataSink}
 import com.intellij.openapi.actionSystem.ex.DefaultCustomComponentAction
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
@@ -12,9 +12,10 @@ import com.intellij.util.ui.JBInsets
 import com.wenjunhuang.codeepiphany.hackerrank.model.*
 import com.wenjunhuang.codeepiphany.hackerrank.services.challenge.openChallenge
 import com.wenjunhuang.codeepiphany.hackerrank.services.HackerRankApi
-import com.wenjunhuang.codeepiphany.model.{ messages, CodeDojo, Language, LanguageVersion }
+import com.wenjunhuang.codeepiphany.hackerrank.settings.HackerRankSettings
+import com.wenjunhuang.codeepiphany.model.{messages, CodeDojo, Language, LanguageVersion}
 import com.wenjunhuang.codeepiphany.model.CodeDojo.HackerRank
-import com.wenjunhuang.codeepiphany.services.http.{ HttpClientKeeper, HttpClientService }
+import com.wenjunhuang.codeepiphany.services.http.{HttpClientKeeper, HttpClientService}
 import com.wenjunhuang.codeepiphany.toolwindows.dojo.actions.*
 import com.wenjunhuang.codeepiphany.toolwindows.dojo.actions.keys.*
 import com.wenjunhuang.codeepiphany.toolwindows.dojo.actions.providers.ChallengeProvider
@@ -24,10 +25,10 @@ import com.wenjunhuang.codeepiphany.utils.ui.Tag as TagUI
 import fs2.Stream
 import fs2.concurrent.SignallingRef
 import org.typelevel.ci.CIString
-import org.typelevel.log4cats.{ Logger, LoggerFactory }
+import org.typelevel.log4cats.{Logger, LoggerFactory}
 
-import java.awt.{ GridBagConstraints, GridBagLayout }
-import javax.swing.{ Icon, JComponent, JPanel }
+import java.awt.{GridBagConstraints, GridBagLayout}
+import javax.swing.{Icon, JComponent, JPanel}
 import scala.concurrent.duration.*
 import scala.jdk.CollectionConverters.*
 
@@ -158,8 +159,10 @@ class QueryParametersViewPresenter(private val myProject: Project) extends Dispo
     }
 
     // TODO: Implement getLanguages
-    override def getLanguages: List[(Language, LanguageVersion)] =
-      List((Language.Java, LanguageVersion.SpecificVersion("15")), (Language.Kotlin, LanguageVersion.AnyVersion))
+    override def getLanguages: List[(Language, LanguageVersion)] = {
+      val settings = HackerRankSettings.getInstance(myProject)
+      settings.getSelectedLanguages
+    }
   }
 
   private val myListsProvider = new CategoryProvider {

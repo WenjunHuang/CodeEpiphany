@@ -86,6 +86,8 @@ class ChallengeDescriptionView(private val myPresenter: ChallengeDescriptionPres
   override def getActionUpdateThread: ActionUpdateThread = ActionUpdateThread.EDT
 
   override def bodyPadding: Option[(Int, Int, Int, Int)] = {
+    // Align the HTML body to the left with the toolbar's first action and
+    // ensure it has the same vertical padding as the toolbar for a visually pleasing layout.
     val insets = JBInsets.addInsets(
       Option(actionToolbar.getComponent.getInsets())
         .map(JBInsets.create)

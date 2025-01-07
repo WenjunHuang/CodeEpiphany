@@ -53,7 +53,7 @@ class JCefDescriptionView(
   private val myLocalRequestHandler = createRequestHandler()
 
   private def createRequestHandler(): CefLocalRequestHandler = {
-    val requestHandler = new CefLocalRequestHandler(PROTOCOL, HOST,myProject)
+    val requestHandler = new CefLocalRequestHandler(PROTOCOL, HOST,myProject,(urlClicked)=>presenter.userClickedLink[IO](urlClicked).unsafeRunAndForget())
     requestHandler.addResource(VIEW_PATH) { () =>
       val content =
         Resource

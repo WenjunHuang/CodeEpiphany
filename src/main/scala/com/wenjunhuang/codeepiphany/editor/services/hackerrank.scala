@@ -80,7 +80,7 @@ object hackerrank {
               console.error[F](project, s"Compilation Error: \n ${message}")
             case None =>
               if response.testcaseStatus.contains(0) then console.error[F](project, "Wrong Answer!")
-              else console.info[F](project, "Passed!")
+              else console.info[F](project, "🎉 Passed!")
         case None => Async[F].unit
       }
       .compile

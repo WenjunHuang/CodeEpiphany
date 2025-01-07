@@ -53,7 +53,10 @@ object XmlUtils {
 
   class OptionConverter[T: Converter] extends Converter[Option[T]] {
     override def fromString(value: String): Option[T] =
-      if (value == null || value.isEmpty) None else Some(implicitly[Converter[T]].fromString(value))
+      if value == null then null
+      else
+        try Option(implicitly[Converter[T]].fromString(value))
+        catch case e => None
     override def toString(value: Option[T]): String =
       value.map(it => implicitly[Converter[T]].toString(it)).orNull
   }

@@ -3,7 +3,7 @@ package com.wenjunhuang.codeepiphany.toolwindows.sidebar
 import com.intellij.ui.JBColor
 import com.intellij.ui.jcef.JBCefScrollbarsHelper
 import com.wenjunhuang.codeepiphany.model.CodeDojo
-import com.wenjunhuang.codeepiphany.model.CodeDojo.LeetCodeCN
+import com.wenjunhuang.codeepiphany.model.CodeDojo.{HackerRank, LeetCodeCN}
 import com.wenjunhuang.codeepiphany.toolwindows.sidebar.ChallengeDescriptionStyleProvider.*
 
 import java.awt.Color
@@ -51,12 +51,14 @@ object ChallengeDescriptionStyle {
        |}
        |
        |blockquote, code, pre {
-       |    background-color: ${styleProvider.fenceBackgroundColor.webRgba(styleProvider.fenceBackgroundColor.getAlpha / 255.0)}
+       |    overflow: auto;
+       |    background-color: ${styleProvider.panelBackground.webRgba()}
        |}
        |
        |${JBCefScrollbarsHelper.getOverlayScrollbarStyle}
        |
        |${dojo.map(styleOfDojo(_, styleProvider)).getOrElse("")}
+       |
        |""".stripMargin
   }
 
@@ -64,14 +66,44 @@ object ChallengeDescriptionStyle {
     dojo match
       case LeetCodeCN =>
         getLeetcodeCNStyle(styleProvider)
-      case _ => ""
+      case HackerRank =>
+        getHackerRankStyle(styleProvider)
+      case _ =>
+        ""
+
+  private def getHackerRankStyle(styleProvider: ChallengeDescriptionStyleProvider):String =
+    // language=CSS
+    s"""
+      |#container p {
+      |    margin-top: 5px;
+      |    margin-bottom: 0;
+      |    line-height: 2;
+      |}
+      |#container img{
+      |    margin-top: 15px;
+      |    padding: 15px;
+      |}
+      |#container pre {
+      |    overflow-x: auto;
+      |    padding: 20px;
+      |    border: none;
+      |    border-radius: 5px;
+      |    font-size: 14px;
+      |    line-height: 20px;
+      |}
+      |#container strong {
+      |    color: ${styleProvider.contrastedForeground.webRgba()};
+      |    font-weight: bolder;
+      |}
+      |
+      |""".stripMargin
 
   private def getLeetcodeCNStyle(styleProvider: ChallengeDescriptionStyleProvider): String =
     // language=CSS
     s"""
        |#container pre {
        |    background-color: unset;
-       |    border-left: 2px solid ${styleProvider.foregroundColor.brighter().webRgba()};
+       |    border-left: 2px solid ${styleProvider.contrastedForeground.webRgba()};
        |    margin-bottom: 1rem;
        |    margin-top: 1rem;
        |    padding-left: 1rem;

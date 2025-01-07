@@ -1,7 +1,7 @@
 package com.wenjunhuang.codeepiphany.utils.jcef
 
 import com.intellij.openapi.project.Project
-import org.cef.browser.{CefBrowser, CefFrame}
+import org.cef.browser.{ CefBrowser, CefFrame }
 import org.cef.callback.CefCallback
 import org.cef.handler.*
 import org.cef.misc.BoolRef
@@ -11,8 +11,12 @@ import java.net.URL
 
 type CefResourceProvider = () => Option[CefResourceHandler]
 
-class CefLocalRequestHandler(private val myProtocol: String, private val myAuthority: String,private val myProject:Project)
-    extends CefRequestHandlerAdapter {
+class CefLocalRequestHandler(
+  private val myProtocol: String,
+  private val myAuthority: String,
+  private val myProject: Project,
+  private val myOnLinkClick: (String) => Unit
+) extends CefRequestHandlerAdapter {
   private var myResources: Map[String, CefResourceProvider] = Map.empty
 
   private val REJECTING_RESOURCE_HANDLER = new CefResourceHandlerAdapter {
@@ -23,7 +27,6 @@ class CefLocalRequestHandler(private val myProtocol: String, private val myAutho
   }
 
   private val OUTSIDE_REQUEST_HANDLER = CefRemoteRequestHandler.createResourceRequestHandler(myProject)
-
 
   private val RESOURCE_REQUEST_HANDLER = new CefResourceRequestHandlerAdapter {
     override def getResourceHandler(browser: CefBrowser, frame: CefFrame, request: CefRequest): CefResourceHandler = {
@@ -36,6 +39,20 @@ class CefLocalRequestHandler(private val myProtocol: String, private val myAutho
           case None           => REJECTING_RESOURCE_HANDLER
         }
     }
+  }
+
+  override def onBeforeBrowse(
+    browser: CefBrowser,
+    frame: CefFrame,
+    request: CefRequest,
+    user_gesture: Boolean,
+    is_redirect: Boolean
+  ): Boolean = {
+    if user_gesture then
+      myOnLinkClick(request.getURL)
+      true
+    else false
+
   }
 
   override def getResourceRequestHandler(

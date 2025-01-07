@@ -2,7 +2,7 @@ package com.wenjunhuang.codeepiphany.model
 
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.util.text.SemVer
-import com.wenjunhuang.codeepiphany.model.LanguageVersion.{AnyVersion, SpecificVersion}
+import com.wenjunhuang.codeepiphany.model.LanguageVersion.{ AnyVersion, SpecificVersion }
 import icons.CodeEpiphanyIcons
 import org.typelevel.ci.CIString
 
@@ -81,13 +81,14 @@ enum Language(val value: String, val fileExt: String, val show: String, val icon
     var inRegion = false
     StringUtil.splitByLinesDontTrim(code).foreach { line =>
       val trimmed = line.trim
-      if StringUtil.equals(trimmed, begin) then inRegion = true
+      if StringUtil.equals(trimmed, begin) then
+        inRegion = true
       else if StringUtil.equals(trimmed, end) then
-        if inRegion then inRegion = false
+        if inRegion then
+          inRegion = false
+          result.addAll(accum)
+          accum.clear()
       else if inRegion then accum += line
-      else if accum.nonEmpty then
-        result.addAll(accum)
-        accum.clear()
     }
     result.mkString("\n")
   }
@@ -95,8 +96,7 @@ enum Language(val value: String, val fileExt: String, val show: String, val icon
 
 object Language {
 
-  implicit val ordering: Ordering[Language] = (x: Language, y: Language) =>
-    x.value.compareTo(y.value)
+  implicit val ordering: Ordering[Language] = (x: Language, y: Language) => x.value.compareTo(y.value)
 
   private val ALL_LANGUAGES: Map[CIString, Language] =
     Language.values.map(v => CIString(v.value) -> v).toMap
