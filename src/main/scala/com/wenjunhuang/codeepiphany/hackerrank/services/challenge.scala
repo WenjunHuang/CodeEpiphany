@@ -13,7 +13,7 @@ import com.wenjunhuang.codeepiphany.hackerrank.settings.{ HackerRankSettings, Ha
 import com.wenjunhuang.codeepiphany.model.*
 import com.wenjunhuang.codeepiphany.model.ChallengeRepository.{ ChallengeId, ChallengeLanguageId, SolutionId }
 import com.wenjunhuang.codeepiphany.model.CodeDojo.HackerRank
-import com.wenjunhuang.codeepiphany.services.editor.*
+import com.wenjunhuang.codeepiphany.services.file.*
 import com.wenjunhuang.codeepiphany.services.http.HttpClientKeeper
 import com.wenjunhuang.codeepiphany.settings.ChallengeSettings
 import com.wenjunhuang.codeepiphany.settings.ChallengeSettings.ChallengeSettingsStateItem
@@ -24,12 +24,13 @@ import org.typelevel.log4cats.Logger
 
 import java.io.File
 
-object editor {
+object challenge {
   def openChallenge[F[_]: Async: Concurrent: HttpClientKeeper: Logger](
     project: Project,
     challengeSlug: String,
     contest: Contest,
-    language: Language
+    language: Language,
+    languageVersion:LanguageVersion
   ): F[Unit] = {
     Async[F].delay {
       val settings = HackerRankSettings.getInstance(project)
@@ -50,6 +51,7 @@ object editor {
           challengeSlug,
           contest,
           language,
+          languageVersion,
           sourceFolder,
           fileNameTemplate,
           codeTemplate
@@ -62,6 +64,7 @@ object editor {
     challengeSlug: String,
     contest: Contest,
     language: Language,
+    languageVersion:LanguageVersion,
     sourceFolder: String,
     fileNameTemplate: String,
     codeTemplate: String
@@ -79,13 +82,14 @@ object editor {
               HackerRank,
               content.detail.name,
               content.detail.slug,
-              content.detail.preview.getOrElse(""),
+              content.detail.bodyHtml.getOrElse(""),
               temp.header,
               temp.template,
               temp.tail,
               contest.slug,
               ChallengeDifficulty.fromCIString(CIString(content.detail.difficultyName)).get.value,
-              language
+              language,
+              languageVersion
             )
           }
         case None => None
@@ -162,11 +166,13 @@ object editor {
             CHALLENGE_LANGUAGE.CHALLENGEID
               .eq(challengeRecord.getId)
               .and(CHALLENGE_LANGUAGE.LANGUAGE.eq(challenge.language.value))
+              .and(CHALLENGE_LANGUAGE.LANGUAGEVERSION.eq(challenge.languageVersion.version))
           ) match
             case null => dsl.newRecord(CHALLENGE_LANGUAGE)
             case r    => r
           challengeLanguageRecord.setChallengeid(challengeRecord.getId)
           challengeLanguageRecord.setLanguage(challenge.language.value)
+          challengeLanguageRecord.setLanguageversion(challenge.languageVersion.version)
           challengeLanguageRecord.setCodetemplate(StringUtil.convertLineSeparators(challenge.getCode))
           challengeLanguageRecord.store()
 

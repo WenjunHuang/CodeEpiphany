@@ -1,6 +1,8 @@
 package com.wenjunhuang.codeepiphany.model
 
 import com.intellij.openapi.util.text.StringUtil
+import com.intellij.util.text.SemVer
+import com.wenjunhuang.codeepiphany.model.LanguageVersion.{AnyVersion, SpecificVersion}
 import icons.CodeEpiphanyIcons
 import org.typelevel.ci.CIString
 
@@ -9,10 +11,10 @@ import scala.collection.mutable
 
 enum LanguageVersion {
   case AnyVersion
-  case SpecificVersion(value: Int)
+  case SpecificVersion(value: String)
 
-  def version: Int = this match {
-    case AnyVersion           => 0
+  def version: String = this match {
+    case AnyVersion           => ""
     case SpecificVersion(ver) => ver
   }
 }
@@ -20,10 +22,11 @@ enum LanguageVersion {
 object LanguageVersion {
   implicit val ordering: Ordering[LanguageVersion] = (x: LanguageVersion, y: LanguageVersion) =>
     (x, y) match {
-      case (AnyVersion, AnyVersion)                       => 0
-      case (AnyVersion, SpecificVersion(_))               => -1
-      case (SpecificVersion(_), AnyVersion)               => 1
-      case (SpecificVersion(ver1), SpecificVersion(ver2)) => ver1.compareTo(ver2)
+      case (AnyVersion, AnyVersion)         => 0
+      case (AnyVersion, SpecificVersion(_)) => -1
+      case (SpecificVersion(_), AnyVersion) => 1
+      case (SpecificVersion(ver1), SpecificVersion(ver2)) =>
+        ver1.toIntOption.flatMap(v1 => ver2.toIntOption.map(v2 => v1.compareTo(v2))).getOrElse(ver1.compareTo(ver2))
     }
 }
 
@@ -43,8 +46,8 @@ enum Language(val value: String, val fileExt: String, val show: String, val icon
   case ObjectiveC extends Language("objectivec", "objc", "ObjectiveC", CodeEpiphanyIcons.Languages.OBJECTIVEC)
   case Perl       extends Language("perl", "pl", "Perl", CodeEpiphanyIcons.Languages.PERL)
   case PHP        extends Language("php", "php", "PHP", CodeEpiphanyIcons.Languages.PHP)
-  case Pypy3      extends Language("pypy3", "py", "Pypy3", CodeEpiphanyIcons.Languages.PYTHON)
-  case Python3    extends Language("python3", "py", "Python3", CodeEpiphanyIcons.Languages.PYTHON)
+  case Pypy       extends Language("pypy", "py", "Pypy", CodeEpiphanyIcons.Languages.PYTHON)
+  case Python     extends Language("python", "py", "Python", CodeEpiphanyIcons.Languages.PYTHON)
   case R          extends Language("r", "r", "R", CodeEpiphanyIcons.Languages.R)
   case Ruby       extends Language("ruby", "rb", "Ruby", CodeEpiphanyIcons.Languages.RUBY)
   case Rust       extends Language("rust", "rs", "Rust", CodeEpiphanyIcons.Languages.RUST)
@@ -58,7 +61,7 @@ enum Language(val value: String, val fileExt: String, val show: String, val icon
       s"//$comment"
     case Clojure =>
       s";$comment"
-    case Pypy3 | Python3 | Ruby | Julia | Perl | R =>
+    case Pypy | Python | Ruby | Julia | Perl | R =>
       s"#$comment"
     case Haskell =>
       s"--$comment"
@@ -67,7 +70,7 @@ enum Language(val value: String, val fileExt: String, val show: String, val icon
   }
 
   def makeCodeRegion(code: String): String =
-    s"${createComment(Constants.SUBMIT_CODE_REGION_BEGIN)}\n$code\n${createComment(Constants.SUBMIT_CODE_REGION_END)}"
+    s"\n${createComment(Constants.SUBMIT_CODE_REGION_BEGIN)}\n$code\n${createComment(Constants.SUBMIT_CODE_REGION_END)}"
 
   def extractSubmitCode(code: String): String = {
     val begin = createComment(Constants.SUBMIT_CODE_REGION_BEGIN)
@@ -76,10 +79,10 @@ enum Language(val value: String, val fileExt: String, val show: String, val icon
     val result   = mutable.ListBuffer.empty[String]
     val accum    = mutable.ListBuffer.empty[String]
     var inRegion = false
-    StringUtil.splitByLines(code, false).foreach { line =>
+    StringUtil.splitByLinesDontTrim(code).foreach { line =>
       val trimmed = line.trim
       if StringUtil.equals(trimmed, begin) then inRegion = true
-      else if line.contains(end) then
+      else if StringUtil.equals(trimmed, end) then
         if inRegion then inRegion = false
       else if inRegion then accum += line
       else if accum.nonEmpty then
@@ -91,7 +94,12 @@ enum Language(val value: String, val fileExt: String, val show: String, val icon
 }
 
 object Language {
+
+  implicit val ordering: Ordering[Language] = (x: Language, y: Language) =>
+    x.value.compareTo(y.value)
+
   private val ALL_LANGUAGES: Map[CIString, Language] =
     Language.values.map(v => CIString(v.value) -> v).toMap
+
   def fromCIString(str: CIString): Option[Language] = ALL_LANGUAGES.get(str)
 }

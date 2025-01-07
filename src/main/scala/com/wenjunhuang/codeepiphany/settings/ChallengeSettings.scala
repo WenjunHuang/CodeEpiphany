@@ -42,6 +42,7 @@ final class ChallengeSettings extends PersistentStateComponent[ChallengeSettings
       result.challengeId = item.challengeId
       result.challengeLanguageId = item.challengeLanguageId
       result.solutionId = item.solutionId
+      result.dojo = item.dojo
       result
     }
   }
@@ -57,7 +58,7 @@ object ChallengeSettings {
   class ChallengeSettingsStateItem {
     @BeanProperty
     var challengeId: Int = uninitialized
-    
+
     @BeanProperty
     var challengeLanguageId: Int = uninitialized
 

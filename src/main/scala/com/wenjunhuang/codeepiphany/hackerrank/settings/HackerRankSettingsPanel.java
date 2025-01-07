@@ -31,6 +31,7 @@ import com.intellij.util.ui.JBUI;
 import com.intellij.xml.util.XmlStringUtil;
 import com.wenjunhuang.codeepiphany.PluginBundle;
 import com.wenjunhuang.codeepiphany.model.Language;
+import com.wenjunhuang.codeepiphany.model.LanguageVersion;
 import com.wenjunhuang.codeepiphany.model.template.ChallengeFileTemplateHighlighter;
 import com.wenjunhuang.codeepiphany.settings.SettingsUi;
 import com.wenjunhuang.codeepiphany.utils.JavaUtils;
@@ -39,6 +40,7 @@ import org.apache.commons.io.IOUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import scala.Option;
+import scala.Tuple2;
 import scala.util.Left;
 import scala.util.Right;
 
@@ -63,7 +65,7 @@ public class HackerRankSettingsPanel extends SettingsUi<HackerRankSettings.Hacke
     private JPanel rootPanel;
     private Splitter myFileNameSplitter;
     private ActionToolbarImpl myFileNameToolbar;
-    private ComboBox<Language> myLanguages;
+    private ComboBox<Tuple2<Language, LanguageVersion>> myLanguages;
     private JPanel myFileNameLabel;
     private JPanel myCodeTemplateLabel;
     private ActionToolbarImpl myCodeTemplateToolbar;
@@ -91,7 +93,7 @@ public class HackerRankSettingsPanel extends SettingsUi<HackerRankSettings.Hacke
                 }).installOn(mySourceFolder);
         new ComponentValidator(this)
                 .withValidator(() -> {
-                    var language = (Language) myLanguages.getSelectedItem();
+                    var language = myLanguages.getItem();
                     if (language == null) {
                         return new ValidationInfo(PluginBundle.message("hackerrank.ui.settings.language.error.empty"), myLanguages);
                     }
@@ -133,16 +135,16 @@ public class HackerRankSettingsPanel extends SettingsUi<HackerRankSettings.Hacke
         myLanguages.setRenderer((list, value, index, isSelected, cellHasFocus) -> {
             if (value == null) {
                 return new JBLabel(PluginBundle.message("hackerrank.ui.settings.language.hint"));
-            } else return new JBLabel(value.show(), value.icon(), SwingConstants.LEFT);
+            } else return new JBLabel(value._1.show() + value._2.version(), value._1.icon(), SwingConstants.LEFT);
         });
         myLanguages.addItemListener(e -> {
             if (e.getStateChange() == ItemEvent.SELECTED) {
                 Optional.ofNullable((EditorEx) myCodeTemplateEditor.getEditor()).ifPresent(editor -> editor.setHighlighter(ChallengeFileTemplateHighlighter.createVelocityTemplateLanguageEditorHighlighter(myProject(),
-                        JavaUtils.toOption((Language) myLanguages.getSelectedItem()))));
+                        JavaUtils.toOption(myLanguages.getItem()).map(Tuple2::_1))));
                 Optional.ofNullable((EditorEx) myCodeTemplatePreview.getEditor())
                         .ifPresent(preview ->
                                 preview.setHighlighter(ChallengeFileTemplateHighlighter.createLanguageEditorHighlighter(myProject(),
-                                        JavaUtils.toOption((Language) myLanguages.getSelectedItem()))));
+                                        JavaUtils.toOption(myLanguages.getItem()).map(Tuple2::_1))));
 
                 updateCodeTemplatePreview();
                 updateFileNamePreview();
@@ -169,7 +171,7 @@ public class HackerRankSettingsPanel extends SettingsUi<HackerRankSettings.Hacke
             editor.setBackgroundColor(EditorFragmentComponent.getBackgroundColor(editor, false));
             editor.setBorder(new DarculaEditorTextFieldBorder(myCodeTemplateEditor, editor));
             editor.setHighlighter(ChallengeFileTemplateHighlighter.createVelocityTemplateLanguageEditorHighlighter(myProject(),
-                    JavaUtils.toOption((Language) myLanguages.getSelectedItem())));
+                    JavaUtils.toOption(myLanguages.getItem()).map(Tuple2::_1)));
         });
 
         myCodeTemplatePreview = new EditorTextField(EditorFactory.getInstance().createDocument(""), myProject(), FileTypes.UNKNOWN, true, false);
@@ -180,7 +182,7 @@ public class HackerRankSettingsPanel extends SettingsUi<HackerRankSettings.Hacke
             editor.setBackgroundColor(EditorFragmentComponent.getBackgroundColor(editor, false));
             editor.setBorder(new DarculaEditorTextFieldBorder(myCodeTemplatePreview, editor));
             editor.setHighlighter(ChallengeFileTemplateHighlighter.createLanguageEditorHighlighter(myProject(),
-                    JavaUtils.toOption((Language) myLanguages.getSelectedItem())));
+                    JavaUtils.toOption(myLanguages.getItem()).map(Tuple2::_1)));
         });
 
         myCodeTemplateEditor.addDocumentListener(new DocumentListener() {
@@ -234,7 +236,7 @@ public class HackerRankSettingsPanel extends SettingsUi<HackerRankSettings.Hacke
                     public void actionPerformed(@NotNull AnActionEvent e) {
                         var language = myLanguages.getItem();
                         var template = FileTemplateManager.getInstance(myProject())
-                                .findInternalTemplate("hackerrank_code." + language.fileExt());
+                                .findInternalTemplate("hackerrank_code." + language._1.fileExt());
                         if (template != null) {
                             myCodeTemplateEditor.setText(template.getText());
                         }
@@ -254,11 +256,11 @@ public class HackerRankSettingsPanel extends SettingsUi<HackerRankSettings.Hacke
     }
 
     private void updateCodeTemplatePreview() {
-        Language language = (Language) myLanguages.getSelectedItem();
+        var language = myLanguages.getItem();
         if (language == null) return;
 
         var result = VelocityUtils.generateContent(myCodeTemplateEditor.getText(),
-                HackerRankSettingsConfigurable.getDemoTemplate(language).get());
+                HackerRankSettingsConfigurable.getDemoTemplate(language._1, language._2).get());
 
         ComponentValidator.getInstance(myCodeTemplateEditor).ifPresent(validator -> {
             switch (result) {
@@ -277,10 +279,10 @@ public class HackerRankSettingsPanel extends SettingsUi<HackerRankSettings.Hacke
     }
 
     private void updateFileNamePreview() {
-        var language = (Language) myLanguages.getSelectedItem();
+        var language = myLanguages.getItem();
         if (language == null) return;
         var result = VelocityUtils.generateContent(myFileNameEditor.getText(),
-                HackerRankSettingsConfigurable.getDemoTemplate(language).get());
+                HackerRankSettingsConfigurable.getDemoTemplate(language._1, language._2).get());
         switch (result) {
             case Left<Exception, String> left -> {
                 ComponentValidator.getInstance(myFileNameEditor).ifPresent(validator -> validator.updateInfo(new ValidationInfo(left.value().getMessage(), myFileNameEditor)));
@@ -290,7 +292,7 @@ public class HackerRankSettingsPanel extends SettingsUi<HackerRankSettings.Hacke
             case Right<Exception, String> right -> {
                 ComponentValidator.getInstance(myFileNameEditor).ifPresent(validator -> validator.updateInfo(null));
                 var content = right.value().trim();
-                myFileNamePreview.setText(content + "." + language.fileExt());
+                myFileNamePreview.setText(content + "." + language._1.fileExt());
             }
             default -> {
             }
@@ -355,7 +357,7 @@ public class HackerRankSettingsPanel extends SettingsUi<HackerRankSettings.Hacke
                     public void actionPerformed(@NotNull AnActionEvent e) {
                         var language = myLanguages.getItem();
                         var template = FileTemplateManager.getInstance(myProject())
-                                .findInternalTemplate("hackerrank_filename." + language.fileExt());
+                                .findInternalTemplate("hackerrank_filename." + language._1.fileExt());
                         if (template != null) {
                             myFileNameEditor.setText(template.getText());
                         }
@@ -389,7 +391,9 @@ public class HackerRankSettingsPanel extends SettingsUi<HackerRankSettings.Hacke
         if (validationInfos.isEmpty()) {
             state.codeTemplate_$eq(Option.apply(myCodeTemplateEditor.getText()));
             state.fileNameTemplate_$eq(Option.apply(myFileNameEditor.getText()));
-            state.language_$eq(Option.apply((Language) myLanguages.getSelectedItem()));
+            var language = myLanguages.getItem();
+            state.language_$eq(Option.apply(language).map(Tuple2::_1));
+            state.languageVersion_$eq(Option.apply(language).map(Tuple2::_2));
             state.sourceFolder_$eq(Option.apply(mySourceFolder.getText()));
         }
 
@@ -410,7 +414,8 @@ public class HackerRankSettingsPanel extends SettingsUi<HackerRankSettings.Hacke
     @Override
     public boolean isModified(HackerRankSettings.HackerRankState state) {
         var sourceFolder = StringUtil.equals(state.sourceFolder().getOrElse(() -> ""), mySourceFolder.getText());
-        var language = Objects.equals(state.language().getOrElse(() -> null), myLanguages.getSelectedItem());
+        var language = Objects.equals(
+                state.language().zip(state.languageVersion()).getOrElse(() -> null), myLanguages.getItem());
         var codeTemplate = StringUtil.equals(state.codeTemplate().getOrElse(() -> ""), myCodeTemplateEditor.getText());
         var fileName = StringUtil.equals(state.fileNameTemplate().getOrElse(() -> ""), myFileNameEditor.getText());
         return !sourceFolder || !language || !codeTemplate || !fileName;
@@ -419,12 +424,12 @@ public class HackerRankSettingsPanel extends SettingsUi<HackerRankSettings.Hacke
     @Override
     public void reset(HackerRankSettings.HackerRankState state) {
         mySourceFolder.setText(null);
-        myLanguages.setSelectedItem(null);
+        myLanguages.setItem(null);
         myFileNameEditor.setText(null);
         myCodeTemplateEditor.setText(null);
 
         JavaUtils.toOptional(state.sourceFolder()).ifPresent(mySourceFolder::setText);
-        JavaUtils.toOptional(state.language()).ifPresent(language -> myLanguages.setSelectedItem(language));
+        JavaUtils.toOptional(state.language().zip(state.languageVersion())).ifPresent(v -> myLanguages.setItem(Tuple2.apply((Language) v._1, v._2)));
         JavaUtils.toOptional(state.codeTemplate()).ifPresent(myCodeTemplateEditor::setText);
         JavaUtils.toOptional(state.fileNameTemplate()).ifPresent(myFileNameEditor::setText);
     }

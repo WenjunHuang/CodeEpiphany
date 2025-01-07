@@ -1,13 +1,13 @@
 package com.wenjunhuang.codeepiphany.editor.services
 
-import cats.effect.{Async, Concurrent}
+import cats.effect.{ Async, Concurrent }
 import cats.effect.kernel.Resource.ExitCase
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.vfs.{VirtualFile, VirtualFileUtil}
+import com.intellij.openapi.vfs.{ VirtualFile, VirtualFileUtil }
 import com.wenjunhuang.codeepiphany.database.Tables.*
 import com.wenjunhuang.codeepiphany.hackerrank.model.Contest
 import com.wenjunhuang.codeepiphany.hackerrank.services.HackerRankApi
-import com.wenjunhuang.codeepiphany.model.{ChallengeRepository, Language}
+import com.wenjunhuang.codeepiphany.model.{ ChallengeRepository, Language }
 import com.wenjunhuang.codeepiphany.services.console
 import com.wenjunhuang.codeepiphany.services.http.HttpClientKeeper
 import com.wenjunhuang.codeepiphany.settings.ChallengeSettings.ChallengeSettingsStateItem
@@ -60,26 +60,28 @@ object hackerrank {
           }
       )
       .flatMap { case (contest, language, langVer, challengeSlug) =>
+        val extractedCode = language.extractSubmitCode(VirtualFileUtil.readText(vf))
         HackerRankApi[F]()
-          .runAnswer(
-            challengeSlug,
-            contest,
-            language,
-            langVer,
-            language.extractSubmitCode(VirtualFileUtil.readText(vf))
-          )
-      }
-      .evalTap { response =>
-        Async[F].blocking {
-          println(response)
-        }
+          .runAnswer(challengeSlug, contest, language, langVer, extractedCode)
       }
       .onFinalizeCase {
-        case ExitCase.Succeeded => console.info[F](project, s"Code submitted for ${vf.getCanonicalPath}")
+        case ExitCase.Succeeded =>
+          Async[F].unit
         case ExitCase.Errored(e) =>
           console.error[F](project, s"Error to run code: \n ${e.getMessage}")
         case ExitCase.Canceled =>
           console.warn[F](project, s"Code submission cancelled for ${vf.getCanonicalPath}")
+      }
+      .last
+      .evalTap {
+        case Some(response) =>
+          response.compilemessage.filter(_.nonEmpty) match
+            case Some(message) =>
+              console.error[F](project, s"Compilation Error: \n ${message}")
+            case None =>
+              if response.testcaseStatus.contains(0) then console.error[F](project, "Wrong Answer!")
+              else console.info[F](project, "Passed!")
+        case None => Async[F].unit
       }
       .compile
       .drain

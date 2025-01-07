@@ -93,32 +93,6 @@ final class ChallengeRepository(private val myProject: Project) extends Disposab
 object ChallengeRepository {
   def getInstance(project: Project): ChallengeRepository = project.getService(classOf[ChallengeRepository])
 
-  class ChallengeStorageItem {
-    @BeanProperty
-    var id: String = uninitialized
-
-    @BeanProperty
-    var slug: String = uninitialized
-
-    @BeanProperty
-    var codeFilePath: String = uninitialized
-
-    @BeanProperty
-    var descriptionFilePath: String = uninitialized
-
-    @(OptionTag @field)(converter = classOf[CodeDojoConverter])
-    @BeanProperty
-    var dojo: CodeDojo = uninitialized
-
-    @BeanProperty
-    var extras: ju.Map[String, String] = new ju.HashMap[String, String]()
-  }
-
-  class ChallengeStorageState {
-    @BeanProperty
-    var challenges: ju.Map[String, ChallengeStorageItem] = new ju.HashMap[String, ChallengeStorageItem]()
-  }
-
   opaque type ChallengeId = Int
   object ChallengeId {
     def apply(value: Int): ChallengeId = value

@@ -1,16 +1,15 @@
 package com.wenjunhuang.codeepiphany.hackerrank.settings
 
-import com.intellij.openapi.components.{ PersistentStateComponent, Service, State, Storage }
+import com.intellij.openapi.components.{PersistentStateComponent, Service, State, Storage}
 import com.intellij.openapi.components.Service.Level
 import com.intellij.openapi.project.Project
-import com.intellij.util.xmlb.annotations.{ Attribute, OptionTag }
+import com.intellij.util.xmlb.annotations.Attribute
 import com.wenjunhuang.codeepiphany.hackerrank.settings.HackerRankSettings.HackerRankState
-import com.wenjunhuang.codeepiphany.model.{ Constants, Language }
+import com.wenjunhuang.codeepiphany.model.{Constants, Language, LanguageVersion}
 import com.wenjunhuang.codeepiphany.utils.XmlUtils.*
 
-import scala.annotation.meta.{ beanGetter, beanSetter, field }
+import scala.annotation.meta.field
 import scala.beans.BeanProperty
-import java.util as ju
 
 @Service(Array(Level.PROJECT))
 @State(name = Constants.HACKERRANK_SETTING, storages = Array(new Storage(Constants.HACKERRANK_SETTING_FILE)))
@@ -22,7 +21,7 @@ final class HackerRankSettings(private val myProject: Project) extends Persisten
   override def loadState(newState: HackerRankState): Unit =
     state = newState
 
-  def getSelectedLanguages: List[Language] = List(Language.Java, Language.Kotlin)
+  def getSelectedLanguages: List[(Language,LanguageVersion)] = List((Language.Java,LanguageVersion.SpecificVersion("15")), (Language.Kotlin,LanguageVersion.AnyVersion))
 }
 
 object HackerRankSettings {
@@ -34,6 +33,10 @@ object HackerRankSettings {
     @(Attribute @field)(converter = classOf[LanguageOptionConverter])
     @BeanProperty
     var language: Option[Language] = None
+
+    @(Attribute @field)(converter = classOf[LanguageVersionOptionConverter])
+    @BeanProperty
+    var languageVersion: Option[LanguageVersion] = None
 
     @(Attribute @field)(converter = classOf[StringOptionConverter])
     @BeanProperty

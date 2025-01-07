@@ -147,6 +147,9 @@
         <editorTabTitleProvider
                 implementation="com.wenjunhuang.codeepiphany.editor.extensions.ChallengeEditorTabTitleProvider"
                 order="last"/>
+        <fileEditorProvider
+                id="CodeEpiphany.EditorProvider"
+                implementation="com.wenjunhuang.codeepiphany.editor.extensions.ChallengeEditorProvider"/>
 
     </extensions>
 </idea-plugin>

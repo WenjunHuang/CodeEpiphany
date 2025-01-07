@@ -1,6 +1,13 @@
 package com.wenjunhuang.codeepiphany.editor.actions
 
-import com.intellij.openapi.actionSystem.{ActionUpdateThread, AnAction, AnActionEvent, CommonDataKeys}
+import com.intellij.openapi.actionSystem.{
+  ActionUpdateThread,
+  AnAction,
+  AnActionEvent,
+  CommonDataKeys,
+  PlatformCoreDataKeys,
+  PlatformDataKeys
+}
 import com.wenjunhuang.codeepiphany.editor.actions.providers.SubmitCodeProvider
 import com.wenjunhuang.codeepiphany.editor.actions.providers.SubmitCodeProvider.SUBMITCODE_PROVIDER_KEY
 
@@ -23,6 +30,8 @@ class SubmitCodeAction extends AnAction {
   override def getActionUpdateThread: ActionUpdateThread = ActionUpdateThread.BGT
 
   private def getProvider(e: AnActionEvent): Option[SubmitCodeProvider] = {
-    Option(e.getData(CommonDataKeys.EDITOR)).flatMap { editor => Option(SUBMITCODE_PROVIDER_KEY.get(editor)) }
+    Option(e.getData(PlatformCoreDataKeys.FILE_EDITOR)).flatMap { editor =>
+      Option(SUBMITCODE_PROVIDER_KEY.get(editor))
+    }
   }
 }

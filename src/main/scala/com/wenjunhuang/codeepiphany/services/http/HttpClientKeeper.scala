@@ -1,6 +1,6 @@
 package com.wenjunhuang.codeepiphany.services.http
 
-import cats.effect.{ Async, Ref, Resource }
+import cats.effect.{Async, Ref, Resource}
 import cats.effect.kernel.Ref.Make
 import cats.effect.kernel.Sync
 import cats.syntax.all.*
@@ -10,11 +10,12 @@ import com.wenjunhuang.codeepiphany.utils.implicits.intellijComputeContext
 import okhttp3.*
 import org.http4s.client.Client
 import org.typelevel.ci.CIString
-import org.typelevel.log4cats.{ Logger, LoggerFactory }
+import org.typelevel.log4cats.{Logger, LoggerFactory}
 
 import java.net.HttpCookie
 import java.security.cert.X509Certificate
-import javax.net.ssl.{ SSLContext, TrustManager, X509TrustManager }
+import javax.net.ssl.{SSLContext, TrustManager, X509TrustManager}
+import scala.annotation.static
 import scala.concurrent.duration.*
 import scala.jdk.CollectionConverters.*
 import scala.util.boundary
@@ -43,14 +44,16 @@ object HttpClientKeeper {
       override def getClient: Resource[F, Client[F]] = {
         implicit val hk: HttpClientKeeper[F] = this
         Resource.suspend(Sync[F].delay {
-          OkHttpBuilder[F](defaultHttpClient).resource
+          OkHttpBuilder.fromUnmanaged[F](defaultHttpClient).resource
         })
       }
 
       override def getCookiesForHost(host: CIString): F[List[HttpCookie]] =
         for {
           cookies <- cookieManager.get
-        } yield CodeDojo.fromCIHostname(host).fold(List.empty[HttpCookie])(cookies.getOrElse(_, Map.empty).values.toList)
+        } yield CodeDojo
+          .fromCIHostname(host)
+          .fold(List.empty[HttpCookie])(cookies.getOrElse(_, Map.empty).values.toList)
 
       override def updateCookiesForHost(host: CIString, cookies: List[HttpCookie]): F[Unit] =
         Sync[F]
@@ -75,11 +78,13 @@ object HttpClientKeeper {
     writeTimeout: FiniteDuration,
     readTimeout: FiniteDuration
   ): OkHttpClient = {
+    java.util.logging.Logger.getLogger(classOf[OkHttpClient].getName).setLevel(java.util.logging.Level.FINE)
     val sslContext = SSLContext.getInstance("SSL")
     sslContext.init(null, Array[TrustManager](trustAllManager), new java.security.SecureRandom())
     val sslSocketFactory = sslContext.getSocketFactory
     val proxySettings    = ProxySettings.getInstance()
     // get optional proxy credentials
+    // reference: https://square.github.io/okhttp/3.x/okhttp/okhttp3/Authenticator.html
     val authenticator = new Authenticator {
       override def authenticate(route: Route, response: Response): Request = {
         val credential = ProxyUtils.getStaticProxyCredentials(
@@ -107,15 +112,14 @@ object HttpClientKeeper {
     OkHttpClient
       .Builder()
       .dispatcher(Dispatcher(intellijComputeContext))
-      .connectionPool(ConnectionPool())
       .connectTimeout(connectionTimeout.toMillis, java.util.concurrent.TimeUnit.MILLISECONDS)
       .writeTimeout(writeTimeout.toMillis, java.util.concurrent.TimeUnit.MILLISECONDS)
       .readTimeout(readTimeout.toMillis, java.util.concurrent.TimeUnit.MILLISECONDS)
       .sslSocketFactory(sslSocketFactory, trustAllManager)
-      .hostnameVerifier((hostname, session) => true)
+      .hostnameVerifier((_, _) => true)
       .proxySelector(
-        IdeProxySelector(ProxySettingsKt.asConfigurationProvider(proxySettings))
-      ) // IntelliJ proxy selector
+        IdeProxySelector(ProxySettingsKt.asConfigurationProvider(proxySettings)) // IntelliJ proxy selector
+      )
       .proxyAuthenticator(authenticator)
       .addInterceptor((chain: Interceptor.Chain) => {
         val request = chain.request()
@@ -133,4 +137,7 @@ object HttpClientKeeper {
   }
 
   private lazy val defaultHttpClient = makeDefaultHttpClient(10.seconds, 10.seconds, 10.seconds)
+
+  @static
+  def getHttpClient: OkHttpClient = defaultHttpClient
 }

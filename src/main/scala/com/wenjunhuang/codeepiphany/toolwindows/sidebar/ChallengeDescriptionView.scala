@@ -7,21 +7,21 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.SimpleToolWindowPanel
 import com.intellij.openapi.util.Disposer
 import com.intellij.ui.PopupHandler
-import com.intellij.util.ui.{JBInsets, JBUI}
-import com.wenjunhuang.codeepiphany.model.ChallengeRepository.ChallengeStorageItem
+import com.intellij.util.ui.{ JBInsets, JBUI }
+import com.wenjunhuang.codeepiphany.model.CodeDojo
 import com.wenjunhuang.codeepiphany.utils.isDebug
 
 import java.awt.Insets
-import java.awt.event.{MouseWheelEvent, MouseWheelListener}
+import java.awt.event.{ MouseWheelEvent, MouseWheelListener }
 import javax.swing.JComponent
 
-class ChallengeChallengeDescriptionView(private val myPresenter: ChallengeDescriptionPresenter)
+class ChallengeDescriptionView(private val myPresenter: ChallengeDescriptionPresenter, private val myProject: Project)
     extends SimpleToolWindowPanel(true)
     with ChallengeDescriptionStyleProvider
     with CopyProvider
     with UiDataProvider
     with Disposable {
-  private val myViewer = JCefDescriptionView(myPresenter, this)
+  private val myViewer = JCefDescriptionView(myPresenter, this, myProject)
 
   private val MOUSE_WHEEL_LISTENER = new MouseWheelListener {
     override def mouseWheelMoved(e: MouseWheelEvent): Unit =
@@ -45,10 +45,15 @@ class ChallengeChallengeDescriptionView(private val myPresenter: ChallengeDescri
 
   Disposer.register(myPresenter, this)
 
-  if !isDebug then PopupHandler.installPopupMenu(myViewer.preferredFocusedComponent, SidebarActions.GROUP_POPUP, SidebarActions.ACTION_PLACE)
+  if !isDebug then
+    PopupHandler.installPopupMenu(
+      myViewer.preferredFocusedComponent,
+      SidebarActions.GROUP_POPUP,
+      SidebarActions.ACTION_PLACE
+    )
 
   override def uiDataSnapshot(dataSink: DataSink): Unit = {
-    dataSink.set(ChallengeChallengeDescriptionView.DATA_KEY, this)
+    dataSink.set(ChallengeDescriptionView.DATA_KEY, this)
     dataSink.set(PlatformDataKeys.COPY_PROVIDER, this)
   }
 
@@ -56,8 +61,8 @@ class ChallengeChallengeDescriptionView(private val myPresenter: ChallengeDescri
     myViewer.preferredFocusedComponent.removeMouseWheelListener(MOUSE_WHEEL_LISTENER)
     Disposer.dispose(myViewer)
 
-  def updateCurrentQuestion(question: ChallengeStorageItem): Unit =
-    myViewer.updateCurrentQuestion(question)
+  def setDescription(content: Option[(String, CodeDojo)]): Unit =
+    myViewer.setDescription(content)
 
   def zoomIn(): Unit = myViewer.zoomIn()
 
@@ -96,6 +101,6 @@ class ChallengeChallengeDescriptionView(private val myPresenter: ChallengeDescri
   }
 }
 
-object ChallengeChallengeDescriptionView {
-  val DATA_KEY: DataKey[ChallengeChallengeDescriptionView] = DataKey.create[ChallengeChallengeDescriptionView]("DescriptionView")
+object ChallengeDescriptionView {
+  val DATA_KEY: DataKey[ChallengeDescriptionView] = DataKey.create[ChallengeDescriptionView]("DescriptionView")
 }

@@ -2,10 +2,10 @@ package com.wenjunhuang.codeepiphany.hackerrank
 
 import cats.syntax.all.*
 import com.wenjunhuang.codeepiphany.PluginBundle
-import com.wenjunhuang.codeepiphany.model.{CodeDojo, Constants, Language, LanguageVersion}
+import com.wenjunhuang.codeepiphany.model.{ CodeDojo, Constants, Language, LanguageVersion }
 import com.wenjunhuang.codeepiphany.utils.Colors
-import io.circe.{Decoder, HCursor, Json}
-import io.circe.derivation.{Configuration, ConfiguredDecoder}
+import io.circe.{ Decoder, HCursor, Json }
+import io.circe.derivation.{ Configuration, ConfiguredDecoder }
 import monocle.Lens
 import monocle.macros.GenLens
 import org.typelevel.ci.CIString
@@ -122,6 +122,7 @@ package object model {
     contestSlug: String,
     userScore: Double,
     preview: Option[String],
+    bodyHtml: Option[String],
     difficulty: Double,
     difficultyName: String,
     solvedScore: Double,
@@ -159,7 +160,7 @@ package object model {
           Language.fromCIString(CIString(langStr)).foreach { lang =>
             val ver =
               if verStr.isEmpty then LanguageVersion.AnyVersion
-              else LanguageVersion.SpecificVersion(verStr.toIntOption.getOrElse(0))
+              else LanguageVersion.SpecificVersion(verStr)
             templates = templates.updatedWith((lang, ver)) {
               case Some(t) => Some(lens.modify(_ => value)(t))
               case None    => Some(lens.modify(_ => value)(LanguageTemplate("", "", "")))

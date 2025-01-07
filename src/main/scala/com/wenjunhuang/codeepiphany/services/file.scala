@@ -12,7 +12,7 @@ import org.typelevel.log4cats.LoggerFactory
 
 import java.io.{ File, PrintWriter }
 
-object editor {
+object file {
   def saveTextToFile[F[_]: Sync](file: File, content: String): F[File] = {
     Resource.make(Sync[F].blocking(PrintWriter(file)))(writer => Sync[F].blocking(writer.close())).use { writer =>
       Sync[F].blocking {

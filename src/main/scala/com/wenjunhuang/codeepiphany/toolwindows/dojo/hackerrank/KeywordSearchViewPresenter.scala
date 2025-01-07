@@ -7,20 +7,20 @@ import com.intellij.openapi.actionSystem.DataSink
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
 import com.intellij.ui.DocumentAdapter
-import com.intellij.ui.table.{JBTable, TableView}
-import com.wenjunhuang.codeepiphany.hackerrank.model.{ChallengeDetail, Contest}
+import com.intellij.ui.table.{ JBTable, TableView }
+import com.wenjunhuang.codeepiphany.hackerrank.model.{ ChallengeDetail, Contest }
 import com.wenjunhuang.codeepiphany.hackerrank.services.HackerRankApi
-import com.wenjunhuang.codeepiphany.hackerrank.services.editor.openChallenge
-import com.wenjunhuang.codeepiphany.model.Language
+import com.wenjunhuang.codeepiphany.hackerrank.services.challenge.openChallenge
+import com.wenjunhuang.codeepiphany.model.{ Language, LanguageVersion }
 import com.wenjunhuang.codeepiphany.model.Language.Kotlin
-import com.wenjunhuang.codeepiphany.services.http.{HttpClientKeeper, HttpClientService}
+import com.wenjunhuang.codeepiphany.services.http.{ HttpClientKeeper, HttpClientService }
 import com.wenjunhuang.codeepiphany.toolwindows.dojo.actions.keys.CHALLENGE_PROVIDER_KEY
 import com.wenjunhuang.codeepiphany.toolwindows.dojo.actions.providers.ChallengeProvider
 import com.wenjunhuang.codeepiphany.utils.implicits.*
 import fs2.Stream
 import fs2.concurrent.SignallingRef
 import org.typelevel.ci.CIString
-import org.typelevel.log4cats.{Logger, LoggerFactory, SelfAwareStructuredLogger}
+import org.typelevel.log4cats.{ Logger, LoggerFactory, SelfAwareStructuredLogger }
 
 import javax.swing.JComponent
 import javax.swing.event.DocumentEvent
@@ -83,19 +83,22 @@ class KeywordSearchViewPresenter(private val myProject: Project) extends Documen
   mySearchStream.unsafeRunAndForget()
 
   private val myChallengeProvider = new ChallengeProvider {
-    override def openCurrentSelectedChallenge(language: Language): Unit = {
+    override def openCurrentSelectedChallenge(language: Language, languageVersion: LanguageVersion): Unit = {
       Option(myView.getTable.getSelectedObject) match
         case Some(selected) =>
           openChallenge[IO](
             myProject,
             selected.slug,
             Contest.fromCIString(CIString(selected.contestSlug)).get,
-            language
+            language,
+            languageVersion
           ).unsafeRunAndForget()
         case None => ()
     }
 
-    override def getLanguages: List[Language] = List(Language.Java,Kotlin)
+    // TODO: Implement getLanguages
+    override def getLanguages: List[(Language, LanguageVersion)] =
+      List((Language.Java, LanguageVersion.SpecificVersion("15")), (Kotlin, LanguageVersion.AnyVersion))
   }
 
   Disposer.register(myProject, this)

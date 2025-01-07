@@ -10,9 +10,9 @@ import com.intellij.openapi.util.Disposer
 import com.intellij.ui.table.JBTable
 import com.intellij.util.ui.JBInsets
 import com.wenjunhuang.codeepiphany.hackerrank.model.*
-import com.wenjunhuang.codeepiphany.hackerrank.services.editor.openChallenge
+import com.wenjunhuang.codeepiphany.hackerrank.services.challenge.openChallenge
 import com.wenjunhuang.codeepiphany.hackerrank.services.HackerRankApi
-import com.wenjunhuang.codeepiphany.model.{ messages, CodeDojo, Language }
+import com.wenjunhuang.codeepiphany.model.{ messages, CodeDojo, Language, LanguageVersion }
 import com.wenjunhuang.codeepiphany.model.CodeDojo.HackerRank
 import com.wenjunhuang.codeepiphany.services.http.{ HttpClientKeeper, HttpClientService }
 import com.wenjunhuang.codeepiphany.toolwindows.dojo.actions.*
@@ -144,19 +144,22 @@ class QueryParametersViewPresenter(private val myProject: Project) extends Dispo
       q.offer(Some(state)).unsafeRunAndForget()
     }
   private val myChallengeProvider = new ChallengeProvider {
-    override def openCurrentSelectedChallenge(language: Language): Unit = {
+    override def openCurrentSelectedChallenge(language: Language, languageVersion: LanguageVersion): Unit = {
       Option(myView.getTable.getSelectedObject) match
         case Some(selected) =>
           openChallenge[IO](
             myProject,
             selected.slug,
             Contest.fromCIString(CIString(selected.contestSlug)).get,
-            language
+            language,
+            languageVersion
           ).unsafeRunAsBackgroundProgress(myProject, "Opening challenge")
         case None => ()
     }
 
-    override def getLanguages: List[Language] = List(Language.Java)
+    // TODO: Implement getLanguages
+    override def getLanguages: List[(Language, LanguageVersion)] =
+      List((Language.Java, LanguageVersion.SpecificVersion("15")), (Language.Kotlin, LanguageVersion.AnyVersion))
   }
 
   private val myListsProvider = new CategoryProvider {

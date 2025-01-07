@@ -13,17 +13,21 @@ create table challenge
     remark      TEXT
 );
 
+create unique index challenge_dojoId_dojo_uindex
+    on challenge (dojoId, dojo);
+
 create table challenge_language
 (
-    challengeId  integer
+    challengeId     integer
         constraint challenge_language_challenge_id_fk
             references challenge
             on update set null on delete set null,
-    language     TEXT    not null,
-    codeTemplate TEXT    not null,
-    id           integer not null
+    language        TEXT            not null,
+    codeTemplate    TEXT            not null,
+    id              integer         not null
         constraint challenge_language_pk
-            primary key autoincrement
+            primary key autoincrement,
+    languageVersion TEXT default '' not null
 );
 
 create unique index challenge_language_challengeId_language_uindex
@@ -54,19 +58,20 @@ create table hackerrank_challenge_language
 
 create table solution
 (
-    id                  integer not null
+    id                  integer           not null
         constraint solution_pk
             primary key autoincrement,
-    challengeId         integer not null
+    challengeId         integer           not null
         constraint solution_challenge_id_fk
             references challenge,
-    challengeLanguageId integer not null
+    challengeLanguageId integer           not null
         constraint solution_challenge_language_id_fk
             references challenge_language,
-    createDateTime      INTEGER not null,
+    createDateTime      INTEGER           not null,
     tags                TEXT,
     remark              TEXT,
-    title               TEXT    not null
+    title               TEXT              not null,
+    isDefault           INTEGER default 0 not null
 );
 
 create unique index solution_challengeLanguageId_title_uindex
@@ -101,5 +106,3 @@ create table hackerrank_solution_submission_result
         constraint hackerrank_solution_submission_result_solution_submission_id_fk
             references solution_submission
 );
-
-

@@ -21,7 +21,8 @@ case class ChallengeCodeTemplate(
   contest: String,
   @BeanProperty
   difficulty: String,
-  language: Language
+  language: Language,
+  languageVersion:LanguageVersion
 ) {
   def getHeader: String = language.makeCodeRegion(header)
 

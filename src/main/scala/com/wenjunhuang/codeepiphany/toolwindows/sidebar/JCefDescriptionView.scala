@@ -9,7 +9,8 @@ import com.intellij.openapi.editor.colors.{ EditorColorsListener, EditorColorsMa
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
 import com.intellij.ui.jcef.*
-import com.wenjunhuang.codeepiphany.model.ChallengeRepository.ChallengeStorageItem
+import com.wenjunhuang.codeepiphany.model.ChallengeRepository.ChallengeId
+import com.wenjunhuang.codeepiphany.model.CodeDojo
 import com.wenjunhuang.codeepiphany.toolwindows.sidebar.JCefDescriptionView.*
 import com.wenjunhuang.codeepiphany.utils.implicits.*
 import com.wenjunhuang.codeepiphany.utils.isDebug
@@ -29,10 +30,12 @@ import javax.swing.JComponent
 
 class JCefDescriptionView(
   private val presenter: ChallengeDescriptionPresenter,
-  private val styleProvider: ChallengeDescriptionStyleProvider
+  private val styleProvider: ChallengeDescriptionStyleProvider,
+  private val myProject:Project
 ) extends Disposable {
-  private var questionItem: Option[ChallengeStorageItem] = None
   implicit private val logger: Logger[SyncIO] = LoggerFactory[SyncIO].getLogger
+
+  private var myDescription: Option[(String, CodeDojo)] = None
 
   private val myLifeSpanHandler =
     new CefLifeSpanHandlerAdapter {
@@ -50,30 +53,18 @@ class JCefDescriptionView(
   private val myLocalRequestHandler = createRequestHandler()
 
   private def createRequestHandler(): CefLocalRequestHandler = {
-    val requestHandler = new CefLocalRequestHandler(PROTOCOL, HOST)
+    val requestHandler = new CefLocalRequestHandler(PROTOCOL, HOST,myProject)
     requestHandler.addResource(VIEW_PATH) { () =>
-      val content = (
+      val content =
         Resource
           .fromAutoCloseable(SyncIO.delay(getClass.getResourceAsStream("resources/descriptionViewer.html")))
           .use { is =>
             IOUtils.toString(is, StandardCharsets.UTF_8).pure[SyncIO]
-          },
-        questionItem
-          .map(_.descriptionFilePath)
-          .map { path =>
-            Resource
-              .fromAutoCloseable(SyncIO.delay(FileInputStream(File(path))))
-              .use { is =>
-                IOUtils.toString(is, StandardCharsets.UTF_8).pure[SyncIO]
-              }
-              .handleErrorWith { e =>
-                Logger[SyncIO].warn(e)(s"Failed to read description file: $path") *> SyncIO("")
-              }
           }
-          .getOrElse(SyncIO(""))
-      ).mapN { (template, description) =>
-        template.replace(TEMPLATE_PLACEHOLDER, description)
-      }.unsafeRunSync()
+          .map { template =>
+            template.replace(TEMPLATE_PLACEHOLDER, myDescription.map(_._1).getOrElse("No challenge selected 🌟"))
+          }
+          .unsafeRunSync()
       CefStreamResourceHandler(ByteArrayInputStream(content.getBytes(StandardCharsets.UTF_8)), "text/html", this).some
     }
 
@@ -104,7 +95,7 @@ class JCefDescriptionView(
     requestHandler.addResource(DESCRIPTION_CSS_PATH) { () =>
       CefStreamResourceHandler(
         ByteArrayInputStream(
-          ChallengeDescriptionStyle.getStyle(styleProvider, questionItem.map(_.dojo)).getBytes(StandardCharsets.UTF_8)
+          ChallengeDescriptionStyle.getStyle(styleProvider, myDescription.map(_._2)).getBytes(StandardCharsets.UTF_8)
         ),
         "text/css",
         this
@@ -169,8 +160,9 @@ class JCefDescriptionView(
 
   def preferredFocusedComponent: JComponent = myBrowser.getCefBrowser.getUIComponent.asInstanceOf[JComponent]
 
-  def updateCurrentQuestion(item: ChallengeStorageItem): Unit =
-    questionItem = Some(item)
+  def setDescription(content: Option[(String, CodeDojo)]): Unit =
+    myDescription = content
+
     reload()
 
   def zoom_=(zoom: Double): Unit =
