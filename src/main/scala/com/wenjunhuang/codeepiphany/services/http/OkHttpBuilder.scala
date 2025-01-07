@@ -2,10 +2,9 @@ package com.wenjunhuang.codeepiphany.services.http
 
 import cats.effect.{ Async, Resource }
 import cats.effect.std.Dispatcher
-import cats.effect.syntax.all.*
 import cats.syntax.all.*
+import com.intellij.openapi.diagnostic.Logger
 import com.wenjunhuang.codeepiphany.services.http.OkHttpBuilder.*
-import com.wenjunhuang.codeepiphany.utils.implicits.*
 import fs2.io.readInputStream
 import okhttp3.{
   Call,
@@ -21,13 +20,13 @@ import okhttp3.{
 import okio.BufferedSink
 import org.http4s.{ Headers, HttpVersion, Method, Request, Response, Status }
 import org.http4s.client.Client
-import org.http4s.headers.{ `Content-Type`, Cookie }
-import org.http4s.internal.BackendBuilder
+import org.http4s.headers.`Content-Type`
 import org.typelevel.ci.CIString
-import org.typelevel.log4cats.{ Logger, LoggerFactory }
+import org.typelevel.log4cats.LoggerFactory
 
 import java.io.IOException
 import java.net.HttpCookie
+import java.util.concurrent.atomic.AtomicBoolean
 import scala.jdk.CollectionConverters.*
 import scala.util.control.NonFatal
 
@@ -44,11 +43,12 @@ sealed abstract class OkHttpBuilder[F[_]] private (val okHttpClient: OkHttpClien
   val HttpClientKeeper: HttpClientKeeper[F],
   val loggerFactory: LoggerFactory[F]
 ) {
-  private val myLogger = loggerFactory.getLogger
+  private val myLogger       = loggerFactory.getLogger
+  private val myUnPureLogger = Logger.getInstance(getClass.getName)
 
   private def invokeCallback(result: Result[F], cb: Result[F] => Unit, dispatcher: Dispatcher[F]): Unit = {
     val f = logTap(result).flatMap(r => F.delay(cb(r)))
-    dispatcher.unsafeRunSync(f)
+    dispatcher.unsafeRunAndForget(f)
   }
 
   /** Creates the [[org.http4s.client.Client]]
@@ -61,48 +61,69 @@ sealed abstract class OkHttpBuilder[F[_]] private (val okHttpClient: OkHttpClien
     Dispatcher.parallel[F].flatMap(dispatcher => Resource.make(F.delay(create(dispatcher)))(client => F.unit))
 
   private def run(dispatcher: Dispatcher[F])(req: Request[F]) = {
-    val getCookies = req.uri.host
+    val addCookiesToRequest = req.uri.host
       .map(host => HttpClientKeeper.getCookiesForHost(CIString(host.value)))
       .getOrElse(List.empty[HttpCookie].pure[F])
+      .map { cookies => cookies.foldLeft(req)((req, cookie) => req.addCookie(cookie.getName, cookie.getValue)) }
 
-    Resource.suspend(getCookies.map { cookies =>
-      cookies.foldLeft(req)((req, cookie) => req.addCookie(cookie.getName, cookie.getValue))
-    }.flatMap { req =>
-      F.async_[Resource[F, Response[F]]] { cb =>
-        okHttpClient.newCall(toOkHttpRequest(req, dispatcher)).enqueue(handler(cb, dispatcher))
+    Resource.suspend(addCookiesToRequest.flatMap { req =>
+      F.async[Resource[F, Response[F]]] { cb =>
+        F.delay {
+          val cancelledSignal = AtomicBoolean(false)
+          okHttpClient.newCall(toOkHttpRequest(req, dispatcher)).enqueue(handler(cb, dispatcher, cancelledSignal))
+
+          Some(F.delay { cancelledSignal.set(true) }) // finalizer to cancel the request
+        }
       }
     })
   }
 
-  private def handler(cb: Result[F] => Unit, dispatcher: Dispatcher[F])(implicit F: Async[F]): Callback =
+  private def handler(
+    cb: Result[F] => Unit,
+    dispatcher: Dispatcher[F],
+    cancelledSignal: AtomicBoolean // a signal that indicates if the request has been cancelled before the callback is invoked
+  )(implicit F: Async[F]): Callback =
     new Callback {
       override def onFailure(call: Call, e: IOException): Unit =
         invokeCallback(Left(e), cb, dispatcher)
 
       override def onResponse(call: Call, response: OKResponse): Unit = {
-        val protocol = response.protocol() match {
-          case Protocol.HTTP_2   => HttpVersion.`HTTP/2`
-          case Protocol.HTTP_1_1 => HttpVersion.`HTTP/1.1`
-          case Protocol.HTTP_1_0 => HttpVersion.`HTTP/1.0`
-          case _                 => HttpVersion.`HTTP/1.1`
-        }
-        val status     = Status.fromInt(response.code())
-        val bodyStream = response.body.byteStream()
-        val body       = readInputStream(F.pure(bodyStream), 1024, false)
-        val dispose    = F.delay { bodyStream.close() }
-        val r = status.map { s =>
-          Resource[F, Response[F]](
-            F.pure(
-              (Response[F](status = s, headers = getHeaders(response), httpVersion = protocol, body = body), dispose)
-            )
-          )
-        }.leftMap { t =>
-          // we didn't understand the status code, close the body and return a failure
-          try bodyStream.close()
+        if cancelledSignal.get() then
+          // if the request has been cancelled, we should not invoke the callback
+          myUnPureLogger.info("Request was cancelled before onResponse is called, so close the response and do nothing")
+          try response.close()
           catch { case _: Throwable => }
-          t
-        }
-        invokeCallback(r, cb, dispatcher)
+        else
+          val protocol = response.protocol() match {
+            case Protocol.HTTP_2   => HttpVersion.`HTTP/2`
+            case Protocol.HTTP_1_1 => HttpVersion.`HTTP/1.1`
+            case Protocol.HTTP_1_0 => HttpVersion.`HTTP/1.0`
+            case _                 => HttpVersion.`HTTP/1.1`
+          }
+          val r = Status
+            .fromInt(response.code())
+            .map { s =>
+              val body = readInputStream(F.delay(response.body.byteStream()), 1024, false)
+              val dispose = F.delay {
+                try response.close()
+                catch { case _: Throwable => }
+              } *> myLogger.info("Response closed")
+              Resource[F, Response[F]](
+                F.pure(
+                  (
+                    Response[F](status = s, headers = getHeaders(response), httpVersion = protocol, body = body),
+                    dispose
+                  )
+                )
+              )
+            }
+            .leftMap { t =>
+              // we didn't understand the status code, close the body and return a failure
+              try response.close()
+              catch { case _: Throwable => }
+              t
+            }
+          invokeCallback(r, cb, dispatcher)
       }
     }
 
@@ -153,8 +174,8 @@ sealed abstract class OkHttpBuilder[F[_]] private (val okHttpClient: OkHttpClien
 
   private def logTap(result: Result[F]): F[Either[Throwable, Resource[F, Response[F]]]] =
     (result match {
-      case Left(e)  => myLogger.warn(e)("Error in call back")
-      case Right(_) => F.unit
+      case Left(e)  => myLogger.warn(e)("Error in ok call back")
+      case Right(r) => myLogger.info("OKResponse received")
     }).map(_ => result)
 }
 
@@ -162,11 +183,10 @@ sealed abstract class OkHttpBuilder[F[_]] private (val okHttpClient: OkHttpClien
 object OkHttpBuilder {
 
   /** Creates a builder.
-    *
     * @param okHttpClient
     *   the underlying client.
     */
-  def apply[F[_]: Async: HttpClientKeeper: LoggerFactory](okHttpClient: OkHttpClient): OkHttpBuilder[F] =
+  def fromUnmanaged[F[_]: Async: HttpClientKeeper: LoggerFactory](okHttpClient: OkHttpClient): OkHttpBuilder[F] =
     new OkHttpBuilder[F](okHttpClient) {}
 
   private def defaultOkHttpClient[F[_]: Async: LoggerFactory]: Resource[F, OkHttpClient] =
