@@ -1,7 +1,5 @@
 package com.wenjunhuang.codeepiphany.model
 
-import com.wenjunhuang.codeepiphany.hackerrank.model.ChallengeDifficulty
-
 import scala.beans.BeanProperty
 
 case class ChallengeCodeTemplate(

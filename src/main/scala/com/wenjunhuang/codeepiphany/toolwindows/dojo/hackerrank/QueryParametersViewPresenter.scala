@@ -13,7 +13,7 @@ import com.wenjunhuang.codeepiphany.hackerrank.model.*
 import com.wenjunhuang.codeepiphany.hackerrank.services.challenge.openChallenge
 import com.wenjunhuang.codeepiphany.hackerrank.services.HackerRankApi
 import com.wenjunhuang.codeepiphany.hackerrank.settings.HackerRankSettings
-import com.wenjunhuang.codeepiphany.model.{messages, CodeDojo, Language, LanguageVersion}
+import com.wenjunhuang.codeepiphany.model.{messages, CodeDojo, Difficulty, Language, LanguageVersion}
 import com.wenjunhuang.codeepiphany.model.CodeDojo.HackerRank
 import com.wenjunhuang.codeepiphany.services.http.{HttpClientKeeper, HttpClientService}
 import com.wenjunhuang.codeepiphany.toolwindows.dojo.actions.*
@@ -197,41 +197,41 @@ class QueryParametersViewPresenter(private val myProject: Project) extends Dispo
   }
 
   private val myDifficultiesProvider = new DifficultiesProvider {
-    override def isSelected(item: Difficulty): Boolean =
+    override def isSelected(item: DifficultyData): Boolean =
       myState.selectedDifficulties.exists(_.value == item.value)
 
     override def isMultipleSelection: Boolean = true
 
-    override def toggleSelection(item: Difficulty): Unit =
+    override def toggleSelection(item: DifficultyData): Unit =
       myState.selectedDifficulties.find(_.value == item.value) match {
         case Some(_) => removeSelectedItems(List(item))
         case None    => addSelectedItems(List(item))
       }
 
-    override def getAllItems: List[Difficulty] =
+    override def getAllItems: List[DifficultyData] =
       List(
-        Difficulty(ChallengeDifficulty.Easy.showAsHtml, ChallengeDifficulty.Easy.value),
-        Difficulty(ChallengeDifficulty.Medium.showAsHtml, ChallengeDifficulty.Medium.value),
-        Difficulty(ChallengeDifficulty.Hard.showAsHtml, ChallengeDifficulty.Hard.value)
+        DifficultyData(Difficulty.Easy.showAsHtml, Difficulty.Easy.value),
+        DifficultyData(Difficulty.Medium.showAsHtml, Difficulty.Medium.value),
+        DifficultyData(Difficulty.Hard.showAsHtml, Difficulty.Hard.value)
       )
 
-    override def getSelectedItems: List[Difficulty] =
-      myState.selectedDifficulties.map(difficulty => Difficulty(difficulty.show, difficulty.value))
+    override def getSelectedItems: List[DifficultyData] =
+      myState.selectedDifficulties.map(difficulty => DifficultyData(difficulty.show, difficulty.value))
 
-    override def addSelectedItems(items: List[Difficulty]): Unit =
+    override def addSelectedItems(items: List[DifficultyData]): Unit =
       myState = myState.copy(selectedDifficulties = (myState.selectedDifficulties ++ items.collect {
-        case Difficulty(_, value) if value == ChallengeDifficulty.Easy.value   => ChallengeDifficulty.Easy
-        case Difficulty(_, value) if value == ChallengeDifficulty.Medium.value => ChallengeDifficulty.Medium
-        case Difficulty(_, value) if value == ChallengeDifficulty.Hard.value   => ChallengeDifficulty.Hard
+        case DifficultyData(_, value) if value == Difficulty.Easy.value   => Difficulty.Easy
+        case DifficultyData(_, value) if value == Difficulty.Medium.value => Difficulty.Medium
+        case DifficultyData(_, value) if value == Difficulty.Hard.value   => Difficulty.Hard
       }).distinct)
       refreshTags()
       refreshQuery()
 
-    override def removeSelectedItems(items: List[Difficulty]): Unit =
+    override def removeSelectedItems(items: List[DifficultyData]): Unit =
       myState = myState.copy(selectedDifficulties =
         myState.selectedDifficulties.filterNot(difficulty =>
           items.exists {
-            case Difficulty(_, value) if value == difficulty.value => true
+            case DifficultyData(_, value) if value == difficulty.value => true
             case _                                                 => false
           }
         )
@@ -427,7 +427,7 @@ class QueryParametersViewPresenter(private val myProject: Project) extends Dispo
           difficulty.showAsHtml,
           None,
           DIFFICULTY_TAG_RADIUS,
-          Some(() => myDifficultiesProvider.removeSelectedItems(List(Difficulty(difficulty.show, difficulty.value))))
+          Some(() => myDifficultiesProvider.removeSelectedItems(List(DifficultyData(difficulty.show, difficulty.value))))
         )
       )
     }
@@ -483,15 +483,15 @@ class QueryParametersViewPresenter(private val myProject: Project) extends Dispo
 object QueryParametersViewPresenter {
   private case class InitialData(userInfo: UserInfo, challengeDomains: List[ChallengeDomain])
   private case class State(
-    selectedDomain: ChallengeDomain,
-    selectedSubdomains: List[ChallengeSubdomain],
-    selectedDifficulties: List[ChallengeDifficulty],
-    selectedStatus: Option[ChallengeStatus],
-    selectedSkills: List[ChallengeSkill],
-    currentItems: List[ChallengeDetail] = Nil,
-    currentPage: Int = 1,
-    totalSize: Int = 1,
-    pageSize: PageSize = PageSize.Twenty
+                            selectedDomain: ChallengeDomain,
+                            selectedSubdomains: List[ChallengeSubdomain],
+                            selectedDifficulties: List[Difficulty],
+                            selectedStatus: Option[ChallengeStatus],
+                            selectedSkills: List[ChallengeSkill],
+                            currentItems: List[ChallengeDetail] = Nil,
+                            currentPage: Int = 1,
+                            totalSize: Int = 1,
+                            pageSize: PageSize = PageSize.Twenty
   ) {
     def resetToFirstPage(): State = this.copy(currentPage = 1)
     def resetPagination(): State  = this.copy(currentPage = 1, totalSize = 1)

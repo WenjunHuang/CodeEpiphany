@@ -7,8 +7,10 @@ import com.intellij.ui.PopupHandler
 import com.intellij.ui.table.TableView
 import com.intellij.util.ui.{ColumnInfo, ListTableModel}
 import com.intellij.util.ui.table.IconTableCellRenderer
-import com.wenjunhuang.codeepiphany.hackerrank.model.{ChallengeDetail, ChallengeDifficulty, ChallengeSkill, ChallengeStatus}
+import com.wenjunhuang.codeepiphany.model.Difficulty
+import com.wenjunhuang.codeepiphany.hackerrank.model.{ChallengeDetail, ChallengeSkill, ChallengeStatus}
 import com.wenjunhuang.codeepiphany.toolwindows.dojo.actions.groups.*
+import com.wenjunhuang.codeepiphany.toolwindows.dojo.hackerrank.ChallengesTableModel.Column
 import com.wenjunhuang.codeepiphany.toolwindows.dojo.hackerrank.ChallengesTableModel.Column.*
 import org.typelevel.ci.CIString
 
@@ -49,8 +51,9 @@ class ChallengesTableModel extends ListTableModel[ChallengeDetail]() {
 
         override def getPreferredStringValue: String = StringUtil.repeat("W", 30)
       },
-      new ColumnInfo[ChallengeDetail, String](Difficulty.title) {
-        override def valueOf(item: ChallengeDetail): String = ChallengeDifficulty.fromCIString(CIString(item.difficultyName)).map(_.showAsHtml).orNull
+      new ColumnInfo[ChallengeDetail, String](Column.Difficulty.title) {
+        override def valueOf(item: ChallengeDetail): String =
+          Difficulty.fromCIString(CIString(item.difficultyName)).map(_.showAsHtml).orNull
       },
       new ColumnInfo[ChallengeDetail, Int](MaxScore.title) {
         override def valueOf(item: ChallengeDetail): Int = item.maxScore
@@ -79,12 +82,16 @@ class ChallengesTableModel extends ListTableModel[ChallengeDetail]() {
       override def uiDataSnapshot(dataSink: DataSink): Unit =
         setDataSink(dataSink)
     }
-   
+
     tableView.setSelectionMode(ListSelectionModel.SINGLE_SELECTION)
     tableView.setShowGrid(false)
     tableView.setShowColumns(true)
 
-    PopupHandler.installRowSelectionTablePopup(tableView, ActionManager.getInstance().getAction(CHALLENGES_TABLE_POPUP_GROUP).asInstanceOf[ActionGroup], CHALLENGES_TABLE_POPUP_PLACE)
+    PopupHandler.installRowSelectionTablePopup(
+      tableView,
+      ActionManager.getInstance().getAction(CHALLENGES_TABLE_POPUP_GROUP).asInstanceOf[ActionGroup],
+      CHALLENGES_TABLE_POPUP_PLACE
+    )
     tableView
   }
 }

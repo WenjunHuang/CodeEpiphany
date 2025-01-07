@@ -24,7 +24,7 @@ class DifficultyAction extends ComboBoxAction {
   override def getActionUpdateThread: ActionUpdateThread = ActionUpdateThread.BGT
 }
 
-class DifficultySubAction(val myDifficulty: Difficulty) extends AnAction(myDifficulty.name) {
+class DifficultySubAction(val myDifficulty: DifficultyData) extends AnAction(myDifficulty.name) {
 
   override def actionPerformed(e: AnActionEvent): Unit =
     Option(DIFFICULTIES_PROVIDER_KEY.getData(e.getDataContext))

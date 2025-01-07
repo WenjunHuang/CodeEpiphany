@@ -15,8 +15,8 @@ package object actions {
   case class Category(name: String, value: String, marker: Any = null)
   trait CategoryProvider extends QueryParamProvider[Category] {}
 
-  case class Difficulty(name: String, value: String)
-  trait DifficultiesProvider extends QueryParamProvider[Difficulty] {}
+  case class DifficultyData(name: String, value: String)
+  trait DifficultiesProvider extends QueryParamProvider[DifficultyData] {}
 
   case class Status(name: String, value: String)
   trait StatusProvider extends QueryParamProvider[Status]

@@ -4,7 +4,7 @@ import cats.effect.{Async, Concurrent, Temporal}
 import cats.syntax.all.*
 import com.wenjunhuang.codeepiphany.hackerrank.model.*
 import com.wenjunhuang.codeepiphany.hackerrank.model.Contest.{Master, ProjectEuler}
-import com.wenjunhuang.codeepiphany.model.{ApiError, Language}
+import com.wenjunhuang.codeepiphany.model.{ApiError, Difficulty, Language}
 import com.wenjunhuang.codeepiphany.model.CodeDojo.HackerRank
 import com.wenjunhuang.codeepiphany.services.http.HttpClientKeeper
 import fs2.Stream
@@ -27,14 +27,14 @@ trait HackerRankApi[F[_]] {
   def getChallengeContent(challengeSlug: String, contest: Contest): F[Option[ChallengeContent]]
   def getChallengeDetail(challengeSlug: String, contest: Contest): F[Option[ChallengeDetail]]
   def searchChallenges(
-    offset: Int,
-    limit: Int,
-    contest: Contest,
-    domainSlug: String,
-    status: List[ChallengeStatus] = Nil,
-    skills: List[ChallengeSkill] = Nil,
-    difficulties: List[ChallengeDifficulty] = Nil,
-    subdomains: List[ChallengeSubdomain] = Nil
+                        offset: Int,
+                        limit: Int,
+                        contest: Contest,
+                        domainSlug: String,
+                        status: List[ChallengeStatus] = Nil,
+                        skills: List[ChallengeSkill] = Nil,
+                        difficulties: List[Difficulty] = Nil,
+                        subdomains: List[ChallengeSubdomain] = Nil
   ): F[(Int, List[ChallengeDetail])]
 
   def searchChallengesWithKeyword(contest: Contest, keyword: String): F[List[(Contest, ChallengeSearchByKeyWord)]]
@@ -149,14 +149,14 @@ object HackerRankApi {
       else base / "tracks" / domainSlug / "challenges"
 
     override def searchChallenges(
-      offset: Int,
-      limit: Int,
-      contest: Contest,
-      domainSlug: String,
-      status: List[ChallengeStatus],
-      skills: List[ChallengeSkill],
-      difficulties: List[ChallengeDifficulty],
-      subdomains: List[ChallengeSubdomain]
+                                   offset: Int,
+                                   limit: Int,
+                                   contest: Contest,
+                                   domainSlug: String,
+                                   status: List[ChallengeStatus],
+                                   skills: List[ChallengeSkill],
+                                   difficulties: List[Difficulty],
+                                   subdomains: List[ChallengeSubdomain]
     ): F[(Int, List[ChallengeDetail])] =
       HttpClientKeeper[F].getClient.use { client =>
         val request = Method.GET(
