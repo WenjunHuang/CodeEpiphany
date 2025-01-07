@@ -8,7 +8,6 @@ import com.wenjunhuang.codeepiphany.utils.*
 import com.wenjunhuang.codeepiphany.utils.extensions.*
 import com.wenjunhuang.codeepiphany.utils.implicits.*
 import com.wenjunhuang.codeepiphany.utils.jcef.CefRemoteRequestHandler.createResourceRequestHandler
-import fs2.Stream
 import fs2.concurrent.SignallingRef
 import org.cef.browser.{ CefBrowser, CefFrame }
 import org.cef.callback.CefCallback
@@ -36,6 +35,7 @@ class CefRemoteRequestHandler(private val project: Project) extends CefRequestHa
     disableDefaultHandling: BoolRef
   ): CefResourceRequestHandler = createResourceRequestHandler(project)
 }
+
 object CefRemoteRequestHandler {
   def createResourceRequestHandler(project: Project): CefResourceRequestHandler =
     new CefResourceRequestHandlerAdapter {
@@ -44,15 +44,16 @@ object CefRemoteRequestHandler {
           @volatile
           var headers: Headers = Headers.empty
           @volatile
-          var status: Status = Status.Ok
           @volatile
-          var done: Boolean = false
+          private var status: Status = Status.Ok
           @volatile
-          var readResponseCallback: Option[CefCallback] = None
+          private var done: Boolean = false
+          @volatile
+          private var readResponseCallback: Option[CefCallback] = None
 
-          val signal = SignallingRef[IO, Boolean](false).unsafeRunSync()
+          private val signal: SignallingRef[IO, Boolean] = SignallingRef[IO, Boolean](false).unsafeRunSync()
 
-          val queue: ArrayBlockingQueue[ByteBuffer] = ju.concurrent.ArrayBlockingQueue[ByteBuffer](10)
+          private val queue: ArrayBlockingQueue[ByteBuffer] = ju.concurrent.ArrayBlockingQueue[ByteBuffer](10)
 
           private val myLogger: Logger[IO] = LoggerFactory[IO].getLogger
 
@@ -85,7 +86,6 @@ object CefRemoteRequestHandler {
                         callback.Continue()
                         response
                       }
-                      .evalTap(response => myLogger.info(s"Received response from $requestUrl"))
                       .flatMap(response => response.body.chunkMin(4086))
                       .evalTap(chunk =>
                         IO.blocking {
@@ -94,25 +94,26 @@ object CefRemoteRequestHandler {
 
                           readResponseCallback.foreach(_.Continue())
                           readResponseCallback = None
-                        } *> myLogger.info(s"Received chunk of ${chunk.size} bytes from $requestUrl")
+                        }
                       )
                       .interruptWhen(signal)
-                      .onFinalizeCaseWeak {
-                        case Resource.ExitCase.Canceled =>
-                          myLogger.info(s"Request ${method.name} $requestUrl is cancelled")
-                        case Resource.ExitCase.Errored(e) =>
-                          myLogger.warn(e)(s"Failed to process ${method.name} $requestUrl")
-                        case Resource.ExitCase.Succeeded =>
-                          myLogger.info(s"Request ${method.name} $requestUrl is completed")
+                      .onFinalizeCaseWeak { existCase =>
+                        done = true
+                        val callback = readResponseCallback
+                        readResponseCallback = None
+                        existCase match
+                          case Resource.ExitCase.Canceled =>
+                            callback.foreach(_.cancel())
+                            myLogger.info(s"Request ${method.name} $requestUrl is cancelled")
+                          case Resource.ExitCase.Errored(e) =>
+                            callback.foreach(_.cancel())
+                            myLogger.warn(e)(s"Failed to process ${method.name} $requestUrl")
+                          case Resource.ExitCase.Succeeded =>
+                            callback.foreach(_.Continue())
+                            myLogger.info(s"Request ${method.name} $requestUrl is completed")
                       }
                       .compile
                       .drain
-                      .flatMap(_ =>
-                        IO.delay {
-                          done = true
-                          readResponseCallback.foreach(_.Continue())
-                        }
-                      )
                   }
                   .handleErrorWith(e =>
                     myLogger.warn(e)(s"Failed to process request") *>
@@ -127,7 +128,6 @@ object CefRemoteRequestHandler {
             responseLength: IntRef,
             redirectUrl: StringRef
           ): Unit = {
-            myLogger.info(s"Setting response headers with status $status").unsafeRunAndForget()
             response.setStatus(status.code)
             headers.headers.map(h => (h.name.toString, h.value)).toMap.foreach { case (k, v) =>
               response.setHeaderByName(k, v, true)
@@ -135,10 +135,6 @@ object CefRemoteRequestHandler {
             response.setMimeType(headers.get[`Content-Type`].map(_._1.show).getOrElse("text/html"))
             responseLength.set(headers.get[`Content-Length`].map(_.length).getOrElse(-1L).toInt)
           }
-
-          override def cancel(): Unit =
-            myLogger.info(s"cancel").unsafeRunAndForget()
-            signal.set(true).unsafeRunAndForget()
 
           override def readResponse(
             dataOut: Array[Byte],
