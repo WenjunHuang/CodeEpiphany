@@ -90,7 +90,9 @@ sealed abstract class OkHttpBuilder[F[_]] private (val okHttpClient: OkHttpClien
       override def onResponse(call: Call, response: OKResponse): Unit = {
         if cancelledSignal.get() then
           // if the request has been cancelled, we should not invoke the callback
-          myUnPureLogger.info("Request was cancelled before onResponse is called, so close the response and do nothing")
+          myUnPureLogger.trace(
+            "Request was cancelled before onResponse is called, so close the response and do nothing"
+          )
           try response.close()
           catch { case _: Throwable => }
         else
@@ -107,7 +109,7 @@ sealed abstract class OkHttpBuilder[F[_]] private (val okHttpClient: OkHttpClien
               val dispose = F.delay {
                 try response.close()
                 catch { case _: Throwable => }
-              } *> myLogger.info("Response closed")
+              } *> myLogger.trace("Response was closed after resource use")
               Resource[F, Response[F]](
                 F.pure(
                   (
