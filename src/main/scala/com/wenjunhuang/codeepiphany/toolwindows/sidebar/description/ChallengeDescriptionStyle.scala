@@ -1,10 +1,10 @@
-package com.wenjunhuang.codeepiphany.toolwindows.sidebar
+package com.wenjunhuang.codeepiphany.toolwindows.sidebar.description
 
 import com.intellij.ui.JBColor
 import com.intellij.ui.jcef.JBCefScrollbarsHelper
 import com.wenjunhuang.codeepiphany.model.CodeDojo
 import com.wenjunhuang.codeepiphany.model.CodeDojo.{HackerRank, LeetCodeCN}
-import com.wenjunhuang.codeepiphany.toolwindows.sidebar.ChallengeDescriptionStyleProvider.*
+import ChallengeDescriptionStyleProvider.*
 
 import java.awt.Color
 

@@ -76,13 +76,13 @@
 
         <group id="CodeEpiphany.Sidebar">
             <action id="CodeEpiphany.Sidebar.Actions.ZoomIn"
-                    class="com.wenjunhuang.codeepiphany.toolwindows.sidebar.actions.ZoomInAction"
+                    class="com.wenjunhuang.codeepiphany.toolwindows.sidebar.description.actions.ZoomInAction"
                     icon="AllIcons.General.ZoomIn"/>
             <action id="CodeEpiphany.Sidebar.Actions.ZoomOut"
-                    class="com.wenjunhuang.codeepiphany.toolwindows.sidebar.actions.ZoomOutAction"
+                    class="com.wenjunhuang.codeepiphany.toolwindows.sidebar.description.actions.ZoomOutAction"
                     icon="AllIcons.General.ZoomOut"/>
             <action id="CodeEpiphany.Sidebar.Actions.ActualZoom"
-                    class="com.wenjunhuang.codeepiphany.toolwindows.sidebar.actions.ActualZoomAction"
+                    class="com.wenjunhuang.codeepiphany.toolwindows.sidebar.description.actions.ActualZoomAction"
                     icon="AllIcons.General.ActualZoom"/>
         </group>
 
@@ -114,8 +114,8 @@
     </actions>
 
     <applicationListeners>
-        <listener class="com.wenjunhuang.codeepiphany.toolwindows.sidebar.ChallengeCodeFileEditorListener"
-                  topic="com.intellij.openapi.fileEditor.FileEditorManagerListener"/>
+<!--        <listener class="com.wenjunhuang.codeepiphany.toolwindows.sidebar.ChallengeCodeFileEditorListener"-->
+<!--                  topic="com.intellij.openapi.fileEditor.FileEditorManagerListener"/>-->
 
     </applicationListeners>
 

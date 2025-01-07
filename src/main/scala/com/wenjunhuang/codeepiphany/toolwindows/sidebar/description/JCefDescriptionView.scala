@@ -1,20 +1,19 @@
-package com.wenjunhuang.codeepiphany.toolwindows.sidebar
+package com.wenjunhuang.codeepiphany.toolwindows.sidebar.description
 
-import cats.effect.{ IO, Resource, SyncIO }
+import cats.effect.{IO, Resource, SyncIO}
 import cats.syntax.all.*
 import com.intellij.ide.ui.UISettingsListener
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.application.ApplicationManager
-import com.intellij.openapi.editor.colors.{ EditorColorsListener, EditorColorsManager }
+import com.intellij.openapi.editor.colors.{EditorColorsListener, EditorColorsManager}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
 import com.intellij.ui.jcef.*
-import com.wenjunhuang.codeepiphany.model.ChallengeRepository.ChallengeId
 import com.wenjunhuang.codeepiphany.model.CodeDojo
-import com.wenjunhuang.codeepiphany.toolwindows.sidebar.JCefDescriptionView.*
+import com.wenjunhuang.codeepiphany.toolwindows.sidebar.description.JCefDescriptionView.*
 import com.wenjunhuang.codeepiphany.utils.implicits.*
 import com.wenjunhuang.codeepiphany.utils.isDebug
-import com.wenjunhuang.codeepiphany.utils.jcef.{ CefLocalRequestHandler, CefStreamResourceHandler }
+import com.wenjunhuang.codeepiphany.utils.jcef.{CefLocalRequestHandler, CefStreamResourceHandler}
 import io.circe.*
 import io.circe.generic.auto.*
 import io.circe.parser.parse
@@ -22,9 +21,9 @@ import org.apache.commons.io.IOUtils
 import org.cef.browser.*
 import org.cef.handler.*
 import org.intellij.lang.annotations.Language
-import org.typelevel.log4cats.{ Logger, LoggerFactory }
+import org.typelevel.log4cats.{Logger, LoggerFactory}
 
-import java.io.{ ByteArrayInputStream, File, FileInputStream }
+import java.io.ByteArrayInputStream
 import java.nio.charset.StandardCharsets
 import javax.swing.JComponent
 

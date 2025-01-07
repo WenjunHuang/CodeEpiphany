@@ -1,11 +1,10 @@
 package com.wenjunhuang.codeepiphany.toolwindows.sidebar
 
-import com.intellij.openapi.application.ThreadingSupport
 import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.wm.{ToolWindow, ToolWindowFactory, ToolWindowManager}
 import com.intellij.openapi.wm.impl.content.ToolWindowContentUi
-import com.wenjunhuang.codeepiphany.model.CodeDojo.LeetCodeCN
+import com.wenjunhuang.codeepiphany.toolwindows.sidebar.description.ChallengeDescriptionPresenter
 
 import scala.annotation.static
 

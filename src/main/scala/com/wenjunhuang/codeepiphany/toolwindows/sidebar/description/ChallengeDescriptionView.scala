@@ -1,4 +1,4 @@
-package com.wenjunhuang.codeepiphany.toolwindows.sidebar
+package com.wenjunhuang.codeepiphany.toolwindows.sidebar.description
 
 import com.intellij.ide.CopyProvider
 import com.intellij.openapi.Disposable
@@ -7,12 +7,13 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.SimpleToolWindowPanel
 import com.intellij.openapi.util.Disposer
 import com.intellij.ui.PopupHandler
-import com.intellij.util.ui.{ JBInsets, JBUI }
+import com.intellij.util.ui.{JBInsets, JBUI}
 import com.wenjunhuang.codeepiphany.model.CodeDojo
+import com.wenjunhuang.codeepiphany.toolwindows.sidebar.SidebarActions
 import com.wenjunhuang.codeepiphany.utils.isDebug
 
 import java.awt.Insets
-import java.awt.event.{ MouseWheelEvent, MouseWheelListener }
+import java.awt.event.{MouseWheelEvent, MouseWheelListener}
 import javax.swing.JComponent
 
 class ChallengeDescriptionView(private val myPresenter: ChallengeDescriptionPresenter, private val myProject: Project)

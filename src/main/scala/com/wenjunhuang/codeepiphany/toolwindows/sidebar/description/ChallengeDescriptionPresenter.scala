@@ -1,12 +1,12 @@
-package com.wenjunhuang.codeepiphany.toolwindows.sidebar
+package com.wenjunhuang.codeepiphany.toolwindows.sidebar.description
 
-import cats.effect.{ Async, IO }
+import cats.effect.{Async, IO}
 import cats.effect.std.Queue
 import cats.syntax.all.*
 import com.intellij.ide.BrowserUtil
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.diagnostic.Logger
-import com.intellij.openapi.fileEditor.{ FileEditorManager, FileEditorManagerEvent, FileEditorManagerListener }
+import com.intellij.openapi.fileEditor.{FileEditorManager, FileEditorManagerEvent, FileEditorManagerListener}
 import com.intellij.openapi.fileTypes.FileTypes
 import com.intellij.openapi.fileTypes.ex.FileTypeChooser
 import com.intellij.openapi.project.Project
@@ -14,7 +14,7 @@ import com.intellij.openapi.util.Disposer
 import com.intellij.openapi.vfs.LocalFileSystem
 import com.intellij.util.io.URLUtil
 import com.wenjunhuang.codeepiphany.database.Tables.CHALLENGE
-import com.wenjunhuang.codeepiphany.model.{ ChallengeRepository, CodeDojo }
+import com.wenjunhuang.codeepiphany.model.{ChallengeRepository, CodeDojo}
 import com.wenjunhuang.codeepiphany.model.ChallengeRepository.ChallengeId
 import com.wenjunhuang.codeepiphany.settings.ChallengeSettings
 import com.wenjunhuang.codeepiphany.utils.implicits.*
@@ -97,7 +97,7 @@ class ChallengeDescriptionPresenter(private val myProject: Project) extends Disp
 }
 
 object ChallengeDescriptionPresenter {
-  private def openUrl[F[_]: Async](url: URL, project: Project): F[Unit] =
+  def openUrl[F[_]: Async](url: URL, project: Project): F[Unit] =
     if url.getProtocol == URLUtil.FILE_PROTOCOL then
       Async[F].delay {
         val file = File(url.toURI)
