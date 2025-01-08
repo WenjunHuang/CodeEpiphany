@@ -7,75 +7,18 @@ import com.intellij.ui.PopupHandler
 import com.intellij.ui.table.TableView
 import com.intellij.util.ui.{ColumnInfo, ListTableModel}
 import com.intellij.util.ui.table.IconTableCellRenderer
+import com.wenjunhuang.codeepiphany.hackerrank.model.{ChallengeDetail, ChallengeStatus}
+import com.wenjunhuang.codeepiphany.model.Actions.*
 import com.wenjunhuang.codeepiphany.model.Difficulty
-import com.wenjunhuang.codeepiphany.hackerrank.model.{ChallengeDetail, ChallengeSkill, ChallengeStatus}
-import com.wenjunhuang.codeepiphany.toolwindows.dojo.actions.groups.*
-import com.wenjunhuang.codeepiphany.toolwindows.dojo.hackerrank.ChallengesTableModel.Column
-import com.wenjunhuang.codeepiphany.toolwindows.dojo.hackerrank.ChallengesTableModel.Column.*
+import com.wenjunhuang.codeepiphany.toolwindows.dojo.hackerrank.ChallengesTableModel.COLUMNS
+import com.wenjunhuang.codeepiphany.toolwindows.dojo.hackerrank.ChallengesTableModel.ColumnTitle.*
 import org.typelevel.ci.CIString
 
 import javax.swing.{Icon, JTable, ListSelectionModel, SwingConstants}
 import javax.swing.table.{DefaultTableCellRenderer, TableCellRenderer}
 
 class ChallengesTableModel extends ListTableModel[ChallengeDetail]() {
-  setColumnInfos(
-    Array(
-      new ColumnInfo[ChallengeDetail, ChallengeStatus](Status.title) {
-        override def valueOf(item: ChallengeDetail): ChallengeStatus = item.solved
-          .map(b =>
-            if b then ChallengeStatus.Solved
-            else ChallengeStatus.Unsolved
-          )
-          .getOrElse(ChallengeStatus.Unsolved)
-
-        override def getPreferredStringValue: String = Status.title
-
-        override def getRenderer(item: ChallengeDetail): TableCellRenderer =
-          new IconTableCellRenderer[ChallengeStatus]() {
-            override def getIcon(value: ChallengeStatus, table: JTable, row: Int): Icon =
-              value match {
-                case ChallengeStatus.Solved => AllIcons.General.GreenCheckmark
-                case ChallengeStatus.Unsolved =>
-                  if item.attempted.contains(true) then AllIcons.General.Modified
-                  else null
-              }
-
-            override def isCenterAlignment: Boolean = true
-
-            override def getText: String = null
-          }
-
-      },
-      new ColumnInfo[ChallengeDetail, String](Title.title) {
-        override def valueOf(item: ChallengeDetail): String = item.name
-
-        override def getPreferredStringValue: String = StringUtil.repeat("W", 30)
-      },
-      new ColumnInfo[ChallengeDetail, String](Column.Difficulty.title) {
-        override def valueOf(item: ChallengeDetail): String =
-          Difficulty.fromCIString(CIString(item.difficultyName)).map(_.showAsHtml).orNull
-      },
-      new ColumnInfo[ChallengeDetail, Int](MaxScore.title) {
-        override def valueOf(item: ChallengeDetail): Int = item.maxScore
-
-        override def getRenderer(item: ChallengeDetail): TableCellRenderer =
-          new DefaultTableCellRenderer() {
-            setHorizontalAlignment(SwingConstants.RIGHT)
-          }
-
-      },
-      new ColumnInfo[ChallengeDetail, String](SuccessRate.title) {
-
-        override def valueOf(item: ChallengeDetail): String = f"${item.successRatio * 100}%.2f%%"
-
-        override def getRenderer(item: ChallengeDetail): TableCellRenderer =
-          new DefaultTableCellRenderer() {
-            setHorizontalAlignment(SwingConstants.RIGHT)
-          }
-
-      }
-    )
-  )
+  setColumnInfos(COLUMNS.asInstanceOf[Array[ColumnInfo[?, ?]]])
 
   def createTableView(setDataSink: DataSink => Unit): TableView[ChallengeDetail] = {
     val tableView = new TableView(this) with UiDataProvider {
@@ -97,11 +40,68 @@ class ChallengesTableModel extends ListTableModel[ChallengeDetail]() {
 }
 
 object ChallengesTableModel {
-  enum Column(val title: String) {
-    case Status      extends Column("Status")
-    case Title       extends Column("Title")
-    case Difficulty  extends Column("Difficulty")
-    case MaxScore    extends Column("Max Score")
-    case SuccessRate extends Column("Success Rate")
+  enum ColumnTitle(val title: String) {
+    case Status      extends ColumnTitle("Status")
+    case Title       extends ColumnTitle("Title")
+    case Difficulty  extends ColumnTitle("Difficulty")
+    case MaxScore    extends ColumnTitle("Max Score")
+    case SuccessRate extends ColumnTitle("Success Rate")
   }
+
+  val COLUMNS: Array[ColumnInfo[ChallengeDetail, ?]] = Array(
+    new ColumnInfo[ChallengeDetail, ChallengeStatus](Status.title) {
+      override def valueOf(item: ChallengeDetail): ChallengeStatus = item.solved
+        .map(b =>
+          if b then ChallengeStatus.Solved
+          else ChallengeStatus.Unsolved
+        )
+        .getOrElse(ChallengeStatus.Unsolved)
+
+      override def getPreferredStringValue: String = Status.title
+
+      override def getRenderer(item: ChallengeDetail): TableCellRenderer =
+        new IconTableCellRenderer[ChallengeStatus]() {
+          override def getIcon(value: ChallengeStatus, table: JTable, row: Int): Icon =
+            value match {
+              case ChallengeStatus.Solved => AllIcons.General.GreenCheckmark
+              case ChallengeStatus.Unsolved =>
+                if item.attempted.contains(true) then AllIcons.General.Modified
+                else null
+            }
+
+          override def isCenterAlignment: Boolean = true
+
+          override def getText: String = null
+        }
+
+    },
+    new ColumnInfo[ChallengeDetail, String](Title.title) {
+      override def valueOf(item: ChallengeDetail): String = item.name
+
+      override def getPreferredStringValue: String = StringUtil.repeat("W", 30)
+    },
+    new ColumnInfo[ChallengeDetail, String](ColumnTitle.Difficulty.title) {
+      override def valueOf(item: ChallengeDetail): String =
+        Difficulty.fromCIString(CIString(item.difficultyName)).map(_.showAsHtml).orNull
+    },
+    new ColumnInfo[ChallengeDetail, Int](MaxScore.title) {
+      override def valueOf(item: ChallengeDetail): Int = item.maxScore
+
+      override def getRenderer(item: ChallengeDetail): TableCellRenderer =
+        new DefaultTableCellRenderer() {
+          setHorizontalAlignment(SwingConstants.RIGHT)
+        }
+
+    },
+    new ColumnInfo[ChallengeDetail, String](SuccessRate.title) {
+
+      override def valueOf(item: ChallengeDetail): String = f"${item.successRatio * 100}%.2f%%"
+
+      override def getRenderer(item: ChallengeDetail): TableCellRenderer =
+        new DefaultTableCellRenderer() {
+          setHorizontalAlignment(SwingConstants.RIGHT)
+        }
+
+    }
+  )
 }

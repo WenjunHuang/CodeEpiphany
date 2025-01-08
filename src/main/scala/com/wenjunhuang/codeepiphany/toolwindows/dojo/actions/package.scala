@@ -84,13 +84,4 @@ package object actions {
 
     final val CHALLENGE_PROVIDER_KEY = DataKey.create[ChallengeProvider]("CHALLENGE_PROVIDER_KEY")
   }
-
-  object groups {
-    final val HACKERRANK_TOOLBAR_GROUP     = "CodeEpiphany.Dojos.Hackerrank.Toolbar"
-    final val TOOLBAR_PLACE                = "CodeEpiphany.Dojos"
-    final val TITLE_TOOLBAR_GROUP          = "CodeEpiphany.Dojos.TitleToolbar"
-    final val TITLE_TOOLBAR_PLACE          = "CodeEpiphany.Dojos.TitleToolbar.Place"
-    final val CHALLENGES_TABLE_POPUP_GROUP = "CodeEpiphany.Dojos.ChallengesTable.Popupmenu"
-    final val CHALLENGES_TABLE_POPUP_PLACE = "CodeEpiphany.Dojos.ChallengesTable.Place"
-  }
 }

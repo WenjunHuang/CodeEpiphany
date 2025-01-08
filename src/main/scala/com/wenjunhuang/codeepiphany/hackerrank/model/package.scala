@@ -1,6 +1,8 @@
 package com.wenjunhuang.codeepiphany.hackerrank
 
 import cats.syntax.all.*
+import cats.Show
+import com.intellij.openapi.util.text.StringUtil
 import com.wenjunhuang.codeepiphany.PluginBundle
 import com.wenjunhuang.codeepiphany.model.{ CodeDojo, Constants, Language, LanguageVersion }
 import com.wenjunhuang.codeepiphany.utils.Colors
@@ -17,27 +19,31 @@ package object model {
   enum ChallengeStatus(val value: String) {
     case Solved   extends ChallengeStatus("solved")
     case Unsolved extends ChallengeStatus("unsolved")
+  }
 
-    def show: String = PluginBundle.message(s"hackerrank.model.question.status.${this.toString}")
+  object ChallengeStatus {
+    implicit val showInstance: Show[ChallengeStatus] = Show.show[ChallengeStatus](skill =>
+      PluginBundle.message(s"hackerrank.model.question.status.${StringUtil.decapitalize(skill.toString)}")
+    )
   }
 
   enum ChallengeSkill(val value: String) {
     case Intermediate extends ChallengeSkill("Problem Solving (Intermediate)")
     case Advanced     extends ChallengeSkill("Problem Solving (Advanced)")
     case Basic        extends ChallengeSkill("Problem Solving (Basic)")
-
-    def show: String = PluginBundle.message(s"hackerrank.model.question.skill.${this.toString}")
   }
 
   object ChallengeSkill {
+    implicit val showInstance: Show[ChallengeSkill] = Show.show[ChallengeSkill](skill =>
+      PluginBundle.message(s"hackerrank.model.question.skill.${StringUtil.decapitalize(skill.toString)}")
+    )
+
     def fromCIString(str: CIString): Option[ChallengeSkill] =
       if str == CIString(Intermediate.value) then Some(Intermediate)
       else if str == CIString(Advanced.value) then Some(Advanced)
       else if str == CIString(Basic.value) then Some(Basic)
       else None
   }
-
-
 
   private given hackerRankConfig: Configuration = Configuration.default.withSnakeCaseMemberNames.withDefaults
 

@@ -2,33 +2,29 @@ package com.wenjunhuang.codeepiphany.toolwindows.dojo.hackerrank
 
 import cats.effect.IO
 import cats.effect.std.Queue
+import cats.syntax.all.*
 import com.intellij.openapi.Disposable
-import com.intellij.openapi.actionSystem.{AnAction, DataSink}
-import com.intellij.openapi.actionSystem.ex.DefaultCustomComponentAction
+import com.intellij.openapi.actionSystem.DataSink
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
-import com.intellij.ui.table.JBTable
-import com.intellij.util.ui.JBInsets
 import com.wenjunhuang.codeepiphany.hackerrank.model.*
 import com.wenjunhuang.codeepiphany.hackerrank.services.challenge.openChallenge
 import com.wenjunhuang.codeepiphany.hackerrank.services.HackerRankApi
 import com.wenjunhuang.codeepiphany.hackerrank.settings.HackerRankSettings
-import com.wenjunhuang.codeepiphany.model.{messages, CodeDojo, Difficulty, Language, LanguageVersion}
+import com.wenjunhuang.codeepiphany.model.*
 import com.wenjunhuang.codeepiphany.model.CodeDojo.HackerRank
-import com.wenjunhuang.codeepiphany.services.http.{HttpClientKeeper, HttpClientService}
+import com.wenjunhuang.codeepiphany.services.http.{ HttpClientKeeper, HttpClientService }
 import com.wenjunhuang.codeepiphany.toolwindows.dojo.actions.*
 import com.wenjunhuang.codeepiphany.toolwindows.dojo.actions.keys.*
 import com.wenjunhuang.codeepiphany.toolwindows.dojo.actions.providers.ChallengeProvider
-import com.wenjunhuang.codeepiphany.utils.implicits.*
 import com.wenjunhuang.codeepiphany.utils.extensions.*
-import com.wenjunhuang.codeepiphany.utils.ui.Tag as TagUI
+import com.wenjunhuang.codeepiphany.utils.implicits.*
 import fs2.Stream
 import fs2.concurrent.SignallingRef
 import org.typelevel.ci.CIString
-import org.typelevel.log4cats.{Logger, LoggerFactory}
+import org.typelevel.log4cats.{ Logger, LoggerFactory }
 
-import java.awt.{GridBagConstraints, GridBagLayout}
-import javax.swing.{Icon, JComponent, JPanel}
+import javax.swing.JComponent
 import scala.concurrent.duration.*
 import scala.jdk.CollectionConverters.*
 
@@ -232,7 +228,7 @@ class QueryParametersViewPresenter(private val myProject: Project) extends Dispo
         myState.selectedDifficulties.filterNot(difficulty =>
           items.exists {
             case DifficultyData(_, value) if value == difficulty.value => true
-            case _                                                 => false
+            case _                                                     => false
           }
         )
       )
@@ -394,76 +390,48 @@ class QueryParametersViewPresenter(private val myProject: Project) extends Dispo
     override def getTotalItems: Int = myState.totalSize
   }
 
-  private def createTagAction(
-    id: String,
-    text: String,
-    icon: Option[Icon],
-    radius: Float,
-    onCloseAction: Option[() => Unit]
-  ): AnAction = DefaultCustomComponentAction { () =>
-    val tag = JPanel(GridBagLayout())
-    val gbc = GridBagConstraints()
-    gbc.gridx = 0
-    gbc.gridy = 0
-    gbc.weightx = 1.0
-    gbc.weighty = 1.0
-    gbc.insets = JBInsets.create(2, 2)
-    tag.add(TagUI(id, text, icon, radius, onCloseAction), gbc)
-    tag
-  }
-
   private def refreshTags(): Unit = {
-    val tagActionGroup = myView.getTagActionGroup
-    tagActionGroup.removeAll()
+    val tagPane = myView.getTagPane
+    tagPane.removeAllTags()
 
-    tagActionGroup.add(
-      createTagAction(myState.selectedDomain.slug, myState.selectedDomain.name, None, DOMAIN_TAG_RADIUS, None)
-    )
+    tagPane.addTagAction(myState.selectedDomain.slug, myState.selectedDomain.name, None, DOMAIN_TAG_RADIUS, None)
 
     myState.selectedDifficulties.foreach { difficulty =>
-      tagActionGroup.add(
-        createTagAction(
-          difficulty.value,
-          difficulty.showAsHtml,
-          None,
-          DIFFICULTY_TAG_RADIUS,
-          Some(() => myDifficultiesProvider.removeSelectedItems(List(DifficultyData(difficulty.show, difficulty.value))))
-        )
+      tagPane.addTagAction(
+        difficulty.value,
+        difficulty.showAsHtml,
+        None,
+        DIFFICULTY_TAG_RADIUS,
+        Some(() => myDifficultiesProvider.removeSelectedItems(List(DifficultyData(difficulty.show, difficulty.value))))
       )
     }
     myState.selectedStatus.foreach { status =>
-      tagActionGroup.add(
-        createTagAction(
-          status.value,
-          status.show,
-          None,
-          STATUS_TAG_RADIUS,
-          Some(() => myStatusProvider.removeSelectedItems(List(Status(status.show, status.value))))
-        )
+      tagPane.addTagAction(
+        status.value,
+        status.show,
+        None,
+        STATUS_TAG_RADIUS,
+        Some(() => myStatusProvider.removeSelectedItems(List(Status(status.show, status.value))))
       )
     }
 
     myState.selectedSkills.foreach { skill =>
-      tagActionGroup.add(
-        createTagAction(
-          skill.value,
-          skill.show,
-          None,
-          SKILL_TAG_RADIUS,
-          Some(() => mySkillProvider.removeSelectedItems(List(Skill(skill.show, skill.value))))
-        )
+      tagPane.addTagAction(
+        skill.value,
+        skill.show,
+        None,
+        SKILL_TAG_RADIUS,
+        Some(() => mySkillProvider.removeSelectedItems(List(Skill(skill.show, skill.value))))
       )
     }
     myState.selectedSubdomains.foreach { subdomain =>
-      tagActionGroup.add(
-        createTagAction(
-          subdomain.slug,
-          subdomain.name,
-          None,
-          SUBDOMAIN_TAG_RADIUS,
-          Some(() =>
-            myTagProvider.removeSelectedItems(List(Tag(subdomain.name, subdomain.slug, myState.selectedDomain.slug)))
-          )
+      tagPane.addTagAction(
+        subdomain.slug,
+        subdomain.name,
+        None,
+        SUBDOMAIN_TAG_RADIUS,
+        Some(() =>
+          myTagProvider.removeSelectedItems(List(Tag(subdomain.name, subdomain.slug, myState.selectedDomain.slug)))
         )
       )
     }
@@ -483,15 +451,15 @@ class QueryParametersViewPresenter(private val myProject: Project) extends Dispo
 object QueryParametersViewPresenter {
   private case class InitialData(userInfo: UserInfo, challengeDomains: List[ChallengeDomain])
   private case class State(
-                            selectedDomain: ChallengeDomain,
-                            selectedSubdomains: List[ChallengeSubdomain],
-                            selectedDifficulties: List[Difficulty],
-                            selectedStatus: Option[ChallengeStatus],
-                            selectedSkills: List[ChallengeSkill],
-                            currentItems: List[ChallengeDetail] = Nil,
-                            currentPage: Int = 1,
-                            totalSize: Int = 1,
-                            pageSize: PageSize = PageSize.Twenty
+    selectedDomain: ChallengeDomain,
+    selectedSubdomains: List[ChallengeSubdomain],
+    selectedDifficulties: List[Difficulty],
+    selectedStatus: Option[ChallengeStatus],
+    selectedSkills: List[ChallengeSkill],
+    currentItems: List[ChallengeDetail] = Nil,
+    currentPage: Int = 1,
+    totalSize: Int = 1,
+    pageSize: PageSize = PageSize.Twenty
   ) {
     def resetToFirstPage(): State = this.copy(currentPage = 1)
     def resetPagination(): State  = this.copy(currentPage = 1, totalSize = 1)

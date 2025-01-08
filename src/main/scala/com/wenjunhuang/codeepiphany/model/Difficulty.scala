@@ -3,6 +3,8 @@ package com.wenjunhuang.codeepiphany.model
 import com.wenjunhuang.codeepiphany.PluginBundle
 import com.wenjunhuang.codeepiphany.utils.Colors
 import org.typelevel.ci.CIString
+import cats.syntax.all.*
+import com.intellij.openapi.util.text.StringUtil
 
 enum Difficulty(val value: String) {
   case Easy     extends Difficulty("easy")
@@ -10,9 +12,6 @@ enum Difficulty(val value: String) {
   case Hard     extends Difficulty("hard")
   case Advanced extends Difficulty("advanced")
   case Expert   extends Difficulty("expert")
-
-  def show: String =
-    PluginBundle.message(s"hackerrank.model.question.difficulty.${this.toString}")
 
   def showAsHtml: String =
     this match
@@ -29,6 +28,9 @@ enum Difficulty(val value: String) {
 }
 
 object Difficulty {
+  implicit val showInstance: cats.Show[Difficulty] =
+    cats.Show.show(it => PluginBundle.message(s"challenge.difficulty.${StringUtil.decapitalize(it.toString)}"))
+
   def fromCIString(str: CIString): Option[Difficulty] =
     if str == CIString(Easy.value) then Some(Easy)
     else if str == CIString(Medium.value) then Some(Medium)

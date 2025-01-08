@@ -98,6 +98,10 @@
             <separator/>
             <reference ref="CodeEpiphany.Sidebar.Description.Toolbar"/>
         </group>
+        
+        <group id="CodeEpiphany.SubmissionsTable.Popupmenu">
+            
+        </group>
 
         <!-- test -->
         <action id="com.wenjunhuang.codeepiphany.test.actions.ShowLoginDialogAction"

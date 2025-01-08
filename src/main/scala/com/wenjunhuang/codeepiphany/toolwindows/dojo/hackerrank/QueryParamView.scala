@@ -11,13 +11,14 @@ import com.intellij.ui.table.TableView
 import com.wenjunhuang.codeepiphany.hackerrank.model
 import com.wenjunhuang.codeepiphany.toolwindows.dojo.AbstractCodeDojoView
 import com.wenjunhuang.codeepiphany.toolwindows.dojo.actions.PaginationActionGroup
-import com.wenjunhuang.codeepiphany.toolwindows.dojo.actions.groups.*
+import com.wenjunhuang.codeepiphany.model.Actions.*
+import com.wenjunhuang.codeepiphany.utils.ui.TagPane
 
 import java.awt.BorderLayout
-import javax.swing.{ JPanel, ScrollPaneConstants }
+import javax.swing.{JPanel, ScrollPaneConstants}
 
 class QueryParamView(private val myProject: Project, private val myPresenter: QueryParametersViewPresenter)
-    extends SimpleToolWindowPanel(true, true)
+    extends SimpleToolWindowPanel(true,true)
     with AbstractCodeDojoView {
   private val actionManager = ActionManager.getInstance()
   private val myActionGroup = actionManager.getAction(HACKERRANK_TOOLBAR_GROUP).asInstanceOf[ActionGroup]
@@ -25,16 +26,17 @@ class QueryParamView(private val myProject: Project, private val myPresenter: Qu
   myMainToolbar.setTargetComponent(this)
   setToolbar(myMainToolbar.getComponent)
 
-  private val myTagActionGroup = DefaultActionGroup()
-  private val myTagToolbar     = actionManager.createActionToolbar(TOOLBAR_PLACE, myTagActionGroup, true)
-  myTagToolbar.setTargetComponent(this)
-  myTagToolbar.setLayoutStrategy(ToolbarLayoutStrategy.WRAP_STRATEGY)
-  myTagToolbar.setReservePlaceAutoPopupIcon(false)
-
+  private val myTagPane = TagPane()
+//  private val myTagActionGroup = DefaultActionGroup()
+//  private val myTagToolbar     = actionManager.createActionToolbar(TOOLBAR_PLACE, myTagActionGroup, true)
+//  myTagToolbar.setTargetComponent(this)
+//  myTagToolbar.setLayoutStrategy(ToolbarLayoutStrategy.WRAP_STRATEGY)
+//  myTagToolbar.setReservePlaceAutoPopupIcon(false)
+//
   Disposer.register(myPresenter, this)
 
   private val myContent = JPanel(BorderLayout())
-  myContent.add(myTagToolbar.getComponent, BorderLayout.NORTH)
+  myContent.add(myTagPane, BorderLayout.NORTH)
 
   private val myChallengesTableModel: ChallengesTableModel = ChallengesTableModel()
   private val myChallengesTable: TableView[model.ChallengeDetail] =
@@ -56,11 +58,11 @@ class QueryParamView(private val myProject: Project, private val myPresenter: Qu
   setContent(myContent)
 
   def getTableModel: ChallengesTableModel   = myChallengesTableModel
-  def getTable = myChallengesTable
-  def getTagActionGroup: DefaultActionGroup = myTagActionGroup
+  def getTable: TableView[model.ChallengeDetail] = myChallengesTable
+  def getTagPane: TagPane = myTagPane
 
   def refreshTagToolbar(): Unit =
-    ApplicationManager.getApplication.invokeLater(() => myTagToolbar.updateActionsAsync())
+    ApplicationManager.getApplication.invokeLater(() => myTagPane.updateActionsAsync())
 
   def refreshPagination(): Unit =
     ApplicationManager.getApplication.invokeLater(() => myQueryRangeToolbar.updateActionsAsync())
