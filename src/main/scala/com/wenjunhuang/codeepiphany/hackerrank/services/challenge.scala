@@ -8,7 +8,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.{ MessageDialogBuilder, Messages }
 import com.intellij.openapi.util.text.StringUtil
 import com.wenjunhuang.codeepiphany.database.Tables.*
-import com.wenjunhuang.codeepiphany.model.Difficulty
+import com.wenjunhuang.codeepiphany.model.ChallengeDifficulty
 import com.wenjunhuang.codeepiphany.hackerrank.model.Contest
 import com.wenjunhuang.codeepiphany.hackerrank.settings.{ HackerRankSettings, HackerRankSettingsConfigurable }
 import com.wenjunhuang.codeepiphany.model.*
@@ -88,7 +88,7 @@ object challenge {
               temp.template,
               temp.tail,
               contest.slug,
-              Difficulty.fromCIString(CIString(content.detail.difficultyName)).get.value,
+              ChallengeDifficulty.fromCIString(CIString(content.detail.difficultyName)).get.value,
               language,
               languageVersion
             )

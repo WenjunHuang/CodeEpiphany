@@ -6,6 +6,8 @@ package com.wenjunhuang.codeepiphany.database.tables.records;
 
 import com.wenjunhuang.codeepiphany.database.tables.Solution;
 
+import java.time.LocalDateTime;
+
 import org.jooq.Record1;
 import org.jooq.impl.UpdatableRecordImpl;
 
@@ -49,40 +51,25 @@ public class SolutionRecord extends UpdatableRecordImpl<SolutionRecord> {
     }
 
     /**
-     * Setter for <code>solution.challengeLanguageId</code>.
-     */
-    public SolutionRecord setChallengelanguageid(Integer value) {
-        set(2, value);
-        return this;
-    }
-
-    /**
-     * Getter for <code>solution.challengeLanguageId</code>.
-     */
-    public Integer getChallengelanguageid() {
-        return (Integer) get(2);
-    }
-
-    /**
      * Setter for <code>solution.createDateTime</code>.
      */
-    public SolutionRecord setCreatedatetime(Integer value) {
-        set(3, value);
+    public SolutionRecord setCreatedatetime(LocalDateTime value) {
+        set(2, value);
         return this;
     }
 
     /**
      * Getter for <code>solution.createDateTime</code>.
      */
-    public Integer getCreatedatetime() {
-        return (Integer) get(3);
+    public LocalDateTime getCreatedatetime() {
+        return (LocalDateTime) get(2);
     }
 
     /**
      * Setter for <code>solution.tags</code>.
      */
     public SolutionRecord setTags(String value) {
-        set(4, value);
+        set(3, value);
         return this;
     }
 
@@ -90,14 +77,14 @@ public class SolutionRecord extends UpdatableRecordImpl<SolutionRecord> {
      * Getter for <code>solution.tags</code>.
      */
     public String getTags() {
-        return (String) get(4);
+        return (String) get(3);
     }
 
     /**
      * Setter for <code>solution.remark</code>.
      */
     public SolutionRecord setRemark(String value) {
-        set(5, value);
+        set(4, value);
         return this;
     }
 
@@ -105,14 +92,14 @@ public class SolutionRecord extends UpdatableRecordImpl<SolutionRecord> {
      * Getter for <code>solution.remark</code>.
      */
     public String getRemark() {
-        return (String) get(5);
+        return (String) get(4);
     }
 
     /**
      * Setter for <code>solution.title</code>.
      */
     public SolutionRecord setTitle(String value) {
-        set(6, value);
+        set(5, value);
         return this;
     }
 
@@ -120,14 +107,14 @@ public class SolutionRecord extends UpdatableRecordImpl<SolutionRecord> {
      * Getter for <code>solution.title</code>.
      */
     public String getTitle() {
-        return (String) get(6);
+        return (String) get(5);
     }
 
     /**
      * Setter for <code>solution.isDefault</code>.
      */
     public SolutionRecord setIsdefault(Integer value) {
-        set(7, value);
+        set(6, value);
         return this;
     }
 
@@ -135,7 +122,7 @@ public class SolutionRecord extends UpdatableRecordImpl<SolutionRecord> {
      * Getter for <code>solution.isDefault</code>.
      */
     public Integer getIsdefault() {
-        return (Integer) get(7);
+        return (Integer) get(6);
     }
 
     // -------------------------------------------------------------------------
@@ -161,12 +148,11 @@ public class SolutionRecord extends UpdatableRecordImpl<SolutionRecord> {
     /**
      * Create a detached, initialised SolutionRecord
      */
-    public SolutionRecord(Integer id, Integer challengeid, Integer challengelanguageid, Integer createdatetime, String tags, String remark, String title, Integer isdefault) {
+    public SolutionRecord(Integer id, Integer challengeid, LocalDateTime createdatetime, String tags, String remark, String title, Integer isdefault) {
         super(Solution.SOLUTION);
 
         setId(id);
         setChallengeid(challengeid);
-        setChallengelanguageid(challengelanguageid);
         setCreatedatetime(createdatetime);
         setTags(tags);
         setRemark(remark);

@@ -7,20 +7,19 @@ import com.intellij.openapi.actionSystem.DataSink
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
 import com.intellij.ui.DocumentAdapter
-import com.intellij.ui.table.{ JBTable, TableView }
+import com.wenjunhuang.codeepiphany.actions.OpenChallengeActionGroup.{ CHALLENGE_PROVIDER_KEY, OpenChallengeProvider }
 import com.wenjunhuang.codeepiphany.hackerrank.model.{ ChallengeDetail, Contest }
 import com.wenjunhuang.codeepiphany.hackerrank.services.HackerRankApi
 import com.wenjunhuang.codeepiphany.hackerrank.services.challenge.openChallenge
+import com.wenjunhuang.codeepiphany.hackerrank.settings.HackerRankSettings
+import com.wenjunhuang.codeepiphany.utils.extensions.*
 import com.wenjunhuang.codeepiphany.model.{ Language, LanguageVersion }
-import com.wenjunhuang.codeepiphany.model.Language.Kotlin
 import com.wenjunhuang.codeepiphany.services.http.{ HttpClientKeeper, HttpClientService }
-import com.wenjunhuang.codeepiphany.toolwindows.dojo.actions.keys.CHALLENGE_PROVIDER_KEY
-import com.wenjunhuang.codeepiphany.toolwindows.dojo.actions.providers.ChallengeProvider
 import com.wenjunhuang.codeepiphany.utils.implicits.*
 import fs2.Stream
 import fs2.concurrent.SignallingRef
 import org.typelevel.ci.CIString
-import org.typelevel.log4cats.{ Logger, LoggerFactory, SelfAwareStructuredLogger }
+import org.typelevel.log4cats.{ Logger, LoggerFactory }
 
 import javax.swing.JComponent
 import javax.swing.event.DocumentEvent
@@ -75,6 +74,7 @@ class KeywordSearchViewPresenter(private val myProject: Project) extends Documen
           }
           .compile
           .drain
+          .evalAsBackgroundProgress(myProject, "Searching challenges...")
       }
       .onFinalize(myLogger.info("Search by keyword stream finalized"))
       .compile
@@ -82,7 +82,7 @@ class KeywordSearchViewPresenter(private val myProject: Project) extends Documen
   } yield ()
   mySearchStream.unsafeRunAndForget()
 
-  private val myChallengeProvider = new ChallengeProvider {
+  private val myChallengeProvider = new OpenChallengeProvider {
     override def openCurrentSelectedChallenge(language: Language, languageVersion: LanguageVersion): Unit = {
       Option(myView.getTable.getSelectedObject) match
         case Some(selected) =>
@@ -96,9 +96,10 @@ class KeywordSearchViewPresenter(private val myProject: Project) extends Documen
         case None => ()
     }
 
-    // TODO: Implement getLanguages
-    override def getLanguages: List[(Language, LanguageVersion)] =
-      List((Language.Java, LanguageVersion.SpecificVersion("15")), (Kotlin, LanguageVersion.AnyVersion))
+    override def getLanguages: List[(Language, LanguageVersion)] = {
+      val settings = HackerRankSettings.getInstance(myProject)
+      settings.getSelectedLanguages
+    }
   }
 
   Disposer.register(myProject, this)

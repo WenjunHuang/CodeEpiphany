@@ -1,25 +1,23 @@
 package com.wenjunhuang.codeepiphany.toolwindows.dojo.hackerrank
 
 import com.intellij.openapi.actionSystem.*
-import com.intellij.openapi.actionSystem.toolbarLayout.ToolbarLayoutStrategy
-import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.SimpleToolWindowPanel
 import com.intellij.openapi.util.Disposer
+import com.intellij.openapi.Disposable
 import com.intellij.ui.components.JBScrollPane
 import com.intellij.ui.table.TableView
+import com.intellij.util.concurrency.annotations.RequiresEdt
+import com.wenjunhuang.codeepiphany.actions.PaginationParameterActionGroup
 import com.wenjunhuang.codeepiphany.hackerrank.model
-import com.wenjunhuang.codeepiphany.toolwindows.dojo.AbstractCodeDojoView
-import com.wenjunhuang.codeepiphany.toolwindows.dojo.actions.PaginationActionGroup
 import com.wenjunhuang.codeepiphany.model.Actions.*
 import com.wenjunhuang.codeepiphany.utils.ui.TagPane
 
 import java.awt.BorderLayout
 import javax.swing.{JPanel, ScrollPaneConstants}
 
-class QueryParamView(private val myProject: Project, private val myPresenter: QueryParametersViewPresenter)
-    extends SimpleToolWindowPanel(true,true)
-    with AbstractCodeDojoView {
+class QueryParametersView(private val myProject: Project, private val myPresenter: QueryParametersPresenter)
+    extends SimpleToolWindowPanel(true, true) with  UiDataProvider with Disposable {
   private val actionManager = ActionManager.getInstance()
   private val myActionGroup = actionManager.getAction(HACKERRANK_TOOLBAR_GROUP).asInstanceOf[ActionGroup]
   private val myMainToolbar = actionManager.createActionToolbar(TOOLBAR_PLACE, myActionGroup, true)
@@ -27,12 +25,7 @@ class QueryParamView(private val myProject: Project, private val myPresenter: Qu
   setToolbar(myMainToolbar.getComponent)
 
   private val myTagPane = TagPane()
-//  private val myTagActionGroup = DefaultActionGroup()
-//  private val myTagToolbar     = actionManager.createActionToolbar(TOOLBAR_PLACE, myTagActionGroup, true)
-//  myTagToolbar.setTargetComponent(this)
-//  myTagToolbar.setLayoutStrategy(ToolbarLayoutStrategy.WRAP_STRATEGY)
-//  myTagToolbar.setReservePlaceAutoPopupIcon(false)
-//
+
   Disposer.register(myPresenter, this)
 
   private val myContent = JPanel(BorderLayout())
@@ -51,21 +44,23 @@ class QueryParamView(private val myProject: Project, private val myPresenter: Qu
     BorderLayout.CENTER
   )
 
-  private val myQueryRangeActionGroup = PaginationActionGroup()
+  private val myQueryRangeActionGroup = PaginationParameterActionGroup()
   private val myQueryRangeToolbar     = actionManager.createActionToolbar(TOOLBAR_PLACE, myQueryRangeActionGroup, true)
   myQueryRangeToolbar.setTargetComponent(this)
   myContent.add(myQueryRangeToolbar.getComponent, BorderLayout.SOUTH)
   setContent(myContent)
 
-  def getTableModel: ChallengesTableModel   = myChallengesTableModel
+  def getTableModel: ChallengesTableModel        = myChallengesTableModel
   def getTable: TableView[model.ChallengeDetail] = myChallengesTable
-  def getTagPane: TagPane = myTagPane
+  def getTagPane: TagPane                        = myTagPane
 
+  @RequiresEdt
   def refreshTagToolbar(): Unit =
-    ApplicationManager.getApplication.invokeLater(() => myTagPane.updateActionsAsync())
+    myTagPane.updateActionsAsync()
 
+  @RequiresEdt
   def refreshPagination(): Unit =
-    ApplicationManager.getApplication.invokeLater(() => myQueryRangeToolbar.updateActionsAsync())
+    myQueryRangeToolbar.updateActionsAsync()
 
   override def uiDataSnapshot(dataSink: DataSink): Unit =
     myPresenter.uiDataSnapshot(dataSink)

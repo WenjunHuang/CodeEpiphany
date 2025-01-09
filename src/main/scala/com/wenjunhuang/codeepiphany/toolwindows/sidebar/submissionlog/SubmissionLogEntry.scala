@@ -1,18 +1,18 @@
 package com.wenjunhuang.codeepiphany.toolwindows.sidebar.submissionlog
 
-import com.wenjunhuang.codeepiphany.model.{CodeDojo, Difficulty, Language, LanguageVersion, SubmissionResult}
+import com.wenjunhuang.codeepiphany.model.{ CodeDojo, ChallengeDifficulty, Language, LanguageVersion, SubmissionResult }
 
 import java.time.LocalDateTime
 
 case class SubmissionLogEntry(
-  dojo: CodeDojo,
-  challengeTitle: String,
-  solution: String,
-  language:Language,
-  languageVersion: LanguageVersion,
-  difficulty: Difficulty,
-  resultMessage: String,
-  result: SubmissionResult,
-  submissionDateTime: LocalDateTime,
-  resultDateTime: LocalDateTime
+                               dojo: CodeDojo,
+                               challengeTitle: String,
+                               solution: String,
+                               language: Language,
+                               languageVersion: LanguageVersion,
+                               difficulty: ChallengeDifficulty,
+                               resultMessage: String,
+                               result: SubmissionResult,
+                               submissionDateTime: Option[LocalDateTime],
+                               resultDateTime: Option[LocalDateTime]
 )

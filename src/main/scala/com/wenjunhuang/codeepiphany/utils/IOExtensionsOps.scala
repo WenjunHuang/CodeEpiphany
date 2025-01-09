@@ -1,16 +1,17 @@
 package com.wenjunhuang.codeepiphany.utils
 
-import cats.syntax.all.*
-import cats.effect.{ Async, IO, OutcomeIO }
+import cats.effect.{ ExitCode, IO, OutcomeIO }
+import cats.effect.kernel.Resource.ExitCase
+import cats.effect.kernel.Resource.ExitCase.{ Canceled, Errored, Succeeded }
+import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.progress.{ PerformInBackgroundOption, ProgressIndicator, ProgressManager, Task }
 import com.intellij.openapi.project.Project
-import kotlinx.coroutines.BuildersKt
-
-import scala.concurrent.duration.*
-import scala.concurrent.CancellationException
 import com.wenjunhuang.codeepiphany.utils.implicits.*
 
+import scala.concurrent.duration.*
+
 trait IOExtensionsOps {
+  private val myLogger = Logger.getInstance(getClass.getName)
   extension [A](io: IO[A]) {
     def unsafeRunAsConditionalModal(project: Project, taskName: String): Unit = ProgressManager
       .getInstance()
@@ -53,17 +54,22 @@ trait IOExtensionsOps {
       })
 
     def evalAsBackgroundProgress(project: Project, taskName: String): IO[A] =
-      IO.deferred[Unit].flatMap { deferred =>
+      IO.deferred[ExitCase].flatMap { deferred =>
         IO.delay {
           ProgressManager
             .getInstance()
-            .run(
-              new Task.Backgroundable(project, taskName):
-                override def run(indicator: ProgressIndicator): Unit =
-                  try deferred.get.unsafeRunSync()
-                  catch case _ => indicator.cancel()
-            )
-        } *> io.flatMap(result => deferred.complete(()).map(_ => result))
+            .run(new Task.Backgroundable(project, taskName) {
+              override def run(indicator: ProgressIndicator): Unit = {
+                deferred.get.unsafeRunSync() match
+                  case ExitCase.Canceled   => indicator.cancel()
+                  case ExitCase.Errored(e) => indicator.cancel()
+                  case ExitCase.Succeeded  => ()
+              }
+            })
+        } *> io
+          .onCancel(deferred.complete(Canceled).void)
+          .onError(e => deferred.complete(Errored(e)).void)
+          .flatMap(result => deferred.complete(Succeeded).map(_ => result))
       }
 
 //    def evalAsBackgroundProgressCancellable(project: Project, taskName: String): IO[A] =
@@ -86,7 +92,7 @@ trait IOExtensionsOps {
 //                  catch case _ => indicator.cancel()
 //                }
 //              })
-//          } *> 
+//          } *>
 //            io.start.flatMap(fiber => fiber.join)
 //        }
 //      }

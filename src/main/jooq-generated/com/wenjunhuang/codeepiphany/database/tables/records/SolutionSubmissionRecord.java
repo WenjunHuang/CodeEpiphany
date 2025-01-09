@@ -6,6 +6,8 @@ package com.wenjunhuang.codeepiphany.database.tables.records;
 
 import com.wenjunhuang.codeepiphany.database.tables.SolutionSubmission;
 
+import java.time.LocalDateTime;
+
 import org.jooq.Record1;
 import org.jooq.impl.UpdatableRecordImpl;
 
@@ -51,7 +53,7 @@ public class SolutionSubmissionRecord extends UpdatableRecordImpl<SolutionSubmis
     /**
      * Setter for <code>solution_submission.submitDateTime</code>.
      */
-    public SolutionSubmissionRecord setSubmitdatetime(Integer value) {
+    public SolutionSubmissionRecord setSubmitdatetime(LocalDateTime value) {
         set(2, value);
         return this;
     }
@@ -59,8 +61,8 @@ public class SolutionSubmissionRecord extends UpdatableRecordImpl<SolutionSubmis
     /**
      * Getter for <code>solution_submission.submitDateTime</code>.
      */
-    public Integer getSubmitdatetime() {
-        return (Integer) get(2);
+    public LocalDateTime getSubmitdatetime() {
+        return (LocalDateTime) get(2);
     }
 
     /**
@@ -94,17 +96,17 @@ public class SolutionSubmissionRecord extends UpdatableRecordImpl<SolutionSubmis
     }
 
     /**
-     * Setter for <code>solution_submission.state</code>.
+     * Setter for <code>solution_submission.result</code>.
      */
-    public SolutionSubmissionRecord setState(String value) {
+    public SolutionSubmissionRecord setResult(String value) {
         set(5, value);
         return this;
     }
 
     /**
-     * Getter for <code>solution_submission.state</code>.
+     * Getter for <code>solution_submission.result</code>.
      */
-    public String getState() {
+    public String getResult() {
         return (String) get(5);
     }
 
@@ -121,6 +123,66 @@ public class SolutionSubmissionRecord extends UpdatableRecordImpl<SolutionSubmis
      */
     public Integer getSolutionid() {
         return (Integer) get(6);
+    }
+
+    /**
+     * Setter for <code>solution_submission.challengeLanguageId</code>.
+     */
+    public SolutionSubmissionRecord setChallengelanguageid(Integer value) {
+        set(7, value);
+        return this;
+    }
+
+    /**
+     * Getter for <code>solution_submission.challengeLanguageId</code>.
+     */
+    public Integer getChallengelanguageid() {
+        return (Integer) get(7);
+    }
+
+    /**
+     * Setter for <code>solution_submission.score</code>.
+     */
+    public SolutionSubmissionRecord setScore(String value) {
+        set(8, value);
+        return this;
+    }
+
+    /**
+     * Getter for <code>solution_submission.score</code>.
+     */
+    public String getScore() {
+        return (String) get(8);
+    }
+
+    /**
+     * Setter for <code>solution_submission.message</code>.
+     */
+    public SolutionSubmissionRecord setMessage(String value) {
+        set(9, value);
+        return this;
+    }
+
+    /**
+     * Getter for <code>solution_submission.message</code>.
+     */
+    public String getMessage() {
+        return (String) get(9);
+    }
+
+    /**
+     * Setter for <code>solution_submission.resultDateTime</code>.
+     */
+    public SolutionSubmissionRecord setResultdatetime(LocalDateTime value) {
+        set(10, value);
+        return this;
+    }
+
+    /**
+     * Getter for <code>solution_submission.resultDateTime</code>.
+     */
+    public LocalDateTime getResultdatetime() {
+        return (LocalDateTime) get(10);
     }
 
     // -------------------------------------------------------------------------
@@ -146,7 +208,7 @@ public class SolutionSubmissionRecord extends UpdatableRecordImpl<SolutionSubmis
     /**
      * Create a detached, initialised SolutionSubmissionRecord
      */
-    public SolutionSubmissionRecord(Integer id, String dojosubmissionid, Integer submitdatetime, String localcode, String submitcode, String state, Integer solutionid) {
+    public SolutionSubmissionRecord(Integer id, String dojosubmissionid, LocalDateTime submitdatetime, String localcode, String submitcode, String result, Integer solutionid, Integer challengelanguageid, String score, String message, LocalDateTime resultdatetime) {
         super(SolutionSubmission.SOLUTION_SUBMISSION);
 
         setId(id);
@@ -154,8 +216,12 @@ public class SolutionSubmissionRecord extends UpdatableRecordImpl<SolutionSubmis
         setSubmitdatetime(submitdatetime);
         setLocalcode(localcode);
         setSubmitcode(submitcode);
-        setState(state);
+        setResult(result);
         setSolutionid(solutionid);
+        setChallengelanguageid(challengelanguageid);
+        setScore(score);
+        setMessage(message);
+        setResultdatetime(resultdatetime);
         resetChangedOnNotNull();
     }
 }

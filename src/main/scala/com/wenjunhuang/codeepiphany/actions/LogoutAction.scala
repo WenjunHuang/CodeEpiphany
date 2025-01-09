@@ -1,10 +1,9 @@
-package com.wenjunhuang.codeepiphany.toolwindows.dojo.actions
+package com.wenjunhuang.codeepiphany.actions
 
 import com.intellij.openapi.actionSystem.{ActionUpdateThread, AnAction, AnActionEvent}
 import com.intellij.openapi.project.DumbAware
-import com.wenjunhuang.codeepiphany.toolwindows.dojo.actions.keys.LOGIN_LOGOUT_KEY
+import com.wenjunhuang.codeepiphany.actions.LoginAction.*
 
-import scala.annotation.internal
 class LogoutAction extends AnAction with DumbAware {
   override def actionPerformed(e: AnActionEvent): Unit =
     Option(LOGIN_LOGOUT_KEY.getData(e.getDataContext)).foreach(_.logout())

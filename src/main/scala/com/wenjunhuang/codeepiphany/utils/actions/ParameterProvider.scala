@@ -1,6 +1,6 @@
-package com.wenjunhuang.codeepiphany.toolwindows.dojo.actions.providers
+package com.wenjunhuang.codeepiphany.utils.actions
 
-trait QueryParamProvider[T] {
+trait ParameterProvider[T] {
 
   def getAllItems: List[T]
 

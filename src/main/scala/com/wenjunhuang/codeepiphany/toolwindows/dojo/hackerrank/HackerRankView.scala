@@ -1,12 +1,11 @@
 package com.wenjunhuang.codeepiphany.toolwindows.dojo.hackerrank
 
 import cats.effect.IO
-import cats.effect.syntax.all.*
-import cats.syntax.all.*
-import com.intellij.openapi.actionSystem.DataSink
-import com.intellij.openapi.progress.{ ProgressIndicator, ProgressManager, Task }
+import com.intellij.openapi.actionSystem.{ DataSink, UiDataProvider }
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.Disposable
 import com.intellij.ui.CardLayoutPanel
+import com.wenjunhuang.codeepiphany.actions.LoginAction.{ LOGIN_LOGOUT_KEY, LoginLogoutProvider }
 import com.wenjunhuang.codeepiphany.hackerrank.services.auth.{
   askForLogout,
   loadAuthenticationMayAskForLogin,
@@ -16,28 +15,27 @@ import com.wenjunhuang.codeepiphany.hackerrank.services.HackerRankApi
 import com.wenjunhuang.codeepiphany.model.{ messages, CodeDojo }
 import com.wenjunhuang.codeepiphany.services.console
 import com.wenjunhuang.codeepiphany.services.http.{ HttpClientKeeper, HttpClientService }
-import com.wenjunhuang.codeepiphany.toolwindows.dojo.AbstractCodeDojoView
-import com.wenjunhuang.codeepiphany.toolwindows.dojo.actions.LoginLogoutProvider
-import com.wenjunhuang.codeepiphany.toolwindows.dojo.actions.keys.{ LOGIN_LOGOUT_KEY, SWITCHUI_PROVIDER_KEY }
-import com.wenjunhuang.codeepiphany.toolwindows.dojo.actions.providers.{ DojoUI, SwitchUIProvider }
-import com.wenjunhuang.codeepiphany.utils.implicits.*
+import com.wenjunhuang.codeepiphany.toolwindows.dojo.hackerrank.actions.SwitchUIAction.{
+  SWITCHUI_PROVIDER_KEY,
+  SwitchUIProvider
+}
 import com.wenjunhuang.codeepiphany.utils.extensions.*
-import scala.concurrent.duration.*
+import com.wenjunhuang.codeepiphany.utils.implicits.*
 
 import javax.swing.JComponent
 
 class HackerRankView(private val myProject: Project)
-    extends CardLayoutPanel[DojoUI, DojoUI, JComponent]
-    with AbstractCodeDojoView {
+    extends CardLayoutPanel[HackerRankUI, HackerRankUI, JComponent]
+    with UiDataProvider
+    with Disposable {
 
   implicit private val httpClientKeeper: HttpClientKeeper[IO] =
     HttpClientService.getInstance(myProject).httpClientKeeper
-  private val myApi = HackerRankApi[IO]()
 
   private val myUnauthenticatedView    = UnauthenticatedView()
-  private val myQueryParamPresenter    = QueryParametersViewPresenter(myProject)
+  private val myQueryParamPresenter    = QueryParametersPresenter(myProject)
   private val myKeywordSearchPresenter = KeywordSearchViewPresenter(myProject)
-  private var myCurrentUI              = DojoUI.Unauthenticated
+  private var myCurrentUI              = HackerRankUI.Unauthenticated
 
   @volatile
   private var myHasLoggedIn = false
@@ -53,11 +51,12 @@ class HackerRankView(private val myProject: Project)
       (console.info[IO](myProject, "Logging in to HackerRank...") *>
         loadAuthenticationMayAskForLogin[IO](myProject, CodeDojo.HackerRank).flatMap {
           case AskForLoginResult.Done =>
-            IO.delay {
-              myProject.getMessageBus.syncPublisher(messages.LOGIN_LOGOUT_TOPIC).login(CodeDojo.HackerRank)
-              myHasLoggedIn = true
-              mySwitchUIProvider.switchTo(DojoUI.QueryParameters)
-            }.evalOnEDTAny() *> console.info[IO](myProject, "Logged in to HackerRank.")
+            myQueryParamPresenter.getInitialData // Load data for the first time before switching to the UI
+              *> IO.delay {
+                myProject.getMessageBus.syncPublisher(messages.LOGIN_LOGOUT_TOPIC).login(CodeDojo.HackerRank)
+                myHasLoggedIn = true
+                mySwitchUIProvider.switchTo(HackerRankUI.QueryParameters)
+              }.evalOnEDTAny() *> console.info[IO](myProject, "Logged in to HackerRank.")
           case _ => console.info[IO](myProject, "Login to HackerRank canceled.")
         }.handleErrorWith { e => console.error[IO](myProject, s"Login failed because of \"${e.getMessage}\"") })
         .guarantee(IO.delay { myIsLoggingIn = false })
@@ -68,7 +67,7 @@ class HackerRankView(private val myProject: Project)
       *> IO.delay(myProject.getMessageBus.syncPublisher(messages.LOGIN_LOGOUT_TOPIC).logout(CodeDojo.HackerRank))
       *> IO.delay {
         myHasLoggedIn = false
-        select(DojoUI.Unauthenticated, false)
+        select(HackerRankUI.Unauthenticated, false)
       }.evalOnEDTAny()).unsafeRunAndForget()
 
     override def hasLoggedIn: Boolean = myHasLoggedIn
@@ -77,19 +76,19 @@ class HackerRankView(private val myProject: Project)
   }
 
   private val mySwitchUIProvider = new SwitchUIProvider {
-    override def switchTo(ui: DojoUI): Unit =
+    override def switchTo(ui: HackerRankUI): Unit =
       myCurrentUI = ui
       select(ui, false)
 
-    override def getCurrentUI: DojoUI = myCurrentUI
+    override def getCurrentUI: HackerRankUI = myCurrentUI
   }
 
-  override def prepare(key: DojoUI): DojoUI = key
+  override def prepare(key: HackerRankUI): HackerRankUI = key
 
-  override def create(ui: DojoUI): JComponent = ui match {
-    case DojoUI.Unauthenticated => myUnauthenticatedView
-    case DojoUI.QueryParameters => myQueryParamPresenter.getComponent
-    case DojoUI.SearchByKeyword => myKeywordSearchPresenter.getComponent
+  override def create(ui: HackerRankUI): JComponent = ui match {
+    case HackerRankUI.Unauthenticated => myUnauthenticatedView
+    case HackerRankUI.QueryParameters => myQueryParamPresenter.getComponent
+    case HackerRankUI.SearchByKeyword => myKeywordSearchPresenter.getComponent
   }
 
   override def uiDataSnapshot(dataSink: DataSink): Unit =

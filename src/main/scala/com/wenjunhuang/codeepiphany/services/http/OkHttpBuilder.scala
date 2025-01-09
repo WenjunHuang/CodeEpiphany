@@ -177,7 +177,7 @@ sealed abstract class OkHttpBuilder[F[_]] private (val okHttpClient: OkHttpClien
   private def logTap(result: Result[F]): F[Either[Throwable, Resource[F, Response[F]]]] =
     (result match {
       case Left(e)  => myLogger.warn(e)("Error in ok call back")
-      case Right(r) => myLogger.info("OKResponse received")
+      case Right(_) => Async[F].unit
     }).map(_ => result)
 }
 

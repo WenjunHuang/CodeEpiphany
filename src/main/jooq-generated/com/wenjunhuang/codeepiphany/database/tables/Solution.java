@@ -5,13 +5,12 @@ package com.wenjunhuang.codeepiphany.database.tables;
 
 
 import com.wenjunhuang.codeepiphany.database.DefaultSchema;
-import com.wenjunhuang.codeepiphany.database.Indexes;
 import com.wenjunhuang.codeepiphany.database.Keys;
 import com.wenjunhuang.codeepiphany.database.tables.Challenge.ChallengePath;
-import com.wenjunhuang.codeepiphany.database.tables.ChallengeLanguage.ChallengeLanguagePath;
 import com.wenjunhuang.codeepiphany.database.tables.SolutionSubmission.SolutionSubmissionPath;
 import com.wenjunhuang.codeepiphany.database.tables.records.SolutionRecord;
 
+import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
@@ -20,7 +19,6 @@ import org.jooq.Condition;
 import org.jooq.Field;
 import org.jooq.ForeignKey;
 import org.jooq.Identity;
-import org.jooq.Index;
 import org.jooq.InverseForeignKey;
 import org.jooq.Name;
 import org.jooq.Path;
@@ -72,14 +70,9 @@ public class Solution extends TableImpl<SolutionRecord> {
     public final TableField<SolutionRecord, Integer> CHALLENGEID = createField(DSL.name("challengeId"), SQLDataType.INTEGER.nullable(false), this, "");
 
     /**
-     * The column <code>solution.challengeLanguageId</code>.
-     */
-    public final TableField<SolutionRecord, Integer> CHALLENGELANGUAGEID = createField(DSL.name("challengeLanguageId"), SQLDataType.INTEGER.nullable(false), this, "");
-
-    /**
      * The column <code>solution.createDateTime</code>.
      */
-    public final TableField<SolutionRecord, Integer> CREATEDATETIME = createField(DSL.name("createDateTime"), SQLDataType.INTEGER.nullable(false), this, "");
+    public final TableField<SolutionRecord, LocalDateTime> CREATEDATETIME = createField(DSL.name("createDateTime"), SQLDataType.LOCALDATETIME(0).nullable(false), this, "");
 
     /**
      * The column <code>solution.tags</code>.
@@ -169,11 +162,6 @@ public class Solution extends TableImpl<SolutionRecord> {
     }
 
     @Override
-    public List<Index> getIndexes() {
-        return Arrays.asList(Indexes.SOLUTION_CHALLENGELANGUAGEID_TITLE_UINDEX);
-    }
-
-    @Override
     public Identity<SolutionRecord, Integer> getIdentity() {
         return (Identity<SolutionRecord, Integer>) super.getIdentity();
     }
@@ -185,7 +173,7 @@ public class Solution extends TableImpl<SolutionRecord> {
 
     @Override
     public List<ForeignKey<SolutionRecord, ?>> getReferences() {
-        return Arrays.asList(Keys.SOLUTION__FK_SOLUTION_PK_CHALLENGE, Keys.SOLUTION__FK_SOLUTION_PK_CHALLENGE_LANGUAGE);
+        return Arrays.asList(Keys.SOLUTION__FK_SOLUTION_PK_CHALLENGE);
     }
 
     private transient ChallengePath _challenge;
@@ -198,18 +186,6 @@ public class Solution extends TableImpl<SolutionRecord> {
             _challenge = new ChallengePath(this, Keys.SOLUTION__FK_SOLUTION_PK_CHALLENGE, null);
 
         return _challenge;
-    }
-
-    private transient ChallengeLanguagePath _challengeLanguage;
-
-    /**
-     * Get the implicit join path to the <code>challenge_language</code> table.
-     */
-    public ChallengeLanguagePath challengeLanguage() {
-        if (_challengeLanguage == null)
-            _challengeLanguage = new ChallengeLanguagePath(this, Keys.SOLUTION__FK_SOLUTION_PK_CHALLENGE_LANGUAGE, null);
-
-        return _challengeLanguage;
     }
 
     private transient SolutionSubmissionPath _solutionSubmission;

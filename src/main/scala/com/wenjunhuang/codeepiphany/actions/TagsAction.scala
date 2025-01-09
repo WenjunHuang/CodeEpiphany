@@ -1,16 +1,17 @@
-package com.wenjunhuang.codeepiphany.toolwindows.dojo.actions
+package com.wenjunhuang.codeepiphany.actions
 
 import com.intellij.icons.AllIcons
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.actionSystem.*
-import com.intellij.openapi.actionSystem.ex.ComboBoxAction
+import com.intellij.openapi.actionSystem.ex.{ CheckboxAction, ComboBoxAction }
 import com.intellij.openapi.ui.popup.{ JBPopup, JBPopupFactory }
 import com.intellij.openapi.util.Disposer
 import com.intellij.ui.components.{ JBLabel, JBTabbedPane }
-import com.wenjunhuang.codeepiphany.toolwindows.dojo.actions.keys.{ LISTS_PROVIDER_KEY, TAG_PROVIDER_KEY }
 
 import java.awt.Dimension
 import javax.swing.{ JComponent, SwingConstants }
+import TagsAction.*
+import com.wenjunhuang.codeepiphany.utils.actions.ParameterProvider
 
 class TagsAction extends ComboBoxAction {
   override def update(e: AnActionEvent): Unit =
@@ -54,20 +55,33 @@ class TagsAction extends ComboBoxAction {
   override def actionPerformed(e: AnActionEvent): Unit = {}
 }
 
-class TagSubAction(private val myTag: Tag) extends AnAction(myTag.name) {
-  override def actionPerformed(e: AnActionEvent): Unit =
-    Option(TAG_PROVIDER_KEY.getData(e.getDataContext))
-      .foreach(_.toggleSelection(myTag))
+class TagSubAction(private val myTag: Tag) extends CheckboxAction(myTag.name) {
 
-  override def update(e: AnActionEvent): Unit = {
-    val presentation = e.getPresentation
+  override def isSelected(e: AnActionEvent): Boolean =
     Option(TAG_PROVIDER_KEY.getData(e.getDataContext))
       .map(_.isSelected(myTag))
-      .foreach {
-        case true  => presentation.setIcon(AllIcons.Actions.Checked)
-        case false => presentation.setIcon(null)
-      }
-  }
+      .getOrElse(false)
 
+  override def setSelected(e: AnActionEvent, state: Boolean): Unit =
+    Option(TAG_PROVIDER_KEY.getData(e.getDataContext)).foreach { provider =>
+      if state then provider.addSelectedItems(List(myTag))
+      else provider.removeSelectedItems(List(myTag))
+    }
   override def getActionUpdateThread: ActionUpdateThread = ActionUpdateThread.BGT
+}
+
+object TagsAction {
+  val TAG_PROVIDER_KEY: DataKey[TagProvider] = DataKey.create[TagProvider]("TAG_PROVIDER_KEY")
+
+  case class TagGroup(name: String, value: String, tags: List[Tag])
+  case class Tag(name: String, value: String, groupValue: String)
+
+  sealed trait TagProvider extends ParameterProvider[Tag] {}
+
+  trait SingleTagGroupProvider extends TagProvider {}
+
+  trait MultiTagGroupProvider extends TagProvider {
+    def isSearchEnabled: Boolean
+    def searchTags(query: String): List[Tag]
+  }
 }

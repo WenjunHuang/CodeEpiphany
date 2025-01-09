@@ -7,9 +7,9 @@ import com.intellij.ui.PopupHandler
 import com.intellij.ui.table.TableView
 import com.intellij.util.ui.{ColumnInfo, ListTableModel}
 import com.intellij.util.ui.table.IconTableCellRenderer
-import com.wenjunhuang.codeepiphany.hackerrank.model.{ChallengeDetail, ChallengeStatus}
+import com.wenjunhuang.codeepiphany.hackerrank.model.ChallengeDetail
+import com.wenjunhuang.codeepiphany.model.{ChallengeStatus, ChallengeDifficulty}
 import com.wenjunhuang.codeepiphany.model.Actions.*
-import com.wenjunhuang.codeepiphany.model.Difficulty
 import com.wenjunhuang.codeepiphany.toolwindows.dojo.hackerrank.ChallengesTableModel.COLUMNS
 import com.wenjunhuang.codeepiphany.toolwindows.dojo.hackerrank.ChallengesTableModel.ColumnTitle.*
 import org.typelevel.ci.CIString
@@ -82,7 +82,7 @@ object ChallengesTableModel {
     },
     new ColumnInfo[ChallengeDetail, String](ColumnTitle.Difficulty.title) {
       override def valueOf(item: ChallengeDetail): String =
-        Difficulty.fromCIString(CIString(item.difficultyName)).map(_.showAsHtml).orNull
+        ChallengeDifficulty.fromCIString(CIString(item.difficultyName)).map(_.showAsHtml).orNull
     },
     new ColumnInfo[ChallengeDetail, Int](MaxScore.title) {
       override def valueOf(item: ChallengeDetail): Int = item.maxScore

@@ -1,9 +1,10 @@
-package com.wenjunhuang.codeepiphany.toolwindows.dojo.actions
+package com.wenjunhuang.codeepiphany.actions
 
-import com.intellij.openapi.actionSystem.{ ActionUpdateThread, AnAction, AnActionEvent }
+import com.intellij.openapi.actionSystem.{ ActionUpdateThread, AnAction, AnActionEvent, DataKey }
 import com.intellij.ui.AnimatedIcon
-import com.wenjunhuang.codeepiphany.toolwindows.dojo.actions.keys.LOGIN_LOGOUT_KEY
 import icons.CodeEpiphanyIcons
+
+import LoginAction.*
 
 class LoginAction extends AnAction {
 
@@ -26,4 +27,14 @@ class LoginAction extends AnAction {
     }
 
   override def getActionUpdateThread: ActionUpdateThread = ActionUpdateThread.BGT
+}
+object LoginAction {
+  final val LOGIN_LOGOUT_KEY = DataKey.create[LoginLogoutProvider]("LOGIN_LOGOUT_KEY")
+  trait LoginLogoutProvider {
+    def login(): Unit
+    def logout(): Unit
+    def isLoggingIn: Boolean
+    def hasLoggedIn: Boolean
+  }
+
 }

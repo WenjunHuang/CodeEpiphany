@@ -6,11 +6,19 @@
         <url>jdbc:sqlite:./database/design.sqlite</url>
     </jdbc>
     <generator>
+
         <database>
             <name>org.jooq.meta.sqlite.SQLiteDatabase</name>
             <includes>.*</includes>
             <excludes></excludes>
             <outputSchemaToDefault>true</outputSchemaToDefault>
+
+            <forcedTypes>
+                <forcedType>
+                    <name>LOCALDATETIME</name>
+                    <includeExpression>.*DateTime</includeExpression>
+                </forcedType>
+            </forcedTypes>
         </database>
 
         <generate>
@@ -30,7 +38,6 @@
 
         <target>
             <packageName>com.wenjunhuang.codeepiphany.database</packageName>
-<!--            <directory>src/managed/scala</directory>-->
         </target>
     </generator>
 </configuration>

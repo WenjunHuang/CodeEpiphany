@@ -8,7 +8,7 @@ import com.wenjunhuang.codeepiphany.database.tables.Challenge;
 import com.wenjunhuang.codeepiphany.database.tables.ChallengeLanguage;
 import com.wenjunhuang.codeepiphany.database.tables.HackerrankChallenge;
 import com.wenjunhuang.codeepiphany.database.tables.HackerrankChallengeLanguage;
-import com.wenjunhuang.codeepiphany.database.tables.HackerrankSolutionSubmissionResult;
+import com.wenjunhuang.codeepiphany.database.tables.HackerrankSubmissionCase;
 import com.wenjunhuang.codeepiphany.database.tables.Solution;
 import com.wenjunhuang.codeepiphany.database.tables.SolutionSubmission;
 
@@ -40,9 +40,9 @@ public class Tables {
     public static final HackerrankChallengeLanguage HACKERRANK_CHALLENGE_LANGUAGE = HackerrankChallengeLanguage.HACKERRANK_CHALLENGE_LANGUAGE;
 
     /**
-     * The table <code>hackerrank_solution_submission_result</code>.
+     * The table <code>hackerrank_submission_case</code>.
      */
-    public static final HackerrankSolutionSubmissionResult HACKERRANK_SOLUTION_SUBMISSION_RESULT = HackerrankSolutionSubmissionResult.HACKERRANK_SOLUTION_SUBMISSION_RESULT;
+    public static final HackerrankSubmissionCase HACKERRANK_SUBMISSION_CASE = HackerrankSubmissionCase.HACKERRANK_SUBMISSION_CASE;
 
     /**
      * The table <code>solution</code>.

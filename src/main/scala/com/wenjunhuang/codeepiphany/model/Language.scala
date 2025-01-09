@@ -20,6 +20,10 @@ enum LanguageVersion {
 }
 
 object LanguageVersion {
+  def fromString(ver:String):LanguageVersion = ver match {
+    case null | "" => AnyVersion
+    case _  => SpecificVersion(ver)
+  }
   implicit val ordering: Ordering[LanguageVersion] = (x: LanguageVersion, y: LanguageVersion) =>
     (x, y) match {
       case (AnyVersion, AnyVersion)         => 0

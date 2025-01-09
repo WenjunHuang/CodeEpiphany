@@ -1,22 +1,22 @@
-package com.wenjunhuang.codeepiphany.toolwindows.dojo.actions
+package com.wenjunhuang.codeepiphany.toolwindows.dojo.hackerrank.actions
 
-import com.intellij.openapi.actionSystem.{ActionUpdateThread, AnAction, AnActionEvent, Presentation}
-import com.wenjunhuang.codeepiphany.toolwindows.dojo.actions.keys.SWITCHUI_PROVIDER_KEY
-import com.wenjunhuang.codeepiphany.toolwindows.dojo.actions.providers.DojoUI
-import com.wenjunhuang.codeepiphany.toolwindows.dojo.actions.providers.DojoUI.*
+import com.intellij.openapi.actionSystem.{ ActionUpdateThread, AnAction, AnActionEvent, DataKey, Presentation }
 import icons.CodeEpiphanyIcons
+import SwitchUIAction.*
+import com.wenjunhuang.codeepiphany.toolwindows.dojo.hackerrank.HackerRankUI
+import com.wenjunhuang.codeepiphany.toolwindows.dojo.hackerrank.HackerRankUI.*
 
 class SwitchUIAction extends AnAction {
   override def actionPerformed(e: AnActionEvent): Unit =
     Option(SWITCHUI_PROVIDER_KEY.getData(e.getDataContext)) match
       case Some(provider) =>
         provider.getCurrentUI match
-          case QueryParameters => provider.switchTo(DojoUI.SearchByKeyword)
-          case SearchByKeyword => provider.switchTo(DojoUI.QueryParameters)
+          case QueryParameters => provider.switchTo(SearchByKeyword)
+          case SearchByKeyword => provider.switchTo(QueryParameters)
           case _               => ()
       case None => ()
 
-  private def updateIcon(ui: DojoUI, present: Presentation): Unit =
+  private def updateIcon(ui: HackerRankUI, present: Presentation): Unit =
     ui match
       case Unauthenticated => ()
       case QueryParameters => present.setIcon(CodeEpiphanyIcons.SEARCH)
@@ -26,11 +26,20 @@ class SwitchUIAction extends AnAction {
     Option(SWITCHUI_PROVIDER_KEY.getData(e.getDataContext)) match
       case None => e.getPresentation.setEnabledAndVisible(false)
       case Some(provider) =>
-        if provider.getCurrentUI == DojoUI.Unauthenticated then
-          e.getPresentation.setEnabledAndVisible(false)
+        if provider.getCurrentUI == Unauthenticated then e.getPresentation.setEnabledAndVisible(false)
         else
           e.getPresentation.setEnabledAndVisible(true)
           updateIcon(provider.getCurrentUI, e.getPresentation)
 
   override def getActionUpdateThread: ActionUpdateThread = ActionUpdateThread.BGT
+}
+
+object SwitchUIAction {
+  val SWITCHUI_PROVIDER_KEY = DataKey.create[SwitchUIProvider]("SWITCHUI_PROVIDER_KEY")
+
+  trait SwitchUIProvider {
+    def switchTo(ui: HackerRankUI): Unit
+
+    def getCurrentUI: HackerRankUI
+  }
 }

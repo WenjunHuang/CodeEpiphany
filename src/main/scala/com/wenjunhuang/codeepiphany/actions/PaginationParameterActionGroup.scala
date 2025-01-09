@@ -1,14 +1,17 @@
-package com.wenjunhuang.codeepiphany.toolwindows.dojo.actions
+package com.wenjunhuang.codeepiphany.actions
 
+import cats.Show
+import cats.syntax.all.*
 import com.intellij.icons.AllIcons
 import com.intellij.openapi.actionSystem.*
 import com.intellij.openapi.actionSystem.ex.ComboBoxAction
-import com.wenjunhuang.codeepiphany.toolwindows.dojo.actions.PaginationActionGroup.INDEX_COUNT
-import com.wenjunhuang.codeepiphany.toolwindows.dojo.actions.keys.PAGINATION_PROVIDER_KEY
+import com.wenjunhuang.codeepiphany.PluginBundle
+import com.wenjunhuang.codeepiphany.actions.PaginationParameterActionGroup.*
+import com.wenjunhuang.codeepiphany.utils.actions.ParameterProvider
 
 import javax.swing.{Icon, JComponent}
 
-class PaginationActionGroup extends DefaultActionGroup {
+class PaginationParameterActionGroup(private val myPageNum: Int = DEFAULT_PAGE_NUMBER) extends DefaultActionGroup {
   private var cache = (0, 0, 0)
 
   override def getActionUpdateThread: ActionUpdateThread = ActionUpdateThread.BGT
@@ -20,7 +23,7 @@ class PaginationActionGroup extends DefaultActionGroup {
         rebuildActions(provider)
     }
 
-  private def rebuildActions(provider: PaginationProvider): Unit = {
+  private def rebuildActions(provider: PaginationParameterProvider): Unit = {
     val pageSize    = provider.getPageSize
     val currentPage = provider.getCurrentPage
     val totalItems  = provider.getTotalItems
@@ -31,25 +34,51 @@ class PaginationActionGroup extends DefaultActionGroup {
 
       add(PageSizeAction())
 
-      add(createIconAction(AllIcons.General.ArrowLeft, if currentPage > 1 then Some(() => provider.setCurrentPage(currentPage - 1)) else None))
-      if totalPages <= INDEX_COUNT then for (i <- 1 to totalPages) do add(createPageIndexAction(s"$i", currentPage == i, Some(() => provider.setCurrentPage(i))))
-      else if currentPage <= INDEX_COUNT - 3 then
-        for (i <- 1 to INDEX_COUNT - 2) do add(createPageIndexAction(s"$i", currentPage == i, Some(() => provider.setCurrentPage(i))))
+      add(
+        createIconAction(
+          AllIcons.General.ArrowLeft,
+          if currentPage > 1 then Some(() => provider.setCurrentPage(currentPage - 1)) else None
+        )
+      )
+      if totalPages <= myPageNum then
+        for (i <- 1 to totalPages) do
+          add(createPageIndexAction(s"$i", currentPage == i, Some(() => provider.setCurrentPage(i))))
+      else if currentPage <= myPageNum - 3 then
+        for (i <- 1 to myPageNum - 2) do
+          add(createPageIndexAction(s"$i", currentPage == i, Some(() => provider.setCurrentPage(i))))
         add(createPageIndexAction("...", false, None))
-        add(createPageIndexAction(s"$totalPages", currentPage == totalPages, Some(() => provider.setCurrentPage(totalPages))))
-      else if currentPage >= totalPages - INDEX_COUNT + 4 then
+        add(
+          createPageIndexAction(
+            s"$totalPages",
+            currentPage == totalPages,
+            Some(() => provider.setCurrentPage(totalPages))
+          )
+        )
+      else if currentPage >= totalPages - myPageNum + 4 then
         add(createPageIndexAction("1", currentPage == 1, Some(() => provider.setCurrentPage(1))))
         add(createPageIndexAction("...", false, None))
-        for (i <- totalPages - INDEX_COUNT + 3 to totalPages) do add(createPageIndexAction(s"$i", currentPage == i, Some(() => provider.setCurrentPage(i))))
+        for (i <- totalPages - myPageNum + 3 to totalPages) do
+          add(createPageIndexAction(s"$i", currentPage == i, Some(() => provider.setCurrentPage(i))))
       else
         add(createPageIndexAction("1", currentPage == 1, Some(() => provider.setCurrentPage(1))))
         add(createPageIndexAction("...", false, None))
-        for (i <- (currentPage - 1) to (currentPage + INDEX_COUNT - 6))
+        for (i <- (currentPage - 1) to (currentPage + myPageNum - 6))
           add(createPageIndexAction(s"$i", currentPage == i, Some(() => provider.setCurrentPage(i))))
         add(createPageIndexAction("...", false, None))
-        add(createPageIndexAction(s"$totalPages", currentPage == totalPages, Some(() => provider.setCurrentPage(totalPages))))
+        add(
+          createPageIndexAction(
+            s"$totalPages",
+            currentPage == totalPages,
+            Some(() => provider.setCurrentPage(totalPages))
+          )
+        )
 
-      add(createIconAction(AllIcons.General.ArrowRight, if currentPage < totalPages then Some(() => provider.setCurrentPage(currentPage + 1)) else None))
+      add(
+        createIconAction(
+          AllIcons.General.ArrowRight,
+          if currentPage < totalPages then Some(() => provider.setCurrentPage(currentPage + 1)) else None
+        )
+      )
 
       cache = (pageSize, currentPage, totalItems)
       provider.refresh()
@@ -84,8 +113,40 @@ class PaginationActionGroup extends DefaultActionGroup {
     }
 }
 
-object PaginationActionGroup {
-  final val INDEX_COUNT = 8
+object PaginationParameterActionGroup {
+  final val DEFAULT_PAGE_NUMBER = 8
+
+  final val PAGINATION_PROVIDER_KEY = DataKey.create[PaginationParameterProvider]("PAGINATION_PROVIDER_KEY")
+
+  enum PageSize(val value: Int) {
+    case Twenty     extends PageSize(20)
+    case Fifty      extends PageSize(50)
+    case OneHundred extends PageSize(100)
+  }
+
+  object PageSize {
+    implicit val showInstance: Show[PageSize] = Show.show[PageSize] {
+      case Twenty => PluginBundle.message("pagesize.20")
+      case Fifty => PluginBundle.message("pagesize.50")
+      case OneHundred => PluginBundle.message("pagesize.100")
+    }
+
+    def fromInt(value: Int): Option[PageSize] =
+      value match
+        case Twenty.value     => Some(Twenty)
+        case Fifty.value      => Some(Fifty)
+        case OneHundred.value => Some(OneHundred)
+        case _                => None
+  }
+
+  trait PaginationParameterProvider extends ParameterProvider[PageSize] {
+    def getPageSize: Int
+    def getCurrentPage: Int
+    def setCurrentPage(page: Int): Unit
+    def getTotalPages: Int
+    def getTotalItems: Int
+    def refresh(): Unit
+  }
 }
 
 class PageSizeAction extends ComboBoxAction {

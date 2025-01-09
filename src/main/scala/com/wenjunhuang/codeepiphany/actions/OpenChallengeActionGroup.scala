@@ -1,18 +1,17 @@
-package com.wenjunhuang.codeepiphany.toolwindows.dojo.actions
+package com.wenjunhuang.codeepiphany.actions
 
-import com.intellij.openapi.actionSystem.{ActionGroup, ActionUpdateThread, AnAction, AnActionEvent}
-import com.wenjunhuang.codeepiphany.model.{Language, LanguageVersion}
-import com.wenjunhuang.codeepiphany.toolwindows.dojo.actions.keys.CHALLENGE_PROVIDER_KEY
-import com.wenjunhuang.codeepiphany.toolwindows.dojo.actions.OpenChallengeActionGroup.LanguageAction
+import com.intellij.openapi.actionSystem.{ ActionGroup, ActionUpdateThread, AnAction, AnActionEvent, DataKey }
+import com.wenjunhuang.codeepiphany.model.{ Language, LanguageVersion }
 import com.wenjunhuang.codeepiphany.PluginBundle
+import OpenChallengeActionGroup.*
 
 class OpenChallengeActionGroup extends ActionGroup {
   override def getChildren(e: AnActionEvent): Array[AnAction] = {
     Option(CHALLENGE_PROVIDER_KEY.getData(e.getDataContext)) match
-      case None           => Array.empty
-      case Some(provider) => provider.getLanguages.map((language,languageVersion) => LanguageAction(language,languageVersion)).toArray
+      case None => Array.empty
+      case Some(provider) =>
+        provider.getLanguages.map((language, languageVersion) => LanguageAction(language, languageVersion)).toArray
   }
-
 
   override def update(e: AnActionEvent): Unit = {
     Option(CHALLENGE_PROVIDER_KEY.getData(e.getDataContext)) match
@@ -33,12 +32,14 @@ class OpenChallengeActionGroup extends ActionGroup {
 }
 
 object OpenChallengeActionGroup {
-  class LanguageAction(private val myLanguage: Language,private val myLanguageVersion:LanguageVersion)
+  final val CHALLENGE_PROVIDER_KEY = DataKey.create[OpenChallengeProvider]("CHALLENGE_PROVIDER_KEY")
+
+  private class LanguageAction(private val myLanguage: Language, private val myLanguageVersion: LanguageVersion)
       extends AnAction(myLanguage.show, myLanguage.show, myLanguage.icon) {
     override def actionPerformed(e: AnActionEvent): Unit = {
       Option(CHALLENGE_PROVIDER_KEY.getData(e.getDataContext)) match
         case None           =>
-        case Some(provider) => provider.openCurrentSelectedChallenge(myLanguage,myLanguageVersion)
+        case Some(provider) => provider.openCurrentSelectedChallenge(myLanguage, myLanguageVersion)
     }
 
     override def update(e: AnActionEvent): Unit = {
@@ -50,12 +51,20 @@ object OpenChallengeActionGroup {
           provider.getLanguages match
             case one :: Nil if one == myLanguage =>
               presentation.setText(PluginBundle.message("group.CodeEpiphany.Dojos.Actions.OpenChallengeGroup.text"))
-              presentation.setDescription(PluginBundle.message("group.CodeEpiphany.Dojos.Actions.OpenChallengeGroup.description"))
+              presentation.setDescription(
+                PluginBundle.message("group.CodeEpiphany.Dojos.Actions.OpenChallengeGroup.description")
+              )
             case _ =>
               presentation.setText(myLanguage.show)
               presentation.setDescription(myLanguage.show)
     }
 
     override def getActionUpdateThread: ActionUpdateThread = ActionUpdateThread.BGT
+  }
+
+  trait OpenChallengeProvider {
+    def openCurrentSelectedChallenge(language: Language, languageVersion: LanguageVersion): Unit
+
+    def getLanguages: List[(Language, LanguageVersion)]
   }
 }

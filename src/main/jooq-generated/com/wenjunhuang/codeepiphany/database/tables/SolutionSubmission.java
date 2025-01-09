@@ -6,10 +6,12 @@ package com.wenjunhuang.codeepiphany.database.tables;
 
 import com.wenjunhuang.codeepiphany.database.DefaultSchema;
 import com.wenjunhuang.codeepiphany.database.Keys;
-import com.wenjunhuang.codeepiphany.database.tables.HackerrankSolutionSubmissionResult.HackerrankSolutionSubmissionResultPath;
+import com.wenjunhuang.codeepiphany.database.tables.ChallengeLanguage.ChallengeLanguagePath;
+import com.wenjunhuang.codeepiphany.database.tables.HackerrankSubmissionCase.HackerrankSubmissionCasePath;
 import com.wenjunhuang.codeepiphany.database.tables.Solution.SolutionPath;
 import com.wenjunhuang.codeepiphany.database.tables.records.SolutionSubmissionRecord;
 
+import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
@@ -71,7 +73,7 @@ public class SolutionSubmission extends TableImpl<SolutionSubmissionRecord> {
     /**
      * The column <code>solution_submission.submitDateTime</code>.
      */
-    public final TableField<SolutionSubmissionRecord, Integer> SUBMITDATETIME = createField(DSL.name("submitDateTime"), SQLDataType.INTEGER.nullable(false), this, "");
+    public final TableField<SolutionSubmissionRecord, LocalDateTime> SUBMITDATETIME = createField(DSL.name("submitDateTime"), SQLDataType.LOCALDATETIME(0).nullable(false), this, "");
 
     /**
      * The column <code>solution_submission.localCode</code>.
@@ -84,14 +86,34 @@ public class SolutionSubmission extends TableImpl<SolutionSubmissionRecord> {
     public final TableField<SolutionSubmissionRecord, String> SUBMITCODE = createField(DSL.name("submitCode"), SQLDataType.CLOB.nullable(false), this, "");
 
     /**
-     * The column <code>solution_submission.state</code>.
+     * The column <code>solution_submission.result</code>.
      */
-    public final TableField<SolutionSubmissionRecord, String> STATE = createField(DSL.name("state"), SQLDataType.CLOB.nullable(false), this, "");
+    public final TableField<SolutionSubmissionRecord, String> RESULT = createField(DSL.name("result"), SQLDataType.CLOB.nullable(false), this, "");
 
     /**
      * The column <code>solution_submission.solutionId</code>.
      */
     public final TableField<SolutionSubmissionRecord, Integer> SOLUTIONID = createField(DSL.name("solutionId"), SQLDataType.INTEGER.nullable(false), this, "");
+
+    /**
+     * The column <code>solution_submission.challengeLanguageId</code>.
+     */
+    public final TableField<SolutionSubmissionRecord, Integer> CHALLENGELANGUAGEID = createField(DSL.name("challengeLanguageId"), SQLDataType.INTEGER.nullable(false), this, "");
+
+    /**
+     * The column <code>solution_submission.score</code>.
+     */
+    public final TableField<SolutionSubmissionRecord, String> SCORE = createField(DSL.name("score"), SQLDataType.CLOB, this, "");
+
+    /**
+     * The column <code>solution_submission.message</code>.
+     */
+    public final TableField<SolutionSubmissionRecord, String> MESSAGE = createField(DSL.name("message"), SQLDataType.CLOB, this, "");
+
+    /**
+     * The column <code>solution_submission.resultDateTime</code>.
+     */
+    public final TableField<SolutionSubmissionRecord, LocalDateTime> RESULTDATETIME = createField(DSL.name("resultDateTime"), SQLDataType.LOCALDATETIME(0), this, "");
 
     private SolutionSubmission(Name alias, Table<SolutionSubmissionRecord> aliased) {
         this(alias, aliased, (Field<?>[]) null, null);
@@ -172,7 +194,19 @@ public class SolutionSubmission extends TableImpl<SolutionSubmissionRecord> {
 
     @Override
     public List<ForeignKey<SolutionSubmissionRecord, ?>> getReferences() {
-        return Arrays.asList(Keys.SOLUTION_SUBMISSION__FK_SOLUTION_SUBMISSION_PK_SOLUTION);
+        return Arrays.asList(Keys.SOLUTION_SUBMISSION__FK_SOLUTION_SUBMISSION_PK_CHALLENGE_LANGUAGE, Keys.SOLUTION_SUBMISSION__FK_SOLUTION_SUBMISSION_PK_SOLUTION);
+    }
+
+    private transient ChallengeLanguagePath _challengeLanguage;
+
+    /**
+     * Get the implicit join path to the <code>challenge_language</code> table.
+     */
+    public ChallengeLanguagePath challengeLanguage() {
+        if (_challengeLanguage == null)
+            _challengeLanguage = new ChallengeLanguagePath(this, Keys.SOLUTION_SUBMISSION__FK_SOLUTION_SUBMISSION_PK_CHALLENGE_LANGUAGE, null);
+
+        return _challengeLanguage;
     }
 
     private transient SolutionPath _solution;
@@ -187,17 +221,17 @@ public class SolutionSubmission extends TableImpl<SolutionSubmissionRecord> {
         return _solution;
     }
 
-    private transient HackerrankSolutionSubmissionResultPath _hackerrankSolutionSubmissionResult;
+    private transient HackerrankSubmissionCasePath _hackerrankSubmissionCase;
 
     /**
      * Get the implicit to-many join path to the
-     * <code>hackerrank_solution_submission_result</code> table
+     * <code>hackerrank_submission_case</code> table
      */
-    public HackerrankSolutionSubmissionResultPath hackerrankSolutionSubmissionResult() {
-        if (_hackerrankSolutionSubmissionResult == null)
-            _hackerrankSolutionSubmissionResult = new HackerrankSolutionSubmissionResultPath(this, null, Keys.HACKERRANK_SOLUTION_SUBMISSION_RESULT__FK_HACKERRANK_SOLUTION_SUBMISSION_RESULT_PK_SOLUTION_SUBMISSION.getInverseKey());
+    public HackerrankSubmissionCasePath hackerrankSubmissionCase() {
+        if (_hackerrankSubmissionCase == null)
+            _hackerrankSubmissionCase = new HackerrankSubmissionCasePath(this, null, Keys.HACKERRANK_SUBMISSION_CASE__FK_HACKERRANK_SUBMISSION_CASE_PK_SOLUTION_SUBMISSION.getInverseKey());
 
-        return _hackerrankSolutionSubmissionResult;
+        return _hackerrankSubmissionCase;
     }
 
     @Override

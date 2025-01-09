@@ -4,7 +4,7 @@ import cats.effect.{Async, Concurrent, Temporal}
 import cats.syntax.all.*
 import com.wenjunhuang.codeepiphany.hackerrank.model.*
 import com.wenjunhuang.codeepiphany.hackerrank.model.Contest.{Master, ProjectEuler}
-import com.wenjunhuang.codeepiphany.model.{ApiError, Difficulty, Language}
+import com.wenjunhuang.codeepiphany.model.{ApiError, ChallengeStatus, ChallengeDifficulty, Language}
 import com.wenjunhuang.codeepiphany.model.CodeDojo.HackerRank
 import com.wenjunhuang.codeepiphany.services.http.HttpClientKeeper
 import fs2.Stream
@@ -32,8 +32,8 @@ trait HackerRankApi[F[_]] {
                         contest: Contest,
                         domainSlug: String,
                         status: List[ChallengeStatus] = Nil,
-                        skills: List[ChallengeSkill] = Nil,
-                        difficulties: List[Difficulty] = Nil,
+                        skills: List[HackerRankChallengeSkill] = Nil,
+                        difficulties: List[ChallengeDifficulty] = Nil,
                         subdomains: List[ChallengeSubdomain] = Nil
   ): F[(Int, List[ChallengeDetail])]
 
@@ -154,8 +154,8 @@ object HackerRankApi {
                                    contest: Contest,
                                    domainSlug: String,
                                    status: List[ChallengeStatus],
-                                   skills: List[ChallengeSkill],
-                                   difficulties: List[Difficulty],
+                                   skills: List[HackerRankChallengeSkill],
+                                   difficulties: List[ChallengeDifficulty],
                                    subdomains: List[ChallengeSubdomain]
     ): F[(Int, List[ChallengeDetail])] =
       HttpClientKeeper[F].getClient.use { client =>

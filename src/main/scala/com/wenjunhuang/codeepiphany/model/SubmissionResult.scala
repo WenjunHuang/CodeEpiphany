@@ -2,9 +2,8 @@ package com.wenjunhuang.codeepiphany.model
 
 import cats.Show
 import cats.syntax.all.*
-import com.intellij.openapi.util.text.StringUtil
-import com.wenjunhuang.codeepiphany.utils.Colors
 import com.wenjunhuang.codeepiphany.PluginBundle
+import com.wenjunhuang.codeepiphany.model.SubmissionResult.*
 import org.typelevel.ci.CIString
 
 enum SubmissionResult(val value: String) {
@@ -17,20 +16,26 @@ enum SubmissionResult(val value: String) {
   def showAsHtml: String =
     this match
       case Success =>
-        s"<html><font color='${Colors.DIFFICULTY_EASY_COLOR}'>${Success.show}</font></html>"
+        s"<html><font color='${SUBMISSION_SUCCESS_COLOR}'>${Success.show}</font></html>"
       case Failure =>
-        s"<html><font color='${Colors.DIFFICULTY_MEDIUM_COLOR}'>${Failure.show}</font></html>"
+        s"<html><font color='${SUBMISSION_FAILURE_COLOR}'>${Failure.show}</font></html>"
       case CompilationError =>
-        s"<html><font color='${Colors.DIFFICULTY_HARD_COLOR}'>${CompilationError.show}</font></html>"
+        s"<html><font color='${SUBMISSION_COMPILEERROR_COLOR}'>${CompilationError.show}</font></html>"
       case Timeout =>
-        s"<html><font color='${Colors.DIFFICULTY_ADVANCED_COLOR}'>${Timeout.show}</font></html>"
+        s"<html><font color='${SUBMISSION_TIMEOUT_COLOR}'>${Timeout.show}</font></html>"
       case Unknown =>
-        s"<html><font color='${Colors.DIFFICULTY_EXPERT_COLOR}'>${Unknown.show}</font></html>"
+        s"<html><font color='${SUBMISSION_UNKNOWN_COLOR}'>${Unknown.show}</font></html>"
 }
 
 object SubmissionResult {
   implicit val showInst: Show[SubmissionResult] =
-    Show.show[SubmissionResult](it => PluginBundle.message(s"submissionResult.${StringUtil.decapitalize(it.toString)}"))
+    Show.show[SubmissionResult] {
+      case Success          => PluginBundle.message("submissionResult.success")
+      case Failure          => PluginBundle.message("submissionResult.failure")
+      case CompilationError => PluginBundle.message("submissionResult.compilationError")
+      case Timeout          => PluginBundle.message("submissionResult.timeout")
+      case Unknown          => PluginBundle.message("submissionResult.unknown")
+    }
 
   def fromCIString(ciString: CIString): Option[SubmissionResult] = {
     if ciString == CIString(Success.value) then Some(Success)
@@ -40,4 +45,11 @@ object SubmissionResult {
     else if ciString == CIString(Unknown.value) then Some(Unknown)
     else None
   }
+
+  val SUBMISSION_SUCCESS_COLOR      = "#1ab8a3"
+  val SUBMISSION_FAILURE_COLOR      = "#ff375f"
+  val SUBMISSION_PENDING_COLOR      = "#ffc01e"
+  val SUBMISSION_COMPILEERROR_COLOR = "#ff4f64"
+  val SUBMISSION_TIMEOUT_COLOR      = "#ff5164"
+  val SUBMISSION_UNKNOWN_COLOR      = "#ffc01e"
 }

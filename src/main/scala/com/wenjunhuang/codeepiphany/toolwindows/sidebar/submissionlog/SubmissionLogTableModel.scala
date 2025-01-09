@@ -75,12 +75,12 @@ object SubmissionLogTableModel {
     },
     new ColumnInfo[SubmissionLogEntry, String](PluginBundle.message("submissionLog.ui.submissionDateTime.title")) {
       override def valueOf(item: SubmissionLogEntry): String =
-        s"${item.submissionDateTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))}"
+        s"${item.submissionDateTime.map(_.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))).getOrElse("")}"
       override def getPreferredStringValue: String = StringUtil.repeat("W", 20)
     },
     new ColumnInfo[SubmissionLogEntry, String](PluginBundle.message("submissionLog.ui.resultDateTime.title")) {
       override def valueOf(item: SubmissionLogEntry): String =
-        s"${item.resultDateTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))}"
+        s"${item.resultDateTime.map(_.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))).getOrElse("")}"
       override def getPreferredStringValue: String = StringUtil.repeat("W", 20)
     }
   )

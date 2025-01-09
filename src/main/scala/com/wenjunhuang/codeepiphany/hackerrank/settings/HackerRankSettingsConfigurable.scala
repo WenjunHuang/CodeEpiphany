@@ -4,7 +4,7 @@ import com.intellij.openapi.options.ConfigurableBase
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.text.StringUtil
 import com.wenjunhuang.codeepiphany.PluginBundle
-import com.wenjunhuang.codeepiphany.model.Difficulty
+import com.wenjunhuang.codeepiphany.model.ChallengeDifficulty
 import com.wenjunhuang.codeepiphany.hackerrank.model.Contest.Master
 import com.wenjunhuang.codeepiphany.model.{ ChallengeCodeTemplate, Language, LanguageVersion }
 import com.wenjunhuang.codeepiphany.model.CodeDojo.HackerRank
@@ -103,7 +103,7 @@ object HackerRankSettingsConfigurable {
               StringUtil.replace(template, "\\n", "\n"),
               StringUtil.replace(tail, "\\n", "\n"),
               Master.slug,
-              Difficulty.Hard.value,
+              ChallengeDifficulty.Hard.value,
               language,
               languageVersion
             )

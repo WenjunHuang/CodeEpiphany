@@ -5,8 +5,22 @@ import cats.effect.std.Queue
 import cats.syntax.all.*
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.actionSystem.DataSink
+import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
+import com.intellij.util.concurrency.annotations.RequiresEdt
+import com.wenjunhuang.codeepiphany.actions.DifficultyParameterAction.{
+  DIFFICULTIES_PROVIDER_KEY,
+  DifficultyParameterProvider
+}
+import com.wenjunhuang.codeepiphany.actions.OpenChallengeActionGroup.{ CHALLENGE_PROVIDER_KEY, OpenChallengeProvider }
+import com.wenjunhuang.codeepiphany.actions.PaginationParameterActionGroup.{
+  PAGINATION_PROVIDER_KEY,
+  PageSize,
+  PaginationParameterProvider
+}
+import com.wenjunhuang.codeepiphany.actions.StatusParameterAction.{ STATUS_PROVIDER_KEY, StatusParameterProvider }
+import com.wenjunhuang.codeepiphany.actions.TagsAction.{ SingleTagGroupProvider, TAG_PROVIDER_KEY, Tag }
 import com.wenjunhuang.codeepiphany.hackerrank.model.*
 import com.wenjunhuang.codeepiphany.hackerrank.services.challenge.openChallenge
 import com.wenjunhuang.codeepiphany.hackerrank.services.HackerRankApi
@@ -14,9 +28,15 @@ import com.wenjunhuang.codeepiphany.hackerrank.settings.HackerRankSettings
 import com.wenjunhuang.codeepiphany.model.*
 import com.wenjunhuang.codeepiphany.model.CodeDojo.HackerRank
 import com.wenjunhuang.codeepiphany.services.http.{ HttpClientKeeper, HttpClientService }
-import com.wenjunhuang.codeepiphany.toolwindows.dojo.actions.*
-import com.wenjunhuang.codeepiphany.toolwindows.dojo.actions.keys.*
-import com.wenjunhuang.codeepiphany.toolwindows.dojo.actions.providers.ChallengeProvider
+import com.wenjunhuang.codeepiphany.toolwindows.dojo.hackerrank.actions.CategoryParameterAction.{
+  CATEGORY_PROVIDER_KEY,
+  Category,
+  CategoryProvider
+}
+import com.wenjunhuang.codeepiphany.toolwindows.dojo.hackerrank.actions.SkillParameterAction.{
+  SKILL_PROVIDER_KEY,
+  SkillParameterProvider
+}
 import com.wenjunhuang.codeepiphany.utils.extensions.*
 import com.wenjunhuang.codeepiphany.utils.implicits.*
 import fs2.Stream
@@ -28,8 +48,8 @@ import javax.swing.JComponent
 import scala.concurrent.duration.*
 import scala.jdk.CollectionConverters.*
 
-class QueryParametersViewPresenter(private val myProject: Project) extends Disposable {
-  import QueryParametersViewPresenter.*
+class QueryParametersPresenter(private val myProject: Project) extends Disposable {
+  import QueryParametersPresenter.*
 
   implicit private val myLogger: Logger[IO] = LoggerFactory[IO].getLogger
 
@@ -37,18 +57,18 @@ class QueryParametersViewPresenter(private val myProject: Project) extends Dispo
     HttpClientService.getInstance(myProject).httpClientKeeper
   private val myApi = HackerRankApi[IO]()
 
-  private val myView = QueryParamView(myProject, this)
+  private val myView = QueryParametersView(myProject, this)
 
   @volatile
   private var myInitialData = InitialData(EMPTY_USERINFO, Nil)
   @volatile
-  private var myState = State(PROJECT_EULER_DOMAIN, Nil, Nil, None, Nil)
+  private var myState: QueryParams = EMPTY_STATE
 
   @volatile
-  private var myQueryQueue: Option[Queue[IO, Option[State]]] = None
+  private var myQueryQueue: Option[Queue[IO, Option[QueryParams]]] = None
 
   private val myQueryWorker = for {
-    q              <- Queue.unbounded[IO, Option[State]]
+    q              <- Queue.unbounded[IO, Option[QueryParams]]
     _              <- IO.delay { myQueryQueue = Some(q) }
     notInterrupted <- SignallingRef.of[IO, Boolean](false)
     _ <- Stream
@@ -60,6 +80,9 @@ class QueryParametersViewPresenter(private val myProject: Project) extends Dispo
         } yield (newSignal, state)
       }
       .debounce(200.millis)
+      .evalTap { _ =>
+        IO.delay { refreshTags() }.evalOnEDTAny()
+      }
       .evalTap { case (signal, state) =>
         val from  = math.max((state.currentPage - 1) * state.pageSize.value, 0)
         val limit = state.pageSize.value
@@ -86,14 +109,11 @@ class QueryParametersViewPresenter(private val myProject: Project) extends Dispo
               }
           )
           .interruptWhen(signal)
-          .attempt
-          .evalMap {
-            case Left(e) =>
-              myLogger.warn(e)("Error while querying challenges")
-            case _ => IO.unit
-          }
+          .onFinalizeCaseWeak(c => myLogger.info(s"Query stream finalized, because of $c"))
           .compile
           .drain
+          .evalAsBackgroundProgress(myProject, "Querying challenges...")
+          .attempt
       }
       .onFinalize(myLogger.info("Query worker is finalized"))
       .compile
@@ -107,26 +127,27 @@ class QueryParametersViewPresenter(private val myProject: Project) extends Dispo
     .subscribe(
       messages.LOGIN_LOGOUT_TOPIC,
       new messages.LoginLogoutNotifier {
-        override def login(codeDojo: CodeDojo): Unit =
-          if codeDojo == HackerRank then
-            myApi.getInitialData.map { case (userInfo, challengeDomains) =>
-              myInitialData = InitialData(userInfo, challengeDomains.sortBy(_.id) :+ PROJECT_EULER_DOMAIN)
-              myState = EMPTY_STATE.copy(selectedDomain = myInitialData.challengeDomains.head)
-              refreshTags()
-              refreshQuery()
-            }.unsafeRunAndForget()
+        override def login(codeDojo: CodeDojo): Unit = {}
 
         override def logout(codeDojo: CodeDojo): Unit =
           if codeDojo == HackerRank then
             myInitialData = InitialData(EMPTY_USERINFO, Nil)
-            myState = State(PROJECT_EULER_DOMAIN, Nil, Nil, None, Nil)
+            myState = QueryParams(PROJECT_EULER_DOMAIN, Nil, Nil, None, Nil)
       }
     )
 
   Disposer.register(myProject, this)
 
+  def getInitialData: IO[Unit] = {
+    myApi.getInitialData.map { case (userInfo, challengeDomains) =>
+      myInitialData = InitialData(userInfo, challengeDomains.sortBy(_.id) :+ PROJECT_EULER_DOMAIN)
+      myState = EMPTY_STATE.copy(selectedDomain = myInitialData.challengeDomains.head)
+      requery()
+    }
+  }
+
   protected[dojo] def uiDataSnapshot(dataSink: DataSink): Unit = {
-    dataSink.set(LISTS_PROVIDER_KEY, myListsProvider)
+    dataSink.set(CATEGORY_PROVIDER_KEY, myCategoryProvider)
     dataSink.set(DIFFICULTIES_PROVIDER_KEY, myDifficultiesProvider)
     dataSink.set(STATUS_PROVIDER_KEY, myStatusProvider)
     dataSink.set(SKILL_PROVIDER_KEY, mySkillProvider)
@@ -135,12 +156,7 @@ class QueryParametersViewPresenter(private val myProject: Project) extends Dispo
     dataSink.set(CHALLENGE_PROVIDER_KEY, myChallengeProvider)
   }
 
-  private def refreshQuery(resetToFirstPage: Boolean = true): Unit =
-    myQueryQueue.foreach { q =>
-      val state = if resetToFirstPage then myState.resetToFirstPage() else myState
-      q.offer(Some(state)).unsafeRunAndForget()
-    }
-  private val myChallengeProvider = new ChallengeProvider {
+  private val myChallengeProvider = new OpenChallengeProvider {
     override def openCurrentSelectedChallenge(language: Language, languageVersion: LanguageVersion): Unit = {
       Option(myView.getTable.getSelectedObject) match
         case Some(selected) =>
@@ -154,14 +170,13 @@ class QueryParametersViewPresenter(private val myProject: Project) extends Dispo
         case None => ()
     }
 
-    // TODO: Implement getLanguages
     override def getLanguages: List[(Language, LanguageVersion)] = {
       val settings = HackerRankSettings.getInstance(myProject)
       settings.getSelectedLanguages
     }
   }
 
-  private val myListsProvider = new CategoryProvider {
+  private val myCategoryProvider = new CategoryProvider {
     override def isSelected(item: Category): Boolean =
       myState.selectedDomain.slug == item.value
 
@@ -169,8 +184,7 @@ class QueryParametersViewPresenter(private val myProject: Project) extends Dispo
       if myState.selectedDomain.slug != item.value && myInitialData.challengeDomains.exists(_.slug == item.value) then
         myInitialData.challengeDomains.find(_.slug == item.value).foreach { newSelected =>
           myState = myState.copy(selectedDomain = newSelected, selectedSubdomains = Nil).resetPagination()
-          refreshTags()
-          refreshQuery()
+          requery()
         }
 
     override def isMultipleSelection: Boolean = false
@@ -186,87 +200,67 @@ class QueryParametersViewPresenter(private val myProject: Project) extends Dispo
         case Some(newSelected) =>
           if myState.selectedDomain.slug != newSelected.slug then
             myState = myState.copy(selectedDomain = newSelected, selectedSubdomains = Nil)
-            refreshTags()
+            requery()
         case _ =>
 
     override def removeSelectedItems(items: List[Category]): Unit = {}
   }
 
-  private val myDifficultiesProvider = new DifficultiesProvider {
-    override def isSelected(item: DifficultyData): Boolean =
-      myState.selectedDifficulties.exists(_.value == item.value)
+  private val myDifficultiesProvider = new DifficultyParameterProvider {
+    override def isSelected(item: ChallengeDifficulty): Boolean =
+      myState.selectedDifficulties.exists(_ == item)
 
     override def isMultipleSelection: Boolean = true
 
-    override def toggleSelection(item: DifficultyData): Unit =
-      myState.selectedDifficulties.find(_.value == item.value) match {
-        case Some(_) => removeSelectedItems(List(item))
-        case None    => addSelectedItems(List(item))
-      }
+    override def toggleSelection(item: ChallengeDifficulty): Unit =
+      if myState.selectedDifficulties.exists(_ == item) then
+        myState = myState.copy(selectedDifficulties = myState.selectedDifficulties.filterNot(_ == item))
+      else myState = myState.copy(selectedDifficulties = myState.selectedDifficulties :+ item)
 
-    override def getAllItems: List[DifficultyData] =
-      List(
-        DifficultyData(Difficulty.Easy.showAsHtml, Difficulty.Easy.value),
-        DifficultyData(Difficulty.Medium.showAsHtml, Difficulty.Medium.value),
-        DifficultyData(Difficulty.Hard.showAsHtml, Difficulty.Hard.value)
-      )
+    override def getAllItems: List[ChallengeDifficulty] =
+      List(ChallengeDifficulty.Easy, ChallengeDifficulty.Medium, ChallengeDifficulty.Hard)
 
-    override def getSelectedItems: List[DifficultyData] =
-      myState.selectedDifficulties.map(difficulty => DifficultyData(difficulty.show, difficulty.value))
+    override def getSelectedItems: List[ChallengeDifficulty] =
+      myState.selectedDifficulties
 
-    override def addSelectedItems(items: List[DifficultyData]): Unit =
-      myState = myState.copy(selectedDifficulties = (myState.selectedDifficulties ++ items.collect {
-        case DifficultyData(_, value) if value == Difficulty.Easy.value   => Difficulty.Easy
-        case DifficultyData(_, value) if value == Difficulty.Medium.value => Difficulty.Medium
-        case DifficultyData(_, value) if value == Difficulty.Hard.value   => Difficulty.Hard
-      }).distinct)
-      refreshTags()
-      refreshQuery()
+    override def addSelectedItems(items: List[ChallengeDifficulty]): Unit =
+      myState = myState.copy(selectedDifficulties = (myState.selectedDifficulties ++ items).distinct)
+      requery()
 
-    override def removeSelectedItems(items: List[DifficultyData]): Unit =
-      myState = myState.copy(selectedDifficulties =
-        myState.selectedDifficulties.filterNot(difficulty =>
-          items.exists {
-            case DifficultyData(_, value) if value == difficulty.value => true
-            case _                                                     => false
-          }
-        )
-      )
-      refreshTags()
-      refreshQuery()
+    override def removeSelectedItems(items: List[ChallengeDifficulty]): Unit =
+      myState = myState.copy(selectedDifficulties = myState.selectedDifficulties.filterNot(items.contains))
+      requery()
   }
 
-  private val myStatusProvider = new StatusProvider:
+  private val myStatusProvider = new StatusParameterProvider {
     private val allItems = List(ChallengeStatus.Solved, ChallengeStatus.Unsolved)
 
-    override def isSelected(item: Status): Boolean =
+    override def isSelected(item: ChallengeStatus): Boolean =
       myState.selectedStatus.exists(_.value == item.value)
 
-    override def getAllItems: List[Status] =
-      allItems.map(status => Status(status.show, status.value))
+    override def getAllItems: List[ChallengeStatus] = allItems
 
     override def isMultipleSelection: Boolean = false
 
-    override def getSelectedItems: List[Status] =
-      myState.selectedStatus.map(status => Status(status.show, status.value)).toList
+    override def getSelectedItems: List[ChallengeStatus] =
+      myState.selectedStatus.toList
 
-    override def addSelectedItems(items: List[Status]): Unit =
+    override def addSelectedItems(items: List[ChallengeStatus]): Unit = {
       myState =
         myState.copy(selectedStatus = items.headOption.flatMap(status => allItems.find(_.value == status.value)))
-      refreshTags()
-      refreshQuery()
+      requery()
+    }
 
-    override def toggleSelection(item: Status): Unit =
+    override def toggleSelection(item: ChallengeStatus): Unit =
       if myState.selectedStatus.exists(_.value == item.value) then myState = myState.copy(selectedStatus = None)
       else myState = myState.copy(selectedStatus = allItems.find(_.value == item.value))
-      refreshTags()
-      refreshQuery()
+      requery()
 
-    override def removeSelectedItems(items: List[Status]): Unit =
+    override def removeSelectedItems(items: List[ChallengeStatus]): Unit =
       if myState.selectedStatus.exists(_.value == items.head.value) then
         myState = myState.copy(selectedStatus = None)
-        refreshTags()
-        refreshQuery()
+        requery()
+  }
 
   private val myTagProvider = new SingleTagGroupProvider {
     override def getAllItems: List[Tag] =
@@ -290,70 +284,58 @@ class QueryParametersViewPresenter(private val myProject: Project) extends Dispo
             if myState.selectedDomain.slug == groupValue && myState.selectedDomain.subDomains.exists(_.slug == value) =>
           myState.selectedDomain.subDomains.find(_.slug == value).get
       }).distinct)
-      refreshTags()
-      refreshQuery()
+      requery()
 
     override def removeSelectedItems(items: List[Tag]): Unit =
       myState = myState.copy(selectedSubdomains =
         myState.selectedSubdomains.filterNot(subdomain => items.exists(_.value == subdomain.slug))
       )
-      refreshTags()
-      refreshQuery()
+      requery()
 
     override def toggleSelection(item: Tag): Unit =
       if isSelected(item) then removeSelectedItems(List(item))
       else addSelectedItems(List(item))
   }
 
-  private val mySkillProvider = new SkillProvider {
-    override def getAllItems: List[Skill] = List(
-      Skill(ChallengeSkill.Basic.show, ChallengeSkill.Basic.value),
-      Skill(ChallengeSkill.Intermediate.show, ChallengeSkill.Intermediate.value),
-      Skill(ChallengeSkill.Advanced.show, ChallengeSkill.Advanced.value)
-    )
+  private val mySkillProvider = new SkillParameterProvider {
+    private val allItems: List[HackerRankChallengeSkill] =
+      List(HackerRankChallengeSkill.Basic, HackerRankChallengeSkill.Intermediate, HackerRankChallengeSkill.Advanced)
+    override def getAllItems: List[HackerRankChallengeSkill] = allItems
 
     override def isMultipleSelection: Boolean = true
 
-    override def isSelected(item: Skill): Boolean =
+    override def isSelected(item: HackerRankChallengeSkill): Boolean =
       myState.selectedSkills.exists(_.value == item.value)
 
-    override def getSelectedItems: List[Skill] =
-      myState.selectedSkills.map(skill => Skill(skill.value, skill.show))
+    override def getSelectedItems: List[HackerRankChallengeSkill] =
+      myState.selectedSkills
 
-    override def addSelectedItems(items: List[Skill]): Unit =
-      myState = myState.copy(selectedSkills = (myState.selectedSkills ++ items.collect {
-        case Skill(_, value) if value == ChallengeSkill.Basic.value        => ChallengeSkill.Basic
-        case Skill(_, value) if value == ChallengeSkill.Intermediate.value => ChallengeSkill.Intermediate
-        case Skill(_, value) if value == ChallengeSkill.Advanced.value     => ChallengeSkill.Advanced
-      }).distinct)
-      refreshTags()
-      refreshQuery()
+    override def addSelectedItems(items: List[HackerRankChallengeSkill]): Unit = {
+      myState = myState.copy(selectedSkills = (myState.selectedSkills ++ items).distinct)
+      requery()
+    }
 
-    override def toggleSelection(item: Skill): Unit =
-      if myState.selectedSkills.exists(_.value == item.value) then removeSelectedItems(List(item))
-      else addSelectedItems(List(item))
+    override def toggleSelection(item: HackerRankChallengeSkill): Unit = {
+      if myState.selectedSkills.exists(_.value == item.value) then
+        myState = myState.copy(selectedSkills = myState.selectedSkills.filterNot(_.value == item.value))
+      else myState = myState.copy(selectedSkills = myState.selectedSkills :+ item)
+      requery()
+    }
 
-    override def removeSelectedItems(items: List[Skill]): Unit =
-      myState = myState.copy(selectedSkills =
-        myState.selectedSkills.filterNot(skill =>
-          items.exists {
-            case Skill(_, value) if value == skill.value => true
-            case _                                       => false
-          }
-        )
-      )
-      refreshTags()
-      refreshQuery()
+    override def removeSelectedItems(items: List[HackerRankChallengeSkill]): Unit = {
+      myState = myState.copy(selectedSkills = myState.selectedSkills.filterNot(items.contains))
+      requery()
+    }
 
   }
 
-  private val myPaginationProvider = new PaginationProvider {
+  private val myPaginationProvider = new PaginationParameterProvider {
     private val allItems = List(PageSize.Twenty, PageSize.Fifty, PageSize.OneHundred)
 
     override def getAllItems: List[PageSize] = allItems
 
     override def refresh(): Unit =
-      myView.refreshPagination()
+      ApplicationManager.getApplication.invokeLater(() => myView.refreshPagination())
 
     override def isMultipleSelection: Boolean = false
 
@@ -371,7 +353,7 @@ class QueryParametersViewPresenter(private val myProject: Project) extends Dispo
       PageSize.fromInt(item.value).foreach { pageSize =>
         myState = myState.copy(pageSize = pageSize)
         if myState.currentPage * pageSize.value > myState.totalSize then myState = myState.copy(currentPage = 1)
-        refreshQuery()
+        requery()
       }
 
     override def removeSelectedItems(items: List[PageSize]): Unit = ()
@@ -383,13 +365,14 @@ class QueryParametersViewPresenter(private val myProject: Project) extends Dispo
 
     override def setCurrentPage(page: Int): Unit =
       myState = myState.copy(currentPage = page)
-      refreshQuery(false)
+      requery(false)
 
     override def getTotalPages: Int = math.ceil(myState.totalSize.toDouble / myState.pageSize.value).toInt
 
     override def getTotalItems: Int = myState.totalSize
   }
 
+  @RequiresEdt
   private def refreshTags(): Unit = {
     val tagPane = myView.getTagPane
     tagPane.removeAllTags()
@@ -402,7 +385,7 @@ class QueryParametersViewPresenter(private val myProject: Project) extends Dispo
         difficulty.showAsHtml,
         None,
         DIFFICULTY_TAG_RADIUS,
-        Some(() => myDifficultiesProvider.removeSelectedItems(List(DifficultyData(difficulty.show, difficulty.value))))
+        Some(() => myDifficultiesProvider.removeSelectedItems(List(difficulty)))
       )
     }
     myState.selectedStatus.foreach { status =>
@@ -411,7 +394,7 @@ class QueryParametersViewPresenter(private val myProject: Project) extends Dispo
         status.show,
         None,
         STATUS_TAG_RADIUS,
-        Some(() => myStatusProvider.removeSelectedItems(List(Status(status.show, status.value))))
+        Some(() => myStatusProvider.removeSelectedItems(List(status)))
       )
     }
 
@@ -421,7 +404,7 @@ class QueryParametersViewPresenter(private val myProject: Project) extends Dispo
         skill.show,
         None,
         SKILL_TAG_RADIUS,
-        Some(() => mySkillProvider.removeSelectedItems(List(Skill(skill.show, skill.value))))
+        Some(() => mySkillProvider.removeSelectedItems(List(skill)))
       )
     }
     myState.selectedSubdomains.foreach { subdomain =>
@@ -436,11 +419,18 @@ class QueryParametersViewPresenter(private val myProject: Project) extends Dispo
       )
     }
 
-    myView
-      .refreshTagToolbar()
+    myView.refreshTagToolbar()
   }
 
-  override def dispose(): Unit = {}
+  private def requery(resetToFirstPage: Boolean = true): Unit =
+    myQueryQueue.foreach { q =>
+      val state = if resetToFirstPage then myState.resetToFirstPage() else myState
+      q.offer(Some(state)).unsafeRunAndForget()
+    }
+
+  override def dispose(): Unit = {
+    myQueryQueue.foreach(_.offer(None).unsafeRunSync())
+  }
 
   def getComponent: JComponent = myView
 
@@ -448,24 +438,25 @@ class QueryParametersViewPresenter(private val myProject: Project) extends Dispo
     myView.getTableModel.setItems(items.asJava)
 }
 
-object QueryParametersViewPresenter {
+object QueryParametersPresenter {
   private case class InitialData(userInfo: UserInfo, challengeDomains: List[ChallengeDomain])
-  private case class State(
+
+  private case class QueryParams(
     selectedDomain: ChallengeDomain,
     selectedSubdomains: List[ChallengeSubdomain],
-    selectedDifficulties: List[Difficulty],
+    selectedDifficulties: List[ChallengeDifficulty],
     selectedStatus: Option[ChallengeStatus],
-    selectedSkills: List[ChallengeSkill],
+    selectedSkills: List[HackerRankChallengeSkill],
     currentItems: List[ChallengeDetail] = Nil,
     currentPage: Int = 1,
     totalSize: Int = 1,
     pageSize: PageSize = PageSize.Twenty
   ) {
-    def resetToFirstPage(): State = this.copy(currentPage = 1)
-    def resetPagination(): State  = this.copy(currentPage = 1, totalSize = 1)
+    def resetToFirstPage(): QueryParams = this.copy(currentPage = 1)
+    def resetPagination(): QueryParams  = this.copy(currentPage = 1, totalSize = 1)
   }
 
-  final private val EMPTY_STATE = State(PROJECT_EULER_DOMAIN, Nil, Nil, None, Nil, Nil, 1, 1, PageSize.Twenty)
+  final private val EMPTY_STATE = QueryParams(PROJECT_EULER_DOMAIN, Nil, Nil, None, Nil, Nil, 1, 1, PageSize.Twenty)
 
   private val DOMAIN_TAG_RADIUS     = 0.2f
   private val DIFFICULTY_TAG_RADIUS = 0.4f

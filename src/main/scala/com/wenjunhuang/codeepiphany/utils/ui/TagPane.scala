@@ -1,30 +1,34 @@
 package com.wenjunhuang.codeepiphany.utils.ui
 
 import com.intellij.icons.AllIcons
-import com.intellij.openapi.actionSystem.{ ActionManager, ActionToolbar, AnAction, DefaultActionGroup }
+import com.intellij.openapi.actionSystem.{ActionManager, ActionToolbar, AnAction, DefaultActionGroup}
 import com.intellij.openapi.actionSystem.ex.DefaultCustomComponentAction
 import com.intellij.openapi.actionSystem.toolbarLayout.ToolbarLayoutStrategy
 import com.intellij.openapi.ui.popup.IconButton
-import com.intellij.ui.{ Gray, InplaceButton, JBColor }
-import com.intellij.ui.components.{ JBLabel, JBLayeredPane }
-import com.intellij.util.ui.{ JBInsets, JBUI }
+import com.intellij.ui.{Gray, InplaceButton, JBColor}
+import com.intellij.ui.components.{JBLabel, JBLayeredPane}
+import com.intellij.util.concurrency.annotations.RequiresEdt
+import com.intellij.util.ui.{JBInsets, JBUI}
 import com.intellij.util.ui.components.BorderLayoutPanel
 
-import java.awt.{ Color, Dimension, Graphics, GridBagConstraints, GridBagLayout }
+import java.awt.*
 import java.awt.event.ActionEvent
-import java.util.concurrent.Future
-import javax.swing.{ Icon, JLayeredPane, JPanel, SwingConstants }
+import javax.swing.{Icon, JLayeredPane, JPanel, SwingConstants}
 
-class TagPane extends BorderLayoutPanel {
+class TagPane(val noBorderTop: Boolean = true) extends BorderLayoutPanel {
 
-  private val myActionGroup = DefaultActionGroup()
+  val myActionGroup = DefaultActionGroup()
   private val myTagToolbar: ActionToolbar =
     ActionManager.getInstance().createActionToolbar("TagPane", myActionGroup, true)
 
   myTagToolbar.setTargetComponent(this)
   myTagToolbar.setLayoutStrategy(ToolbarLayoutStrategy.WRAP_STRATEGY)
   myTagToolbar.setReservePlaceAutoPopupIcon(false)
-  add(myTagToolbar.getComponent, SwingConstants.CENTER)
+
+  if noBorderTop then
+    val toolbarComp = myTagToolbar.getComponent
+    val border      = toolbarComp.getBorder.getBorderInsets(toolbarComp)
+    toolbarComp.setBorder(JBUI.Borders.empty(0, border.left, border.bottom, border.right))
 
   private def createTagAction(
     id: String,
@@ -46,6 +50,7 @@ class TagPane extends BorderLayoutPanel {
 
   def removeAllTags(): Unit = myActionGroup.removeAll()
 
+  @RequiresEdt
   def addTagAction(
     id: String,
     text: String,
@@ -56,7 +61,16 @@ class TagPane extends BorderLayoutPanel {
     myActionGroup.add(createTagAction(id, text, icon, radius, onCloseAction))
   }
 
-  def updateActionsAsync(): Future[?] = myTagToolbar.updateActionsAsync()
+  @RequiresEdt
+  def updateActionsAsync(): Unit = {
+    if myActionGroup.getChildrenCount == 0 then remove(myTagToolbar.getComponent)
+    else if (0 until getComponentCount).exists(i => getComponent(i) == myTagToolbar.getComponent) then
+      myTagToolbar.updateActionsAsync()
+    else
+      add(myTagToolbar.getComponent, SwingConstants.CENTER)
+      revalidate()
+      repaint()
+  }
 }
 
 class Tag(val id: String, text: String, icon: Option[Icon], radius: Float, onCloseAction: Option[() => Unit])
