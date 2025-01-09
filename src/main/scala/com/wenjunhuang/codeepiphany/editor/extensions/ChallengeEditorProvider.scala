@@ -3,18 +3,12 @@ package com.wenjunhuang.codeepiphany.editor.extensions
 import com.intellij.ide.DataManager
 import com.intellij.ide.structureView.StructureViewBuilder
 import com.intellij.openapi.editor.Editor
+import com.intellij.openapi.fileEditor.*
 import com.intellij.openapi.fileEditor.impl.text.PsiAwareTextEditorProvider
-import com.intellij.openapi.fileEditor.{
-  AsyncFileEditorProvider,
-  FileEditor,
-  FileEditorPolicy,
-  FileEditorState,
-  TextEditor
-}
 import com.intellij.openapi.fileEditor.AsyncFileEditorProvider.Builder
-import com.intellij.openapi.project.{ DumbAware, Project }
+import com.intellij.openapi.project.{DumbAware, Project}
 import com.intellij.openapi.vfs.VirtualFile
-import com.wenjunhuang.codeepiphany.editor.actions.providers.SubmitCodeProvider
+import com.wenjunhuang.codeepiphany.editor.actions.SubmitCodeAction.{SUBMITCODE_PROVIDER_KEY, SubmitCodeProvider}
 import com.wenjunhuang.codeepiphany.settings.ChallengeSettings
 import org.jdom.Element
 
@@ -54,7 +48,7 @@ class ChallengeEditorProvider extends AsyncFileEditorProvider with DumbAware {
   }
 
   private def setupEditor(editor: FileEditor, project: Project, file: VirtualFile): FileEditor = {
-    editor.putUserData(SubmitCodeProvider.SUBMITCODE_PROVIDER_KEY, SubmitCodeProvider.createProvider(file, project))
+    editor.putUserData(SUBMITCODE_PROVIDER_KEY, SubmitCodeProvider.createProvider(file, project))
     editor
   }
 }

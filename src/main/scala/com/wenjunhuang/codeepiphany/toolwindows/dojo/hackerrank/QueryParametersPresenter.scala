@@ -109,7 +109,7 @@ class QueryParametersPresenter(private val myProject: Project) extends Disposabl
               }
           )
           .interruptWhen(signal)
-          .onFinalizeCaseWeak(c => myLogger.info(s"Query stream finalized, because of $c"))
+          .onFinalizeCaseWeak(c => myLogger.debug(s"HackerRank Query Parameter stream finalized, because of $c"))
           .compile
           .drain
           .evalAsBackgroundProgress(myProject, "Querying challenges...")

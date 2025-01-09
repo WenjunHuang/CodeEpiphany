@@ -62,19 +62,14 @@ class KeywordSearchViewPresenter(private val myProject: Project) extends Documen
           case (acc, Right(Some(challenge))) => acc :+ challenge
           case (acc, _)                      => acc
         }.evalTap { challenges =>
-          IO.delay {
-            updateChallenges(challenges)
-          }.evalOnEDTAny()
+          IO.delay { updateChallenges(challenges) }.evalOnEDTAny()
         }.interruptWhen(signal)
           .attempt
-          .evalMap {
-            case Left(e) =>
-              myLogger.warn(e)("Error while search challenges")
-            case _ => IO.unit
-          }
+          .onFinalizeCaseWeak(c => myLogger.debug(s"HackerRank Keyword search stream finalized, because of $c"))
           .compile
           .drain
           .evalAsBackgroundProgress(myProject, "Searching challenges...")
+          .attempt
       }
       .onFinalize(myLogger.info("Search by keyword stream finalized"))
       .compile
