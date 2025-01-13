@@ -6,9 +6,10 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Key
 import com.intellij.openapi.vfs.VirtualFile
 import com.wenjunhuang.codeepiphany.editor.actions.SubmitCodeAction.*
-import com.wenjunhuang.codeepiphany.editor.services.runCode
-import com.wenjunhuang.codeepiphany.services.http.{ HttpClientKeeper, HttpClientService }
+import com.wenjunhuang.codeepiphany.editor.services.{runCode, submitCode}
+import com.wenjunhuang.codeepiphany.services.http.{HttpClientKeeper, HttpClientService}
 import com.wenjunhuang.codeepiphany.utils.extensions.*
+import com.wenjunhuang.codeepiphany.utils.implicits.*
 
 class SubmitCodeAction extends AnAction {
   override def actionPerformed(e: AnActionEvent): Unit = {
@@ -48,7 +49,10 @@ object SubmitCodeAction {
     def createProvider(vf: VirtualFile, project: Project): SubmitCodeProvider = new SubmitCodeProvider:
       implicit val httpClientKeeper: HttpClientKeeper[IO] = HttpClientService.getInstance(project).httpClientKeeper
 
-      override def submitCurrent(): Unit = ???
+      override def submitCurrent(): Unit = {
+        submitCode[IO](vf, project)
+          .unsafeRunAsBackgroundProgressCancellable(project, "Submitting code")
+      }
 
       override def runCurrent(): Unit = {
         runCode[IO](vf, project)

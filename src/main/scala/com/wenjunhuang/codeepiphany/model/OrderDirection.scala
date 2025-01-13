@@ -2,8 +2,9 @@ package com.wenjunhuang.codeepiphany.model
 
 import org.jooq.{ Field, SortField }
 
-enum OrderFilter {
-  case Ascending, Descending
+enum OrderDirection {
+  case Ascending
+  case Descending
 
   def toJooqSortField[T](field: Field[T]): SortField[T] = this match
     case Ascending  => field.asc()

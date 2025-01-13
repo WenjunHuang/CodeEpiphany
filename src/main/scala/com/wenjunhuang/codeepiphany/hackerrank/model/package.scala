@@ -4,9 +4,9 @@ import cats.syntax.all.*
 import cats.Show
 import com.intellij.openapi.util.text.StringUtil
 import com.wenjunhuang.codeepiphany.PluginBundle
-import com.wenjunhuang.codeepiphany.model.{Language, LanguageVersion}
-import io.circe.{Decoder, HCursor, Json}
-import io.circe.derivation.{Configuration, ConfiguredDecoder}
+import com.wenjunhuang.codeepiphany.model.{ Language, LanguageVersion }
+import io.circe.{ Decoder, HCursor, Json }
+import io.circe.derivation.{ Configuration, ConfiguredDecoder }
 import monocle.Lens
 import monocle.macros.GenLens
 import org.typelevel.ci.CIString
@@ -166,6 +166,23 @@ package object model {
     compileCommand: Option[String] = None,
     compilemessage: Option[String] = None,
     errorCode: Option[Int] = None
+  ) derives ConfiguredDecoder
+
+  case class SubmissionResponse(
+    id: Int,
+    challengeId: Int,
+    status: String, // "Processing", "Wrong Answer","Accepted","Compilation error"
+    score: String,
+    scoreProcessed: Int, // 3 means fully processed and no more query needed
+    solved: Int,
+    partial: Int,
+    compileStatus: Option[Int],
+    compileMessage: Option[String],
+    testcaseStatus: List[Int],
+    testcaseMessage: List[String],
+    codecheckerSignal: List[Int],
+    codecheckerTime: List[BigDecimal],
+    stderr: Option[String]
   ) derives ConfiguredDecoder
 
 }

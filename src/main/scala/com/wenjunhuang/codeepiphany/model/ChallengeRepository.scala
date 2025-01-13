@@ -13,8 +13,8 @@ import com.wenjunhuang.codeepiphany.settings.CodeEpiphanySettings
 import com.wenjunhuang.codeepiphany.utils.XmlUtils.*
 import com.zaxxer.hikari.HikariDataSource
 import org.flywaydb.core.Flyway
-import org.jooq.{ DSLContext, SQLDialect }
-import org.jooq.impl.DSL
+import org.jooq.{DSLContext, Log, SQLDialect}
+import org.jooq.tools.JooqLogger
 
 import java.util as ju
 import java.io.File
@@ -24,6 +24,7 @@ import scala.compiletime.uninitialized
 import cats.effect.IO
 import cats.effect.kernel.Resource
 import com.wenjunhuang.codeepiphany.utils.implicits.*
+import org.jooq.impl.DSL
 
 @Service(Array(Level.PROJECT))
 final class ChallengeRepository(private val myProject: Project) extends Disposable {
@@ -56,6 +57,8 @@ final class ChallengeRepository(private val myProject: Project) extends Disposab
       .load()
     flyway.migrate()
     dataSource = Some(ds)
+    
+    JooqLogger.globalThreshold(Log.Level.DEBUG)
   }
 
   private def getDatabaseFile: File = {

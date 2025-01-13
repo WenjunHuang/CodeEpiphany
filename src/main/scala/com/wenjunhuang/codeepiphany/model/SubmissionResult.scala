@@ -7,14 +7,17 @@ import com.wenjunhuang.codeepiphany.model.SubmissionResult.*
 import org.typelevel.ci.CIString
 
 enum SubmissionResult(val value: String) {
+  case Processing       extends SubmissionResult("processing")
   case Success          extends SubmissionResult("success")
   case Failure          extends SubmissionResult("failure")
-  case CompilationError extends SubmissionResult("compilation_error")
+  case CompilationError extends SubmissionResult("compilationError")
   case Timeout          extends SubmissionResult("timeout")
   case Unknown          extends SubmissionResult("unknown")
 
   def showAsHtml: String =
     this match
+      case Processing =>
+        s"<html><font color='${SUBMISSION_PROCESSING_COLOR}'>${Processing.show}</font></html>"
       case Success =>
         s"<html><font color='${SUBMISSION_SUCCESS_COLOR}'>${Success.show}</font></html>"
       case Failure =>
@@ -30,6 +33,7 @@ enum SubmissionResult(val value: String) {
 object SubmissionResult {
   implicit val showInst: Show[SubmissionResult] =
     Show.show[SubmissionResult] {
+      case Processing       => PluginBundle.message("submissionResult.processing")
       case Success          => PluginBundle.message("submissionResult.success")
       case Failure          => PluginBundle.message("submissionResult.failure")
       case CompilationError => PluginBundle.message("submissionResult.compilationError")
@@ -43,12 +47,13 @@ object SubmissionResult {
     else if ciString == CIString(CompilationError.value) then Some(CompilationError)
     else if ciString == CIString(Timeout.value) then Some(Timeout)
     else if ciString == CIString(Unknown.value) then Some(Unknown)
+    else if ciString == CIString(Processing.value) then Some(Processing)
     else None
   }
 
   val SUBMISSION_SUCCESS_COLOR      = "#1ab8a3"
   val SUBMISSION_FAILURE_COLOR      = "#ff375f"
-  val SUBMISSION_PENDING_COLOR      = "#ffc01e"
+  val SUBMISSION_PROCESSING_COLOR   = "#ffc01e"
   val SUBMISSION_COMPILEERROR_COLOR = "#ff4f64"
   val SUBMISSION_TIMEOUT_COLOR      = "#ff5164"
   val SUBMISSION_UNKNOWN_COLOR      = "#ffc01e"

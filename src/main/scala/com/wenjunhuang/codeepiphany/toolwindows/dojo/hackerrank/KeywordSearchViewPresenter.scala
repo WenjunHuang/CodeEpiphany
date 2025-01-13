@@ -59,7 +59,7 @@ class KeywordSearchViewPresenter(private val myProject: Project) extends Documen
           case (contest, challenge) =>
             myApi.getChallengeDetail(challenge.challengeSlug, contest).attempt
         }.scan(Nil: List[ChallengeDetail]) {
-          case (acc, Right(Some(challenge))) => acc :+ challenge
+          case (acc, Right(challenge)) => acc :+ challenge
           case (acc, _)                      => acc
         }.evalTap { challenges =>
           IO.delay { updateChallenges(challenges) }.evalOnEDTAny()

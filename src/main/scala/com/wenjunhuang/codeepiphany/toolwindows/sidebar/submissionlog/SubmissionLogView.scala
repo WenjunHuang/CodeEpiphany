@@ -1,6 +1,6 @@
 package com.wenjunhuang.codeepiphany.toolwindows.sidebar.submissionlog
 
-import com.intellij.openapi.actionSystem.{ActionGroup, ActionManager, DataSink}
+import com.intellij.openapi.actionSystem.{ ActionGroup, ActionManager, DataSink }
 import com.intellij.openapi.ui.SimpleToolWindowPanel
 import com.intellij.ui.components.JBScrollPane
 import com.intellij.util.ui.components.BorderLayoutPanel
@@ -13,7 +13,7 @@ class SubmissionLogView(private val myPresenter: SubmissionLogPresenter) extends
   private val myActionGroup =
     ActionManager.getInstance().getAction(Actions.SUBMISSIONS_TOOLBAR_GROUP).asInstanceOf[ActionGroup]
   private val myTagPane    = TagPane()
-  private val myTableModel = new SubmissionLogTableModel()
+  private val myTableModel = new SubmissionLogTableModel(myPresenter)
   private val myTable      = myTableModel.createTableView(myPresenter.uiDataSnapshot)
   private val myContent    = BorderLayoutPanel()
   private val myMainToolbar =
@@ -32,7 +32,8 @@ class SubmissionLogView(private val myPresenter: SubmissionLogPresenter) extends
 
   setContent(myContent)
 
-  def getTagPane: TagPane = myTagPane
+  def getTagPane: TagPane                    = myTagPane
+  def getTableModel: SubmissionLogTableModel = myTableModel
 
   override def uiDataSnapshot(sink: DataSink): Unit = {
     myPresenter.uiDataSnapshot(sink)

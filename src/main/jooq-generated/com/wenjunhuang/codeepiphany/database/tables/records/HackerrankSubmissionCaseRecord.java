@@ -34,40 +34,25 @@ public class HackerrankSubmissionCaseRecord extends UpdatableRecordImpl<Hackerra
     }
 
     /**
-     * Setter for <code>hackerrank_submission_case.state</code>.
+     * Setter for <code>hackerrank_submission_case.testcaseMessage</code>.
      */
-    public HackerrankSubmissionCaseRecord setState(String value) {
+    public HackerrankSubmissionCaseRecord setTestcasemessage(String value) {
         set(1, value);
         return this;
     }
 
     /**
-     * Getter for <code>hackerrank_submission_case.state</code>.
+     * Getter for <code>hackerrank_submission_case.testcaseMessage</code>.
      */
-    public String getState() {
+    public String getTestcasemessage() {
         return (String) get(1);
-    }
-
-    /**
-     * Setter for <code>hackerrank_submission_case.message</code>.
-     */
-    public HackerrankSubmissionCaseRecord setMessage(String value) {
-        set(2, value);
-        return this;
-    }
-
-    /**
-     * Getter for <code>hackerrank_submission_case.message</code>.
-     */
-    public String getMessage() {
-        return (String) get(2);
     }
 
     /**
      * Setter for <code>hackerrank_submission_case.num</code>.
      */
     public HackerrankSubmissionCaseRecord setNum(Integer value) {
-        set(3, value);
+        set(2, value);
         return this;
     }
 
@@ -75,14 +60,14 @@ public class HackerrankSubmissionCaseRecord extends UpdatableRecordImpl<Hackerra
      * Getter for <code>hackerrank_submission_case.num</code>.
      */
     public Integer getNum() {
-        return (Integer) get(3);
+        return (Integer) get(2);
     }
 
     /**
      * Setter for <code>hackerrank_submission_case.stdIn</code>.
      */
     public HackerrankSubmissionCaseRecord setStdin(String value) {
-        set(4, value);
+        set(3, value);
         return this;
     }
 
@@ -90,14 +75,14 @@ public class HackerrankSubmissionCaseRecord extends UpdatableRecordImpl<Hackerra
      * Getter for <code>hackerrank_submission_case.stdIn</code>.
      */
     public String getStdin() {
-        return (String) get(4);
+        return (String) get(3);
     }
 
     /**
      * Setter for <code>hackerrank_submission_case.expectedOutput</code>.
      */
     public HackerrankSubmissionCaseRecord setExpectedoutput(String value) {
-        set(5, value);
+        set(4, value);
         return this;
     }
 
@@ -105,14 +90,14 @@ public class HackerrankSubmissionCaseRecord extends UpdatableRecordImpl<Hackerra
      * Getter for <code>hackerrank_submission_case.expectedOutput</code>.
      */
     public String getExpectedoutput() {
-        return (String) get(5);
+        return (String) get(4);
     }
 
     /**
      * Setter for <code>hackerrank_submission_case.submissionId</code>.
      */
     public HackerrankSubmissionCaseRecord setSubmissionid(Integer value) {
-        set(6, value);
+        set(5, value);
         return this;
     }
 
@@ -120,7 +105,52 @@ public class HackerrankSubmissionCaseRecord extends UpdatableRecordImpl<Hackerra
      * Getter for <code>hackerrank_submission_case.submissionId</code>.
      */
     public Integer getSubmissionid() {
+        return (Integer) get(5);
+    }
+
+    /**
+     * Setter for <code>hackerrank_submission_case.codecheckerSignal</code>.
+     */
+    public HackerrankSubmissionCaseRecord setCodecheckersignal(Integer value) {
+        set(6, value);
+        return this;
+    }
+
+    /**
+     * Getter for <code>hackerrank_submission_case.codecheckerSignal</code>.
+     */
+    public Integer getCodecheckersignal() {
         return (Integer) get(6);
+    }
+
+    /**
+     * Setter for <code>hackerrank_submission_case.codecheckerTime</code>.
+     */
+    public HackerrankSubmissionCaseRecord setCodecheckertime(Float value) {
+        set(7, value);
+        return this;
+    }
+
+    /**
+     * Getter for <code>hackerrank_submission_case.codecheckerTime</code>.
+     */
+    public Float getCodecheckertime() {
+        return (Float) get(7);
+    }
+
+    /**
+     * Setter for <code>hackerrank_submission_case.testcaseStatus</code>.
+     */
+    public HackerrankSubmissionCaseRecord setTestcasestatus(Integer value) {
+        set(8, value);
+        return this;
+    }
+
+    /**
+     * Getter for <code>hackerrank_submission_case.testcaseStatus</code>.
+     */
+    public Integer getTestcasestatus() {
+        return (Integer) get(8);
     }
 
     // -------------------------------------------------------------------------
@@ -146,16 +176,18 @@ public class HackerrankSubmissionCaseRecord extends UpdatableRecordImpl<Hackerra
     /**
      * Create a detached, initialised HackerrankSubmissionCaseRecord
      */
-    public HackerrankSubmissionCaseRecord(Integer id, String state, String message, Integer num, String stdin, String expectedoutput, Integer submissionid) {
+    public HackerrankSubmissionCaseRecord(Integer id, String testcasemessage, Integer num, String stdin, String expectedoutput, Integer submissionid, Integer codecheckersignal, Float codecheckertime, Integer testcasestatus) {
         super(HackerrankSubmissionCase.HACKERRANK_SUBMISSION_CASE);
 
         setId(id);
-        setState(state);
-        setMessage(message);
+        setTestcasemessage(testcasemessage);
         setNum(num);
         setStdin(stdin);
         setExpectedoutput(expectedoutput);
         setSubmissionid(submissionid);
+        setCodecheckersignal(codecheckersignal);
+        setCodecheckertime(codecheckertime);
+        setTestcasestatus(testcasestatus);
         resetChangedOnNotNull();
     }
 }

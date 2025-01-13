@@ -1,5 +1,7 @@
 package com.wenjunhuang.codeepiphany.editor.services
 
+import cats.syntax.all.*
+import cats.Id
 import cats.effect.{ Async, Concurrent }
 import cats.effect.kernel.Resource.ExitCase
 import com.intellij.openapi.project.Project
@@ -7,12 +9,18 @@ import com.intellij.openapi.vfs.{ VirtualFile, VirtualFileUtil }
 import com.wenjunhuang.codeepiphany.database.Tables.*
 import com.wenjunhuang.codeepiphany.hackerrank.model.Contest
 import com.wenjunhuang.codeepiphany.hackerrank.services.HackerRankApi
-import com.wenjunhuang.codeepiphany.model.{ ChallengeRepository, Language }
+import com.wenjunhuang.codeepiphany.model.{ ChallengeRepository, Language, SubmissionResult }
+import com.wenjunhuang.codeepiphany.model.SubmissionResult.CompilationError
 import com.wenjunhuang.codeepiphany.services.console
 import com.wenjunhuang.codeepiphany.services.http.HttpClientKeeper
 import com.wenjunhuang.codeepiphany.settings.ChallengeSettings.ChallengeSettingsStateItem
 import fs2.Stream
+import org.jooq.DSLContext
+import org.jooq.impl.DSL
 import org.typelevel.ci.CIString
+
+import java.time.LocalDateTime
+import scala.jdk.OptionConverters.*
 
 object hackerrank {
   def runCode[F[_]: Async: Concurrent: HttpClientKeeper](
@@ -25,52 +33,14 @@ object hackerrank {
         ChallengeRepository
           .getInstance(project)
           .getDSLContextResource[F]
-          .use { client =>
-            Async[F].blocking {
-              Option(
-                client
-                  .select(
-                    CHALLENGE.SLUG,
-                    HACKERRANK_CHALLENGE.CONTESTSLUG,
-                    CHALLENGE_LANGUAGE.LANGUAGE,
-                    CHALLENGE_LANGUAGE.LANGUAGEVERSION
-                  )
-                  .from(CHALLENGE)
-                  .innerJoin(HACKERRANK_CHALLENGE)
-                  .on(CHALLENGE.ID.eq(HACKERRANK_CHALLENGE.ID))
-                  .innerJoin(CHALLENGE_LANGUAGE)
-                  .on(CHALLENGE.ID.eq(CHALLENGE_LANGUAGE.CHALLENGEID))
-                  .where(CHALLENGE.ID.eq(item.challengeId).and(CHALLENGE_LANGUAGE.ID.eq(item.challengeLanguageId)))
-                  .fetchOne()
-              ).flatMap { record =>
-                val challengeSlug = record.get(CHALLENGE.SLUG)
-                val contestSlug   = record.get(HACKERRANK_CHALLENGE.CONTESTSLUG)
-                val language      = record.get(CHALLENGE_LANGUAGE.LANGUAGE)
-                val langVer       = record.get(CHALLENGE_LANGUAGE.LANGUAGEVERSION)
-
-                Contest
-                  .fromCIString(CIString(contestSlug))
-                  .zip(Language.fromCIString(CIString(language)))
-                  .map((_, _, langVer, challengeSlug))
-              } match {
-                case Some(value) => value
-                case None        => throw new Exception("Cannot find data for file")
-              }
-            }
+          .use { dsl =>
+            Async[F].delay { queryChallengeBasicInfo(item, dsl) }
           }
       )
       .flatMap { case (contest, language, langVer, challengeSlug) =>
         val extractedCode = language.extractSubmitCode(VirtualFileUtil.readText(vf))
         HackerRankApi[F]()
           .runAnswer(challengeSlug, contest, language, langVer, extractedCode)
-      }
-      .onFinalizeCase {
-        case ExitCase.Succeeded =>
-          Async[F].unit
-        case ExitCase.Errored(e) =>
-          console.error[F](project, s"Error to run code: \n ${e.getMessage}")
-        case ExitCase.Canceled =>
-          console.warn[F](project, s"Code submission cancelled for ${vf.getCanonicalPath}")
       }
       .last
       .evalTap {
@@ -83,8 +53,191 @@ object hackerrank {
               else console.info[F](project, "🎉 Passed!")
         case None => Async[F].unit
       }
+      .onFinalizeCase {
+        case ExitCase.Succeeded =>
+          Async[F].unit
+        case ExitCase.Errored(e) =>
+          console.error[F](project, s"Error to run code: \n ${e.getMessage}")
+        case ExitCase.Canceled =>
+          console.warn[F](project, s"Code submission cancelled for ${vf.getCanonicalPath}")
+      }
       .compile
       .drain
+  }
 
+  def submitCode[F[_]: Async: Concurrent: HttpClientKeeper](
+    vf: VirtualFile,
+    project: Project,
+    item: ChallengeSettingsStateItem
+  ): F[Unit] = {
+    Stream
+      .eval(
+        ChallengeRepository
+          .getInstance(project)
+          .getDSLContextResource[F]
+          .use { client =>
+            Async[F].delay {
+              client.transactionResult { trx =>
+                val dsl             = DSL.using(trx)
+                val basicInfo       = queryChallengeBasicInfo(item, dsl)
+                val localCode       = VirtualFileUtil.readText(vf)
+                val submitCode      = basicInfo._2.extractSubmitCode(localCode)
+                val solutionId: Int = item.solutionId.getOrElse(getOrCreateDefaultSolution(dsl, item.challengeId))
+
+                val submissionRecord = dsl.newRecord(SOLUTION_SUBMISSION)
+                submissionRecord.setChallengelanguageid(item.challengeLanguageId)
+                submissionRecord.setLocalcode(localCode)
+                submissionRecord.setSubmitcode(submitCode)
+                submissionRecord.setSubmitdatetime(java.time.LocalDateTime.now())
+                submissionRecord.setSolutionid(solutionId)
+                submissionRecord.setResult(SubmissionResult.Processing.value)
+                submissionRecord.store()
+
+                (basicInfo._1, basicInfo._2, basicInfo._3, basicInfo._4, submitCode, submissionRecord.getId, solutionId)
+              }
+            }
+          }
+      )
+      .flatMap { case (contest, language, langVer, challengeSlug, submitCode, submissionId, solutionId) =>
+        HackerRankApi[F]()
+          .submitAnswer(challengeSlug, contest, language, langVer, submitCode)
+          .map((_, submissionId))
+      }
+      .last
+      .map {
+        case Some((response, submissionId)) =>
+          val client = ChallengeRepository.getInstance(project).getDSLContext
+          client.transactionResult { trx =>
+            val dsl = DSL.using(trx)
+            dsl
+              .selectFrom(SOLUTION_SUBMISSION)
+              .where(SOLUTION_SUBMISSION.ID.eq(submissionId))
+              .fetchOptional()
+              .toScala match
+              case Some(record) =>
+                record.setDojosubmissionid(response.id.toString)
+                record.setResultdatetime(LocalDateTime.now())
+
+                val result = toSubmissionResult(response.status)
+                record.setResult(result.value)
+                record.setScore(response.score)
+                val message =
+                  if result == SubmissionResult.CompilationError then response.compileMessage.getOrElse(response.status)
+                  else response.status
+                record.setMessage(message)
+                record.store()
+
+                response.codecheckerSignal
+                  .zip(response.codecheckerTime)
+                  .zip(response.testcaseMessage)
+                  .zip(response.testcaseStatus)
+                  .map { case (((a, b), c), d) =>
+                    (a, b, c, d)
+                  }
+                  .zipWithIndex
+                  .foreach { (item, index) =>
+                    val (signal, time, message, status) = item
+                    val testcaseRecord                  = dsl.newRecord(HACKERRANK_SUBMISSION_CASE)
+                    testcaseRecord.setSubmissionid(submissionId)
+                    testcaseRecord.setTestcasemessage(message)
+                    testcaseRecord.setNum(index)
+                    testcaseRecord.setTestcasestatus(status)
+                    testcaseRecord.setCodecheckersignal(signal)
+                    testcaseRecord.setCodecheckertime(time.bigDecimal.floatValue())
+                    testcaseRecord.store()
+                  }
+                (result, message)
+
+              case None => throw new Exception("Cannot find submission record")
+          }
+        case None => throw new IllegalStateException("should not happened")
+      }
+      .evalTap { case (result, message) =>
+        result match
+          case SubmissionResult.Success =>
+            console.info[F](project, "🎉 Passed!")
+          case SubmissionResult.Failure =>
+            console.error[F](project, message)
+          case SubmissionResult.CompilationError =>
+            console.error[F](project, s"Compilation Error: \n ${message}")
+          case SubmissionResult.Processing =>
+            console.info[F](project, message)
+          case SubmissionResult.Timeout =>
+            console.error[F](project, message)
+          case SubmissionResult.Unknown =>
+            console.error[F](project, message)
+      }
+      .onFinalizeCase {
+        case ExitCase.Succeeded =>
+          Async[F].unit
+        case ExitCase.Errored(e) =>
+          console.error[F](project, s"Error to submit code: \n ${e.getMessage}")
+        case ExitCase.Canceled =>
+          console.warn[F](project, s"Code submission cancelled for ${vf.getCanonicalPath}")
+      }
+      .compile
+      .drain
+  }
+
+  private def getOrCreateDefaultSolution(dsl: DSLContext, challengeId: Int): Int = {
+    val solutionRecord = dsl
+      .selectFrom(SOLUTION)
+      .where(SOLUTION.CHALLENGEID.eq(challengeId).and(SOLUTION.ISDEFAULT.eq(1)))
+      .fetchOptional()
+      .toScala
+      .getOrElse {
+        val newRecord = dsl
+          .newRecord(SOLUTION)
+          .setChallengeid(challengeId)
+          .setTitle("Default")
+          .setIsdefault(1)
+          .setCreatedatetime(LocalDateTime.now())
+        newRecord.store()
+        newRecord
+      }
+    solutionRecord.getId
+  }
+
+  private def queryChallengeBasicInfo(
+    item: ChallengeSettingsStateItem,
+    client: DSLContext
+  ): (Contest, Language, String, String) = {
+    Option(
+      client
+        .select(
+          CHALLENGE.SLUG,
+          HACKERRANK_CHALLENGE.CONTESTSLUG,
+          CHALLENGE_LANGUAGE.LANGUAGE,
+          CHALLENGE_LANGUAGE.LANGUAGEVERSION
+        )
+        .from(CHALLENGE)
+        .innerJoin(HACKERRANK_CHALLENGE)
+        .on(CHALLENGE.ID.eq(HACKERRANK_CHALLENGE.ID))
+        .innerJoin(CHALLENGE_LANGUAGE)
+        .on(CHALLENGE.ID.eq(CHALLENGE_LANGUAGE.CHALLENGEID))
+        .where(CHALLENGE.ID.eq(item.challengeId).and(CHALLENGE_LANGUAGE.ID.eq(item.challengeLanguageId)))
+        .fetchOne()
+    ).flatMap { record =>
+      val challengeSlug = record.get(CHALLENGE.SLUG)
+      val contestSlug   = record.get(HACKERRANK_CHALLENGE.CONTESTSLUG)
+      val language      = record.get(CHALLENGE_LANGUAGE.LANGUAGE)
+      val langVer       = record.get(CHALLENGE_LANGUAGE.LANGUAGEVERSION)
+
+      Contest
+        .fromCIString(CIString(contestSlug))
+        .zip(Language.fromCIString(CIString(language)))
+        .map((_, _, langVer, challengeSlug))
+    } match {
+      case Some(value) => value
+      case None        => throw new Exception("Cannot find data for file")
+    }
+  }
+
+  private def toSubmissionResult(status: String): SubmissionResult = {
+    if status == "Accepted" then SubmissionResult.Success
+    else if status == "Wrong Answer" then SubmissionResult.Failure
+    else if status == "Compilation error" then CompilationError
+    else if status == "Terminated due to timeout" then SubmissionResult.Timeout
+    else SubmissionResult.Unknown
   }
 }

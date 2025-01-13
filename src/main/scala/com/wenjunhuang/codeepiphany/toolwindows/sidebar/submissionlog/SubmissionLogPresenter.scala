@@ -9,6 +9,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.Disposable
 import com.wenjunhuang.codeepiphany.actions.CodeDojoParameterAction.{ CODEDOJO_PROVIDER_KEY, CodeDojoParameterProvider }
 import com.wenjunhuang.codeepiphany.actions.LanguageParameterAction.{ LANGUAGE_PROVIDER_KEY, LanguageParameterProvider }
+import com.wenjunhuang.codeepiphany.actions.RefreshAction.{ REFRESH_PROVIDER_KEY, RefreshProvider }
 import com.wenjunhuang.codeepiphany.database.Tables.*
 import com.wenjunhuang.codeepiphany.model.*
 import com.wenjunhuang.codeepiphany.toolwindows.sidebar.submissionlog.SubmissionLogPresenter.*
@@ -53,6 +54,9 @@ class SubmissionLogPresenter(private val myProject: Project) extends UiDataProvi
       .evalTap { case (signal, queryParams) =>
         Stream
           .eval(querySubmissionLogs(queryParams))
+          .evalTap { result =>
+            IO.delay { myView.getTableModel.setItems(result.asJava) }.evalOnEDTAny()
+          }
           .interruptWhen(signal)
           .attempt
           .onFinalizeCase {
@@ -73,6 +77,12 @@ class SubmissionLogPresenter(private val myProject: Project) extends UiDataProvi
   } yield ()
 
   myQueryWorker.unsafeRunAndForget()
+
+  private val myRefreshProvider = new RefreshProvider {
+    override def refresh(): Unit = {
+      requery()
+    }
+  }
 
   private val myDojoProvider = new CodeDojoParameterProvider {
     override def getAllItems: List[CodeDojo] = CodeDojo.values.toList
@@ -190,7 +200,9 @@ class SubmissionLogPresenter(private val myProject: Project) extends UiDataProvi
               )
             }
           }
-          .filter(_.isSuccess)
+          .filter { it =>
+            it.isSuccess
+          }
           .map(_.get)
           .toList
       }
@@ -223,42 +235,94 @@ class SubmissionLogPresenter(private val myProject: Project) extends UiDataProvi
     myView.getTagPane.updateActionsAsync()
   }
 
+  def clearOrderFilter(): Unit = {
+    myQueryParams = myQueryParams.copy(orderBy = None)
+    requery()
+  }
+
+  def getCodeDojoOrderFilter: Option[OrderDirection] = myQueryParams.orderBy.collectFirst {
+    case (OrderByField.CodeDojoField, direction) => direction
+  }
+  def setCodeDojoOrderFilter(orderFilter: OrderDirection): Unit = {
+    myQueryParams = myQueryParams.copy(orderBy = Some((OrderByField.CodeDojoField, orderFilter)))
+    requery()
+  }
+
+  def getLanguageOrderFilter: Option[OrderDirection] = myQueryParams.orderBy.collectFirst {
+    case (OrderByField.LanguageField, direction) => direction
+  }
+  def setLanguageOrderFilter(orderFilter: OrderDirection): Unit = {
+    myQueryParams = myQueryParams.copy(orderBy = Some((OrderByField.LanguageField, orderFilter)))
+    requery()
+  }
+
+  def getDifficultyOrderFilter: Option[OrderDirection] = myQueryParams.orderBy.collectFirst {
+    case (OrderByField.DifficultyField, direction) => direction
+  }
+  def setDifficultyOrderFilter(orderFilter: OrderDirection): Unit = {
+    myQueryParams = myQueryParams.copy(orderBy = Some((OrderByField.DifficultyField, orderFilter)))
+    requery()
+  }
+
+  def getSubmissionResultOrderFilter: Option[OrderDirection] = myQueryParams.orderBy.collectFirst {
+    case (OrderByField.SubmissionResultField, direction) => direction
+  }
+  def setSubmissionResultOrderFilter(orderFilter: OrderDirection): Unit = {
+    myQueryParams = myQueryParams.copy(orderBy = Some((OrderByField.SubmissionResultField, orderFilter)))
+    requery()
+  }
+
+  def getSubmissionDateTimeOrderFilter: Option[OrderDirection] = myQueryParams.orderBy.collectFirst {
+    case (OrderByField.SubmissionDateTimeField, direction) => direction
+  }
+  def setSubmissionDateTimeOrderFilter(orderFilter: OrderDirection): Unit = {
+    myQueryParams = myQueryParams.copy(orderBy = Some((OrderByField.SubmissionDateTimeField, orderFilter)))
+    requery()
+  }
+
+  def getResultDateTimeOrderFilter: Option[OrderDirection] = myQueryParams.orderBy.collectFirst {
+    case (OrderByField.ResultDateTimeField, direction) => direction
+  }
+  def setResultDateTimeOrderFilter(orderFilter: OrderDirection): Unit = {
+    myQueryParams = myQueryParams.copy(orderBy = Some((OrderByField.ResultDateTimeField, orderFilter)))
+    requery()
+  }
+
   override def dispose(): Unit = {
     myQueryQueue.foreach(_.offer(None).unsafeRunSync())
   }
 
   override def uiDataSnapshot(dataSink: DataSink): Unit = {
+    dataSink.set(REFRESH_PROVIDER_KEY, myRefreshProvider)
     dataSink.set(CODEDOJO_PROVIDER_KEY, myDojoProvider)
     dataSink.set(LANGUAGE_PROVIDER_KEY, myLanguageProvider)
   }
 }
 
 object SubmissionLogPresenter {
+  enum OrderByField {
+    case CodeDojoField
+    case LanguageField
+    case DifficultyField
+    case SubmissionResultField
+    case SubmissionDateTimeField
+    case ResultDateTimeField
+  }
   private val EMPTY_QUERY_PARAMS = QueryParams(
     dojos = List.empty,
-    dojoOrder = None,
     languages = List.empty,
-    languageOrder = None,
     difficulties = List.empty,
-    difficultiesOrder = None,
     submitResults = List.empty,
-    submitResultsOrder = None,
-    submissionDateTimeOrder = None,
-    resultDateTimeOrder = None,
-    titleKeyword = None
+    titleKeyword = None,
+    orderBy = None
   )
   private case class QueryParams(
-                                  dojos: List[CodeDojo],
-                                  dojoOrder: Option[OrderFilter],
-                                  languages: List[(Language, LanguageVersion)],
-                                  languageOrder: Option[OrderFilter],
-                                  difficulties: List[ChallengeDifficulty],
-                                  difficultiesOrder: Option[OrderFilter],
-                                  submitResults: List[SubmissionResult],
-                                  submitResultsOrder: Option[OrderFilter],
-                                  submissionDateTimeOrder: Option[OrderFilter],
-                                  resultDateTimeOrder: Option[OrderFilter],
-                                  titleKeyword: Option[String]
+    dojos: List[CodeDojo],
+    languages: List[(Language, LanguageVersion)],
+    difficulties: List[ChallengeDifficulty],
+    submitResults: List[SubmissionResult],
+    titleKeyword: Option[String],
+    orderBy: Option[(OrderByField, OrderDirection)]
   ) {
     def fillQueryConditions(base: SelectOnConditionStep[Record]) = {
       var query = base
@@ -267,24 +331,25 @@ object SubmissionLogPresenter {
         query = query.and(
           CHALLENGE_LANGUAGE.LANGUAGE
             .in(languages.map(_._1.value).asJava)
-            .and(CHALLENGE_LANGUAGE.LANGUAGEVERSION.in(languages.map(_._2.toString).asJava))
+            .and(CHALLENGE_LANGUAGE.LANGUAGEVERSION.in(languages.map(_._2.version).asJava))
         )
       if difficulties.nonEmpty then query = query.and(CHALLENGE.DIFFICULTY.in(difficulties.map(_.value).asJava))
       if submitResults.nonEmpty then query = query.and(SOLUTION_SUBMISSION.RESULT.in(submitResults.map(_.value).asJava))
       if titleKeyword.nonEmpty then query = query.and(CHALLENGE.TITLE.likeIgnoreCase(s"%${titleKeyword.get}%"))
 
-      List(
-        languageOrder.map(_.toJooqSortField(CHALLENGE_LANGUAGE.LANGUAGE)),
-        dojoOrder.map(_.toJooqSortField(CHALLENGE.DOJO)),
-        difficultiesOrder.map(_.toJooqSortField(CHALLENGE.DIFFICULTY)),
-        submitResultsOrder.map(_.toJooqSortField(SOLUTION_SUBMISSION.RESULT)),
-        submissionDateTimeOrder.map(_.toJooqSortField(SOLUTION_SUBMISSION.SUBMITDATETIME)),
-        resultDateTimeOrder.map(_.toJooqSortField(SOLUTION_SUBMISSION.RESULTDATETIME))
-      ).filter(_.nonEmpty)
-        .map(_.get) match
-        case Nil => query
-        case orders =>
-          query.orderBy(orders.toArray*)
+      orderBy match
+        case None => query
+        case Some((field, direction)) =>
+          field match
+            case OrderByField.CodeDojoField   => query.orderBy(direction.toJooqSortField(CHALLENGE.DOJO))
+            case OrderByField.LanguageField   => query.orderBy(direction.toJooqSortField(CHALLENGE_LANGUAGE.LANGUAGE))
+            case OrderByField.DifficultyField => query.orderBy(direction.toJooqSortField(CHALLENGE.DIFFICULTY))
+            case OrderByField.SubmissionResultField =>
+              query.orderBy(direction.toJooqSortField(SOLUTION_SUBMISSION.RESULT))
+            case OrderByField.SubmissionDateTimeField =>
+              query.orderBy(direction.toJooqSortField(SOLUTION_SUBMISSION.SUBMITDATETIME))
+            case OrderByField.ResultDateTimeField =>
+              query.orderBy(direction.toJooqSortField(SOLUTION_SUBMISSION.RESULTDATETIME))
     }
   }
   private val LANGUAGE_TAG_RADIUS = 0.3f

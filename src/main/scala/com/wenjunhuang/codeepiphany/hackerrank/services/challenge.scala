@@ -31,7 +31,7 @@ object challenge {
     challengeSlug: String,
     contest: Contest,
     language: Language,
-    languageVersion:LanguageVersion
+    languageVersion: LanguageVersion
   ): F[Unit] = {
     Async[F].delay {
       val settings = HackerRankSettings.getInstance(project)
@@ -65,7 +65,7 @@ object challenge {
     challengeSlug: String,
     contest: Contest,
     language: Language,
-    languageVersion:LanguageVersion,
+    languageVersion: LanguageVersion,
     sourceFolder: String,
     fileNameTemplate: String,
     codeTemplate: String
@@ -73,30 +73,34 @@ object challenge {
     val api = HackerRankApi[F]()
     api
       .getChallengeContent(challengeSlug, contest)
-      .map {
-        case Some(content) =>
-          content.codeTemplates.filter { case ((lang, _), _) =>
-            lang == language
-          }.toList.maxByOption { case ((_, version), _) => version }.map { case ((_, _), temp) =>
-            ChallengeCodeTemplate(
-              content.detail.id.toString,
-              HackerRank,
-              content.detail.name,
-              content.detail.slug,
-              content.detail.bodyHtml.getOrElse(""),
-              temp.header,
-              temp.template,
-              temp.tail,
-              contest.slug,
-              ChallengeDifficulty.fromCIString(CIString(content.detail.difficultyName)).get.value,
-              language,
-              languageVersion
-            )
-          }
-        case None => None
+      .map { content =>
+        content.codeTemplates.get((language, languageVersion)).map { temp =>
+          ChallengeCodeTemplate(
+            content.detail.id.toString,
+            HackerRank,
+            content.detail.name,
+            content.detail.slug,
+            content.detail.bodyHtml.getOrElse(""),
+            temp.header,
+            temp.template,
+            temp.tail,
+            contest.slug,
+            ChallengeDifficulty.fromCIString(CIString(content.detail.difficultyName)).get.value,
+            language,
+            languageVersion
+          )
+        }
       }
       .flatMap {
-        case None => Async[F].delay(Messages.showInfoMessage("Failed to open challenge", "Error")).evalOnEDTAny()
+        case None =>
+          Async[F]
+            .delay(
+              Messages.showInfoMessage(
+                s"Challenge '${challengeSlug}' does not support ${language.show}${languageVersion.version}",
+                "Information"
+              )
+            )
+            .evalOnEDTAny()
         case Some(template) =>
           (
             VelocityUtils.generateContent(fileNameTemplate, template),

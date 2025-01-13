@@ -58,51 +58,55 @@ create table hackerrank_challenge_language
 
 create table solution
 (
-    id                  integer           not null
+    id             integer           not null
         constraint solution_pk
             primary key autoincrement,
-    challengeId         integer           not null
+    challengeId    integer           not null
         constraint solution_challenge_id_fk
             references challenge,
-    challengeLanguageId integer           not null
-        constraint solution_challenge_language_id_fk
-            references challenge_language,
-    createDateTime      INTEGER           not null,
-    tags                TEXT,
-    remark              TEXT,
-    title               TEXT              not null,
-    isDefault           INTEGER default 0 not null
+    createDateTime INTEGER           not null,
+    tags           TEXT,
+    remark         TEXT,
+    title          TEXT              not null,
+    isDefault      INTEGER default 0 not null
 );
-
-create unique index solution_challengeLanguageId_title_uindex
-    on solution (challengeLanguageId, title);
 
 create table solution_submission
 (
-    id               INTEGER not null
+    id                  INTEGER not null
         constraint solution_submission_pk
             primary key autoincrement,
-    dojoSubmissionId TEXT,
-    submitDateTime   integer not null,
-    localCode        TEXT    not null,
-    submitCode       TEXT    not null,
-    state            TEXT    not null,
-    solutionId       integer not null
+    dojoSubmissionId    TEXT,
+    submitDateTime      integer not null,
+    localCode           TEXT    not null,
+    submitCode          TEXT    not null,
+    result              TEXT    not null,
+    solutionId          integer not null
         constraint solution_submission_solution_id_fk
-            references solution
+            references solution,
+    challengeLanguageId integer not null
+        constraint solution_submission_challenge_language_id_fk
+            references challenge_language,
+    score               TEXT,
+    message             TEXT,
+    resultDateTime      integer
 );
 
-create table hackerrank_solution_submission_result
+create table hackerrank_submission_case
 (
-    id             integer not null
-        constraint hackerrank_solution_submission_result_pk
+    id                integer not null
+        constraint hackerrank_submission_case_pk
             primary key autoincrement,
-    state          TEXT    not null,
-    message        TEXT,
-    num            integer not null,
-    stdIn          TEXT,
-    expectedOutput TEXT,
-    submissionId   integer not null
-        constraint hackerrank_solution_submission_result_solution_submission_id_fk
-            references solution_submission
+    testcaseMessage   TEXT,
+    num               integer not null,
+    stdIn             TEXT,
+    expectedOutput    TEXT,
+    submissionId      integer not null
+        constraint hackerrank_submission_case_solution_submission_id_fk
+            references solution_submission,
+    codecheckerSignal integer,
+    codecheckerTime   REAL,
+    testcaseStatus    integer
 );
+
+

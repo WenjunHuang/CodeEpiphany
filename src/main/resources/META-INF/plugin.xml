@@ -15,6 +15,9 @@
     <resource-bundle>messages.PluginBundle</resource-bundle>
     <actions>
         <group id="CodeEpiphany.Group">
+            <action id="CodeEpiphany.Actions.Refresh"
+                    class="com.wenjunhuang.codeepiphany.actions.RefreshAction"
+                    icon="AllIcons.Actions.Refresh"/>
             <action id="CodeEpiphany.Actions.Login"
                     class="com.wenjunhuang.codeepiphany.actions.LoginAction"
                     icon="CodeEpiphanyIcons.LOGIN"/>
@@ -103,6 +106,7 @@
         </group>
 
         <group id="CodeEpiphany.Sidebar.SubmissionLog.Toolbar.Group">
+            <reference ref="CodeEpiphany.Actions.Refresh"/>
             <action class="com.wenjunhuang.codeepiphany.actions.CodeDojoParameterAction"
                     id="CodeEpiphany.Sidebar.SubmissionLog.Actions.CodeDojo"/>
             <action class="com.wenjunhuang.codeepiphany.actions.LanguageParameterAction"

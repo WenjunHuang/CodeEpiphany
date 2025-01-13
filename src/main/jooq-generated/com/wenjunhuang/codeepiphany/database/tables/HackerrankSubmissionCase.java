@@ -63,14 +63,9 @@ public class HackerrankSubmissionCase extends TableImpl<HackerrankSubmissionCase
     public final TableField<HackerrankSubmissionCaseRecord, Integer> ID = createField(DSL.name("id"), SQLDataType.INTEGER.nullable(false).identity(true), this, "");
 
     /**
-     * The column <code>hackerrank_submission_case.state</code>.
+     * The column <code>hackerrank_submission_case.testcaseMessage</code>.
      */
-    public final TableField<HackerrankSubmissionCaseRecord, String> STATE = createField(DSL.name("state"), SQLDataType.CLOB.nullable(false), this, "");
-
-    /**
-     * The column <code>hackerrank_submission_case.message</code>.
-     */
-    public final TableField<HackerrankSubmissionCaseRecord, String> MESSAGE = createField(DSL.name("message"), SQLDataType.CLOB, this, "");
+    public final TableField<HackerrankSubmissionCaseRecord, String> TESTCASEMESSAGE = createField(DSL.name("testcaseMessage"), SQLDataType.CLOB, this, "");
 
     /**
      * The column <code>hackerrank_submission_case.num</code>.
@@ -91,6 +86,21 @@ public class HackerrankSubmissionCase extends TableImpl<HackerrankSubmissionCase
      * The column <code>hackerrank_submission_case.submissionId</code>.
      */
     public final TableField<HackerrankSubmissionCaseRecord, Integer> SUBMISSIONID = createField(DSL.name("submissionId"), SQLDataType.INTEGER.nullable(false), this, "");
+
+    /**
+     * The column <code>hackerrank_submission_case.codecheckerSignal</code>.
+     */
+    public final TableField<HackerrankSubmissionCaseRecord, Integer> CODECHECKERSIGNAL = createField(DSL.name("codecheckerSignal"), SQLDataType.INTEGER, this, "");
+
+    /**
+     * The column <code>hackerrank_submission_case.codecheckerTime</code>.
+     */
+    public final TableField<HackerrankSubmissionCaseRecord, Float> CODECHECKERTIME = createField(DSL.name("codecheckerTime"), SQLDataType.REAL, this, "");
+
+    /**
+     * The column <code>hackerrank_submission_case.testcaseStatus</code>.
+     */
+    public final TableField<HackerrankSubmissionCaseRecord, Integer> TESTCASESTATUS = createField(DSL.name("testcaseStatus"), SQLDataType.INTEGER, this, "");
 
     private HackerrankSubmissionCase(Name alias, Table<HackerrankSubmissionCaseRecord> aliased) {
         this(alias, aliased, (Field<?>[]) null, null);

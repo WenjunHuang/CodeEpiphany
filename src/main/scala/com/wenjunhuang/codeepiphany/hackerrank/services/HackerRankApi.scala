@@ -1,10 +1,10 @@
 package com.wenjunhuang.codeepiphany.hackerrank.services
 
-import cats.effect.{Async, Concurrent, Temporal}
+import cats.effect.{ Async, Concurrent, Temporal }
 import cats.syntax.all.*
 import com.wenjunhuang.codeepiphany.hackerrank.model.*
-import com.wenjunhuang.codeepiphany.hackerrank.model.Contest.{Master, ProjectEuler}
-import com.wenjunhuang.codeepiphany.model.{ApiError, ChallengeStatus, ChallengeDifficulty, Language}
+import com.wenjunhuang.codeepiphany.hackerrank.model.Contest.{ Master, ProjectEuler }
+import com.wenjunhuang.codeepiphany.model.{ ApiError, ChallengeDifficulty, ChallengeStatus, Language }
 import com.wenjunhuang.codeepiphany.model.CodeDojo.HackerRank
 import com.wenjunhuang.codeepiphany.services.http.HttpClientKeeper
 import fs2.Stream
@@ -12,7 +12,7 @@ import io.circe.*
 import io.circe.optics.JsonPath
 import io.circe.parser.parse
 import io.circe.syntax.*
-import org.http4s.{Headers, Method, Request, Uri}
+import org.http4s.{ Headers, Method, Request, Uri }
 import org.http4s.circe.*
 import org.http4s.circe.CirceEntityEncoder.*
 import org.http4s.client.dsl.Http4sClientDsl
@@ -24,17 +24,17 @@ import scala.concurrent.duration.*
 
 trait HackerRankApi[F[_]] {
   def getInitialData: F[(UserInfo, List[ChallengeDomain])]
-  def getChallengeContent(challengeSlug: String, contest: Contest): F[Option[ChallengeContent]]
-  def getChallengeDetail(challengeSlug: String, contest: Contest): F[Option[ChallengeDetail]]
+  def getChallengeContent(challengeSlug: String, contest: Contest): F[ChallengeContent]
+  def getChallengeDetail(challengeSlug: String, contest: Contest): F[ChallengeDetail]
   def searchChallenges(
-                        offset: Int,
-                        limit: Int,
-                        contest: Contest,
-                        domainSlug: String,
-                        status: List[ChallengeStatus] = Nil,
-                        skills: List[HackerRankChallengeSkill] = Nil,
-                        difficulties: List[ChallengeDifficulty] = Nil,
-                        subdomains: List[ChallengeSubdomain] = Nil
+    offset: Int,
+    limit: Int,
+    contest: Contest,
+    domainSlug: String,
+    status: List[ChallengeStatus] = Nil,
+    skills: List[HackerRankChallengeSkill] = Nil,
+    difficulties: List[ChallengeDifficulty] = Nil,
+    subdomains: List[ChallengeSubdomain] = Nil
   ): F[(Int, List[ChallengeDetail])]
 
   def searchChallengesWithKeyword(contest: Contest, keyword: String): F[List[(Contest, ChallengeSearchByKeyWord)]]
@@ -47,7 +47,7 @@ trait HackerRankApi[F[_]] {
     language: Language,
     langVer: String,
     code: String
-  ): Stream[F, Any]
+  ): Stream[F, SubmissionResponse]
 
   def runAnswer(
     challengeSlug: String,
@@ -81,65 +81,60 @@ object HackerRankApi {
       }
     }
 
-    override def getChallengeDetail(problemSlug: String, contest: Contest): F[Option[ChallengeDetail]] =
+    override def getChallengeDetail(problemSlug: String, contest: Contest): F[ChallengeDetail] =
       HttpClientKeeper[F].getClient.use { client =>
         client
           .expect[String](Request[F](Method.GET, makeGetChallengeContentRequestUrl(problemSlug, contest)))
           .map { content =>
-            val doc = Jsoup.parse(content)
-            (
-              Option(doc.selectFirst("div[class=challenge-body-html]")),
-              Option(doc.selectFirst("script[id=initialData]"))
-            ).mapN { case (questionBody, questionCode) =>
-              parse(Uri.decode(questionCode.html())) match {
-                case Left(e) =>
-                  throw ApiError.InvalidContent(HackerRank, e.getMessage)
-                case Right(json) =>
-                  JsonPath.root.community.challenges.challenge
-                    .selectDynamic(s"${contest.slug}/$problemSlug")
-                    .detail
-                    .json
-                    .getOption(json)
-                    .toRight(ApiError.InvalidContent(HackerRank, "invalid challenge content json"))
-                    .flatMap { json =>
-                      json.as[ChallengeDetail].leftMap { e =>
-                        ApiError.InvalidContent(HackerRank, e.getMessage)
+            Option(Jsoup.parse(content).selectFirst("script[id=initialData]")) match
+              case None =>
+                throw ApiError.InvalidContent(HackerRank, "can not find script[id=initialData] element in html")
+              case Some(element) =>
+                parse(Uri.decode(element.html())) match {
+                  case Left(e) =>
+                    throw ApiError.InvalidContent(HackerRank, e.getMessage)
+                  case Right(json) =>
+                    JsonPath.root.community.challenges.challenge
+                      .selectDynamic(s"${contest.slug}/$problemSlug")
+                      .detail
+                      .json
+                      .getOption(json)
+                      .toRight(ApiError.InvalidContent(HackerRank, "invalid challenge content json"))
+                      .flatMap { json =>
+                        json.as[ChallengeDetail].leftMap { e =>
+                          ApiError.InvalidContent(HackerRank, e.getMessage)
+                        }
                       }
-                    }
-                    .fold(throw _, identity)
-              }
-            }
+                      .fold(throw _, identity)
+                }
           }
       }
 
     override def getChallengeContent(
       problemSlug: String,
       contest: Contest // hackerrank contest such as 'projecteuler'
-    ): F[Option[ChallengeContent]] =
+    ): F[ChallengeContent] =
       HttpClientKeeper[F].getClient.use { client =>
         client
           .expect[String](Request[F](Method.GET, makeGetChallengeContentRequestUrl(problemSlug, contest)))
           .map { content =>
-            val doc = Jsoup.parse(content)
-            (
-              Option(doc.selectFirst("div[class=challenge-body-html]")),
-              Option(doc.selectFirst("script[id=initialData]"))
-            ).mapN { case (questionBody, questionCode) =>
-              parse(Uri.decode(questionCode.html())) match {
-                case Left(e) => throw ApiError.InvalidContent(HackerRank, e.getMessage)
-                case Right(json) =>
-                  JsonPath.root.community.challenges.challenge
-                    .selectDynamic(s"${contest.slug}/$problemSlug")
-                    .detail
-                    .json
-                    .getOption(json)
-                    .toRight(ApiError.InvalidContent(HackerRank, "invalid challenge content json"))
-                    .flatMap { json =>
-                      json.as[ChallengeContent].leftMap(e => ApiError.InvalidContent(HackerRank, e.getMessage))
-                    }
-                    .fold(throw _, identity)
-              }
-            }
+            Option(Jsoup.parse(content).selectFirst("script[id=initialData]")) match
+              case None => throw ApiError.InvalidContent(HackerRank, "can not find element script[id=initialData]")
+              case Some(element) =>
+                parse(Uri.decode(element.html())) match {
+                  case Left(e) => throw ApiError.InvalidContent(HackerRank, e.getMessage)
+                  case Right(json) =>
+                    JsonPath.root.community.challenges.challenge
+                      .selectDynamic(s"${contest.slug}/$problemSlug")
+                      .detail
+                      .json
+                      .getOption(json)
+                      .toRight(ApiError.InvalidContent(HackerRank, "invalid challenge content json"))
+                      .flatMap { json =>
+                        json.as[ChallengeContent].leftMap(e => ApiError.InvalidContent(HackerRank, e.getMessage))
+                      }
+                      .fold(throw _, identity)
+                }
           }
       }
 
@@ -149,14 +144,14 @@ object HackerRankApi {
       else base / "tracks" / domainSlug / "challenges"
 
     override def searchChallenges(
-                                   offset: Int,
-                                   limit: Int,
-                                   contest: Contest,
-                                   domainSlug: String,
-                                   status: List[ChallengeStatus],
-                                   skills: List[HackerRankChallengeSkill],
-                                   difficulties: List[ChallengeDifficulty],
-                                   subdomains: List[ChallengeSubdomain]
+      offset: Int,
+      limit: Int,
+      contest: Contest,
+      domainSlug: String,
+      status: List[ChallengeStatus],
+      skills: List[HackerRankChallengeSkill],
+      difficulties: List[ChallengeDifficulty],
+      subdomains: List[ChallengeSubdomain]
     ): F[(Int, List[ChallengeDetail])] =
       HttpClientKeeper[F].getClient.use { client =>
         val request = Method.GET(
@@ -236,10 +231,11 @@ object HackerRankApi {
             .flatMap { case (initialUserData, initialData) =>
               (
                 parse(Uri.decode(initialUserData.html)).leftMap(e =>
-                  ApiError.InvalidContent(HackerRank, "The initialUserData script is not valid JSON")
+                  ApiError
+                    .InvalidContent(HackerRank, s"The initialUserData script is not valid JSON for ${e.getMessage}")
                 ),
                 parse(Uri.decode(initialData.html)).leftMap(e =>
-                  ApiError.InvalidContent(HackerRank, "The initialData script is not valid JSON")
+                  ApiError.InvalidContent(HackerRank, s"The initialData script is not valid JSON for ${e.getMessage}")
                 )
               ).flatMapN { case (userData, data) =>
                 (
@@ -300,10 +296,10 @@ object HackerRankApi {
               .withEntity(
                 JsonObject.fromMap(
                   Map(
-                    "language" -> s"${language.value}$langVer".asJson,
-                    "playlist_slug" -> "".asJson,
+                    "language"       -> s"${language.value}$langVer".asJson,
+                    "playlist_slug"  -> "".asJson,
                     "customtestcase" -> false.asJson,
-                    "code" -> code.asJson
+                    "code"           -> code.asJson
                   )
                 )
               )
@@ -313,7 +309,9 @@ object HackerRankApi {
                 .flatMap { json =>
                   JsonPath.root.model.id.int
                     .getOption(json)
-                    .toRight(ApiError.InvalidContent(HackerRank, s"invalid run code response json with ${json.noSpaces}"))
+                    .toRight(
+                      ApiError.InvalidContent(HackerRank, s"invalid run code response json with ${json.noSpaces}")
+                    )
                 }
                 .liftTo[F]
             }
@@ -368,27 +366,74 @@ object HackerRankApi {
         }
       }
 
+    private def getSubmitCodeResult(contest: Contest, challengeSlug: String, submissionId: Int): F[SubmissionResponse] =
+      HttpClientKeeper[F].getClient.use { client =>
+        val request = Method.GET(
+          uri"https://www.hackerrank.com/rest/contests" / contest.slug / "challenges" / challengeSlug / "submissions" / submissionId.toString
+        )
+        client.expect[String](request).flatMap { response =>
+          parse(response)
+            .leftMap(e => ApiError.InvalidContent(HackerRank, e.getMessage))
+            .flatMap { json =>
+              JsonPath.root.model.json
+                .getOption(json)
+                .toRight(
+                  ApiError.InvalidContent(HackerRank, s"invalid submit code response json with ${json.noSpaces}")
+                )
+                .flatMap(_.as[SubmissionResponse].leftMap(e => ApiError.InvalidContent(HackerRank, e.getMessage)))
+            }
+            .liftTo[F]
+        }
+      }
+
     override def submitAnswer(
       challengeSlug: String,
       contest: Contest,
       language: Language,
       langVer: String,
       code: String
-    ): Stream[F, Unit] = ???
-//      HttpClientKeeper[F].getClient.use { client =>
-//      val request = Method
-//        .POST(
-//          uri"https://www.hackerrank.com/rest/contests" / contest.slug / "challenges " / challengeSlug / "submissions"
-//        )
-//        .withEntity(
-//          Map(
-//            "language"       -> s"${language.value}$langVer",
-//            "contest_slug"   -> contest.slug,
-//            "challenge_slug" -> challengeSlug,
-//            "code"           -> code
-//          ).asJson
-//        )
-//      client.expect[String](request).void
-//    }
+    ): Stream[F, SubmissionResponse] = Stream
+      .eval(HttpClientKeeper[F].getClient.use { client =>
+        getChallengeCSRFToken(client, contest, challengeSlug).flatMap { csrfToken =>
+          val request = Method
+            .POST(
+              uri"https://www.hackerrank.com/rest/contests" / contest.slug / "challenges" / challengeSlug / "submissions",
+              Headers("x-csrf-token" -> csrfToken)
+            )
+            .withEntity(
+              Map(
+                "language"       -> s"${language.value}$langVer",
+                "contest_slug"   -> contest.slug,
+                "challenge_slug" -> challengeSlug,
+                "code"           -> code
+              ).asJson
+            )
+          client.expect[String](request).flatMap { response =>
+            parse(response)
+              .leftMap(e => ApiError.InvalidContent(HackerRank, e.getMessage))
+              .flatMap { json =>
+                JsonPath.root.model.id.int
+                  .getOption(json)
+                  .toRight(
+                    ApiError.InvalidContent(HackerRank, s"invalid submit code response json with ${json.noSpaces}")
+                  )
+              }
+              .liftTo[F]
+          }
+        }
+      })
+      .flatMap { submissionId =>
+        // keep running getSubmitCodeResult until SubmissionResponse.status is not "Processing"  and pass it to the next step
+        Stream
+          .repeatEval(
+            Temporal[F].sleep(1.second) *>
+              getSubmitCodeResult(contest, challengeSlug, submissionId)
+          )
+          .flatMap { result =>
+            if result.scoreProcessed == 3 then Stream(Option(result), None)
+            else Stream.emit(Option(result))
+          }
+          .unNoneTerminate
+      }
   }
 }
