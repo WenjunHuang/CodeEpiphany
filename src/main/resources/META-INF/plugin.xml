@@ -68,6 +68,7 @@
             <reference ref="CodeEpiphany.Actions.Status"/>
             <reference ref="CodeEpiphany.Actions.HackerRank.Skill"/>
             <reference ref="CodeEpiphany.Actions.Tags"/>
+            <reference ref="CodeEpiphany.Actions.Refresh"/>
         </group>
 
         <group id="CodeEpiphany.Dojos.TitleToolbar">
@@ -106,12 +107,11 @@
         </group>
 
         <group id="CodeEpiphany.Sidebar.SubmissionLog.Toolbar.Group">
-            <reference ref="CodeEpiphany.Actions.Refresh"/>
             <action class="com.wenjunhuang.codeepiphany.actions.CodeDojoParameterAction"
                     id="CodeEpiphany.Sidebar.SubmissionLog.Actions.CodeDojo"/>
             <action class="com.wenjunhuang.codeepiphany.actions.LanguageParameterAction"
                     id="CodeEpiphany.Sidebar.SubmissionLog.Actions.Language"/>
-
+            <reference ref="CodeEpiphany.Actions.Refresh"/>
         </group>
 
         <group id="CodeEpiphany.SubmissionsTable.Popupmenu">

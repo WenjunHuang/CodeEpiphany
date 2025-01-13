@@ -19,6 +19,7 @@ import com.wenjunhuang.codeepiphany.actions.PaginationParameterActionGroup.{
   PageSize,
   PaginationParameterProvider
 }
+import com.wenjunhuang.codeepiphany.actions.RefreshAction.{ REFRESH_PROVIDER_KEY, RefreshProvider }
 import com.wenjunhuang.codeepiphany.actions.StatusParameterAction.{ STATUS_PROVIDER_KEY, StatusParameterProvider }
 import com.wenjunhuang.codeepiphany.actions.TagsAction.{ SingleTagGroupProvider, TAG_PROVIDER_KEY, Tag }
 import com.wenjunhuang.codeepiphany.hackerrank.model.*
@@ -154,6 +155,7 @@ class QueryParametersPresenter(private val myProject: Project) extends Disposabl
     dataSink.set(TAG_PROVIDER_KEY, myTagProvider)
     dataSink.set(PAGINATION_PROVIDER_KEY, myPaginationProvider)
     dataSink.set(CHALLENGE_PROVIDER_KEY, myChallengeProvider)
+    dataSink.set(REFRESH_PROVIDER_KEY, myRefreshProvider)
   }
 
   private val myChallengeProvider = new OpenChallengeProvider {
@@ -370,6 +372,11 @@ class QueryParametersPresenter(private val myProject: Project) extends Disposabl
     override def getTotalPages: Int = math.ceil(myState.totalSize.toDouble / myState.pageSize.value).toInt
 
     override def getTotalItems: Int = myState.totalSize
+  }
+
+  private val myRefreshProvider = new RefreshProvider {
+    override def refresh(): Unit =
+      requery()
   }
 
   @RequiresEdt
