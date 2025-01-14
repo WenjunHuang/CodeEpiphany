@@ -2,7 +2,7 @@ package com.wenjunhuang.codeepiphany.actions
 
 import com.intellij.openapi.actionSystem.DataKey
 import com.wenjunhuang.codeepiphany.actions.LanguageParameterAction.*
-import com.wenjunhuang.codeepiphany.model.{ Language, LanguageVersion }
+import com.wenjunhuang.codeepiphany.model.{Language, LanguageVersion}
 import com.wenjunhuang.codeepiphany.utils.actions.{ParameterComboBoxAction, ParameterProvider}
 
 class LanguageParameterAction

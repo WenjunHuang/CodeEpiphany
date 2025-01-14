@@ -1,26 +1,23 @@
 package com.wenjunhuang.codeepiphany.toolwindows.sidebar.submissionlog
 
 import com.intellij.icons.AllIcons
-import com.intellij.openapi.actionSystem.{ ActionGroup, ActionManager, DataSink, UiDataProvider }
+import com.intellij.openapi.actionSystem.{ActionGroup, ActionManager, DataSink, UiDataProvider}
 import com.intellij.openapi.util.text.StringUtil
-import com.intellij.ui.table.TableView
 import com.intellij.ui.PopupHandler
-import com.intellij.util.ui.{ ColumnInfo, JBUI, ListTableModel }
+import com.intellij.ui.table.TableView
 import com.intellij.util.ui.components.BorderLayoutPanel
 import com.intellij.util.ui.table.IconTableCellRenderer
-import com.wenjunhuang.codeepiphany.model.{ Actions, CodeDojo, OrderDirection }
+import com.intellij.util.ui.{ColumnInfo, JBUI, ListTableModel}
 import com.wenjunhuang.codeepiphany.PluginBundle
-import com.wenjunhuang.codeepiphany.model.OrderDirection.{ Ascending, Descending }
-import com.wenjunhuang.codeepiphany.toolwindows.sidebar.submissionlog.SubmissionLogTableModel.{
-  nextOrderFilter,
-  OrderByColumnInfo
-}
+import com.wenjunhuang.codeepiphany.model.OrderDirection.{Ascending, Descending}
+import com.wenjunhuang.codeepiphany.model.{Actions, CodeDojo, OrderDirection}
+import com.wenjunhuang.codeepiphany.toolwindows.sidebar.submissionlog.SubmissionLogTableModel.{OrderByColumnInfo, nextOrderFilter}
 
-import java.awt.{ Color, Component }
-import java.awt.event.{ MouseAdapter, MouseEvent }
+import java.awt.event.{MouseAdapter, MouseEvent}
+import java.awt.{Color, Component}
 import java.time.format.DateTimeFormatter
-import javax.swing.{ Icon, JTable, ListSelectionModel }
-import javax.swing.table.{ DefaultTableCellRenderer, TableCellRenderer }
+import javax.swing.table.{DefaultTableCellRenderer, TableCellRenderer}
+import javax.swing.{Icon, JTable, ListSelectionModel}
 
 class SubmissionLogTableModel(private val myPresenter: SubmissionLogPresenter)
     extends ListTableModel[SubmissionLogEntry] {

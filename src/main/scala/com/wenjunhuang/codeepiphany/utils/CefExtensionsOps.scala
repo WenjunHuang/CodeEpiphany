@@ -1,6 +1,6 @@
 package com.wenjunhuang.codeepiphany.utils
 
-import org.cef.network.{CefPostDataElement, CefRequest}
+import org.cef.network.CefRequest
 import org.http4s.Headers
 
 import java.util as ju

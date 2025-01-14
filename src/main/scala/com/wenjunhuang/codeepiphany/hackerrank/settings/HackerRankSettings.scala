@@ -1,14 +1,11 @@
 package com.wenjunhuang.codeepiphany.hackerrank.settings
 
-import com.intellij.openapi.components.{ PersistentStateComponent, Service, State, Storage }
 import com.intellij.openapi.components.Service.Level
+import com.intellij.openapi.components.{PersistentStateComponent, Service, State, Storage}
 import com.intellij.openapi.project.Project
 import com.intellij.util.xmlb.annotations.Attribute
-import com.wenjunhuang.codeepiphany.hackerrank.settings.HackerRankSettings.{
-  HackerRankLanguageSettingsState,
-  HackerRankSettingsState
-}
-import com.wenjunhuang.codeepiphany.model.{ Constants, Language, LanguageVersion }
+import com.wenjunhuang.codeepiphany.hackerrank.settings.HackerRankSettings.{HackerRankLanguageSettingsState, HackerRankSettingsState}
+import com.wenjunhuang.codeepiphany.model.{Constants, Language, LanguageVersion}
 import com.wenjunhuang.codeepiphany.utils.XmlUtils.*
 
 import java.util as ju

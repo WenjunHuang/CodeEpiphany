@@ -1,14 +1,10 @@
 package com.wenjunhuang.codeepiphany.actions
 
 import cats.syntax.all.*
-import com.intellij.icons.AllIcons
 import com.intellij.openapi.actionSystem.*
-import com.intellij.openapi.actionSystem.ex.{ CheckboxAction, ComboBoxAction }
 import com.wenjunhuang.codeepiphany.actions.StatusParameterAction.*
 import com.wenjunhuang.codeepiphany.model.ChallengeStatus
 import com.wenjunhuang.codeepiphany.utils.actions.{ParameterComboBoxAction, ParameterProvider}
-
-import javax.swing.JComponent
 
 class StatusParameterAction
     extends ParameterComboBoxAction[ChallengeStatus, StatusParameterProvider](

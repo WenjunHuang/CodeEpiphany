@@ -4,9 +4,8 @@ import com.intellij.openapi.fileEditor.impl.EditorTabTitleProvider
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
 import com.wenjunhuang.codeepiphany.database.Tables.CHALLENGE
-import com.wenjunhuang.codeepiphany.model.{ ChallengeRepository, CodeDojo }
+import com.wenjunhuang.codeepiphany.model.ChallengeRepository
 import com.wenjunhuang.codeepiphany.settings.ChallengeSettings
-import org.typelevel.ci.CIString
 
 class ChallengeEditorTabTitleProvider extends EditorTabTitleProvider {
   override def getEditorTabTitle(project: Project, file: VirtualFile): String = {

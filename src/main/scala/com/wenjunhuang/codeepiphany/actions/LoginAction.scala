@@ -1,10 +1,8 @@
 package com.wenjunhuang.codeepiphany.actions
 
-import com.intellij.openapi.actionSystem.{ ActionUpdateThread, AnAction, AnActionEvent, DataKey }
-import com.intellij.ui.AnimatedIcon
+import com.intellij.openapi.actionSystem.{ActionUpdateThread, AnAction, AnActionEvent, DataKey}
+import com.wenjunhuang.codeepiphany.actions.LoginAction.*
 import icons.CodeEpiphanyIcons
-
-import LoginAction.*
 
 class LoginAction extends AnAction {
 

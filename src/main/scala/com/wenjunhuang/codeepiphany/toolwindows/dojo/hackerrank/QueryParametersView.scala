@@ -1,10 +1,10 @@
 package com.wenjunhuang.codeepiphany.toolwindows.dojo.hackerrank
 
+import com.intellij.openapi.Disposable
 import com.intellij.openapi.actionSystem.*
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.SimpleToolWindowPanel
 import com.intellij.openapi.util.Disposer
-import com.intellij.openapi.Disposable
 import com.intellij.ui.components.JBScrollPane
 import com.intellij.ui.table.TableView
 import com.intellij.util.concurrency.annotations.RequiresEdt

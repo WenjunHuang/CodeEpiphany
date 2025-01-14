@@ -1,18 +1,14 @@
 package com.wenjunhuang.codeepiphany.utils
 
-import cats.syntax.all.*
 import cats.effect.kernel.Async
 import cats.effect.unsafe.{IORuntime, IORuntimeConfig, Scheduler}
-import com.intellij.openapi.application.{ApplicationManager, ModalityState}
 import com.intellij.openapi.application.ex.ApplicationManagerEx
+import com.intellij.openapi.application.{ApplicationManager, ModalityState}
 import com.intellij.openapi.progress.{ProgressIndicator, ProgressManager, Task}
 import com.intellij.openapi.project.Project
-import com.intellij.platform.ide.progress.TasksKt
-import kotlin.coroutines.Continuation
 
 import java.util.concurrent.Executors
 import scala.concurrent.{ExecutionContext, ExecutionContextExecutorService}
-import scala.concurrent.duration.*
 
 private trait IOOps {
   val intellijComputeContext: ExecutionContextExecutorService = ExecutionContextExecutorServiceBridge(

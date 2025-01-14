@@ -1,16 +1,14 @@
 package com.wenjunhuang.codeepiphany.editor.services
 
-import cats.syntax.all.*
-import cats.Id
-import cats.effect.{ Async, Concurrent }
 import cats.effect.kernel.Resource.ExitCase
+import cats.effect.{Async, Concurrent}
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.vfs.{ VirtualFile, VirtualFileUtil }
+import com.intellij.openapi.vfs.{VirtualFile, VirtualFileUtil}
 import com.wenjunhuang.codeepiphany.database.Tables.*
 import com.wenjunhuang.codeepiphany.hackerrank.model.Contest
 import com.wenjunhuang.codeepiphany.hackerrank.services.HackerRankApi
-import com.wenjunhuang.codeepiphany.model.{ ChallengeRepository, Language, SubmissionResult }
 import com.wenjunhuang.codeepiphany.model.SubmissionResult.CompilationError
+import com.wenjunhuang.codeepiphany.model.{ChallengeRepository, Language, SubmissionResult}
 import com.wenjunhuang.codeepiphany.services.console
 import com.wenjunhuang.codeepiphany.services.http.HttpClientKeeper
 import com.wenjunhuang.codeepiphany.settings.ChallengeSettings.ChallengeSettingsStateItem

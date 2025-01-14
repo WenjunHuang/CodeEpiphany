@@ -1,6 +1,6 @@
 package com.wenjunhuang.codeepiphany.toolwindows.sidebar.submissionlog
 
-import com.intellij.openapi.actionSystem.{ ActionGroup, ActionManager, DataSink }
+import com.intellij.openapi.actionSystem.{ActionGroup, ActionManager, DataSink}
 import com.intellij.openapi.ui.SimpleToolWindowPanel
 import com.intellij.ui.components.JBScrollPane
 import com.intellij.util.ui.components.BorderLayoutPanel

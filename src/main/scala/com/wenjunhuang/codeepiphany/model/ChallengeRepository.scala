@@ -1,30 +1,22 @@
 package com.wenjunhuang.codeepiphany.model
 
-import cats.effect.Async
+import cats.effect.kernel.Resource
+import cats.effect.{ Async, IO }
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.components.Service.Level
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
 import com.intellij.openapi.util.io.FileUtil
-import com.intellij.util.xmlb.annotations.OptionTag
-import com.wenjunhuang.codeepiphany.database.Tables.*
 import com.wenjunhuang.codeepiphany.settings.CodeEpiphanySettings
-import com.wenjunhuang.codeepiphany.utils.XmlUtils.*
+import com.wenjunhuang.codeepiphany.utils.implicits.*
 import com.zaxxer.hikari.HikariDataSource
 import org.flywaydb.core.Flyway
-import org.jooq.{DSLContext, Log, SQLDialect}
-import org.jooq.tools.JooqLogger
-
-import java.util as ju
-import java.io.File
-import scala.annotation.meta.field
-import scala.beans.BeanProperty
-import scala.compiletime.uninitialized
-import cats.effect.IO
-import cats.effect.kernel.Resource
-import com.wenjunhuang.codeepiphany.utils.implicits.*
 import org.jooq.impl.DSL
+import org.jooq.tools.JooqLogger
+import org.jooq.{ DSLContext, Log, SQLDialect }
+
+import java.io.File
 
 @Service(Array(Level.PROJECT))
 final class ChallengeRepository(private val myProject: Project) extends Disposable {
@@ -57,7 +49,7 @@ final class ChallengeRepository(private val myProject: Project) extends Disposab
       .load()
     flyway.migrate()
     dataSource = Some(ds)
-    
+
     JooqLogger.globalThreshold(Log.Level.DEBUG)
   }
 
@@ -66,9 +58,10 @@ final class ChallengeRepository(private val myProject: Project) extends Disposab
     val folder = settings.databaseFolder match
       case Some(folder) => File(folder)
       case None =>
-        val path = File(myProject.getWorkspaceFile.getParent.findChild(Constants.PROJECT_NAME).getPath)
-        FileUtil.createDirectory(path)
-        path
+        val projectIdeaFolder    = File(myProject.getWorkspaceFile.getParent.getPath)
+        val projectSettingFolder = File(projectIdeaFolder, Constants.PROJECT_NAME)
+        projectSettingFolder.mkdirs()
+        projectSettingFolder
 
     val file = File(folder, Constants.CHALLENGE_STORAGE_FILE)
     FileUtil.createIfDoesntExist(file)

@@ -1,24 +1,16 @@
 package com.wenjunhuang.codeepiphany.toolwindows.dojo.hackerrank
 
 import cats.effect.IO
-import com.intellij.openapi.actionSystem.{ DataSink, UiDataProvider }
-import com.intellij.openapi.project.Project
 import com.intellij.openapi.Disposable
+import com.intellij.openapi.actionSystem.{DataSink, UiDataProvider}
+import com.intellij.openapi.project.Project
 import com.intellij.ui.CardLayoutPanel
-import com.wenjunhuang.codeepiphany.actions.LoginAction.{ LOGIN_LOGOUT_KEY, LoginLogoutProvider }
-import com.wenjunhuang.codeepiphany.services.auth.{
-  askForLogout,
-  loadAuthenticationMayAskForLogin,
-  AskForLoginResult
-}
-import com.wenjunhuang.codeepiphany.hackerrank.services.HackerRankApi
-import com.wenjunhuang.codeepiphany.model.{ messages, CodeDojo }
+import com.wenjunhuang.codeepiphany.actions.LoginAction.{LOGIN_LOGOUT_KEY, LoginLogoutProvider}
+import com.wenjunhuang.codeepiphany.model.{CodeDojo, messages}
+import com.wenjunhuang.codeepiphany.services.auth.{AskForLoginResult, askForLogout, loadAuthenticationMayAskForLogin}
 import com.wenjunhuang.codeepiphany.services.console
-import com.wenjunhuang.codeepiphany.services.http.{ HttpClientKeeper, HttpClientService }
-import com.wenjunhuang.codeepiphany.toolwindows.dojo.hackerrank.actions.SwitchUIAction.{
-  SWITCHUI_PROVIDER_KEY,
-  SwitchUIProvider
-}
+import com.wenjunhuang.codeepiphany.services.http.{HttpClientKeeper, HttpClientService}
+import com.wenjunhuang.codeepiphany.toolwindows.dojo.hackerrank.actions.SwitchUIAction.{SWITCHUI_PROVIDER_KEY, SwitchUIProvider}
 import com.wenjunhuang.codeepiphany.utils.extensions.*
 import com.wenjunhuang.codeepiphany.utils.implicits.*
 

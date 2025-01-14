@@ -173,6 +173,7 @@
         <fileEditorProvider
                 id="CodeEpiphany.EditorProvider"
                 implementation="com.wenjunhuang.codeepiphany.editor.extensions.ChallengeEditorProvider"/>
-
+<!--        com. intellij. vfs. asyncListener-->
+        <vfs.asyncListener implementation="com.wenjunhuang.codeepiphany.editor.extensions.ChallengeFileRenameListener"/>
     </extensions>
 </idea-plugin>

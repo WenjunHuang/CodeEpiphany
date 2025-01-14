@@ -13,7 +13,6 @@ enum CodeDojo(val domain: CIString, val value: String) {
     case HackerRank => Some(icons.CodeEpiphanyIcons.Dojos.HACKERRANK)
     case LeetCode   => Some(icons.CodeEpiphanyIcons.Dojos.LEETCODE)
     case LeetCodeCN => Some(icons.CodeEpiphanyIcons.Dojos.LEETCODE)
-    case _          => None
   }
 }
 

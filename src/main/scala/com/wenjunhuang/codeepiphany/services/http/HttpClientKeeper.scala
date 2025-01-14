@@ -1,8 +1,8 @@
 package com.wenjunhuang.codeepiphany.services.http
 
-import cats.effect.{ Async, Ref, Resource }
 import cats.effect.kernel.Ref.Make
 import cats.effect.kernel.Sync
+import cats.effect.{Async, Ref, Resource}
 import cats.syntax.all.*
 import com.intellij.util.net.*
 import com.wenjunhuang.codeepiphany.model.CodeDojo
@@ -10,11 +10,11 @@ import com.wenjunhuang.codeepiphany.utils.implicits.intellijComputeContext
 import okhttp3.*
 import org.http4s.client.Client
 import org.typelevel.ci.CIString
-import org.typelevel.log4cats.{ Logger, LoggerFactory }
+import org.typelevel.log4cats.LoggerFactory
 
 import java.net.HttpCookie
 import java.security.cert.X509Certificate
-import javax.net.ssl.{ SSLContext, TrustManager, X509TrustManager }
+import javax.net.ssl.{SSLContext, TrustManager, X509TrustManager}
 import scala.annotation.static
 import scala.concurrent.duration.*
 import scala.jdk.CollectionConverters.*

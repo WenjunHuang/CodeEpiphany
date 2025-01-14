@@ -1,6 +1,6 @@
 package com.wenjunhuang.codeepiphany.model
 
-import org.jooq.{ Field, SortField }
+import org.jooq.{Field, SortField}
 
 enum OrderDirection {
   case Ascending

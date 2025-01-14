@@ -1,7 +1,7 @@
 package com.wenjunhuang.codeepiphany.utils.jcef
 
 import com.intellij.openapi.project.Project
-import org.cef.browser.{ CefBrowser, CefFrame }
+import org.cef.browser.{CefBrowser, CefFrame}
 import org.cef.callback.CefCallback
 import org.cef.handler.*
 import org.cef.misc.BoolRef

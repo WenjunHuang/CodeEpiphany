@@ -1,14 +1,9 @@
 package com.wenjunhuang.codeepiphany.leetcode.services
 
-import cats.effect.{ Async, Concurrent, Resource }
+import cats.effect.{Async, Concurrent, Resource}
 import cats.syntax.all.*
-import com.wenjunhuang.codeepiphany.leetcode.model.{
-  LeetCodeChallengeList,
-  LeetCodeFavoriteItem,
-  LeetCodeGraphQLRequest,
-  LeetCodeTagTypeWithTags
-}
-import com.wenjunhuang.codeepiphany.model.{ ApiError, CodeDojo }
+import com.wenjunhuang.codeepiphany.leetcode.model.{LeetCodeChallengeList, LeetCodeFavoriteItem, LeetCodeGraphQLRequest, LeetCodeTagTypeWithTags}
+import com.wenjunhuang.codeepiphany.model.{ApiError, CodeDojo}
 import com.wenjunhuang.codeepiphany.services.http.HttpClientKeeper
 import io.circe.Json
 import io.circe.optics.JsonPath
@@ -16,10 +11,10 @@ import io.circe.parser.*
 import io.circe.syntax.*
 import org.http4s.client.dsl.Http4sClientDsl
 import org.http4s.headers.Referer
-import org.http4s.{ Headers, Method, Uri }
+import org.http4s.{Headers, Method, Uri}
 import org.typelevel.ci.CIString
 
-import scala.io.{ BufferedSource, Source }
+import scala.io.{BufferedSource, Source}
 
 trait LeetCodeApi[F[_]] {
   def getFavoriteList: F[List[LeetCodeFavoriteItem]]

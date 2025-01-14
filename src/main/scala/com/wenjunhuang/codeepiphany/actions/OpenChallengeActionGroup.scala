@@ -1,9 +1,9 @@
 package com.wenjunhuang.codeepiphany.actions
 
-import com.intellij.openapi.actionSystem.{ ActionGroup, ActionUpdateThread, AnAction, AnActionEvent, DataKey }
-import com.wenjunhuang.codeepiphany.model.{ Language, LanguageVersion }
+import com.intellij.openapi.actionSystem.*
 import com.wenjunhuang.codeepiphany.PluginBundle
-import OpenChallengeActionGroup.*
+import com.wenjunhuang.codeepiphany.actions.OpenChallengeActionGroup.*
+import com.wenjunhuang.codeepiphany.model.{Language, LanguageVersion}
 
 class OpenChallengeActionGroup extends ActionGroup {
   override def getChildren(e: AnActionEvent): Array[AnAction] = {
@@ -35,7 +35,7 @@ object OpenChallengeActionGroup {
   final val CHALLENGE_PROVIDER_KEY = DataKey.create[OpenChallengeProvider]("CHALLENGE_PROVIDER_KEY")
 
   private class LanguageAction(private val myLanguage: Language, private val myLanguageVersion: LanguageVersion)
-      extends AnAction(myLanguage.show, myLanguage.show, myLanguage.icon) {
+      extends AnAction(s"${myLanguage.show}${myLanguageVersion.version}", null, myLanguage.icon) {
     override def actionPerformed(e: AnActionEvent): Unit = {
       Option(CHALLENGE_PROVIDER_KEY.getData(e.getDataContext)) match
         case None           =>

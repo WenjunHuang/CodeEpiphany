@@ -2,7 +2,6 @@ package com.wenjunhuang.codeepiphany.model
 
 import com.intellij.credentialStore.{CredentialAttributes, CredentialAttributesKt}
 import com.intellij.ide.passwordSafe.PasswordSafe
-import com.wenjunhuang.codeepiphany.model.Constants
 
 object SensitiveDataStore {
   def saveData(key: String, value: String): Unit = {

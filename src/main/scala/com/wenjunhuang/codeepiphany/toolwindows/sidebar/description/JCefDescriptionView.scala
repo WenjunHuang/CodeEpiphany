@@ -114,6 +114,8 @@ class JCefDescriptionView(
       builder
         .setOffScreenRendering(false)
         .setEnableOpenDevToolsMenuItem(true)
+    else
+      builder.setOffScreenRendering(true)  
     builder.build()
   }
   private var myState = ViewerState()

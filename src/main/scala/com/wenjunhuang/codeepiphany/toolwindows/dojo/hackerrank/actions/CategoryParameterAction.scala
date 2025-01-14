@@ -1,11 +1,7 @@
 package com.wenjunhuang.codeepiphany.toolwindows.dojo.hackerrank.actions
 
-import com.intellij.icons.AllIcons
 import com.intellij.openapi.actionSystem.*
-import com.intellij.openapi.actionSystem.ex.ComboBoxAction
-
-import javax.swing.JComponent
-import CategoryParameterAction.*
+import com.wenjunhuang.codeepiphany.toolwindows.dojo.hackerrank.actions.CategoryParameterAction.*
 import com.wenjunhuang.codeepiphany.utils.actions.{ParameterComboBoxAction, ParameterProvider}
 
 class CategoryParameterAction

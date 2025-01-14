@@ -1,14 +1,8 @@
 package com.wenjunhuang.codeepiphany.editor.actions
 
-import com.intellij.openapi.actionSystem.{
-  ActionUpdateThread,
-  AnActionEvent,
-  CommonDataKeys,
-  DefaultActionGroup,
-  PlatformDataKeys
-}
+import com.intellij.openapi.actionSystem.{ActionUpdateThread, AnActionEvent, CommonDataKeys, DefaultActionGroup}
 import com.wenjunhuang.codeepiphany.database.Tables.CHALLENGE
-import com.wenjunhuang.codeepiphany.model.{ ChallengeRepository, CodeDojo }
+import com.wenjunhuang.codeepiphany.model.{ChallengeRepository, CodeDojo}
 import com.wenjunhuang.codeepiphany.settings.ChallengeSettings
 import org.typelevel.ci.CIString
 

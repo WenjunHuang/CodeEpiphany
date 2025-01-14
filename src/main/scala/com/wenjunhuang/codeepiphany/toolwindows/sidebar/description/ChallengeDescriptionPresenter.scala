@@ -1,7 +1,7 @@
 package com.wenjunhuang.codeepiphany.toolwindows.sidebar.description
 
-import cats.effect.{Async, IO}
 import cats.effect.std.Queue
+import cats.effect.{Async, IO}
 import cats.syntax.all.*
 import com.intellij.ide.BrowserUtil
 import com.intellij.openapi.Disposable
@@ -14,8 +14,8 @@ import com.intellij.openapi.util.Disposer
 import com.intellij.openapi.vfs.LocalFileSystem
 import com.intellij.util.io.URLUtil
 import com.wenjunhuang.codeepiphany.database.Tables.CHALLENGE
-import com.wenjunhuang.codeepiphany.model.{ChallengeRepository, CodeDojo}
 import com.wenjunhuang.codeepiphany.model.ChallengeRepository.ChallengeId
+import com.wenjunhuang.codeepiphany.model.{ChallengeRepository, CodeDojo}
 import com.wenjunhuang.codeepiphany.settings.ChallengeSettings
 import com.wenjunhuang.codeepiphany.utils.implicits.*
 import fs2.Stream

@@ -2,11 +2,11 @@ package com.wenjunhuang.codeepiphany.toolwindows.sidebar.description
 
 import com.intellij.ide.ui.UISettings
 import com.intellij.openapi.editor.HighlighterColors
-import com.intellij.openapi.editor.colors.{ EditorColorsManager, EditorColorsScheme }
 import com.intellij.openapi.editor.colors.impl.AppEditorFontOptions
+import com.intellij.openapi.editor.colors.{EditorColorsManager, EditorColorsScheme}
 import com.intellij.ui.JBColor
-import com.intellij.util.ui.{ JBUI, UIUtil }
-import ChallengeDescriptionStyleProvider.*
+import com.intellij.util.ui.{JBUI, UIUtil}
+import com.wenjunhuang.codeepiphany.toolwindows.sidebar.description.ChallengeDescriptionStyleProvider.*
 
 import java.awt.Color
 

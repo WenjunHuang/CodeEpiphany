@@ -1,8 +1,5 @@
 package com.wenjunhuang.codeepiphany.settings;
 
-import com.intellij.icons.AllIcons;
-import com.intellij.openapi.actionSystem.DefaultActionGroup;
-import com.intellij.openapi.editor.actions.TabAction;
 import com.intellij.openapi.fileChooser.FileChooserDescriptorFactory;
 import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.project.Project;
@@ -11,9 +8,6 @@ import com.intellij.openapi.ui.TextFieldWithBrowseButton;
 import com.intellij.openapi.ui.ValidationInfo;
 import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.ui.components.JBLabel;
-import com.intellij.ui.tabs.JBTabsEx;
-import com.intellij.ui.tabs.JBTabsFactory;
-import com.intellij.ui.tabs.TabInfo;
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.uiDesigner.core.Spacer;
@@ -63,7 +57,7 @@ public class CodeEpiphanySettingsPanel extends SettingsUi<CodeEpiphanySettings.C
     }
 
     @Override
-    public void apply(CodeEpiphanySettings.CodeEpiphanySettingsState settings) throws ConfigurationException {
+    public void apply(@NotNull CodeEpiphanySettings.CodeEpiphanySettingsState settings) throws ConfigurationException {
         var validationInfos = new ArrayList<ValidationInfo>();
         ComponentValidator.getInstance(myDatabaseFolder)
                 .ifPresent(validator -> {

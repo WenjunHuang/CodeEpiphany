@@ -1,12 +1,12 @@
 package com.wenjunhuang.codeepiphany.hackerrank
 
-import cats.syntax.all.*
 import cats.Show
+import cats.syntax.all.*
 import com.intellij.openapi.util.text.StringUtil
 import com.wenjunhuang.codeepiphany.PluginBundle
-import com.wenjunhuang.codeepiphany.model.{ Language, LanguageVersion }
-import io.circe.{ Decoder, HCursor, Json }
-import io.circe.derivation.{ Configuration, ConfiguredDecoder }
+import com.wenjunhuang.codeepiphany.model.{Language, LanguageVersion}
+import io.circe.derivation.{Configuration, ConfiguredDecoder}
+import io.circe.{Decoder, HCursor, Json}
 import monocle.Lens
 import monocle.macros.GenLens
 import org.typelevel.ci.CIString

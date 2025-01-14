@@ -1,13 +1,7 @@
 package com.wenjunhuang.codeepiphany.editor.actions
 
-import com.intellij.openapi.actionSystem.{
-  ActionUpdateThread,
-  AnAction,
-  AnActionEvent,
-  CommonDataKeys,
-  PlatformCoreDataKeys
-}
-import SubmitCodeAction.*
+import com.intellij.openapi.actionSystem.*
+import com.wenjunhuang.codeepiphany.editor.actions.SubmitCodeAction.*
 
 class RunCodeAction extends AnAction {
   override def actionPerformed(e: AnActionEvent): Unit = {

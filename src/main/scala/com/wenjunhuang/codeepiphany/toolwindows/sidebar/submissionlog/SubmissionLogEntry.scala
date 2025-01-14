@@ -1,6 +1,6 @@
 package com.wenjunhuang.codeepiphany.toolwindows.sidebar.submissionlog
 
-import com.wenjunhuang.codeepiphany.model.{ CodeDojo, ChallengeDifficulty, Language, LanguageVersion, SubmissionResult }
+import com.wenjunhuang.codeepiphany.model.*
 
 import java.time.LocalDateTime
 

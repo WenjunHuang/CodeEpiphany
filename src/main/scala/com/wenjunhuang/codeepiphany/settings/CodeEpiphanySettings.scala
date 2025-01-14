@@ -1,7 +1,7 @@
 package com.wenjunhuang.codeepiphany.settings
 
-import com.intellij.openapi.components.{PersistentStateComponent, Service, State, Storage}
 import com.intellij.openapi.components.Service.Level
+import com.intellij.openapi.components.{PersistentStateComponent, Service, State, Storage}
 import com.intellij.openapi.project.Project
 import com.intellij.util.messages.Topic
 import com.intellij.util.xmlb.annotations.Attribute

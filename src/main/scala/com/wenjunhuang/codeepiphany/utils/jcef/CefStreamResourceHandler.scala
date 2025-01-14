@@ -5,7 +5,7 @@ import com.intellij.openapi.Disposable
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.util.Disposer
 import org.cef.callback.CefCallback
-import org.cef.handler.{CefResourceHandler, CefResourceHandlerAdapter}
+import org.cef.handler.CefResourceHandler
 import org.cef.misc.{IntRef, StringRef}
 import org.cef.network.{CefRequest, CefResponse}
 

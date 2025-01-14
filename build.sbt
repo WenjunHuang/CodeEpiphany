@@ -3,11 +3,13 @@ import sbtjooq.codegen.CodegenMode.Unmanaged
 ThisBuild / scalaVersion     := "3.3.4"
 ThisBuild / intellijPlatform := IntelliJPlatform.IdeaCommunity
 ThisBuild / intellijBuild    := "242.20224.300"
+//ThisBuild / intellijBuild    := "243.22562.218"
+
 
 lazy val codeEpiphany = (project in file("."))
   .settings(
     name    := "CodeEpiphany",
-    version := "0.1.0",
+    version := "0.5.0",
     scalacOptions ++= Seq(
       "-Wunused:imports",
       "-language:implicitConversions",
@@ -18,9 +20,7 @@ lazy val codeEpiphany = (project in file("."))
     intellijAttachSources          := true,
     instrumentThreadingAnnotations := true,
     bundleScalaLibrary             := true,
-    intellijPlugins += "com.intellij.java".toPlugin,
-    intellijPlugins += "com.intellij.properties".toPlugin,
-    intellijVMOptions := intellijVMOptions.value.copy(xmx = 2048, xms = 256),
+    intellijVMOptions              := intellijVMOptions.value.copy(xmx = 2048, xms = 256),
     patchPluginXml := pluginXmlOptions { xml =>
       xml.version = version.value
     },

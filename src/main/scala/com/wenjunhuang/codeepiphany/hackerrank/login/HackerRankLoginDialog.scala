@@ -10,16 +10,16 @@ import com.intellij.openapi.ide.CopyPasteManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.{ ComponentValidator, DialogWrapper, ValidationInfo }
 import com.intellij.openapi.util.Disposer
-import com.intellij.ui.{ AnimatedIcon, DocumentAdapter, PopupHandler }
 import com.intellij.ui.components.{ JBScrollPane, JBTextArea }
-import com.intellij.ui.content.{ ContentManagerEvent, ContentManagerListener, TabbedPaneContentUI }
 import com.intellij.ui.content.impl.ContentManagerImpl
+import com.intellij.ui.content.{ ContentManagerEvent, ContentManagerListener, TabbedPaneContentUI }
 import com.intellij.ui.jcef.{ JBCefBrowser, JBCefBrowserBuilder }
+import com.intellij.ui.{ AnimatedIcon, DocumentAdapter, PopupHandler }
 import com.intellij.util.ui.JBUI
 import com.wenjunhuang.codeepiphany.PluginBundle
-import com.wenjunhuang.codeepiphany.services.auth.{ validateUserCookieAndTestLogin, AskForLoginResult }
 import com.wenjunhuang.codeepiphany.model.CodeDojo
 import com.wenjunhuang.codeepiphany.model.CodeDojo.HackerRank
+import com.wenjunhuang.codeepiphany.services.auth.{ validateUserCookieAndTestLogin, AskForLoginResult }
 import com.wenjunhuang.codeepiphany.services.http.{ HttpClientKeeper, HttpClientService }
 import com.wenjunhuang.codeepiphany.utils.implicits.*
 import com.wenjunhuang.codeepiphany.utils.isDebug
@@ -35,7 +35,7 @@ import java.awt.Font
 import java.awt.datatransfer.{ DataFlavor, StringSelection }
 import java.awt.event.ActionEvent
 import java.net.HttpCookie
-import javax.swing.*
+import javax.swing.{ event, * }
 import javax.swing.event.DocumentEvent
 import scala.jdk.CollectionConverters.*
 
@@ -76,7 +76,7 @@ class HackerRankLoginDialog(
 
   if !isDebug then PopupHandler.installPopupMenu(myCookieText, IdeActions.GROUP_CUT_COPY_PASTE, ActionPlaces.POPUP)
 
-  private val myLoginBrowser = createBrowserLoginPanel()
+  private val myLoginBrowser = createBrowser()
   private val myLoginViaBrowserPanel = myContentManager.getFactory.createContent(
     JBScrollPane(
       myLoginBrowser.getComponent,
@@ -86,6 +86,7 @@ class HackerRankLoginDialog(
     PluginBundle.message("hackerrank.ui.login.viaBrowser"),
     true
   )
+
   implicit private val myHttpClientKeeper: HttpClientKeeper[IO] =
     HttpClientService.getInstance(myProject).httpClientKeeper
 
@@ -123,8 +124,14 @@ class HackerRankLoginDialog(
   myContentManager.addContent(myLoginViaBrowserPanel)
   myContentManager.addContentManagerListener(new ContentManagerListener {
     override def selectionChanged(event: ContentManagerEvent): Unit =
-      if event.getContent == myLoginViaCookiePanel then getButton(myOkAction).setVisible(true)
-      else getButton(myOkAction).setVisible(false)
+      event.getOperation match
+        case ContentManagerEvent.ContentOperation.add =>
+          if event.getContent == myLoginViaCookiePanel then getButton(myOkAction).setVisible(true)
+          else if event.getContent == myLoginViaBrowserPanel then
+//            myLoginBrowser.loadURL("https://www.hackerrank.com/auth/login")
+            myLoginBrowser.getComponent.requestFocus()
+            getButton(myOkAction).setVisible(false)
+        case _ =>
   })
 
   init()
@@ -199,8 +206,17 @@ class HackerRankLoginDialog(
         )
       }
     }
-  private def createBrowserLoginPanel(): JBCefBrowser = {
-    val browser = JBCefBrowserBuilder()
+  private def createBrowser(): JBCefBrowser = {
+    val builder = JBCefBrowserBuilder()
+    if isDebug then
+      builder
+        .setOffScreenRendering(false)
+        .setEnableOpenDevToolsMenuItem(true)
+    else
+      builder
+        .setOffScreenRendering(true)
+
+    val browser = builder
       .setUrl("https://www.hackerrank.com/auth/login")
       .build()
 

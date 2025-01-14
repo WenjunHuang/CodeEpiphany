@@ -4,12 +4,12 @@ import cats.effect.IO
 import cats.effect.kernel.Resource.ExitCase
 import cats.effect.std.Queue
 import cats.syntax.all.*
-import com.intellij.openapi.actionSystem.{ DataSink, UiDataProvider }
-import com.intellij.openapi.project.Project
 import com.intellij.openapi.Disposable
-import com.wenjunhuang.codeepiphany.actions.CodeDojoParameterAction.{ CODEDOJO_PROVIDER_KEY, CodeDojoParameterProvider }
-import com.wenjunhuang.codeepiphany.actions.LanguageParameterAction.{ LANGUAGE_PROVIDER_KEY, LanguageParameterProvider }
-import com.wenjunhuang.codeepiphany.actions.RefreshAction.{ REFRESH_PROVIDER_KEY, RefreshProvider }
+import com.intellij.openapi.actionSystem.{DataSink, UiDataProvider}
+import com.intellij.openapi.project.Project
+import com.wenjunhuang.codeepiphany.actions.CodeDojoParameterAction.{CODEDOJO_PROVIDER_KEY, CodeDojoParameterProvider}
+import com.wenjunhuang.codeepiphany.actions.LanguageParameterAction.{LANGUAGE_PROVIDER_KEY, LanguageParameterProvider}
+import com.wenjunhuang.codeepiphany.actions.RefreshAction.{REFRESH_PROVIDER_KEY, RefreshProvider}
 import com.wenjunhuang.codeepiphany.database.Tables.*
 import com.wenjunhuang.codeepiphany.model.*
 import com.wenjunhuang.codeepiphany.toolwindows.sidebar.submissionlog.SubmissionLogPresenter.*
@@ -17,7 +17,7 @@ import com.wenjunhuang.codeepiphany.utils.extensions.*
 import com.wenjunhuang.codeepiphany.utils.implicits.*
 import fs2.Stream
 import fs2.concurrent.SignallingRef
-import org.jooq.{ Record, SelectOnConditionStep }
+import org.jooq.{Record, SelectOnConditionStep}
 import org.typelevel.ci.CIString
 import org.typelevel.log4cats.LoggerFactory
 

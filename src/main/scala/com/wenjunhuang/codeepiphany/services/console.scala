@@ -1,11 +1,10 @@
 package com.wenjunhuang.codeepiphany.services
 
-import cats.syntax.all.*
 import cats.effect.Async
+import cats.syntax.all.*
 import com.intellij.execution.ui.ConsoleViewContentType
 import com.intellij.openapi.project.Project
 import com.wenjunhuang.codeepiphany.toolwindows.sidebar.LogConsoleView
-import com.wenjunhuang.codeepiphany.utils.implicits.*
 
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter

@@ -1,8 +1,7 @@
 package com.wenjunhuang.codeepiphany.model
 
 import com.intellij.openapi.util.text.StringUtil
-import com.intellij.util.text.SemVer
-import com.wenjunhuang.codeepiphany.model.LanguageVersion.{ AnyVersion, SpecificVersion }
+import com.wenjunhuang.codeepiphany.model.LanguageVersion.{AnyVersion, SpecificVersion}
 import icons.CodeEpiphanyIcons
 import org.typelevel.ci.CIString
 

@@ -1,6 +1,6 @@
 package com.wenjunhuang.codeepiphany.actions
 
-import com.intellij.openapi.actionSystem.{ ActionUpdateThread, AnAction, AnActionEvent, DataKey }
+import com.intellij.openapi.actionSystem.{ActionUpdateThread, AnAction, AnActionEvent, DataKey}
 
 class RefreshAction extends AnAction {
   override def actionPerformed(e: AnActionEvent): Unit = {
