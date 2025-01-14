@@ -9,6 +9,4 @@ project/plugins/project/
 .cache
 .lib/
 testResources/apiTestData/*
-tempData/!/testResources/apiTestData/leetcode/cookie
-
-!/testResources/apiTestData/leetcode/cookie_cn
+tempData/

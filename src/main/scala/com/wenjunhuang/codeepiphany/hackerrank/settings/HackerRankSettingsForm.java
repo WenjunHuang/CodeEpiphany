@@ -24,14 +24,17 @@ import com.wenjunhuang.codeepiphany.model.Language;
 import com.wenjunhuang.codeepiphany.model.LanguageVersion;
 import com.wenjunhuang.codeepiphany.settings.SettingsUi;
 import com.wenjunhuang.codeepiphany.utils.JavaUtils;
+import org.apache.commons.collections.CollectionUtils;
 import org.jetbrains.annotations.NotNull;
 import scala.Tuple2;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class HackerRankSettingsForm extends SettingsUi<HackerRankSettings.HackerRankSettingsState> {
     private JBTabsEx myTabs;
@@ -155,11 +158,40 @@ public class HackerRankSettingsForm extends SettingsUi<HackerRankSettings.Hacker
 
     @Override
     public boolean isModified(@NotNull HackerRankSettings.HackerRankSettingsState settings) {
+        var oldLangs = settings.getLanguageSettings().stream().map(setting -> new Tuple2<>(setting.language().get(), setting.languageVersion().get()))
+                .collect(Collectors.toSet());
+        var newLangs = myLanguagesPanels.keySet();
+        if (!CollectionUtils.isEqualCollection(oldLangs, newLangs)) return true;
+
+
+        for (var languageSettings : settings.getLanguageSettings()) {
+            var language = languageSettings.language().get();
+            var languageVersion = languageSettings.languageVersion().get();
+            var tup = new Tuple2<>(language, languageVersion);
+            var panel = myLanguagesPanels.get(tup);
+            if (panel.isModified(languageSettings)) {
+                return true;
+            }
+        }
         return false;
     }
 
     @Override
     public void apply(@NotNull HackerRankSettings.HackerRankSettingsState settings) throws ConfigurationException {
+        var states = new ArrayList<HackerRankSettings.HackerRankLanguageSettingsState>();
+        for (var languageSettings : myLanguagesPanels.entrySet()) {
+            try {
+                var state = new HackerRankSettings.HackerRankLanguageSettingsState();
+                languageSettings.getValue().apply(state);
+                states.add(state);
+            } catch (ConfigurationException e) {
+                var tab = myTabs.findInfo(languageSettings.getKey());
+                myTabs.select(tab, true);
+                return;
+            }
+        }
+
+        settings.languageSettings_$eq(states);
     }
 
     @Override

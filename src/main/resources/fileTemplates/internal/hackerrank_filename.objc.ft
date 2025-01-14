@@ -1,1 +1,1 @@
-${velocity.camelCase(${challenge.id}${challenge.slug})}
+${velocity.camelCaseName(${challenge.slug})}

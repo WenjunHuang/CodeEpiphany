@@ -1,12 +1,9 @@
 $challenge.header
 
-class $velocity.snakeCase($challenge.id) {
+object $velocity.snakeCaseName(${challenge.slug}+[${challenge.id}]) {
+    $challenge.template
+    $challenge.tail
 
-    public static void main(String[] args) {
-        $challenge.inputParsing
-        $challenge.outputParsing
-        $challenge.solution
+    def main(args: Array[String]) {
     }
-
-    $challenge.testCases
 }

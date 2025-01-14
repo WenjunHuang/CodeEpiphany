@@ -1,6 +1,6 @@
 $challenge.header
 
-class $velocity.camelCaseName($challenge.slug+[$challenge.dojoId]) {
+class $velocity.camelCaseName($challenge.slug) {
 
     $challenge.template
     $challenge.tail

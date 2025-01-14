@@ -380,8 +380,9 @@ public class LanguageSettingsPanel extends SettingsUi<HackerRankSettings.HackerR
             state.language_$eq(Option.apply(myLanguage));
             state.languageVersion_$eq(Option.apply(myLanguageVersion));
             state.sourceFolder_$eq(Option.apply(mySourceFolder.getText()));
+        } else {
+            throw new ConfigurationException("Invalid settings");
         }
-
     }
 
     @Nullable
