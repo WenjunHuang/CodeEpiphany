@@ -17,6 +17,13 @@ enum ApiError extends NoStackTrace {
   case Conflict(dojo: CodeDojo, message: String) extends ApiError
 
   case InvalidContent(dojo: CodeDojo, message: String) extends ApiError
+
+  override def toString: String = this match
+    case NotFound(dojo, message)       => s"CodeDojo:${dojo.value} NotFound: $message"
+    case BadRequest(dojo, message)     => s"CodeDojo:${dojo.value} BadRequest: $message"
+    case Unauthorized(dojo, message)   => s"CodeDojo:${dojo.value} Unauthorized: $message"
+    case Conflict(dojo, message)       => s"CodeDojo:${dojo.value} Conflict: $message"
+    case InvalidContent(dojo, message) => s"CodeDojo:${dojo.value} InvalidContent: $message"
 }
 
 trait DojoLoginNotifier {
@@ -28,7 +35,7 @@ trait DojoLoginNotifier {
 object DojoLoginNotifier {
 
   final val HACKERRANK_LOGIN_LOGOUT_TOPIC: String = PROJECT_ID + ".hackerrank.login_logout.topic"
-  
+
   @Topic.AppLevel
   val HackerRankLoginTopic = new Topic(HACKERRANK_LOGIN_LOGOUT_TOPIC, classOf[DojoLoginNotifier])
 
@@ -41,6 +48,8 @@ extension (error: ApiError) {
   def publishEvent(project: Project): Unit =
     error match
       case ApiError.Unauthorized(dojo, _) =>
-        DojoLoginNotifier.getLoginTopic(dojo).foreach(ApplicationManager.getApplication.getMessageBus.syncPublisher(_).loginExpired(project))
+        DojoLoginNotifier
+          .getLoginTopic(dojo)
+          .foreach(ApplicationManager.getApplication.getMessageBus.syncPublisher(_).loginExpired(project))
       case _ =>
 }

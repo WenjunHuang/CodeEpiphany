@@ -15,22 +15,28 @@ import io.circe.optics.JsonPath
 import io.circe.parser.*
 import org.apache.commons.io.IOUtils
 import cats.syntax.all.*
+import com.intellij.openapi.util.Disposer
 
 import java.nio.charset.StandardCharsets
 import java.util.Objects
 
 class HackerRankSettingsConfigurable(private val myProject: Project)
-    extends ConfigurableBase[HackerRankSettingsPanel, HackerRankSettings.HackerRankState](
+    extends ConfigurableBase[HackerRankSettingsForm, HackerRankSettings.HackerRankSettingsState](
       "CodeEpiphany.Settings.HackerRank",
       PluginBundle.message("hackerrank.settings.displayName"),
       "CodeEpiphany.Settings.HackerRank.HelpTopic"
     ) {
-  override def getSettings: HackerRankSettings.HackerRankState = {
+  private val myDisposable = Disposer.newDisposable("HackerRankSettingsConfigurable")
+  override def getSettings: HackerRankSettings.HackerRankSettingsState = {
     val settings = HackerRankSettings.getInstance(myProject)
     settings.getState
   }
 
-  override def createUi(): HackerRankSettingsPanel = HackerRankSettingsPanel(myProject)
+  override def disposeUIResources(): Unit = {
+    Disposer.dispose(myDisposable)
+  }
+
+  override def createUi(): HackerRankSettingsForm = HackerRankSettingsForm(myProject, myDisposable)
 }
 
 object HackerRankSettingsConfigurable {

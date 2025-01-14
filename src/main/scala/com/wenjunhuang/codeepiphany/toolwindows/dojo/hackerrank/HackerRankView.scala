@@ -6,7 +6,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.Disposable
 import com.intellij.ui.CardLayoutPanel
 import com.wenjunhuang.codeepiphany.actions.LoginAction.{ LOGIN_LOGOUT_KEY, LoginLogoutProvider }
-import com.wenjunhuang.codeepiphany.hackerrank.services.auth.{
+import com.wenjunhuang.codeepiphany.services.auth.{
   askForLogout,
   loadAuthenticationMayAskForLogin,
   AskForLoginResult

@@ -17,7 +17,7 @@ import com.intellij.ui.content.impl.ContentManagerImpl
 import com.intellij.ui.jcef.{ JBCefBrowser, JBCefBrowserBuilder }
 import com.intellij.util.ui.JBUI
 import com.wenjunhuang.codeepiphany.PluginBundle
-import com.wenjunhuang.codeepiphany.hackerrank.services.auth.{ validateUserCookieAndTestLogin, AskForLoginResult }
+import com.wenjunhuang.codeepiphany.services.auth.{ validateUserCookieAndTestLogin, AskForLoginResult }
 import com.wenjunhuang.codeepiphany.model.CodeDojo
 import com.wenjunhuang.codeepiphany.model.CodeDojo.HackerRank
 import com.wenjunhuang.codeepiphany.services.http.{ HttpClientKeeper, HttpClientService }

@@ -1,6 +1,6 @@
 package com.wenjunhuang.codeepiphany.services.http
 
-import cats.effect.{Async, Ref, Resource}
+import cats.effect.{ Async, Ref, Resource }
 import cats.effect.kernel.Ref.Make
 import cats.effect.kernel.Sync
 import cats.syntax.all.*
@@ -10,11 +10,11 @@ import com.wenjunhuang.codeepiphany.utils.implicits.intellijComputeContext
 import okhttp3.*
 import org.http4s.client.Client
 import org.typelevel.ci.CIString
-import org.typelevel.log4cats.{Logger, LoggerFactory}
+import org.typelevel.log4cats.{ Logger, LoggerFactory }
 
 import java.net.HttpCookie
 import java.security.cert.X509Certificate
-import javax.net.ssl.{SSLContext, TrustManager, X509TrustManager}
+import javax.net.ssl.{ SSLContext, TrustManager, X509TrustManager }
 import scala.annotation.static
 import scala.concurrent.duration.*
 import scala.jdk.CollectionConverters.*
@@ -26,6 +26,7 @@ trait HttpClientKeeper[F[_]] {
   def getClient: Resource[F, Client[F]]
   def updateCookiesForHost(host: CIString, cookies: List[HttpCookie]): F[Unit]
   def getCookiesForHost(host: CIString): F[List[HttpCookie]]
+  def findCookieForHost(host: CIString, cookieName: CIString): F[Option[HttpCookie]]
   def clearCookiesForHost(host: CIString): F[Unit]
 }
 
@@ -48,6 +49,9 @@ object HttpClientKeeper {
         })
       }
 
+      override def findCookieForHost(host: CIString, cookieName: CIString): F[Option[HttpCookie]] =
+        getCookiesForHost(host).map(_.find(cookie => CIString(cookie.getName) == cookieName))
+
       override def getCookiesForHost(host: CIString): F[List[HttpCookie]] =
         for {
           cookies <- cookieManager.get
@@ -60,7 +64,9 @@ object HttpClientKeeper {
           .delay(cookies.map(cookie => CIString(cookie.getName) -> cookie).toMap)
           .flatMap { cookiesByDomain =>
             cookieManager.update { cookies =>
-              CodeDojo.fromCIHostname(host).fold(cookies)(codeDojo => cookies.updated(codeDojo, cookiesByDomain))
+              CodeDojo
+                .fromCIHostname(host)
+                .fold(cookies)(codeDojo => cookies.updated(codeDojo, cookiesByDomain))
             }
           }
     }
@@ -112,6 +118,8 @@ object HttpClientKeeper {
     OkHttpClient
       .Builder()
       .dispatcher(Dispatcher(intellijComputeContext))
+      .followRedirects(true)
+      .followSslRedirects(true)
       .connectTimeout(connectionTimeout.toMillis, java.util.concurrent.TimeUnit.MILLISECONDS)
       .writeTimeout(writeTimeout.toMillis, java.util.concurrent.TimeUnit.MILLISECONDS)
       .readTimeout(readTimeout.toMillis, java.util.concurrent.TimeUnit.MILLISECONDS)

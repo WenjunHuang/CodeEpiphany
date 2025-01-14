@@ -35,15 +35,22 @@ object challenge {
   ): F[Unit] = {
     Async[F].delay {
       val settings = HackerRankSettings.getInstance(project)
-      val state    = settings.getState
-      if state.sourceFolder.isEmpty || state.language.isEmpty then
-        val r = MessageDialogBuilder
-          .yesNo("Error", "Please set the source folder and language in the settings")
-          .ask(project)
-        if r then ShowSettingsUtil.getInstance().showSettingsDialog(project, classOf[HackerRankSettingsConfigurable])
-
-        None
-      else Some((state.sourceFolder.get, language, state.fileNameTemplate.get, state.codeTemplate.get))
+      settings.getLanguageSetting(language, languageVersion) match
+        case Some(state) =>
+          if state.sourceFolder.isEmpty || state.language.isEmpty then
+            val r = MessageDialogBuilder
+              .yesNo("Error", "Please set the source folder and language in the settings")
+              .ask(project)
+            if r then
+              ShowSettingsUtil.getInstance().showSettingsDialog(project, classOf[HackerRankSettingsConfigurable])
+            None
+          else Some((state.sourceFolder.get, language, state.fileNameTemplate.get, state.codeTemplate.get))
+        case None =>
+          val r = MessageDialogBuilder
+            .yesNo("Error", "Please set the source folder and language in the settings")
+            .ask(project)
+          if r then ShowSettingsUtil.getInstance().showSettingsDialog(project, classOf[HackerRankSettingsConfigurable])
+          None
     }.evalOnEDTAny().flatMap {
       case None => Async[F].unit
       case Some((sourceFolder, language, fileNameTemplate, codeTemplate)) =>

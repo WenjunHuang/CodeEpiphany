@@ -1,0 +1,15 @@
+query questionTagTypeWithTags {
+  questionTagTypeWithTags {
+    name
+    transName
+    tagRelation {
+      questionNum
+      tag {
+        name
+        id
+        nameTranslated
+        slug
+      }
+    }
+  }
+}

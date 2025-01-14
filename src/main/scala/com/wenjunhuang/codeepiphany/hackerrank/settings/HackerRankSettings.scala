@@ -4,30 +4,52 @@ import com.intellij.openapi.components.{ PersistentStateComponent, Service, Stat
 import com.intellij.openapi.components.Service.Level
 import com.intellij.openapi.project.Project
 import com.intellij.util.xmlb.annotations.Attribute
-import com.wenjunhuang.codeepiphany.hackerrank.settings.HackerRankSettings.HackerRankState
+import com.wenjunhuang.codeepiphany.hackerrank.settings.HackerRankSettings.{
+  HackerRankLanguageSettingsState,
+  HackerRankSettingsState
+}
 import com.wenjunhuang.codeepiphany.model.{ Constants, Language, LanguageVersion }
 import com.wenjunhuang.codeepiphany.utils.XmlUtils.*
 
+import java.util as ju
 import scala.annotation.meta.field
 import scala.beans.BeanProperty
+import scala.jdk.CollectionConverters.*
 
 @Service(Array(Level.PROJECT))
 @State(name = Constants.HACKERRANK_SETTING, storages = Array(new Storage(Constants.HACKERRANK_SETTING_FILE)))
-final class HackerRankSettings(private val myProject: Project) extends PersistentStateComponent[HackerRankState] {
-  private var state = HackerRankState()
+final class HackerRankSettings(private val myProject: Project)
+    extends PersistentStateComponent[HackerRankSettingsState] {
+  private var state = HackerRankSettingsState()
 
-  override def getState: HackerRankState = state
+  override def getState: HackerRankSettingsState = state
 
-  override def loadState(newState: HackerRankState): Unit =
+  override def loadState(newState: HackerRankSettingsState): Unit =
     state = newState
 
   def getSelectedLanguages: List[(Language, LanguageVersion)] =
-    state.language.zip(state.languageVersion).map((_, _)).toList
+    state.languageSettings.asScala.toList.map { it =>
+      (it.language.get, it.languageVersion.get)
+    }
+
+  def getLanguageSetting(
+    language: Language,
+    languageVersion: LanguageVersion
+  ): Option[HackerRankLanguageSettingsState] = {
+    state.languageSettings.asScala.find { state =>
+      state.language.contains(language) && state.languageVersion.contains(languageVersion)
+    }
+  }
 }
 
 object HackerRankSettings {
+  class HackerRankSettingsState {
+    @BeanProperty
+    var languageSettings: ju.List[HackerRankLanguageSettingsState] = new ju.ArrayList[HackerRankLanguageSettingsState]()
+  }
 
-  class HackerRankState {
+  class HackerRankLanguageSettingsState {
+    
     @(Attribute @field)(converter = classOf[StringOptionConverter])
     var sourceFolder: Option[String] = None
 
