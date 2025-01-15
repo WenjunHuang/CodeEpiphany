@@ -1,7 +1,7 @@
 package com.wenjunhuang.codeepiphany.model
 
 import cats.effect.kernel.Resource
-import cats.effect.{ Async, IO }
+import cats.effect.{Async, IO}
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.components.Service.Level
@@ -10,11 +10,12 @@ import com.intellij.openapi.util.Disposer
 import com.intellij.openapi.util.io.FileUtil
 import com.wenjunhuang.codeepiphany.settings.CodeEpiphanySettings
 import com.wenjunhuang.codeepiphany.utils.implicits.*
+import com.wenjunhuang.codeepiphany.utils.isDebug
 import com.zaxxer.hikari.HikariDataSource
 import org.flywaydb.core.Flyway
 import org.jooq.impl.DSL
 import org.jooq.tools.JooqLogger
-import org.jooq.{ DSLContext, Log, SQLDialect }
+import org.jooq.{DSLContext, Log, SQLDialect}
 
 import java.io.File
 
@@ -50,7 +51,7 @@ final class ChallengeRepository(private val myProject: Project) extends Disposab
     flyway.migrate()
     dataSource = Some(ds)
 
-    JooqLogger.globalThreshold(Log.Level.DEBUG)
+    if isDebug then JooqLogger.globalThreshold(Log.Level.DEBUG)
   }
 
   private def getDatabaseFile: File = {

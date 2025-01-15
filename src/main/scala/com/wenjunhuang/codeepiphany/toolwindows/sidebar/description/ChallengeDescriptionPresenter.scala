@@ -1,12 +1,12 @@
 package com.wenjunhuang.codeepiphany.toolwindows.sidebar.description
 
 import cats.effect.std.Queue
-import cats.effect.{Async, IO}
+import cats.effect.{ Async, IO }
 import cats.syntax.all.*
 import com.intellij.ide.BrowserUtil
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.diagnostic.Logger
-import com.intellij.openapi.fileEditor.{FileEditorManager, FileEditorManagerEvent, FileEditorManagerListener}
+import com.intellij.openapi.fileEditor.{ FileEditorManager, FileEditorManagerEvent, FileEditorManagerListener }
 import com.intellij.openapi.fileTypes.FileTypes
 import com.intellij.openapi.fileTypes.ex.FileTypeChooser
 import com.intellij.openapi.project.Project
@@ -15,18 +15,18 @@ import com.intellij.openapi.vfs.LocalFileSystem
 import com.intellij.util.io.URLUtil
 import com.wenjunhuang.codeepiphany.database.Tables.CHALLENGE
 import com.wenjunhuang.codeepiphany.model.ChallengeRepository.ChallengeId
-import com.wenjunhuang.codeepiphany.model.{ChallengeRepository, CodeDojo}
+import com.wenjunhuang.codeepiphany.model.{ ChallengeRepository, CodeDojo }
 import com.wenjunhuang.codeepiphany.settings.ChallengeSettings
 import com.wenjunhuang.codeepiphany.utils.implicits.*
 import fs2.Stream
 
 import java.io.File
-import java.net.URL
+import java.net.{ URI, URL }
 import scala.concurrent.duration.*
 
 class ChallengeDescriptionPresenter(private val myProject: Project) extends Disposable {
   private val logger            = Logger.getInstance(this.getClass)
-  private val myDescriptionView = ChallengeDescriptionView(this,myProject)
+  private val myDescriptionView = ChallengeDescriptionView(this, myProject)
 
   myProject.getMessageBus
     .connect(this)
@@ -83,7 +83,7 @@ class ChallengeDescriptionPresenter(private val myProject: Project) extends Disp
   /** Handle user clicked a link in the description view browser
     */
   def userClickedLink[F[_]: Async](url: String): F[Unit] =
-    Async[F].delay(URL(url)).flatMap(url => ChallengeDescriptionPresenter.openUrl(url, myProject))
+    Async[F].delay(URI.create(url)).flatMap(uri => ChallengeDescriptionPresenter.browseURI(uri, myProject))
 
   private def setChallenge(challenge: Option[(ChallengeId, CodeDojo)]): Unit =
     myQueue.foreach(_.offer(challenge).unsafeRunAndForget())
@@ -97,27 +97,27 @@ class ChallengeDescriptionPresenter(private val myProject: Project) extends Disp
 }
 
 object ChallengeDescriptionPresenter {
-  def openUrl[F[_]: Async](url: URL, project: Project): F[Unit] =
-    if url.getProtocol == URLUtil.FILE_PROTOCOL then
+  def browseURI[F[_]: Async](uri: URI, project: Project): F[Unit] = {
+    if uri.getScheme == URLUtil.FILE_PROTOCOL then
       Async[F].delay {
-        val file = File(url.toURI)
+        val file = File(uri)
         if !file.exists() || file.isDirectory then throw new IllegalArgumentException(s"Invalid file: $file")
-        else file
+        file
       }.flatMap { file =>
         Async[F].delay {
           val vf = LocalFileSystem.getInstance().refreshAndFindFileByIoFile(file)
           FileEditorManager.getInstance(project).openFile(vf, false) match
             case null | Array() =>
               FileTypeChooser.getKnownFileTypeOrAssociate(vf, project) match
-                case null | FileTypes.UNKNOWN => ()
+                case null | FileTypes.UNKNOWN =>
                 case _ =>
                   FileEditorManager.getInstance(project).openFile(vf, false)
-                  ()
-            case _ => ()
-        }.evalOnEDTAny()
+            case _ =>
+        }.void.evalOnEDTAny()
       }
     else
       Async[F].delay {
-        BrowserUtil.browse(url.toExternalForm)
+        BrowserUtil.browse(uri.toURL)
       }
+  }
 }

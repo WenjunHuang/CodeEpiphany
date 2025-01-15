@@ -5,7 +5,6 @@ ThisBuild / intellijPlatform := IntelliJPlatform.IdeaCommunity
 ThisBuild / intellijBuild    := "242.20224.300"
 //ThisBuild / intellijBuild    := "243.22562.218"
 
-
 lazy val codeEpiphany = (project in file("."))
   .settings(
     name    := "CodeEpiphany",
@@ -20,7 +19,11 @@ lazy val codeEpiphany = (project in file("."))
     intellijAttachSources          := true,
     instrumentThreadingAnnotations := true,
     bundleScalaLibrary             := true,
-    intellijVMOptions              := intellijVMOptions.value.copy(xmx = 2048, xms = 256),
+    intellijVMOptions := intellijVMOptions.value.copy(
+      xmx = 2048,
+      xms = 256,
+      defaultOptions = intellijVMOptions.value.defaultOptions ++ Seq("--add-opens=java.management/sun.management=ALL-UNNAMED")
+    ),
     patchPluginXml := pluginXmlOptions { xml =>
       xml.version = version.value
     },
