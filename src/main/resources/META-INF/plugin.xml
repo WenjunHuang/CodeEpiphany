@@ -36,6 +36,8 @@
             <action id="CodeEpiphany.Actions.SubmitCode"
                     class="com.wenjunhuang.codeepiphany.editor.actions.SubmitCodeAction"
                     icon="CodeEpiphanyIcons.SUBMIT"/>
+            <action id="CodeEpiphany.Actions.OpenSubmissionCode"
+                    class="com.wenjunhuang.codeepiphany.actions.OpenSubmissionCodeAction"/>
         </group>
         <group id="CodeEpiphany.HackerRank.Group">
             <action id="CodeEpiphany.Actions.HackerRank.SwitchUI"
@@ -114,8 +116,8 @@
             <reference ref="CodeEpiphany.Actions.Refresh"/>
         </group>
 
-        <group id="CodeEpiphany.SubmissionsTable.Popupmenu">
-
+        <group id="CodeEpiphany.Sidebar.SubmissionsTable.Popupmenu">
+            <reference ref="CodeEpiphany.Actions.OpenSubmissionCode"/>
         </group>
 
         <!-- test -->
@@ -173,7 +175,9 @@
         <fileEditorProvider
                 id="CodeEpiphany.EditorProvider"
                 implementation="com.wenjunhuang.codeepiphany.editor.extensions.ChallengeEditorProvider"/>
-<!--        com. intellij. vfs. asyncListener-->
+        <fileEditorProvider id="CodeEpiphany.SubmissionCodeEditorProvider"
+                            implementation="com.wenjunhuang.codeepiphany.vfs.SubmissionCodeEditorProvider"/>
         <vfs.asyncListener implementation="com.wenjunhuang.codeepiphany.editor.extensions.ChallengeFileRenameListener"/>
+        <virtualFileSystem key="cesc" implementationClass="com.wenjunhuang.codeepiphany.vfs.SubmissionCodeFileSystem"/>
     </extensions>
 </idea-plugin>

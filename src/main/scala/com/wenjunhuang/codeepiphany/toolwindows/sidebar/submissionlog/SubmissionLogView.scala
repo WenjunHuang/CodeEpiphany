@@ -2,7 +2,9 @@ package com.wenjunhuang.codeepiphany.toolwindows.sidebar.submissionlog
 
 import com.intellij.openapi.actionSystem.{ActionGroup, ActionManager, DataSink}
 import com.intellij.openapi.ui.SimpleToolWindowPanel
+import com.intellij.ui.PopupHandler
 import com.intellij.ui.components.JBScrollPane
+import com.intellij.ui.table.TableView
 import com.intellij.util.ui.components.BorderLayoutPanel
 import com.wenjunhuang.codeepiphany.model.Actions
 import com.wenjunhuang.codeepiphany.utils.ui.TagPane
@@ -21,6 +23,12 @@ class SubmissionLogView(private val myPresenter: SubmissionLogPresenter) extends
   myMainToolbar.setTargetComponent(this)
   setToolbar(myMainToolbar.getComponent)
 
+  private val myPopupHandler = PopupHandler.installRowSelectionTablePopup(
+    myTable,
+    ActionManager.getInstance().getAction(Actions.SUBMISSIONS_TABLE_POPUP_GROUP).asInstanceOf[ActionGroup],
+    Actions.SUBMISSIONS_TABLE_POPUP_PLACE
+  )
+
   myContent.addToCenter(
     JBScrollPane(
       myTable,
@@ -34,6 +42,7 @@ class SubmissionLogView(private val myPresenter: SubmissionLogPresenter) extends
 
   def getTagPane: TagPane                    = myTagPane
   def getTableModel: SubmissionLogTableModel = myTableModel
+  def getTable: TableView[SubmissionLogEntry] = myTable
 
   override def uiDataSnapshot(sink: DataSink): Unit = {
     myPresenter.uiDataSnapshot(sink)

@@ -5,19 +5,26 @@ import cats.effect.kernel.Resource.ExitCase
 import cats.effect.std.Queue
 import cats.syntax.all.*
 import com.intellij.openapi.Disposable
-import com.intellij.openapi.actionSystem.{DataSink, UiDataProvider}
+import com.intellij.openapi.actionSystem.{ DataSink, UiDataProvider }
+import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.project.Project
-import com.wenjunhuang.codeepiphany.actions.CodeDojoParameterAction.{CODEDOJO_PROVIDER_KEY, CodeDojoParameterProvider}
-import com.wenjunhuang.codeepiphany.actions.LanguageParameterAction.{LANGUAGE_PROVIDER_KEY, LanguageParameterProvider}
-import com.wenjunhuang.codeepiphany.actions.RefreshAction.{REFRESH_PROVIDER_KEY, RefreshProvider}
+import com.wenjunhuang.codeepiphany.actions.CodeDojoParameterAction.{ CODEDOJO_PROVIDER_KEY, CodeDojoParameterProvider }
+import com.wenjunhuang.codeepiphany.actions.LanguageParameterAction.{ LANGUAGE_PROVIDER_KEY, LanguageParameterProvider }
+import com.wenjunhuang.codeepiphany.actions.OpenSubmissionCodeAction.{
+  OPEN_SUBMISSION_PROVIDER_KEY,
+  OpenSubmissionCodeProvider
+}
+import com.wenjunhuang.codeepiphany.actions.RefreshAction.{ REFRESH_PROVIDER_KEY, RefreshProvider }
 import com.wenjunhuang.codeepiphany.database.Tables.*
 import com.wenjunhuang.codeepiphany.model.*
 import com.wenjunhuang.codeepiphany.toolwindows.sidebar.submissionlog.SubmissionLogPresenter.*
 import com.wenjunhuang.codeepiphany.utils.extensions.*
 import com.wenjunhuang.codeepiphany.utils.implicits.*
+import com.wenjunhuang.codeepiphany.vfs.SubmissionCodeFileSystem
+import com.wenjunhuang.codeepiphany.vfs.SubmissionCodeFileSystem.SubmissionCodeFilePath
 import fs2.Stream
 import fs2.concurrent.SignallingRef
-import org.jooq.{Record, SelectOnConditionStep}
+import org.jooq.{ Record, SelectOnConditionStep }
 import org.typelevel.ci.CIString
 import org.typelevel.log4cats.LoggerFactory
 
@@ -155,6 +162,19 @@ class SubmissionLogPresenter(private val myProject: Project) extends UiDataProvi
     }
   }
 
+  private val myOpenSubmissionCodeProvider = new OpenSubmissionCodeProvider {
+    override def openSubmissionCode(): Unit = {
+      val id = myView.getTable.getSelectedObject.id
+      val file = SubmissionCodeFileSystem
+        .getInstance()
+        .findOrCreateFile(
+          myProject,
+          SubmissionCodeFilePath(id, myProject, SubmissionCodeFileSystem.CodeType.Submission)
+        )
+      if file != null then FileEditorManager.getInstance(myProject).openFile(file)
+    }
+  }
+
   def getView: JComponent = myView
 
   private def requery(): Unit = {
@@ -187,6 +207,7 @@ class SubmissionLogPresenter(private val myProject: Project) extends UiDataProvi
           .map { record =>
             Try {
               SubmissionLogEntry(
+                id = record.get(SOLUTION_SUBMISSION.ID).intValue(),
                 dojo = CodeDojo.fromCIString(CIString(record.get(CHALLENGE.DOJO))).get,
                 challengeTitle = record.get(CHALLENGE.TITLE),
                 solution = record.get(SOLUTION.TITLE),
@@ -296,6 +317,7 @@ class SubmissionLogPresenter(private val myProject: Project) extends UiDataProvi
     dataSink.set(REFRESH_PROVIDER_KEY, myRefreshProvider)
     dataSink.set(CODEDOJO_PROVIDER_KEY, myDojoProvider)
     dataSink.set(LANGUAGE_PROVIDER_KEY, myLanguageProvider)
+    dataSink.set(OPEN_SUBMISSION_PROVIDER_KEY, myOpenSubmissionCodeProvider)
   }
 }
 

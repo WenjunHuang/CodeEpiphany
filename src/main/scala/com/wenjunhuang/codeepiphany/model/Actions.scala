@@ -10,6 +10,6 @@ object Actions {
 
   final val SUBMISSIONS_TOOLBAR_GROUP     = "CodeEpiphany.Sidebar.SubmissionLog.Toolbar.Group"
   final val SUBMISSIONS_TOOLBAR_PLACE     = "CodeEpiphany.Sidebar.SubmissionLog.Toolbar.Place"
-  final val SUBMISSIONS_TABLE_POPUP_GROUP = "CodeEpiphany.SubmissionsTable.Popupmenu"
-  final val SUBMISSIONS_TABLE_POPUP_PLACE = "CodeEpiphany.SubmissionsTable.Place"
+  final val SUBMISSIONS_TABLE_POPUP_GROUP = "CodeEpiphany.Sidebar.SubmissionsTable.Popupmenu"
+  final val SUBMISSIONS_TABLE_POPUP_PLACE = "CodeEpiphany.Sidebar.SubmissionsTable.Place"
 }

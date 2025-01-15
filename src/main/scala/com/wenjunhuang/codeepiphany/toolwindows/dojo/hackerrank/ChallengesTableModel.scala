@@ -32,8 +32,8 @@ class ChallengesTableModel extends ListTableModel[ChallengeDetail]() {
 
     PopupHandler.installRowSelectionTablePopup(
       tableView,
-      ActionManager.getInstance().getAction(CHALLENGES_TABLE_POPUP_GROUP).asInstanceOf[ActionGroup],
-      CHALLENGES_TABLE_POPUP_PLACE
+      ActionManager.getInstance().getAction(SUBMISSIONS_TABLE_POPUP_GROUP).asInstanceOf[ActionGroup],
+      CHALLENGES_TABLE_POPUP_GROUP
     )
     tableView
   }
