@@ -1,6 +1,7 @@
 package com.wenjunhuang.codeepiphany.hackerrank.login
 
 import cats.effect.IO
+import cats.syntax.all.*
 import cats.effect.std.Queue
 import com.intellij.ide.*
 import com.intellij.openapi.Disposable
@@ -29,6 +30,7 @@ import org.cef.callback.CefCookieVisitor
 import org.cef.handler.CefLoadHandlerAdapter
 import org.cef.misc.BoolRef
 import org.cef.network.CefCookie
+import org.typelevel.ci.CIString
 import org.typelevel.log4cats.LoggerFactory
 
 import java.awt.Font
@@ -41,7 +43,8 @@ import scala.jdk.CollectionConverters.*
 
 class HackerRankLoginDialog(
   private val myProject: Project,
-  private val callback: Either[Throwable, AskForLoginResult] => Unit
+  private val myCodeDojo: CodeDojo,
+  private val myLoginCallback: Either[Throwable, AskForLoginResult] => Unit
 ) extends DialogWrapper(myProject, false, DialogWrapper.IdeModalityType.IDE) {
   private val myLogger = LoggerFactory[IO].getLogger
   private val myContentManager =
@@ -68,11 +71,8 @@ class HackerRankLoginDialog(
   })
 
   private val myCookieLoginPane = createCookieLoginPane()
-  private val myLoginViaCookiePanel = myContentManager.getFactory.createContent(
-    myCookieLoginPane,
-    PluginBundle.message("hackerrank.ui.login.viaCookie"),
-    true
-  )
+  private val myLoginViaCookiePanel =
+    myContentManager.getFactory.createContent(myCookieLoginPane, PluginBundle.message("loginDialog.viaCookie"), true)
 
   if !isDebug then PopupHandler.installPopupMenu(myCookieText, IdeActions.GROUP_CUT_COPY_PASTE, ActionPlaces.POPUP)
 
@@ -83,7 +83,7 @@ class HackerRankLoginDialog(
       ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
       ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER
     ),
-    PluginBundle.message("hackerrank.ui.login.viaBrowser"),
+    PluginBundle.message("loginDialog.viaBrowser"),
     true
   )
 
@@ -96,10 +96,10 @@ class HackerRankLoginDialog(
       myCookieText.setEnabled(false)
       myOkAction.setEnabled(false)
       myOkAction.putValue(Action.SMALL_ICON, AnimatedIcon.Default.INSTANCE)
-      myOkAction.putValue(Action.NAME, PluginBundle.message("hackerrank.ui.login.validating"))
-      validateUserCookieAndTestLogin[IO](myProject, HackerRank, text).flatMap {
+      myOkAction.putValue(Action.NAME, PluginBundle.message("loginDialog.validating"))
+      validateUserCookieAndTestLogin[IO](myProject, myCodeDojo, text).flatMap {
         case true =>
-          IO.delay(callback(Right(AskForLoginResult.Done))) *> IO
+          IO.delay(myLoginCallback(Right(AskForLoginResult.Done))) *> IO
             .delay(close(DialogWrapper.OK_EXIT_CODE, true))
             .evalOnEDTAny()
         case false =>
@@ -107,14 +107,14 @@ class HackerRankLoginDialog(
             ComponentValidator
               .getInstance(myCookieText)
               .ifPresent(v =>
-                v.updateInfo(ValidationInfo(PluginBundle.message("hackerrank.ui.login.cookie.error"), myCookieText))
+                v.updateInfo(ValidationInfo(PluginBundle.message("loginDialog.cookie.error"), myCookieText))
               )
 
             myCookieText.setEnabled(true)
             myCookieText.requestFocus()
             myOkAction.setEnabled(true)
             myOkAction.putValue(Action.SMALL_ICON, null)
-            myOkAction.putValue(Action.NAME, PluginBundle.message("hackerrank.ui.login.ok"))
+            myOkAction.putValue(Action.NAME, PluginBundle.message("loginDialog.ok"))
           }.evalOnEDTAny()
       }.unsafeRunAndForget()
     }
@@ -128,28 +128,26 @@ class HackerRankLoginDialog(
         case ContentManagerEvent.ContentOperation.add =>
           if event.getContent == myLoginViaCookiePanel then getButton(myOkAction).setVisible(true)
           else if event.getContent == myLoginViaBrowserPanel then
-//            myLoginBrowser.loadURL("https://www.hackerrank.com/auth/login")
             myLoginBrowser.getComponent.requestFocus()
             getButton(myOkAction).setVisible(false)
         case _ =>
   })
 
   init()
-  setTitle(PluginBundle.message("hackerrank.ui.login.title"))
-  setOKButtonText(PluginBundle.message("hackerrank.ui.login.ok"))
+  setTitle(PluginBundle.message("loginDialog.title", myCodeDojo.show))
+  setOKButtonText(PluginBundle.message("loginDialog.ok"))
 
   override def createCenterPanel(): JComponent = myContentManager.getComponent
 
   override def doCancelAction(): Unit =
-    callback(Right(AskForLoginResult.Cancelled))
+    myLoginCallback(Right(AskForLoginResult.Cancelled))
     super.doCancelAction()
 
   override def getOKAction: Action = myOkAction
 
   override def createActions(): Array[Action] = {
-    val helpAction: Action = new AbstractAction(PluginBundle.message("hackerrank.ui.login.help")) {
-      override def actionPerformed(e: ActionEvent): Unit =
-        BrowserUtil.browse("https://www.hackerrank.com/auth/login")
+    val helpAction: Action = new AbstractAction(PluginBundle.message("loginDialog.help")) {
+      override def actionPerformed(e: ActionEvent): Unit = ???
     }
     Array(helpAction, myOkAction, getCancelAction)
   }
@@ -217,7 +215,7 @@ class HackerRankLoginDialog(
         .setOffScreenRendering(true)
 
     val browser = builder
-      .setUrl("https://www.hackerrank.com/auth/login")
+      .setUrl(myCodeDojo.getLoginURL)
       .build()
 
     enum CookieCheck {
@@ -242,17 +240,15 @@ class HackerRankLoginDialog(
           }
           .collect { case (_, Some(cookies)) => cookies }
           .evalTap { cookies =>
-            cookies.find(_.getName == "remember_hacker_token") match
-              case Some(_) =>
-                // found a candidate cookie, but need to test it to see if it's valid
-                validateUserCookieAndTestLogin[IO](myProject, CodeDojo.HackerRank, cookies).flatMap {
-                  case true =>
-                    IO.delay(callback(Right(AskForLoginResult.Done))) *> IO
-                      .delay(close(DialogWrapper.OK_EXIT_CODE))
-                      .evalOnEDTAny()
-                  case false => myLogger.warn("Browser login failed")
-                }
-              case None => IO.unit
+            if myCodeDojo.loginCandidateCookies(cookies) then
+              // found a candidate cookie, but need to test it to see if it's valid
+              validateUserCookieAndTestLogin[IO](myProject, myCodeDojo, cookies).flatMap {
+                case true =>
+                  IO.delay(myLoginCallback(Right(AskForLoginResult.Done))) *>
+                    IO.delay(close(DialogWrapper.OK_EXIT_CODE)).evalOnEDTAny()
+                case false => myLogger.warn("Browser login failed")
+              }
+            else myLogger.warn(s"Browser login failed due to no candidate cookie. CodeDojo:$myCodeDojo")
           }
           .onFinalize(myLogger.info("Cookie processing stream finalized"))
           .compile
@@ -269,7 +265,7 @@ class HackerRankLoginDialog(
       ): Unit =
         browser.getJBCefCookieManager.getCefCookieManager.visitAllCookies {
           (cefCookie: CefCookie, count: Int, total: Int, _: BoolRef) =>
-            if cefCookie.domain.contains("hackerrank.com") then
+            if CIString(cefCookie.domain).contains(myCodeDojo.domain) then
               val cookie = new HttpCookie(cefCookie.name, cefCookie.value)
               cookie.setDomain(cefCookie.domain)
               cookie.setPath(cefCookie.path)
@@ -297,5 +293,3 @@ class HackerRankLoginDialog(
     browser
   }
 }
-
-object HackerRankLoginDialog {}

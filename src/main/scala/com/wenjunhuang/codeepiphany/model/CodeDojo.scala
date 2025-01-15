@@ -2,6 +2,7 @@ package com.wenjunhuang.codeepiphany.model
 import cats.Show
 import org.typelevel.ci.CIString
 
+import java.net.HttpCookie
 import javax.swing.Icon
 
 enum CodeDojo(val domain: CIString, val value: String) {
@@ -14,6 +15,19 @@ enum CodeDojo(val domain: CIString, val value: String) {
     case LeetCode   => Some(icons.CodeEpiphanyIcons.Dojos.LEETCODE)
     case LeetCodeCN => Some(icons.CodeEpiphanyIcons.Dojos.LEETCODE)
   }
+
+  def getLoginURL: String = this match {
+    case HackerRank => "https://www.hackerrank.com/auth/login"
+    case LeetCode   => "https://leetcode.com/accounts/login/"
+    case LeetCodeCN => "https://leetcode.cn/accounts/login/"
+  }
+
+  def loginCandidateCookies(cookies: List[HttpCookie]): Boolean = this match {
+    case HackerRank => cookies.exists(_.getName == "remember_hacker_token")
+    case LeetCode   => cookies.exists(_.getName == "leetcode.com")
+    case LeetCodeCN => cookies.exists(_.getName == "leetcode.cn")
+  }
+
 }
 
 object CodeDojo {

@@ -5,7 +5,9 @@ import cats.syntax.all.*
 import com.intellij.openapi.project.Project
 import com.wenjunhuang.codeepiphany.hackerrank.login.HackerRankLoginDialog
 import com.wenjunhuang.codeepiphany.hackerrank.services.HackerRankApi
-import com.wenjunhuang.codeepiphany.model.{ApiError, CodeDojo, SensitiveDataStore}
+import com.wenjunhuang.codeepiphany.leetcode.services.LeetCodeApi
+import com.wenjunhuang.codeepiphany.model.CodeDojo.*
+import com.wenjunhuang.codeepiphany.model.{ ApiError, CodeDojo, SensitiveDataStore }
 import com.wenjunhuang.codeepiphany.services.http.HttpClientKeeper
 import com.wenjunhuang.codeepiphany.utils.CookieUtil
 import com.wenjunhuang.codeepiphany.utils.implicits.*
@@ -50,11 +52,17 @@ object auth {
     codeDojo: CodeDojo,
     cookies: List[HttpCookie]
   ): F[Boolean] =
-    HttpClientKeeper[F].updateCookiesForHost(codeDojo.domain, cookies) *> HackerRankApi[F]().checkLogin().flatMap {
-      case true =>
-        saveAuthentication[F](project, codeDojo, cookies) *> true.pure[F]
-      case false => HttpClientKeeper[F].clearCookiesForHost(CodeDojo.HackerRank.domain) *> false.pure[F]
-    }
+    HttpClientKeeper[F].updateCookiesForHost(codeDojo.domain, cookies)
+      *> (codeDojo match
+        case HackerRank => HackerRankApi[F]().checkLogin()
+        case LeetCode   => LeetCodeApi[F](LeetCode).checkLogin()
+        case LeetCodeCN => LeetCodeApi[F](LeetCodeCN).checkLogin()
+        case _          => false.pure[F]
+      ).flatMap {
+        case true =>
+          saveAuthentication[F](project, codeDojo, cookies) *> true.pure[F]
+        case false => HttpClientKeeper[F].clearCookiesForHost(codeDojo.domain) *> false.pure[F]
+      }
 
   def validateUserCookieAndTestLogin[F[_]: Async: HttpClientKeeper](
     project: Project,
@@ -81,7 +89,7 @@ object auth {
   def askForLogin[F[_]: Async](project: Project, codeDojo: CodeDojo): F[AskForLoginResult] =
     Async[F]
       .async_[AskForLoginResult] { cb =>
-        val dialog = new HackerRankLoginDialog(project, cb)
+        val dialog = new HackerRankLoginDialog(project, codeDojo, cb)
         dialog.show()
       }
       .evalOnEDTAny()
