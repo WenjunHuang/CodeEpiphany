@@ -5,15 +5,16 @@ import com.intellij.testFramework.fixtures.BasePlatformTestCase
 import com.intellij.util.net.{ ProxyConfiguration, ProxySettings }
 import com.wenjunhuang.codeepiphany.leetcode.services.LeetCodeApi
 import com.wenjunhuang.codeepiphany.model.CodeDojo
+import com.wenjunhuang.codeepiphany.model.CodeDojo.{ LeetCode, LeetCodeCN }
 import com.wenjunhuang.codeepiphany.services.http.{ HttpClientKeeper, HttpClientService }
 import com.wenjunhuang.codeepiphany.utils.CookieUtil
 import com.wenjunhuang.codeepiphany.utils.implicits.*
+import org.hamcrest.CoreMatchers.*
+import org.hamcrest.MatcherAssert.assertThat
 
 import java.io.FileInputStream
 import java.net.HttpCookie
 import scala.io.Source
-import org.hamcrest.CoreMatchers.*
-import org.hamcrest.MatcherAssert.assertThat
 
 class LeetcodeApiIntegrationTest extends BasePlatformTestCase {
 
@@ -38,12 +39,20 @@ class LeetcodeApiIntegrationTest extends BasePlatformTestCase {
     cookiesCN = CookieUtil.parseCookies(loginCookieCN)
   }
 
+  override def tearDown(): Unit = {
+    val httpClientKeeper = HttpClientService.getInstance(getProject).httpClientKeeper
+    (httpClientKeeper.clearCookiesForHost(CodeDojo.LeetCode.domain) *> httpClientKeeper.clearCookiesForHost(
+      CodeDojo.LeetCodeCN.domain
+    )).unsafeRunSync()
+    super.tearDown()
+  }
+
   override def getBasePath: String = s"testResources/apiTestData/leetcode"
   override def getTestDataPath     = s"${getBasePath}/${getTestName(false)}"
 
   def testGetFavoriteList(): Unit = {
-    val httpClientKeeper = HttpClientService.getInstance(getProject)
-    import httpClientKeeper.*
+    val httpClientService = HttpClientService.getInstance(getProject)
+    import httpClientService.*
     val leetCodeApi = LeetCodeApi[IO](CodeDojo.LeetCodeCN)
     leetCodeApi.getFavoriteList.map { favoriteList =>
       assertThat(favoriteList.size, not(0))
@@ -51,8 +60,8 @@ class LeetcodeApiIntegrationTest extends BasePlatformTestCase {
   }
 
   def testTagTypeWithTags(): Unit = {
-    val httpClientKeeper = HttpClientService.getInstance(getProject)
-    import httpClientKeeper.*
+    val httpClientService = HttpClientService.getInstance(getProject)
+    import httpClientService.*
     val leetCodeApiCN = LeetCodeApi[IO](CodeDojo.LeetCodeCN)
 //
 //    (setCookie(httpClientKeeper.httpClientKeeper) *>
@@ -61,15 +70,15 @@ class LeetcodeApiIntegrationTest extends BasePlatformTestCase {
 //      }).unsafeRunSync()
 
     val leetCodeApi = LeetCodeApi[IO](CodeDojo.LeetCode)
-    (setCookie(httpClientKeeper.httpClientKeeper) *>
+    (setCookie(httpClientKeeper) *>
       leetCodeApi.getTagTypeWithTags.map { tagTypeWithTags =>
         assertThat(tagTypeWithTags.size, not(0))
       }).unsafeRunSync()
   }
 
   def testSearchChallenges(): Unit = {
-    val httpClientKeeper = HttpClientService.getInstance(getProject)
-    import httpClientKeeper.*
+    val httpClientService = HttpClientService.getInstance(getProject)
+    import httpClientService.*
     val leetCodeCNApi = LeetCodeApi[IO](CodeDojo.LeetCodeCN)
     leetCodeCNApi
       .searchChallenges(0, 50)
@@ -78,7 +87,7 @@ class LeetcodeApiIntegrationTest extends BasePlatformTestCase {
       }
       .unsafeRunSync()
     val leetCodeApi = LeetCodeApi[IO](CodeDojo.LeetCode)
-    (setCookie(httpClientKeeper.httpClientKeeper)
+    (setCookie(httpClientKeeper)
       *>
         leetCodeApi
           .searchChallenges(0, 50)
@@ -86,5 +95,64 @@ class LeetcodeApiIntegrationTest extends BasePlatformTestCase {
             assertThat(result.total, not(0))
           })
       .unsafeRunSync()
+  }
+
+  def testCheckLogin(): Unit = {
+    val httpClientService = HttpClientService.getInstance(getProject)
+    import httpClientService.*
+    val leetCodeCNApi = LeetCodeApi[IO](LeetCodeCN)
+    val leetCodeApi = LeetCodeApi[IO](LeetCode)
+
+    leetCodeCNApi
+      .checkLogin()
+      .map { result =>
+        assertThat(result, is(false))
+      }
+      .unsafeRunSync()
+
+    leetCodeApi
+      .checkLogin()
+      .map { result =>
+        assertThat(result, is(false))
+      }
+      .unsafeRunSync()
+
+    setCookie(httpClientKeeper).unsafeRunSync()
+    leetCodeCNApi
+      .checkLogin()
+      .map { result =>
+        assertThat(result, is(true))
+      }
+      .unsafeRunSync()
+
+    leetCodeApi
+      .checkLogin()
+      .map { result =>
+        assertThat(result, is(true))
+      }
+      .unsafeRunSync()
+  }
+
+  def testGetUserInfo(): Unit = {
+    val httpClientService = HttpClientService.getInstance(getProject)
+    import httpClientService.*
+    val leetCodeCNApi = LeetCodeApi[IO](LeetCodeCN)
+    val leetCodeApi = LeetCodeApi[IO](LeetCode)
+
+    leetCodeCNApi.getUserInfo().map { userInfo =>
+      assertThat(userInfo.userSlug, is(None))
+    }.unsafeRunSync()
+    leetCodeApi.getUserInfo().map { userInfo =>
+      assertThat(userInfo.userSlug, is(None))
+    }.unsafeRunSync()
+
+    setCookie(httpClientKeeper).unsafeRunSync()
+    leetCodeCNApi.getUserInfo().map { userInfo =>
+      assertThat(userInfo.userSlug, not(None))
+    }.unsafeRunSync()
+    leetCodeApi.getUserInfo().map { userInfo =>
+      assertThat(userInfo.userSlug, not(None))
+    }.unsafeRunSync()
+
   }
 }

@@ -1,33 +1,109 @@
 package com.wenjunhuang.codeepiphany.leetcode.services
 
-import cats.effect.{Async, Concurrent, Resource}
+import cats.effect.{ Async, Concurrent, Resource }
 import cats.syntax.all.*
-import com.wenjunhuang.codeepiphany.leetcode.model.{LeetCodeChallengeList, LeetCodeFavoriteItem, LeetCodeGraphQLRequest, LeetCodeTagTypeWithTags}
-import com.wenjunhuang.codeepiphany.model.{ApiError, CodeDojo}
+import com.wenjunhuang.codeepiphany.leetcode.model.{
+  LeetCodeChallengeList,
+  LeetCodeFavoriteItem,
+  LeetCodeGraphQLRequest,
+  LeetCodeTagTypeWithTags,
+  LeetCodeUserInfo
+}
+import com.wenjunhuang.codeepiphany.model.{ ApiError, CodeDojo }
 import com.wenjunhuang.codeepiphany.services.http.HttpClientKeeper
 import io.circe.Json
 import io.circe.optics.JsonPath
 import io.circe.parser.*
 import io.circe.syntax.*
+import org.http4s.circe.CirceEntityEncoder.*
 import org.http4s.client.dsl.Http4sClientDsl
 import org.http4s.headers.Referer
-import org.http4s.{Headers, Method, Uri}
+import org.http4s.{ Headers, Method, Uri }
 import org.typelevel.ci.CIString
 
-import scala.io.{BufferedSource, Source}
+import scala.io.{ BufferedSource, Source }
 
 trait LeetCodeApi[F[_]] {
   def getFavoriteList: F[List[LeetCodeFavoriteItem]]
   def getTagTypeWithTags: F[List[LeetCodeTagTypeWithTags]]
   def searchChallenges(offset: Int, limit: Int): F[LeetCodeChallengeList]
+  def getUserInfo(): F[LeetCodeUserInfo]
+  def checkLogin(): F[Boolean]
 }
 
 object LeetCodeApi {
   def apply[F[_]: Async: Concurrent: HttpClientKeeper](dojo: CodeDojo): LeetCodeApi[F] = new LeetCodeApi[F]
     with Http4sClientDsl[F] {
+    private def commonHeaders(csrfToken: String) =
+      Headers("x-csrftoken" -> csrfToken, Referer(Uri.unsafeFromString(s"https://${dojo.domain.toString}/")))
     override def getFavoriteList: F[List[LeetCodeFavoriteItem]] = HttpClientKeeper[F].getClient.use { client =>
       client.expect[String](s"https://${dojo.domain.toString}/problems/api/favorites/").flatMap { response =>
         decode[List[LeetCodeFavoriteItem]](response).liftTo[F]
+      }
+    }
+
+    override def checkLogin(): F[Boolean] = HttpClientKeeper[F].getClient.use { client =>
+      openGraphQLFile(dojo, "globalData").use { file =>
+        getCSRFToken.flatMap { csrfToken =>
+          client
+            .expect[String](
+              Method
+                .POST(
+                  Uri.unsafeFromString(s"https://${dojo.domain.toString}/graphql/noj-go/"),
+                  headers = commonHeaders(csrfToken)
+                )
+                .withEntity(
+                  LeetCodeGraphQLRequest(
+                    operationName = "globalData",
+                    query = file.mkString,
+                    variables = Map.empty[String, String].asJsonObject
+                  )
+                )
+            )
+            .flatMap { response =>
+              parse(response)
+                .liftTo[F]
+                .flatMap { json =>
+                  JsonPath.root.data.userStatus.isSignedIn.boolean
+                    .getOption(json)
+                    .toRight(ApiError.InvalidContent(dojo, "can not find 'data.userStatus.isSignedIn' in json"))
+                    .liftTo[F]
+                }
+            }
+        }
+      }
+    }
+
+    override def getUserInfo(): F[LeetCodeUserInfo] = HttpClientKeeper[F].getClient.use { client =>
+      openGraphQLFile(dojo, "globalData").use { file =>
+        getCSRFToken.flatMap { csrfToken =>
+          client
+            .expect[String](
+              Method
+                .POST(
+                  Uri.unsafeFromString(s"https://${dojo.domain.toString}/graphql/"),
+                  headers = commonHeaders(csrfToken)
+                )
+                .withEntity(
+                  LeetCodeGraphQLRequest(
+                    operationName = "globalData",
+                    query = file.mkString,
+                    variables = Map.empty[String, String].asJsonObject
+                  )
+                )
+            )
+            .flatMap { response =>
+              parse(response)
+                .liftTo[F]
+                .flatMap { json =>
+                  JsonPath.root.data.userStatus.json
+                    .getOption(json)
+                    .toRight(ApiError.InvalidContent(dojo, "can not find 'data.userStatus' in json"))
+                    .flatMap(_.as[LeetCodeUserInfo].leftMap(e => ApiError.InvalidContent(dojo, e.message)))
+                    .liftTo[F]
+                }
+            }
+        }
       }
     }
 
@@ -39,17 +115,14 @@ object LeetCodeApi {
               Method
                 .POST(
                   Uri.unsafeFromString(s"https://${dojo.domain.toString}/graphql/"),
-                  headers = Headers(
-                    "x-csrftoken" -> csrfToken,
-                    Referer(Uri.unsafeFromString(s"https://${dojo.domain.toString}/"))
-                  )
+                  headers = commonHeaders(csrfToken)
                 )
                 .withEntity(
                   LeetCodeGraphQLRequest(
                     operationName = "questionTagTypeWithTags",
                     query = file.mkString,
                     variables = Map.empty[String, String].asJsonObject
-                  ).asJson.noSpaces
+                  )
                 )
             )
             .flatMap { response =>
@@ -76,10 +149,7 @@ object LeetCodeApi {
                 Method
                   .POST(
                     Uri.unsafeFromString(s"https://${dojo.domain.toString}/graphql/"),
-                    headers = Headers(
-                      "x-csrftoken" -> csrfToken,
-                      Referer(Uri.unsafeFromString(s"https://${dojo.domain.toString}/"))
-                    )
+                    headers = commonHeaders(csrfToken)
                   )
                   .withEntity(
                     LeetCodeGraphQLRequest(
@@ -91,7 +161,7 @@ object LeetCodeApi {
                         "categorySlug" -> "all-code-essentials".asJson,
                         "filters"      -> Map.empty[String, String].asJson
                       ).asJsonObject
-                    ).asJson.noSpaces
+                    )
                   )
               )
               .flatMap { response =>
