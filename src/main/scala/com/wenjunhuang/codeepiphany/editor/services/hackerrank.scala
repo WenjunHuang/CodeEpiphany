@@ -1,17 +1,19 @@
 package com.wenjunhuang.codeepiphany.editor.services
 
 import cats.effect.kernel.Resource.ExitCase
-import cats.effect.{Async, Concurrent}
+import cats.effect.{ Async, Concurrent }
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.vfs.{VirtualFile, VirtualFileUtil}
+import com.intellij.openapi.vfs.{ VirtualFile, VirtualFileUtil }
+import com.softwaremill.id.pretty.PrettyIdGenerator
 import com.wenjunhuang.codeepiphany.database.Tables.*
 import com.wenjunhuang.codeepiphany.hackerrank.model.Contest
 import com.wenjunhuang.codeepiphany.hackerrank.services.HackerRankApi
 import com.wenjunhuang.codeepiphany.model.SubmissionResult.CompilationError
-import com.wenjunhuang.codeepiphany.model.{ChallengeRepository, Language, SubmissionResult}
+import com.wenjunhuang.codeepiphany.model.{ ChallengeRepository, Language, SubmissionResult }
 import com.wenjunhuang.codeepiphany.services.console
 import com.wenjunhuang.codeepiphany.services.http.HttpClientKeeper
 import com.wenjunhuang.codeepiphany.settings.ChallengeSettings.ChallengeSettingsStateItem
+import com.wenjunhuang.codeepiphany.utils.IdGenerator
 import fs2.Stream
 import org.jooq.DSLContext
 import org.jooq.impl.DSL
@@ -76,19 +78,21 @@ object hackerrank {
           .use { client =>
             Async[F].delay {
               client.transactionResult { trx =>
-                val dsl             = DSL.using(trx)
-                val basicInfo       = queryChallengeBasicInfo(item, dsl)
-                val localCode       = VirtualFileUtil.readText(vf)
-                val submitCode      = basicInfo._2.extractSubmitCode(localCode)
-                val solutionId: Int = item.solutionId.getOrElse(getOrCreateDefaultSolution(dsl, item.challengeId))
+                val dsl        = DSL.using(trx)
+                val basicInfo  = queryChallengeBasicInfo(item, dsl)
+                val localCode  = VirtualFileUtil.readText(vf)
+                val submitCode = basicInfo._2.extractSubmitCode(localCode)
+                val solutionId = item.solutionId.getOrElse(getOrCreateDefaultSolution(dsl, item.challengeId))
 
-                val submissionRecord = dsl.newRecord(SOLUTION_SUBMISSION)
-                submissionRecord.setChallengelanguageid(item.challengeLanguageId)
-                submissionRecord.setLocalcode(localCode)
-                submissionRecord.setSubmitcode(submitCode)
-                submissionRecord.setSubmitdatetime(java.time.LocalDateTime.now())
-                submissionRecord.setSolutionid(solutionId)
-                submissionRecord.setResult(SubmissionResult.Processing.value)
+                val submissionRecord = dsl
+                  .newRecord(SOLUTION_SUBMISSION)
+                  .setId(IdGenerator.nextId())
+                  .setChallengelanguageid(item.challengeLanguageId)
+                  .setLocalcode(localCode)
+                  .setSubmitcode(submitCode)
+                  .setSubmitdatetime(java.time.LocalDateTime.now())
+                  .setSolutionid(solutionId)
+                  .setResult(SubmissionResult.Processing.value)
                 submissionRecord.store()
 
                 (basicInfo._1, basicInfo._2, basicInfo._3, basicInfo._4, submitCode, submissionRecord.getId, solutionId)
@@ -135,13 +139,15 @@ object hackerrank {
                   .zipWithIndex
                   .foreach { (item, index) =>
                     val (signal, time, message, status) = item
-                    val testcaseRecord                  = dsl.newRecord(HACKERRANK_SUBMISSION_CASE)
-                    testcaseRecord.setSubmissionid(submissionId)
-                    testcaseRecord.setTestcasemessage(message)
-                    testcaseRecord.setNum(index)
-                    testcaseRecord.setTestcasestatus(status)
-                    testcaseRecord.setCodecheckersignal(signal)
-                    testcaseRecord.setCodecheckertime(time.bigDecimal.floatValue())
+                    val testcaseRecord = dsl
+                      .newRecord(HACKERRANK_SUBMISSION_CASE)
+                      .setId(IdGenerator.nextId())
+                      .setSubmissionid(submissionId)
+                      .setTestcasemessage(message)
+                      .setNum(index)
+                      .setTestcasestatus(status)
+                      .setCodecheckersignal(signal)
+                      .setCodecheckertime(time.bigDecimal.floatValue())
                     testcaseRecord.store()
                   }
                 (result, message)
@@ -177,7 +183,7 @@ object hackerrank {
       .drain
   }
 
-  private def getOrCreateDefaultSolution(dsl: DSLContext, challengeId: Int): Int = {
+  private def getOrCreateDefaultSolution(dsl: DSLContext, challengeId: Long): Long = {
     val solutionRecord = dsl
       .selectFrom(SOLUTION)
       .where(SOLUTION.CHALLENGEID.eq(challengeId).and(SOLUTION.ISDEFAULT.eq(1)))
@@ -186,6 +192,7 @@ object hackerrank {
       .getOrElse {
         val newRecord = dsl
           .newRecord(SOLUTION)
+          .setId(IdGenerator.nextId())
           .setChallengeid(challengeId)
           .setTitle("Default")
           .setIsdefault(1)

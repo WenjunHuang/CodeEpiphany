@@ -19,7 +19,6 @@ import java.util.List;
 import org.jooq.Condition;
 import org.jooq.Field;
 import org.jooq.ForeignKey;
-import org.jooq.Identity;
 import org.jooq.Index;
 import org.jooq.InverseForeignKey;
 import org.jooq.Name;
@@ -64,7 +63,7 @@ public class Challenge extends TableImpl<ChallengeRecord> {
     /**
      * The column <code>challenge.id</code>.
      */
-    public final TableField<ChallengeRecord, Integer> ID = createField(DSL.name("id"), SQLDataType.INTEGER.nullable(false).identity(true), this, "");
+    public final TableField<ChallengeRecord, Long> ID = createField(DSL.name("id"), SQLDataType.BIGINT.nullable(false), this, "");
 
     /**
      * The column <code>challenge.title</code>.
@@ -176,11 +175,6 @@ public class Challenge extends TableImpl<ChallengeRecord> {
     @Override
     public List<Index> getIndexes() {
         return Arrays.asList(Indexes.CHALLENGE_DOJOID_DOJO_UINDEX);
-    }
-
-    @Override
-    public Identity<ChallengeRecord, Integer> getIdentity() {
-        return (Identity<ChallengeRecord, Integer>) super.getIdentity();
     }
 
     @Override

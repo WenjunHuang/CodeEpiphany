@@ -2,7 +2,7 @@ package com.wenjunhuang.codeepiphany.utils
 
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.util.xmlb.Converter
-import com.wenjunhuang.codeepiphany.model.{CodeDojo, Language, LanguageVersion}
+import com.wenjunhuang.codeepiphany.model.{ CodeDojo, Language, LanguageVersion }
 import org.typelevel.ci.CIString
 
 object XmlUtils {
@@ -34,7 +34,9 @@ object XmlUtils {
 
   class LanguageVersionOptionConverter extends OptionConverter[LanguageVersion]
 
-  class IntOptionConverter extends OptionConverter[Int]
+  class IntOptionConverter  extends OptionConverter[Int]
+
+  class LongOptionConverter extends OptionConverter[Long]
 
   implicit val languageConverter: Converter[Language] = new LanguageConverter
 
@@ -44,6 +46,11 @@ object XmlUtils {
     override def fromString(s: String): Int = s.toInt
 
     override def toString(t: Int): String = t.toString
+  }
+  implicit val longConverter: Converter[Long] = new Converter[Long] {
+    override def fromString(s: String): Long = s.toLong
+
+    override def toString(t: Long): String = t.toString
   }
 
   implicit val stringConverter: Converter[String] = new Converter[String] {

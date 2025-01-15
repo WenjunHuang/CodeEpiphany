@@ -23,7 +23,7 @@ public class SolutionRecord extends UpdatableRecordImpl<SolutionRecord> {
     /**
      * Setter for <code>solution.id</code>.
      */
-    public SolutionRecord setId(Integer value) {
+    public SolutionRecord setId(Long value) {
         set(0, value);
         return this;
     }
@@ -31,14 +31,14 @@ public class SolutionRecord extends UpdatableRecordImpl<SolutionRecord> {
     /**
      * Getter for <code>solution.id</code>.
      */
-    public Integer getId() {
-        return (Integer) get(0);
+    public Long getId() {
+        return (Long) get(0);
     }
 
     /**
      * Setter for <code>solution.challengeId</code>.
      */
-    public SolutionRecord setChallengeid(Integer value) {
+    public SolutionRecord setChallengeid(Long value) {
         set(1, value);
         return this;
     }
@@ -46,8 +46,8 @@ public class SolutionRecord extends UpdatableRecordImpl<SolutionRecord> {
     /**
      * Getter for <code>solution.challengeId</code>.
      */
-    public Integer getChallengeid() {
-        return (Integer) get(1);
+    public Long getChallengeid() {
+        return (Long) get(1);
     }
 
     /**
@@ -130,7 +130,7 @@ public class SolutionRecord extends UpdatableRecordImpl<SolutionRecord> {
     // -------------------------------------------------------------------------
 
     @Override
-    public Record1<Integer> key() {
+    public Record1<Long> key() {
         return (Record1) super.key();
     }
 
@@ -148,7 +148,7 @@ public class SolutionRecord extends UpdatableRecordImpl<SolutionRecord> {
     /**
      * Create a detached, initialised SolutionRecord
      */
-    public SolutionRecord(Integer id, Integer challengeid, LocalDateTime createdatetime, String tags, String remark, String title, Integer isdefault) {
+    public SolutionRecord(Long id, Long challengeid, LocalDateTime createdatetime, String tags, String remark, String title, Integer isdefault) {
         super(Solution.SOLUTION);
 
         setId(id);

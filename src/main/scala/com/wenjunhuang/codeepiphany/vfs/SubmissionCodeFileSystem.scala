@@ -74,7 +74,7 @@ object SubmissionCodeFileSystem {
     case Submission
   }
 
-  case class SubmissionCodeFilePath(submissionId: Int, projectHash: String, codeType: CodeType)
+  case class SubmissionCodeFilePath(submissionId: Long, projectHash: String, codeType: CodeType)
       extends ComplexPathVirtualFileSystem.ComplexPath {
     override def getProjectHash: String = projectHash
 
@@ -82,7 +82,7 @@ object SubmissionCodeFileSystem {
   }
 
   object SubmissionCodeFilePath {
-    def apply(submissionId: Int, project: Project, codeType: CodeType): SubmissionCodeFilePath = {
+    def apply(submissionId: Long, project: Project, codeType: CodeType): SubmissionCodeFilePath = {
       SubmissionCodeFilePath(submissionId, project.getLocationHash, codeType)
     }
   }

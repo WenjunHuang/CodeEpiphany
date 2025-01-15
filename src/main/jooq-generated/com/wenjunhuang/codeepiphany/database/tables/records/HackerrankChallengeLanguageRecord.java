@@ -21,7 +21,7 @@ public class HackerrankChallengeLanguageRecord extends UpdatableRecordImpl<Hacke
     /**
      * Setter for <code>hackerrank_challenge_language.id</code>.
      */
-    public HackerrankChallengeLanguageRecord setId(Integer value) {
+    public HackerrankChallengeLanguageRecord setId(Long value) {
         set(0, value);
         return this;
     }
@@ -29,8 +29,8 @@ public class HackerrankChallengeLanguageRecord extends UpdatableRecordImpl<Hacke
     /**
      * Getter for <code>hackerrank_challenge_language.id</code>.
      */
-    public Integer getId() {
-        return (Integer) get(0);
+    public Long getId() {
+        return (Long) get(0);
     }
 
     /**
@@ -83,7 +83,7 @@ public class HackerrankChallengeLanguageRecord extends UpdatableRecordImpl<Hacke
     // -------------------------------------------------------------------------
 
     @Override
-    public Record1<Integer> key() {
+    public Record1<Long> key() {
         return (Record1) super.key();
     }
 
@@ -101,7 +101,7 @@ public class HackerrankChallengeLanguageRecord extends UpdatableRecordImpl<Hacke
     /**
      * Create a detached, initialised HackerrankChallengeLanguageRecord
      */
-    public HackerrankChallengeLanguageRecord(Integer id, String codeheader, String codetemplate, String codetail) {
+    public HackerrankChallengeLanguageRecord(Long id, String codeheader, String codetemplate, String codetail) {
         super(HackerrankChallengeLanguage.HACKERRANK_CHALLENGE_LANGUAGE);
 
         setId(id);

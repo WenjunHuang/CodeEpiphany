@@ -1,7 +1,7 @@
 package com.wenjunhuang.codeepiphany.model
 
 import cats.effect.kernel.Resource
-import cats.effect.{Async, IO}
+import cats.effect.{ Async, IO }
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.components.Service.Level
@@ -15,7 +15,7 @@ import com.zaxxer.hikari.HikariDataSource
 import org.flywaydb.core.Flyway
 import org.jooq.impl.DSL
 import org.jooq.tools.JooqLogger
-import org.jooq.{DSLContext, Log, SQLDialect}
+import org.jooq.{ DSLContext, Log, SQLDialect }
 
 import java.io.File
 
@@ -88,28 +88,35 @@ final class ChallengeRepository(private val myProject: Project) extends Disposab
 object ChallengeRepository {
   def getInstance(project: Project): ChallengeRepository = project.getService(classOf[ChallengeRepository])
 
-  opaque type ChallengeId = Int
+  opaque type ChallengeId = Long
   object ChallengeId {
-    def apply(value: Int): ChallengeId = value
+    def apply(value: Long): ChallengeId = value
     extension (id: ChallengeId) {
-      def value: Int = id
+      def value: Long = id
     }
   }
 
-  opaque type ChallengeLanguageId = Int
+  opaque type ChallengeLanguageId = Long
   object ChallengeLanguageId {
-    def apply(value: Int): ChallengeLanguageId = value
+    def apply(value: Long): ChallengeLanguageId = value
     extension (id: ChallengeLanguageId) {
-      def value: Int = id
+      def value: Long = id
     }
   }
 
-  opaque type SolutionId = Int
+  opaque type SolutionId = Long
   object SolutionId {
-    def apply(value: Int): SolutionId = value
+    def apply(value: Long): SolutionId = value
     extension (id: SolutionId) {
-      def value: Int = id
+      def value: Long = id
     }
   }
 
+  opaque type SubmissionId = Long
+  object SubmissionId {
+    def apply(value: Long): SolutionId = value
+    extension (id: SolutionId) {
+      def value: Long = id
+    }
+  }
 }

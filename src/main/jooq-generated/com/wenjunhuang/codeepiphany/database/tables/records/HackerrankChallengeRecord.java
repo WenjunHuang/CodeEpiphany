@@ -21,7 +21,7 @@ public class HackerrankChallengeRecord extends UpdatableRecordImpl<HackerrankCha
     /**
      * Setter for <code>hackerrank_challenge.id</code>.
      */
-    public HackerrankChallengeRecord setId(Integer value) {
+    public HackerrankChallengeRecord setId(Long value) {
         set(0, value);
         return this;
     }
@@ -29,8 +29,8 @@ public class HackerrankChallengeRecord extends UpdatableRecordImpl<HackerrankCha
     /**
      * Getter for <code>hackerrank_challenge.id</code>.
      */
-    public Integer getId() {
-        return (Integer) get(0);
+    public Long getId() {
+        return (Long) get(0);
     }
 
     /**
@@ -68,7 +68,7 @@ public class HackerrankChallengeRecord extends UpdatableRecordImpl<HackerrankCha
     // -------------------------------------------------------------------------
 
     @Override
-    public Record1<Integer> key() {
+    public Record1<Long> key() {
         return (Record1) super.key();
     }
 
@@ -86,7 +86,7 @@ public class HackerrankChallengeRecord extends UpdatableRecordImpl<HackerrankCha
     /**
      * Create a detached, initialised HackerrankChallengeRecord
      */
-    public HackerrankChallengeRecord(Integer id, String contestslug, String contest) {
+    public HackerrankChallengeRecord(Long id, String contestslug, String contest) {
         super(HackerrankChallenge.HACKERRANK_CHALLENGE);
 
         setId(id);

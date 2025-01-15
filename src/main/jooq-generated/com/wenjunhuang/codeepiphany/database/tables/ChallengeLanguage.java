@@ -19,7 +19,6 @@ import java.util.List;
 import org.jooq.Condition;
 import org.jooq.Field;
 import org.jooq.ForeignKey;
-import org.jooq.Identity;
 import org.jooq.Index;
 import org.jooq.InverseForeignKey;
 import org.jooq.Name;
@@ -64,7 +63,7 @@ public class ChallengeLanguage extends TableImpl<ChallengeLanguageRecord> {
     /**
      * The column <code>challenge_language.challengeId</code>.
      */
-    public final TableField<ChallengeLanguageRecord, Integer> CHALLENGEID = createField(DSL.name("challengeId"), SQLDataType.INTEGER, this, "");
+    public final TableField<ChallengeLanguageRecord, Long> CHALLENGEID = createField(DSL.name("challengeId"), SQLDataType.BIGINT, this, "");
 
     /**
      * The column <code>challenge_language.language</code>.
@@ -79,7 +78,7 @@ public class ChallengeLanguage extends TableImpl<ChallengeLanguageRecord> {
     /**
      * The column <code>challenge_language.id</code>.
      */
-    public final TableField<ChallengeLanguageRecord, Integer> ID = createField(DSL.name("id"), SQLDataType.INTEGER.nullable(false).identity(true), this, "");
+    public final TableField<ChallengeLanguageRecord, Long> ID = createField(DSL.name("id"), SQLDataType.BIGINT.nullable(false), this, "");
 
     /**
      * The column <code>challenge_language.languageVersion</code>.
@@ -156,11 +155,6 @@ public class ChallengeLanguage extends TableImpl<ChallengeLanguageRecord> {
     @Override
     public List<Index> getIndexes() {
         return Arrays.asList(Indexes.CHALLENGE_LANGUAGE_CHALLENGEID_LANGUAGE_UINDEX);
-    }
-
-    @Override
-    public Identity<ChallengeLanguageRecord, Integer> getIdentity() {
-        return (Identity<ChallengeLanguageRecord, Integer>) super.getIdentity();
     }
 
     @Override

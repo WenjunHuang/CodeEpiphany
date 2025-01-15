@@ -16,7 +16,6 @@ import java.util.List;
 import org.jooq.Condition;
 import org.jooq.Field;
 import org.jooq.ForeignKey;
-import org.jooq.Identity;
 import org.jooq.InverseForeignKey;
 import org.jooq.Name;
 import org.jooq.Path;
@@ -60,7 +59,7 @@ public class HackerrankSubmissionCase extends TableImpl<HackerrankSubmissionCase
     /**
      * The column <code>hackerrank_submission_case.id</code>.
      */
-    public final TableField<HackerrankSubmissionCaseRecord, Integer> ID = createField(DSL.name("id"), SQLDataType.INTEGER.nullable(false).identity(true), this, "");
+    public final TableField<HackerrankSubmissionCaseRecord, Long> ID = createField(DSL.name("id"), SQLDataType.BIGINT.nullable(false), this, "");
 
     /**
      * The column <code>hackerrank_submission_case.testcaseMessage</code>.
@@ -85,7 +84,7 @@ public class HackerrankSubmissionCase extends TableImpl<HackerrankSubmissionCase
     /**
      * The column <code>hackerrank_submission_case.submissionId</code>.
      */
-    public final TableField<HackerrankSubmissionCaseRecord, Integer> SUBMISSIONID = createField(DSL.name("submissionId"), SQLDataType.INTEGER.nullable(false), this, "");
+    public final TableField<HackerrankSubmissionCaseRecord, Long> SUBMISSIONID = createField(DSL.name("submissionId"), SQLDataType.BIGINT.nullable(false), this, "");
 
     /**
      * The column <code>hackerrank_submission_case.codecheckerSignal</code>.
@@ -167,11 +166,6 @@ public class HackerrankSubmissionCase extends TableImpl<HackerrankSubmissionCase
     @Override
     public Schema getSchema() {
         return aliased() ? null : DefaultSchema.DEFAULT_SCHEMA;
-    }
-
-    @Override
-    public Identity<HackerrankSubmissionCaseRecord, Integer> getIdentity() {
-        return (Identity<HackerrankSubmissionCaseRecord, Integer>) super.getIdentity();
     }
 
     @Override

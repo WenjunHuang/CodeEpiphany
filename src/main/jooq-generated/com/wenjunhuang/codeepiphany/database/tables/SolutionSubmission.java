@@ -19,7 +19,6 @@ import java.util.List;
 import org.jooq.Condition;
 import org.jooq.Field;
 import org.jooq.ForeignKey;
-import org.jooq.Identity;
 import org.jooq.InverseForeignKey;
 import org.jooq.Name;
 import org.jooq.Path;
@@ -63,7 +62,7 @@ public class SolutionSubmission extends TableImpl<SolutionSubmissionRecord> {
     /**
      * The column <code>solution_submission.id</code>.
      */
-    public final TableField<SolutionSubmissionRecord, Integer> ID = createField(DSL.name("id"), SQLDataType.INTEGER.nullable(false).identity(true), this, "");
+    public final TableField<SolutionSubmissionRecord, Long> ID = createField(DSL.name("id"), SQLDataType.BIGINT.nullable(false), this, "");
 
     /**
      * The column <code>solution_submission.dojoSubmissionId</code>.
@@ -93,12 +92,12 @@ public class SolutionSubmission extends TableImpl<SolutionSubmissionRecord> {
     /**
      * The column <code>solution_submission.solutionId</code>.
      */
-    public final TableField<SolutionSubmissionRecord, Integer> SOLUTIONID = createField(DSL.name("solutionId"), SQLDataType.INTEGER.nullable(false), this, "");
+    public final TableField<SolutionSubmissionRecord, Long> SOLUTIONID = createField(DSL.name("solutionId"), SQLDataType.BIGINT.nullable(false), this, "");
 
     /**
      * The column <code>solution_submission.challengeLanguageId</code>.
      */
-    public final TableField<SolutionSubmissionRecord, Integer> CHALLENGELANGUAGEID = createField(DSL.name("challengeLanguageId"), SQLDataType.INTEGER.nullable(false), this, "");
+    public final TableField<SolutionSubmissionRecord, Long> CHALLENGELANGUAGEID = createField(DSL.name("challengeLanguageId"), SQLDataType.BIGINT.nullable(false), this, "");
 
     /**
      * The column <code>solution_submission.score</code>.
@@ -180,11 +179,6 @@ public class SolutionSubmission extends TableImpl<SolutionSubmissionRecord> {
     @Override
     public Schema getSchema() {
         return aliased() ? null : DefaultSchema.DEFAULT_SCHEMA;
-    }
-
-    @Override
-    public Identity<SolutionSubmissionRecord, Integer> getIdentity() {
-        return (Identity<SolutionSubmissionRecord, Integer>) super.getIdentity();
     }
 
     @Override

@@ -21,7 +21,7 @@ public class ChallengeLanguageRecord extends UpdatableRecordImpl<ChallengeLangua
     /**
      * Setter for <code>challenge_language.challengeId</code>.
      */
-    public ChallengeLanguageRecord setChallengeid(Integer value) {
+    public ChallengeLanguageRecord setChallengeid(Long value) {
         set(0, value);
         return this;
     }
@@ -29,8 +29,8 @@ public class ChallengeLanguageRecord extends UpdatableRecordImpl<ChallengeLangua
     /**
      * Getter for <code>challenge_language.challengeId</code>.
      */
-    public Integer getChallengeid() {
-        return (Integer) get(0);
+    public Long getChallengeid() {
+        return (Long) get(0);
     }
 
     /**
@@ -66,7 +66,7 @@ public class ChallengeLanguageRecord extends UpdatableRecordImpl<ChallengeLangua
     /**
      * Setter for <code>challenge_language.id</code>.
      */
-    public ChallengeLanguageRecord setId(Integer value) {
+    public ChallengeLanguageRecord setId(Long value) {
         set(3, value);
         return this;
     }
@@ -74,8 +74,8 @@ public class ChallengeLanguageRecord extends UpdatableRecordImpl<ChallengeLangua
     /**
      * Getter for <code>challenge_language.id</code>.
      */
-    public Integer getId() {
-        return (Integer) get(3);
+    public Long getId() {
+        return (Long) get(3);
     }
 
     /**
@@ -98,7 +98,7 @@ public class ChallengeLanguageRecord extends UpdatableRecordImpl<ChallengeLangua
     // -------------------------------------------------------------------------
 
     @Override
-    public Record1<Integer> key() {
+    public Record1<Long> key() {
         return (Record1) super.key();
     }
 
@@ -116,7 +116,7 @@ public class ChallengeLanguageRecord extends UpdatableRecordImpl<ChallengeLangua
     /**
      * Create a detached, initialised ChallengeLanguageRecord
      */
-    public ChallengeLanguageRecord(Integer challengeid, String language, String codetemplate, Integer id, String languageversion) {
+    public ChallengeLanguageRecord(Long challengeid, String language, String codetemplate, Long id, String languageversion) {
         super(ChallengeLanguage.CHALLENGE_LANGUAGE);
 
         setChallengeid(challengeid);

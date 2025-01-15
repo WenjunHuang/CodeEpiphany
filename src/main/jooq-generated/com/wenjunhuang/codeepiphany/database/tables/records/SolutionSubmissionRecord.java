@@ -23,7 +23,7 @@ public class SolutionSubmissionRecord extends UpdatableRecordImpl<SolutionSubmis
     /**
      * Setter for <code>solution_submission.id</code>.
      */
-    public SolutionSubmissionRecord setId(Integer value) {
+    public SolutionSubmissionRecord setId(Long value) {
         set(0, value);
         return this;
     }
@@ -31,8 +31,8 @@ public class SolutionSubmissionRecord extends UpdatableRecordImpl<SolutionSubmis
     /**
      * Getter for <code>solution_submission.id</code>.
      */
-    public Integer getId() {
-        return (Integer) get(0);
+    public Long getId() {
+        return (Long) get(0);
     }
 
     /**
@@ -113,7 +113,7 @@ public class SolutionSubmissionRecord extends UpdatableRecordImpl<SolutionSubmis
     /**
      * Setter for <code>solution_submission.solutionId</code>.
      */
-    public SolutionSubmissionRecord setSolutionid(Integer value) {
+    public SolutionSubmissionRecord setSolutionid(Long value) {
         set(6, value);
         return this;
     }
@@ -121,14 +121,14 @@ public class SolutionSubmissionRecord extends UpdatableRecordImpl<SolutionSubmis
     /**
      * Getter for <code>solution_submission.solutionId</code>.
      */
-    public Integer getSolutionid() {
-        return (Integer) get(6);
+    public Long getSolutionid() {
+        return (Long) get(6);
     }
 
     /**
      * Setter for <code>solution_submission.challengeLanguageId</code>.
      */
-    public SolutionSubmissionRecord setChallengelanguageid(Integer value) {
+    public SolutionSubmissionRecord setChallengelanguageid(Long value) {
         set(7, value);
         return this;
     }
@@ -136,8 +136,8 @@ public class SolutionSubmissionRecord extends UpdatableRecordImpl<SolutionSubmis
     /**
      * Getter for <code>solution_submission.challengeLanguageId</code>.
      */
-    public Integer getChallengelanguageid() {
-        return (Integer) get(7);
+    public Long getChallengelanguageid() {
+        return (Long) get(7);
     }
 
     /**
@@ -190,7 +190,7 @@ public class SolutionSubmissionRecord extends UpdatableRecordImpl<SolutionSubmis
     // -------------------------------------------------------------------------
 
     @Override
-    public Record1<Integer> key() {
+    public Record1<Long> key() {
         return (Record1) super.key();
     }
 
@@ -208,7 +208,7 @@ public class SolutionSubmissionRecord extends UpdatableRecordImpl<SolutionSubmis
     /**
      * Create a detached, initialised SolutionSubmissionRecord
      */
-    public SolutionSubmissionRecord(Integer id, String dojosubmissionid, LocalDateTime submitdatetime, String localcode, String submitcode, String result, Integer solutionid, Integer challengelanguageid, String score, String message, LocalDateTime resultdatetime) {
+    public SolutionSubmissionRecord(Long id, String dojosubmissionid, LocalDateTime submitdatetime, String localcode, String submitcode, String result, Long solutionid, Long challengelanguageid, String score, String message, LocalDateTime resultdatetime) {
         super(SolutionSubmission.SOLUTION_SUBMISSION);
 
         setId(id);

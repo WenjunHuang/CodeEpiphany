@@ -18,7 +18,6 @@ import java.util.List;
 import org.jooq.Condition;
 import org.jooq.Field;
 import org.jooq.ForeignKey;
-import org.jooq.Identity;
 import org.jooq.InverseForeignKey;
 import org.jooq.Name;
 import org.jooq.Path;
@@ -62,12 +61,12 @@ public class Solution extends TableImpl<SolutionRecord> {
     /**
      * The column <code>solution.id</code>.
      */
-    public final TableField<SolutionRecord, Integer> ID = createField(DSL.name("id"), SQLDataType.INTEGER.nullable(false).identity(true), this, "");
+    public final TableField<SolutionRecord, Long> ID = createField(DSL.name("id"), SQLDataType.BIGINT.nullable(false), this, "");
 
     /**
      * The column <code>solution.challengeId</code>.
      */
-    public final TableField<SolutionRecord, Integer> CHALLENGEID = createField(DSL.name("challengeId"), SQLDataType.INTEGER.nullable(false), this, "");
+    public final TableField<SolutionRecord, Long> CHALLENGEID = createField(DSL.name("challengeId"), SQLDataType.BIGINT.nullable(false), this, "");
 
     /**
      * The column <code>solution.createDateTime</code>.
@@ -159,11 +158,6 @@ public class Solution extends TableImpl<SolutionRecord> {
     @Override
     public Schema getSchema() {
         return aliased() ? null : DefaultSchema.DEFAULT_SCHEMA;
-    }
-
-    @Override
-    public Identity<SolutionRecord, Integer> getIdentity() {
-        return (Identity<SolutionRecord, Integer>) super.getIdentity();
     }
 
     @Override

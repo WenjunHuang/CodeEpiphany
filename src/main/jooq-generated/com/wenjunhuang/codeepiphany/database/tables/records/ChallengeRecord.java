@@ -21,7 +21,7 @@ public class ChallengeRecord extends UpdatableRecordImpl<ChallengeRecord> {
     /**
      * Setter for <code>challenge.id</code>.
      */
-    public ChallengeRecord setId(Integer value) {
+    public ChallengeRecord setId(Long value) {
         set(0, value);
         return this;
     }
@@ -29,8 +29,8 @@ public class ChallengeRecord extends UpdatableRecordImpl<ChallengeRecord> {
     /**
      * Getter for <code>challenge.id</code>.
      */
-    public Integer getId() {
-        return (Integer) get(0);
+    public Long getId() {
+        return (Long) get(0);
     }
 
     /**
@@ -158,7 +158,7 @@ public class ChallengeRecord extends UpdatableRecordImpl<ChallengeRecord> {
     // -------------------------------------------------------------------------
 
     @Override
-    public Record1<Integer> key() {
+    public Record1<Long> key() {
         return (Record1) super.key();
     }
 
@@ -176,7 +176,7 @@ public class ChallengeRecord extends UpdatableRecordImpl<ChallengeRecord> {
     /**
      * Create a detached, initialised ChallengeRecord
      */
-    public ChallengeRecord(Integer id, String title, String slug, String dojo, String dojoid, String difficulty, String description, String tags, String remark) {
+    public ChallengeRecord(Long id, String title, String slug, String dojo, String dojoid, String difficulty, String description, String tags, String remark) {
         super(Challenge.CHALLENGE);
 
         setId(id);

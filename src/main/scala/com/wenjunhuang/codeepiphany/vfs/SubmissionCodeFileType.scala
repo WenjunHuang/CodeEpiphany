@@ -12,7 +12,7 @@ class SubmissionCodeFileType(
 ) extends LanguageFileType(myIdeaLanguage) {
   override def getName: String = "SubmissionCode"
 
-  override def getDescription: String = "Submission Code"
+  override def getDescription: String = "Submission code"
 
   override def getDefaultExtension: String = myLanguage.fileExt
 

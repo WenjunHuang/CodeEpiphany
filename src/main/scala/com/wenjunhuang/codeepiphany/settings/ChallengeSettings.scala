@@ -62,10 +62,10 @@ object ChallengeSettings {
 
   class ChallengeSettingsStateItem {
     @BeanProperty
-    var challengeId: Int = uninitialized
+    var challengeId: Long = uninitialized
 
     @BeanProperty
-    var challengeLanguageId: Int = uninitialized
+    var challengeLanguageId: Long = uninitialized
 
     @(OptionTag @beanGetter @beanSetter)(converter = classOf[CodeDojoConverter])
     @BeanProperty
@@ -77,7 +77,7 @@ object ChallengeSettings {
 
     @(OptionTag @beanGetter @beanSetter)(converter = classOf[IntOptionConverter])
     @BeanProperty
-    var solutionId: Option[Int] = None
+    var solutionId: Option[Long] = None
   }
 
   object ChallengeSettingsStateItem {

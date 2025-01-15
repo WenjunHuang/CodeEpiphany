@@ -18,6 +18,12 @@
                     <name>LOCALDATETIME</name>
                     <includeExpression>.*DateTime</includeExpression>
                 </forcedType>
+                <forcedType>
+                    <name>BIGINT</name>
+                    <includeExpression>.*Id</includeExpression>
+                    <includeExpression>id</includeExpression>
+                    <types>INTEGER</types>
+                </forcedType>
             </forcedTypes>
         </database>
 

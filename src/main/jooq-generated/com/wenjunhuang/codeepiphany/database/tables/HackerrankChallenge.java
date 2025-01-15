@@ -59,7 +59,7 @@ public class HackerrankChallenge extends TableImpl<HackerrankChallengeRecord> {
     /**
      * The column <code>hackerrank_challenge.id</code>.
      */
-    public final TableField<HackerrankChallengeRecord, Integer> ID = createField(DSL.name("id"), SQLDataType.INTEGER.nullable(false), this, "");
+    public final TableField<HackerrankChallengeRecord, Long> ID = createField(DSL.name("id"), SQLDataType.BIGINT.nullable(false), this, "");
 
     /**
      * The column <code>hackerrank_challenge.contestSlug</code>.

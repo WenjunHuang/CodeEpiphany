@@ -59,7 +59,7 @@ public class HackerrankChallengeLanguage extends TableImpl<HackerrankChallengeLa
     /**
      * The column <code>hackerrank_challenge_language.id</code>.
      */
-    public final TableField<HackerrankChallengeLanguageRecord, Integer> ID = createField(DSL.name("id"), SQLDataType.INTEGER.nullable(false), this, "");
+    public final TableField<HackerrankChallengeLanguageRecord, Long> ID = createField(DSL.name("id"), SQLDataType.BIGINT.nullable(false), this, "");
 
     /**
      * The column <code>hackerrank_challenge_language.codeHeader</code>.

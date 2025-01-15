@@ -21,7 +21,7 @@ public class HackerrankSubmissionCaseRecord extends UpdatableRecordImpl<Hackerra
     /**
      * Setter for <code>hackerrank_submission_case.id</code>.
      */
-    public HackerrankSubmissionCaseRecord setId(Integer value) {
+    public HackerrankSubmissionCaseRecord setId(Long value) {
         set(0, value);
         return this;
     }
@@ -29,8 +29,8 @@ public class HackerrankSubmissionCaseRecord extends UpdatableRecordImpl<Hackerra
     /**
      * Getter for <code>hackerrank_submission_case.id</code>.
      */
-    public Integer getId() {
-        return (Integer) get(0);
+    public Long getId() {
+        return (Long) get(0);
     }
 
     /**
@@ -96,7 +96,7 @@ public class HackerrankSubmissionCaseRecord extends UpdatableRecordImpl<Hackerra
     /**
      * Setter for <code>hackerrank_submission_case.submissionId</code>.
      */
-    public HackerrankSubmissionCaseRecord setSubmissionid(Integer value) {
+    public HackerrankSubmissionCaseRecord setSubmissionid(Long value) {
         set(5, value);
         return this;
     }
@@ -104,8 +104,8 @@ public class HackerrankSubmissionCaseRecord extends UpdatableRecordImpl<Hackerra
     /**
      * Getter for <code>hackerrank_submission_case.submissionId</code>.
      */
-    public Integer getSubmissionid() {
-        return (Integer) get(5);
+    public Long getSubmissionid() {
+        return (Long) get(5);
     }
 
     /**
@@ -158,7 +158,7 @@ public class HackerrankSubmissionCaseRecord extends UpdatableRecordImpl<Hackerra
     // -------------------------------------------------------------------------
 
     @Override
-    public Record1<Integer> key() {
+    public Record1<Long> key() {
         return (Record1) super.key();
     }
 
@@ -176,7 +176,7 @@ public class HackerrankSubmissionCaseRecord extends UpdatableRecordImpl<Hackerra
     /**
      * Create a detached, initialised HackerrankSubmissionCaseRecord
      */
-    public HackerrankSubmissionCaseRecord(Integer id, String testcasemessage, Integer num, String stdin, String expectedoutput, Integer submissionid, Integer codecheckersignal, Float codecheckertime, Integer testcasestatus) {
+    public HackerrankSubmissionCaseRecord(Long id, String testcasemessage, Integer num, String stdin, String expectedoutput, Long submissionid, Integer codecheckersignal, Float codecheckertime, Integer testcasestatus) {
         super(HackerrankSubmissionCase.HACKERRANK_SUBMISSION_CASE);
 
         setId(id);

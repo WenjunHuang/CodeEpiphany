@@ -1,22 +1,23 @@
 package com.wenjunhuang.codeepiphany.hackerrank.services
 
 import cats.effect.implicits.*
-import cats.effect.{Async, Concurrent}
+import cats.effect.{ Async, Concurrent }
 import cats.syntax.all.*
 import com.intellij.openapi.options.ShowSettingsUtil
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.ui.{MessageDialogBuilder, Messages}
+import com.intellij.openapi.ui.{ MessageDialogBuilder, Messages }
 import com.intellij.openapi.util.text.StringUtil
 import com.wenjunhuang.codeepiphany.database.Tables.*
 import com.wenjunhuang.codeepiphany.hackerrank.model.Contest
-import com.wenjunhuang.codeepiphany.hackerrank.settings.{HackerRankSettings, HackerRankSettingsConfigurable}
+import com.wenjunhuang.codeepiphany.hackerrank.settings.{ HackerRankSettings, HackerRankSettingsConfigurable }
 import com.wenjunhuang.codeepiphany.model.*
-import com.wenjunhuang.codeepiphany.model.ChallengeRepository.{ChallengeId, ChallengeLanguageId}
+import com.wenjunhuang.codeepiphany.model.ChallengeRepository.{ ChallengeId, ChallengeLanguageId }
 import com.wenjunhuang.codeepiphany.model.CodeDojo.HackerRank
 import com.wenjunhuang.codeepiphany.services.file.*
 import com.wenjunhuang.codeepiphany.services.http.HttpClientKeeper
 import com.wenjunhuang.codeepiphany.settings.ChallengeSettings
 import com.wenjunhuang.codeepiphany.settings.ChallengeSettings.ChallengeSettingsStateItem
+import com.wenjunhuang.codeepiphany.utils.IdGenerator
 import com.wenjunhuang.codeepiphany.utils.implicits.*
 import com.wenjunhuang.codeepiphany.utils.template.VelocityUtils
 import org.typelevel.ci.CIString
@@ -151,7 +152,7 @@ object challenge {
             CHALLENGE,
             CHALLENGE.DOJO.eq(CodeDojo.HackerRank.value).and(CHALLENGE.DOJOID.eq(challenge.dojoId))
           ) match {
-            case null => dsl.newRecord(CHALLENGE)
+            case null => dsl.newRecord(CHALLENGE).setId(IdGenerator.nextId())
             case r    => r
           }
           challengeRecord.setDescription(challenge.description)
@@ -163,13 +164,13 @@ object challenge {
           challengeRecord.store()
 
           val hackerRankRecord =
-            dsl.fetchOne(HACKERRANK_CHALLENGE, HACKERRANK_CHALLENGE.ID.eq(challengeRecord.getId)) match
+            (dsl.fetchOne(HACKERRANK_CHALLENGE, HACKERRANK_CHALLENGE.ID.eq(challengeRecord.getId)) match
               case null =>
                 dsl.newRecord(HACKERRANK_CHALLENGE)
               case r => r
-          hackerRankRecord.setId(challengeRecord.getId)
-          hackerRankRecord.setContest(challenge.contest)
-          hackerRankRecord.setContestslug(challenge.contest)
+            ).setId(challengeRecord.getId)
+             .setContest(challenge.contest)
+             .setContestslug(challenge.contest)
           hackerRankRecord.store()
 
           val challengeLanguageRecord = dsl.fetchOne(
