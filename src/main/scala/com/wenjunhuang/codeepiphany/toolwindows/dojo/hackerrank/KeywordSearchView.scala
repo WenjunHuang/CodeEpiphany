@@ -7,7 +7,7 @@ import com.intellij.ui.components.JBScrollPane
 import com.intellij.ui.table.TableView
 import com.intellij.ui.{SearchTextField, SimpleTextAttributes}
 import com.wenjunhuang.codeepiphany.PluginBundle
-import com.wenjunhuang.codeepiphany.hackerrank.model.ChallengeDetail
+import com.wenjunhuang.codeepiphany.hackerrank.model.HackerRankChallengeDetail
 
 import java.awt.BorderLayout
 import javax.swing.ScrollPaneConstants
@@ -16,7 +16,7 @@ class KeywordSearchView(private val myProject: Project, private val myPresenter:
     extends SimpleToolWindowPanel(true,true) {
   private val mySearchTextField                            = SearchTextField(true)
   private val myChallengesTableModel: ChallengesTableModel = ChallengesTableModel()
-  private val myChallengesTable: TableView[ChallengeDetail] =
+  private val myChallengesTable: TableView[HackerRankChallengeDetail] =
     myChallengesTableModel.createTableView(myPresenter.uiDataSnapshot)
 
   mySearchTextField.getTextEditor.getEmptyText
@@ -36,7 +36,7 @@ class KeywordSearchView(private val myProject: Project, private val myPresenter:
     BorderLayout.CENTER
   )
 
-  def getTable: TableView[ChallengeDetail] = myChallengesTable
+  def getTable: TableView[HackerRankChallengeDetail] = myChallengesTable
   def getTableModel: ChallengesTableModel  = myChallengesTableModel
 
 }

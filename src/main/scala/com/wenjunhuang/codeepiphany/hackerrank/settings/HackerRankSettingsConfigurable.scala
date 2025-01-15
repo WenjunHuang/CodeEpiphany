@@ -6,7 +6,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
 import com.intellij.openapi.util.text.StringUtil
 import com.wenjunhuang.codeepiphany.PluginBundle
-import com.wenjunhuang.codeepiphany.hackerrank.model.Contest.Master
+import com.wenjunhuang.codeepiphany.hackerrank.model.HackerRankContest.Master
 import com.wenjunhuang.codeepiphany.model.CodeDojo.HackerRank
 import com.wenjunhuang.codeepiphany.model.Language.*
 import com.wenjunhuang.codeepiphany.model.LanguageVersion.*

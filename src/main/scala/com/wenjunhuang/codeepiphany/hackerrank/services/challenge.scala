@@ -8,7 +8,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.{ MessageDialogBuilder, Messages }
 import com.intellij.openapi.util.text.StringUtil
 import com.wenjunhuang.codeepiphany.database.Tables.*
-import com.wenjunhuang.codeepiphany.hackerrank.model.Contest
+import com.wenjunhuang.codeepiphany.hackerrank.model.HackerRankContest
 import com.wenjunhuang.codeepiphany.hackerrank.settings.{ HackerRankSettings, HackerRankSettingsConfigurable }
 import com.wenjunhuang.codeepiphany.model.*
 import com.wenjunhuang.codeepiphany.model.ChallengeRepository.{ ChallengeId, ChallengeLanguageId }
@@ -27,11 +27,11 @@ import java.io.File
 
 object challenge {
   def openChallenge[F[_]: Async: Concurrent: HttpClientKeeper: Logger](
-    project: Project,
-    challengeSlug: String,
-    contest: Contest,
-    language: Language,
-    languageVersion: LanguageVersion
+                                                                        project: Project,
+                                                                        challengeSlug: String,
+                                                                        contest: HackerRankContest,
+                                                                        language: Language,
+                                                                        languageVersion: LanguageVersion
   ): F[Unit] = {
     Async[F].delay {
       val settings = HackerRankSettings.getInstance(project)
@@ -68,14 +68,14 @@ object challenge {
   }
 
   private def fetchChallengeContentAndOpen[F[_]: Async: Concurrent: HttpClientKeeper: Logger](
-    project: Project,
-    challengeSlug: String,
-    contest: Contest,
-    language: Language,
-    languageVersion: LanguageVersion,
-    sourceFolder: String,
-    fileNameTemplate: String,
-    codeTemplate: String
+                                                                                               project: Project,
+                                                                                               challengeSlug: String,
+                                                                                               contest: HackerRankContest,
+                                                                                               language: Language,
+                                                                                               languageVersion: LanguageVersion,
+                                                                                               sourceFolder: String,
+                                                                                               fileNameTemplate: String,
+                                                                                               codeTemplate: String
   ): F[Unit] = {
     val api = HackerRankApi[F]()
     api

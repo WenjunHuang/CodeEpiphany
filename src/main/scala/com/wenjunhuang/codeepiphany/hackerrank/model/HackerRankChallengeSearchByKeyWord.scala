@@ -2,7 +2,7 @@ package com.wenjunhuang.codeepiphany.hackerrank.model
 
 import io.circe.derivation.ConfiguredDecoder
 
-case class ChallengeSearchByKeyWord(
+case class HackerRankChallengeSearchByKeyWord(
   contestName: String,
   contestSlug: String,
   challengeId: Int,

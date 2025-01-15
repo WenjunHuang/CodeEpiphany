@@ -32,7 +32,7 @@ class QueryParametersView(private val myProject: Project, private val myPresente
   myContent.add(myTagPane, BorderLayout.NORTH)
 
   private val myChallengesTableModel: ChallengesTableModel = ChallengesTableModel()
-  private val myChallengesTable: TableView[model.ChallengeDetail] =
+  private val myChallengesTable: TableView[model.HackerRankChallengeDetail] =
     myChallengesTableModel.createTableView(uiDataSnapshot)
 
   myContent.add(
@@ -51,7 +51,7 @@ class QueryParametersView(private val myProject: Project, private val myPresente
   setContent(myContent)
 
   def getTableModel: ChallengesTableModel        = myChallengesTableModel
-  def getTable: TableView[model.ChallengeDetail] = myChallengesTable
+  def getTable: TableView[model.HackerRankChallengeDetail] = myChallengesTable
   def getTagPane: TagPane                        = myTagPane
 
   @RequiresEdt

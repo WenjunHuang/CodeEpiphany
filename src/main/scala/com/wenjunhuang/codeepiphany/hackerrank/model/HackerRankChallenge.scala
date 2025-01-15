@@ -7,7 +7,7 @@ import monocle.Lens
 import monocle.macros.GenLens
 import org.typelevel.ci.CIString
 
-case class ChallengeDetail(
+case class HackerRankChallengeDetail(
   id: Int,
   slug: String,
   name: String,
@@ -28,29 +28,29 @@ case class ChallengeDetail(
   maxScore: Int
 ) derives ConfiguredDecoder
 
-case class LanguageTemplate(header: String, template: String, tail: String)
+case class HackerRankLanguageTemplate(header: String, template: String, tail: String)
 
-case class ChallengeContent(detail: ChallengeDetail, codeTemplates: Map[(Language, LanguageVersion), LanguageTemplate])
+case class HackerRankChallengeContent(detail: HackerRankChallengeDetail, codeTemplates: Map[(Language, LanguageVersion), HackerRankLanguageTemplate])
 
-object ChallengeContent {
-  implicit val decoder: Decoder[ChallengeContent] = (c: HCursor) =>
+object HackerRankChallengeContent {
+  implicit val decoder: Decoder[HackerRankChallengeContent] = (c: HCursor) =>
     for {
-      detail <- c.as[ChallengeDetail]
+      detail <- c.as[HackerRankChallengeDetail]
       codes  <- c.as[Map[String, Json]]
     } yield {
-      var templates    = Map.empty[(Language, LanguageVersion), LanguageTemplate]
-      val templateLens = GenLens[LanguageTemplate](_.template)
-      val headerLens   = GenLens[LanguageTemplate](_.header)
-      val tailLens     = GenLens[LanguageTemplate](_.tail)
+      var templates    = Map.empty[(Language, LanguageVersion), HackerRankLanguageTemplate]
+      val templateLens = GenLens[HackerRankLanguageTemplate](_.template)
+      val headerLens   = GenLens[HackerRankLanguageTemplate](_.header)
+      val tailLens     = GenLens[HackerRankLanguageTemplate](_.tail)
 
-      def updateTemplates(langStr: String, verStr: String, value: String, lens: Lens[LanguageTemplate, String]): Unit =
+      def updateTemplates(langStr: String, verStr: String, value: String, lens: Lens[HackerRankLanguageTemplate, String]): Unit =
         Language.fromCIString(CIString(langStr)).foreach { lang =>
           val ver =
             if verStr.isEmpty then LanguageVersion.AnyVersion
             else LanguageVersion.SpecificVersion(verStr)
           templates = templates.updatedWith((lang, ver)) {
             case Some(t) => Some(lens.modify(_ => value)(t))
-            case None    => Some(lens.modify(_ => value)(LanguageTemplate("", "", "")))
+            case None    => Some(lens.modify(_ => value)(HackerRankLanguageTemplate("", "", "")))
           }
         }
 
@@ -70,6 +70,6 @@ object ChallengeContent {
           case _ => ()
         }
       }
-      ChallengeContent(detail, templates)
+      HackerRankChallengeContent(detail, templates)
     }
 }

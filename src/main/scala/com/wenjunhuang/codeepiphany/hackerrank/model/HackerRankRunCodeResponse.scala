@@ -2,7 +2,7 @@ package com.wenjunhuang.codeepiphany.hackerrank.model
 
 import io.circe.derivation.ConfiguredDecoder
 
-case class RunCodeResponse(
+case class HackerRankRunCodeResponse(
   id: Int,
   status: Int, // 0: progressing; 1: done
   challengeId: Int,
@@ -24,7 +24,7 @@ case class RunCodeResponse(
   errorCode: Option[Int] = None
 ) derives ConfiguredDecoder
 
-case class SubmissionResponse(
+case class HackerRankSubmissionResponse(
   id: Long,
   challengeId: Long,
   status: String, // "Processing", "Wrong Answer","Accepted","Compilation error"

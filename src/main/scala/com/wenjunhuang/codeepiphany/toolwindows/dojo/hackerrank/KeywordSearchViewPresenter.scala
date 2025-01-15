@@ -8,7 +8,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
 import com.intellij.ui.DocumentAdapter
 import com.wenjunhuang.codeepiphany.actions.OpenChallengeActionGroup.{CHALLENGE_PROVIDER_KEY, OpenChallengeProvider}
-import com.wenjunhuang.codeepiphany.hackerrank.model.{ChallengeDetail, Contest}
+import com.wenjunhuang.codeepiphany.hackerrank.model.{HackerRankChallengeDetail, HackerRankContest}
 import com.wenjunhuang.codeepiphany.hackerrank.services.HackerRankApi
 import com.wenjunhuang.codeepiphany.hackerrank.services.challenge.openChallenge
 import com.wenjunhuang.codeepiphany.hackerrank.settings.HackerRankSettings
@@ -52,13 +52,13 @@ class KeywordSearchViewPresenter(private val myProject: Project) extends Documen
       }
       .debounce(200.millis)
       .evalTap { case (signal, keyword) =>
-        val masterChallenges = myApi.searchChallengesWithKeyword(Contest.Master, keyword).recoverWith(_ => IO.pure(Nil))
+        val masterChallenges = myApi.searchChallengesWithKeyword(HackerRankContest.Master, keyword).recoverWith(_ => IO.pure(Nil))
         val eulerChallenges =
-          myApi.searchChallengesWithKeyword(Contest.ProjectEuler, keyword).recoverWith(_ => IO.pure(Nil))
+          myApi.searchChallengesWithKeyword(HackerRankContest.ProjectEuler, keyword).recoverWith(_ => IO.pure(Nil))
         (Stream.evals(masterChallenges) ++ Stream.evals(eulerChallenges)).parEvalMapUnorderedUnbounded {
           case (contest, challenge) =>
             myApi.getChallengeDetail(challenge.challengeSlug, contest).attempt
-        }.scan(Nil: List[ChallengeDetail]) {
+        }.scan(Nil: List[HackerRankChallengeDetail]) {
           case (acc, Right(challenge)) => acc :+ challenge
           case (acc, _)                      => acc
         }.evalTap { challenges =>
@@ -84,7 +84,7 @@ class KeywordSearchViewPresenter(private val myProject: Project) extends Documen
           openChallenge[IO](
             myProject,
             selected.slug,
-            Contest.fromCIString(CIString(selected.contestSlug)).get,
+            HackerRankContest.fromCIString(CIString(selected.contestSlug)).get,
             language,
             languageVersion
           ).unsafeRunAndForget()
@@ -105,7 +105,7 @@ class KeywordSearchViewPresenter(private val myProject: Project) extends Documen
 
   def getComponent: JComponent = myView
 
-  private def updateChallenges(challenges: List[ChallengeDetail]): Unit =
+  private def updateChallenges(challenges: List[HackerRankChallengeDetail]): Unit =
     myView.getTableModel.setItems(challenges.asJava)
 
   override def textChanged(e: DocumentEvent): Unit = {

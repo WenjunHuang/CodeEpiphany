@@ -5,7 +5,7 @@ import cats.effect.{ Async, Concurrent }
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.{ VirtualFile, VirtualFileUtil }
 import com.wenjunhuang.codeepiphany.database.Tables.*
-import com.wenjunhuang.codeepiphany.hackerrank.model.Contest
+import com.wenjunhuang.codeepiphany.hackerrank.model.HackerRankContest
 import com.wenjunhuang.codeepiphany.hackerrank.services.HackerRankApi
 import com.wenjunhuang.codeepiphany.model.SubmissionResult.CompilationError
 import com.wenjunhuang.codeepiphany.model.{ ChallengeRepository, Language, SubmissionResult }
@@ -202,7 +202,7 @@ object hackerrank {
   private def queryChallengeBasicInfo(
     item: ChallengeSettingsStateItem,
     client: DSLContext
-  ): (Contest, Language, String, String) = {
+  ): (HackerRankContest, Language, String, String) = {
     Option(
       client
         .select(
@@ -224,7 +224,7 @@ object hackerrank {
       val language      = record.get(CHALLENGE_LANGUAGE.LANGUAGE)
       val langVer       = record.get(CHALLENGE_LANGUAGE.LANGUAGEVERSION)
 
-      Contest
+      HackerRankContest
         .fromCIString(CIString(contestSlug))
         .zip(Language.fromCIString(CIString(language)))
         .map((_, _, langVer, challengeSlug))

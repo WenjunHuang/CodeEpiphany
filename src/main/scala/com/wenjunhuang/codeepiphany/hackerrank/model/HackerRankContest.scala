@@ -2,13 +2,13 @@ package com.wenjunhuang.codeepiphany.hackerrank.model
 
 import org.typelevel.ci.CIString
 
-enum Contest(val slug: String) {
-  case Master       extends Contest("master")
-  case ProjectEuler extends Contest("projecteuler")
+enum HackerRankContest(val slug: String) {
+  case Master       extends HackerRankContest("master")
+  case ProjectEuler extends HackerRankContest("projecteuler")
 }
 
-object Contest {
-  def fromCIString(cis: CIString): Option[Contest] =
+object HackerRankContest {
+  def fromCIString(cis: CIString): Option[HackerRankContest] =
     if cis == CIString(Master.slug) then Some(Master)
     else if cis == CIString(ProjectEuler.slug) then Some(ProjectEuler)
     else None

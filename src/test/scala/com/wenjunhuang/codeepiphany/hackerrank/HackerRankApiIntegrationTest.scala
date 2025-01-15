@@ -4,8 +4,8 @@ import cats.effect.IO
 import cats.syntax.all.*
 import com.intellij.testFramework.fixtures.BasePlatformTestCase
 import com.intellij.util.net.{ ProxyConfiguration, ProxySettings }
-import com.wenjunhuang.codeepiphany.hackerrank.model.Contest.{ Master, ProjectEuler }
-import com.wenjunhuang.codeepiphany.hackerrank.model.Contest
+import com.wenjunhuang.codeepiphany.hackerrank.model.HackerRankContest.{ Master, ProjectEuler }
+import com.wenjunhuang.codeepiphany.hackerrank.model.HackerRankContest
 import com.wenjunhuang.codeepiphany.hackerrank.services.HackerRankApi
 import com.wenjunhuang.codeepiphany.model.{ ApiError, CodeDojo, Language }
 import com.wenjunhuang.codeepiphany.services.http.{ HttpClientKeeper, HttpClientService }
@@ -159,7 +159,7 @@ class HackerRankApiIntegrationTest extends BasePlatformTestCase {
     val code = Source.fromInputStream(new FileInputStream(getTestDataPath + "/Code.java")).getLines().mkString("\n")
     (setCookie(httpClientKeeper.httpClientKeeper) *>
       hackerRankApi
-        .runAnswer("a-very-big-sum", Contest.Master, Language.Java, "15", code)
+        .runAnswer("a-very-big-sum", HackerRankContest.Master, Language.Java, "15", code)
         .evalTap(response => IO.println(response))
         .compile
         .drain).handleErrorWith {

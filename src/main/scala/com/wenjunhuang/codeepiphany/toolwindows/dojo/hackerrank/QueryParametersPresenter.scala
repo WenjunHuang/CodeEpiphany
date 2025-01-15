@@ -151,7 +151,7 @@ class QueryParametersPresenter(private val myProject: Project) extends Disposabl
           openChallenge[IO](
             myProject,
             selected.slug,
-            Contest.fromCIString(CIString(selected.contestSlug)).get,
+            HackerRankContest.fromCIString(CIString(selected.contestSlug)).get,
             language,
             languageVersion
           ).unsafeRunAsBackgroundProgress(myProject, "Opening challenge")
@@ -427,23 +427,23 @@ class QueryParametersPresenter(private val myProject: Project) extends Disposabl
 
   def getComponent: JComponent = myView
 
-  private def updateChallengeItems(items: List[ChallengeDetail]): Unit =
+  private def updateChallengeItems(items: List[HackerRankChallengeDetail]): Unit =
     myView.getTableModel.setItems(items.asJava)
 }
 
 object QueryParametersPresenter {
-  private case class InitialData(userInfo: UserInfo, challengeDomains: List[ChallengeDomain])
+  private case class InitialData(userInfo: HackerRankUserInfo, challengeDomains: List[HackerRankChallengeDomain])
 
   private case class QueryParams(
-    selectedDomain: ChallengeDomain,
-    selectedSubdomains: List[ChallengeSubdomain],
-    selectedDifficulties: List[ChallengeDifficulty],
-    selectedStatus: Option[ChallengeStatus],
-    selectedSkills: List[HackerRankChallengeSkill],
-    currentItems: List[ChallengeDetail] = Nil,
-    currentPage: Int = 1,
-    totalSize: Int = 1,
-    pageSize: PageSize = PageSize.Twenty
+                                  selectedDomain: HackerRankChallengeDomain,
+                                  selectedSubdomains: List[HackerRankChallengeSubdomain],
+                                  selectedDifficulties: List[ChallengeDifficulty],
+                                  selectedStatus: Option[ChallengeStatus],
+                                  selectedSkills: List[HackerRankChallengeSkill],
+                                  currentItems: List[HackerRankChallengeDetail] = Nil,
+                                  currentPage: Int = 1,
+                                  totalSize: Int = 1,
+                                  pageSize: PageSize = PageSize.Twenty
   ) {
     def resetToFirstPage(): QueryParams = this.copy(currentPage = 1)
     def resetPagination(): QueryParams  = this.copy(currentPage = 1, totalSize = 1)

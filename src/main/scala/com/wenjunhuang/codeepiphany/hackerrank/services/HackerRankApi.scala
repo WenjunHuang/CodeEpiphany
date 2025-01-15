@@ -3,7 +3,7 @@ package com.wenjunhuang.codeepiphany.hackerrank.services
 import cats.effect.{Async, Concurrent, Temporal}
 import cats.syntax.all.*
 import com.wenjunhuang.codeepiphany.hackerrank.model.*
-import com.wenjunhuang.codeepiphany.hackerrank.model.Contest.{Master, ProjectEuler}
+import com.wenjunhuang.codeepiphany.hackerrank.model.HackerRankContest.{Master, ProjectEuler}
 import com.wenjunhuang.codeepiphany.model.CodeDojo.HackerRank
 import com.wenjunhuang.codeepiphany.model.{ApiError, ChallengeDifficulty, ChallengeStatus, Language}
 import com.wenjunhuang.codeepiphany.services.http.HttpClientKeeper
@@ -23,39 +23,39 @@ import org.jsoup.Jsoup
 import scala.concurrent.duration.*
 
 trait HackerRankApi[F[_]] {
-  def getInitialData: F[(UserInfo, List[ChallengeDomain])]
-  def getChallengeContent(challengeSlug: String, contest: Contest): F[ChallengeContent]
-  def getChallengeDetail(challengeSlug: String, contest: Contest): F[ChallengeDetail]
+  def getInitialData: F[(HackerRankUserInfo, List[HackerRankChallengeDomain])]
+  def getChallengeContent(challengeSlug: String, contest: HackerRankContest): F[HackerRankChallengeContent]
+  def getChallengeDetail(challengeSlug: String, contest: HackerRankContest): F[HackerRankChallengeDetail]
   def searchChallenges(
-    offset: Int,
-    limit: Int,
-    contest: Contest,
-    domainSlug: String,
-    status: List[ChallengeStatus] = Nil,
-    skills: List[HackerRankChallengeSkill] = Nil,
-    difficulties: List[ChallengeDifficulty] = Nil,
-    subdomains: List[ChallengeSubdomain] = Nil
-  ): F[(Int, List[ChallengeDetail])]
+                        offset: Int,
+                        limit: Int,
+                        contest: HackerRankContest,
+                        domainSlug: String,
+                        status: List[ChallengeStatus] = Nil,
+                        skills: List[HackerRankChallengeSkill] = Nil,
+                        difficulties: List[ChallengeDifficulty] = Nil,
+                        subdomains: List[HackerRankChallengeSubdomain] = Nil
+  ): F[(Int, List[HackerRankChallengeDetail])]
 
-  def searchChallengesWithKeyword(contest: Contest, keyword: String): F[List[(Contest, ChallengeSearchByKeyWord)]]
+  def searchChallengesWithKeyword(contest: HackerRankContest, keyword: String): F[List[(HackerRankContest, HackerRankChallengeSearchByKeyWord)]]
 
   def checkLogin(): F[Boolean]
 
   def submitAnswer(
-    challengeSlug: String,
-    contest: Contest,
-    language: Language,
-    langVer: String,
-    code: String
-  ): Stream[F, SubmissionResponse]
+                    challengeSlug: String,
+                    contest: HackerRankContest,
+                    language: Language,
+                    langVer: String,
+                    code: String
+  ): Stream[F, HackerRankSubmissionResponse]
 
   def runAnswer(
-    challengeSlug: String,
-    contest: Contest,
-    language: Language,
-    langVer: String,
-    code: String
-  ): Stream[F, RunCodeResponse]
+                 challengeSlug: String,
+                 contest: HackerRankContest,
+                 language: Language,
+                 langVer: String,
+                 code: String
+  ): Stream[F, HackerRankRunCodeResponse]
 }
 
 object HackerRankApi {
@@ -73,15 +73,15 @@ object HackerRankApi {
         }
     }
 
-    private def makeGetChallengeContentRequestUrl(problemSlug: String, contest: Contest): Uri = {
+    private def makeGetChallengeContentRequestUrl(problemSlug: String, contest: HackerRankContest): Uri = {
       val baseUri = uri"https://www.hackerrank.com"
       contest match {
-        case Contest.Master       => baseUri / "challenges" / problemSlug / "problem"
-        case Contest.ProjectEuler => baseUri / "contests" / "projecteuler" / "challenges" / problemSlug / "problem"
+        case HackerRankContest.Master       => baseUri / "challenges" / problemSlug / "problem"
+        case HackerRankContest.ProjectEuler => baseUri / "contests" / "projecteuler" / "challenges" / problemSlug / "problem"
       }
     }
 
-    override def getChallengeDetail(problemSlug: String, contest: Contest): F[ChallengeDetail] =
+    override def getChallengeDetail(problemSlug: String, contest: HackerRankContest): F[HackerRankChallengeDetail] =
       HttpClientKeeper[F].getClient.use { client =>
         client
           .expect[String](Request[F](Method.GET, makeGetChallengeContentRequestUrl(problemSlug, contest)))
@@ -101,7 +101,7 @@ object HackerRankApi {
                       .getOption(json)
                       .toRight(ApiError.InvalidContent(HackerRank, "invalid challenge content json"))
                       .flatMap { json =>
-                        json.as[ChallengeDetail].leftMap { e =>
+                        json.as[HackerRankChallengeDetail].leftMap { e =>
                           ApiError.InvalidContent(HackerRank, e.getMessage)
                         }
                       }
@@ -111,9 +111,9 @@ object HackerRankApi {
       }
 
     override def getChallengeContent(
-      problemSlug: String,
-      contest: Contest // hackerrank contest such as 'projecteuler'
-    ): F[ChallengeContent] =
+                                      problemSlug: String,
+                                      contest: HackerRankContest // hackerrank contest such as 'projecteuler'
+    ): F[HackerRankChallengeContent] =
       HttpClientKeeper[F].getClient.use { client =>
         client
           .expect[String](Request[F](Method.GET, makeGetChallengeContentRequestUrl(problemSlug, contest)))
@@ -131,28 +131,28 @@ object HackerRankApi {
                       .getOption(json)
                       .toRight(ApiError.InvalidContent(HackerRank, "invalid challenge content json"))
                       .flatMap { json =>
-                        json.as[ChallengeContent].leftMap(e => ApiError.InvalidContent(HackerRank, e.getMessage))
+                        json.as[HackerRankChallengeContent].leftMap(e => ApiError.InvalidContent(HackerRank, e.getMessage))
                       }
                       .fold(throw _, identity)
                 }
           }
       }
 
-    private def makeSearchChallengesUri(contest: Contest, domainSlug: String): Uri =
+    private def makeSearchChallengesUri(contest: HackerRankContest, domainSlug: String): Uri =
       val base = uri"https://www.hackerrank.com/rest/contests" / contest.slug
-      if contest == Contest.ProjectEuler then base / "challenges"
+      if contest == HackerRankContest.ProjectEuler then base / "challenges"
       else base / "tracks" / domainSlug / "challenges"
 
     override def searchChallenges(
-      offset: Int,
-      limit: Int,
-      contest: Contest,
-      domainSlug: String,
-      status: List[ChallengeStatus],
-      skills: List[HackerRankChallengeSkill],
-      difficulties: List[ChallengeDifficulty],
-      subdomains: List[ChallengeSubdomain]
-    ): F[(Int, List[ChallengeDetail])] =
+                                   offset: Int,
+                                   limit: Int,
+                                   contest: HackerRankContest,
+                                   domainSlug: String,
+                                   status: List[ChallengeStatus],
+                                   skills: List[HackerRankChallengeSkill],
+                                   difficulties: List[ChallengeDifficulty],
+                                   subdomains: List[HackerRankChallengeSubdomain]
+    ): F[(Int, List[HackerRankChallengeDetail])] =
       HttpClientKeeper[F].getClient.use { client =>
         val request = Method.GET(
           makeSearchChallengesUri(contest, domainSlug)
@@ -183,16 +183,16 @@ object HackerRankApi {
                 ).mapN((_, _))
               }
               .flatMap { (total, items) =>
-                items.as[List[ChallengeDetail]].map((total, _))
+                items.as[List[HackerRankChallengeDetail]].map((total, _))
               }
               .liftTo[F]
           }
       }
 
     override def searchChallengesWithKeyword(
-      contest: Contest,
-      keyword: String
-    ): F[List[(Contest, ChallengeSearchByKeyWord)]] = HttpClientKeeper[F].getClient.use { client =>
+                                              contest: HackerRankContest,
+                                              keyword: String
+    ): F[List[(HackerRankContest, HackerRankChallengeSearchByKeyWord)]] = HttpClientKeeper[F].getClient.use { client =>
       client
         .expect[String](
           Method.GET(uri =
@@ -210,14 +210,14 @@ object HackerRankApi {
                 .toRight(ApiError.InvalidContent(HackerRank, "invalid challenges list json"))
             }
             .flatMap { items =>
-              items.as[List[ChallengeSearchByKeyWord]]
+              items.as[List[HackerRankChallengeSearchByKeyWord]]
             }
             .map(_.map((contest, _)))
             .liftTo[F]
         }
     }
 
-    override def getInitialData: F[(UserInfo, List[ChallengeDomain])] = HttpClientKeeper[F].getClient.use { client =>
+    override def getInitialData: F[(HackerRankUserInfo, List[HackerRankChallengeDomain])] = HttpClientKeeper[F].getClient.use { client =>
       val request = Method.GET(uri = uri"https://www.hackerrank.com/dashboard")
       client
         .expect[String](request)
@@ -239,7 +239,7 @@ object HackerRankApi {
                 )
               ).flatMapN { case (userData, data) =>
                 (
-                  userData.as[UserInfo],
+                  userData.as[HackerRankUserInfo],
                   (
                     JsonPath.root.community.domains.list.arr.getOption(data),
                     JsonPath.root.community.domains.dict.as[Map[String, Json]].getOption(data)
@@ -255,18 +255,18 @@ object HackerRankApi {
                     id   <- JsonPath.root.id.int.getOption(domain)
                     name <- JsonPath.root.name.string.getOption(domain)
                     slug <- JsonPath.root.slug.string.getOption(domain)
-                  } yield ChallengeDomain(
+                  } yield HackerRankChallengeDomain(
                     id,
                     name,
                     slug,
-                    Contest.Master,
+                    HackerRankContest.Master,
                     dict
                       .get(slug)
                       .map { d =>
                         JsonPath.root.chapters.arr
                           .getOption(d)
                           .getOrElse(Vector.empty)
-                          .mapFilter(d => d.as[ChallengeSubdomain].toOption)
+                          .mapFilter(d => d.as[HackerRankChallengeSubdomain].toOption)
                           .toList
                       }
                       .getOrElse(Nil)
@@ -279,12 +279,12 @@ object HackerRankApi {
     }
 
     override def runAnswer(
-      challengeSlug: String,
-      contest: Contest,
-      language: Language,
-      langVer: String,
-      code: String
-    ): Stream[F, RunCodeResponse] = {
+                            challengeSlug: String,
+                            contest: HackerRankContest,
+                            language: Language,
+                            langVer: String,
+                            code: String
+    ): Stream[F, HackerRankRunCodeResponse] = {
       Stream
         .eval(HttpClientKeeper[F].getClient.use { client =>
           getChallengeCSRFToken(client, contest, challengeSlug).flatMap { csrfToken =>
@@ -333,7 +333,7 @@ object HackerRankApi {
 
     }
 
-    private def getChallengeCSRFToken(client: Client[F], contest: Contest, challengeSlug: String): F[String] = {
+    private def getChallengeCSRFToken(client: Client[F], contest: HackerRankContest, challengeSlug: String): F[String] = {
       val request = Method.GET(contest match
         case Master => uri"https://www.hackerrank.com/challenges" / challengeSlug / "problem"
         case ProjectEuler =>
@@ -348,7 +348,7 @@ object HackerRankApi {
       }
     }
 
-    private def getRunCodeResult(contest: Contest, challengeSlug: String, runId: Int): F[RunCodeResponse] =
+    private def getRunCodeResult(contest: HackerRankContest, challengeSlug: String, runId: Int): F[HackerRankRunCodeResponse] =
       HttpClientKeeper[F].getClient.use { client =>
         val request = Method.GET(
           uri"https://www.hackerrank.com/rest/contests" / contest.slug / "challenges" / challengeSlug / "compile_tests" / runId.toString
@@ -360,13 +360,13 @@ object HackerRankApi {
               JsonPath.root.model.json
                 .getOption(json)
                 .toRight(ApiError.InvalidContent(HackerRank, s"invalid run code response json with ${json.noSpaces}"))
-                .flatMap(_.as[RunCodeResponse].leftMap(e => ApiError.InvalidContent(HackerRank, e.getMessage)))
+                .flatMap(_.as[HackerRankRunCodeResponse].leftMap(e => ApiError.InvalidContent(HackerRank, e.getMessage)))
             }
             .liftTo[F]
         }
       }
 
-    private def getSubmitCodeResult(contest: Contest, challengeSlug: String, submissionId: Int): F[SubmissionResponse] =
+    private def getSubmitCodeResult(contest: HackerRankContest, challengeSlug: String, submissionId: Int): F[HackerRankSubmissionResponse] =
       HttpClientKeeper[F].getClient.use { client =>
         val request = Method.GET(
           uri"https://www.hackerrank.com/rest/contests" / contest.slug / "challenges" / challengeSlug / "submissions" / submissionId.toString
@@ -380,19 +380,19 @@ object HackerRankApi {
                 .toRight(
                   ApiError.InvalidContent(HackerRank, s"invalid submit code response json with ${json.noSpaces}")
                 )
-                .flatMap(_.as[SubmissionResponse].leftMap(e => ApiError.InvalidContent(HackerRank, e.getMessage)))
+                .flatMap(_.as[HackerRankSubmissionResponse].leftMap(e => ApiError.InvalidContent(HackerRank, e.getMessage)))
             }
             .liftTo[F]
         }
       }
 
     override def submitAnswer(
-      challengeSlug: String,
-      contest: Contest,
-      language: Language,
-      langVer: String,
-      code: String
-    ): Stream[F, SubmissionResponse] = Stream
+                               challengeSlug: String,
+                               contest: HackerRankContest,
+                               language: Language,
+                               langVer: String,
+                               code: String
+    ): Stream[F, HackerRankSubmissionResponse] = Stream
       .eval(HttpClientKeeper[F].getClient.use { client =>
         getChallengeCSRFToken(client, contest, challengeSlug).flatMap { csrfToken =>
           val request = Method
