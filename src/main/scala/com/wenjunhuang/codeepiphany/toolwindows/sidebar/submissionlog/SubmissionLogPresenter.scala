@@ -4,10 +4,13 @@ import cats.effect.IO
 import cats.effect.kernel.Resource.ExitCase
 import cats.effect.std.Queue
 import cats.syntax.all.*
+import com.intellij.diff.requests.SimpleDiffRequest
+import com.intellij.diff.tools.util.DiffDataKeys
 import com.intellij.openapi.Disposable
-import com.intellij.openapi.actionSystem.{ DataSink, UiDataProvider }
+import com.intellij.openapi.actionSystem.{ CommonDataKeys, DataSink, UiDataProvider }
 import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.vfs.VirtualFile
 import com.wenjunhuang.codeepiphany.actions.CodeDojoParameterAction.{ CODEDOJO_PROVIDER_KEY, CodeDojoParameterProvider }
 import com.wenjunhuang.codeepiphany.actions.LanguageParameterAction.{ LANGUAGE_PROVIDER_KEY, LanguageParameterProvider }
 import com.wenjunhuang.codeepiphany.actions.OpenSubmissionCodeAction.{
@@ -164,15 +167,19 @@ class SubmissionLogPresenter(private val myProject: Project) extends UiDataProvi
 
   private val myOpenSubmissionCodeProvider = new OpenSubmissionCodeProvider {
     override def openSubmissionCode(): Unit = {
-      val id = myView.getTable.getSelectedObject.id
-      val file = SubmissionCodeFileSystem
-        .getInstance()
-        .findOrCreateFile(
-          myProject,
-          SubmissionCodeFilePath(id, myProject, SubmissionCodeFileSystem.CodeType.Submission)
-        )
+      val id   = myView.getTable.getSelectedObject.id
+      val file = getSubmissionCodeFile(id)
       if file != null then FileEditorManager.getInstance(myProject).openFile(file)
     }
+  }
+
+  private def getSubmissionCodeFile(submissionId: Int): VirtualFile = {
+    SubmissionCodeFileSystem
+      .getInstance()
+      .findOrCreateFile(
+        myProject,
+        SubmissionCodeFilePath(submissionId, myProject, SubmissionCodeFileSystem.CodeType.Submission)
+      )
   }
 
   def getView: JComponent = myView
@@ -318,6 +325,15 @@ class SubmissionLogPresenter(private val myProject: Project) extends UiDataProvi
     dataSink.set(CODEDOJO_PROVIDER_KEY, myDojoProvider)
     dataSink.set(LANGUAGE_PROVIDER_KEY, myLanguageProvider)
     dataSink.set(OPEN_SUBMISSION_PROVIDER_KEY, myOpenSubmissionCodeProvider)
+    dataSink.`lazy`(
+      CommonDataKeys.VIRTUAL_FILE_ARRAY,
+      { () =>
+        val table = myView.getTable
+        table.getSelectedObjects.asScala.toList match
+          case Nil  => null
+          case list => list.map(_.id).map(getSubmissionCodeFile).toArray
+      }
+    )
   }
 }
 

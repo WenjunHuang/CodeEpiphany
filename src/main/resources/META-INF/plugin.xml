@@ -118,6 +118,8 @@
 
         <group id="CodeEpiphany.Sidebar.SubmissionsTable.Popupmenu">
             <reference ref="CodeEpiphany.Actions.OpenSubmissionCode"/>
+            <reference ref="CompareTwoFiles"/>
+            <reference ref="CompareFileWithEditor"/>
         </group>
 
         <!-- test -->
