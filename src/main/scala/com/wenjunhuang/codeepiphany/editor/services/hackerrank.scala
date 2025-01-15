@@ -4,7 +4,6 @@ import cats.effect.kernel.Resource.ExitCase
 import cats.effect.{ Async, Concurrent }
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.{ VirtualFile, VirtualFileUtil }
-import com.softwaremill.id.pretty.PrettyIdGenerator
 import com.wenjunhuang.codeepiphany.database.Tables.*
 import com.wenjunhuang.codeepiphany.hackerrank.model.Contest
 import com.wenjunhuang.codeepiphany.hackerrank.services.HackerRankApi
@@ -117,25 +116,23 @@ object hackerrank {
               .fetchOptional()
               .toScala match
               case Some(record) =>
-                record.setDojosubmissionid(response.id.toString)
-                record.setResultdatetime(LocalDateTime.now())
-
                 val result = toSubmissionResult(response.status)
-                record.setResult(result.value)
-                record.setScore(response.score)
                 val message =
                   if result == SubmissionResult.CompilationError then response.compileMessage.getOrElse(response.status)
                   else response.status
-                record.setMessage(message)
+                record
+                  .setDojosubmissionid(response.id.toString)
+                  .setResultdatetime(LocalDateTime.now())
+                  .setResult(result.value)
+                  .setScore(response.score)
+                  .setMessage(message)
                 record.store()
 
                 response.codecheckerSignal
                   .zip(response.codecheckerTime)
                   .zip(response.testcaseMessage)
                   .zip(response.testcaseStatus)
-                  .map { case (((a, b), c), d) =>
-                    (a, b, c, d)
-                  }
+                  .map { case (((a, b), c), d) => (a, b, c, d) }
                   .zipWithIndex
                   .foreach { (item, index) =>
                     val (signal, time, message, status) = item
@@ -151,7 +148,6 @@ object hackerrank {
                     testcaseRecord.store()
                   }
                 (result, message)
-
               case None => throw new Exception("Cannot find submission record")
           }
         case None => throw new IllegalStateException("should not happened")
