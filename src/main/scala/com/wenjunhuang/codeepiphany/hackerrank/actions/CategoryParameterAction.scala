@@ -1,8 +1,8 @@
-package com.wenjunhuang.codeepiphany.toolwindows.dojo.hackerrank.actions
+package com.wenjunhuang.codeepiphany.hackerrank.actions
 
 import com.intellij.openapi.actionSystem.*
 
-import com.wenjunhuang.codeepiphany.toolwindows.dojo.hackerrank.actions.CategoryParameterAction.*
+import CategoryParameterAction.*
 import com.wenjunhuang.codeepiphany.utils.actions.{ParameterComboBoxAction, ParameterProvider}
 
 class CategoryParameterAction

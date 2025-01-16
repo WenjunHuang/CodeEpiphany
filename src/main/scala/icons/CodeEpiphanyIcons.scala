@@ -30,7 +30,7 @@ object CodeEpiphanyIcons {
   @static
   val SEARCH: Icon = AllIcons.Actions.Search
   @static
-  val QUERY_PARAM: Icon = AllIcons.Actions.ShortcutFilter
+  val QUERY_PARAM: Icon = AllIcons.General.Filter
 
   @static
   val LOADING: AnimatedIcon = AnimatedIcon.Default.INSTANCE

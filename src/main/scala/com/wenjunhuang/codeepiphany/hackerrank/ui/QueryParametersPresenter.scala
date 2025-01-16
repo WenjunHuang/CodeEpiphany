@@ -1,4 +1,4 @@
-package com.wenjunhuang.codeepiphany.toolwindows.dojo.hackerrank
+package com.wenjunhuang.codeepiphany.hackerrank.ui
 
 import cats.effect.IO
 import cats.effect.std.Queue
@@ -24,6 +24,8 @@ import com.wenjunhuang.codeepiphany.actions.PaginationParameterActionGroup.{Page
 import com.wenjunhuang.codeepiphany.actions.RefreshAction.{REFRESH_PROVIDER_KEY, RefreshProvider}
 import com.wenjunhuang.codeepiphany.actions.StatusParameterAction.{STATUS_PROVIDER_KEY, StatusParameterProvider}
 import com.wenjunhuang.codeepiphany.actions.TagsAction.{SingleTagGroupProvider, Tag, TAG_PROVIDER_KEY}
+import com.wenjunhuang.codeepiphany.hackerrank.actions.CategoryParameterAction.{Category, CATEGORY_PROVIDER_KEY, CategoryProvider}
+import com.wenjunhuang.codeepiphany.hackerrank.actions.SkillParameterAction.{SKILL_PROVIDER_KEY, SkillParameterProvider}
 import com.wenjunhuang.codeepiphany.hackerrank.model.*
 import com.wenjunhuang.codeepiphany.hackerrank.services.HackerRankApi
 import com.wenjunhuang.codeepiphany.hackerrank.services.challenge.openChallenge
@@ -31,8 +33,6 @@ import com.wenjunhuang.codeepiphany.hackerrank.settings.HackerRankSettings
 import com.wenjunhuang.codeepiphany.model.*
 import com.wenjunhuang.codeepiphany.model.CodeDojo.HackerRank
 import com.wenjunhuang.codeepiphany.services.http.{HttpClientManager, HttpClientService}
-import com.wenjunhuang.codeepiphany.toolwindows.dojo.hackerrank.actions.CategoryParameterAction.{Category, CATEGORY_PROVIDER_KEY, CategoryProvider}
-import com.wenjunhuang.codeepiphany.toolwindows.dojo.hackerrank.actions.SkillParameterAction.{SKILL_PROVIDER_KEY, SkillParameterProvider}
 import com.wenjunhuang.codeepiphany.utils.extensions.*
 import com.wenjunhuang.codeepiphany.utils.implicits.*
 
@@ -68,9 +68,7 @@ class QueryParametersPresenter(private val myProject: Project) extends Disposabl
         } yield (newSignal, state)
       }
       .debounce(200.millis)
-      .evalTap { _ =>
-        IO.delay { refreshTags() }.evalOnEDTAny()
-      }
+      .evalTap { _ => IO.delay { refreshTags() }.evalOnEDTAny() }
       .evalTap { case (signal, state) =>
         val from  = math.max((state.currentPage - 1) * state.pageSize.value, 0)
         val limit = state.pageSize.value
@@ -134,7 +132,7 @@ class QueryParametersPresenter(private val myProject: Project) extends Disposabl
     }
   }
 
-  protected[dojo] def uiDataSnapshot(dataSink: DataSink): Unit = {
+  def uiDataSnapshot(dataSink: DataSink): Unit = {
     dataSink.set(CATEGORY_PROVIDER_KEY, myCategoryProvider)
     dataSink.set(DIFFICULTIES_PROVIDER_KEY, myDifficultiesProvider)
     dataSink.set(STATUS_PROVIDER_KEY, myStatusProvider)
@@ -436,15 +434,15 @@ object QueryParametersPresenter {
   private case class InitialData(userInfo: HackerRankUserInfo, challengeDomains: List[HackerRankChallengeDomain])
 
   private case class QueryParams(
-                                  selectedDomain: HackerRankChallengeDomain,
-                                  selectedSubdomains: List[HackerRankChallengeSubdomain],
-                                  selectedDifficulties: List[ChallengeDifficulty],
-                                  selectedStatus: Option[ChallengeStatus],
-                                  selectedSkills: List[HackerRankChallengeSkill],
-                                  currentItems: List[HackerRankChallengeDetail] = Nil,
-                                  currentPage: Int = 1,
-                                  totalSize: Int = 1,
-                                  pageSize: PageSize = PageSize.Twenty
+    selectedDomain: HackerRankChallengeDomain,
+    selectedSubdomains: List[HackerRankChallengeSubdomain],
+    selectedDifficulties: List[ChallengeDifficulty],
+    selectedStatus: Option[ChallengeStatus],
+    selectedSkills: List[HackerRankChallengeSkill],
+    currentItems: List[HackerRankChallengeDetail] = Nil,
+    currentPage: Int = 1,
+    totalSize: Int = 1,
+    pageSize: PageSize = PageSize.Twenty
   ) {
     def resetToFirstPage(): QueryParams = this.copy(currentPage = 1)
     def resetPagination(): QueryParams  = this.copy(currentPage = 1, totalSize = 1)

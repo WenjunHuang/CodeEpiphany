@@ -10,8 +10,9 @@ case class LeetCodeChallengeList(questions: List[LeetCodeChallengeListItem], tot
 case class LeetCodeChallengeListItem(
   acRate: Double,
   difficulty: String,
-  freqBar: Double,
+  freqBar: Option[Double] = None,
   paidOnly: Boolean,
+  solutionNum:Int,
   status: Option[String] = None,
   frontendQuestionId: String,
   title: String,

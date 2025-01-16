@@ -1,4 +1,4 @@
-package com.wenjunhuang.codeepiphany.toolwindows.dojo.hackerrank
+package com.wenjunhuang.codeepiphany.hackerrank.ui
 
 import java.awt.BorderLayout
 import javax.swing.ScrollPaneConstants

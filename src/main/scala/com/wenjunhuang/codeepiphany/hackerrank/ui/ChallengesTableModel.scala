@@ -1,4 +1,4 @@
-package com.wenjunhuang.codeepiphany.toolwindows.dojo.hackerrank
+package com.wenjunhuang.codeepiphany.hackerrank.ui
 
 import javax.swing.{Icon, JTable, ListSelectionModel, SwingConstants}
 import javax.swing.table.{DefaultTableCellRenderer, TableCellRenderer}
@@ -13,43 +13,14 @@ import com.intellij.util.ui.{ColumnInfo, ListTableModel}
 import com.intellij.util.ui.table.IconTableCellRenderer
 
 import com.wenjunhuang.codeepiphany.hackerrank.model.HackerRankChallengeDetail
+import com.wenjunhuang.codeepiphany.hackerrank.ui.ChallengesTableModel.*
+import com.wenjunhuang.codeepiphany.hackerrank.ui.ChallengesTableModel.ColumnTitle.*
 import com.wenjunhuang.codeepiphany.model.{ChallengeDifficulty, ChallengeStatus}
 import com.wenjunhuang.codeepiphany.model.Actions.*
-import com.wenjunhuang.codeepiphany.toolwindows.dojo.hackerrank.ChallengesTableModel.COLUMNS
-import com.wenjunhuang.codeepiphany.toolwindows.dojo.hackerrank.ChallengesTableModel.ColumnTitle.*
 
 class ChallengesTableModel extends ListTableModel[HackerRankChallengeDetail]() {
-  setColumnInfos(COLUMNS.asInstanceOf[Array[ColumnInfo[?, ?]]])
 
-  def createTableView(setDataSink: DataSink => Unit): TableView[HackerRankChallengeDetail] = {
-    val tableView = new TableView(this) with UiDataProvider {
-      override def uiDataSnapshot(dataSink: DataSink): Unit =
-        setDataSink(dataSink)
-    }
-
-    tableView.setSelectionMode(ListSelectionModel.SINGLE_SELECTION)
-    tableView.setShowGrid(false)
-    tableView.setShowColumns(true)
-
-    PopupHandler.installRowSelectionTablePopup(
-      tableView,
-      ActionManager.getInstance().getAction(SUBMISSIONS_TABLE_POPUP_GROUP).asInstanceOf[ActionGroup],
-      CHALLENGES_TABLE_POPUP_GROUP
-    )
-    tableView
-  }
-}
-
-object ChallengesTableModel {
-  enum ColumnTitle(val title: String) {
-    case Status      extends ColumnTitle("Status")
-    case Title       extends ColumnTitle("Title")
-    case Difficulty  extends ColumnTitle("Difficulty")
-    case MaxScore    extends ColumnTitle("Max Score")
-    case SuccessRate extends ColumnTitle("Success Rate")
-  }
-
-  val COLUMNS: Array[ColumnInfo[HackerRankChallengeDetail, ?]] = Array(
+  private val myColumns: Array[ColumnInfo[HackerRankChallengeDetail, ?]] = Array(
     new ColumnInfo[HackerRankChallengeDetail, ChallengeStatus](Status.title) {
       override def valueOf(item: HackerRankChallengeDetail): ChallengeStatus = item.solved
         .map(b =>
@@ -105,4 +76,35 @@ object ChallengesTableModel {
 
     }
   )
+  setColumnInfos(myColumns.asInstanceOf[Array[ColumnInfo[?, ?]]])
+
+  def createTableView(setDataSink: DataSink => Unit): TableView[HackerRankChallengeDetail] = {
+    val tableView = new TableView(this) with UiDataProvider {
+      override def uiDataSnapshot(dataSink: DataSink): Unit =
+        setDataSink(dataSink)
+    }
+
+    tableView.setSelectionMode(ListSelectionModel.SINGLE_SELECTION)
+    tableView.setShowGrid(false)
+    tableView.setShowColumns(true)
+
+    PopupHandler.installRowSelectionTablePopup(
+      tableView,
+      ActionManager.getInstance().getAction(SUBMISSIONS_TABLE_POPUP_GROUP).asInstanceOf[ActionGroup],
+      CHALLENGES_TABLE_POPUP_GROUP
+    )
+    tableView
+  }
+}
+
+object ChallengesTableModel {
+  enum ColumnTitle(val title: String) {
+    case Status      extends ColumnTitle("Status")
+    case Title       extends ColumnTitle("Title")
+    case Difficulty  extends ColumnTitle("Difficulty")
+    case MaxScore    extends ColumnTitle("Max Score")
+    case SuccessRate extends ColumnTitle("Success Rate")
+  }
+
+
 }

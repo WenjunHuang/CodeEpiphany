@@ -1,4 +1,4 @@
-package com.wenjunhuang.codeepiphany.toolwindows.dojo.hackerrank
+package com.wenjunhuang.codeepiphany.leetcode.ui
 
 import java.awt.BorderLayout
 import javax.swing.{JPanel, ScrollPaneConstants}
@@ -13,14 +13,20 @@ import com.intellij.ui.table.TableView
 import com.intellij.util.concurrency.annotations.RequiresEdt
 
 import com.wenjunhuang.codeepiphany.actions.PaginationParameterActionGroup
-import com.wenjunhuang.codeepiphany.hackerrank.model
+import com.wenjunhuang.codeepiphany.leetcode.model.LeetCodeChallengeListItem
 import com.wenjunhuang.codeepiphany.model.Actions.*
+import com.wenjunhuang.codeepiphany.model.CodeDojo
 import com.wenjunhuang.codeepiphany.utils.ui.TagPane
 
-class QueryParametersView(private val myProject: Project, private val myPresenter: QueryParametersPresenter)
-    extends SimpleToolWindowPanel(true, true) with  UiDataProvider with Disposable {
+class QueryParametersView(
+  private val myProject: Project,
+  private val myPresenter: QueryParametersPresenter,
+  private val myCodeDojo: CodeDojo
+) extends SimpleToolWindowPanel(true, true)
+    with UiDataProvider
+    with Disposable {
   private val actionManager = ActionManager.getInstance()
-  private val myActionGroup = actionManager.getAction(HACKERRANK_TOOLBAR_GROUP).asInstanceOf[ActionGroup]
+  private val myActionGroup = actionManager.getAction(LEETCODE_TOOLBAR_GROUP).asInstanceOf[ActionGroup]
   private val myMainToolbar = actionManager.createActionToolbar(TOOLBAR_PLACE, myActionGroup, true)
   myMainToolbar.setTargetComponent(this)
   setToolbar(myMainToolbar.getComponent)
@@ -32,9 +38,8 @@ class QueryParametersView(private val myProject: Project, private val myPresente
   private val myContent = JPanel(BorderLayout())
   myContent.add(myTagPane, BorderLayout.NORTH)
 
-  private val myChallengesTableModel: ChallengesTableModel = ChallengesTableModel()
-  private val myChallengesTable: TableView[model.HackerRankChallengeDetail] =
-    myChallengesTableModel.createTableView(uiDataSnapshot)
+  private val myChallengesTableModel = LeetCodeChallengeListItemTableModel(myPresenter, myCodeDojo)
+  private val myChallengesTable      = myChallengesTableModel.createTableView(uiDataSnapshot)
 
   myContent.add(
     JBScrollPane(
@@ -51,9 +56,9 @@ class QueryParametersView(private val myProject: Project, private val myPresente
   myContent.add(myQueryRangeToolbar.getComponent, BorderLayout.SOUTH)
   setContent(myContent)
 
-  def getTableModel: ChallengesTableModel        = myChallengesTableModel
-  def getTable: TableView[model.HackerRankChallengeDetail] = myChallengesTable
-  def getTagPane: TagPane                        = myTagPane
+  def getTableModel: LeetCodeChallengeListItemTableModel = myChallengesTableModel
+  def getTable: TableView[LeetCodeChallengeListItem]     = myChallengesTable
+  def getTagPane: TagPane                                = myTagPane
 
   @RequiresEdt
   def refreshTagToolbar(): Unit =

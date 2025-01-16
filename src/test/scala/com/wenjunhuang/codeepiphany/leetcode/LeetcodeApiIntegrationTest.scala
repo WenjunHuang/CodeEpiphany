@@ -81,7 +81,7 @@ class LeetcodeApiIntegrationTest extends BasePlatformTestCase {
     import httpClientService.*
     val leetCodeCNApi = LeetCodeApi[IO](CodeDojo.LeetCodeCN)
     leetCodeCNApi
-      .searchChallenges(0, 50)
+      .searchChallenges(0, 50,None,None,None,Nil,None)
       .map { result =>
         assertThat(result.total, not(0))
       }
@@ -90,7 +90,7 @@ class LeetcodeApiIntegrationTest extends BasePlatformTestCase {
     (setCookie(httpClientManager)
       *>
         leetCodeApi
-          .searchChallenges(0, 50)
+          .searchChallenges(0, 50,None,None,None,Nil,None)
           .map { result =>
             assertThat(result.total, not(0))
           })

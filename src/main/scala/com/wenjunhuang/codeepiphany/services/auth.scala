@@ -8,7 +8,7 @@ import com.intellij.openapi.project.Project
 
 import com.wenjunhuang.codeepiphany.hackerrank.services.HackerRankApi
 import com.wenjunhuang.codeepiphany.leetcode.services.LeetCodeApi
-import com.wenjunhuang.codeepiphany.model.{ApiError, CodeDojo, SensitiveDataStore}
+import com.wenjunhuang.codeepiphany.model.{ ApiError, CodeDojo, SensitiveDataStore }
 import com.wenjunhuang.codeepiphany.model.CodeDojo.*
 import com.wenjunhuang.codeepiphany.services.http.HttpClientManager
 import com.wenjunhuang.codeepiphany.services.login.LoginDialog
@@ -24,6 +24,8 @@ object auth {
   def isAuthenticated[F[_]: Async: HttpClientManager](project: Project, codeDojo: CodeDojo): F[Boolean] =
     codeDojo match
       case CodeDojo.HackerRank => HackerRankApi[F]().checkLogin()
+      case CodeDojo.LeetCode   => LeetCodeApi[F](LeetCode).checkLogin()
+      case CodeDojo.LeetCodeCN => LeetCodeApi[F](LeetCodeCN).checkLogin()
       case _                   => false.pure[F]
 
   def loadAuthentication[F[_]: Async: HttpClientManager](project: Project, codeDojo: CodeDojo): F[Unit] =
@@ -77,13 +79,13 @@ object auth {
     project: Project,
     codeDojo: CodeDojo
   ): F[AskForLoginResult] =
-    for {
+    for
       _ <- loadAuthentication(project, codeDojo)
       r <- isAuthenticated(project, codeDojo)
       loginResult <-
         if !r then askForLogin(project, codeDojo)
         else Async[F].delay(AskForLoginResult.Done)
-    } yield loginResult
+    yield loginResult
 
   /** Invoke the login process * */
   def askForLogin[F[_]: Async](project: Project, codeDojo: CodeDojo): F[AskForLoginResult] =

@@ -1,14 +1,14 @@
 package com.wenjunhuang.codeepiphany.actions
 
 import java.awt.Dimension
-import javax.swing.{JComponent, SwingConstants}
+import javax.swing.{ JComponent, SwingConstants }
 
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.actionSystem.*
-import com.intellij.openapi.actionSystem.ex.{CheckboxAction, ComboBoxAction}
-import com.intellij.openapi.ui.popup.{JBPopup, JBPopupFactory}
+import com.intellij.openapi.actionSystem.ex.{ CheckboxAction, ComboBoxAction }
+import com.intellij.openapi.ui.popup.{ JBPopup, JBPopupFactory }
 import com.intellij.openapi.util.Disposer
-import com.intellij.ui.components.{JBLabel, JBTabbedPane}
+import com.intellij.ui.components.{ JBLabel, JBTabbedPane }
 
 import com.wenjunhuang.codeepiphany.actions.TagsAction.*
 import com.wenjunhuang.codeepiphany.utils.actions.ParameterProvider
@@ -83,5 +83,6 @@ object TagsAction {
   trait MultiTagGroupProvider extends TagProvider {
     def isSearchEnabled: Boolean
     def searchTags(query: String): List[Tag]
+    def getGroups: List[TagGroup]
   }
 }

@@ -1,24 +1,25 @@
 package com.wenjunhuang.codeepiphany.toolwindows.sidebar.submissionlog
 
-import java.awt.{Color, Component}
-import java.awt.event.{MouseAdapter, MouseEvent}
+import java.awt.{ Color, Component }
+import java.awt.event.{ MouseAdapter, MouseEvent }
 import java.time.format.DateTimeFormatter
-import javax.swing.{Icon, JTable, ListSelectionModel}
-import javax.swing.table.{DefaultTableCellRenderer, TableCellRenderer}
+import javax.swing.{ Icon, JTable, ListSelectionModel }
+import javax.swing.table.{ DefaultTableCellRenderer, TableCellRenderer }
 
 import com.intellij.icons.AllIcons
-import com.intellij.openapi.actionSystem.{ActionGroup, ActionManager, DataSink, UiDataProvider}
+import com.intellij.openapi.actionSystem.{ ActionGroup, ActionManager, DataSink, UiDataProvider }
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.ui.PopupHandler
 import com.intellij.ui.table.TableView
-import com.intellij.util.ui.{ColumnInfo, JBUI, ListTableModel}
+import com.intellij.util.ui.{ ColumnInfo, JBUI, ListTableModel }
 import com.intellij.util.ui.components.BorderLayoutPanel
 import com.intellij.util.ui.table.IconTableCellRenderer
 
 import com.wenjunhuang.codeepiphany.PluginBundle
-import com.wenjunhuang.codeepiphany.model.{Actions, CodeDojo, OrderDirection}
-import com.wenjunhuang.codeepiphany.model.OrderDirection.{Ascending, Descending}
-import com.wenjunhuang.codeepiphany.toolwindows.sidebar.submissionlog.SubmissionLogTableModel.{nextOrderFilter, OrderByColumnInfo}
+import com.wenjunhuang.codeepiphany.model.{ Actions, CodeDojo, OrderDirection }
+import com.wenjunhuang.codeepiphany.model.OrderDirection.{ Ascending, Descending }
+import com.wenjunhuang.codeepiphany.utils.OrderByColumnInfo
+import com.wenjunhuang.codeepiphany.utils.OrderByColumnInfo.nextOrderFilter
 
 class SubmissionLogTableModel(private val myPresenter: SubmissionLogPresenter)
     extends ListTableModel[SubmissionLogEntry] {
@@ -175,19 +176,4 @@ class SubmissionLogTableModel(private val myPresenter: SubmissionLogPresenter)
 
     tableView
   }
-}
-
-object SubmissionLogTableModel {
-
-  abstract class OrderByColumnInfo[Item, Aspect](name: String) extends ColumnInfo[Item, Aspect](name) {
-    def enableOrderBy: Boolean                               = true
-    def getOrderFilter: Option[OrderDirection]               = None
-    def setOrderFilter(filter: Option[OrderDirection]): Unit = {}
-  }
-
-  def nextOrderFilter(filter: Option[OrderDirection]): Option[OrderDirection] = filter match
-    case None             => Some(Ascending)
-    case Some(Ascending)  => Some(Descending)
-    case Some(Descending) => None
-
 }

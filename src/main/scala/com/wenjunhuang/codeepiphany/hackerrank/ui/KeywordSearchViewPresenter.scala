@@ -1,4 +1,4 @@
-package com.wenjunhuang.codeepiphany.toolwindows.dojo.hackerrank
+package com.wenjunhuang.codeepiphany.hackerrank.ui
 
 import cats.effect.IO
 import cats.effect.std.Queue
@@ -32,6 +32,7 @@ class KeywordSearchViewPresenter(private val myProject: Project) extends Documen
 
   implicit private val httpClientKeeper: HttpClientManager[IO] =
     HttpClientService.getInstance(myProject).httpClientManager
+    
   private val myApi = HackerRankApi[IO]()
 
   private val myView: KeywordSearchView = KeywordSearchView(myProject, this)

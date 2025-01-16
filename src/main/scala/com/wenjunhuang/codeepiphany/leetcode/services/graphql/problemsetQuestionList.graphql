@@ -1,5 +1,4 @@
-
-    query problemsetQuestionList($categorySlug: String, $limit: Int, $skip: Int, $filters: QuestionListFilterInput) {
+query problemsetQuestionList($categorySlug: String, $limit: Int, $skip: Int, $filters: QuestionListFilterInput) {
   problemsetQuestionList: questionList(
     categorySlug: $categorySlug
     limit: $limit
@@ -13,6 +12,7 @@
       freqBar
       frontendQuestionId: questionFrontendId
       isFavor
+      solutionNum
       paidOnly: isPaidOnly
       status
       title

@@ -267,6 +267,7 @@ class SubmissionLogPresenter(private val myProject: Project) extends UiDataProvi
   def getCodeDojoOrderFilter: Option[OrderDirection] = myQueryParams.orderBy.collectFirst {
     case (OrderByField.CodeDojoField, direction) => direction
   }
+
   def setCodeDojoOrderFilter(orderFilter: OrderDirection): Unit = {
     myQueryParams = myQueryParams.copy(orderBy = Some((OrderByField.CodeDojoField, orderFilter)))
     requery()

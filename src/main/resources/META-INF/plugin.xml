@@ -40,13 +40,18 @@
                     class="com.wenjunhuang.codeepiphany.actions.OpenSubmissionCodeAction"/>
         </group>
         <group id="CodeEpiphany.HackerRank.Group">
-            <action id="CodeEpiphany.Actions.HackerRank.SwitchUI"
-                    class="com.wenjunhuang.codeepiphany.toolwindows.dojo.hackerrank.actions.SwitchUIAction">
-            </action>
+            <action id="CodeEpiphany.Actions.HackerRank.ChangeUI"
+                    class="com.wenjunhuang.codeepiphany.hackerrank.actions.ChangeChallengesUIAction"/>
             <action id="CodeEpiphany.Actions.HackerRank.Category"
-                    class="com.wenjunhuang.codeepiphany.toolwindows.dojo.hackerrank.actions.CategoryParameterAction"/>
+                    class="com.wenjunhuang.codeepiphany.hackerrank.actions.CategoryParameterAction"/>
             <action id="CodeEpiphany.Actions.HackerRank.Skill"
-                    class="com.wenjunhuang.codeepiphany.toolwindows.dojo.hackerrank.actions.SkillParameterAction"/>
+                    class="com.wenjunhuang.codeepiphany.hackerrank.actions.SkillParameterAction"/>
+        </group>
+        <group id="CodeEpiphany.LeetCode.Group">
+            <action id="CodeEpiphany.Actions.LeetCode.ChangeUI"
+                    class="com.wenjunhuang.codeepiphany.leetcode.actions.LeetCodeChangeUIAction"/>
+            <action id="CodeEpiphany.Actions.LeetCode.Favorite"
+                    class="com.wenjunhuang.codeepiphany.leetcode.actions.FavoriteParameterAction"/>
         </group>
 
         <group id="CodeEpiphany.Editor.Group">
@@ -64,7 +69,7 @@
                popup="true"
                class="com.wenjunhuang.codeepiphany.actions.OpenChallengeActionGroup"/>
 
-        <group id="CodeEpiphany.Dojos.Hackerrank.Toolbar">
+        <group id="CodeEpiphany.Dojos.HackerRank.Toolbar">
             <reference ref="CodeEpiphany.Actions.HackerRank.Category"/>
             <reference ref="CodeEpiphany.Actions.Difficulty"/>
             <reference ref="CodeEpiphany.Actions.Status"/>
@@ -73,10 +78,23 @@
             <reference ref="CodeEpiphany.Actions.Refresh"/>
         </group>
 
+        <group id="CodeEpiphany.Dojos.LeetCode.Toolbar">
+            <reference ref="CodeEpiphany.Actions.LeetCode.Favorite"/>
+            <reference ref="CodeEpiphany.Actions.Difficulty"/>
+            <reference ref="CodeEpiphany.Actions.Status"/>
+            <reference ref="CodeEpiphany.Actions.Tags"/>
+            <reference ref="CodeEpiphany.Actions.Refresh"/>
+        </group>
+
         <group id="CodeEpiphany.Dojos.TitleToolbar">
-            <reference ref="CodeEpiphany.Actions.HackerRank.SwitchUI"/>
             <reference ref="CodeEpiphany.Actions.Login"/>
             <reference ref="CodeEpiphany.Actions.Logout"/>
+        </group>
+        <group id="CodeEpiphany.Dojos.TitleToolbar.HackerRank">
+            <reference ref="CodeEpiphany.Actions.HackerRank.ChangeUI"/>
+        </group>
+        <group id="CodeEpiphany.Dojos.TitleToolbar.LeetCode">
+            <reference ref="CodeEpiphany.Actions.LeetCode.ChangeUI"/>
         </group>
 
         <group id="CodeEpiphany.Dojos.ChallengesTable.Popupmenu">

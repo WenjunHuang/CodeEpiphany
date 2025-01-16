@@ -11,3 +11,7 @@ case class LeetCodeUserInfo(
   avatar: Option[String] = None,
   userSlug: Option[String] = None
 ) derives ConfiguredDecoder
+
+object LeetCodeUserInfo {
+  val EMPTY_USERINFO: LeetCodeUserInfo = LeetCodeUserInfo(isSignedIn = false)
+}
