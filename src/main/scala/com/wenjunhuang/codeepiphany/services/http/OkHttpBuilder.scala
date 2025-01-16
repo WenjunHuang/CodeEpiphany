@@ -1,24 +1,35 @@
 package com.wenjunhuang.codeepiphany.services.http
 
+import cats.effect.{ Async, Resource }
 import cats.effect.std.Dispatcher
-import cats.effect.{Async, Resource}
 import cats.syntax.all.*
-import com.intellij.openapi.diagnostic.Logger
-import com.wenjunhuang.codeepiphany.services.http.OkHttpBuilder.*
 import fs2.io.readInputStream
-import okhttp3.{Call, Callback, OkHttpClient, Protocol, RequestBody, Headers as OKHeaders, MediaType as OKMediaType, Request as OKRequest, Response as OKResponse}
-import okio.BufferedSink
-import org.http4s.client.Client
-import org.http4s.headers.`Content-Type`
-import org.http4s.{Headers, HttpVersion, Method, Request, Response, Status}
-import org.typelevel.ci.CIString
-import org.typelevel.log4cats.LoggerFactory
-
 import java.io.IOException
 import java.net.HttpCookie
 import java.util.concurrent.atomic.AtomicBoolean
+import okhttp3.{
+  Call,
+  Callback,
+  Headers as OKHeaders,
+  MediaType as OKMediaType,
+  OkHttpClient,
+  Protocol,
+  Request as OKRequest,
+  RequestBody,
+  Response as OKResponse
+}
+import okio.BufferedSink
+import org.http4s.{ Headers, HttpVersion, Method, Request, Response, Status }
+import org.http4s.client.Client
+import org.http4s.headers.`Content-Type`
+import org.typelevel.ci.CIString
+import org.typelevel.log4cats.LoggerFactory
 import scala.jdk.CollectionConverters.*
 import scala.util.control.NonFatal
+
+import com.intellij.openapi.diagnostic.Logger
+
+import com.wenjunhuang.codeepiphany.services.http.OkHttpBuilder.*
 
 /** A builder for [[org.http4s.client.Client]] with an OkHttp backend.
   *
@@ -30,7 +41,7 @@ import scala.util.control.NonFatal
   */
 sealed abstract class OkHttpBuilder[F[_]] private (val okHttpClient: OkHttpClient)(implicit
   val F: Async[F],
-  val HttpClientKeeper: HttpClientKeeper[F],
+  val HttpClientKeeper: HttpClientManager[F],
   val loggerFactory: LoggerFactory[F]
 ) {
   private val myLogger       = loggerFactory.getLogger
@@ -178,7 +189,7 @@ object OkHttpBuilder {
     * @param okHttpClient
     *   the underlying client.
     */
-  def fromUnmanaged[F[_]: Async: HttpClientKeeper: LoggerFactory](okHttpClient: OkHttpClient): OkHttpBuilder[F] =
+  def fromUnmanaged[F[_]: Async: HttpClientManager: LoggerFactory](okHttpClient: OkHttpClient): OkHttpBuilder[F] =
     new OkHttpBuilder[F](okHttpClient) {}
 
   private def defaultOkHttpClient[F[_]: Async: LoggerFactory]: Resource[F, OkHttpClient] =

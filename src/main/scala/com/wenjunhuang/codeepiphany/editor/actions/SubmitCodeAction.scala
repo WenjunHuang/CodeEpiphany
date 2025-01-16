@@ -1,13 +1,15 @@
 package com.wenjunhuang.codeepiphany.editor.actions
 
 import cats.effect.IO
+
 import com.intellij.openapi.actionSystem.*
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Key
 import com.intellij.openapi.vfs.VirtualFile
+
 import com.wenjunhuang.codeepiphany.editor.actions.SubmitCodeAction.*
 import com.wenjunhuang.codeepiphany.editor.services.{runCode, submitCode}
-import com.wenjunhuang.codeepiphany.services.http.{HttpClientKeeper, HttpClientService}
+import com.wenjunhuang.codeepiphany.services.http.{HttpClientManager, HttpClientService}
 import com.wenjunhuang.codeepiphany.utils.extensions.*
 import com.wenjunhuang.codeepiphany.utils.implicits.*
 
@@ -47,7 +49,7 @@ object SubmitCodeAction {
   object SubmitCodeProvider {
 
     def createProvider(vf: VirtualFile, project: Project): SubmitCodeProvider = new SubmitCodeProvider:
-      implicit val httpClientKeeper: HttpClientKeeper[IO] = HttpClientService.getInstance(project).httpClientKeeper
+      implicit val httpClientKeeper: HttpClientManager[IO] = HttpClientService.getInstance(project).httpClientManager
 
       override def submitCurrent(): Unit = {
         submitCode[IO](vf, project)

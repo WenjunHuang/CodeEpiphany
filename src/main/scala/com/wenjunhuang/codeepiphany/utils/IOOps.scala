@@ -2,13 +2,13 @@ package com.wenjunhuang.codeepiphany.utils
 
 import cats.effect.kernel.Async
 import cats.effect.unsafe.{IORuntime, IORuntimeConfig, Scheduler}
-import com.intellij.openapi.application.ex.ApplicationManagerEx
-import com.intellij.openapi.application.{ApplicationManager, ModalityState}
-import com.intellij.openapi.progress.{ProgressIndicator, ProgressManager, Task}
-import com.intellij.openapi.project.Project
-
 import java.util.concurrent.Executors
 import scala.concurrent.{ExecutionContext, ExecutionContextExecutorService}
+
+import com.intellij.openapi.application.{ApplicationManager, ModalityState}
+import com.intellij.openapi.application.ex.ApplicationManagerEx
+import com.intellij.openapi.progress.{ProgressIndicator, ProgressManager, Task}
+import com.intellij.openapi.project.Project
 
 private trait IOOps {
   val intellijComputeContext: ExecutionContextExecutorService = ExecutionContextExecutorServiceBridge(

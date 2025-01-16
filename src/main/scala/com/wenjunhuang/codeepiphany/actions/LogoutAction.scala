@@ -2,6 +2,7 @@ package com.wenjunhuang.codeepiphany.actions
 
 import com.intellij.openapi.actionSystem.{ActionUpdateThread, AnAction, AnActionEvent}
 import com.intellij.openapi.project.DumbAware
+
 import com.wenjunhuang.codeepiphany.actions.LoginAction.*
 
 class LogoutAction extends AnAction with DumbAware {

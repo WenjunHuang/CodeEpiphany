@@ -2,6 +2,7 @@ package com.wenjunhuang.codeepiphany.settings
 
 import com.intellij.openapi.options.ConfigurableBase
 import com.intellij.openapi.project.Project
+
 import com.wenjunhuang.codeepiphany.PluginBundle
 
 class CodeEpiphanySettingsConfigurable(private val myProject: Project)

@@ -1,5 +1,8 @@
 package com.wenjunhuang.codeepiphany.toolwindows.dojo.hackerrank
 
+import java.awt.BorderLayout
+import javax.swing.{JPanel, ScrollPaneConstants}
+
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.actionSystem.*
 import com.intellij.openapi.project.Project
@@ -8,13 +11,11 @@ import com.intellij.openapi.util.Disposer
 import com.intellij.ui.components.JBScrollPane
 import com.intellij.ui.table.TableView
 import com.intellij.util.concurrency.annotations.RequiresEdt
+
 import com.wenjunhuang.codeepiphany.actions.PaginationParameterActionGroup
 import com.wenjunhuang.codeepiphany.hackerrank.model
 import com.wenjunhuang.codeepiphany.model.Actions.*
 import com.wenjunhuang.codeepiphany.utils.ui.TagPane
-
-import java.awt.BorderLayout
-import javax.swing.{JPanel, ScrollPaneConstants}
 
 class QueryParametersView(private val myProject: Project, private val myPresenter: QueryParametersPresenter)
     extends SimpleToolWindowPanel(true, true) with  UiDataProvider with Disposable {

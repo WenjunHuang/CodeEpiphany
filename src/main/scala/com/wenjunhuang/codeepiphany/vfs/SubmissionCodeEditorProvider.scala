@@ -1,8 +1,8 @@
 package com.wenjunhuang.codeepiphany.vfs
 
+import com.intellij.openapi.fileEditor.{AsyncFileEditorProvider, FileEditor, FileEditorPolicy}
 import com.intellij.openapi.fileEditor.AsyncFileEditorProvider.Builder
 import com.intellij.openapi.fileEditor.impl.text.PsiAwareTextEditorProvider
-import com.intellij.openapi.fileEditor.{AsyncFileEditorProvider, FileEditor, FileEditorPolicy}
 import com.intellij.openapi.project.{DumbAware, Project}
 import com.intellij.openapi.vfs.VirtualFile
 

@@ -1,10 +1,12 @@
 package com.wenjunhuang.codeepiphany.editor.actions
 
+import org.typelevel.ci.CIString
+
 import com.intellij.openapi.actionSystem.{ActionUpdateThread, AnActionEvent, CommonDataKeys, DefaultActionGroup}
+
 import com.wenjunhuang.codeepiphany.database.Tables.CHALLENGE
 import com.wenjunhuang.codeepiphany.model.{ChallengeRepository, CodeDojo}
 import com.wenjunhuang.codeepiphany.settings.ChallengeSettings
-import org.typelevel.ci.CIString
 
 class EditorMenuActionGroup extends DefaultActionGroup {
   override def update(e: AnActionEvent): Unit = {

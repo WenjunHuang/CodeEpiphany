@@ -2,35 +2,36 @@ package com.wenjunhuang.codeepiphany.toolwindows.dojo.hackerrank
 
 import cats.effect.IO
 import cats.effect.std.Queue
+import fs2.Stream
+import fs2.concurrent.SignallingRef
+import javax.swing.JComponent
+import javax.swing.event.DocumentEvent
+import org.typelevel.ci.CIString
+import org.typelevel.log4cats.{Logger, LoggerFactory}
+import scala.concurrent.duration.*
+import scala.jdk.CollectionConverters.*
+
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.actionSystem.DataSink
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
 import com.intellij.ui.DocumentAdapter
+
 import com.wenjunhuang.codeepiphany.actions.OpenChallengeActionGroup.{CHALLENGE_PROVIDER_KEY, OpenChallengeProvider}
 import com.wenjunhuang.codeepiphany.hackerrank.model.{HackerRankChallengeDetail, HackerRankContest}
 import com.wenjunhuang.codeepiphany.hackerrank.services.HackerRankApi
 import com.wenjunhuang.codeepiphany.hackerrank.services.challenge.openChallenge
 import com.wenjunhuang.codeepiphany.hackerrank.settings.HackerRankSettings
 import com.wenjunhuang.codeepiphany.model.{Language, LanguageVersion}
-import com.wenjunhuang.codeepiphany.services.http.{HttpClientKeeper, HttpClientService}
+import com.wenjunhuang.codeepiphany.services.http.{HttpClientManager, HttpClientService}
 import com.wenjunhuang.codeepiphany.utils.extensions.*
 import com.wenjunhuang.codeepiphany.utils.implicits.*
-import fs2.Stream
-import fs2.concurrent.SignallingRef
-import org.typelevel.ci.CIString
-import org.typelevel.log4cats.{Logger, LoggerFactory}
-
-import javax.swing.JComponent
-import javax.swing.event.DocumentEvent
-import scala.concurrent.duration.*
-import scala.jdk.CollectionConverters.*
 
 class KeywordSearchViewPresenter(private val myProject: Project) extends DocumentAdapter with Disposable {
   implicit private val myLogger: Logger[IO] = LoggerFactory[IO].getLogger
 
-  implicit private val httpClientKeeper: HttpClientKeeper[IO] =
-    HttpClientService.getInstance(myProject).httpClientKeeper
+  implicit private val httpClientKeeper: HttpClientManager[IO] =
+    HttpClientService.getInstance(myProject).httpClientManager
   private val myApi = HackerRankApi[IO]()
 
   private val myView: KeywordSearchView = KeywordSearchView(myProject, this)

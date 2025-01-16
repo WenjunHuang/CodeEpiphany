@@ -1,30 +1,15 @@
-package com.wenjunhuang.codeepiphany.hackerrank.login
+package com.wenjunhuang.codeepiphany.services.login
 
 import cats.effect.IO
-import cats.syntax.all.*
 import cats.effect.std.Queue
-import com.intellij.ide.*
-import com.intellij.openapi.Disposable
-import com.intellij.openapi.actionSystem.*
-import com.intellij.openapi.editor.colors.impl.AppEditorFontOptions
-import com.intellij.openapi.ide.CopyPasteManager
-import com.intellij.openapi.project.Project
-import com.intellij.openapi.ui.{ ComponentValidator, DialogWrapper, ValidationInfo }
-import com.intellij.openapi.util.Disposer
-import com.intellij.ui.components.{ JBScrollPane, JBTextArea }
-import com.intellij.ui.content.impl.ContentManagerImpl
-import com.intellij.ui.content.{ ContentManagerEvent, ContentManagerListener, TabbedPaneContentUI }
-import com.intellij.ui.jcef.{ JBCefBrowser, JBCefBrowserBuilder }
-import com.intellij.ui.{ AnimatedIcon, DocumentAdapter, PopupHandler }
-import com.intellij.util.ui.JBUI
-import com.wenjunhuang.codeepiphany.PluginBundle
-import com.wenjunhuang.codeepiphany.model.CodeDojo
-import com.wenjunhuang.codeepiphany.model.CodeDojo.HackerRank
-import com.wenjunhuang.codeepiphany.services.auth.{ validateUserCookieAndTestLogin, AskForLoginResult }
-import com.wenjunhuang.codeepiphany.services.http.{ HttpClientKeeper, HttpClientService }
-import com.wenjunhuang.codeepiphany.utils.implicits.*
-import com.wenjunhuang.codeepiphany.utils.isDebug
+import cats.syntax.all.*
 import fs2.Stream
+import java.awt.Font
+import java.awt.datatransfer.{DataFlavor, StringSelection}
+import java.awt.event.ActionEvent
+import java.net.HttpCookie
+import javax.swing.*
+import javax.swing.event.DocumentEvent
 import org.cef.browser.CefBrowser
 import org.cef.callback.CefCookieVisitor
 import org.cef.handler.CefLoadHandlerAdapter
@@ -33,15 +18,29 @@ import org.cef.network.CefCookie
 import org.typelevel.ci.CIString
 import org.typelevel.log4cats.LoggerFactory
 
-import java.awt.Font
-import java.awt.datatransfer.{ DataFlavor, StringSelection }
-import java.awt.event.ActionEvent
-import java.net.HttpCookie
-import javax.swing.{ event, * }
-import javax.swing.event.DocumentEvent
-import scala.jdk.CollectionConverters.*
+import com.intellij.ide.*
+import com.intellij.openapi.Disposable
+import com.intellij.openapi.actionSystem.*
+import com.intellij.openapi.editor.colors.impl.AppEditorFontOptions
+import com.intellij.openapi.ide.CopyPasteManager
+import com.intellij.openapi.project.Project
+import com.intellij.openapi.ui.{ComponentValidator, DialogWrapper, ValidationInfo}
+import com.intellij.openapi.util.Disposer
+import com.intellij.ui.{AnimatedIcon, DocumentAdapter, PopupHandler}
+import com.intellij.ui.components.{JBScrollPane, JBTextArea}
+import com.intellij.ui.content.{ContentManagerEvent, ContentManagerListener, TabbedPaneContentUI}
+import com.intellij.ui.content.impl.ContentManagerImpl
+import com.intellij.ui.jcef.{JBCefBrowser, JBCefBrowserBuilder}
+import com.intellij.util.ui.JBUI
 
-class HackerRankLoginDialog(
+import com.wenjunhuang.codeepiphany.PluginBundle
+import com.wenjunhuang.codeepiphany.model.CodeDojo
+import com.wenjunhuang.codeepiphany.services.auth.{validateUserCookieAndTestLogin, AskForLoginResult}
+import com.wenjunhuang.codeepiphany.services.http.{HttpClientManager, HttpClientService}
+import com.wenjunhuang.codeepiphany.utils.implicits.*
+import com.wenjunhuang.codeepiphany.utils.isDebug
+
+class LoginDialog(
   private val myProject: Project,
   private val myCodeDojo: CodeDojo,
   private val myLoginCallback: Either[Throwable, AskForLoginResult] => Unit
@@ -87,8 +86,8 @@ class HackerRankLoginDialog(
     true
   )
 
-  implicit private val myHttpClientKeeper: HttpClientKeeper[IO] =
-    HttpClientService.getInstance(myProject).httpClientKeeper
+  implicit private val myHttpClientKeeper: HttpClientManager[IO] =
+    HttpClientService.getInstance(myProject).httpClientManager
 
   private val myOkAction: OkAction = new OkAction {
     override def doAction(e: ActionEvent): Unit = {

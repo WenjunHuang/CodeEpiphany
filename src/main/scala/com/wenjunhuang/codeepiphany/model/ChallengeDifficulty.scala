@@ -1,9 +1,10 @@
 package com.wenjunhuang.codeepiphany.model
 
 import cats.syntax.all.*
+import org.typelevel.ci.CIString
+
 import com.wenjunhuang.codeepiphany.PluginBundle
 import com.wenjunhuang.codeepiphany.model.ChallengeDifficulty.*
-import org.typelevel.ci.CIString
 
 enum ChallengeDifficulty(val value: String) {
   case Easy     extends ChallengeDifficulty("easy")

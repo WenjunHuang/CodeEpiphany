@@ -1,14 +1,15 @@
 package com.wenjunhuang.codeepiphany.editor.extensions
 
+import javax.swing.Icon
+import org.typelevel.ci.CIString
+
 import com.intellij.ide.FileIconPatcher
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
+
 import com.wenjunhuang.codeepiphany.database.Tables.*
 import com.wenjunhuang.codeepiphany.model.{ChallengeRepository, CodeDojo}
 import com.wenjunhuang.codeepiphany.settings.ChallengeSettings
-import org.typelevel.ci.CIString
-
-import javax.swing.Icon
 
 class ChallengeEditorIconProvider extends FileIconPatcher {
   override def patchIcon(icon: Icon, file: VirtualFile, flags: Int, project: Project): Icon = {

@@ -1,8 +1,6 @@
 package com.wenjunhuang.codeepiphany.hackerrank
 
-import cats.syntax.all.*
-import io.circe.Decoder
-import io.circe.derivation.{ Configuration, ConfiguredDecoder }
+import io.circe.derivation.Configuration
 
 package object model {
   given hackerRankConfig: Configuration = Configuration.default.withSnakeCaseMemberNames.withDefaults

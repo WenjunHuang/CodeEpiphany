@@ -1,21 +1,20 @@
 package com.wenjunhuang.codeepiphany.vfs
 
-import com.intellij.openapi.application.ApplicationManager
-import com.intellij.openapi.fileTypes.{ FileTypeManager, LanguageFileType, PlainTextLanguage }
-import com.intellij.openapi.project.Project
-import com.intellij.openapi.project.ex.ProjectManagerEx
-import com.intellij.openapi.vfs.{ DeprecatedVirtualFileSystem, NonPhysicalFileSystem, VirtualFile, VirtualFileManager }
-import com.intellij.vcs.editor.ComplexPathVirtualFileSystem
-import com.intellij.vcs.editor.ComplexPathVirtualFileSystem.ComplexPathSerializer
-import com.wenjunhuang.codeepiphany.model.{ ChallengeRepository, Language, LanguageVersion }
-import com.wenjunhuang.codeepiphany.vfs.SubmissionCodeFileSystem.*
 import io.circe.generic.auto.*
 import io.circe.parser.*
 import io.circe.syntax.*
-import com.wenjunhuang.codeepiphany.database.Tables.*
 import org.typelevel.ci.CIString
-
 import scala.collection.mutable
+
+import com.intellij.openapi.fileTypes.{FileTypeManager, LanguageFileType, PlainTextLanguage}
+import com.intellij.openapi.project.Project
+import com.intellij.openapi.vfs.{VirtualFile, VirtualFileManager}
+import com.intellij.vcs.editor.ComplexPathVirtualFileSystem
+import com.intellij.vcs.editor.ComplexPathVirtualFileSystem.ComplexPathSerializer
+
+import com.wenjunhuang.codeepiphany.database.Tables.*
+import com.wenjunhuang.codeepiphany.model.{ChallengeRepository, Language, LanguageVersion}
+import com.wenjunhuang.codeepiphany.vfs.SubmissionCodeFileSystem.*
 
 class SubmissionCodeFileSystem
     extends ComplexPathVirtualFileSystem[SubmissionCodeFilePath](SubmissionCodeFilePathSerializer) {

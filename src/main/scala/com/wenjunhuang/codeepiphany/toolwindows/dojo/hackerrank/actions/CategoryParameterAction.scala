@@ -1,6 +1,7 @@
 package com.wenjunhuang.codeepiphany.toolwindows.dojo.hackerrank.actions
 
 import com.intellij.openapi.actionSystem.*
+
 import com.wenjunhuang.codeepiphany.toolwindows.dojo.hackerrank.actions.CategoryParameterAction.*
 import com.wenjunhuang.codeepiphany.utils.actions.{ParameterComboBoxAction, ParameterProvider}
 

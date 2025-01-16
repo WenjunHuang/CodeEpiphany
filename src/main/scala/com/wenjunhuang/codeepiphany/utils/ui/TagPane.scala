@@ -1,19 +1,19 @@
 package com.wenjunhuang.codeepiphany.utils.ui
 
-import com.intellij.icons.AllIcons
-import com.intellij.openapi.actionSystem.ex.DefaultCustomComponentAction
-import com.intellij.openapi.actionSystem.toolbarLayout.ToolbarLayoutStrategy
-import com.intellij.openapi.actionSystem.{ActionManager, ActionToolbar, AnAction, DefaultActionGroup}
-import com.intellij.openapi.ui.popup.IconButton
-import com.intellij.ui.components.{JBLabel, JBLayeredPane}
-import com.intellij.ui.{Gray, InplaceButton, JBColor}
-import com.intellij.util.concurrency.annotations.RequiresEdt
-import com.intellij.util.ui.components.BorderLayoutPanel
-import com.intellij.util.ui.{JBInsets, JBUI}
-
 import java.awt.*
 import java.awt.event.ActionEvent
 import javax.swing.{Icon, JLayeredPane, JPanel, SwingConstants}
+
+import com.intellij.icons.AllIcons
+import com.intellij.openapi.actionSystem.{ActionManager, ActionToolbar, AnAction, DefaultActionGroup}
+import com.intellij.openapi.actionSystem.ex.DefaultCustomComponentAction
+import com.intellij.openapi.actionSystem.toolbarLayout.ToolbarLayoutStrategy
+import com.intellij.openapi.ui.popup.IconButton
+import com.intellij.ui.{Gray, InplaceButton, JBColor}
+import com.intellij.ui.components.{JBLabel, JBLayeredPane}
+import com.intellij.util.concurrency.annotations.RequiresEdt
+import com.intellij.util.ui.{JBInsets, JBUI}
+import com.intellij.util.ui.components.BorderLayoutPanel
 
 class TagPane(val noBorderTop: Boolean = true) extends BorderLayoutPanel {
 

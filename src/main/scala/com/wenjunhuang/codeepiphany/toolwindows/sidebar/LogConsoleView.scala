@@ -1,6 +1,7 @@
 package com.wenjunhuang.codeepiphany.toolwindows.sidebar
 
 import cats.effect.Async
+
 import com.intellij.execution.filters.TextConsoleBuilderFactory
 import com.intellij.execution.ui.ConsoleView
 import com.intellij.ide.DataManager
@@ -10,6 +11,7 @@ import com.intellij.openapi.ui.SimpleToolWindowPanel
 import com.intellij.openapi.util.Disposer
 import com.intellij.openapi.wm.ToolWindowManager
 import com.intellij.util.concurrency.ThreadingAssertions
+
 import com.wenjunhuang.codeepiphany.model.Constants
 import com.wenjunhuang.codeepiphany.utils.implicits.*
 

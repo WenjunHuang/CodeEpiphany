@@ -1,10 +1,10 @@
 package com.wenjunhuang.codeepiphany.utils.ui
 
+import javax.swing.JProgressBar
+
 import com.intellij.ui.components.{JBLayeredPane, JBPanel, JBScrollPane}
 import com.intellij.ui.table.TableView
 import com.intellij.util.ui.components.BorderLayoutPanel
-
-import javax.swing.JProgressBar
 
 class ParameterizableTableView[T] extends JBPanel[ParameterizableTableView[T]] {
   private val myTableView = new TableView[T]()

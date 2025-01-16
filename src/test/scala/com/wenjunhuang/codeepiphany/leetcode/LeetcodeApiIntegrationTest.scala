@@ -6,7 +6,7 @@ import com.intellij.util.net.{ ProxyConfiguration, ProxySettings }
 import com.wenjunhuang.codeepiphany.leetcode.services.LeetCodeApi
 import com.wenjunhuang.codeepiphany.model.CodeDojo
 import com.wenjunhuang.codeepiphany.model.CodeDojo.{ LeetCode, LeetCodeCN }
-import com.wenjunhuang.codeepiphany.services.http.{ HttpClientKeeper, HttpClientService }
+import com.wenjunhuang.codeepiphany.services.http.{ HttpClientManager, HttpClientService }
 import com.wenjunhuang.codeepiphany.utils.CookieUtil
 import com.wenjunhuang.codeepiphany.utils.implicits.*
 import org.hamcrest.CoreMatchers.*
@@ -21,7 +21,7 @@ class LeetcodeApiIntegrationTest extends BasePlatformTestCase {
   private var cookies: List[HttpCookie]   = Nil
   private var cookiesCN: List[HttpCookie] = Nil
 
-  private def setCookie(httpClientKeeper: HttpClientKeeper[IO]): IO[Unit] = {
+  private def setCookie(httpClientKeeper: HttpClientManager[IO]): IO[Unit] = {
     httpClientKeeper.updateCookiesForHost(CodeDojo.LeetCode.domain, cookies) *>
       httpClientKeeper.updateCookiesForHost(CodeDojo.LeetCodeCN.domain, cookiesCN)
   }
@@ -40,7 +40,7 @@ class LeetcodeApiIntegrationTest extends BasePlatformTestCase {
   }
 
   override def tearDown(): Unit = {
-    val httpClientKeeper = HttpClientService.getInstance(getProject).httpClientKeeper
+    val httpClientKeeper = HttpClientService.getInstance(getProject).httpClientManager
     (httpClientKeeper.clearCookiesForHost(CodeDojo.LeetCode.domain) *> httpClientKeeper.clearCookiesForHost(
       CodeDojo.LeetCodeCN.domain
     )).unsafeRunSync()
@@ -70,7 +70,7 @@ class LeetcodeApiIntegrationTest extends BasePlatformTestCase {
 //      }).unsafeRunSync()
 
     val leetCodeApi = LeetCodeApi[IO](CodeDojo.LeetCode)
-    (setCookie(httpClientKeeper) *>
+    (setCookie(httpClientManager) *>
       leetCodeApi.getTagTypeWithTags.map { tagTypeWithTags =>
         assertThat(tagTypeWithTags.size, not(0))
       }).unsafeRunSync()
@@ -87,7 +87,7 @@ class LeetcodeApiIntegrationTest extends BasePlatformTestCase {
       }
       .unsafeRunSync()
     val leetCodeApi = LeetCodeApi[IO](CodeDojo.LeetCode)
-    (setCookie(httpClientKeeper)
+    (setCookie(httpClientManager)
       *>
         leetCodeApi
           .searchChallenges(0, 50)
@@ -117,7 +117,7 @@ class LeetcodeApiIntegrationTest extends BasePlatformTestCase {
       }
       .unsafeRunSync()
 
-    setCookie(httpClientKeeper).unsafeRunSync()
+    setCookie(httpClientManager).unsafeRunSync()
     leetCodeCNApi
       .checkLogin()
       .map { result =>
@@ -146,7 +146,7 @@ class LeetcodeApiIntegrationTest extends BasePlatformTestCase {
       assertThat(userInfo.userSlug, is(None))
     }.unsafeRunSync()
 
-    setCookie(httpClientKeeper).unsafeRunSync()
+    setCookie(httpClientManager).unsafeRunSync()
     leetCodeCNApi.getUserInfo().map { userInfo =>
       assertThat(userInfo.userSlug, not(None))
     }.unsafeRunSync()

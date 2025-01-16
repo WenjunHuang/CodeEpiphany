@@ -1,17 +1,18 @@
 package com.wenjunhuang.codeepiphany.hackerrank.settings
 
-import com.intellij.openapi.components.Service.Level
-import com.intellij.openapi.components.{PersistentStateComponent, Service, State, Storage}
-import com.intellij.openapi.project.Project
-import com.intellij.util.xmlb.annotations.Attribute
-import com.wenjunhuang.codeepiphany.hackerrank.settings.HackerRankSettings.{HackerRankLanguageSettingsState, HackerRankSettingsState}
-import com.wenjunhuang.codeepiphany.model.{Constants, Language, LanguageVersion}
-import com.wenjunhuang.codeepiphany.utils.XmlUtils.*
-
 import java.util as ju
 import scala.annotation.meta.field
 import scala.beans.BeanProperty
 import scala.jdk.CollectionConverters.*
+
+import com.intellij.openapi.components.{PersistentStateComponent, Service, State, Storage}
+import com.intellij.openapi.components.Service.Level
+import com.intellij.openapi.project.Project
+import com.intellij.util.xmlb.annotations.Attribute
+
+import com.wenjunhuang.codeepiphany.hackerrank.settings.HackerRankSettings.{HackerRankLanguageSettingsState, HackerRankSettingsState}
+import com.wenjunhuang.codeepiphany.model.{Constants, Language, LanguageVersion}
+import com.wenjunhuang.codeepiphany.utils.XmlUtils.*
 
 @Service(Array(Level.PROJECT))
 @State(name = Constants.HACKERRANK_SETTING, storages = Array(new Storage(Constants.HACKERRANK_SETTING_FILE)))

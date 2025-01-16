@@ -1,7 +1,8 @@
 package com.wenjunhuang.codeepiphany
 
-import com.intellij.DynamicBundle
 import org.jetbrains.annotations.{NotNull, PropertyKey}
+
+import com.intellij.DynamicBundle
 
 object PluginBundle {
   def message(@PropertyKey(resourceBundle = BUNDLE) key: String, @NotNull params: Any*): String =

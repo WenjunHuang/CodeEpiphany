@@ -1,6 +1,7 @@
 package com.wenjunhuang.codeepiphany.actions
 
 import com.intellij.openapi.actionSystem.*
+
 import com.wenjunhuang.codeepiphany.PluginBundle
 import com.wenjunhuang.codeepiphany.actions.OpenChallengeActionGroup.*
 import com.wenjunhuang.codeepiphany.model.{Language, LanguageVersion}

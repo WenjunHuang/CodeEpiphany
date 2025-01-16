@@ -4,20 +4,26 @@ import cats.effect.IO
 import cats.effect.kernel.Resource.ExitCase
 import cats.effect.std.Queue
 import cats.syntax.all.*
-import com.intellij.diff.requests.SimpleDiffRequest
-import com.intellij.diff.tools.util.DiffDataKeys
+import fs2.Stream
+import fs2.concurrent.SignallingRef
+import javax.swing.JComponent
+import org.jooq.{Record, SelectOnConditionStep}
+import org.typelevel.ci.CIString
+import org.typelevel.log4cats.LoggerFactory
+import scala.concurrent.duration.*
+import scala.jdk.CollectionConverters.*
+import scala.util.Try
+
 import com.intellij.openapi.Disposable
-import com.intellij.openapi.actionSystem.{ CommonDataKeys, DataSink, UiDataProvider }
+import com.intellij.openapi.actionSystem.{CommonDataKeys, DataSink, UiDataProvider}
 import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
-import com.wenjunhuang.codeepiphany.actions.CodeDojoParameterAction.{ CODEDOJO_PROVIDER_KEY, CodeDojoParameterProvider }
-import com.wenjunhuang.codeepiphany.actions.LanguageParameterAction.{ LANGUAGE_PROVIDER_KEY, LanguageParameterProvider }
-import com.wenjunhuang.codeepiphany.actions.OpenSubmissionCodeAction.{
-  OPEN_SUBMISSION_PROVIDER_KEY,
-  OpenSubmissionCodeProvider
-}
-import com.wenjunhuang.codeepiphany.actions.RefreshAction.{ REFRESH_PROVIDER_KEY, RefreshProvider }
+
+import com.wenjunhuang.codeepiphany.actions.CodeDojoParameterAction.{CODEDOJO_PROVIDER_KEY, CodeDojoParameterProvider}
+import com.wenjunhuang.codeepiphany.actions.LanguageParameterAction.{LANGUAGE_PROVIDER_KEY, LanguageParameterProvider}
+import com.wenjunhuang.codeepiphany.actions.OpenSubmissionCodeAction.{OPEN_SUBMISSION_PROVIDER_KEY, OpenSubmissionCodeProvider}
+import com.wenjunhuang.codeepiphany.actions.RefreshAction.{REFRESH_PROVIDER_KEY, RefreshProvider}
 import com.wenjunhuang.codeepiphany.database.Tables.*
 import com.wenjunhuang.codeepiphany.model.*
 import com.wenjunhuang.codeepiphany.toolwindows.sidebar.submissionlog.SubmissionLogPresenter.*
@@ -25,16 +31,6 @@ import com.wenjunhuang.codeepiphany.utils.extensions.*
 import com.wenjunhuang.codeepiphany.utils.implicits.*
 import com.wenjunhuang.codeepiphany.vfs.SubmissionCodeFileSystem
 import com.wenjunhuang.codeepiphany.vfs.SubmissionCodeFileSystem.SubmissionCodeFilePath
-import fs2.Stream
-import fs2.concurrent.SignallingRef
-import org.jooq.{ Record, SelectOnConditionStep }
-import org.typelevel.ci.CIString
-import org.typelevel.log4cats.LoggerFactory
-
-import javax.swing.JComponent
-import scala.concurrent.duration.*
-import scala.jdk.CollectionConverters.*
-import scala.util.Try
 
 class SubmissionLogPresenter(private val myProject: Project) extends UiDataProvider with Disposable {
   private val myView        = SubmissionLogView(this)

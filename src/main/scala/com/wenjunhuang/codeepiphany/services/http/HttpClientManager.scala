@@ -1,28 +1,29 @@
 package com.wenjunhuang.codeepiphany.services.http
 
+import cats.effect.{ Async, Ref, Resource }
 import cats.effect.kernel.Ref.Make
 import cats.effect.kernel.Sync
-import cats.effect.{Async, Ref, Resource}
 import cats.syntax.all.*
-import com.intellij.util.net.*
-import com.wenjunhuang.codeepiphany.model.CodeDojo
-import com.wenjunhuang.codeepiphany.utils.implicits.intellijComputeContext
+import java.net.HttpCookie
+import java.security.cert.X509Certificate
+import javax.net.ssl.{ SSLContext, TrustManager, X509TrustManager }
 import okhttp3.*
 import org.http4s.client.Client
 import org.typelevel.ci.CIString
 import org.typelevel.log4cats.LoggerFactory
-
-import java.net.HttpCookie
-import java.security.cert.X509Certificate
-import javax.net.ssl.{SSLContext, TrustManager, X509TrustManager}
 import scala.annotation.static
 import scala.concurrent.duration.*
 import scala.jdk.CollectionConverters.*
 import scala.util.boundary
 
+import com.intellij.util.net.*
+
+import com.wenjunhuang.codeepiphany.model.CodeDojo
+import com.wenjunhuang.codeepiphany.utils.implicits.*
+
 type CookieJar = Map[CodeDojo, Map[CIString, HttpCookie]]
 
-trait HttpClientKeeper[F[_]] {
+trait HttpClientManager[F[_]] {
   def getClient: Resource[F, Client[F]]
   def updateCookiesForHost(host: CIString, cookies: List[HttpCookie]): F[Unit]
   def getCookiesForHost(host: CIString): F[List[HttpCookie]]
@@ -30,11 +31,11 @@ trait HttpClientKeeper[F[_]] {
   def clearCookiesForHost(host: CIString): F[Unit]
 }
 
-object HttpClientKeeper {
-  def apply[F[_]: HttpClientKeeper]: HttpClientKeeper[F] = summon[HttpClientKeeper[F]]
+object HttpClientManager {
+  def apply[F[_]: HttpClientManager]: HttpClientManager[F] = summon[HttpClientManager[F]]
 
-  def make[F[_]: Make: Async: LoggerFactory](): HttpClientKeeper[F] =
-    new HttpClientKeeper[F] {
+  def make[F[_]: Make: Async: LoggerFactory](): HttpClientManager[F] =
+    new HttpClientManager[F] {
       private val cookieManager: Ref[F, CookieJar] =
         Ref.unsafe[F, CookieJar](Map.empty[CodeDojo, Map[CIString, HttpCookie]])
 
@@ -43,7 +44,7 @@ object HttpClientKeeper {
       }
 
       override def getClient: Resource[F, Client[F]] = {
-        implicit val hk: HttpClientKeeper[F] = this
+        implicit val hk: HttpClientManager[F] = this
         Resource.suspend(Sync[F].delay {
           OkHttpBuilder.fromUnmanaged[F](defaultHttpClient).resource
         })

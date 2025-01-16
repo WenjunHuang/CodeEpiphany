@@ -3,45 +3,46 @@ package com.wenjunhuang.codeepiphany.toolwindows.dojo.hackerrank
 import cats.effect.IO
 import cats.effect.std.Queue
 import cats.syntax.all.*
+import fs2.Stream
+import fs2.concurrent.SignallingRef
+import javax.swing.JComponent
+import org.typelevel.ci.CIString
+import org.typelevel.log4cats.{Logger, LoggerFactory}
+import scala.concurrent.duration.*
+import scala.jdk.CollectionConverters.*
+
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.actionSystem.DataSink
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
 import com.intellij.util.concurrency.annotations.RequiresEdt
+
 import com.wenjunhuang.codeepiphany.actions.DifficultyParameterAction.{DIFFICULTIES_PROVIDER_KEY, DifficultyParameterProvider}
 import com.wenjunhuang.codeepiphany.actions.OpenChallengeActionGroup.{CHALLENGE_PROVIDER_KEY, OpenChallengeProvider}
-import com.wenjunhuang.codeepiphany.actions.PaginationParameterActionGroup.{PAGINATION_PROVIDER_KEY, PageSize, PaginationParameterProvider}
+import com.wenjunhuang.codeepiphany.actions.PaginationParameterActionGroup.{PageSize, PAGINATION_PROVIDER_KEY, PaginationParameterProvider}
 import com.wenjunhuang.codeepiphany.actions.RefreshAction.{REFRESH_PROVIDER_KEY, RefreshProvider}
 import com.wenjunhuang.codeepiphany.actions.StatusParameterAction.{STATUS_PROVIDER_KEY, StatusParameterProvider}
-import com.wenjunhuang.codeepiphany.actions.TagsAction.{SingleTagGroupProvider, TAG_PROVIDER_KEY, Tag}
+import com.wenjunhuang.codeepiphany.actions.TagsAction.{SingleTagGroupProvider, Tag, TAG_PROVIDER_KEY}
 import com.wenjunhuang.codeepiphany.hackerrank.model.*
 import com.wenjunhuang.codeepiphany.hackerrank.services.HackerRankApi
 import com.wenjunhuang.codeepiphany.hackerrank.services.challenge.openChallenge
 import com.wenjunhuang.codeepiphany.hackerrank.settings.HackerRankSettings
 import com.wenjunhuang.codeepiphany.model.*
 import com.wenjunhuang.codeepiphany.model.CodeDojo.HackerRank
-import com.wenjunhuang.codeepiphany.services.http.{HttpClientKeeper, HttpClientService}
-import com.wenjunhuang.codeepiphany.toolwindows.dojo.hackerrank.actions.CategoryParameterAction.{CATEGORY_PROVIDER_KEY, Category, CategoryProvider}
+import com.wenjunhuang.codeepiphany.services.http.{HttpClientManager, HttpClientService}
+import com.wenjunhuang.codeepiphany.toolwindows.dojo.hackerrank.actions.CategoryParameterAction.{Category, CATEGORY_PROVIDER_KEY, CategoryProvider}
 import com.wenjunhuang.codeepiphany.toolwindows.dojo.hackerrank.actions.SkillParameterAction.{SKILL_PROVIDER_KEY, SkillParameterProvider}
 import com.wenjunhuang.codeepiphany.utils.extensions.*
 import com.wenjunhuang.codeepiphany.utils.implicits.*
-import fs2.Stream
-import fs2.concurrent.SignallingRef
-import org.typelevel.ci.CIString
-import org.typelevel.log4cats.{Logger, LoggerFactory}
-
-import javax.swing.JComponent
-import scala.concurrent.duration.*
-import scala.jdk.CollectionConverters.*
 
 class QueryParametersPresenter(private val myProject: Project) extends Disposable {
   import QueryParametersPresenter.*
 
   implicit private val myLogger: Logger[IO] = LoggerFactory[IO].getLogger
 
-  implicit private val httpClientKeeper: HttpClientKeeper[IO] =
-    HttpClientService.getInstance(myProject).httpClientKeeper
+  implicit private val httpClientKeeper: HttpClientManager[IO] =
+    HttpClientService.getInstance(myProject).httpClientManager
   private val myApi = HackerRankApi[IO]()
 
   private val myView = QueryParametersView(myProject, this)

@@ -1,15 +1,16 @@
 package com.wenjunhuang.codeepiphany.services
-import cats.effect.kernel.Async
 import cats.effect.{Resource, Sync}
+import cats.effect.kernel.Async
 import cats.syntax.all.*
+import java.io.{File, PrintWriter}
+import org.typelevel.log4cats.LoggerFactory
+
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.fileEditor.{FileDocumentManager, FileEditorManager, OpenFileDescriptor}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.{LocalFileSystem, VirtualFile}
-import com.wenjunhuang.codeepiphany.utils.implicits.*
-import org.typelevel.log4cats.LoggerFactory
 
-import java.io.{File, PrintWriter}
+import com.wenjunhuang.codeepiphany.utils.implicits.*
 
 object file {
   def saveTextToFile[F[_]: Sync](file: File, content: String): F[File] = {

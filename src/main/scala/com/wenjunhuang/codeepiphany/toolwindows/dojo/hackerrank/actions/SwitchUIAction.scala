@@ -1,10 +1,12 @@
 package com.wenjunhuang.codeepiphany.toolwindows.dojo.hackerrank.actions
 
+import icons.CodeEpiphanyIcons
+
 import com.intellij.openapi.actionSystem.*
+
 import com.wenjunhuang.codeepiphany.toolwindows.dojo.hackerrank.HackerRankUI
 import com.wenjunhuang.codeepiphany.toolwindows.dojo.hackerrank.HackerRankUI.*
 import com.wenjunhuang.codeepiphany.toolwindows.dojo.hackerrank.actions.SwitchUIAction.*
-import icons.CodeEpiphanyIcons
 
 class SwitchUIAction extends AnAction {
   override def actionPerformed(e: AnActionEvent): Unit =

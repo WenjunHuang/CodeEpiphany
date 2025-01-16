@@ -1,16 +1,17 @@
 package com.wenjunhuang.codeepiphany.toolwindows.dojo
 
 import cats.syntax.all.*
+import scala.jdk.CollectionConverters.*
+
 import com.intellij.openapi.actionSystem.{ActionManager, AnAction}
 import com.intellij.openapi.project.{DumbAware, Project}
-import com.intellij.openapi.wm.impl.content.ToolWindowContentUi
 import com.intellij.openapi.wm.{ToolWindow, ToolWindowContentUiType, ToolWindowFactory}
+import com.intellij.openapi.wm.impl.content.ToolWindowContentUi
 import com.intellij.ui.components.JBLabel
+
 import com.wenjunhuang.codeepiphany.model.Actions.TITLE_TOOLBAR_GROUP
 import com.wenjunhuang.codeepiphany.model.CodeDojo
 import com.wenjunhuang.codeepiphany.toolwindows.dojo.hackerrank.HackerRankView
-
-import scala.jdk.CollectionConverters.*
 
 class CodeDojoToolWindowFactory extends ToolWindowFactory with DumbAware {
   override def createToolWindowContent(project: Project, toolWindow: ToolWindow): Unit = {

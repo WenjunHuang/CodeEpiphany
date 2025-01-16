@@ -1,28 +1,29 @@
 package com.wenjunhuang.codeepiphany.toolwindows.sidebar.description
 
+import cats.effect.{Async, IO}
 import cats.effect.std.Queue
-import cats.effect.{ Async, IO }
 import cats.syntax.all.*
+import fs2.Stream
+import java.io.File
+import java.net.URI
+import scala.concurrent.duration.*
+
 import com.intellij.ide.BrowserUtil
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.diagnostic.Logger
-import com.intellij.openapi.fileEditor.{ FileEditorManager, FileEditorManagerEvent, FileEditorManagerListener }
+import com.intellij.openapi.fileEditor.{FileEditorManager, FileEditorManagerEvent, FileEditorManagerListener}
 import com.intellij.openapi.fileTypes.FileTypes
 import com.intellij.openapi.fileTypes.ex.FileTypeChooser
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
 import com.intellij.openapi.vfs.LocalFileSystem
 import com.intellij.util.io.URLUtil
+
 import com.wenjunhuang.codeepiphany.database.Tables.CHALLENGE
+import com.wenjunhuang.codeepiphany.model.{ChallengeRepository, CodeDojo}
 import com.wenjunhuang.codeepiphany.model.ChallengeRepository.ChallengeId
-import com.wenjunhuang.codeepiphany.model.{ ChallengeRepository, CodeDojo }
 import com.wenjunhuang.codeepiphany.settings.ChallengeSettings
 import com.wenjunhuang.codeepiphany.utils.implicits.*
-import fs2.Stream
-
-import java.io.File
-import java.net.{ URI, URL }
-import scala.concurrent.duration.*
 
 class ChallengeDescriptionPresenter(private val myProject: Project) extends Disposable {
   private val logger            = Logger.getInstance(this.getClass)

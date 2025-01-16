@@ -1,9 +1,8 @@
 package com.wenjunhuang.codeepiphany.utils
 
+import java.util as ju
 import org.cef.network.CefRequest
 import org.http4s.Headers
-
-import java.util as ju
 import scala.jdk.CollectionConverters.*
 
 private trait CefExtensionsOps {

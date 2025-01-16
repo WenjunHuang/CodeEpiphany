@@ -1,12 +1,13 @@
 package com.wenjunhuang.codeepiphany.model
 
-import com.intellij.openapi.util.text.StringUtil
-import com.wenjunhuang.codeepiphany.model.LanguageVersion.{AnyVersion, SpecificVersion}
 import icons.CodeEpiphanyIcons
-import org.typelevel.ci.CIString
-
 import javax.swing.Icon
+import org.typelevel.ci.CIString
 import scala.collection.mutable
+
+import com.intellij.openapi.util.text.StringUtil
+
+import com.wenjunhuang.codeepiphany.model.LanguageVersion.{AnyVersion, SpecificVersion}
 
 enum LanguageVersion {
   case AnyVersion

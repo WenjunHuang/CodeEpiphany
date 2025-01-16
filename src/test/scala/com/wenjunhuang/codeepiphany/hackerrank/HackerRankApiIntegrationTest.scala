@@ -8,7 +8,7 @@ import com.wenjunhuang.codeepiphany.hackerrank.model.HackerRankContest.{ Master,
 import com.wenjunhuang.codeepiphany.hackerrank.model.HackerRankContest
 import com.wenjunhuang.codeepiphany.hackerrank.services.HackerRankApi
 import com.wenjunhuang.codeepiphany.model.{ ApiError, CodeDojo, Language }
-import com.wenjunhuang.codeepiphany.services.http.{ HttpClientKeeper, HttpClientService }
+import com.wenjunhuang.codeepiphany.services.http.{ HttpClientManager, HttpClientService }
 import com.wenjunhuang.codeepiphany.utils.CookieUtil
 import com.wenjunhuang.codeepiphany.utils.implicits.*
 import org.hamcrest.CoreMatchers.*
@@ -21,7 +21,7 @@ import scala.io.Source
 class HackerRankApiIntegrationTest extends BasePlatformTestCase {
   private var cookies: List[HttpCookie] = Nil
 
-  private def setCookie(httpClientKeeper: HttpClientKeeper[IO]): IO[Unit] = {
+  private def setCookie(httpClientKeeper: HttpClientManager[IO]): IO[Unit] = {
     httpClientKeeper.updateCookiesForHost(CodeDojo.HackerRank.domain, cookies)
   }
 
@@ -66,7 +66,7 @@ class HackerRankApiIntegrationTest extends BasePlatformTestCase {
     val httpClientKeeper = HttpClientService.getInstance(getProject)
     import httpClientKeeper.*
     val hackerRankApi = HackerRankApi[IO]()
-    (setCookie(httpClientKeeper.httpClientKeeper) *> hackerRankApi.getInitialData).attempt.unsafeRunSync() match {
+    (setCookie(httpClientKeeper.httpClientManager) *> hackerRankApi.getInitialData).attempt.unsafeRunSync() match {
       case Left(e) => throw e
       case Right((userInfo, challengeDomains)) =>
         assertThat(userInfo.username, allOf(notNullValue(), not("")))
@@ -157,7 +157,7 @@ class HackerRankApiIntegrationTest extends BasePlatformTestCase {
     import httpClientKeeper.*
     val hackerRankApi = HackerRankApi[IO]()
     val code = Source.fromInputStream(new FileInputStream(getTestDataPath + "/Code.java")).getLines().mkString("\n")
-    (setCookie(httpClientKeeper.httpClientKeeper) *>
+    (setCookie(httpClientKeeper.httpClientManager) *>
       hackerRankApi
         .runAnswer("a-very-big-sum", HackerRankContest.Master, Language.Java, "15", code)
         .evalTap(response => IO.println(response))

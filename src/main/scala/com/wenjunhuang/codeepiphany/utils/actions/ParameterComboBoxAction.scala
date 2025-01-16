@@ -1,10 +1,11 @@
 package com.wenjunhuang.codeepiphany.utils.actions
 
-import com.intellij.openapi.actionSystem.ex.{CheckboxAction, ComboBoxAction}
-import com.intellij.openapi.actionSystem.*
-import com.wenjunhuang.codeepiphany.utils.actions.ParameterComboBoxAction.QueryParamSubAction
-
 import javax.swing.{Icon, JComponent}
+
+import com.intellij.openapi.actionSystem.*
+import com.intellij.openapi.actionSystem.ex.{CheckboxAction, ComboBoxAction}
+
+import com.wenjunhuang.codeepiphany.utils.actions.ParameterComboBoxAction.QueryParamSubAction
 
 abstract class ParameterComboBoxAction[P, T <: ParameterProvider[P]](
   private val key: DataKey[T],

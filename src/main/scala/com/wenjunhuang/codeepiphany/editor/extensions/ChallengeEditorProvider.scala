@@ -1,13 +1,15 @@
 package com.wenjunhuang.codeepiphany.editor.extensions
 
+import org.jdom.Element
+
 import com.intellij.openapi.fileEditor.*
 import com.intellij.openapi.fileEditor.AsyncFileEditorProvider.Builder
 import com.intellij.openapi.fileEditor.impl.text.PsiAwareTextEditorProvider
 import com.intellij.openapi.project.{DumbAware, Project}
 import com.intellij.openapi.vfs.VirtualFile
+
 import com.wenjunhuang.codeepiphany.editor.actions.SubmitCodeAction.{SUBMITCODE_PROVIDER_KEY, SubmitCodeProvider}
 import com.wenjunhuang.codeepiphany.settings.ChallengeSettings
-import org.jdom.Element
 
 class ChallengeEditorProvider extends AsyncFileEditorProvider with DumbAware {
   private val delegate = PsiAwareTextEditorProvider()

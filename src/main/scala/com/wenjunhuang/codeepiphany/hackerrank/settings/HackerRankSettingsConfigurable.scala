@@ -1,22 +1,23 @@
 package com.wenjunhuang.codeepiphany.hackerrank.settings
 
 import cats.syntax.all.*
+import io.circe.optics.JsonPath
+import io.circe.parser.*
+import java.nio.charset.StandardCharsets
+import java.util.Objects
+import org.apache.commons.io.IOUtils
+
 import com.intellij.openapi.options.ConfigurableBase
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
 import com.intellij.openapi.util.text.StringUtil
+
 import com.wenjunhuang.codeepiphany.PluginBundle
 import com.wenjunhuang.codeepiphany.hackerrank.model.HackerRankContest.Master
+import com.wenjunhuang.codeepiphany.model.{ChallengeCodeTemplate, ChallengeDifficulty, Language, LanguageVersion}
 import com.wenjunhuang.codeepiphany.model.CodeDojo.HackerRank
 import com.wenjunhuang.codeepiphany.model.Language.*
 import com.wenjunhuang.codeepiphany.model.LanguageVersion.*
-import com.wenjunhuang.codeepiphany.model.{ChallengeCodeTemplate, ChallengeDifficulty, Language, LanguageVersion}
-import io.circe.optics.JsonPath
-import io.circe.parser.*
-import org.apache.commons.io.IOUtils
-
-import java.nio.charset.StandardCharsets
-import java.util.Objects
 
 class HackerRankSettingsConfigurable(private val myProject: Project)
     extends ConfigurableBase[HackerRankSettingsForm, HackerRankSettings.HackerRankSettingsState](

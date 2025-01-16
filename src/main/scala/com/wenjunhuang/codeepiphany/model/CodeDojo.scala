@@ -1,9 +1,8 @@
 package com.wenjunhuang.codeepiphany.model
 import cats.Show
-import org.typelevel.ci.CIString
-
 import java.net.HttpCookie
 import javax.swing.Icon
+import org.typelevel.ci.CIString
 
 enum CodeDojo(val domain: CIString, val value: String) {
   case HackerRank extends CodeDojo(CIString("hackerrank.com"), "hackerrank")

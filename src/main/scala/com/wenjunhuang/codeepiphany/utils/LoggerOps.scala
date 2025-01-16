@@ -2,8 +2,9 @@ package com.wenjunhuang.codeepiphany.utils
 
 import cats.effect.{IO, Sync, SyncIO}
 import cats.syntax.all.*
-import com.intellij.openapi.diagnostic.Logger as jLogger
 import org.typelevel.log4cats.{LoggerFactory, SelfAwareStructuredLogger}
+
+import com.intellij.openapi.diagnostic.Logger as jLogger
 
 trait DiagnosticLoggerFactory[F[_]] extends LoggerFactory[F] {
   def getLoggerFromDiagnosticLogger(logger: jLogger): SelfAwareStructuredLogger[F]

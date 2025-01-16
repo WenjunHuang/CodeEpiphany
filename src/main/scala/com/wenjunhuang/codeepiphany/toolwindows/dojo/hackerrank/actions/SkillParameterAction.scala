@@ -1,7 +1,9 @@
 package com.wenjunhuang.codeepiphany.toolwindows.dojo.hackerrank.actions
 
 import cats.syntax.all.*
+
 import com.intellij.openapi.actionSystem.*
+
 import com.wenjunhuang.codeepiphany.hackerrank.model.HackerRankChallengeSkill
 import com.wenjunhuang.codeepiphany.toolwindows.dojo.hackerrank.actions.SkillParameterAction.*
 import com.wenjunhuang.codeepiphany.utils.actions.{ParameterComboBoxAction, ParameterProvider}

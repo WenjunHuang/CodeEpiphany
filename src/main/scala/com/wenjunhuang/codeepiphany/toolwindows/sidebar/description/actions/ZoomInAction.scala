@@ -2,6 +2,7 @@ package com.wenjunhuang.codeepiphany.toolwindows.sidebar.description.actions
 
 import com.intellij.openapi.actionSystem.{ActionUpdateThread, AnAction, AnActionEvent}
 import com.intellij.openapi.project.DumbAware
+
 import com.wenjunhuang.codeepiphany.toolwindows.sidebar.description.ChallengeDescriptionView
 
 class ZoomInAction extends AnAction with DumbAware {

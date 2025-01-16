@@ -1,15 +1,16 @@
 package com.wenjunhuang.codeepiphany.vfs
 
-import com.intellij.openapi.project.ex.ProjectManagerEx
-import com.intellij.openapi.vfs.{ VirtualFilePathWrapper, VirtualFileSystem }
-import com.intellij.testFramework.LightVirtualFileBase
-import com.intellij.util.{ IncorrectOperationException, LocalTimeCounter }
-import com.wenjunhuang.codeepiphany.database.Tables.SOLUTION_SUBMISSION
-import com.wenjunhuang.codeepiphany.model.{ ChallengeRepository, Language, LanguageVersion }
-import com.wenjunhuang.codeepiphany.vfs.SubmissionCodeFileSystem.SubmissionCodeFilePath
-
-import java.io.{ ByteArrayInputStream, InputStream, OutputStream }
+import java.io.{ByteArrayInputStream, InputStream, OutputStream}
 import java.nio.charset.StandardCharsets
+
+import com.intellij.openapi.project.ex.ProjectManagerEx
+import com.intellij.openapi.vfs.{VirtualFilePathWrapper, VirtualFileSystem}
+import com.intellij.testFramework.LightVirtualFileBase
+import com.intellij.util.{IncorrectOperationException, LocalTimeCounter}
+
+import com.wenjunhuang.codeepiphany.database.Tables.SOLUTION_SUBMISSION
+import com.wenjunhuang.codeepiphany.model.{ChallengeRepository, Language, LanguageVersion}
+import com.wenjunhuang.codeepiphany.vfs.SubmissionCodeFileSystem.SubmissionCodeFilePath
 
 class SubmissionCodeFile(
   private val myPath: SubmissionCodeFilePath,

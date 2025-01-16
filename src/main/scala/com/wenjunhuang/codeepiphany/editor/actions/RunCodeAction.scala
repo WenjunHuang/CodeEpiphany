@@ -1,6 +1,7 @@
 package com.wenjunhuang.codeepiphany.editor.actions
 
 import com.intellij.openapi.actionSystem.*
+
 import com.wenjunhuang.codeepiphany.editor.actions.SubmitCodeAction.*
 
 class RunCodeAction extends AnAction {

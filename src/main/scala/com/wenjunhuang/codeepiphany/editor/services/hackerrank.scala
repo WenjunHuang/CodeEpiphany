@@ -1,28 +1,29 @@
 package com.wenjunhuang.codeepiphany.editor.services
 
+import cats.effect.{Async, Concurrent}
 import cats.effect.kernel.Resource.ExitCase
-import cats.effect.{ Async, Concurrent }
-import com.intellij.openapi.project.Project
-import com.intellij.openapi.vfs.{ VirtualFile, VirtualFileUtil }
-import com.wenjunhuang.codeepiphany.database.Tables.*
-import com.wenjunhuang.codeepiphany.hackerrank.model.HackerRankContest
-import com.wenjunhuang.codeepiphany.hackerrank.services.HackerRankApi
-import com.wenjunhuang.codeepiphany.model.SubmissionResult.CompilationError
-import com.wenjunhuang.codeepiphany.model.{ ChallengeRepository, Language, SubmissionResult }
-import com.wenjunhuang.codeepiphany.services.console
-import com.wenjunhuang.codeepiphany.services.http.HttpClientKeeper
-import com.wenjunhuang.codeepiphany.settings.ChallengeSettings.ChallengeSettingsStateItem
-import com.wenjunhuang.codeepiphany.utils.IdGenerator
 import fs2.Stream
+import java.time.LocalDateTime
 import org.jooq.DSLContext
 import org.jooq.impl.DSL
 import org.typelevel.ci.CIString
-
-import java.time.LocalDateTime
 import scala.jdk.OptionConverters.*
 
+import com.intellij.openapi.project.Project
+import com.intellij.openapi.vfs.{VirtualFile, VirtualFileUtil}
+
+import com.wenjunhuang.codeepiphany.database.Tables.*
+import com.wenjunhuang.codeepiphany.hackerrank.model.HackerRankContest
+import com.wenjunhuang.codeepiphany.hackerrank.services.HackerRankApi
+import com.wenjunhuang.codeepiphany.model.{ChallengeRepository, Language, SubmissionResult}
+import com.wenjunhuang.codeepiphany.model.SubmissionResult.CompilationError
+import com.wenjunhuang.codeepiphany.services.console
+import com.wenjunhuang.codeepiphany.services.http.HttpClientManager
+import com.wenjunhuang.codeepiphany.settings.ChallengeSettings.ChallengeSettingsStateItem
+import com.wenjunhuang.codeepiphany.utils.IdGenerator
+
 object hackerrank {
-  def runCode[F[_]: Async: Concurrent: HttpClientKeeper](
+  def runCode[F[_]: Async: Concurrent: HttpClientManager](
     vf: VirtualFile,
     project: Project,
     item: ChallengeSettingsStateItem
@@ -64,7 +65,7 @@ object hackerrank {
       .drain
   }
 
-  def submitCode[F[_]: Async: Concurrent: HttpClientKeeper](
+  def submitCode[F[_]: Async: Concurrent: HttpClientManager](
     vf: VirtualFile,
     project: Project,
     item: ChallengeSettingsStateItem

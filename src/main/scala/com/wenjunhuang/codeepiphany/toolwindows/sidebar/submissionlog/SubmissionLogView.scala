@@ -1,15 +1,16 @@
 package com.wenjunhuang.codeepiphany.toolwindows.sidebar.submissionlog
 
+import javax.swing.ScrollPaneConstants
+
 import com.intellij.openapi.actionSystem.{ActionGroup, ActionManager, DataSink}
 import com.intellij.openapi.ui.SimpleToolWindowPanel
 import com.intellij.ui.PopupHandler
 import com.intellij.ui.components.JBScrollPane
 import com.intellij.ui.table.TableView
 import com.intellij.util.ui.components.BorderLayoutPanel
+
 import com.wenjunhuang.codeepiphany.model.Actions
 import com.wenjunhuang.codeepiphany.utils.ui.TagPane
-
-import javax.swing.ScrollPaneConstants
 
 class SubmissionLogView(private val myPresenter: SubmissionLogPresenter) extends SimpleToolWindowPanel(true, true) {
   private val myActionGroup =

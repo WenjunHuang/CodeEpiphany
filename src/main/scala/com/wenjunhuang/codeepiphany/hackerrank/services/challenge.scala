@@ -1,37 +1,38 @@
 package com.wenjunhuang.codeepiphany.hackerrank.services
 
+import cats.effect.{Async, Concurrent}
 import cats.effect.implicits.*
-import cats.effect.{ Async, Concurrent }
 import cats.syntax.all.*
+import java.io.File
+import org.typelevel.ci.CIString
+import org.typelevel.log4cats.Logger
+
 import com.intellij.openapi.options.ShowSettingsUtil
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.ui.{ MessageDialogBuilder, Messages }
+import com.intellij.openapi.ui.{MessageDialogBuilder, Messages}
 import com.intellij.openapi.util.text.StringUtil
+
 import com.wenjunhuang.codeepiphany.database.Tables.*
 import com.wenjunhuang.codeepiphany.hackerrank.model.HackerRankContest
-import com.wenjunhuang.codeepiphany.hackerrank.settings.{ HackerRankSettings, HackerRankSettingsConfigurable }
+import com.wenjunhuang.codeepiphany.hackerrank.settings.{HackerRankSettings, HackerRankSettingsConfigurable}
 import com.wenjunhuang.codeepiphany.model.*
-import com.wenjunhuang.codeepiphany.model.ChallengeRepository.{ ChallengeId, ChallengeLanguageId }
+import com.wenjunhuang.codeepiphany.model.ChallengeRepository.{ChallengeId, ChallengeLanguageId}
 import com.wenjunhuang.codeepiphany.model.CodeDojo.HackerRank
 import com.wenjunhuang.codeepiphany.services.file.*
-import com.wenjunhuang.codeepiphany.services.http.HttpClientKeeper
+import com.wenjunhuang.codeepiphany.services.http.HttpClientManager
 import com.wenjunhuang.codeepiphany.settings.ChallengeSettings
 import com.wenjunhuang.codeepiphany.settings.ChallengeSettings.ChallengeSettingsStateItem
 import com.wenjunhuang.codeepiphany.utils.IdGenerator
 import com.wenjunhuang.codeepiphany.utils.implicits.*
 import com.wenjunhuang.codeepiphany.utils.template.VelocityUtils
-import org.typelevel.ci.CIString
-import org.typelevel.log4cats.Logger
-
-import java.io.File
 
 object challenge {
-  def openChallenge[F[_]: Async: Concurrent: HttpClientKeeper: Logger](
-                                                                        project: Project,
-                                                                        challengeSlug: String,
-                                                                        contest: HackerRankContest,
-                                                                        language: Language,
-                                                                        languageVersion: LanguageVersion
+  def openChallenge[F[_]: Async: Concurrent: HttpClientManager: Logger](
+    project: Project,
+    challengeSlug: String,
+    contest: HackerRankContest,
+    language: Language,
+    languageVersion: LanguageVersion
   ): F[Unit] = {
     Async[F].delay {
       val settings = HackerRankSettings.getInstance(project)
@@ -67,15 +68,15 @@ object challenge {
     }
   }
 
-  private def fetchChallengeContentAndOpen[F[_]: Async: Concurrent: HttpClientKeeper: Logger](
-                                                                                               project: Project,
-                                                                                               challengeSlug: String,
-                                                                                               contest: HackerRankContest,
-                                                                                               language: Language,
-                                                                                               languageVersion: LanguageVersion,
-                                                                                               sourceFolder: String,
-                                                                                               fileNameTemplate: String,
-                                                                                               codeTemplate: String
+  private def fetchChallengeContentAndOpen[F[_]: Async: Concurrent: HttpClientManager: Logger](
+    project: Project,
+    challengeSlug: String,
+    contest: HackerRankContest,
+    language: Language,
+    languageVersion: LanguageVersion,
+    sourceFolder: String,
+    fileNameTemplate: String,
+    codeTemplate: String
   ): F[Unit] = {
     val api = HackerRankApi[F]()
     api
@@ -168,9 +169,10 @@ object challenge {
               case null =>
                 dsl.newRecord(HACKERRANK_CHALLENGE)
               case r => r
-            ).setId(challengeRecord.getId)
-             .setContest(challenge.contest)
-             .setContestslug(challenge.contest)
+            )
+            .setId(challengeRecord.getId)
+              .setContest(challenge.contest)
+              .setContestslug(challenge.contest)
           hackerRankRecord.store()
 
           val challengeLanguageRecord = dsl.fetchOne(

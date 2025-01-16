@@ -9,6 +9,7 @@ import com.intellij.openapi.fileTypes.*
 import com.intellij.openapi.project.Project
 import com.intellij.psi.tree.IElementType
 import com.intellij.testFramework.LightVirtualFile
+
 import com.wenjunhuang.codeepiphany.model.Language
 import com.wenjunhuang.codeepiphany.model.template.lexer.{ChallengeFileTemplateTextLexer, ChallengeFileTemplateTokenType}
 

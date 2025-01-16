@@ -1,28 +1,29 @@
 package com.wenjunhuang.codeepiphany.toolwindows.dojo.hackerrank
 
 import cats.effect.IO
+import javax.swing.JComponent
+
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.actionSystem.{DataSink, UiDataProvider}
 import com.intellij.openapi.project.Project
 import com.intellij.ui.CardLayoutPanel
+
 import com.wenjunhuang.codeepiphany.actions.LoginAction.{LOGIN_LOGOUT_KEY, LoginLogoutProvider}
-import com.wenjunhuang.codeepiphany.model.{CodeDojo, messages}
-import com.wenjunhuang.codeepiphany.services.auth.{AskForLoginResult, askForLogout, loadAuthenticationMayAskForLogin}
+import com.wenjunhuang.codeepiphany.model.{messages, CodeDojo}
+import com.wenjunhuang.codeepiphany.services.auth.{askForLogout, loadAuthenticationMayAskForLogin, AskForLoginResult}
 import com.wenjunhuang.codeepiphany.services.console
-import com.wenjunhuang.codeepiphany.services.http.{HttpClientKeeper, HttpClientService}
+import com.wenjunhuang.codeepiphany.services.http.{HttpClientManager, HttpClientService}
 import com.wenjunhuang.codeepiphany.toolwindows.dojo.hackerrank.actions.SwitchUIAction.{SWITCHUI_PROVIDER_KEY, SwitchUIProvider}
 import com.wenjunhuang.codeepiphany.utils.extensions.*
 import com.wenjunhuang.codeepiphany.utils.implicits.*
-
-import javax.swing.JComponent
 
 class HackerRankView(private val myProject: Project)
     extends CardLayoutPanel[HackerRankUI, HackerRankUI, JComponent]
     with UiDataProvider
     with Disposable {
 
-  implicit private val httpClientKeeper: HttpClientKeeper[IO] =
-    HttpClientService.getInstance(myProject).httpClientKeeper
+  implicit private val httpClientKeeper: HttpClientManager[IO] =
+    HttpClientService.getInstance(myProject).httpClientManager
 
   private val myUnauthenticatedView    = UnauthenticatedView()
   private val myQueryParamPresenter    = QueryParametersPresenter(myProject)

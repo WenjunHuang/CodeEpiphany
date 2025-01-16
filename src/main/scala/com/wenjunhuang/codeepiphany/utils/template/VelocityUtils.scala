@@ -1,10 +1,10 @@
 package com.wenjunhuang.codeepiphany.utils.template
 
-import com.wenjunhuang.codeepiphany.model.{ChallengeCodeTemplate, Constants}
+import java.io.StringWriter
 import org.apache.velocity.VelocityContext
 import org.apache.velocity.app.Velocity
 
-import java.io.StringWriter
+import com.wenjunhuang.codeepiphany.model.{ChallengeCodeTemplate, Constants}
 
 object VelocityUtils {
   def generateContent(template: String, challenge: ChallengeCodeTemplate): Either[Exception, String] = {

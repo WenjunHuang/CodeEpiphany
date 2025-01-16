@@ -2,12 +2,13 @@ package com.wenjunhuang.codeepiphany.services
 
 import cats.effect.Async
 import cats.syntax.all.*
-import com.intellij.execution.ui.ConsoleViewContentType
-import com.intellij.openapi.project.Project
-import com.wenjunhuang.codeepiphany.toolwindows.sidebar.LogConsoleView
-
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
+
+import com.intellij.execution.ui.ConsoleViewContentType
+import com.intellij.openapi.project.Project
+
+import com.wenjunhuang.codeepiphany.toolwindows.sidebar.LogConsoleView
 
 object console {
   def info[F[_]: Async](project: Project, message: String): F[Unit] =

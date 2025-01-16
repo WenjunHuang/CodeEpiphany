@@ -2,18 +2,18 @@ package com.wenjunhuang.codeepiphany.services
 
 import cats.effect.kernel.Async
 import cats.syntax.all.*
+import java.net.HttpCookie
+
 import com.intellij.openapi.project.Project
-import com.wenjunhuang.codeepiphany.hackerrank.login.HackerRankLoginDialog
+
 import com.wenjunhuang.codeepiphany.hackerrank.services.HackerRankApi
 import com.wenjunhuang.codeepiphany.leetcode.services.LeetCodeApi
+import com.wenjunhuang.codeepiphany.model.{ApiError, CodeDojo, SensitiveDataStore}
 import com.wenjunhuang.codeepiphany.model.CodeDojo.*
-import com.wenjunhuang.codeepiphany.model.{ ApiError, CodeDojo, SensitiveDataStore }
-import com.wenjunhuang.codeepiphany.services.http.HttpClientKeeper
+import com.wenjunhuang.codeepiphany.services.http.HttpClientManager
+import com.wenjunhuang.codeepiphany.services.login.LoginDialog
 import com.wenjunhuang.codeepiphany.utils.CookieUtil
 import com.wenjunhuang.codeepiphany.utils.implicits.*
-
-import java.net.HttpCookie
-import scala.jdk.CollectionConverters.*
 
 object auth {
   enum AskForLoginResult {
@@ -21,21 +21,21 @@ object auth {
     case Cancelled
   }
 
-  def isAuthenticated[F[_]: Async: HttpClientKeeper](project: Project, codeDojo: CodeDojo): F[Boolean] =
+  def isAuthenticated[F[_]: Async: HttpClientManager](project: Project, codeDojo: CodeDojo): F[Boolean] =
     codeDojo match
       case CodeDojo.HackerRank => HackerRankApi[F]().checkLogin()
       case _                   => false.pure[F]
 
-  def loadAuthentication[F[_]: Async: HttpClientKeeper](project: Project, codeDojo: CodeDojo): F[Unit] =
+  def loadAuthentication[F[_]: Async: HttpClientManager](project: Project, codeDojo: CodeDojo): F[Unit] =
     Async[F].blocking(SensitiveDataStore.loadData(codeDojo.show)).flatMap {
       case Some(authCookies) =>
         Async[F]
           .delay(CookieUtil.parseCookies(authCookies))
-          .flatMap(it => HttpClientKeeper[F].updateCookiesForHost(codeDojo.domain, it))
+          .flatMap(it => HttpClientManager[F].updateCookiesForHost(codeDojo.domain, it))
       case None => ().pure[F]
     }
 
-  def saveAuthentication[F[_]: Async: HttpClientKeeper](
+  def saveAuthentication[F[_]: Async: HttpClientManager](
     project: Project,
     codeDojo: CodeDojo,
     authCookies: List[HttpCookie]
@@ -47,12 +47,12 @@ object auth {
       )
     }
 
-  def validateUserCookieAndTestLogin[F[_]: Async: HttpClientKeeper](
+  def validateUserCookieAndTestLogin[F[_]: Async: HttpClientManager](
     project: Project,
     codeDojo: CodeDojo,
     cookies: List[HttpCookie]
   ): F[Boolean] =
-    HttpClientKeeper[F].updateCookiesForHost(codeDojo.domain, cookies)
+    HttpClientManager[F].updateCookiesForHost(codeDojo.domain, cookies)
       *> (codeDojo match
         case HackerRank => HackerRankApi[F]().checkLogin()
         case LeetCode   => LeetCodeApi[F](LeetCode).checkLogin()
@@ -61,10 +61,10 @@ object auth {
       ).flatMap {
         case true =>
           saveAuthentication[F](project, codeDojo, cookies) *> true.pure[F]
-        case false => HttpClientKeeper[F].clearCookiesForHost(codeDojo.domain) *> false.pure[F]
+        case false => HttpClientManager[F].clearCookiesForHost(codeDojo.domain) *> false.pure[F]
       }
 
-  def validateUserCookieAndTestLogin[F[_]: Async: HttpClientKeeper](
+  def validateUserCookieAndTestLogin[F[_]: Async: HttpClientManager](
     project: Project,
     codeDojo: CodeDojo,
     cookie: String
@@ -73,7 +73,7 @@ object auth {
       .delay(CookieUtil.parseCookies(cookie))
       .flatMap(validateUserCookieAndTestLogin(project, codeDojo, _))
 
-  def loadAuthenticationMayAskForLogin[F[_]: Async: HttpClientKeeper](
+  def loadAuthenticationMayAskForLogin[F[_]: Async: HttpClientManager](
     project: Project,
     codeDojo: CodeDojo
   ): F[AskForLoginResult] =
@@ -89,13 +89,13 @@ object auth {
   def askForLogin[F[_]: Async](project: Project, codeDojo: CodeDojo): F[AskForLoginResult] =
     Async[F]
       .async_[AskForLoginResult] { cb =>
-        val dialog = new HackerRankLoginDialog(project, codeDojo, cb)
+        val dialog = new LoginDialog(project, codeDojo, cb)
         dialog.show()
       }
       .evalOnEDTAny()
 
-  def askForLogout[F[_]: Async: HttpClientKeeper](project: Project, codeDojo: CodeDojo): F[Unit] =
-    HttpClientKeeper[F].clearCookiesForHost(codeDojo.domain) *> Async[F].unit
+  def askForLogout[F[_]: Async: HttpClientManager](project: Project, codeDojo: CodeDojo): F[Unit] =
+    HttpClientManager[F].clearCookiesForHost(codeDojo.domain) *> Async[F].unit
 
   extension [F[_], A](effect: F[A]) {
 

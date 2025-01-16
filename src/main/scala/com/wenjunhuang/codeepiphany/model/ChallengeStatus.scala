@@ -1,6 +1,7 @@
 package com.wenjunhuang.codeepiphany.model
 
 import cats.Show
+
 import com.wenjunhuang.codeepiphany.PluginBundle
 
 enum ChallengeStatus(val value: String) {

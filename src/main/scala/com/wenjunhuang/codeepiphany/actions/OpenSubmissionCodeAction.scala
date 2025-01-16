@@ -1,9 +1,9 @@
 package com.wenjunhuang.codeepiphany.actions
 
-import com.intellij.openapi.actionSystem.{ ActionUpdateThread, AnActionEvent, DataKey }
+import com.intellij.openapi.actionSystem.{ActionUpdateThread, AnActionEvent, DataKey}
 import com.intellij.openapi.project.DumbAwareAction
 
-import OpenSubmissionCodeAction.*
+import com.wenjunhuang.codeepiphany.actions.OpenSubmissionCodeAction.*
 
 class OpenSubmissionCodeAction extends DumbAwareAction {
   override def actionPerformed(e: AnActionEvent): Unit =
