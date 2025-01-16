@@ -3,7 +3,6 @@ import sbtjooq.codegen.CodegenMode.Unmanaged
 ThisBuild / scalaVersion     := "3.3.4"
 ThisBuild / intellijPlatform := IntelliJPlatform.IdeaCommunity
 ThisBuild / intellijBuild    := "242.20224.300"
-//ThisBuild / intellijBuild    := "243.22562.218"
 
 lazy val codeEpiphany = (project in file("."))
   .settings(
@@ -39,7 +38,7 @@ lazy val codeEpiphany = (project in file("."))
       "co.fs2"                  %% "fs2-core"         % "3.11.0",
       "dev.optics"              %% "monocle-core"     % "3.3.0",
       "dev.optics"              %% "monocle-macro"    % "3.3.0",
-      "com.github.cb372"        %% "cats-retry"       % "3.1.3",
+      "com.github.cb372"        %% "cats-retry"       % "4.0.0",
       "org.typelevel"           %% "log4cats-core"    % "2.7.0",
       "org.typelevel"           %% "case-insensitive" % "1.4.2",
       "org.http4s"              %% "http4s-client"    % "0.23.30",
@@ -49,14 +48,14 @@ lazy val codeEpiphany = (project in file("."))
       "org.jsoup"                % "jsoup"            % "1.18.3",
       "com.softwaremill.common" %% "id-generator"     % "1.4.0",
       // add jooq and sqlite,
-      "org.jooq"            % "jooq"             % "3.19.17",
+      "org.jooq"            % "jooq"             % "3.19.18",
       "org.reactivestreams" % "reactive-streams" % "1.0.4",
       "io.r2dbc"            % "r2dbc-spi"        % "1.0.0.RELEASE",
-      "org.xerial"          % "sqlite-jdbc"      % "3.47.2.0",
-      "org.jooq"            % "jooq-meta"        % "3.19.17"  % JooqCodegen,
-      "org.jooq"            % "jooq-codegen"     % "3.19.17"  % JooqCodegen,
-      "org.xerial"          % "sqlite-jdbc"      % "3.47.2.0" % JooqCodegen,
-      "org.flywaydb"        % "flyway-core"      % "11.1.1",
+      "org.xerial"          % "sqlite-jdbc"      % "3.48.0.0",
+      "org.jooq"            % "jooq-meta"        % "3.19.18"  % JooqCodegen,
+      "org.jooq"            % "jooq-codegen"     % "3.19.18"  % JooqCodegen,
+      "org.xerial"          % "sqlite-jdbc"      % "3.48.0.0" % JooqCodegen,
+      "org.flywaydb"        % "flyway-core"      % "11.2.0",
       "com.zaxxer"          % "HikariCP"         % "6.2.1",
       "org.scalatest"      %% "scalatest"        % "3.2.19"   % Test,
       "junit"               % "junit"            % "4.13.2"   % Test,
