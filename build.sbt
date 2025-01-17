@@ -26,6 +26,7 @@ lazy val codeEpiphany = (project in file("."))
     ),
     patchPluginXml := pluginXmlOptions { xml =>
       xml.version = version.value
+      xml.sinceBuild = intellijBuild.value
     },
     libraryDependencies ++= Seq(
       "org.typelevel"           %% "cats-effect"      % "3.5.7",

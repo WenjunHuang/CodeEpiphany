@@ -2,7 +2,6 @@
 <idea-plugin>
     <id>com.wenjunhuang.codeepiphany</id>
     <name>Code Epiphany</name>
-    <version>0.0.1</version>
     <vendor>Huang wenjun</vendor>
     <description>
         <![CDATA[Your ultimate plugin for mastering coding challenges directly in Idea platforms!]]></description>
@@ -10,7 +9,6 @@
     <idea-version since-build="231.0"/>
 
     <depends>com.intellij.modules.platform</depends>
-    <depends>com.intellij.properties</depends>
 
     <resource-bundle>messages.PluginBundle</resource-bundle>
     <actions>
@@ -141,17 +139,17 @@
         </group>
 
         <!-- test -->
-        <action id="com.wenjunhuang.codeepiphany.test.actions.ShowLoginDialogAction"
-                class="com.wenjunhuang.codeepiphany.test.actions.ShowLoginDialogAction" text="Show Login Dialog"
-                description="Show Login Dialog">
-            <add-to-group group-id="ToolsMenu" anchor="first"/>
-        </action>
-        <action id="com.wenjunhuang.codeepiphany.test.actions.ChallengeSettingsTestAction"
-                class="com.wenjunhuang.codeepiphany.test.actions.ChallengeSettingsTestAction"
-                text="Challenge Settings Test"
-                description="Challenge Settings Test">
-            <add-to-group group-id="ToolsMenu" anchor="first"/>
-        </action>
+        <!--        <action id="com.wenjunhuang.codeepiphany.test.actions.ShowLoginDialogAction"-->
+        <!--                class="com.wenjunhuang.codeepiphany.test.actions.ShowLoginDialogAction" text="Show Login Dialog"-->
+        <!--                description="Show Login Dialog">-->
+        <!--            <add-to-group group-id="ToolsMenu" anchor="first"/>-->
+        <!--        </action>-->
+        <!--        <action id="com.wenjunhuang.codeepiphany.test.actions.ChallengeSettingsTestAction"-->
+        <!--                class="com.wenjunhuang.codeepiphany.test.actions.ChallengeSettingsTestAction"-->
+        <!--                text="Challenge Settings Test"-->
+        <!--                description="Challenge Settings Test">-->
+        <!--            <add-to-group group-id="ToolsMenu" anchor="first"/>-->
+        <!--        </action>-->
     </actions>
 
     <applicationListeners>
@@ -183,9 +181,25 @@
 
         <lang.foldingBuilder language="JAVA"
                              implementationClass="com.wenjunhuang.codeepiphany.editor.extensions.SubmissionRegionFoldingBuilder"/>
+        <lang.foldingBuilder language="Kotlin"
+                             implementationClass="com.wenjunhuang.codeepiphany.editor.extensions.SubmissionRegionFoldingBuilder"/>
+        <lang.foldingBuilder language="Scala"
+                             implementationClass="com.wenjunhuang.codeepiphany.editor.extensions.SubmissionRegionFoldingBuilder"/>
+        <lang.foldingBuilder language="Dart"
+                             implementationClass="com.wenjunhuang.codeepiphany.editor.extensions.SubmissionRegionFoldingBuilder"/>
         <lang.foldingBuilder language="Haskell"
                              implementationClass="com.wenjunhuang.codeepiphany.editor.extensions.SubmissionRegionFoldingBuilder"/>
-        <lang.foldingBuilder language="Kotlin"
+        <lang.foldingBuilder language="Python"
+                             implementationClass="com.wenjunhuang.codeepiphany.editor.extensions.SubmissionRegionFoldingBuilder"/>
+        <lang.foldingBuilder language="Javascript"
+                             implementationClass="com.wenjunhuang.codeepiphany.editor.extensions.SubmissionRegionFoldingBuilder"/>
+        <lang.foldingBuilder language="Typescript"
+                             implementationClass="com.wenjunhuang.codeepiphany.editor.extensions.SubmissionRegionFoldingBuilder"/>
+        <lang.foldingBuilder language="C"
+                             implementationClass="com.wenjunhuang.codeepiphany.editor.extensions.SubmissionRegionFoldingBuilder"/>
+        <lang.foldingBuilder language="C++"
+                             implementationClass="com.wenjunhuang.codeepiphany.editor.extensions.SubmissionRegionFoldingBuilder"/>
+        <lang.foldingBuilder language="Go"
                              implementationClass="com.wenjunhuang.codeepiphany.editor.extensions.SubmissionRegionFoldingBuilder"/>
         <fileIconPatcher implementation="com.wenjunhuang.codeepiphany.editor.extensions.ChallengeEditorIconProvider"
                          order="last"/>

@@ -1,0 +1,9 @@
+query problemsetCategories {
+  problemsetCategoriesV2 {
+    info {
+      titleCn
+    }
+    title
+    titleSlug
+  }
+}

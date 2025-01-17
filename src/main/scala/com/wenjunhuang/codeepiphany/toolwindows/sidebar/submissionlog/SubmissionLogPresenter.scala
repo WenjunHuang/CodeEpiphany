@@ -238,7 +238,7 @@ class SubmissionLogPresenter(private val myProject: Project) extends UiDataProvi
     tagPane.removeAllTags()
 
     myQueryParams.dojos.foreach { dojo =>
-      tagPane.addTagAction(
+      tagPane.addClosableTagAction(
         dojo.value,
         dojo.show,
         dojo.getIcon,
@@ -247,7 +247,7 @@ class SubmissionLogPresenter(private val myProject: Project) extends UiDataProvi
       )
     }
     myQueryParams.languages.foreach { case (language, version) =>
-      tagPane.addTagAction(
+      tagPane.addClosableTagAction(
         s"${language.show} ${version.version}",
         s"${language.show} ${version.version}",
         Option(language.icon),

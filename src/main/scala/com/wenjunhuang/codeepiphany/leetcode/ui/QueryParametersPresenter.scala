@@ -6,8 +6,8 @@ import cats.syntax.all.*
 import fs2.Stream
 import fs2.concurrent.SignallingRef
 import javax.swing.JComponent
-import org.typelevel.ci.CIString
 import org.typelevel.log4cats.{ Logger, LoggerFactory }
+import scala.collection.mutable
 import scala.concurrent.duration.*
 import scala.jdk.CollectionConverters.*
 
@@ -30,17 +30,12 @@ import com.wenjunhuang.codeepiphany.actions.PaginationParameterActionGroup.{
 }
 import com.wenjunhuang.codeepiphany.actions.RefreshAction.{ REFRESH_PROVIDER_KEY, RefreshProvider }
 import com.wenjunhuang.codeepiphany.actions.StatusParameterAction.{ STATUS_PROVIDER_KEY, StatusParameterProvider }
-import com.wenjunhuang.codeepiphany.actions.TagsAction.{ SingleTagGroupProvider, TAG_PROVIDER_KEY, Tag }
+import com.wenjunhuang.codeepiphany.actions.TagsAction.*
+import com.wenjunhuang.codeepiphany.actions.TagsAction
 import com.wenjunhuang.codeepiphany.leetcode.actions.FavoriteParameterAction.*
-import com.wenjunhuang.codeepiphany.leetcode.model.{
-  LeetCodeChallengeListItem,
-  LeetCodeFavoriteItem,
-  LeetCodeTag,
-  LeetCodeUserInfo
-}
+import com.wenjunhuang.codeepiphany.leetcode.model.*
 import com.wenjunhuang.codeepiphany.leetcode.services.{ LeetCodeApi, LeetCodeSearchOrderBy }
 import com.wenjunhuang.codeepiphany.model.*
-import com.wenjunhuang.codeepiphany.model.CodeDojo.{ HackerRank, LeetCode, LeetCodeCN }
 import com.wenjunhuang.codeepiphany.services.http.{ HttpClientManager, HttpClientService }
 import com.wenjunhuang.codeepiphany.utils.extensions.*
 import com.wenjunhuang.codeepiphany.utils.implicits.*
@@ -92,7 +87,7 @@ class QueryParametersPresenter(private val myProject: Project, private val myCod
                 state.selectedFavorite,
                 state.selectedDifficulty,
                 state.selectedStatus,
-                state.selectedTags,
+                state.selectedTags.map(_.userObj.asInstanceOf[LeetCodeTag]),
                 state.orderBy
               )
               .map { response => state.copy(currentItems = response.questions, totalSize = response.total) }
@@ -148,8 +143,9 @@ class QueryParametersPresenter(private val myProject: Project, private val myCod
   }
 
   def getInitialData: IO[Unit] = {
-    (myApi.getUserInfo(), myApi.getFavoriteList).parMapN { (userInfo, favoriteItems) =>
-      myInitialData = InitialData(userInfo, favoriteItems)
+    (myApi.getUserInfo(), myApi.getFavoriteList, myApi.getTagTypeWithTags).parMapN {
+      (userInfo, favoriteItems, tagTypeWithTags) =>
+        myInitialData = InitialData(userInfo, favoriteItems, tagTypeWithTags)
     }
   }
 
@@ -160,6 +156,7 @@ class QueryParametersPresenter(private val myProject: Project, private val myCod
     dataSink.set(PAGINATION_PROVIDER_KEY, myPaginationProvider)
     dataSink.set(CHALLENGE_PROVIDER_KEY, myChallengeProvider)
     dataSink.set(REFRESH_PROVIDER_KEY, myRefreshProvider)
+    dataSink.set(TAG_PROVIDER_KEY, myTagProvider)
   }
 
   private val myChallengeProvider = new OpenChallengeProvider {
@@ -305,13 +302,68 @@ class QueryParametersPresenter(private val myProject: Project, private val myCod
       requery()
   }
 
+  private val myTagProvider = new MultiTagGroupProvider {
+    private val allTags = myInitialData.tagTypeWithTags.flatMap { item =>
+      item.tagRelation.map { relation =>
+        Tag(relation.tag.nameTranslated.getOrElse(relation.tag.name), relation.tag.slug, item.name, relation.tag)
+      }
+    }
+
+    override def isSearchEnabled: Boolean = true
+
+    override def searchTags(query: String): List[Tag] = Nil
+
+    override def getTabs: List[TagsAction.TagGroupTab] = {
+      val groups = myInitialData.tagTypeWithTags.map { item =>
+        TagGroup(
+          item.transName.getOrElse(item.name),
+          item.name,
+          item.tagRelation.map { relation =>
+            Tag(relation.tag.nameTranslated.getOrElse(relation.tag.name), relation.tag.slug, item.name, relation.tag)
+          },
+          item
+        )
+      }
+      List(TagGroupTab("Tags", "tags", groups))
+    }
+
+    override def getAllItems: List[Tag] = allTags
+
+    override def isMultipleSelection: Boolean = true
+
+    override def isSelected(item: Tag): Boolean = {
+      myState.selectedTags.contains(item)
+    }
+
+    override def getSelectedItems: List[Tag] = myState.selectedTags
+
+    override def addSelectedItems(items: List[Tag]): Unit = {
+      myState = myState.copy(selectedTags = (myState.selectedTags ++ items).distinct)
+      requery()
+    }
+
+    override def toggleSelection(item: Tag): Unit = {
+      if myState.selectedTags.contains(item) then
+        myState = myState.copy(selectedTags =
+          myState.selectedTags.filterNot(_ == item.userObj.asInstanceOf[LeetCodeTag]).distinct
+        )
+      else myState = myState.copy(selectedTags = (myState.selectedTags ++ List(item)).distinct)
+      requery()
+    }
+
+    override def removeSelectedItems(items: List[Tag]): Unit = {
+      myState = myState.copy(selectedTags = myState.selectedTags.filterNot(items.contains).distinct)
+      requery()
+    }
+  }
+
   @RequiresEdt
   private def refreshTags(): Unit = {
     val tagPane = myView.getTagPane
     tagPane.removeAllTags()
 
     myState.selectedFavorite.foreach { favorite =>
-      tagPane.addTagAction(
+      tagPane.addClosableTagAction(
         favorite.id,
         favorite.name,
         None,
@@ -321,7 +373,7 @@ class QueryParametersPresenter(private val myProject: Project, private val myCod
     }
 
     myState.selectedDifficulty.foreach { difficulty =>
-      tagPane.addTagAction(
+      tagPane.addClosableTagAction(
         difficulty.value,
         difficulty.showAsHtml,
         None,
@@ -330,12 +382,21 @@ class QueryParametersPresenter(private val myProject: Project, private val myCod
       )
     }
     myState.selectedStatus.foreach { status =>
-      tagPane.addTagAction(
+      tagPane.addClosableTagAction(
         status.value,
         status.show,
         None,
         STATUS_TAG_RADIUS,
         Some(() => myStatusProvider.removeSelectedItems(List(status)))
+      )
+    }
+    myState.selectedTags.foreach { tag =>
+      tagPane.addClosableTagAction(
+        tag.value,
+        tag.name,
+        None,
+        TAG_TAG_RADIUS,
+        Some(() => myTagProvider.removeSelectedItems(List(tag)))
       )
     }
 
@@ -359,13 +420,17 @@ class QueryParametersPresenter(private val myProject: Project, private val myCod
 }
 
 object QueryParametersPresenter {
-  private case class InitialData(userInfo: LeetCodeUserInfo, favoriteItems: List[LeetCodeFavoriteItem] = Nil)
+  private case class InitialData(
+    userInfo: LeetCodeUserInfo,
+    favoriteItems: List[LeetCodeFavoriteItem] = Nil,
+    tagTypeWithTags: List[LeetCodeTagTypeWithTags] = Nil
+  )
 
   private case class QueryParams(
     selectedFavorite: Option[LeetCodeFavoriteItem],
     selectedDifficulty: Option[ChallengeDifficulty],
     selectedStatus: Option[ChallengeStatus],
-    selectedTags: List[LeetCodeTag],
+    selectedTags: List[Tag],
     orderBy: Option[(LeetCodeSearchOrderBy, OrderDirection)],
     currentItems: List[LeetCodeChallengeListItem],
     currentPage: Int = 1,

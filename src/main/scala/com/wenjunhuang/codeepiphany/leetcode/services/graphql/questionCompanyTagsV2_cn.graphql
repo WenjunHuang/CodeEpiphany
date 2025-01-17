@@ -1,0 +1,11 @@
+query questionCompanyTagsV2($offset: Int) {
+  companyTagsV2(limit: 15, offset: $offset) {
+    companyTagInfoNodes {
+      name
+      slug
+      id
+      questionCount: companyQuestionNum
+    }
+    hasMore
+  }
+}
