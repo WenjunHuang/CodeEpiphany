@@ -6,6 +6,5 @@ query questionCompanyTagsV2($offset: Int) {
       id
       questionCount: companyQuestionNum
     }
-    hasMore
   }
 }

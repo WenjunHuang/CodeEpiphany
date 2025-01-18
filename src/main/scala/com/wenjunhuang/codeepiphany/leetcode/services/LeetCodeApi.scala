@@ -1,16 +1,17 @@
 package com.wenjunhuang.codeepiphany.leetcode.services
 
-import cats.effect.{Async, Concurrent, Resource}
+import cats.effect.{ Async, Concurrent, Resource }
 import cats.syntax.all.*
-import io.circe.{Json, JsonObject}
+import io.circe.{ Json, JsonObject }
 import io.circe.optics.JsonPath
 import io.circe.syntax.*
-import org.http4s.{Headers, Method, Uri}
+import org.http4s.{ Headers, Method, Uri }
 import org.http4s.circe.CirceEntityCodec.*
 import org.http4s.client.dsl.Http4sClientDsl
+import org.http4s.client.Client
 import org.http4s.headers.Referer
 import org.typelevel.ci.CIString
-import scala.io.{BufferedSource, Source}
+import scala.io.{ BufferedSource, Source }
 
 import com.intellij.util.LineSeparator
 
@@ -28,10 +29,12 @@ enum LeetCodeSearchOrderBy(val value: String) {
 
 trait LeetCodeApi[F[_]] {
   def getFavoriteList: F[List[LeetCodeFavoriteItem]]
+  def getCategoryList: F[List[LeetCodeCategoryListItem]]
   def getTagTypeWithTags: F[List[LeetCodeTagTypeWithTags]]
   def searchChallenges(
     offset: Int,
     limit: Int,
+    category: Option[LeetCodeCategoryListItem],
     favorite: Option[LeetCodeFavoriteItem],
     difficulty: Option[ChallengeDifficulty],
     status: Option[ChallengeStatus],
@@ -56,11 +59,25 @@ object LeetCodeApi {
 
     private val graphqlUrl = Uri.unsafeFromString(s"https://${dojo.domain.toString}/graphql/")
 
+    private def useClient[A](fun: Client[F] => F[A]): F[A] = HttpClientManager[F].getClient.use(fun)
+
     private def commonHeaders(csrfToken: String) =
       Headers("x-csrftoken" -> csrfToken, Referer(Uri.unsafeFromString(s"https://${dojo.domain.toString}/")))
 
     override def getFavoriteList: F[List[LeetCodeFavoriteItem]] = HttpClientManager[F].getClient.use { client =>
       client.expect[List[LeetCodeFavoriteItem]](s"https://${dojo.domain.toString}/problems/api/favorites/")
+    }
+
+    override def getCategoryList: F[List[LeetCodeCategoryListItem]] = useClient { client =>
+      client.expect[Json](s"https://${dojo.domain.toString}/problems/api/card-info/").flatMap { json =>
+        JsonPath.root.categories
+          .selectDynamic("0")
+          .json
+          .getOption(json)
+          .toRight(ApiError.InvalidContent(dojo, "can not find 'categories.0' in json"))
+          .flatMap(_.as[List[LeetCodeCategoryListItem]])
+          .liftTo[F]
+      }
     }
 
     override def checkLogin(): F[Boolean] = HttpClientManager[F].getClient.use { client =>
@@ -179,6 +196,7 @@ object LeetCodeApi {
     override def searchChallenges(
       offset: Int,
       limit: Int,
+      category: Option[LeetCodeCategoryListItem],
       favorite: Option[LeetCodeFavoriteItem],
       difficulty: Option[ChallengeDifficulty],
       status: Option[ChallengeStatus],
@@ -202,7 +220,7 @@ object LeetCodeApi {
                       variables = Map(
                         "skip"         -> offset.asJson,
                         "limit"        -> limit.asJson,
-                        "categorySlug" -> "all-code-essentials".asJson,
+                        "categorySlug" -> category.map(_.slug).getOrElse("all-code-essentials").asJson,
                         "filters"      -> createSearchChallengesFilterJson(favorite, difficulty, status, tags, orderBy)
                       ).asJsonObject
                     )

@@ -50,6 +50,8 @@
                     class="com.wenjunhuang.codeepiphany.leetcode.actions.LeetCodeChangeUIAction"/>
             <action id="CodeEpiphany.Actions.LeetCode.Favorite"
                     class="com.wenjunhuang.codeepiphany.leetcode.actions.FavoriteParameterAction"/>
+            <action id="CodeEpiphany.Actions.LeetCode.Category"
+                    class="com.wenjunhuang.codeepiphany.leetcode.actions.LeetCodeCategoryParameterAction"/>
         </group>
 
         <group id="CodeEpiphany.Editor.Group">
@@ -77,6 +79,7 @@
         </group>
 
         <group id="CodeEpiphany.Dojos.LeetCode.Toolbar">
+            <reference ref="CodeEpiphany.Actions.LeetCode.Category"/>
             <reference ref="CodeEpiphany.Actions.LeetCode.Favorite"/>
             <reference ref="CodeEpiphany.Actions.Difficulty"/>
             <reference ref="CodeEpiphany.Actions.Status"/>

@@ -54,7 +54,7 @@ class LeetCodeChallengeListItemTableModel(
     },
     new OrderByColumnInfo[LeetCodeChallengeListItem, String](Title.title) {
       override def valueOf(item: LeetCodeChallengeListItem): String =
-        s"[${item.frontendQuestionId}]${item.titleCn.getOrElse(item.title)}"
+        s"[${item.frontendQuestionId}]${item.titleCn.filter(_.nonEmpty).getOrElse(item.title)}"
 
       override def getPreferredStringValue: String = StringUtil.repeat("W", 30)
 

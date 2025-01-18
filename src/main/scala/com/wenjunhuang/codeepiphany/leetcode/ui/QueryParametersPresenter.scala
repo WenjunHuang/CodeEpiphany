@@ -7,7 +7,6 @@ import fs2.Stream
 import fs2.concurrent.SignallingRef
 import javax.swing.JComponent
 import org.typelevel.log4cats.{ Logger, LoggerFactory }
-import scala.collection.mutable
 import scala.concurrent.duration.*
 import scala.jdk.CollectionConverters.*
 
@@ -30,9 +29,13 @@ import com.wenjunhuang.codeepiphany.actions.PaginationParameterActionGroup.{
 }
 import com.wenjunhuang.codeepiphany.actions.RefreshAction.{ REFRESH_PROVIDER_KEY, RefreshProvider }
 import com.wenjunhuang.codeepiphany.actions.StatusParameterAction.{ STATUS_PROVIDER_KEY, StatusParameterProvider }
-import com.wenjunhuang.codeepiphany.actions.TagsAction.*
 import com.wenjunhuang.codeepiphany.actions.TagsAction
+import com.wenjunhuang.codeepiphany.actions.TagsAction.*
 import com.wenjunhuang.codeepiphany.leetcode.actions.FavoriteParameterAction.*
+import com.wenjunhuang.codeepiphany.leetcode.actions.LeetCodeCategoryParameterAction.{
+  LEETCODE_CATEGORY_PROVIDER_KEY,
+  LeetCodeCategoryProvider
+}
 import com.wenjunhuang.codeepiphany.leetcode.model.*
 import com.wenjunhuang.codeepiphany.leetcode.services.{ LeetCodeApi, LeetCodeSearchOrderBy }
 import com.wenjunhuang.codeepiphany.model.*
@@ -40,15 +43,17 @@ import com.wenjunhuang.codeepiphany.services.http.{ HttpClientManager, HttpClien
 import com.wenjunhuang.codeepiphany.utils.extensions.*
 import com.wenjunhuang.codeepiphany.utils.implicits.*
 
+import QueryParametersPresenter.*
+
 class QueryParametersPresenter(private val myProject: Project, private val myCodeDojo: CodeDojo)
     extends OrderDirectionProvider[LeetCodeSearchOrderBy]
     with Disposable {
-  import QueryParametersPresenter.*
 
-  implicit private val myLogger: Logger[IO] = LoggerFactory[IO].getLogger
+  private implicit val myLogger: Logger[IO] = LoggerFactory[IO].getLogger
 
-  implicit private val httpClientKeeper: HttpClientManager[IO] =
+  private implicit val httpClientKeeper: HttpClientManager[IO] =
     HttpClientService.getInstance(myProject).httpClientManager
+
   private val myApi = LeetCodeApi[IO](myCodeDojo)
 
   private val myView = QueryParametersView(myProject, this, myCodeDojo)
@@ -74,7 +79,7 @@ class QueryParametersPresenter(private val myProject: Project, private val myCod
         } yield (newSignal, state)
       }
       .debounce(200.millis)
-      .evalTap { _ => IO.delay { refreshTags() }.evalOnEDTAny() }
+      .evalTap { _ => IO.delay { rebuildTags() }.evalOnEDTAny() }
       .evalTap { case (signal, state) =>
         val from  = math.max((state.currentPage - 1) * state.pageSize.value, 0)
         val limit = state.pageSize.value
@@ -84,6 +89,7 @@ class QueryParametersPresenter(private val myProject: Project, private val myCod
               .searchChallenges(
                 from,
                 limit,
+                state.selectedCategory,
                 state.selectedFavorite,
                 state.selectedDifficulty,
                 state.selectedStatus,
@@ -136,20 +142,21 @@ class QueryParametersPresenter(private val myProject: Project, private val myCod
   }
 
   override def setDirectionOf(field: LeetCodeSearchOrderBy, direction: Option[OrderDirection]): Unit = {
-    direction match
-      case None            => myState = myState.copy(orderBy = None)
-      case Some(direction) => myState = myState.copy(orderBy = Some((field, direction)))
+    myState = direction match
+      case None            => myState.copy(orderBy = None)
+      case Some(direction) => myState.copy(orderBy = Some((field, direction)))
     requery()
   }
 
   def getInitialData: IO[Unit] = {
-    (myApi.getUserInfo(), myApi.getFavoriteList, myApi.getTagTypeWithTags).parMapN {
-      (userInfo, favoriteItems, tagTypeWithTags) =>
-        myInitialData = InitialData(userInfo, favoriteItems, tagTypeWithTags)
+    (myApi.getUserInfo(), myApi.getCategoryList, myApi.getFavoriteList, myApi.getTagTypeWithTags).parMapN {
+      (userInfo, categories, favorites, tagTypeWithTags) =>
+        myInitialData = InitialData(userInfo, categories, favorites, tagTypeWithTags)
     }
   }
 
   def uiDataSnapshot(dataSink: DataSink): Unit = {
+    dataSink.set(LEETCODE_CATEGORY_PROVIDER_KEY, myCategoryProvider)
     dataSink.set(FAVORITE_PROVIDER_KEY, myFavoriteProvider)
     dataSink.set(DIFFICULTIES_PROVIDER_KEY, myDifficultiesProvider)
     dataSink.set(STATUS_PROVIDER_KEY, myStatusProvider)
@@ -157,6 +164,33 @@ class QueryParametersPresenter(private val myProject: Project, private val myCod
     dataSink.set(CHALLENGE_PROVIDER_KEY, myChallengeProvider)
     dataSink.set(REFRESH_PROVIDER_KEY, myRefreshProvider)
     dataSink.set(TAG_PROVIDER_KEY, myTagProvider)
+  }
+
+  private val myCategoryProvider = new LeetCodeCategoryProvider {
+    override def getAllItems: List[LeetCodeCategoryListItem] = myInitialData.categories
+
+    override def isMultipleSelection: Boolean = false
+
+    override def isSelected(item: LeetCodeCategoryListItem): Boolean = myState.selectedCategory.contains(item)
+
+    override def getSelectedItems: List[LeetCodeCategoryListItem] = myState.selectedCategory.toList
+
+    override def addSelectedItems(items: List[LeetCodeCategoryListItem]): Unit = {
+      myState = myState.copy(selectedCategory = items.headOption)
+      requery()
+    }
+
+    override def toggleSelection(item: LeetCodeCategoryListItem): Unit = {
+      if myState.selectedCategory.contains(item) then myState = myState.copy(selectedCategory = None)
+      else myState = myState.copy(selectedCategory = Some(item))
+      requery()
+    }
+
+    override def removeSelectedItems(items: List[LeetCodeCategoryListItem]): Unit = {
+      if myState.selectedCategory.contains(items.head) then
+        myState = myState.copy(selectedCategory = None)
+        requery()
+    }
   }
 
   private val myChallengeProvider = new OpenChallengeProvider {
@@ -171,7 +205,7 @@ class QueryParametersPresenter(private val myProject: Project, private val myCod
   }
 
   private val myFavoriteProvider = new FavoriteParameterProvider {
-    override def getAllItems: List[LeetCodeFavoriteItem] = myInitialData.favoriteItems
+    override def getAllItems: List[LeetCodeFavoriteItem] = myInitialData.favorites
 
     override def isMultipleSelection: Boolean = false
 
@@ -305,7 +339,12 @@ class QueryParametersPresenter(private val myProject: Project, private val myCod
   private val myTagProvider = new MultiTagGroupProvider {
     private val allTags = myInitialData.tagTypeWithTags.flatMap { item =>
       item.tagRelation.map { relation =>
-        Tag(relation.tag.nameTranslated.getOrElse(relation.tag.name), relation.tag.slug, item.name, relation.tag)
+        Tag(
+          relation.tag.nameTranslated.filter(_.nonEmpty).getOrElse(relation.tag.name),
+          relation.tag.slug,
+          item.name,
+          relation.tag
+        )
       }
     }
 
@@ -319,7 +358,14 @@ class QueryParametersPresenter(private val myProject: Project, private val myCod
           item.transName.getOrElse(item.name),
           item.name,
           item.tagRelation.map { relation =>
-            Tag(relation.tag.nameTranslated.getOrElse(relation.tag.name), relation.tag.slug, item.name, relation.tag)
+            Tag(
+              relation.tag.nameTranslated
+                .filter(_.nonEmpty)
+                .getOrElse(relation.tag.name),
+              relation.tag.slug,
+              item.name,
+              relation.tag
+            )
           },
           item
         )
@@ -358,10 +404,19 @@ class QueryParametersPresenter(private val myProject: Project, private val myCod
   }
 
   @RequiresEdt
-  private def refreshTags(): Unit = {
+  private def rebuildTags(): Unit = {
     val tagPane = myView.getTagPane
     tagPane.removeAllTags()
 
+    myState.selectedCategory.foreach { category =>
+      tagPane.addClosableTagAction(
+        category.slug,
+        category.title,
+        None,
+        CATEGORY_TAG_RADIUS,
+        Some(() => myCategoryProvider.removeSelectedItems(List(category)))
+      )
+    }
     myState.selectedFavorite.foreach { favorite =>
       tagPane.addClosableTagAction(
         favorite.id,
@@ -422,11 +477,13 @@ class QueryParametersPresenter(private val myProject: Project, private val myCod
 object QueryParametersPresenter {
   private case class InitialData(
     userInfo: LeetCodeUserInfo,
-    favoriteItems: List[LeetCodeFavoriteItem] = Nil,
+    categories: List[LeetCodeCategoryListItem] = Nil,
+    favorites: List[LeetCodeFavoriteItem] = Nil,
     tagTypeWithTags: List[LeetCodeTagTypeWithTags] = Nil
   )
 
   private case class QueryParams(
+    selectedCategory: Option[LeetCodeCategoryListItem],
     selectedFavorite: Option[LeetCodeFavoriteItem],
     selectedDifficulty: Option[ChallengeDifficulty],
     selectedStatus: Option[ChallengeStatus],
@@ -441,10 +498,11 @@ object QueryParametersPresenter {
     def resetPagination(): QueryParams  = this.copy(currentPage = 1, totalSize = 1)
   }
 
-  final private val EMPTY_STATE = QueryParams(None, None, None, Nil, None, Nil, 1, 1, PageSize.Twenty)
+  private final val EMPTY_STATE = QueryParams(None, None, None, None, Nil, None, Nil, 1, 1, PageSize.Twenty)
 
+  private val CATEGORY_TAG_RADIUS   = 0.1f
   private val FAVORITE_TAG_RADIUS   = 0.2f
-  private val DIFFICULTY_TAG_RADIUS = 0.4f
-  private val STATUS_TAG_RADIUS     = 0.5f
+  private val DIFFICULTY_TAG_RADIUS = 0.3f
+  private val STATUS_TAG_RADIUS     = 0.4f
   private val TAG_TAG_RADIUS        = 1.0f
 }
