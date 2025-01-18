@@ -1,0 +1,5 @@
+package leetcodecn
+
+object $velocity.snakeCaseName($challenge.slug) {
+$challenge.code
+}

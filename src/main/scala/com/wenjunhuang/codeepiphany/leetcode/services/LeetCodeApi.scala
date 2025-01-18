@@ -17,6 +17,7 @@ import com.intellij.util.LineSeparator
 
 import com.wenjunhuang.codeepiphany.leetcode.model.*
 import com.wenjunhuang.codeepiphany.model.*
+import com.wenjunhuang.codeepiphany.model.CodeDojo.{ LeetCode, LeetCodeCN }
 import com.wenjunhuang.codeepiphany.services.http.HttpClientManager
 
 enum LeetCodeSearchOrderBy(val value: String) {
@@ -51,6 +52,8 @@ trait LeetCodeApi[F[_]] {
 
   def getUserInfo(): F[LeetCodeUserInfo]
   def checkLogin(): F[Boolean]
+
+  def getQuestionData(slug: String): F[LeetCodeChallengeData]
 }
 
 object LeetCodeApi {
@@ -134,7 +137,45 @@ object LeetCodeApi {
       }
     }
 
-    override def getTagTypeWithTags: F[List[LeetCodeTagTypeWithTags]] = HttpClientManager[F].getClient.use { client =>
+    override def getTagTypeWithTags: F[List[LeetCodeTagTypeWithTags]] =
+      HttpClientManager[F].getClient.use { client =>
+        dojo match
+          case LeetCodeCN =>
+            getTagTypeWithTagsLeetCodeCN(client)
+          case LeetCode =>
+            getTagTypeWithTagsLeetCode(client)
+
+      }
+
+    private def getTagTypeWithTagsLeetCode(client: Client[F]): F[List[LeetCodeTagTypeWithTags]] = {
+      getCSRFToken.flatMap { csrfToken =>
+        client
+          .expect[Json](
+            Method
+              .GET(Uri.unsafeFromString("https://leetcode.com/problems/api/tags/"), headers = commonHeaders(csrfToken))
+          )
+          .flatMap { json =>
+            JsonPath.root.topics.json
+              .getOption(json)
+              .toRight(ApiError.InvalidContent(dojo, "can not find 'topics' in json"))
+              .flatMap { topicsJson =>
+                topicsJson.as[List[LeetCodeTag]]
+              }
+              .map { tags =>
+                List(
+                  LeetCodeTagTypeWithTags(
+                    "All Tags",
+                    None,
+                    tags.map(tag => LeetCodeTagRelation(tag.questions.length, tag))
+                  )
+                )
+              }
+              .liftTo[F]
+          }
+      }
+    }
+
+    private def getTagTypeWithTagsLeetCodeCN(client: Client[F]): F[List[LeetCodeTagTypeWithTags]] = {
       openGraphQLFile(dojo, "questionTagTypeWithTags").flatMap { file =>
         getCSRFToken.flatMap { csrfToken =>
           client
@@ -183,8 +224,7 @@ object LeetCodeApi {
                 .getOrElse(JsonObject.empty)
                 .deepMerge(tags.map(_.slug) match
                   case Nil  => JsonObject.empty
-                  case list => JsonObject("tags" -> list.asJson)
-                )
+                  case list => JsonObject("tags" -> list.asJson))
             )
         )
         .deepMerge(orderBy.map { case (order, direction) =>
@@ -253,16 +293,13 @@ object LeetCodeApi {
       keyword: String,
       orderBy: Option[(LeetCodeSearchOrderBy, OrderDirection)]
     ): F[LeetCodeChallengeList] = {
-      HttpClientManager[F].getClient.use { client =>
+      useClient { client =>
         openGraphQLFile(dojo, "problemsetQuestionList").flatMap { file =>
           getCSRFToken.flatMap { csrfToken =>
             client
               .expect[Json](
                 Method
-                  .POST(
-                    Uri.unsafeFromString(s"https://${dojo.domain.toString}/graphql/"),
-                    headers = commonHeaders(csrfToken)
-                  )
+                  .POST(graphqlUrl, headers = commonHeaders(csrfToken))
                   .withEntity(
                     LeetCodeGraphQLRequest(
                       operationName = "problemsetQuestionList",
@@ -285,6 +322,32 @@ object LeetCodeApi {
               }
           }
 
+        }
+      }
+    }
+
+    override def getQuestionData(slug: String): F[LeetCodeChallengeData] = useClient { client =>
+      openGraphQLFile(dojo, "questionData").flatMap { queryContent =>
+        getCSRFToken.flatMap { csrfToken =>
+          client
+            .expect[Json](
+              Method
+                .POST(graphqlUrl, headers = commonHeaders(csrfToken))
+                .withEntity(
+                  LeetCodeGraphQLRequest(
+                    operationName = "questionData",
+                    query = queryContent,
+                    variables = Map("titleSlug" -> slug).asJsonObject
+                  )
+                )
+            )
+            .flatMap { json =>
+              JsonPath.root.data.question.json
+                .getOption(json)
+                .toRight(ApiError.InvalidContent(dojo, "can not find 'data.question' in json"))
+                .flatMap(_.as[LeetCodeChallengeData])
+                .liftTo[F]
+            }
         }
       }
     }

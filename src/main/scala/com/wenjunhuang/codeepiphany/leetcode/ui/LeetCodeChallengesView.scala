@@ -31,7 +31,7 @@ class LeetCodeChallengesView(private val myProject: Project, private val myCodeD
     with UiDataProvider
     with Disposable {
 
-  implicit private val httpClientManager: HttpClientManager[IO] =
+  private implicit val httpClientManager: HttpClientManager[IO] =
     HttpClientService.getInstance(myProject).httpClientManager
 
   private val myUnauthenticatedView    = UnauthenticatedView(myCodeDojo)
@@ -54,12 +54,13 @@ class LeetCodeChallengesView(private val myProject: Project, private val myCodeD
       (console.info[IO](myProject, s"Logging in to ${myCodeDojo.show}...") *>
         loadAuthenticationMayAskForLogin[IO](myProject, myCodeDojo).flatMap {
           case AskForLoginResult.Done =>
-            myQueryParamPresenter.getInitialData // Load data for the first time before switching to the UI
-              *> IO.delay {
-                myProject.getMessageBus.syncPublisher(messages.LOGIN_LOGOUT_TOPIC).login(myCodeDojo)
-                myHasLoggedIn = true
-                mySwitchUIProvider.switchTo(QueryParameters)
-              }.evalOnEDTAny() *> console.info[IO](myProject, s"Logged in to ${myCodeDojo.show}.")
+            myQueryParamPresenter.getInitialData.map { initData =>
+              myKeywordSearchPresenter.setInitialData(initData) // Load data for the first time before switching to the UI
+            } *> IO.delay {
+              myProject.getMessageBus.syncPublisher(messages.LOGIN_LOGOUT_TOPIC).login(myCodeDojo)
+              myHasLoggedIn = true
+              mySwitchUIProvider.switchTo(QueryParameters)
+            }.evalOnEDTAny() *> console.info[IO](myProject, s"Logged in to ${myCodeDojo.show}.")
           case _ => console.info[IO](myProject, s"Login to ${myCodeDojo.show} canceled.")
         }.handleErrorWith { e =>
           myLogger.warn(e)("Failed to login") *>

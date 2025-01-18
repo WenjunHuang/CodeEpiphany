@@ -1,8 +1,10 @@
-package com.wenjunhuang.codeepiphany.model
+package com.wenjunhuang.codeepiphany.hackerrank.model
 
 import scala.beans.BeanProperty
 
-case class ChallengeCodeTemplate(
+import com.wenjunhuang.codeepiphany.model.{CodeDojo, Language, LanguageVersion}
+
+case class HackerRankChallengeCodeTemplate(
   @BeanProperty
   dojoId: String,
   dojo: CodeDojo,
@@ -20,7 +22,7 @@ case class ChallengeCodeTemplate(
   @BeanProperty
   difficulty: String,
   language: Language,
-  languageVersion:LanguageVersion
+  languageVersion: LanguageVersion
 ) {
   def getHeader: String = language.makeCodeRegion(header)
 
@@ -28,8 +30,10 @@ case class ChallengeCodeTemplate(
 
   def getTail: String = language.makeCodeRegion(tail)
 
-  def getCode: String = language.makeCodeRegion("$header\n$template\n$tail")
-  
-  def getDojo:String = dojo.value
-  
+  def getCode: String = language.makeCodeRegion(s"$header\n$template\n$tail")
+
+  def getCodeDojo: String = dojo.value
+
+  def getLanguage: String        = language.value
+  def getLanguageVersion: String = languageVersion.version
 }

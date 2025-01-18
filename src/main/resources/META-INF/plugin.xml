@@ -176,6 +176,9 @@
                              displayName="Code Epiphany"
                              id="CodeEpiphany.Settings"
                              instance="com.wenjunhuang.codeepiphany.settings.CodeEpiphanySettingsConfigurable">
+            <configurable id="CodeEpiphany.Settings.LeetCodeCN"
+                          instance="com.wenjunhuang.codeepiphany.leetcode.settings.LeetCodeCNSettingsConfigurable"
+                          key="leetcodecn.settings.displayName"/>
             <configurable
                     id="CodeEpiphany.Settings.HackerRank"
                     instance="com.wenjunhuang.codeepiphany.hackerrank.settings.HackerRankSettingsConfigurable"

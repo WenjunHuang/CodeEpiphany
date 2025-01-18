@@ -157,6 +157,14 @@ class KeywordSearchViewPresenter(private val myProject: Project, private val myC
 
   Disposer.register(myProject, this)
 
+  @volatile
+  private var myInitialData = QueryParametersPresenter.EMPTY_INITIAL_DATA
+
+  def setInitialData(data: QueryParametersPresenter.InitialData): Unit = {
+    myInitialData = data
+    myView.getTableModel.userIsPremium = data.userInfo.isPremium.contains(true)
+  }
+
   def uiDataSnapshot(dataSink: DataSink): Unit = {
     dataSink.set(CHALLENGE_PROVIDER_KEY, myChallengeProvider)
     dataSink.set(PAGINATION_PROVIDER_KEY, myPaginationProvider)

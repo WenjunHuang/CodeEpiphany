@@ -153,6 +153,15 @@ class LeetcodeApiIntegrationTest extends BasePlatformTestCase {
     leetCodeApi.getUserInfo().map { userInfo =>
       assertThat(userInfo.userSlug, not(None))
     }.unsafeRunSync()
+  }
+
+  def testGetQuestion():Unit = {
+    val httpClientService = HttpClientService.getInstance(getProject)
+    import httpClientService.*
+    val leetCodeCNApi = LeetCodeApi[IO](LeetCodeCN)
+    val leetCodeApi = LeetCodeApi[IO](LeetCode)
+
+    println(leetCodeCNApi.getQuestionData("median-of-two-sorted-arrays").unsafeRunSync())
 
   }
 }

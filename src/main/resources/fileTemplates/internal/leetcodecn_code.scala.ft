@@ -1,0 +1,9 @@
+package leetcodecn
+
+object $velocity.camelCaseName(${challenge.slug}) {
+    $challenge.code
+}
+
+@main
+def $velocity.smallCamelCaseName(${challenge.slug})(args: Array[String]) {
+}

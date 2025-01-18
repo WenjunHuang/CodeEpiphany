@@ -1,0 +1,22 @@
+{
+  "cpp": "class Solution {\npublic:\n    double findMedianSortedArrays(vector<int>& nums1, vector<int>& nums2) {\n        \n    }\n};",
+  "java": "class Solution {\n    public double findMedianSortedArrays(int[] nums1, int[] nums2) {\n        \n    }\n}",
+  "python": "class Solution(object):\n    def findMedianSortedArrays(self, nums1, nums2):\n        \"\"\"\n        :type nums1: List[int]\n        :type nums2: List[int]\n        :rtype: float\n        \"\"\"\n        ",
+  "python3": "class Solution:\n    def findMedianSortedArrays(self, nums1: List[int], nums2: List[int]) -> float:\n        ",
+  "c": "double findMedianSortedArrays(int* nums1, int nums1Size, int* nums2, int nums2Size) {\n    \n}",
+  "csharp": "public class Solution {\n    public double FindMedianSortedArrays(int[] nums1, int[] nums2) {\n        \n    }\n}",
+  "javascript": "/**\n * @param {number[]} nums1\n * @param {number[]} nums2\n * @return {number}\n */\nvar findMedianSortedArrays = function(nums1, nums2) {\n    \n};",
+  "typescript": "function findMedianSortedArrays(nums1: number[], nums2: number[]): number {\n    \n};",
+  "php": "class Solution {\n\n    /**\n     * @param Integer[] $nums1\n     * @param Integer[] $nums2\n     * @return Float\n     */\n    function findMedianSortedArrays($nums1, $nums2) {\n        \n    }\n}",
+  "swift": "class Solution {\n    func findMedianSortedArrays(_ nums1: [Int], _ nums2: [Int]) -> Double {\n        \n    }\n}",
+  "kotlin": "class Solution {\n    fun findMedianSortedArrays(nums1: IntArray, nums2: IntArray): Double {\n        \n    }\n}",
+  "dart": "class Solution {\n  double findMedianSortedArrays(List<int> nums1, List<int> nums2) {\n    \n  }\n}",
+  "go": "func findMedianSortedArrays(nums1 []int, nums2 []int) float64 {\n    \n}",
+  "ruby": "# @param {Integer[]} nums1\n# @param {Integer[]} nums2\n# @return {Float}\ndef find_median_sorted_arrays(nums1, nums2)\n    \nend",
+  "scala": "object Solution {\n    def findMedianSortedArrays(nums1: Array[Int], nums2: Array[Int]): Double = {\n        \n    }\n}",
+  "rust": "impl Solution {\n    pub fn find_median_sorted_arrays(nums1: Vec<i32>, nums2: Vec<i32>) -> f64 {\n        \n    }\n}",
+  "racket": "(define/contract (find-median-sorted-arrays nums1 nums2)\n  (-> (listof exact-integer?) (listof exact-integer?) flonum?)\n  )",
+  "erlang": "-spec find_median_sorted_arrays(Nums1 :: [integer()], Nums2 :: [integer()]) -> float().\nfind_median_sorted_arrays(Nums1, Nums2) ->\n  .",
+  "elixir": "defmodule Solution do\n  @spec find_median_sorted_arrays(nums1 :: [integer], nums2 :: [integer]) :: float\n  def find_median_sorted_arrays(nums1, nums2) do\n    \n  end\nend",
+  "cangjie": "class Solution {\n    func findMedianSortedArrays(nums1: Array<Int64>, nums2: Array<Int64>): Float64 {\n\n    }\n}"
+}

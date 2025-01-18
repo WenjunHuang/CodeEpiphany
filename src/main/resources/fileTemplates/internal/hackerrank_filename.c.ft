@@ -1,1 +1,1 @@
-${velocity.snakeCaseName([${challenge.id}]${challenge.slug})}
+${velocity.snakeCaseName(${challenge.slug})}

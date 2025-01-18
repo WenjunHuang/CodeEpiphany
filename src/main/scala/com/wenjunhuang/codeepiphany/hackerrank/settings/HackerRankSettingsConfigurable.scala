@@ -7,35 +7,35 @@ import java.nio.charset.StandardCharsets
 import java.util.Objects
 import org.apache.commons.io.IOUtils
 
-import com.intellij.openapi.options.ConfigurableBase
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.util.Disposer
 import com.intellij.openapi.util.text.StringUtil
 
 import com.wenjunhuang.codeepiphany.PluginBundle
+import com.wenjunhuang.codeepiphany.hackerrank.model.HackerRankChallengeCodeTemplate
 import com.wenjunhuang.codeepiphany.hackerrank.model.HackerRankContest.Master
-import com.wenjunhuang.codeepiphany.model.{ChallengeCodeTemplate, ChallengeDifficulty, Language, LanguageVersion}
+import com.wenjunhuang.codeepiphany.hackerrank.settings.HackerRankSettingsConfigurable.*
+import com.wenjunhuang.codeepiphany.model.*
 import com.wenjunhuang.codeepiphany.model.CodeDojo.HackerRank
 import com.wenjunhuang.codeepiphany.model.Language.*
 import com.wenjunhuang.codeepiphany.model.LanguageVersion.*
+import com.wenjunhuang.codeepiphany.settings.dojo.{BaseCodeDojoSettings, BaseSettingsConfigurable}
 
-class HackerRankSettingsConfigurable(private val myProject: Project)
-    extends ConfigurableBase[HackerRankSettingsForm, HackerRankSettings.HackerRankSettingsState](
+class HackerRankSettingsConfigurable(project: Project)
+    extends BaseSettingsConfigurable(
+      project,
+      CodeDojo.HackerRank,
       "CodeEpiphany.Settings.HackerRank",
       PluginBundle.message("hackerrank.settings.displayName"),
       "CodeEpiphany.Settings.HackerRank.HelpTopic"
     ) {
-  private val myDisposable = Disposer.newDisposable("HackerRankSettingsConfigurable")
-  override def getSettings: HackerRankSettings.HackerRankSettingsState = {
-    val settings = HackerRankSettings.getInstance(myProject)
-    settings.getState
-  }
 
-  override def disposeUIResources(): Unit = {
-    Disposer.dispose(myDisposable)
-  }
+  override def getSettings: BaseCodeDojoSettings.CodeDojoSettingsState =
+    HackerRankSettings.getInstance(myProject).getState
 
-  override def createUi(): HackerRankSettingsForm = HackerRankSettingsForm(myProject, myDisposable)
+  override def supportedLanguages: List[(Language, LanguageVersion)] = HACKERRANK_LANGUAGES
+
+  override def createDemoTemplate(language: Language, languageVersion: LanguageVersion): Option[HackerRankChallengeCodeTemplate] =
+    getDemoTemplate(language, languageVersion)
 }
 
 object HackerRankSettingsConfigurable {
@@ -50,7 +50,7 @@ object HackerRankSettingsConfigurable {
       )
     ).toOption.get
 
-  private def createCodeTemplate(): Map[(Language, LanguageVersion), ChallengeCodeTemplate] = {
+  private def createCodeTemplate(): Map[(Language, LanguageVersion), HackerRankChallengeCodeTemplate] = {
     val keys = List(
       (Julia, AnyVersion),
       (Java, AnyVersion),
@@ -60,7 +60,7 @@ object HackerRankSettingsConfigurable {
       (R, AnyVersion),
       (Kotlin, AnyVersion),
       (Typescript, AnyVersion),
-      (ERLANG, AnyVersion),
+      (Erlang, AnyVersion),
       (Cpp, AnyVersion),
       (Cpp, SpecificVersion("14")),
       (Cpp, SpecificVersion("20")),
@@ -98,7 +98,7 @@ object HackerRankSettingsConfigurable {
           .getOption(codeTemplateJson)
         (t, h, ta).mapN { (template, header, tail) =>
           (language, languageVersion) ->
-            ChallengeCodeTemplate(
+            HackerRankChallengeCodeTemplate(
               "23074",
               HackerRank,
               "Sherlock and Permutations",
@@ -120,9 +120,9 @@ object HackerRankSettingsConfigurable {
 
   private val DEMOS_CODE_TEMPLATES = createCodeTemplate()
 
-  val HACKERRANK_LANGUAGES: Array[(Language, LanguageVersion)] = DEMOS_CODE_TEMPLATES.keys.toArray.sorted
+  private val HACKERRANK_LANGUAGES: List[(Language, LanguageVersion)] = DEMOS_CODE_TEMPLATES.keys.toList.sorted
 
-  def getDemoTemplate(language: Language, languageVersion: LanguageVersion): Option[ChallengeCodeTemplate] =
+  def getDemoTemplate(language: Language, languageVersion: LanguageVersion): Option[HackerRankChallengeCodeTemplate] =
     DEMOS_CODE_TEMPLATES.get((language, languageVersion))
 
 }

@@ -7,7 +7,7 @@ import scala.collection.mutable
 
 import com.intellij.openapi.util.text.StringUtil
 
-import com.wenjunhuang.codeepiphany.model.LanguageVersion.{AnyVersion, SpecificVersion}
+import com.wenjunhuang.codeepiphany.model.LanguageVersion.{ AnyVersion, SpecificVersion }
 
 enum LanguageVersion {
   case AnyVersion
@@ -20,9 +20,9 @@ enum LanguageVersion {
 }
 
 object LanguageVersion {
-  def fromString(ver:String):LanguageVersion = ver match {
+  def fromString(ver: String): LanguageVersion = ver match {
     case null | "" => AnyVersion
-    case _  => SpecificVersion(ver)
+    case _         => SpecificVersion(ver)
   }
   implicit val ordering: Ordering[LanguageVersion] = (x: LanguageVersion, y: LanguageVersion) =>
     (x, y) match {
@@ -39,8 +39,10 @@ enum Language(val value: String, val fileExt: String, val show: String, val icon
   case Clojure    extends Language("clojure", "clj", "Clojure", CodeEpiphanyIcons.Languages.CLOJURE)
   case Cpp        extends Language("cpp", "cc", "C++", CodeEpiphanyIcons.Languages.CPP)
   case CSharp     extends Language("csharp", "cs", "C#", CodeEpiphanyIcons.Languages.CSHARP)
+  case Cangjie     extends Language("cangie", "cj", "Cangjie", CodeEpiphanyIcons.Languages.CANGJIE)
   case Dart       extends Language("dart", "dart", "Dart", CodeEpiphanyIcons.Languages.DART)
-  case ERLANG     extends Language("erlang", "erl", "Erlang", CodeEpiphanyIcons.Languages.ERLANG)
+  case Erlang     extends Language("erlang", "erl", "Erlang", CodeEpiphanyIcons.Languages.ERLANG)
+  case Elixir     extends Language("elixir", "ex", "Elixir", CodeEpiphanyIcons.Languages.ELIXIR)
   case GO         extends Language("go", "go", "Go", CodeEpiphanyIcons.Languages.GO)
   case Haskell    extends Language("haskell", "hs", "Haskell", CodeEpiphanyIcons.Languages.HASKELL)
   case Java       extends Language("java", "java", "Java", CodeEpiphanyIcons.Languages.JAVA)
@@ -53,6 +55,7 @@ enum Language(val value: String, val fileExt: String, val show: String, val icon
   case Pypy       extends Language("pypy", "py", "Pypy", CodeEpiphanyIcons.Languages.PYTHON)
   case Python     extends Language("python", "py", "Python", CodeEpiphanyIcons.Languages.PYTHON)
   case R          extends Language("r", "r", "R", CodeEpiphanyIcons.Languages.R)
+  case Racket     extends Language("racket", "rkt", "Racket", CodeEpiphanyIcons.Languages.RACKET)
   case Ruby       extends Language("ruby", "rb", "Ruby", CodeEpiphanyIcons.Languages.RUBY)
   case Rust       extends Language("rust", "rs", "Rust", CodeEpiphanyIcons.Languages.RUST)
   case Scala      extends Language("scala", "scala", "Scala", CodeEpiphanyIcons.Languages.SCALA)
@@ -69,7 +72,7 @@ enum Language(val value: String, val fileExt: String, val show: String, val icon
       s"#$comment"
     case Haskell =>
       s"--$comment"
-    case ERLANG =>
+    case Erlang =>
       s"%$comment"
   }
 
@@ -85,8 +88,7 @@ enum Language(val value: String, val fileExt: String, val show: String, val icon
     var inRegion = false
     StringUtil.splitByLinesDontTrim(code).foreach { line =>
       val trimmed = line.trim
-      if StringUtil.equals(trimmed, begin) then
-        inRegion = true
+      if StringUtil.equals(trimmed, begin) then inRegion = true
       else if StringUtil.equals(trimmed, end) then
         if inRegion then
           inRegion = false

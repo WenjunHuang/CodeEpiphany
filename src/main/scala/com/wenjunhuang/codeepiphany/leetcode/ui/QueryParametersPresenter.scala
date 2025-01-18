@@ -42,8 +42,9 @@ import com.wenjunhuang.codeepiphany.model.*
 import com.wenjunhuang.codeepiphany.services.http.{ HttpClientManager, HttpClientService }
 import com.wenjunhuang.codeepiphany.utils.extensions.*
 import com.wenjunhuang.codeepiphany.utils.implicits.*
-
 import QueryParametersPresenter.*
+import com.wenjunhuang.codeepiphany.leetcode.services.challenge.openChallenge
+import com.wenjunhuang.codeepiphany.leetcode.settings.LeetCodeCNSettings
 
 class QueryParametersPresenter(private val myProject: Project, private val myCodeDojo: CodeDojo)
     extends OrderDirectionProvider[LeetCodeSearchOrderBy]
@@ -59,7 +60,7 @@ class QueryParametersPresenter(private val myProject: Project, private val myCod
   private val myView = QueryParametersView(myProject, this, myCodeDojo)
 
   @volatile
-  private var myInitialData = InitialData(LeetCodeUserInfo.EMPTY_USERINFO)
+  private var myInitialData = EMPTY_INITIAL_DATA
   @volatile
   private var myState: QueryParams = EMPTY_STATE
 
@@ -148,10 +149,12 @@ class QueryParametersPresenter(private val myProject: Project, private val myCod
     requery()
   }
 
-  def getInitialData: IO[Unit] = {
+  def getInitialData: IO[InitialData] = {
     (myApi.getUserInfo(), myApi.getCategoryList, myApi.getFavoriteList, myApi.getTagTypeWithTags).parMapN {
       (userInfo, categories, favorites, tagTypeWithTags) =>
+        myView.getTableModel.userIsPremium = userInfo.isPremium.contains(true)
         myInitialData = InitialData(userInfo, categories, favorites, tagTypeWithTags)
+        myInitialData
     }
   }
 
@@ -197,10 +200,14 @@ class QueryParametersPresenter(private val myProject: Project, private val myCod
     override def openCurrentSelectedChallenge(language: Language, languageVersion: LanguageVersion): Unit = {
       Option(myView.getTable.getSelectedObject) match
         case Some(selected) =>
-        case None           => ()
+          openChallenge[IO](myProject, myCodeDojo, selected.titleSlug, language, languageVersion).unsafeRunAndForget()
+        case None => ()
     }
 
-    override def getLanguages: List[(Language, LanguageVersion)] = ???
+    override def getLanguages: List[(Language, LanguageVersion)] = {
+      val settings = LeetCodeCNSettings.getInstance(myProject)
+      settings.getSelectedLanguages
+    }
 
   }
 
@@ -475,14 +482,14 @@ class QueryParametersPresenter(private val myProject: Project, private val myCod
 }
 
 object QueryParametersPresenter {
-  private case class InitialData(
+  case class InitialData(
     userInfo: LeetCodeUserInfo,
     categories: List[LeetCodeCategoryListItem] = Nil,
     favorites: List[LeetCodeFavoriteItem] = Nil,
     tagTypeWithTags: List[LeetCodeTagTypeWithTags] = Nil
   )
 
-  private case class QueryParams(
+  case class QueryParams(
     selectedCategory: Option[LeetCodeCategoryListItem],
     selectedFavorite: Option[LeetCodeFavoriteItem],
     selectedDifficulty: Option[ChallengeDifficulty],
@@ -498,7 +505,8 @@ object QueryParametersPresenter {
     def resetPagination(): QueryParams  = this.copy(currentPage = 1, totalSize = 1)
   }
 
-  private final val EMPTY_STATE = QueryParams(None, None, None, None, Nil, None, Nil, 1, 1, PageSize.Twenty)
+  final val EMPTY_STATE: QueryParams = QueryParams(None, None, None, None, Nil, None, Nil, 1, 1, PageSize.Twenty)
+  final val EMPTY_INITIAL_DATA       = InitialData(LeetCodeUserInfo.EMPTY_USERINFO)
 
   private val CATEGORY_TAG_RADIUS   = 0.1f
   private val FAVORITE_TAG_RADIUS   = 0.2f

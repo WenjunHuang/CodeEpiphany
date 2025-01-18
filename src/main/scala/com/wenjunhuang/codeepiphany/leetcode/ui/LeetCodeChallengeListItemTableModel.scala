@@ -31,21 +31,26 @@ class LeetCodeChallengeListItemTableModel(
   private val myCodeDojo: CodeDojo
 ) extends ListTableModel[LeetCodeChallengeListItem]() {
 
+  @volatile
+  var userIsPremium = false
+
   private val myColumns: Array[OrderByColumnInfo[LeetCodeChallengeListItem, ?]] = Array(
-    new OrderByColumnInfo[LeetCodeChallengeListItem, ChallengeStatus](Status.title) {
-      override def valueOf(item: LeetCodeChallengeListItem): ChallengeStatus = item.status
-        .map(myCodeDojo.fromLeetCodeStatus)
-        .getOrElse(ChallengeStatus.Unsolved)
+    new OrderByColumnInfo[LeetCodeChallengeListItem, Icon](Status.title) {
+      override def valueOf(item: LeetCodeChallengeListItem): Icon =
+        if item.paidOnly && !userIsPremium then AllIcons.Diff.Lock
+        else
+          item.status
+            .map(myCodeDojo.fromLeetCodeStatus)
+            .getOrElse(ChallengeStatus.Unsolved) match
+            case ChallengeStatus.Solved   => AllIcons.General.GreenCheckmark
+            case ChallengeStatus.Tried    => AllIcons.General.Modified
+            case ChallengeStatus.Unsolved => null
 
       override def getPreferredStringValue: String = Status.title
 
       override def getRenderer(item: LeetCodeChallengeListItem): TableCellRenderer =
-        new IconTableCellRenderer[ChallengeStatus]() {
-          override def getIcon(value: ChallengeStatus, table: JTable, row: Int): Icon =
-            value match
-              case ChallengeStatus.Solved   => AllIcons.General.GreenCheckmark
-              case ChallengeStatus.Tried    => AllIcons.General.Modified
-              case ChallengeStatus.Unsolved => null
+        new IconTableCellRenderer[Icon]() {
+          override def getIcon(value: Icon, table: JTable, row: Int): Icon = value
 
           override def isCenterAlignment: Boolean = true
 
@@ -66,6 +71,13 @@ class LeetCodeChallengeListItemTableModel(
       override def setOrderFilter(filter: Option[OrderDirection]): Unit = {
         myOrderProvider.setDirectionOf(LeetCodeSearchOrderBy.FontEndId, filter)
       }
+
+      override def getRenderer(item: LeetCodeChallengeListItem): TableCellRenderer =
+        new DefaultTableCellRenderer() {
+          setHorizontalTextPosition(SwingConstants.LEADING)
+          if item.paidOnly && userIsPremium then setIcon(AllIcons.Ide.Readwrite)
+          setEnabled(!item.paidOnly || (item.paidOnly && userIsPremium))
+        }
     },
     new OrderByColumnInfo[LeetCodeChallengeListItem, String](Solution.title) {
       override def valueOf(item: LeetCodeChallengeListItem): String = item.solutionNum.toString
@@ -80,6 +92,11 @@ class LeetCodeChallengeListItemTableModel(
       override def setOrderFilter(filter: Option[OrderDirection]): Unit = {
         myOrderProvider.setDirectionOf(LeetCodeSearchOrderBy.SolutionNum, filter)
       }
+
+      override def getRenderer(item: LeetCodeChallengeListItem): TableCellRenderer =
+        new DefaultTableCellRenderer() {
+          setHorizontalAlignment(SwingConstants.RIGHT)
+        }
     },
     new OrderByColumnInfo[LeetCodeChallengeListItem, String](Difficulty.title) {
       override def valueOf(item: LeetCodeChallengeListItem): String =

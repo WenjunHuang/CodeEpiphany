@@ -49,10 +49,14 @@ object CodeEpiphanyIcons {
       IconLoader.getIcon("/icons/languages/cpp.svg", CodeEpiphanyIcons.getClass.getClassLoader)
     final val CSHARP: Icon =
       IconLoader.getIcon("/icons/languages/csharp.svg", CodeEpiphanyIcons.getClass.getClassLoader)
+    final val CANGJIE: Icon =
+      IconLoader.getIcon("/icons/languages/cangjie.svg", CodeEpiphanyIcons.getClass.getClassLoader)
     final val DART: Icon =
       IconLoader.getIcon("/icons/languages/dart.svg", CodeEpiphanyIcons.getClass.getClassLoader)
     final val ERLANG: Icon =
       IconLoader.getIcon("/icons/languages/erlang.svg", CodeEpiphanyIcons.getClass.getClassLoader)
+    final val ELIXIR: Icon =
+      IconLoader.getIcon("/icons/languages/elixir.svg", CodeEpiphanyIcons.getClass.getClassLoader)
     final val GO: Icon =
       IconLoader.getIcon("/icons/languages/go.svg", CodeEpiphanyIcons.getClass.getClassLoader)
     final val HASKELL: Icon =
@@ -79,6 +83,8 @@ object CodeEpiphanyIcons {
       IconLoader.getIcon("/icons/languages/ruby.svg", CodeEpiphanyIcons.getClass.getClassLoader)
     final val RUST: Icon =
       IconLoader.getIcon("/icons/languages/rust.svg", CodeEpiphanyIcons.getClass.getClassLoader)
+    final val RACKET: Icon =
+      IconLoader.getIcon("/icons/languages/racket.svg", CodeEpiphanyIcons.getClass.getClassLoader)
     final val SCALA: Icon =
       IconLoader.getIcon("/icons/languages/scala.svg", CodeEpiphanyIcons.getClass.getClassLoader)
     final val SWIFT: Icon =

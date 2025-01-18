@@ -1,4 +1,4 @@
-package com.wenjunhuang.codeepiphany.hackerrank.settings;
+package com.wenjunhuang.codeepiphany.settings.dojo;
 
 import com.intellij.icons.AllIcons;
 import com.intellij.openapi.Disposable;
@@ -19,6 +19,8 @@ import com.intellij.uiDesigner.core.Spacer;
 import com.intellij.util.ui.JBUI;
 import com.intellij.util.ui.components.BorderLayoutPanel;
 import com.wenjunhuang.codeepiphany.PluginBundle;
+import com.wenjunhuang.codeepiphany.hackerrank.model.HackerRankChallengeCodeTemplate;
+import com.wenjunhuang.codeepiphany.model.CodeDojo;
 import com.wenjunhuang.codeepiphany.model.Language;
 import com.wenjunhuang.codeepiphany.model.LanguageVersion;
 import com.wenjunhuang.codeepiphany.settings.SettingsUi;
@@ -29,28 +31,35 @@ import scala.Tuple2;
 
 import javax.swing.*;
 import java.awt.*;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
+import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 
-public class HackerRankSettingsForm extends SettingsUi<HackerRankSettings.HackerRankSettingsState> {
+public class CodeDojoSettingsForm extends SettingsUi<BaseCodeDojoSettings.CodeDojoSettingsState> {
     private JBTabsEx myTabs;
     private JPanel rootPanel;
     private JComponent tabPanel;
-    private DefaultActionGroup myLanguagesActionGroup;
-    private Map<Tuple2<Language, LanguageVersion>, LanguageSettingsPanel> myLanguagesPanels = new HashMap<>();
+    private final DefaultActionGroup myLanguagesActionGroup;
+    private final Map<Tuple2<Language, LanguageVersion>, LanguageSettingsPanel> myLanguagesPanels = new HashMap<>();
     private TabInfo myInitTab;
+    private BiFunction<Language, LanguageVersion, Object> myDemoTemplateSupplier;
+    private CodeDojo myCodeDojo;
 
-    public HackerRankSettingsForm(Project project, Disposable parentDisposable) {
+    public CodeDojoSettingsForm(Project project,
+                                CodeDojo codeDojo,
+                                Collection<Tuple2<Language, LanguageVersion>> languages,
+                                BiFunction<Language, LanguageVersion, Object> demoTemplateSupplier,
+                                Disposable parentDisposable) {
         super(project);
         Disposer.register(parentDisposable, this);
+
         myLanguagesActionGroup = new DefaultActionGroup("Languages", null, AllIcons.General.Add);
-        Arrays.stream(HackerRankSettingsConfigurable.HACKERRANK_LANGUAGES()).forEach((language) -> {
+        languages.forEach((language) -> {
             myLanguagesActionGroup.add(new LanguageAction(language._1(), language._2()));
         });
         myLanguagesActionGroup.setPopup(true);
+        myDemoTemplateSupplier = demoTemplateSupplier;
+        myCodeDojo = codeDojo;
 
 
         $$$setupUI$$$();
@@ -111,7 +120,7 @@ public class HackerRankSettingsForm extends SettingsUi<HackerRankSettings.Hacker
 
         @Override
         public void actionPerformed(@NotNull AnActionEvent e) {
-            var state = new HackerRankSettings.HackerRankLanguageSettingsState();
+            var state = new BaseCodeDojoSettings.LanguageSettingsState();
             state.language_$eq(JavaUtils.toOption(myLanguage));
             state.languageVersion_$eq(JavaUtils.toOption(myLanguageVersion));
             addNewLanguageSetting(state);
@@ -129,8 +138,10 @@ public class HackerRankSettingsForm extends SettingsUi<HackerRankSettings.Hacker
         }
     }
 
-    private void addNewLanguageSetting(HackerRankSettings.HackerRankLanguageSettingsState languageSettingsState) {
-        var languageSettings = new LanguageSettingsPanel(myProject());
+    private void addNewLanguageSetting(BaseCodeDojoSettings.LanguageSettingsState languageSettingsState) {
+        var languageSettings = new LanguageSettingsPanel(myProject(),
+                myCodeDojo,
+                myDemoTemplateSupplier);
         languageSettings.reset(languageSettingsState);
         var language = languageSettingsState.language().get();
         var languageVer = languageSettingsState.languageVersion().get();
@@ -149,14 +160,14 @@ public class HackerRankSettingsForm extends SettingsUi<HackerRankSettings.Hacker
     }
 
     @Override
-    public void reset(@NotNull HackerRankSettings.HackerRankSettingsState settings) {
+    public void reset(@NotNull BaseCodeDojoSettings.CodeDojoSettingsState settings) {
         myTabs.removeAllTabs();
         myTabs.addTab(myInitTab);
         settings.getLanguageSettings().forEach(this::addNewLanguageSetting);
     }
 
     @Override
-    public boolean isModified(@NotNull HackerRankSettings.HackerRankSettingsState settings) {
+    public boolean isModified(@NotNull BaseCodeDojoSettings.CodeDojoSettingsState settings) {
         var oldLangs = settings.getLanguageSettings().stream().map(setting -> new Tuple2<>(setting.language().get(), setting.languageVersion().get()))
                 .collect(Collectors.toSet());
         var newLangs = myLanguagesPanels.keySet();
@@ -176,11 +187,11 @@ public class HackerRankSettingsForm extends SettingsUi<HackerRankSettings.Hacker
     }
 
     @Override
-    public void apply(@NotNull HackerRankSettings.HackerRankSettingsState settings) throws ConfigurationException {
-        var states = new ArrayList<HackerRankSettings.HackerRankLanguageSettingsState>();
+    public void apply(@NotNull BaseCodeDojoSettings.CodeDojoSettingsState settings) throws ConfigurationException {
+        var states = new ArrayList<BaseCodeDojoSettings.LanguageSettingsState>();
         for (var languageSettings : myLanguagesPanels.entrySet()) {
             try {
-                var state = new HackerRankSettings.HackerRankLanguageSettingsState();
+                var state = new BaseCodeDojoSettings.LanguageSettingsState();
                 languageSettings.getValue().apply(state);
                 states.add(state);
             } catch (ConfigurationException e) {

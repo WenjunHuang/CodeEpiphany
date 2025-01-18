@@ -16,6 +16,7 @@ case class LeetCodeChallengeListItem(
   status: Option[String] = None,
   frontendQuestionId: String,
   title: String,
-  titleCn: Option[String] = None
+  titleCn: Option[String] = None,
+  titleSlug:String
 ) derives ConfiguredDecoder,
       ConfiguredEncoder

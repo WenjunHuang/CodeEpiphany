@@ -110,8 +110,7 @@ object HackerRankApi {
           }
       }
 
-    override def getChallengeContent(
-                                      problemSlug: String,
+    override def getChallengeContent(problemSlug: String,
                                       contest: HackerRankContest // hackerrank contest such as 'projecteuler'
     ): F[HackerRankChallengeContent] =
       HttpClientManager[F].getClient.use { client =>

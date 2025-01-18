@@ -4,10 +4,10 @@ import java.io.StringWriter
 import org.apache.velocity.VelocityContext
 import org.apache.velocity.app.Velocity
 
-import com.wenjunhuang.codeepiphany.model.{ChallengeCodeTemplate, Constants}
+import com.wenjunhuang.codeepiphany.model.Constants
 
 object VelocityUtils {
-  def generateContent(template: String, challenge: ChallengeCodeTemplate): Either[Exception, String] = {
+  def generateContent(template: String, challenge: Any): Either[Exception, String] = {
     val context = new VelocityContext()
     context.put("challenge", challenge)
     context.put("velocity", VelocityTool)

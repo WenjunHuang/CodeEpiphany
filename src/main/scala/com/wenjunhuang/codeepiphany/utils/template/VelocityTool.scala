@@ -18,4 +18,6 @@ object VelocityTool {
   def snakeCaseName(str: String): String = str match
     case null => ""
     case _    => str.split("(?=[A-Z])").map(_.toLowerCase).mkString("_")
+
+  override def toString: String = ""
 }

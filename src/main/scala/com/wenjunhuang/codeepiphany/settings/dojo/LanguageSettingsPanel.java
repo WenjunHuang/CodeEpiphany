@@ -1,4 +1,4 @@
-package com.wenjunhuang.codeepiphany.hackerrank.settings;
+package com.wenjunhuang.codeepiphany.settings.dojo;
 
 import com.intellij.codeInsight.hint.EditorFragmentComponent;
 import com.intellij.icons.AllIcons;
@@ -31,6 +31,8 @@ import com.intellij.util.ui.HTMLEditorKitBuilder;
 import com.intellij.util.ui.JBUI;
 import com.intellij.xml.util.XmlStringUtil;
 import com.wenjunhuang.codeepiphany.PluginBundle;
+import com.wenjunhuang.codeepiphany.hackerrank.model.HackerRankChallengeCodeTemplate;
+import com.wenjunhuang.codeepiphany.model.CodeDojo;
 import com.wenjunhuang.codeepiphany.model.Language;
 import com.wenjunhuang.codeepiphany.model.LanguageVersion;
 import com.wenjunhuang.codeepiphany.model.template.ChallengeFileTemplateHighlighter;
@@ -52,9 +54,10 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Objects;
 import java.util.ResourceBundle;
+import java.util.function.BiFunction;
 import java.util.stream.Stream;
 
-public class LanguageSettingsPanel extends SettingsUi<HackerRankSettings.HackerRankLanguageSettingsState> {
+public class LanguageSettingsPanel extends SettingsUi<BaseCodeDojoSettings.LanguageSettingsState> {
     private TextFieldWithBrowseButton mySourceFolder;
     private EditorTextField myFileNameEditor;
     private EditorTextField myFileNamePreview;
@@ -70,12 +73,20 @@ public class LanguageSettingsPanel extends SettingsUi<HackerRankSettings.HackerR
     private JEditorPane myDescription;
     private Language myLanguage;
     private LanguageVersion myLanguageVersion;
+    private BiFunction<Language, LanguageVersion, Object> myDemoTemplateSupplier;
+    private CodeDojo myCodeDojo;
 
-    public LanguageSettingsPanel(Project project) {
+    public LanguageSettingsPanel(Project project,
+                                 CodeDojo codeDojo,
+                                 BiFunction<Language, LanguageVersion, Object> demoTemplateSupplier) {
         super(project);
+
+        myDemoTemplateSupplier = demoTemplateSupplier;
+        myCodeDojo = codeDojo;
+
         $$$setupUI$$$();
 
-        mySourceFolder.addBrowseFolderListener(PluginBundle.message("hackerrank.ui.settings.sourceFolder.title"),
+        mySourceFolder.addBrowseFolderListener(PluginBundle.message("ui.settings.sourceFolder.title"),
                 null,
                 project, FileChooserDescriptorFactory.createSingleFolderDescriptor());
 
@@ -85,7 +96,7 @@ public class LanguageSettingsPanel extends SettingsUi<HackerRankSettings.HackerR
                 .withValidator(() -> {
                     String text = mySourceFolder.getText();
                     if (StringUtil.isEmpty(text)) {
-                        return new ValidationInfo(PluginBundle.message("hackerrank.ui.settings.sourceFolder.error.empty"), mySourceFolder);
+                        return new ValidationInfo(PluginBundle.message("ui.settings.sourceFolder.error.empty"), mySourceFolder);
                     }
                     return null;
                 }).installOn(mySourceFolder);
@@ -93,7 +104,7 @@ public class LanguageSettingsPanel extends SettingsUi<HackerRankSettings.HackerR
                 .withValidator(() -> {
                     String text = myFileNameEditor.getText();
                     if (StringUtil.isEmpty(text)) {
-                        return new ValidationInfo(PluginBundle.message("hackerrank.ui.settings.fileName.error.empty"), myFileNameEditor);
+                        return new ValidationInfo(PluginBundle.message("ui.settings.fileName.error.empty"), myFileNameEditor);
                     }
                     return null;
                 }).installOn(myFileNameEditor);
@@ -101,7 +112,7 @@ public class LanguageSettingsPanel extends SettingsUi<HackerRankSettings.HackerR
                 .withValidator(() -> {
                     var text = myCodeTemplateEditor.getText();
                     if (StringUtil.isEmpty(text))
-                        return new ValidationInfo(PluginBundle.message("hackerrank.ui.settings.codeTemplate.error.empty"), myCodeTemplateEditor);
+                        return new ValidationInfo(PluginBundle.message("ui.settings.codeTemplate.error.empty"), myCodeTemplateEditor);
                     return null;
                 }).installOn(myCodeTemplateEditor);
 
@@ -119,28 +130,6 @@ public class LanguageSettingsPanel extends SettingsUi<HackerRankSettings.HackerR
         } catch (Exception ignored) {
         }
     }
-
-//    private void initLanguageComboBox() {
-//        myLanguages.setModel(new DefaultComboBoxModel<>(HackerRankSettingsConfigurable.HACKERRANK_LANGUAGES()));
-//        myLanguages.setRenderer((list, value, index, isSelected, cellHasFocus) -> {
-//            if (value == null) {
-//                return new JBLabel(PluginBundle.message("hackerrank.ui.settings.language.hint"));
-//            } else return new JBLabel(value._1.show() + value._2.version(), value._1.icon(), SwingConstants.LEFT);
-//        });
-//        myLanguages.addItemListener(e -> {
-//            if (e.getStateChange() == ItemEvent.SELECTED) {
-//                Optional.ofNullable((EditorEx) myCodeTemplateEditor.getEditor()).ifPresent(editor -> editor.setHighlighter(ChallengeFileTemplateHighlighter.createVelocityTemplateLanguageEditorHighlighter(myProject(),
-//                        JavaUtils.toOption(myLanguages.getItem()).map(Tuple2::_1))));
-//                Optional.ofNullable((EditorEx) myCodeTemplatePreview.getEditor())
-//                        .ifPresent(preview ->
-//                                preview.setHighlighter(ChallengeFileTemplateHighlighter.createLanguageEditorHighlighter(myProject(),
-//                                        JavaUtils.toOption(myLanguages.getItem()).map(Tuple2::_1))));
-//
-//                updateCodeTemplatePreview();
-//                updateFileNamePreview();
-//            }
-//        });
-//    }
 
     private void createUIComponents() {
         createFileNameGroup();
@@ -188,7 +177,7 @@ public class LanguageSettingsPanel extends SettingsUi<HackerRankSettings.HackerR
 
         myCodeTemplateToolbar = (ActionToolbarImpl) ((ActionManagerEx) ActionManager
                 .getInstance())
-                .createActionToolbar("HackerRankSetting.CodeTemplate", actionGroup, true, false, false);
+                .createActionToolbar("CodeTemplate", actionGroup, true, false, false);
         myCodeTemplateToolbar.setActionButtonBorder(JBUI.Borders.empty(0, 0, 0, 5));
         myCodeTemplateToolbar.setBorder(JBUI.Borders.empty());
         myCodeTemplateToolbar.setTargetComponent(myCodeTemplateEditor);
@@ -197,7 +186,7 @@ public class LanguageSettingsPanel extends SettingsUi<HackerRankSettings.HackerR
     @NotNull
     private DefaultActionGroup createCodeTemplateActionGroup() {
         var togglePreview = new ToggleAction(
-                PluginBundle.message("hackerrank.ui.settings.codeTemplate.action.togglePreview"),
+                PluginBundle.message("ui.settings.codeTemplate.action.togglePreview"),
                 null,
                 AllIcons.Actions.ToggleVisibility) {
             @Override
@@ -218,14 +207,14 @@ public class LanguageSettingsPanel extends SettingsUi<HackerRankSettings.HackerR
 
         var applyTemplate =
                 new DumbAwareAction(
-                        PluginBundle.message("hackerrank.ui.settings.codeTemplate.action.useDefaultTemplate"),
+                        PluginBundle.message("ui.settings.codeTemplate.action.useDefaultTemplate"),
                         null,
                         AllIcons.Actions.Refresh
                 ) {
                     @Override
                     public void actionPerformed(@NotNull AnActionEvent e) {
                         var template = FileTemplateManager.getInstance(myProject())
-                                .findInternalTemplate("hackerrank_code." + myLanguage.fileExt());
+                                .findInternalTemplate(myCodeDojo.value() + "_code." + myLanguage.fileExt());
                         if (template != null) {
                             myCodeTemplateEditor.setText(template.getText());
                         }
@@ -247,13 +236,13 @@ public class LanguageSettingsPanel extends SettingsUi<HackerRankSettings.HackerR
     private void updateCodeTemplatePreview() {
 
         var result = VelocityUtils.generateContent(myCodeTemplateEditor.getText(),
-                HackerRankSettingsConfigurable.getDemoTemplate(myLanguage, myLanguageVersion).get());
+                myDemoTemplateSupplier.apply(myLanguage, myLanguageVersion));
 
         ComponentValidator.getInstance(myCodeTemplateEditor).ifPresent(validator -> {
             switch (result) {
                 case Left<Exception, String> left -> {
                     validator.updateInfo(new ValidationInfo(left.value().getMessage(), myCodeTemplateEditor));
-                    myCodeTemplatePreview.setText(PluginBundle.message("hackerrank.ui.settings.codeTemplate.error.invalid"));
+                    myCodeTemplatePreview.setText(PluginBundle.message("ui.settings.codeTemplate.error.invalid"));
                 }
                 case Right<Exception, String> right -> {
                     validator.updateInfo(null);
@@ -266,13 +255,12 @@ public class LanguageSettingsPanel extends SettingsUi<HackerRankSettings.HackerR
     }
 
     private void updateFileNamePreview() {
-        var result = VelocityUtils.generateContent(myFileNameEditor.getText(),
-                HackerRankSettingsConfigurable.getDemoTemplate(myLanguage, myLanguageVersion).get());
+        var result = VelocityUtils.generateContent(myFileNameEditor.getText(), myDemoTemplateSupplier.apply(myLanguage, myLanguageVersion));
         switch (result) {
             case Left<Exception, String> left -> {
                 ComponentValidator.getInstance(myFileNameEditor).ifPresent(validator -> validator.updateInfo(new ValidationInfo(left.value().getMessage(), myFileNameEditor)));
 
-                myFileNamePreview.setText(PluginBundle.message("hackerrank.ui.settings.fileName.error.invalid"));
+                myFileNamePreview.setText(PluginBundle.message("ui.settings.fileName.error.invalid"));
             }
             case Right<Exception, String> right -> {
                 ComponentValidator.getInstance(myFileNameEditor).ifPresent(validator -> validator.updateInfo(null));
@@ -306,7 +294,7 @@ public class LanguageSettingsPanel extends SettingsUi<HackerRankSettings.HackerR
         myFileNameToolbar = (ActionToolbarImpl) ((ActionManagerEx) ActionManager
                 .getInstance())
                 .createActionToolbar("HackerRankSetting.FileName", actionGroup, true, false, false);
-        myFileNameToolbar.setActionButtonBorder(JBUI.Borders.empty(0, 0, 0, 5));
+        myFileNameToolbar.setActionButtonBorder(JBUI.Borders.emptyRight(5));
         myFileNameToolbar.setBorder(JBUI.Borders.empty());
         myFileNameToolbar.setTargetComponent(myFileNameEditor);
     }
@@ -314,7 +302,7 @@ public class LanguageSettingsPanel extends SettingsUi<HackerRankSettings.HackerR
     @NotNull
     private DefaultActionGroup createFileNameActionGroup() {
         var togglePreview = new ToggleAction(
-                PluginBundle.message("hackerrank.ui.settings.fileName.action.togglePreview"),
+                PluginBundle.message("ui.settings.fileName.action.togglePreview"),
                 null,
                 AllIcons.Actions.ToggleVisibility) {
             @Override
@@ -335,13 +323,13 @@ public class LanguageSettingsPanel extends SettingsUi<HackerRankSettings.HackerR
 
         var applyTemplate =
                 new DumbAwareAction(
-                        PluginBundle.message("hackerrank.ui.settings.fileName.action.useDefaultTemplate"),
+                        PluginBundle.message("ui.settings.fileName.action.useDefaultTemplate"),
                         null,
                         AllIcons.Actions.Refresh) {
                     @Override
                     public void actionPerformed(@NotNull AnActionEvent e) {
                         var template = FileTemplateManager.getInstance(myProject())
-                                .findInternalTemplate("hackerrank_filename." + myLanguage.fileExt());
+                                .findInternalTemplate(myCodeDojo.value() + "_filename." + myLanguage.fileExt());
                         if (template != null) {
                             myFileNameEditor.setText(template.getText());
                         }
@@ -361,7 +349,7 @@ public class LanguageSettingsPanel extends SettingsUi<HackerRankSettings.HackerR
     }
 
     @Override
-    public void apply(@NotNull HackerRankSettings.HackerRankLanguageSettingsState state) throws ConfigurationException {
+    public void apply(@NotNull BaseCodeDojoSettings.LanguageSettingsState state) throws ConfigurationException {
         var validationInfos = new ArrayList<ValidationInfo>();
         Stream.of(mySourceFolder, myFileNameEditor, myCodeTemplateEditor)
                 .map(ComponentValidator::getInstance)
@@ -396,7 +384,7 @@ public class LanguageSettingsPanel extends SettingsUi<HackerRankSettings.HackerR
     }
 
     @Override
-    public boolean isModified(HackerRankSettings.HackerRankLanguageSettingsState state) {
+    public boolean isModified(BaseCodeDojoSettings.LanguageSettingsState state) {
         var sourceFolder = StringUtil.equals(state.sourceFolder().getOrElse(() -> ""), mySourceFolder.getText());
         var codeTemplate = StringUtil.equals(state.codeTemplate().getOrElse(() -> ""), myCodeTemplateEditor.getText());
         var fileName = StringUtil.equals(state.fileNameTemplate().getOrElse(() -> ""), myFileNameEditor.getText());
@@ -404,7 +392,7 @@ public class LanguageSettingsPanel extends SettingsUi<HackerRankSettings.HackerR
     }
 
     @Override
-    public void reset(HackerRankSettings.HackerRankLanguageSettingsState state) {
+    public void reset(BaseCodeDojoSettings.LanguageSettingsState state) {
         mySourceFolder.setText(null);
         myLanguage = state.language().getOrElse(() -> null);
         myLanguageVersion = state.languageVersion().getOrElse(() -> null);
@@ -429,7 +417,7 @@ public class LanguageSettingsPanel extends SettingsUi<HackerRankSettings.HackerR
         rootPanel.setLayout(new GridLayoutManager(6, 2, new Insets(0, 0, 0, 0), -1, -1));
         rootPanel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEmptyBorder(5, 0, 0, 0), null, TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION, null, null));
         final JLabel label1 = new JLabel();
-        this.$$$loadLabelText$$$(label1, this.$$$getMessageFromBundle$$$("messages/PluginBundle", "hackerrank.ui.settings.sourceFolder.label"));
+        this.$$$loadLabelText$$$(label1, this.$$$getMessageFromBundle$$$("messages/PluginBundle", "ui.settings.sourceFolder.label"));
         rootPanel.add(label1, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         mySourceFolder = new TextFieldWithBrowseButton();
         rootPanel.add(mySourceFolder, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
@@ -442,7 +430,7 @@ public class LanguageSettingsPanel extends SettingsUi<HackerRankSettings.HackerR
         myFileNameLabel.setLayout(new BorderLayout(0, 0));
         rootPanel.add(myFileNameLabel, new GridConstraints(1, 0, 1, 2, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
         final JLabel label2 = new JLabel();
-        this.$$$loadLabelText$$$(label2, this.$$$getMessageFromBundle$$$("messages/PluginBundle", "hackerrank.ui.settings.fileName.title"));
+        this.$$$loadLabelText$$$(label2, this.$$$getMessageFromBundle$$$("messages/PluginBundle", "ui.settings.fileName.title"));
         myFileNameLabel.add(label2, BorderLayout.WEST);
         final Spacer spacer1 = new Spacer();
         myFileNameLabel.add(spacer1, BorderLayout.CENTER);
@@ -451,7 +439,7 @@ public class LanguageSettingsPanel extends SettingsUi<HackerRankSettings.HackerR
         myCodeTemplateLabel.setLayout(new BorderLayout(0, 0));
         rootPanel.add(myCodeTemplateLabel, new GridConstraints(3, 0, 1, 2, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
         final JLabel label3 = new JLabel();
-        this.$$$loadLabelText$$$(label3, this.$$$getMessageFromBundle$$$("messages/PluginBundle", "hackerrank.ui.settings.codeTemplate.label"));
+        this.$$$loadLabelText$$$(label3, this.$$$getMessageFromBundle$$$("messages/PluginBundle", "ui.settings.codeTemplate.label"));
         myCodeTemplateLabel.add(label3, BorderLayout.WEST);
         final Spacer spacer2 = new Spacer();
         myCodeTemplateLabel.add(spacer2, BorderLayout.CENTER);

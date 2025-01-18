@@ -1,4 +1,4 @@
-package com.wenjunhuang.codeepiphany.hackerrank.services
+package com.wenjunhuang.codeepiphany.leetcode.services
 
 import cats.effect.{ Async, Concurrent }
 import cats.effect.implicits.*
@@ -12,30 +12,29 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.{ MessageDialogBuilder, Messages }
 import com.intellij.openapi.util.text.StringUtil
 
-import com.wenjunhuang.codeepiphany.database.Tables.*
-import com.wenjunhuang.codeepiphany.hackerrank.model.{ HackerRankChallengeCodeTemplate, HackerRankContest }
-import com.wenjunhuang.codeepiphany.hackerrank.settings.{ HackerRankSettings, HackerRankSettingsConfigurable }
+import com.wenjunhuang.codeepiphany.database.Tables.{ CHALLENGE, CHALLENGE_LANGUAGE }
+import com.wenjunhuang.codeepiphany.leetcode.model.*
+import com.wenjunhuang.codeepiphany.leetcode.settings.{ LeetCodeCNSettings, LeetCodeCNSettingsConfigurable }
 import com.wenjunhuang.codeepiphany.model.*
 import com.wenjunhuang.codeepiphany.model.ChallengeRepository.{ ChallengeId, ChallengeLanguageId }
-import com.wenjunhuang.codeepiphany.model.CodeDojo.HackerRank
-import com.wenjunhuang.codeepiphany.services.file.*
+import com.wenjunhuang.codeepiphany.services.file.{ openTextEditor, refreshAndFindFileByIoFile, saveTextToFile }
 import com.wenjunhuang.codeepiphany.services.http.HttpClientManager
 import com.wenjunhuang.codeepiphany.settings.ChallengeSettings
 import com.wenjunhuang.codeepiphany.settings.ChallengeSettings.ChallengeSettingsStateItem
-import com.wenjunhuang.codeepiphany.utils.IdGenerator
 import com.wenjunhuang.codeepiphany.utils.implicits.*
+import com.wenjunhuang.codeepiphany.utils.IdGenerator
 import com.wenjunhuang.codeepiphany.utils.template.VelocityUtils
 
 object challenge {
   def openChallenge[F[_]: Async: Concurrent: HttpClientManager: Logger](
     project: Project,
+    codeDojo: CodeDojo,
     challengeSlug: String,
-    contest: HackerRankContest,
     language: Language,
     languageVersion: LanguageVersion
   ): F[Unit] = {
     Async[F].delay {
-      val settings = HackerRankSettings.getInstance(project)
+      val settings = LeetCodeCNSettings.getInstance(project)
       settings.getLanguageSetting(language, languageVersion) match
         case Some(state) =>
           if state.sourceFolder.isEmpty || state.language.isEmpty then
@@ -43,22 +42,22 @@ object challenge {
               .yesNo("Error", "Please set the source folder and language in the settings")
               .ask(project)
             if r then
-              ShowSettingsUtil.getInstance().showSettingsDialog(project, classOf[HackerRankSettingsConfigurable])
+              ShowSettingsUtil.getInstance().showSettingsDialog(project, classOf[LeetCodeCNSettingsConfigurable])
             None
           else Some((state.sourceFolder.get, language, state.fileNameTemplate.get, state.codeTemplate.get))
         case None =>
           val r = MessageDialogBuilder
             .yesNo("Error", "Please set the source folder and language in the settings")
             .ask(project)
-          if r then ShowSettingsUtil.getInstance().showSettingsDialog(project, classOf[HackerRankSettingsConfigurable])
+          if r then ShowSettingsUtil.getInstance().showSettingsDialog(project, classOf[LeetCodeCNSettingsConfigurable])
           None
     }.evalOnEDTAny().flatMap {
       case None => Async[F].unit
       case Some((sourceFolder, language, fileNameTemplate, codeTemplate)) =>
         fetchChallengeContentAndOpen(
           project,
+          codeDojo,
           challengeSlug,
-          contest,
           language,
           languageVersion,
           sourceFolder,
@@ -70,32 +69,36 @@ object challenge {
 
   private def fetchChallengeContentAndOpen[F[_]: Async: Concurrent: HttpClientManager: Logger](
     project: Project,
+    codeDojo: CodeDojo,
     challengeSlug: String,
-    contest: HackerRankContest,
     language: Language,
     languageVersion: LanguageVersion,
     sourceFolder: String,
     fileNameTemplate: String,
     codeTemplate: String
   ): F[Unit] = {
-    val api = HackerRankApi[F]()
+    val api = LeetCodeApi[F](codeDojo)
     api
-      .getChallengeContent(challengeSlug, contest)
+      .getQuestionData(challengeSlug)
       .map { content =>
-        content.codeTemplates.get((language, languageVersion)).map { temp =>
-          HackerRankChallengeCodeTemplate(
-            content.detail.id.toString,
-            HackerRank,
-            content.detail.name,
-            content.detail.slug,
-            content.detail.bodyHtml.getOrElse(""),
-            temp.header,
-            temp.template,
-            temp.tail,
-            contest.slug,
-            ChallengeDifficulty.fromCIString(CIString(content.detail.difficultyName)).get.value,
-            language,
-            languageVersion
+        val pattern = """^([a-zA-Z]*)(\d*)$""".r
+        content.codeSnippets.find { snippet =>
+          snippet.langSlug match
+            case pattern(lang, ver) =>
+              Language.fromCIString(CIString(lang)).contains(language) && LanguageVersion.fromString(
+                ver
+              ) == languageVersion
+        }.map { codeSnippet =>
+          LeetCodeChallengeCodeTemplate(
+            dojoId = content.frontendQuestionId,
+            dojo = codeDojo,
+            name = content.translatedTitle.filter(_.nonEmpty).getOrElse(content.title),
+            code = codeSnippet.code,
+            slug = content.titleSlug,
+            description = content.translatedContent.filter(_.nonEmpty).getOrElse(content.content),
+            difficulty = codeDojo.fromLeetCodeDifficulty(content.difficulty).value,
+            language = language,
+            languageVersion = languageVersion
           )
         }
       }
@@ -123,12 +126,12 @@ object challenge {
               case None =>
                 (
                   saveTextToFile(file, code).flatMap(refreshAndFindFileByIoFile),
-                  storeChallengeToDatabase(project, template)
+                  storeChallengeToDatabase(project, codeDojo, template)
                 ).parTupled.map { case (file, (challengeId, challengeLangId)) =>
                   val settings = ChallengeSettings.getInstance(project)
                   settings.addChallenge(
                     file.get.getCanonicalPath,
-                    ChallengeSettingsStateItem(challengeId, challengeLangId, HackerRank, language, None)
+                    ChallengeSettingsStateItem(challengeId, challengeLangId, codeDojo, language, None)
                   )
                   file
                 }
@@ -142,7 +145,8 @@ object challenge {
 
   def storeChallengeToDatabase[F[_]: Async](
     project: Project,
-    challenge: HackerRankChallengeCodeTemplate
+    codeDojo: CodeDojo,
+    challenge: LeetCodeChallengeCodeTemplate
   ): F[(ChallengeId, ChallengeLanguageId)] = {
     val repository = ChallengeRepository.getInstance(project)
     repository.getDSLContextResource.use { client =>
@@ -151,28 +155,18 @@ object challenge {
           val dsl = trx.dsl()
           val challengeRecord = dsl.fetchOne(
             CHALLENGE,
-            CHALLENGE.DOJO.eq(CodeDojo.HackerRank.value).and(CHALLENGE.DOJOID.eq(challenge.dojoId))
+            CHALLENGE.DOJO.eq(codeDojo.value).and(CHALLENGE.DOJOID.eq(challenge.dojoId))
           ) match {
             case null => dsl.newRecord(CHALLENGE).setId(IdGenerator.nextId())
             case r    => r
           }
           challengeRecord.setDescription(challenge.description)
           challengeRecord.setDifficulty(challenge.difficulty)
-          challengeRecord.setDojo(CodeDojo.HackerRank.value)
+          challengeRecord.setDojo(challenge.dojo.value)
           challengeRecord.setDojoid(challenge.dojoId)
           challengeRecord.setSlug(challenge.slug)
           challengeRecord.setTitle(challenge.name)
           challengeRecord.store()
-
-          val hackerRankRecord =
-            (dsl.fetchOne(HACKERRANK_CHALLENGE, HACKERRANK_CHALLENGE.ID.eq(challengeRecord.getId)) match
-              case null =>
-                dsl.newRecord(HACKERRANK_CHALLENGE).setId(challengeRecord.getId)
-              case r => r
-            )
-              .setContest(challenge.contest)
-              .setContestslug(challenge.contest)
-          hackerRankRecord.store()
 
           val challengeLanguageRecord = dsl.fetchOne(
             CHALLENGE_LANGUAGE,
@@ -191,17 +185,6 @@ object challenge {
           challengeLanguageRecord.setLanguageversion(challenge.languageVersion.version)
           challengeLanguageRecord.setCodetemplate(StringUtil.convertLineSeparators(challenge.getCode))
           challengeLanguageRecord.store()
-
-          val hackerRankLangRecord = dsl.fetchOne(
-            HACKERRANK_CHALLENGE_LANGUAGE,
-            HACKERRANK_CHALLENGE_LANGUAGE.ID.eq(challengeLanguageRecord.getId)
-          ) match
-            case null => dsl.newRecord(HACKERRANK_CHALLENGE_LANGUAGE).setId(challengeLanguageRecord.getId)
-            case r    => r
-          hackerRankLangRecord.setCodeheader(StringUtil.convertLineSeparators(challenge.header))
-          hackerRankLangRecord.setCodetemplate(StringUtil.convertLineSeparators(challenge.template))
-          hackerRankLangRecord.setCodetail(StringUtil.convertLineSeparators(challenge.tail))
-          hackerRankLangRecord.store()
 
           (ChallengeId(challengeRecord.getId), ChallengeLanguageId(challengeLanguageRecord.getId))
         }
