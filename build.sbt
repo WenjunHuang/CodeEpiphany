@@ -13,7 +13,8 @@ lazy val codeEpiphany = (project in file("."))
       "-language:implicitConversions",
       "-source:future", // enabling better-monadic-for syntax
       "-feature",
-      "-deprecation"
+      "-deprecation",
+      "-Xmax-inlines:100"
     ),
     intellijAttachSources          := true,
     instrumentThreadingAnnotations := true,

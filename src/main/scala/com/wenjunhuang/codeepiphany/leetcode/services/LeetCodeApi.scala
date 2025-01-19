@@ -17,9 +17,14 @@ import scala.io.{ BufferedSource, Source }
 
 import com.intellij.util.LineSeparator
 
-import com.wenjunhuang.codeepiphany.leetcode.model.*
+import com.wenjunhuang.codeepiphany.leetcode.model.{ submitAnswer, * }
 import com.wenjunhuang.codeepiphany.leetcode.model.runCode.*
 import com.wenjunhuang.codeepiphany.leetcode.model.runCode.LeetCodeRunResult.Started
+import com.wenjunhuang.codeepiphany.leetcode.model.submitAnswer.{
+  LeetCodeSubmitAnswerRequest,
+  LeetCodeSubmitAnswerResponse,
+  LeetCodeSubmitAnswerResult
+}
 import com.wenjunhuang.codeepiphany.model.*
 import com.wenjunhuang.codeepiphany.model.CodeDojo.{ LeetCode, LeetCodeCN }
 import com.wenjunhuang.codeepiphany.services.http.HttpClientManager
@@ -68,6 +73,14 @@ trait LeetCodeApi[F[_]] {
     languageVersion: LanguageVersion,
     code: String
   ): Stream[F, LeetCodeRunResult]
+
+  def submitAnswer(
+    id: String,
+    slug: String,
+    language: Language,
+    languageVersion: LanguageVersion,
+    code: String
+  ): Stream[F, LeetCodeSubmitAnswerResult]
 }
 
 object LeetCodeApi {
@@ -80,6 +93,55 @@ object LeetCodeApi {
 
     private def commonHeaders(csrfToken: String) =
       Headers("x-csrftoken" -> csrfToken, Referer(Uri.unsafeFromString(s"https://${dojo.domain.toString}/")))
+
+    private def getSubmitAnswerResult(submissionId: String): F[LeetCodeSubmitAnswerResult] =
+      useClient { client =>
+        getCSRFToken.flatMap { csrfToken =>
+          client.expect[LeetCodeSubmitAnswerResult](
+            Uri.unsafeFromString(s"https://${dojo.domain.toString}/submissions/detail/${submissionId}/check/")
+          )
+        }
+      }
+
+    override def submitAnswer(
+      id: String,
+      slug: String,
+      language: Language,
+      languageVersion: LanguageVersion,
+      code: String
+    ): Stream[F, LeetCodeSubmitAnswerResult] =
+      Stream
+        .eval(useClient { client =>
+          getCSRFToken.flatMap { csrfToken =>
+            client
+              .expect[LeetCodeSubmitAnswerResponse](
+                Method
+                  .POST(
+                    Uri.unsafeFromString(s"https://${dojo.domain.toString}/problems/$slug/submit/"),
+                    headers = commonHeaders(csrfToken)
+                  )
+                  .withEntity(
+                    LeetCodeSubmitAnswerRequest(
+                      lang = dojo.leetCodeLanguage(language, languageVersion),
+                      questionId = id,
+                      typedCode = code
+                    )
+                  )
+              )
+          }
+        })
+        .flatMap { response =>
+          Stream
+            .repeatEval(
+              Temporal[F].sleep(1.second) *>
+                getSubmitAnswerResult(response.submissionId)
+            )
+            .flatMap {
+              case r: LeetCodeSubmitAnswerResult.Started => Stream(Option(r).widen)
+              case r: LeetCodeSubmitAnswerResult.Success => Stream(Option(r).widen, None)
+            }
+            .unNoneTerminate
+        }
 
     private def getRunCodeResult(interpretId: String): F[LeetCodeRunResult] =
       useClient { client =>
@@ -131,7 +193,8 @@ object LeetCodeApi {
             .flatMap {
               case r: LeetCodeRunResult.Started => Stream(Option(r).widen)
               case r: LeetCodeRunResult.Success => Stream(Option(r).widen, None)
-            }.unNoneTerminate
+            }
+            .unNoneTerminate
         }
     }
 

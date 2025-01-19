@@ -4,18 +4,17 @@ import java.awt.BorderLayout
 import javax.swing.ScrollPaneConstants
 
 import com.intellij.ide.plugins.newui.ListPluginComponent
-import com.intellij.openapi.actionSystem.{ ActionManager, DataSink, UiDataProvider }
+import com.intellij.openapi.actionSystem.{ActionManager, DataSink, UiDataProvider}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.SimpleToolWindowPanel
 import com.intellij.openapi.Disposable
-import com.intellij.ui.{ SearchTextField, SimpleTextAttributes }
+import com.intellij.ui.{SearchTextField, SimpleTextAttributes}
 import com.intellij.ui.components.JBScrollPane
 import com.intellij.ui.table.TableView
 import com.intellij.util.concurrency.annotations.RequiresEdt
 
 import com.wenjunhuang.codeepiphany.PluginBundle
 import com.wenjunhuang.codeepiphany.actions.PaginationParameterActionGroup
-import com.wenjunhuang.codeepiphany.hackerrank.model.HackerRankChallengeDetail
 import com.wenjunhuang.codeepiphany.leetcode.model.LeetCodeChallengeListItem
 import com.wenjunhuang.codeepiphany.model.Actions.TOOLBAR_PLACE
 import com.wenjunhuang.codeepiphany.model.CodeDojo

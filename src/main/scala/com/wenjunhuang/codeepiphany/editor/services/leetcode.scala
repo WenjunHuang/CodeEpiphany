@@ -13,17 +13,18 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.{VirtualFile, VirtualFileUtil}
 
 import com.wenjunhuang.codeepiphany.database.Tables.*
-import com.wenjunhuang.codeepiphany.hackerrank.model.HackerRankContest
-import com.wenjunhuang.codeepiphany.hackerrank.services.HackerRankApi
-import com.wenjunhuang.codeepiphany.model.{ChallengeRepository, Language, SubmissionResult}
-import com.wenjunhuang.codeepiphany.model.SubmissionResult.CompilationError
+import com.wenjunhuang.codeepiphany.leetcode.model.runCode.LeetCodeRunResult
+import com.wenjunhuang.codeepiphany.leetcode.model.submitAnswer.LeetCodeSubmitAnswerResult
+import com.wenjunhuang.codeepiphany.leetcode.services.LeetCodeApi
+import com.wenjunhuang.codeepiphany.model.*
 import com.wenjunhuang.codeepiphany.services.console
 import com.wenjunhuang.codeepiphany.services.http.HttpClientManager
 import com.wenjunhuang.codeepiphany.settings.ChallengeSettings.ChallengeSettingsStateItem
 import com.wenjunhuang.codeepiphany.utils.IdGenerator
 
-object hackerrank {
+object leetcode {
   def runCode[F[_]: Async: Concurrent: HttpClientManager](
+    codeDojo: CodeDojo,
     vf: VirtualFile,
     project: Project,
     item: ChallengeSettingsStateItem
@@ -37,20 +38,16 @@ object hackerrank {
             Async[F].delay { queryChallengeBasicInfo(item, dsl) }
           }
       )
-      .flatMap { case (contest, language, langVer, challengeSlug) =>
+      .flatMap { case (dojoId, testCase, language, langVer, challengeSlug) =>
         val extractedCode = language.extractSubmitCode(VirtualFileUtil.readText(vf))
-        HackerRankApi[F]()
-          .runAnswer(challengeSlug, contest, language, langVer, extractedCode)
+        LeetCodeApi[F](codeDojo)
+          .runAnswer(dojoId, challengeSlug, testCase, language, langVer, extractedCode)
       }
       .last
       .evalTap {
-        case Some(response) =>
-          response.compilemessage.filter(_.nonEmpty) match
-            case Some(message) =>
-              console.error[F](project, s"Compilation Error: \n ${message}")
-            case None =>
-              if response.testcaseStatus.contains(0) then console.error[F](project, "Wrong Answer!")
-              else console.info[F](project, "🎉 Passed!")
+        case Some(success: LeetCodeRunResult.Success) =>
+          if success.runSuccess then console.info[F](project, "🎉 Passed!")
+          else console.error[F](project, s"${success.statusMsg}\n${success.fullCompileError.getOrElse("")}")
         case None => Async[F].unit
       }
       .onFinalizeCase {
@@ -70,6 +67,7 @@ object hackerrank {
     project: Project,
     item: ChallengeSettingsStateItem
   ): F[Unit] = {
+    val codeDojo = item.dojo
     Stream
       .eval(
         ChallengeRepository
@@ -78,10 +76,10 @@ object hackerrank {
           .use { client =>
             Async[F].delay {
               client.transactionResult { trx =>
-                val dsl        = DSL.using(trx)
-                val basicInfo  = queryChallengeBasicInfo(item, dsl)
-                val localCode  = VirtualFileUtil.readText(vf)
-                val submitCode = basicInfo._2.extractSubmitCode(localCode)
+                val dsl                                                  = DSL.using(trx)
+                val (dojoId, testCase, language, langVer, challengeSlug) = queryChallengeBasicInfo(item, dsl)
+                val localCode                                            = VirtualFileUtil.readText(vf)
+                val submitCode                                           = language.extractSubmitCode(localCode)
                 val solutionId = item.solutionId.getOrElse(getOrCreateDefaultSolution(dsl, item.challengeId))
 
                 val submissionRecord = dsl
@@ -95,19 +93,19 @@ object hackerrank {
                   .setResult(SubmissionResult.Processing.value)
                 submissionRecord.store()
 
-                (basicInfo._1, basicInfo._2, basicInfo._3, basicInfo._4, submitCode, submissionRecord.getId, solutionId)
+                (dojoId, language, langVer, challengeSlug, submitCode, submissionRecord.getId, solutionId)
               }
             }
           }
       )
-      .flatMap { case (contest, language, langVer, challengeSlug, submitCode, submissionId, solutionId) =>
-        HackerRankApi[F]()
-          .submitAnswer(challengeSlug, contest, language, langVer, submitCode)
+      .flatMap { case (dojoId, language, langVer, challengeSlug, submitCode, submissionId, solutionId) =>
+        LeetCodeApi[F](codeDojo)
+          .submitAnswer(dojoId, challengeSlug, language, langVer, submitCode)
           .map((_, submissionId))
       }
       .last
       .map {
-        case Some((response, submissionId)) =>
+        case Some((response: LeetCodeSubmitAnswerResult.Success, submissionId)) =>
           val client = ChallengeRepository.getInstance(project).getDSLContext
           client.transactionResult { trx =>
             val dsl = DSL.using(trx)
@@ -117,39 +115,20 @@ object hackerrank {
               .fetchOptional()
               .toScala match
               case Some(record) =>
-                val result = toSubmissionResult(response.status)
+                val result = toSubmissionResult(response.statusMsg)
                 val message =
-                  if result == SubmissionResult.CompilationError then response.compileMessage.getOrElse(response.status)
-                  else response.status
+                  if result == SubmissionResult.CompilationError then
+                    response.fullCompileError.getOrElse(response.statusMsg)
+                  else response.statusMsg
                 record
-                  .setDojosubmissionid(response.id.toString)
+                  .setDojosubmissionid(response.submissionId)
                   .setResultdatetime(LocalDateTime.now())
                   .setResult(result.value)
-                  .setScore(response.score)
                   .setMessage(message)
                 record.store()
 
-                response.codecheckerSignal
-                  .zip(response.codecheckerTime)
-                  .zip(response.testcaseMessage)
-                  .zip(response.testcaseStatus)
-                  .map { case (((a, b), c), d) => (a, b, c, d) }
-                  .zipWithIndex
-                  .foreach { (item, index) =>
-                    val (signal, time, message, status) = item
-                    val testcaseRecord = dsl
-                      .newRecord(HACKERRANK_SUBMISSION_CASE)
-                      .setId(IdGenerator.nextId())
-                      .setSubmissionid(submissionId)
-                      .setTestcasemessage(message)
-                      .setNum(index)
-                      .setTestcasestatus(status)
-                      .setCodecheckersignal(signal)
-                      .setCodecheckertime(time.bigDecimal.floatValue())
-                    testcaseRecord.store()
-                  }
                 (result, message)
-              case None => throw new Exception("Cannot find submission record")
+              case _ => throw new Exception("Cannot find submission record")
           }
         case None => throw new IllegalStateException("should not happened")
       }
@@ -203,32 +182,33 @@ object hackerrank {
   private def queryChallengeBasicInfo(
     item: ChallengeSettingsStateItem,
     client: DSLContext
-  ): (HackerRankContest, Language, String, String) = {
+  ): (String, String, Language, LanguageVersion, String) = {
     Option(
       client
         .select(
           CHALLENGE.SLUG,
-          HACKERRANK_CHALLENGE.CONTESTSLUG,
+          CHALLENGE.DOJOID,
+          LEETCODE_CHALLENGE.TESTCASE,
           CHALLENGE_LANGUAGE.LANGUAGE,
           CHALLENGE_LANGUAGE.LANGUAGEVERSION
         )
         .from(CHALLENGE)
-        .innerJoin(HACKERRANK_CHALLENGE)
-        .on(CHALLENGE.ID.eq(HACKERRANK_CHALLENGE.ID))
+        .innerJoin(LEETCODE_CHALLENGE)
+        .on(CHALLENGE.ID.eq(LEETCODE_CHALLENGE.ID))
         .innerJoin(CHALLENGE_LANGUAGE)
         .on(CHALLENGE.ID.eq(CHALLENGE_LANGUAGE.CHALLENGEID))
         .where(CHALLENGE.ID.eq(item.challengeId).and(CHALLENGE_LANGUAGE.ID.eq(item.challengeLanguageId)))
         .fetchOne()
     ).flatMap { record =>
       val challengeSlug = record.get(CHALLENGE.SLUG)
-      val contestSlug   = record.get(HACKERRANK_CHALLENGE.CONTESTSLUG)
+      val dojoId        = record.get(CHALLENGE.DOJOID)
+      val testCase      = record.get(LEETCODE_CHALLENGE.TESTCASE)
       val language      = record.get(CHALLENGE_LANGUAGE.LANGUAGE)
       val langVer       = record.get(CHALLENGE_LANGUAGE.LANGUAGEVERSION)
 
-      HackerRankContest
-        .fromCIString(CIString(contestSlug))
-        .zip(Language.fromCIString(CIString(language)))
-        .map((_, _, langVer, challengeSlug))
+      Language.fromCIString(CIString(language)).map { lang =>
+        (dojoId, testCase, lang, LanguageVersion.fromString(langVer), challengeSlug)
+      }
     } match {
       case Some(value) => value
       case None        => throw new Exception("Cannot find data for file")
@@ -238,8 +218,8 @@ object hackerrank {
   private def toSubmissionResult(status: String): SubmissionResult = {
     if status == "Accepted" then SubmissionResult.Success
     else if status == "Wrong Answer" then SubmissionResult.Failure
-    else if status == "Compilation error" then CompilationError
-    else if status == "Terminated due to timeout" then SubmissionResult.Timeout
+    else if status == "Compile error" then SubmissionResult.CompilationError
+    else if status == "Time Limit Exceeded" then SubmissionResult.Timeout
     else SubmissionResult.Unknown
   }
 }

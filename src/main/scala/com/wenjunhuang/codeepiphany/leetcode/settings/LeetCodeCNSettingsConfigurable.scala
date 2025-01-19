@@ -10,7 +10,6 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.text.StringUtil
 
 import com.wenjunhuang.codeepiphany.PluginBundle
-import com.wenjunhuang.codeepiphany.hackerrank.model.HackerRankChallengeCodeTemplate
 import com.wenjunhuang.codeepiphany.leetcode.model.LeetCodeChallengeCodeTemplate
 import com.wenjunhuang.codeepiphany.leetcode.settings.LeetCodeCNSettingsConfigurable.{getDemoTemplate, LANGUAGES}
 import com.wenjunhuang.codeepiphany.model.*

@@ -2,7 +2,7 @@ create table challenge
 (
     id          integer not null
         constraint pk
-            primary key autoincrement,
+            primary key,
     title       TEXT    not null,
     slug        TEXT    not null,
     dojo        TEXT    not null,
@@ -26,7 +26,7 @@ create table challenge_language
     codeTemplate    TEXT            not null,
     id              integer         not null
         constraint challenge_language_pk
-            primary key autoincrement,
+            primary key,
     languageVersion TEXT default '' not null
 );
 
@@ -56,11 +56,22 @@ create table hackerrank_challenge_language
     codeTail     TEXT    not null
 );
 
+create table leetcode_challenge
+(
+    frontendQuestionId TEXT    not null,
+    testCase           TEXT,
+    id                 INTEGER not null
+        constraint leetcode_challenge_pk
+            primary key
+        constraint leetcode_challenge_challenge_id_fk
+            references challenge
+);
+
 create table solution
 (
     id             integer           not null
         constraint solution_pk
-            primary key autoincrement,
+            primary key,
     challengeId    integer           not null
         constraint solution_challenge_id_fk
             references challenge,
@@ -75,7 +86,7 @@ create table solution_submission
 (
     id                  INTEGER not null
         constraint solution_submission_pk
-            primary key autoincrement,
+            primary key,
     dojoSubmissionId    TEXT,
     submitDateTime      integer not null,
     localCode           TEXT    not null,
@@ -96,7 +107,7 @@ create table hackerrank_submission_case
 (
     id                integer not null
         constraint hackerrank_submission_case_pk
-            primary key autoincrement,
+            primary key,
     testcaseMessage   TEXT,
     num               integer not null,
     stdIn             TEXT,

@@ -6,7 +6,6 @@ import com.intellij.openapi.options.ConfigurableBase
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
 
-import com.wenjunhuang.codeepiphany.hackerrank.model.HackerRankChallengeCodeTemplate
 import com.wenjunhuang.codeepiphany.model.{CodeDojo, Language, LanguageVersion}
 
 abstract class BaseSettingsConfigurable(
