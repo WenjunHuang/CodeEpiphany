@@ -7,7 +7,7 @@ import fs2.concurrent.SignallingRef
 import javax.swing.JComponent
 import javax.swing.event.DocumentEvent
 import org.typelevel.ci.CIString
-import org.typelevel.log4cats.{Logger, LoggerFactory}
+import org.typelevel.log4cats.{ Logger, LoggerFactory }
 import scala.concurrent.duration.*
 import scala.jdk.CollectionConverters.*
 
@@ -17,22 +17,22 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
 import com.intellij.ui.DocumentAdapter
 
-import com.wenjunhuang.codeepiphany.actions.OpenChallengeActionGroup.{CHALLENGE_PROVIDER_KEY, OpenChallengeProvider}
-import com.wenjunhuang.codeepiphany.hackerrank.model.{HackerRankChallengeDetail, HackerRankContest}
+import com.wenjunhuang.codeepiphany.actions.OpenChallengeActionGroup.{ CHALLENGE_PROVIDER_KEY, OpenChallengeProvider }
+import com.wenjunhuang.codeepiphany.hackerrank.model.{ HackerRankChallengeDetail, HackerRankContest }
 import com.wenjunhuang.codeepiphany.hackerrank.services.HackerRankApi
 import com.wenjunhuang.codeepiphany.hackerrank.services.challenge.openChallenge
 import com.wenjunhuang.codeepiphany.hackerrank.settings.HackerRankSettings
-import com.wenjunhuang.codeepiphany.model.{Language, LanguageVersion}
-import com.wenjunhuang.codeepiphany.services.http.{HttpClientManager, HttpClientService}
+import com.wenjunhuang.codeepiphany.model.{ Language, LanguageVersion }
+import com.wenjunhuang.codeepiphany.services.http.{ HttpClientManager, HttpClientService }
 import com.wenjunhuang.codeepiphany.utils.extensions.*
 import com.wenjunhuang.codeepiphany.utils.implicits.*
 
 class KeywordSearchViewPresenter(private val myProject: Project) extends DocumentAdapter with Disposable {
-  implicit private val myLogger: Logger[IO] = LoggerFactory[IO].getLogger
+  private implicit val myLogger: Logger[IO] = LoggerFactory[IO].getLogger
 
-  implicit private val httpClientKeeper: HttpClientManager[IO] =
+  private implicit val httpClientKeeper: HttpClientManager[IO] =
     HttpClientService.getInstance(myProject).httpClientManager
-    
+
   private val myApi = HackerRankApi[IO]()
 
   private val myView: KeywordSearchView = KeywordSearchView(myProject, this)
@@ -54,7 +54,8 @@ class KeywordSearchViewPresenter(private val myProject: Project) extends Documen
       }
       .debounce(200.millis)
       .evalTap { case (signal, keyword) =>
-        val masterChallenges = myApi.searchChallengesWithKeyword(HackerRankContest.Master, keyword).recoverWith(_ => IO.pure(Nil))
+        val masterChallenges =
+          myApi.searchChallengesWithKeyword(HackerRankContest.Master, keyword).recoverWith(_ => IO.pure(Nil))
         val eulerChallenges =
           myApi.searchChallengesWithKeyword(HackerRankContest.ProjectEuler, keyword).recoverWith(_ => IO.pure(Nil))
         (Stream.evals(masterChallenges) ++ Stream.evals(eulerChallenges)).parEvalMapUnorderedUnbounded {
@@ -62,7 +63,7 @@ class KeywordSearchViewPresenter(private val myProject: Project) extends Documen
             myApi.getChallengeDetail(challenge.challengeSlug, contest).attempt
         }.scan(Nil: List[HackerRankChallengeDetail]) {
           case (acc, Right(challenge)) => acc :+ challenge
-          case (acc, _)                      => acc
+          case (acc, _)                => acc
         }.evalTap { challenges =>
           IO.delay { updateChallenges(challenges) }.evalOnEDTAny()
         }.interruptWhen(signal)
@@ -97,6 +98,9 @@ class KeywordSearchViewPresenter(private val myProject: Project) extends Documen
       val settings = HackerRankSettings.getInstance(myProject)
       settings.getSelectedLanguages
     }
+
+    override def currentSelectedCanBeOpened: Boolean = true
+
   }
 
   Disposer.register(myProject, this)

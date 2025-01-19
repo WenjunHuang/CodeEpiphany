@@ -139,18 +139,18 @@ class LeetcodeApiIntegrationTest extends BasePlatformTestCase {
     val leetCodeCNApi = LeetCodeApi[IO](LeetCodeCN)
     val leetCodeApi = LeetCodeApi[IO](LeetCode)
 
-    leetCodeCNApi.getUserInfo().map { userInfo =>
+    leetCodeCNApi.getUserInfo.map { userInfo =>
       assertThat(userInfo.userSlug, is(None))
     }.unsafeRunSync()
-    leetCodeApi.getUserInfo().map { userInfo =>
+    leetCodeApi.getUserInfo.map { userInfo =>
       assertThat(userInfo.userSlug, is(None))
     }.unsafeRunSync()
 
     setCookie(httpClientManager).unsafeRunSync()
-    leetCodeCNApi.getUserInfo().map { userInfo =>
+    leetCodeCNApi.getUserInfo.map { userInfo =>
       assertThat(userInfo.userSlug, not(None))
     }.unsafeRunSync()
-    leetCodeApi.getUserInfo().map { userInfo =>
+    leetCodeApi.getUserInfo.map { userInfo =>
       assertThat(userInfo.userSlug, not(None))
     }.unsafeRunSync()
   }

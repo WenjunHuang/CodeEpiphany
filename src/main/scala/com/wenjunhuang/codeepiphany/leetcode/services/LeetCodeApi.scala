@@ -1,7 +1,9 @@
 package com.wenjunhuang.codeepiphany.leetcode.services
 
-import cats.effect.{ Async, Concurrent, Resource }
+import scala.concurrent.duration.*
+import cats.effect.{ Async, Concurrent, Resource, Temporal }
 import cats.syntax.all.*
+import fs2.Stream
 import io.circe.{ Json, JsonObject }
 import io.circe.optics.JsonPath
 import io.circe.syntax.*
@@ -16,6 +18,8 @@ import scala.io.{ BufferedSource, Source }
 import com.intellij.util.LineSeparator
 
 import com.wenjunhuang.codeepiphany.leetcode.model.*
+import com.wenjunhuang.codeepiphany.leetcode.model.runCode.*
+import com.wenjunhuang.codeepiphany.leetcode.model.runCode.LeetCodeRunResult.Started
 import com.wenjunhuang.codeepiphany.model.*
 import com.wenjunhuang.codeepiphany.model.CodeDojo.{ LeetCode, LeetCodeCN }
 import com.wenjunhuang.codeepiphany.services.http.HttpClientManager
@@ -50,10 +54,20 @@ trait LeetCodeApi[F[_]] {
     orderBy: Option[(LeetCodeSearchOrderBy, OrderDirection)]
   ): F[LeetCodeChallengeList]
 
-  def getUserInfo(): F[LeetCodeUserInfo]
+  def getUserInfo: F[LeetCodeUserInfo]
+
   def checkLogin(): F[Boolean]
 
   def getQuestionData(slug: String): F[LeetCodeChallengeData]
+
+  def runAnswer(
+    id: String,
+    slug: String,
+    testCase: String,
+    language: Language,
+    languageVersion: LanguageVersion,
+    code: String
+  ): Stream[F, LeetCodeRunResult]
 }
 
 object LeetCodeApi {
@@ -66,6 +80,60 @@ object LeetCodeApi {
 
     private def commonHeaders(csrfToken: String) =
       Headers("x-csrftoken" -> csrfToken, Referer(Uri.unsafeFromString(s"https://${dojo.domain.toString}/")))
+
+    private def getRunCodeResult(interpretId: String): F[LeetCodeRunResult] =
+      useClient { client =>
+        getCSRFToken.flatMap { csrfToken =>
+          client.expect[LeetCodeRunResult](
+            Method.GET(
+              Uri.unsafeFromString(s"https://${dojo.domain.toString}/submissions/detail/${interpretId}/check/"),
+              headers = commonHeaders(csrfToken)
+            )
+          )
+        }
+      }
+
+    override def runAnswer(
+      id: String,
+      slug: String,
+      testCase: String,
+      language: Language,
+      languageVersion: LanguageVersion,
+      code: String
+    ): Stream[F, LeetCodeRunResult] = {
+      Stream
+        .eval(useClient { client =>
+          getCSRFToken.flatMap { csrfToken =>
+            client
+              .expect[LeetCodeRunResponse](
+                Method
+                  .POST(
+                    Uri.unsafeFromString(s"https://${dojo.domain.toString}/problems/$slug/interpret_solution/"),
+                    headers = commonHeaders(csrfToken)
+                  )
+                  .withEntity(
+                    LeetCodeRunRequest(
+                      lang = dojo.leetCodeLanguage(language, languageVersion),
+                      dataInput = testCase,
+                      questionId = id,
+                      typedCode = code
+                    )
+                  )
+              )
+          }
+        })
+        .flatMap { runResponse =>
+          Stream
+            .repeatEval(
+              Temporal[F].sleep(1.second) *>
+                getRunCodeResult(runResponse.interpretId)
+            )
+            .flatMap {
+              case r: LeetCodeRunResult.Started => Stream(Option(r).widen)
+              case r: LeetCodeRunResult.Success => Stream(Option(r).widen, None)
+            }.unNoneTerminate
+        }
+    }
 
     override def getFavoriteList: F[List[LeetCodeFavoriteItem]] = HttpClientManager[F].getClient.use { client =>
       client.expect[List[LeetCodeFavoriteItem]](s"https://${dojo.domain.toString}/problems/api/favorites/")
@@ -108,7 +176,7 @@ object LeetCodeApi {
       }
     }
 
-    override def getUserInfo(): F[LeetCodeUserInfo] = HttpClientManager[F].getClient.use { client =>
+    override def getUserInfo: F[LeetCodeUserInfo] = HttpClientManager[F].getClient.use { client =>
       openGraphQLFile(dojo, "globalData").flatMap { file =>
         getCSRFToken.flatMap { csrfToken =>
           client

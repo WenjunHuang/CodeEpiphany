@@ -40,5 +40,18 @@ package object model {
     def fromLeetCodeOrderDirection(direction: String): OrderDirection = CIString(direction) match
       case a if a == CIString("ASCENDING")  => OrderDirection.Ascending
       case b if b == CIString("DESCENDING") => OrderDirection.Descending
+
+    def leetCodeLanguage(language: Language, languageVersion: LanguageVersion): String =
+      s"${language.value}${languageVersion.version}"
+
+    def fromLeetCodeLanguage(language: String): Option[(Language, LanguageVersion)] = {
+      val pattern = """^([a-zA-Z]*)(\d*)$""".r
+      language match
+        case pattern(lang, ver) =>
+          Language.fromCIString(CIString(lang)).map { lang =>
+            (lang, LanguageVersion.fromString(ver))
+          }
+        case _ => None
+    }
   }
 }

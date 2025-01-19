@@ -53,9 +53,9 @@ import com.wenjunhuang.codeepiphany.utils.implicits.*
 class QueryParametersPresenter(private val myProject: Project) extends Disposable {
   import QueryParametersPresenter.*
 
-  implicit private val myLogger: Logger[IO] = LoggerFactory[IO].getLogger
+  private implicit val myLogger: Logger[IO] = LoggerFactory[IO].getLogger
 
-  implicit private val httpClientKeeper: HttpClientManager[IO] =
+  private implicit val httpClientKeeper: HttpClientManager[IO] =
     HttpClientService.getInstance(myProject).httpClientManager
   private val myApi = HackerRankApi[IO]()
 
@@ -175,6 +175,8 @@ class QueryParametersPresenter(private val myProject: Project) extends Disposabl
       val settings = HackerRankSettings.getInstance(myProject)
       settings.getSelectedLanguages
     }
+
+    override def currentSelectedCanBeOpened: Boolean = true
   }
 
   private val myCategoryProvider = new CategoryProvider {
@@ -468,7 +470,7 @@ object QueryParametersPresenter {
     def resetPagination(): QueryParams  = this.copy(currentPage = 1, totalSize = 1)
   }
 
-  final private val EMPTY_STATE = QueryParams(PROJECT_EULER_DOMAIN, Nil, Nil, None, Nil, Nil, 1, 1, PageSize.Twenty)
+  private final val EMPTY_STATE = QueryParams(PROJECT_EULER_DOMAIN, Nil, Nil, None, Nil, Nil, 1, 1, PageSize.Twenty)
 
   private val DOMAIN_TAG_RADIUS     = 0.2f
   private val DIFFICULTY_TAG_RADIUS = 0.4f

@@ -150,7 +150,7 @@ class QueryParametersPresenter(private val myProject: Project, private val myCod
   }
 
   def getInitialData: IO[InitialData] = {
-    (myApi.getUserInfo(), myApi.getCategoryList, myApi.getFavoriteList, myApi.getTagTypeWithTags).parMapN {
+    (myApi.getUserInfo, myApi.getCategoryList, myApi.getFavoriteList, myApi.getTagTypeWithTags).parMapN {
       (userInfo, categories, favorites, tagTypeWithTags) =>
         myView.getTableModel.userIsPremium = userInfo.isPremium.contains(true)
         myInitialData = InitialData(userInfo, categories, favorites, tagTypeWithTags)
@@ -209,6 +209,12 @@ class QueryParametersPresenter(private val myProject: Project, private val myCod
       settings.getSelectedLanguages
     }
 
+    override def currentSelectedCanBeOpened: Boolean = {
+      Option(myView.getTable.getSelectedObject) match
+        case None => false
+        case Some(selected) =>
+          !selected.paidOnly || (selected.paidOnly && myInitialData.userInfo.isPremium.contains(true))
+    }
   }
 
   private val myFavoriteProvider = new FavoriteParameterProvider {

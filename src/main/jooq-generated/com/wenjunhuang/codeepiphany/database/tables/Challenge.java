@@ -9,6 +9,7 @@ import com.wenjunhuang.codeepiphany.database.Indexes;
 import com.wenjunhuang.codeepiphany.database.Keys;
 import com.wenjunhuang.codeepiphany.database.tables.ChallengeLanguage.ChallengeLanguagePath;
 import com.wenjunhuang.codeepiphany.database.tables.HackerrankChallenge.HackerrankChallengePath;
+import com.wenjunhuang.codeepiphany.database.tables.LeetcodeChallenge.LeetcodeChallengePath;
 import com.wenjunhuang.codeepiphany.database.tables.Solution.SolutionPath;
 import com.wenjunhuang.codeepiphany.database.tables.records.ChallengeRecord;
 
@@ -206,6 +207,19 @@ public class Challenge extends TableImpl<ChallengeRecord> {
             _hackerrankChallenge = new HackerrankChallengePath(this, null, Keys.HACKERRANK_CHALLENGE__FK_HACKERRANK_CHALLENGE_PK_CHALLENGE.getInverseKey());
 
         return _hackerrankChallenge;
+    }
+
+    private transient LeetcodeChallengePath _leetcodeChallenge;
+
+    /**
+     * Get the implicit to-many join path to the <code>leetcode_challenge</code>
+     * table
+     */
+    public LeetcodeChallengePath leetcodeChallenge() {
+        if (_leetcodeChallenge == null)
+            _leetcodeChallenge = new LeetcodeChallengePath(this, null, Keys.LEETCODE_CHALLENGE__FK_LEETCODE_CHALLENGE_PK_CHALLENGE.getInverseKey());
+
+        return _leetcodeChallenge;
     }
 
     private transient SolutionPath _solution;

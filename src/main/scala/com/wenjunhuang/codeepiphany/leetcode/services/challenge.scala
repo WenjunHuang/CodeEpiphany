@@ -12,7 +12,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.{ MessageDialogBuilder, Messages }
 import com.intellij.openapi.util.text.StringUtil
 
-import com.wenjunhuang.codeepiphany.database.Tables.{ CHALLENGE, CHALLENGE_LANGUAGE }
+import com.wenjunhuang.codeepiphany.database.Tables.{ CHALLENGE, CHALLENGE_LANGUAGE, LEETCODE_CHALLENGE }
 import com.wenjunhuang.codeepiphany.leetcode.model.*
 import com.wenjunhuang.codeepiphany.leetcode.settings.{ LeetCodeCNSettings, LeetCodeCNSettingsConfigurable }
 import com.wenjunhuang.codeepiphany.model.*
@@ -81,26 +81,11 @@ object challenge {
     api
       .getQuestionData(challengeSlug)
       .map { content =>
-        val pattern = """^([a-zA-Z]*)(\d*)$""".r
         content.codeSnippets.find { snippet =>
-          snippet.langSlug match
-            case pattern(lang, ver) =>
-              Language.fromCIString(CIString(lang)).contains(language) && LanguageVersion.fromString(
-                ver
-              ) == languageVersion
-        }.map { codeSnippet =>
-          LeetCodeChallengeCodeTemplate(
-            dojoId = content.frontendQuestionId,
-            dojo = codeDojo,
-            name = content.translatedTitle.filter(_.nonEmpty).getOrElse(content.title),
-            code = codeSnippet.code,
-            slug = content.titleSlug,
-            description = content.translatedContent.filter(_.nonEmpty).getOrElse(content.content),
-            difficulty = codeDojo.fromLeetCodeDifficulty(content.difficulty).value,
-            language = language,
-            languageVersion = languageVersion
-          )
-        }
+          codeDojo
+            .fromLeetCodeLanguage(snippet.langSlug)
+            .contains(language, languageVersion)
+        }.map { codeSnippet => (content, codeSnippet) }
       }
       .flatMap {
         case None =>
@@ -112,7 +97,18 @@ object challenge {
               )
             )
             .evalOnEDTAny()
-        case Some(template) =>
+        case Some((content, codeSnippet)) =>
+          val template = LeetCodeChallengeCodeTemplate(
+            dojoId = content.frontendQuestionId,
+            dojo = codeDojo,
+            name = content.translatedTitle.filter(_.nonEmpty).getOrElse(content.title),
+            code = codeSnippet.code,
+            slug = content.titleSlug,
+            description = content.translatedContent.filter(_.nonEmpty).getOrElse(content.content),
+            difficulty = codeDojo.fromLeetCodeDifficulty(content.difficulty).value,
+            language = language,
+            languageVersion = languageVersion
+          )
           (
             VelocityUtils.generateContent(fileNameTemplate, template),
             VelocityUtils.generateContent(codeTemplate, template)
@@ -126,7 +122,7 @@ object challenge {
               case None =>
                 (
                   saveTextToFile(file, code).flatMap(refreshAndFindFileByIoFile),
-                  storeChallengeToDatabase(project, codeDojo, template)
+                  storeChallengeToDatabase(project, codeDojo, template, content)
                 ).parTupled.map { case (file, (challengeId, challengeLangId)) =>
                   val settings = ChallengeSettings.getInstance(project)
                   settings.addChallenge(
@@ -146,7 +142,8 @@ object challenge {
   def storeChallengeToDatabase[F[_]: Async](
     project: Project,
     codeDojo: CodeDojo,
-    challenge: LeetCodeChallengeCodeTemplate
+    challenge: LeetCodeChallengeCodeTemplate,
+    content: LeetCodeChallengeData
   ): F[(ChallengeId, ChallengeLanguageId)] = {
     val repository = ChallengeRepository.getInstance(project)
     repository.getDSLContextResource.use { client =>
@@ -185,6 +182,13 @@ object challenge {
           challengeLanguageRecord.setLanguageversion(challenge.languageVersion.version)
           challengeLanguageRecord.setCodetemplate(StringUtil.convertLineSeparators(challenge.getCode))
           challengeLanguageRecord.store()
+
+          val leetCodeChallengeRecord = dsl
+            .newRecord(LEETCODE_CHALLENGE)
+            .setId(challengeRecord.getId)
+            .setFrontendquestionid(content.frontendQuestionId)
+            .setTestcase(content.testCase)
+          leetCodeChallengeRecord.store()
 
           (ChallengeId(challengeRecord.getId), ChallengeLanguageId(challengeLanguageRecord.getId))
         }

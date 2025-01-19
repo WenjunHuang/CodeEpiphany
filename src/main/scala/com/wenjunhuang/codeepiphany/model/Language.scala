@@ -39,7 +39,7 @@ enum Language(val value: String, val fileExt: String, val show: String, val icon
   case Clojure    extends Language("clojure", "clj", "Clojure", CodeEpiphanyIcons.Languages.CLOJURE)
   case Cpp        extends Language("cpp", "cc", "C++", CodeEpiphanyIcons.Languages.CPP)
   case CSharp     extends Language("csharp", "cs", "C#", CodeEpiphanyIcons.Languages.CSHARP)
-  case Cangjie     extends Language("cangie", "cj", "Cangjie", CodeEpiphanyIcons.Languages.CANGJIE)
+  case Cangjie     extends Language("cangjie", "cj", "Cangjie", CodeEpiphanyIcons.Languages.CANGJIE)
   case Dart       extends Language("dart", "dart", "Dart", CodeEpiphanyIcons.Languages.DART)
   case Erlang     extends Language("erlang", "erl", "Erlang", CodeEpiphanyIcons.Languages.ERLANG)
   case Elixir     extends Language("elixir", "ex", "Elixir", CodeEpiphanyIcons.Languages.ELIXIR)

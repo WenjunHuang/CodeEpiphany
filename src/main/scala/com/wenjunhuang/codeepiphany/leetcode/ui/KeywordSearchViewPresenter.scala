@@ -6,7 +6,7 @@ import fs2.Stream
 import fs2.concurrent.SignallingRef
 import javax.swing.JComponent
 import javax.swing.event.DocumentEvent
-import org.typelevel.log4cats.{ Logger, LoggerFactory }
+import org.typelevel.log4cats.{Logger, LoggerFactory}
 import scala.concurrent.duration.*
 import scala.jdk.CollectionConverters.*
 
@@ -17,18 +17,16 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
 import com.intellij.ui.DocumentAdapter
 
-import com.wenjunhuang.codeepiphany.actions.OpenChallengeActionGroup.{ CHALLENGE_PROVIDER_KEY, OpenChallengeProvider }
-import com.wenjunhuang.codeepiphany.actions.PaginationParameterActionGroup.{
-  PAGINATION_PROVIDER_KEY,
-  PageSize,
-  PaginationParameterProvider
-}
-import com.wenjunhuang.codeepiphany.actions.RefreshAction.{ REFRESH_PROVIDER_KEY, RefreshProvider }
+import com.wenjunhuang.codeepiphany.actions.OpenChallengeActionGroup.{CHALLENGE_PROVIDER_KEY, OpenChallengeProvider}
+import com.wenjunhuang.codeepiphany.actions.PaginationParameterActionGroup.{PageSize, PAGINATION_PROVIDER_KEY, PaginationParameterProvider}
+import com.wenjunhuang.codeepiphany.actions.RefreshAction.{REFRESH_PROVIDER_KEY, RefreshProvider}
 import com.wenjunhuang.codeepiphany.leetcode.model.LeetCodeChallengeListItem
-import com.wenjunhuang.codeepiphany.leetcode.services.{ LeetCodeApi, LeetCodeSearchOrderBy }
+import com.wenjunhuang.codeepiphany.leetcode.services.{LeetCodeApi, LeetCodeSearchOrderBy}
+import com.wenjunhuang.codeepiphany.leetcode.services.challenge.openChallenge
+import com.wenjunhuang.codeepiphany.leetcode.settings.LeetCodeCNSettings
 import com.wenjunhuang.codeepiphany.leetcode.ui.KeywordSearchViewPresenter.SearchParam
 import com.wenjunhuang.codeepiphany.model.*
-import com.wenjunhuang.codeepiphany.services.http.{ HttpClientManager, HttpClientService }
+import com.wenjunhuang.codeepiphany.services.http.{HttpClientManager, HttpClientService}
 import com.wenjunhuang.codeepiphany.utils.extensions.*
 import com.wenjunhuang.codeepiphany.utils.implicits.*
 
@@ -100,11 +98,22 @@ class KeywordSearchViewPresenter(private val myProject: Project, private val myC
   private val myChallengeProvider = new OpenChallengeProvider {
     override def openCurrentSelectedChallenge(language: Language, languageVersion: LanguageVersion): Unit = {
       Option(myView.getTable.getSelectedObject) match
-        case Some(selected) => ???
-        case None           => ???
+        case Some(selected) =>
+          openChallenge[IO](myProject, myCodeDojo, selected.titleSlug, language, languageVersion).unsafeRunAndForget()
+        case None => ()
     }
 
-    override def getLanguages: List[(Language, LanguageVersion)] = ???
+    override def getLanguages: List[(Language, LanguageVersion)] = {
+      val settings = LeetCodeCNSettings.getInstance(myProject)
+      settings.getSelectedLanguages
+    }
+
+    override def currentSelectedCanBeOpened: Boolean = {
+      Option(myView.getTable.getSelectedObject) match
+        case None => false
+        case Some(selected) =>
+          !selected.paidOnly || (selected.paidOnly && myInitialData.userInfo.isPremium.contains(true))
+    }
   }
 
   private val myPaginationProvider = new PaginationParameterProvider {

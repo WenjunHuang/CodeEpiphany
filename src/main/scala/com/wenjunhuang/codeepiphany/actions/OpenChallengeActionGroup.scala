@@ -4,7 +4,7 @@ import com.intellij.openapi.actionSystem.*
 
 import com.wenjunhuang.codeepiphany.PluginBundle
 import com.wenjunhuang.codeepiphany.actions.OpenChallengeActionGroup.*
-import com.wenjunhuang.codeepiphany.model.{Language, LanguageVersion}
+import com.wenjunhuang.codeepiphany.model.{ Language, LanguageVersion }
 
 class OpenChallengeActionGroup extends ActionGroup {
   override def getChildren(e: AnActionEvent): Array[AnAction] = {
@@ -19,14 +19,16 @@ class OpenChallengeActionGroup extends ActionGroup {
       case None => e.getPresentation.setEnabledAndVisible(false)
       case Some(provider) =>
         val presentation = e.getPresentation
-        provider.getLanguages match
-          case Nil => presentation.setEnabled(false)
-          case _ :: Nil =>
-            presentation.setEnabledAndVisible(true)
-            presentation.setPopupGroup(false)
-          case _ =>
-            presentation.setEnabledAndVisible(true)
-            presentation.setPopupGroup(true)
+        if !provider.currentSelectedCanBeOpened then presentation.setEnabled(false)
+        else
+          provider.getLanguages match
+            case Nil => presentation.setEnabled(false)
+            case _ :: Nil =>
+              presentation.setEnabledAndVisible(true)
+              presentation.setPopupGroup(false)
+            case _ =>
+              presentation.setEnabledAndVisible(true)
+              presentation.setPopupGroup(true)
   }
 
   override def getActionUpdateThread: ActionUpdateThread = ActionUpdateThread.BGT
@@ -48,16 +50,18 @@ object OpenChallengeActionGroup {
         case None => e.getPresentation.setEnabledAndVisible(false)
         case Some(provider) =>
           val presentation = e.getPresentation
-          presentation.setEnabledAndVisible(true)
-          provider.getLanguages match
-            case one :: Nil if one == myLanguage =>
-              presentation.setText(PluginBundle.message("group.CodeEpiphany.Dojos.Actions.OpenChallengeGroup.text"))
-              presentation.setDescription(
-                PluginBundle.message("group.CodeEpiphany.Dojos.Actions.OpenChallengeGroup.description")
-              )
-            case _ =>
-              presentation.setText(myLanguage.show)
-              presentation.setDescription(myLanguage.show)
+          if !provider.currentSelectedCanBeOpened then presentation.setEnabled(false)
+          else
+            presentation.setEnabledAndVisible(true)
+            provider.getLanguages match
+              case one :: Nil if one == myLanguage =>
+                presentation.setText(PluginBundle.message("group.CodeEpiphany.Dojos.Actions.OpenChallengeGroup.text"))
+                presentation.setDescription(
+                  PluginBundle.message("group.CodeEpiphany.Dojos.Actions.OpenChallengeGroup.description")
+                )
+              case _ =>
+                presentation.setText(myLanguage.show)
+                presentation.setDescription(myLanguage.show)
     }
 
     override def getActionUpdateThread: ActionUpdateThread = ActionUpdateThread.BGT
@@ -65,6 +69,8 @@ object OpenChallengeActionGroup {
 
   trait OpenChallengeProvider {
     def openCurrentSelectedChallenge(language: Language, languageVersion: LanguageVersion): Unit
+
+    def currentSelectedCanBeOpened: Boolean
 
     def getLanguages: List[(Language, LanguageVersion)]
   }

@@ -3,7 +3,7 @@ package com.wenjunhuang.codeepiphany.hackerrank
 import io.circe.derivation.Configuration
 
 package object model {
-  given hackerRankConfig: Configuration = Configuration.default.withSnakeCaseMemberNames.withDefaults
+  given Configuration = Configuration.default.withSnakeCaseMemberNames.withDefaults
 
   final val EMPTY_USERINFO: HackerRankUserInfo = HackerRankUserInfo("", "", "")
 
