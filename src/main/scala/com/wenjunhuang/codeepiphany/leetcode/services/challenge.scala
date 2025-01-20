@@ -97,7 +97,8 @@ object challenge {
             .evalOnEDTAny()
         case Some((content, codeSnippet)) =>
           val template = LeetCodeChallengeCodeTemplate(
-            dojoId = content.frontendQuestionId,
+            questionId = content.questionId,
+            frontendQuestionId = content.frontendQuestionId,
             dojo = codeDojo,
             name = content.translatedTitle.filter(_.nonEmpty).getOrElse(content.title),
             code = codeSnippet.code,
@@ -150,7 +151,7 @@ object challenge {
           val dsl = trx.dsl()
           val challengeRecord = dsl.fetchOne(
             CHALLENGE,
-            CHALLENGE.DOJO.eq(codeDojo.value).and(CHALLENGE.DOJOID.eq(challenge.dojoId))
+            CHALLENGE.DOJO.eq(codeDojo.value).and(CHALLENGE.DOJOID.eq(challenge.questionId))
           ) match {
             case null => dsl.newRecord(CHALLENGE).setId(IdGenerator.nextId())
             case r    => r
@@ -158,7 +159,7 @@ object challenge {
           challengeRecord.setDescription(challenge.description)
           challengeRecord.setDifficulty(challenge.difficulty)
           challengeRecord.setDojo(challenge.dojo.value)
-          challengeRecord.setDojoid(challenge.dojoId)
+          challengeRecord.setDojoid(challenge.questionId)
           challengeRecord.setSlug(challenge.slug)
           challengeRecord.setTitle(challenge.name)
           challengeRecord.store()

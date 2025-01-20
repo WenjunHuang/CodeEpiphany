@@ -1,12 +1,6 @@
 package com.wenjunhuang.codeepiphany.utils
 
 object Tabulator {
-  def format(header: Seq[Any], data: Seq[Seq[Any]]): String = {
-    require(data.nonEmpty)
-    val rows = header +: data
-    format(rows)
-  }
-
   def format(table: Seq[Any]*): String = table match {
     case Seq() => ""
     case _ =>

@@ -7,7 +7,9 @@ import com.intellij.openapi.actionSystem.{ ActionUpdateThread, AnActionEvent, Co
 import com.wenjunhuang.codeepiphany.actions.LoginAction
 import com.wenjunhuang.codeepiphany.database.Tables.CHALLENGE
 import com.wenjunhuang.codeepiphany.model.{ ChallengeRepository, CodeDojo }
+import com.wenjunhuang.codeepiphany.services.AuthService
 import com.wenjunhuang.codeepiphany.settings.ChallengeSettings
+import com.wenjunhuang.codeepiphany.PluginBundle
 
 class EditorMenuActionGroup extends DefaultActionGroup {
   override def update(e: AnActionEvent): Unit = {
@@ -21,7 +23,7 @@ class EditorMenuActionGroup extends DefaultActionGroup {
         ChallengeSettings.getInstance(project).findChallengeId(vf.getCanonicalPath) match
           case Some(challenge) =>
             val repository = ChallengeRepository.getInstance(project)
-            val icon = Option(
+            Option(
               repository.getDSLContext
                 .select(CHALLENGE.DOJO)
                 .from(CHALLENGE)
@@ -29,11 +31,11 @@ class EditorMenuActionGroup extends DefaultActionGroup {
                 .fetchOne()
             ).flatMap(r => Option(r.value1()))
               .flatMap(v => CodeDojo.fromCIString(CIString(v)))
-              .flatMap(_.getIcon) match
-              case None       => null
-              case Some(icon) => icon
-            presentation.setEnabled(true)
-            presentation.setIcon(icon)
+              .foreach { codeDojo =>
+                presentation.setIcon(codeDojo.getIcon.orNull)
+                if AuthService.getInstance(project).isLoggedIn(codeDojo) then presentation.setEnabled(true)
+                else presentation.setText(PluginBundle.message("group.CodeEpiphany.Editor.Menu.login"))
+              }
           case _ =>
   }
 

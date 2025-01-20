@@ -5,7 +5,7 @@ import cats.effect.std.Queue
 import cats.syntax.all.*
 import fs2.Stream
 import java.awt.Font
-import java.awt.datatransfer.{DataFlavor, StringSelection}
+import java.awt.datatransfer.{ DataFlavor, StringSelection }
 import java.awt.event.ActionEvent
 import java.net.HttpCookie
 import javax.swing.*
@@ -24,19 +24,19 @@ import com.intellij.openapi.actionSystem.*
 import com.intellij.openapi.editor.colors.impl.AppEditorFontOptions
 import com.intellij.openapi.ide.CopyPasteManager
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.ui.{ComponentValidator, DialogWrapper, ValidationInfo}
+import com.intellij.openapi.ui.{ ComponentValidator, DialogWrapper, ValidationInfo }
 import com.intellij.openapi.util.Disposer
-import com.intellij.ui.{AnimatedIcon, DocumentAdapter, PopupHandler}
-import com.intellij.ui.components.{JBScrollPane, JBTextArea}
-import com.intellij.ui.content.{ContentManagerEvent, ContentManagerListener, TabbedPaneContentUI}
+import com.intellij.ui.{ AnimatedIcon, DocumentAdapter, PopupHandler }
+import com.intellij.ui.components.{ JBScrollPane, JBTextArea }
+import com.intellij.ui.content.{ ContentManagerEvent, ContentManagerListener, TabbedPaneContentUI }
 import com.intellij.ui.content.impl.ContentManagerImpl
-import com.intellij.ui.jcef.{JBCefBrowser, JBCefBrowserBuilder}
+import com.intellij.ui.jcef.{ JBCefBrowser, JBCefBrowserBuilder }
 import com.intellij.util.ui.JBUI
 
 import com.wenjunhuang.codeepiphany.PluginBundle
 import com.wenjunhuang.codeepiphany.model.CodeDojo
-import com.wenjunhuang.codeepiphany.services.auth.{validateUserCookieAndTestLogin, AskForLoginResult}
-import com.wenjunhuang.codeepiphany.services.http.{HttpClientManager, HttpClientService}
+import com.wenjunhuang.codeepiphany.services.http.{ HttpClientManager, HttpClientService }
+import com.wenjunhuang.codeepiphany.services.{ AskForLoginResult, AuthService }
 import com.wenjunhuang.codeepiphany.utils.implicits.*
 import com.wenjunhuang.codeepiphany.utils.isDebug
 
@@ -86,7 +86,7 @@ class LoginDialog(
     true
   )
 
-  implicit private val myHttpClientKeeper: HttpClientManager[IO] =
+  private implicit val myHttpClientKeeper: HttpClientManager[IO] =
     HttpClientService.getInstance(myProject).httpClientManager
 
   private val myOkAction: OkAction = new OkAction {
@@ -96,26 +96,31 @@ class LoginDialog(
       myOkAction.setEnabled(false)
       myOkAction.putValue(Action.SMALL_ICON, AnimatedIcon.Default.INSTANCE)
       myOkAction.putValue(Action.NAME, PluginBundle.message("loginDialog.validating"))
-      validateUserCookieAndTestLogin[IO](myProject, myCodeDojo, text).flatMap {
-        case true =>
-          IO.delay(myLoginCallback(Right(AskForLoginResult.Done))) *> IO
-            .delay(close(DialogWrapper.OK_EXIT_CODE, true))
-            .evalOnEDTAny()
-        case false =>
-          IO.delay {
-            ComponentValidator
-              .getInstance(myCookieText)
-              .ifPresent(v =>
-                v.updateInfo(ValidationInfo(PluginBundle.message("loginDialog.cookie.error"), myCookieText))
-              )
 
-            myCookieText.setEnabled(true)
-            myCookieText.requestFocus()
-            myOkAction.setEnabled(true)
-            myOkAction.putValue(Action.SMALL_ICON, null)
-            myOkAction.putValue(Action.NAME, PluginBundle.message("loginDialog.ok"))
-          }.evalOnEDTAny()
-      }.unsafeRunAndForget()
+      AuthService
+        .getInstance(myProject)
+        .validateUserCookieAndTestLogin[IO](myCodeDojo, text)
+        .flatMap {
+          case true =>
+            IO.delay(myLoginCallback(Right(AskForLoginResult.Done))) *> IO
+              .delay(close(DialogWrapper.OK_EXIT_CODE, true))
+              .evalOnEDTAny()
+          case false =>
+            IO.delay {
+              ComponentValidator
+                .getInstance(myCookieText)
+                .ifPresent(v =>
+                  v.updateInfo(ValidationInfo(PluginBundle.message("loginDialog.cookie.error"), myCookieText))
+                )
+
+              myCookieText.setEnabled(true)
+              myCookieText.requestFocus()
+              myOkAction.setEnabled(true)
+              myOkAction.putValue(Action.SMALL_ICON, null)
+              myOkAction.putValue(Action.NAME, PluginBundle.message("loginDialog.ok"))
+            }.evalOnEDTAny()
+        }
+        .unsafeRunAndForget()
     }
   }
 
@@ -241,12 +246,15 @@ class LoginDialog(
           .evalTap { cookies =>
             if myCodeDojo.loginCandidateCookies(cookies) then
               // found a candidate cookie, but need to test it to see if it's valid
-              validateUserCookieAndTestLogin[IO](myProject, myCodeDojo, cookies).flatMap {
-                case true =>
-                  IO.delay(myLoginCallback(Right(AskForLoginResult.Done))) *>
-                    IO.delay(close(DialogWrapper.OK_EXIT_CODE)).evalOnEDTAny()
-                case false => myLogger.warn("Browser login failed")
-              }
+              AuthService
+                .getInstance(myProject)
+                .validateUserCookieAndTestLogin[IO](myCodeDojo, cookies)
+                .flatMap {
+                  case true =>
+                    IO.delay(myLoginCallback(Right(AskForLoginResult.Done))) *>
+                      IO.delay(close(DialogWrapper.OK_EXIT_CODE)).evalOnEDTAny()
+                  case false => myLogger.warn("Browser login failed")
+                }
             else myLogger.warn(s"Browser login failed due to no candidate cookie. CodeDojo:$myCodeDojo")
           }
           .onFinalize(myLogger.info("Cookie processing stream finalized"))

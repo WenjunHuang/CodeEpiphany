@@ -120,22 +120,6 @@ class QueryParametersPresenter(private val myProject: Project, private val myCod
 
   myQueryWorker.unsafeRunAndForget()
 
-  myProject.getMessageBus
-    .connect(this)
-    .subscribe(
-      messages.LOGIN_LOGOUT_TOPIC,
-      new messages.LoginLogoutNotifier {
-        override def login(codeDojo: CodeDojo): Unit = {
-          if codeDojo == myCodeDojo then requery()
-        }
-
-        override def logout(codeDojo: CodeDojo): Unit =
-          if codeDojo == myCodeDojo then
-            myInitialData = InitialData(LeetCodeUserInfo.EMPTY_USERINFO)
-            myState = EMPTY_STATE
-      }
-    )
-
   Disposer.register(myProject, this)
 
   override def getDirectionOf(field: LeetCodeSearchOrderBy): Option[OrderDirection] = myState.orderBy.collect {
@@ -149,11 +133,12 @@ class QueryParametersPresenter(private val myProject: Project, private val myCod
     requery()
   }
 
-  def getInitialData: IO[InitialData] = {
+  def initialize(): IO[InitialData] = {
     (myApi.getUserInfo, myApi.getCategoryList, myApi.getFavoriteList, myApi.getTagTypeWithTags).parMapN {
       (userInfo, categories, favorites, tagTypeWithTags) =>
         myView.getTableModel.userIsPremium = userInfo.isPremium.contains(true)
         myInitialData = InitialData(userInfo, categories, favorites, tagTypeWithTags)
+        requery()
         myInitialData
     }
   }
@@ -471,7 +456,7 @@ class QueryParametersPresenter(private val myProject: Project, private val myCod
     myView.refreshTagToolbar()
   }
 
-  private def requery(resetToFirstPage: Boolean = true): Unit =
+  def requery(resetToFirstPage: Boolean = true): Unit =
     myQueryQueue.foreach { q =>
       val state = if resetToFirstPage then myState.resetToFirstPage() else myState
       q.offer(Some(state)).unsafeRunAndForget()

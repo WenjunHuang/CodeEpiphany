@@ -79,10 +79,14 @@ object leetcode {
         result.stdOutputList
           .zip(result.expectedStdOutputList)
       )).filter { case (_, (output, expected)) => output != expected }.map { case (testCase, (output, expected)) =>
-      List(testCase, output, expected)
+      List(
+        StringUtil.escapeLineBreak(testCase),
+        StringUtil.escapeLineBreak(output),
+        StringUtil.escapeLineBreak(expected)
+      )
     }
 
-    Tabulator.format(header, codeAnswer)
+    Tabulator.format((header +: codeAnswer)*)
   }
 
   private def reportRunResult[F[_]: Async: Concurrent: HttpClientManager](
@@ -132,16 +136,16 @@ object leetcode {
         val msg = Tabulator.format(
           List("Input", "Output", "Expected"),
           List(
-            s"${success.input.getOrElse("")}",
-            s"${success.codeOutput.getOrElse("")}",
-            s"${success.expectedOutput.getOrElse("")}"
+            s"${StringUtil.escapeLineBreak(success.input.getOrElse(""))}",
+            s"${StringUtil.escapeLineBreak(success.codeOutput.getOrElse(""))}",
+            s"${StringUtil.escapeLineBreak(success.expectedOutput.getOrElse(""))}"
           )
         )
         console.error[F](project, s"${success.statusMsg}\n$msg")
       case SubmissionResult.CompilationError =>
         console.error[F](
           project,
-          s"Compilation Error: \n ${success.fullRuntimeError.orElse(success.compileError).getOrElse(success.statusMsg)}"
+          s"Compilation Error: \n ${success.fullCompileError.orElse(success.compileError).getOrElse(success.statusMsg)}"
         )
       case SubmissionResult.Timeout => console.error[F](project, success.statusMsg)
       case SubmissionResult.RuntimeError =>

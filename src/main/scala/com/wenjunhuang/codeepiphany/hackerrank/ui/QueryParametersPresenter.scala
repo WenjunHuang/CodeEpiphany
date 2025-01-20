@@ -122,23 +122,9 @@ class QueryParametersPresenter(private val myProject: Project) extends Disposabl
 
   myQueryWorker.unsafeRunAndForget()
 
-  myProject.getMessageBus
-    .connect(this)
-    .subscribe(
-      messages.LOGIN_LOGOUT_TOPIC,
-      new messages.LoginLogoutNotifier {
-        override def login(codeDojo: CodeDojo): Unit = {}
-
-        override def logout(codeDojo: CodeDojo): Unit =
-          if codeDojo == HackerRank then
-            myInitialData = InitialData(EMPTY_USERINFO, Nil)
-            myState = QueryParams(PROJECT_EULER_DOMAIN, Nil, Nil, None, Nil)
-      }
-    )
-
   Disposer.register(myProject, this)
 
-  def getInitialData: IO[Unit] = {
+  def initialize(): IO[Unit] = {
     myApi.getInitialData.map { case (userInfo, challengeDomains) =>
       myInitialData = InitialData(userInfo, challengeDomains.sortBy(_.id) :+ PROJECT_EULER_DOMAIN)
       myState = EMPTY_STATE.copy(selectedDomain = myInitialData.challengeDomains.head)

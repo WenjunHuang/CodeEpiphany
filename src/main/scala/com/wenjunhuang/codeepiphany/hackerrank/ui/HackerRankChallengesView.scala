@@ -14,11 +14,10 @@ import com.wenjunhuang.codeepiphany.hackerrank.actions.ChangeChallengesUIAction.
   ChallengesUI,
   ChangeChallengesUIProvider
 }
-import com.wenjunhuang.codeepiphany.model.{ messages, CodeDojo }
+import com.wenjunhuang.codeepiphany.model.CodeDojo
 import com.wenjunhuang.codeepiphany.model.Actions.HACKERRANK_TITLE_TOOLBAR_GROUP
 import com.wenjunhuang.codeepiphany.model.CodeDojo.HackerRank
-import com.wenjunhuang.codeepiphany.services.auth.{ askForLogout, loadAuthenticationMayAskForLogin, AskForLoginResult }
-import com.wenjunhuang.codeepiphany.services.console
+import com.wenjunhuang.codeepiphany.services.{ console, AskForLoginResult, AuthService }
 import com.wenjunhuang.codeepiphany.services.http.{ HttpClientManager, HttpClientService }
 import com.wenjunhuang.codeepiphany.utils.extensions.*
 import com.wenjunhuang.codeepiphany.utils.implicits.*
@@ -38,47 +37,29 @@ class HackerRankChallengesView(private val myProject: Project)
   private var myCurrentUI              = ChallengesUI.Unauthenticated
 
   @volatile
-  private var myHasLoggedIn = false
-
-  @volatile
   private var myIsLoggingIn = false
 
   select(myCurrentUI, false)
 
   private val myLoginLogoutProvider = new LoginLogoutProvider {
     override def login(): Unit = {
-      myIsLoggingIn = true
-      (console.info[IO](myProject, "Logging in to HackerRank...") *>
-        loadAuthenticationMayAskForLogin[IO](myProject, CodeDojo.HackerRank).flatMap {
-          case AskForLoginResult.Done =>
-            myQueryParamPresenter.getInitialData // Load data for the first time before switching to the UI
-              *> IO.delay {
-                myProject.getMessageBus.syncPublisher(messages.LOGIN_LOGOUT_TOPIC).login(CodeDojo.HackerRank)
-                myHasLoggedIn = true
-                mySwitchUIProvider.switchTo(ChallengesUI.QueryParameters)
-              }.evalOnEDTAny() *> console.info[IO](myProject, "Logged in to HackerRank.")
-          case _ => console.info[IO](myProject, "Login to HackerRank canceled.")
-        }.handleErrorWith { e => console.error[IO](myProject, s"Login failed because of \"${e.getMessage}\"") })
-        .guarantee(IO.delay { myIsLoggingIn = false })
-        .unsafeRunAsBackgroundProgressCancellable(myProject, "Logging in to HackerRank...")
+      performLogin()
     }
 
-    override def logout(): Unit = (askForLogout[IO](myProject, CodeDojo.HackerRank)
-      *> IO.delay(myProject.getMessageBus.syncPublisher(messages.LOGIN_LOGOUT_TOPIC).logout(CodeDojo.HackerRank))
-      *> IO.delay {
-        myHasLoggedIn = false
-        mySwitchUIProvider.switchTo(ChallengesUI.Unauthenticated)
-      }.evalOnEDTAny()).unsafeRunAndForget()
+    override def logout(): Unit = {
+      performLogout()
+    }
 
-    override def hasLoggedIn: Boolean = myHasLoggedIn
+    override def hasLoggedIn: Boolean = AuthService.getInstance(myProject).isLoggedIn(CodeDojo.HackerRank)
 
     override def isLoggingIn: Boolean = myIsLoggingIn
   }
 
   private val mySwitchUIProvider = new ChangeChallengesUIProvider {
-    override def switchTo(ui: ChallengesUI): Unit =
+    override def switchTo(ui: ChallengesUI): Unit = {
       myCurrentUI = ui
       select(ui, false)
+    }
 
     override def getCurrentUI: ChallengesUI = myCurrentUI
   }
@@ -97,7 +78,36 @@ class HackerRankChallengesView(private val myProject: Project)
     case ChallengesUI.SearchByKeyword => myKeywordSearchPresenter.getComponent
   }
 
-  override def uiDataSnapshot(dataSink: DataSink): Unit =
+  override def uiDataSnapshot(dataSink: DataSink): Unit = {
     dataSink.set(LOGIN_LOGOUT_KEY, myLoginLogoutProvider)
     dataSink.set(CHANGE_CHALLENGES_UI_PROVIDER_KEY, mySwitchUIProvider)
+  }
+
+  private def performLogin(): Unit = {
+    myIsLoggingIn = true
+    (console.info[IO](myProject, "Logging in to HackerRank...") *>
+      AuthService
+        .getInstance(myProject)
+        .loadAuthenticationMayAskForLogin[IO](CodeDojo.HackerRank)
+        .flatMap {
+          case AskForLoginResult.Done =>
+            myQueryParamPresenter.initialize() *>
+            IO.delay {
+              AuthService.getInstance(myProject).setLogin(CodeDojo.HackerRank)
+              mySwitchUIProvider.switchTo(ChallengesUI.QueryParameters)
+            }.evalOnEDTAny() *> console.info[IO](myProject, "Logged in to HackerRank.")
+          case _ => console.info[IO](myProject, "Login to HackerRank canceled.")
+        }
+        .handleErrorWith { e => console.error[IO](myProject, s"Login failed because of \"${e.getMessage}\"") })
+      .guarantee(IO.delay { myIsLoggingIn = false })
+      .unsafeRunAsBackgroundProgressCancellable(myProject, "Logging in to HackerRank...")
+  }
+
+  private def performLogout(): Unit = {
+    (AuthService.getInstance(myProject).askForLogout[IO](CodeDojo.HackerRank)
+      *> IO.delay {
+        AuthService.getInstance(myProject).clearLogin(CodeDojo.HackerRank)
+        mySwitchUIProvider.switchTo(ChallengesUI.Unauthenticated)
+      }.evalOnEDTAny()).unsafeRunAndForget()
+  }
 }

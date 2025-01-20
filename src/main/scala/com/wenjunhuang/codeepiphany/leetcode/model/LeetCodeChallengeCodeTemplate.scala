@@ -6,7 +6,9 @@ import com.wenjunhuang.codeepiphany.model.{ CodeDojo, Language, LanguageVersion 
 
 case class LeetCodeChallengeCodeTemplate(
   @BeanProperty
-  dojoId: String,
+  questionId: String,
+  @BeanProperty
+  frontendQuestionId:String,
   dojo: CodeDojo,
   @BeanProperty
   name: String,

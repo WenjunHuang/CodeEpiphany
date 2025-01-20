@@ -17,10 +17,9 @@ import com.wenjunhuang.codeepiphany.leetcode.actions.LeetCodeChangeUIAction.{
   LeetCodeUI
 }
 import com.wenjunhuang.codeepiphany.leetcode.actions.LeetCodeChangeUIAction.LeetCodeUI.*
-import com.wenjunhuang.codeepiphany.model.{ messages, CodeDojo }
+import com.wenjunhuang.codeepiphany.model.CodeDojo
 import com.wenjunhuang.codeepiphany.model.Actions.LEETCODE_TITLE_TOOLBAR_GROUP
-import com.wenjunhuang.codeepiphany.services.auth.{ askForLogout, loadAuthenticationMayAskForLogin, AskForLoginResult }
-import com.wenjunhuang.codeepiphany.services.console
+import com.wenjunhuang.codeepiphany.services.{ console, AskForLoginResult, AuthService }
 import com.wenjunhuang.codeepiphany.services.http.{ HttpClientManager, HttpClientService }
 import com.wenjunhuang.codeepiphany.utils.extensions.*
 import com.wenjunhuang.codeepiphany.utils.implicits.*
@@ -41,9 +40,6 @@ class LeetCodeChallengesView(private val myProject: Project, private val myCodeD
   private val myLogger                 = LoggerFactory.getLogger[IO]
 
   @volatile
-  private var myHasLoggedIn = false
-
-  @volatile
   private var myIsLoggingIn = false
 
   select(myCurrentUI, false)
@@ -52,32 +48,39 @@ class LeetCodeChallengesView(private val myProject: Project, private val myCodeD
     override def login(): Unit = {
       myIsLoggingIn = true
       (console.info[IO](myProject, s"Logging in to ${myCodeDojo.show}...") *>
-        loadAuthenticationMayAskForLogin[IO](myProject, myCodeDojo).flatMap {
-          case AskForLoginResult.Done =>
-            myQueryParamPresenter.getInitialData.map { initData =>
-              myKeywordSearchPresenter.setInitialData(initData) // Load data for the first time before switching to the UI
-            } *> IO.delay {
-              myProject.getMessageBus.syncPublisher(messages.LOGIN_LOGOUT_TOPIC).login(myCodeDojo)
-              myHasLoggedIn = true
-              mySwitchUIProvider.switchTo(QueryParameters)
-            }.evalOnEDTAny() *> console.info[IO](myProject, s"Logged in to ${myCodeDojo.show}.")
-          case _ => console.info[IO](myProject, s"Login to ${myCodeDojo.show} canceled.")
-        }.handleErrorWith { e =>
-          myLogger.warn(e)("Failed to login") *>
-            console.error[IO](myProject, s"Login failed because of \"${e.getMessage}\"")
-        })
+        AuthService
+          .getInstance(myProject)
+          .loadAuthenticationMayAskForLogin[IO](myCodeDojo)
+          .flatMap {
+            case AskForLoginResult.Done =>
+              myQueryParamPresenter.initialize().map { initData =>
+                myKeywordSearchPresenter.setInitialData(
+                  initData
+                ) // Load data for the first time before switching to the UI
+              } *> IO.delay {
+                AuthService.getInstance(myProject).setLogin(myCodeDojo)
+                mySwitchUIProvider.switchTo(QueryParameters)
+              }.evalOnEDTAny()
+                *> console.info[IO](myProject, s"Logged in to ${myCodeDojo.show}.")
+            case _ => console.info[IO](myProject, s"Login to ${myCodeDojo.show} canceled.")
+          }
+          .handleErrorWith { e =>
+            myLogger.warn(e)("Failed to login") *>
+              console.error[IO](myProject, s"Login failed because of \"${e.getMessage}\"")
+          })
         .guarantee(IO.delay { myIsLoggingIn = false })
         .unsafeRunAsBackgroundProgressCancellable(myProject, s"Logging in to ${myCodeDojo.show}...")
     }
 
-    override def logout(): Unit = (askForLogout[IO](myProject, myCodeDojo)
-      *> IO.delay(myProject.getMessageBus.syncPublisher(messages.LOGIN_LOGOUT_TOPIC).logout(myCodeDojo))
+    override def logout(): Unit = (AuthService
+      .getInstance(myProject)
+      .askForLogout[IO](myCodeDojo)
       *> IO.delay {
-        myHasLoggedIn = false
+        AuthService.getInstance(myProject).clearLogin(myCodeDojo)
         mySwitchUIProvider.switchTo(Unauthenticated)
       }.evalOnEDTAny()).unsafeRunAndForget()
 
-    override def hasLoggedIn: Boolean = myHasLoggedIn
+    override def hasLoggedIn: Boolean = AuthService.getInstance(myProject).isLoggedIn(myCodeDojo)
 
     override def isLoggingIn: Boolean = myIsLoggingIn
   }

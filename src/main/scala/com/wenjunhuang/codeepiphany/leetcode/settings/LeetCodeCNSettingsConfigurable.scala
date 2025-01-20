@@ -83,6 +83,7 @@ object LeetCodeCNSettingsConfigurable {
           (language, languageVersion) ->
             LeetCodeChallengeCodeTemplate(
               "4",
+              "4",
               LeetCodeCN,
               "寻找两个正序数组的中位数",
               StringUtil.replace(code, "\\n", "\n"),
