@@ -3,13 +3,14 @@ package com.wenjunhuang.codeepiphany.editor.actions
 import cats.effect.IO
 
 import com.intellij.openapi.actionSystem.*
+import com.intellij.openapi.fileEditor.{ FileDocumentManager, FileEditorManager }
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Key
-import com.intellij.openapi.vfs.VirtualFile
+import com.intellij.openapi.vfs.{ VfsUtil, VirtualFile }
 
 import com.wenjunhuang.codeepiphany.editor.actions.SubmitCodeAction.*
-import com.wenjunhuang.codeepiphany.editor.services.{runCode, submitCode}
-import com.wenjunhuang.codeepiphany.services.http.{HttpClientManager, HttpClientService}
+import com.wenjunhuang.codeepiphany.editor.services.{ runCode, submitCode }
+import com.wenjunhuang.codeepiphany.services.http.{ HttpClientManager, HttpClientService }
 import com.wenjunhuang.codeepiphany.utils.extensions.*
 import com.wenjunhuang.codeepiphany.utils.implicits.*
 
@@ -52,13 +53,20 @@ object SubmitCodeAction {
       implicit val httpClientKeeper: HttpClientManager[IO] = HttpClientService.getInstance(project).httpClientManager
 
       override def submitCurrent(): Unit = {
-        submitCode[IO](vf, project)
+        (saveFile() *>
+          submitCode[IO](vf, project))
           .unsafeRunAsBackgroundProgressCancellable(project, "Submitting code")
       }
 
       override def runCurrent(): Unit = {
-        runCode[IO](vf, project)
+        (saveFile() *>
+          runCode[IO](vf, project))
           .unsafeRunAsBackgroundProgressCancellable(project, "Running code")
       }
+
+      private def saveFile(): IO[Unit] = IO.delay {
+        val fdm = FileDocumentManager.getInstance()
+        if fdm.isFileModified(vf) then fdm.saveDocument(fdm.getDocument(vf))
+      }.evalOnWrite()
   }
 }

@@ -1,6 +1,6 @@
 package com.wenjunhuang.codeepiphany.leetcode.services
 
-import cats.effect.{Async, Concurrent}
+import cats.effect.{ Async, Concurrent }
 import cats.effect.implicits.*
 import cats.syntax.all.*
 import java.io.File
@@ -8,15 +8,15 @@ import org.typelevel.log4cats.Logger
 
 import com.intellij.openapi.options.ShowSettingsUtil
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.ui.{MessageDialogBuilder, Messages}
+import com.intellij.openapi.ui.{ MessageDialogBuilder, Messages }
 import com.intellij.openapi.util.text.StringUtil
 
-import com.wenjunhuang.codeepiphany.database.Tables.{CHALLENGE, CHALLENGE_LANGUAGE, LEETCODE_CHALLENGE}
+import com.wenjunhuang.codeepiphany.database.Tables.{ CHALLENGE, CHALLENGE_LANGUAGE, LEETCODE_CHALLENGE }
 import com.wenjunhuang.codeepiphany.leetcode.model.*
-import com.wenjunhuang.codeepiphany.leetcode.settings.{LeetCodeCNSettings, LeetCodeCNSettingsConfigurable}
+import com.wenjunhuang.codeepiphany.leetcode.settings.{ LeetCodeCNSettings, LeetCodeCNSettingsConfigurable }
 import com.wenjunhuang.codeepiphany.model.*
-import com.wenjunhuang.codeepiphany.model.ChallengeRepository.{ChallengeId, ChallengeLanguageId}
-import com.wenjunhuang.codeepiphany.services.file.{openTextEditor, refreshAndFindFileByIoFile, saveTextToFile}
+import com.wenjunhuang.codeepiphany.model.ChallengeRepository.{ ChallengeId, ChallengeLanguageId }
+import com.wenjunhuang.codeepiphany.services.file.{ openTextEditor, refreshAndFindFileByIoFile, saveTextToFile }
 import com.wenjunhuang.codeepiphany.services.http.HttpClientManager
 import com.wenjunhuang.codeepiphany.settings.ChallengeSettings
 import com.wenjunhuang.codeepiphany.settings.ChallengeSettings.ChallengeSettingsStateItem
@@ -76,8 +76,7 @@ object challenge {
     fileNameTemplate: String,
     codeTemplate: String
   ): F[Unit] = {
-    val api = LeetCodeApi[F](codeDojo)
-    api
+    LeetCodeApi[F](codeDojo)
       .getQuestionData(challengeSlug)
       .map { content =>
         content.codeSnippets.find { snippet =>
@@ -186,7 +185,7 @@ object challenge {
             .newRecord(LEETCODE_CHALLENGE)
             .setId(challengeRecord.getId)
             .setFrontendquestionid(content.frontendQuestionId)
-            .setTestcase(content.testCase)
+            .setTestcase(content.exampleTestcases)
           leetCodeChallengeRecord.store()
 
           (ChallengeId(challengeRecord.getId), ChallengeLanguageId(challengeLanguageRecord.getId))
