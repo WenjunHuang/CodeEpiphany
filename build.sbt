@@ -7,7 +7,7 @@ ThisBuild / intellijBuild    := "242.20224.300"
 lazy val codeEpiphany = (project in file("."))
   .settings(
     name    := "CodeEpiphany",
-    version := "0.7.0",
+    version := "0.7.1",
     scalacOptions ++= Seq(
       "-Wunused:imports",
       "-language:implicitConversions",
