@@ -142,6 +142,7 @@ public class CodeDojoSettingsForm extends SettingsUi<BaseCodeDojoSettings.CodeDo
         var languageSettings = new LanguageSettingsPanel(myProject(),
                 myCodeDojo,
                 myDemoTemplateSupplier);
+        Disposer.register(this, languageSettings);
         languageSettings.reset(languageSettingsState);
         var language = languageSettingsState.language().get();
         var languageVer = languageSettingsState.languageVersion().get();

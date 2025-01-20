@@ -4,7 +4,7 @@ import com.intellij.openapi.actionSystem.*
 
 import com.wenjunhuang.codeepiphany.PluginBundle
 import com.wenjunhuang.codeepiphany.actions.OpenChallengeActionGroup.*
-import com.wenjunhuang.codeepiphany.model.{ Language, LanguageVersion }
+import com.wenjunhuang.codeepiphany.model.{Language, LanguageVersion}
 
 class OpenChallengeActionGroup extends ActionGroup {
   override def getChildren(e: AnActionEvent): Array[AnAction] = {
@@ -15,20 +15,20 @@ class OpenChallengeActionGroup extends ActionGroup {
   }
 
   override def update(e: AnActionEvent): Unit = {
-    Option(CHALLENGE_PROVIDER_KEY.getData(e.getDataContext)) match
-      case None => e.getPresentation.setEnabledAndVisible(false)
-      case Some(provider) =>
-        val presentation = e.getPresentation
-        if !provider.currentSelectedCanBeOpened then presentation.setEnabled(false)
-        else
-          provider.getLanguages match
-            case Nil => presentation.setEnabled(false)
-            case _ :: Nil =>
-              presentation.setEnabledAndVisible(true)
-              presentation.setPopupGroup(false)
-            case _ =>
-              presentation.setEnabledAndVisible(true)
-              presentation.setPopupGroup(true)
+    val presentation = e.getPresentation
+    presentation.setEnabled(true)
+
+    for
+      challengeProvider <- Option(CHALLENGE_PROVIDER_KEY.getData(e.getDataContext))
+    yield
+      if !challengeProvider.currentSelectedCanBeOpened then presentation.setEnabled(false)
+      else
+        challengeProvider.getLanguages match
+          case Nil => presentation.setEnabled(false)
+          case _ :: Nil =>
+            presentation.setPopupGroup(false)
+          case _ =>
+            presentation.setPopupGroup(true)
   }
 
   override def getActionUpdateThread: ActionUpdateThread = ActionUpdateThread.BGT

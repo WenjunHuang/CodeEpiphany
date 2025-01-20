@@ -29,7 +29,7 @@ object auth {
       case _                   => false.pure[F]
 
   def loadAuthentication[F[_]: Async: HttpClientManager](project: Project, codeDojo: CodeDojo): F[Unit] =
-    Async[F].blocking(SensitiveDataStore.loadData(codeDojo.show)).flatMap {
+    Async[F].blocking(SensitiveDataStore.loadData(codeDojo.value)).flatMap {
       case Some(authCookies) =>
         Async[F]
           .delay(CookieUtil.parseCookies(authCookies))
@@ -44,7 +44,7 @@ object auth {
   ): F[Unit] =
     Async[F].delay {
       SensitiveDataStore.saveData(
-        codeDojo.show,
+        codeDojo.value,
         authCookies.map(cookie => s"${cookie.getName}=${cookie.getValue}").mkString(";")
       )
     }

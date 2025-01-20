@@ -16,7 +16,7 @@ import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.vfs.{ VirtualFile, VirtualFileUtil }
 
 import com.wenjunhuang.codeepiphany.database.Tables.*
-import com.wenjunhuang.codeepiphany.leetcode.model.*
+import com.wenjunhuang.codeepiphany.leetcode.model.{ submitAnswer, * }
 import com.wenjunhuang.codeepiphany.leetcode.model.runCode.LeetCodeRunResult
 import com.wenjunhuang.codeepiphany.leetcode.model.submitAnswer.LeetCodeSubmitAnswerResult
 import com.wenjunhuang.codeepiphany.leetcode.services.LeetCodeApi
@@ -113,6 +113,46 @@ object leetcode {
       case SubmissionResult.Processing => console.info[F](project, "Processing...")
   }
 
+  private def reportSubmitResult[F[_]: Async: Concurrent: HttpClientManager](
+    project: Project,
+    result: SubmissionResult,
+    success: LeetCodeSubmitAnswerResult.Success
+  ) = {
+    result match
+      case SubmissionResult.Success =>
+        val msg = Tabulator.format(
+          List("Runtime", "Memory"),
+          List(
+            s"${success.statusRuntime} defeated ${success.runtimePercentile.getOrElse(0.0)}%",
+            s"${success.statusMemory} defeated ${success.memoryPercentile.getOrElse(0.0)}%"
+          )
+        )
+        console.info[F](project, s"🎉 Passed!\n$msg")
+      case SubmissionResult.Failure =>
+        val msg = Tabulator.format(
+          List("Input", "Output", "Expected"),
+          List(
+            s"${success.input.getOrElse("")}",
+            s"${success.codeOutput.getOrElse("")}",
+            s"${success.expectedOutput.getOrElse("")}"
+          )
+        )
+        console.error[F](project, s"${success.statusMsg}\n$msg")
+      case SubmissionResult.CompilationError =>
+        console.error[F](
+          project,
+          s"Compilation Error: \n ${success.fullRuntimeError.orElse(success.compileError).getOrElse(success.statusMsg)}"
+        )
+      case SubmissionResult.Timeout => console.error[F](project, success.statusMsg)
+      case SubmissionResult.RuntimeError =>
+        console.error[F](
+          project,
+          s"Runtime Error:\n ${success.fullRuntimeError.orElse(success.runtimeError).getOrElse(success.statusMsg)}"
+        )
+      case SubmissionResult.Unknown    => console.error[F](project, success.statusMsg)
+      case SubmissionResult.Processing => console.info[F](project, "Processing...")
+  }
+
   def submitCode[F[_]: Async: Concurrent: HttpClientManager](
     vf: VirtualFile,
     project: Project,
@@ -127,10 +167,10 @@ object leetcode {
           .use { client =>
             Async[F].delay {
               client.transactionResult { trx =>
-                val dsl                                                  = DSL.using(trx)
-                val (dojoId, testCase, language, langVer, challengeSlug) = queryChallengeBasicInfo(item, dsl)
-                val localCode                                            = VirtualFileUtil.readText(vf)
-                val submitCode                                           = language.extractSubmitCode(localCode)
+                val dsl                                           = DSL.using(trx)
+                val (dojoId, _, language, langVer, challengeSlug) = queryChallengeBasicInfo(item, dsl)
+                val localCode                                     = VirtualFileUtil.readText(vf)
+                val submitCode                                    = language.extractSubmitCode(localCode)
                 val solutionId = item.solutionId.getOrElse(getOrCreateDefaultSolution(dsl, item.challengeId))
 
                 val submissionRecord = dsl
@@ -166,11 +206,16 @@ object leetcode {
               .fetchOptional()
               .toScala match
               case Some(record) =>
-                val result = toSubmissionResult(response.statusMsg)
-                val message =
-                  if result == SubmissionResult.CompilationError then
-                    response.fullCompileError.getOrElse(response.statusMsg)
-                  else response.statusMsg
+                val result = codeDojo.fromLeetCodeRunResult(response.statusMsg)
+                val message = result match
+                  case SubmissionResult.Success | SubmissionResult.Failure | SubmissionResult.Timeout |
+                      SubmissionResult.Failure | SubmissionResult.Unknown | SubmissionResult.Processing =>
+                    response.statusMsg
+                  case SubmissionResult.CompilationError =>
+                    response.fullRuntimeError.orElse(response.compileError).getOrElse(response.statusMsg)
+                  case SubmissionResult.RuntimeError =>
+                    response.fullRuntimeError.orElse(response.runtimeError).getOrElse(response.statusMsg)
+
                 record
                   .setDojosubmissionid(response.submissionId)
                   .setResultdatetime(LocalDateTime.now())
@@ -178,31 +223,19 @@ object leetcode {
                   .setMessage(message)
                 record.store()
 
-                (result, message)
+                (result, response)
               case _ => throw new Exception("Cannot find submission record")
           }
         case None => throw new IllegalStateException("should not happened")
       }
-      .evalTap { case (result, message) =>
-        result match
-          case SubmissionResult.Success =>
-            console.info[F](project, "🎉 Passed!")
-          case SubmissionResult.Failure =>
-            console.error[F](project, message)
-          case SubmissionResult.CompilationError =>
-            console.error[F](project, s"Compilation Error: \n ${message}")
-          case SubmissionResult.Processing =>
-            console.info[F](project, message)
-          case SubmissionResult.Timeout =>
-            console.error[F](project, message)
-          case SubmissionResult.Unknown =>
-            console.error[F](project, message)
+      .evalTap { case (result, response) =>
+        reportSubmitResult(project, result, response)
       }
       .onFinalizeCase {
         case ExitCase.Succeeded =>
           Async[F].unit
         case ExitCase.Errored(e) =>
-          console.error[F](project, s"Error to submit code: \n ${e.getMessage}")
+          console.error[F](project, s"Error to submit code")
         case ExitCase.Canceled =>
           console.warn[F](project, s"Code submission cancelled for ${vf.getCanonicalPath}")
       }
@@ -264,13 +297,5 @@ object leetcode {
       case Some(value) => value
       case None        => throw new Exception("Cannot find data for file")
     }
-  }
-
-  private def toSubmissionResult(status: String): SubmissionResult = {
-    if status == "Accepted" then SubmissionResult.Success
-    else if status == "Wrong Answer" then SubmissionResult.Failure
-    else if status == "Compile error" then SubmissionResult.CompilationError
-    else if status == "Time Limit Exceeded" then SubmissionResult.Timeout
-    else SubmissionResult.Unknown
   }
 }

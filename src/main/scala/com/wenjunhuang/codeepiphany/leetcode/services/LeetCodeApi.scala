@@ -94,11 +94,14 @@ object LeetCodeApi {
     private def commonHeaders(csrfToken: String) =
       Headers("x-csrftoken" -> csrfToken, Referer(Uri.unsafeFromString(s"https://${dojo.domain.toString}/")))
 
-    private def getSubmitAnswerResult(submissionId: String): F[LeetCodeSubmitAnswerResult] =
+    private def getSubmitAnswerResult(submissionId: Int): F[LeetCodeSubmitAnswerResult] =
       useClient { client =>
         getCSRFToken.flatMap { csrfToken =>
           client.expect[LeetCodeSubmitAnswerResult](
-            Uri.unsafeFromString(s"https://${dojo.domain.toString}/submissions/detail/${submissionId}/check/")
+            Method.GET(
+              Uri.unsafeFromString(s"https://${dojo.domain.toString}/submissions/detail/${submissionId}/check/"),
+              headers = commonHeaders(csrfToken)
+            )
           )
         }
       }

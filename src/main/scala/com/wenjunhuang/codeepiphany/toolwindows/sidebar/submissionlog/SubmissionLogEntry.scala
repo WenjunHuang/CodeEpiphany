@@ -5,7 +5,7 @@ import java.time.LocalDateTime
 import com.wenjunhuang.codeepiphany.model.*
 
 case class SubmissionLogEntry(
-  id:Int,
+  id: Long,
   dojo: CodeDojo,
   challengeTitle: String,
   solution: String,

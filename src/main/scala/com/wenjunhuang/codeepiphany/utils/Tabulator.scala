@@ -1,32 +1,32 @@
 package com.wenjunhuang.codeepiphany.utils
 
 object Tabulator {
-  def format(header:Seq[Any], data: Seq[Seq[Any]]): String = {
+  def format(header: Seq[Any], data: Seq[Seq[Any]]): String = {
     require(data.nonEmpty)
     val rows = header +: data
     format(rows)
   }
-  def format(table: Seq[Seq[Any]]) = table match {
+
+  def format(table: Seq[Any]*): String = table match {
     case Seq() => ""
     case _ =>
-      val sizes = for (row <- table) yield (for (cell <- row) yield if (cell == null) 0 else cell.toString.length)
+      val sizes    = for (row <- table) yield for (cell <- row) yield if (cell == null) 0 else cell.toString.length
       val colSizes = for (col <- sizes.transpose) yield col.max
-      val rows = for (row <- table) yield formatRow(row, colSizes)
+      val rows     = for (row <- table) yield formatRow(row, colSizes)
       formatRows(rowSeparator(colSizes), rows)
   }
 
-  def formatRows(rowSeparator: String, rows: Seq[String]): String = (
+  private def formatRows(rowSeparator: String, rows: Seq[String]): String = (rowSeparator ::
+    rows.head ::
     rowSeparator ::
-      rows.head ::
-      rowSeparator ::
-      rows.tail.toList :::
-      rowSeparator ::
-      List()).mkString("\n")
+    rows.tail.toList :::
+    rowSeparator ::
+    List()).mkString("\n")
 
-  def formatRow(row: Seq[Any], colSizes: Seq[Int]) = {
-    val cells = (for ((item, size) <- row.zip(colSizes)) yield if (size == 0) "" else ("%" + size + "s").format(item))
+  private def formatRow(row: Seq[Any], colSizes: Seq[Int]) = {
+    val cells = for ((item, size) <- row.zip(colSizes)) yield if (size == 0) "" else ("%" + size + "s").format(item)
     cells.mkString("|", "|", "|")
   }
 
-  def rowSeparator(colSizes: Seq[Int]) = colSizes map { "-" * _ } mkString("+", "+", "+")
+  private def rowSeparator(colSizes: Seq[Int]) = colSizes map { "-" * _ } mkString ("+", "+", "+")
 }

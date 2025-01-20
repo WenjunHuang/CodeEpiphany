@@ -169,7 +169,7 @@ class SubmissionLogPresenter(private val myProject: Project) extends UiDataProvi
     }
   }
 
-  private def getSubmissionCodeFile(submissionId: Int): VirtualFile = {
+  private def getSubmissionCodeFile(submissionId: Long): VirtualFile = {
     SubmissionCodeFileSystem
       .getInstance()
       .findOrCreateFile(
@@ -210,7 +210,7 @@ class SubmissionLogPresenter(private val myProject: Project) extends UiDataProvi
           .map { record =>
             Try {
               SubmissionLogEntry(
-                id = record.get(SOLUTION_SUBMISSION.ID).intValue(),
+                id = record.get(SOLUTION_SUBMISSION.ID).toLong,
                 dojo = CodeDojo.fromCIString(CIString(record.get(CHALLENGE.DOJO))).get,
                 challengeTitle = record.get(CHALLENGE.TITLE),
                 solution = record.get(SOLUTION.TITLE),

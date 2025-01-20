@@ -10,7 +10,7 @@ object submitAnswer {
 
   case class LeetCodeSubmitAnswerRequest(lang: String, questionId: String, typedCode: String) derives ConfiguredEncoder
 
-  case class LeetCodeSubmitAnswerResponse(submissionId: String) derives ConfiguredDecoder
+  case class LeetCodeSubmitAnswerResponse(submissionId: Int) derives ConfiguredDecoder
 
   enum LeetCodeSubmitAnswerResult {
     case Started(state: String)
@@ -18,18 +18,20 @@ object submitAnswer {
       statusCode: Int,
       lang: String,
       runSuccess: Boolean,
-      compileError:Option[String]=None,
-      fullCompileError: Option[String]=None,
+      compileError: Option[String] = None,
+      fullCompileError: Option[String] = None,
+      runtimeError: Option[String] = None,
+      fullRuntimeError: Option[String] = None,
       statusRuntime: String,
       memory: Int,
       displayRuntime: Option[String] = None,
       questionId: String,
       elaspedTime: Option[Long] = None,
-      compareResult: String,
-      codeOutput: String,
-      stdOutput: String,
-      lastTestcase: String,
-      expectedOutput: String,
+      compareResult: Option[String] = None,
+      codeOutput: Option[String] = None,
+      stdOutput: Option[String] = None,
+      lastTestcase: Option[String] = None,
+      expectedOutput: Option[String] = None,
       taskFinishTime: Long,
       taskName: String,
       finished: Boolean,
@@ -44,7 +46,7 @@ object submitAnswer {
       memoryPercentile: Option[Double],
       prettyLang: String,
       inputFormatted: Option[String] = None,
-      input: Option[String]= None
+      input: Option[String] = None
     )
   }
 

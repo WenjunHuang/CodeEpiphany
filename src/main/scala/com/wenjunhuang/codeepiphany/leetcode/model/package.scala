@@ -59,6 +59,7 @@ package object model {
       case c if c == CIString("Compile Error")       => SubmissionResult.CompilationError
       case r if r == CIString("Runtime Error")       => SubmissionResult.RuntimeError
       case u if u == CIString("Time Limit Exceeded") => SubmissionResult.Timeout
+      case e if e == CIString("Wrong Answer") => SubmissionResult.Failure
       case _                                         => SubmissionResult.Unknown
   }
 }
