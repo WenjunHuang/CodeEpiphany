@@ -218,6 +218,7 @@
         <fileEditorProvider id="CodeEpiphany.SubmissionCodeEditorProvider"
                             implementation="com.wenjunhuang.codeepiphany.vfs.SubmissionCodeEditorProvider"/>
         <vfs.asyncListener implementation="com.wenjunhuang.codeepiphany.editor.extensions.ChallengeFileRenameListener"/>
-        <virtualFileSystem key="cesc" implementationClass="com.wenjunhuang.codeepiphany.vfs.SubmissionCodeFileSystem"/>
+        <virtualFileSystem key="submission-code" implementationClass="com.wenjunhuang.codeepiphany.vfs.SubmissionCodeFileSystem"/>
+        <virtualFileSystem key="solution-remark" implementationClass="com.wenjunhuang.codeepiphany.vfs.SolutionRemarkFileSystem"/>
     </extensions>
 </idea-plugin>

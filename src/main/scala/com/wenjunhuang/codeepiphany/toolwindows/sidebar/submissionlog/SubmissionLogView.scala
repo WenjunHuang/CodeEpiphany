@@ -2,7 +2,7 @@ package com.wenjunhuang.codeepiphany.toolwindows.sidebar.submissionlog
 
 import javax.swing.ScrollPaneConstants
 
-import com.intellij.openapi.actionSystem.{ActionGroup, ActionManager, DataSink}
+import com.intellij.openapi.actionSystem.{ ActionGroup, ActionManager, DataSink }
 import com.intellij.openapi.ui.SimpleToolWindowPanel
 import com.intellij.ui.PopupHandler
 import com.intellij.ui.components.JBScrollPane
@@ -13,23 +13,28 @@ import com.wenjunhuang.codeepiphany.model.Actions
 import com.wenjunhuang.codeepiphany.utils.ui.TagPane
 
 class SubmissionLogView(private val myPresenter: SubmissionLogPresenter) extends SimpleToolWindowPanel(true, true) {
-  private val myActionGroup =
-    ActionManager.getInstance().getAction(Actions.SUBMISSIONS_TOOLBAR_GROUP).asInstanceOf[ActionGroup]
-  private val myTagPane    = TagPane()
+
+  private val myToolbar =
+    ActionManager
+      .getInstance()
+      .createActionToolbar(
+        Actions.SUBMISSIONS_TABLE_POPUP_PLACE,
+        ActionManager.getInstance().getAction(Actions.SUBMISSIONS_TOOLBAR_GROUP).asInstanceOf[ActionGroup],
+        true
+      )
+  myToolbar.setTargetComponent(this)
+  setToolbar(myToolbar.getComponent)
+
   private val myTableModel = new SubmissionLogTableModel(myPresenter)
   private val myTable      = myTableModel.createTableView(myPresenter.uiDataSnapshot)
-  private val myContent    = BorderLayoutPanel()
-  private val myMainToolbar =
-    ActionManager.getInstance().createActionToolbar(Actions.SUBMISSIONS_TABLE_POPUP_PLACE, myActionGroup, true)
-  myMainToolbar.setTargetComponent(this)
-  setToolbar(myMainToolbar.getComponent)
 
-  private val myPopupHandler = PopupHandler.installRowSelectionTablePopup(
+  PopupHandler.installRowSelectionTablePopup(
     myTable,
     ActionManager.getInstance().getAction(Actions.SUBMISSIONS_TABLE_POPUP_GROUP).asInstanceOf[ActionGroup],
     Actions.SUBMISSIONS_TABLE_POPUP_PLACE
   )
 
+  private val myContent = BorderLayoutPanel()
   myContent.addToCenter(
     JBScrollPane(
       myTable,
@@ -37,12 +42,14 @@ class SubmissionLogView(private val myPresenter: SubmissionLogPresenter) extends
       ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED
     )
   )
-  myContent.addToTop(myTagPane)
+
+  private val myFilterTagsPane = TagPane()
+  myContent.addToTop(myFilterTagsPane)
 
   setContent(myContent)
 
-  def getTagPane: TagPane                    = myTagPane
-  def getTableModel: SubmissionLogTableModel = myTableModel
+  def getTagPane: TagPane                     = myFilterTagsPane
+  def getTableModel: SubmissionLogTableModel  = myTableModel
   def getTable: TableView[SubmissionLogEntry] = myTable
 
   override def uiDataSnapshot(sink: DataSink): Unit = {

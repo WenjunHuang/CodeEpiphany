@@ -1,8 +1,11 @@
 package com.wenjunhuang.codeepiphany.model
+
+import cats.syntax.all.*
 import cats.Show
 import java.net.HttpCookie
 import javax.swing.Icon
 import org.typelevel.ci.CIString
+import scala.annotation.static
 
 enum CodeDojo(val domain: CIString, val value: String) {
   case HackerRank extends CodeDojo(CIString("hackerrank.com"), "hackerrank")
@@ -31,6 +34,9 @@ enum CodeDojo(val domain: CIString, val value: String) {
 
 object CodeDojo {
   implicit val codeDojoShow: Show[CodeDojo] = Show.show(_.toString)
+
+  @static
+  def show(dojo: CodeDojo): String = dojo.show
 
   def fromCIHostname(s: CIString): Option[CodeDojo] = s match {
     case _ if s.contains(HackerRank.domain) => Some(CodeDojo.HackerRank)

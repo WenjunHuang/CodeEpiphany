@@ -60,7 +60,7 @@ class SubmissionCodeFileSystem
 }
 
 object SubmissionCodeFileSystem {
-  final val PROTOCOL  = "cesc"
+  final val PROTOCOL  = "submission-code"
   final val SEPARATOR = "/"
 
   def isValid(path: String): Boolean = path.contains(SEPARATOR)
@@ -90,7 +90,7 @@ object SubmissionCodeFileSystem {
     override def deserialize(s: String): SubmissionCodeFilePath = {
       decode[SubmissionCodeFilePath](s) match {
         case Right(value) => value
-        case Left(error)  => throw new IllegalArgumentException(s"Cannot deserialize $s: $error")
+        case Left(error)  => throw new IllegalArgumentException(s"Cannot deserialize $s",error)
       }
     }
 

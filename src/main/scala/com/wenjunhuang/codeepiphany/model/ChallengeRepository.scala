@@ -1,11 +1,11 @@
 package com.wenjunhuang.codeepiphany.model
 
-import cats.effect.{Async, IO}
+import cats.effect.{ Async, IO }
 import cats.effect.kernel.Resource
 import com.zaxxer.hikari.HikariDataSource
 import java.io.File
 import org.flywaydb.core.Flyway
-import org.jooq.{DSLContext, Log, SQLDialect}
+import org.jooq.{ DSLContext, Log, SQLDialect }
 import org.jooq.impl.DSL
 import org.jooq.tools.JooqLogger
 
@@ -19,6 +19,7 @@ import com.intellij.openapi.util.io.FileUtil
 import com.wenjunhuang.codeepiphany.settings.CodeEpiphanySettings
 import com.wenjunhuang.codeepiphany.utils.implicits.*
 import com.wenjunhuang.codeepiphany.utils.isDebug
+import io.circe.*
 
 @Service(Array(Level.PROJECT))
 final class ChallengeRepository(private val myProject: Project) extends Disposable {
@@ -90,8 +91,12 @@ object ChallengeRepository {
   def getInstance(project: Project): ChallengeRepository = project.getService(classOf[ChallengeRepository])
 
   opaque type ChallengeId = Long
+
   object ChallengeId {
-    def apply(value: Long): ChallengeId = value
+    implicit val decoder: Decoder[ChallengeId] = Decoder.decodeLong.map(ChallengeId.apply)
+    implicit val encoder: Encoder[ChallengeId] = Encoder.encodeLong.contramap(_.value)
+    
+    def apply(value: Long): ChallengeId        = value
     extension (id: ChallengeId) {
       def value: Long = id
     }

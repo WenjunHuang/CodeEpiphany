@@ -21,6 +21,7 @@ class ChallengeEditorProvider extends AsyncFileEditorProvider with DumbAware {
       val path = file.getCanonicalPath
       ChallengeSettings.getInstance(project).findChallengeId(path) match
         case None =>
+          println(s"Cannot find challenge id for $path")
           false
         case Some(challenge) =>
           true

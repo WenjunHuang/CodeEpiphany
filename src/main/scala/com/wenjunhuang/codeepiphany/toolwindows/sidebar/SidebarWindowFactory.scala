@@ -4,10 +4,11 @@ import scala.annotation.static
 
 import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.wm.{ToolWindow, ToolWindowFactory, ToolWindowManager}
+import com.intellij.openapi.wm.{ ToolWindow, ToolWindowFactory, ToolWindowManager }
 import com.intellij.openapi.wm.impl.content.ToolWindowContentUi
 
 import com.wenjunhuang.codeepiphany.toolwindows.sidebar.description.ChallengeDescriptionPresenter
+import com.wenjunhuang.codeepiphany.toolwindows.sidebar.solution.{ SolutionListView, SolutionListPresenter }
 import com.wenjunhuang.codeepiphany.toolwindows.sidebar.submissionlog.SubmissionLogPresenter
 
 class SidebarWindowFactory extends ToolWindowFactory() {
@@ -16,12 +17,14 @@ class SidebarWindowFactory extends ToolWindowFactory() {
     FileEditorManager.getInstance(project).getFocusedEditor
     val descriptionPresenter   = ChallengeDescriptionPresenter(project)
     val submissionLogPresenter = SubmissionLogPresenter(project)
+    val solutionPresenter      = SolutionListPresenter(project)
     val cm                     = toolWindow.getContentManager
     val cf                     = cm.getFactory
 
-    cm.addContent(cf.createContent(descriptionPresenter.getView, "Challenge Description", false))
     cm.addContent(cf.createContent(LogConsoleView(project), LogConsoleView.DISPLAY_NAME, false))
+    cm.addContent(cf.createContent(descriptionPresenter.getView, "Challenge Description", false))
     cm.addContent(cf.createContent(submissionLogPresenter.getView, "Submission Log", false))
+    cm.addContent(cf.createContent(solutionPresenter.getView, "Solution", false))
     toolWindow.getComponent.putClientProperty(ToolWindowContentUi.HIDE_ID_LABEL, "true")
   }
 }
