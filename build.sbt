@@ -74,7 +74,7 @@ lazy val codeEpiphany = (project in file("."))
     Test / managedResourceDirectories += baseDirectory.value / "testResources",
 
     // jooq
-    jooqVersion       := "3.19.16",
+    jooqVersion       := "3.19.18",
     jooqCodegenConfig := file("jooq-codegen.xml"),
     jooqCodegenMode   := Unmanaged
   )

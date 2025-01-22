@@ -8,7 +8,7 @@ import com.intellij.openapi.wm.{ ToolWindow, ToolWindowFactory, ToolWindowManage
 import com.intellij.openapi.wm.impl.content.ToolWindowContentUi
 
 import com.wenjunhuang.codeepiphany.toolwindows.sidebar.description.ChallengeDescriptionPresenter
-import com.wenjunhuang.codeepiphany.toolwindows.sidebar.solution.{ SolutionListView, SolutionListPresenter }
+import com.wenjunhuang.codeepiphany.toolwindows.sidebar.solution.{ SolutionListPresenter, SolutionListView }
 import com.wenjunhuang.codeepiphany.toolwindows.sidebar.submissionlog.SubmissionLogPresenter
 
 class SidebarWindowFactory extends ToolWindowFactory() {
@@ -31,16 +31,12 @@ class SidebarWindowFactory extends ToolWindowFactory() {
 
 object SidebarWindowFactory {
   @static
-  final val TOOL_WINDOW_ID = "CodeEpiphany.Sidebar"
+  final val TOOL_WINDOW_ID = "CodeEpiphany Sidebar"
 
   def activate(project: Project, displayName: String): Unit = {
     Option(ToolWindowManager.getInstance(project).getToolWindow(SidebarWindowFactory.TOOL_WINDOW_ID)) match
-      case None => {}
       case Some(twm) =>
         twm.show()
-//        twm.activate(() => {
-//          val cm = twm.getContentManager
-//          Option(cm.findContent(displayName)).foreach(cm.setSelectedContent)
-//        })
+      case None =>
   }
 }

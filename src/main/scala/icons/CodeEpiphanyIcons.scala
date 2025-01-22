@@ -11,6 +11,9 @@ trait CodeEpiphanyIcons {}
 
 object CodeEpiphanyIcons {
   @static
+  val PLUGIN: Icon = IconLoader.getIcon("/icons/pluginIcon.svg", CodeEpiphanyIcons.getClass.getClassLoader)
+
+  @static
   val LOGIN: Icon =
     IconLoader.getIcon("/icons/login.svg", CodeEpiphanyIcons.getClass.getClassLoader)
   @static

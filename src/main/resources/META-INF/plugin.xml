@@ -164,11 +164,13 @@
     <extensions defaultExtensionNs="com.intellij">
         <notificationGroup displayType="BALLOON" id="My Plugin Notification"/>
         <toolWindow factoryClass="com.wenjunhuang.codeepiphany.toolwindows.sidebar.SidebarWindowFactory"
-                    id="CodeEpiphany.Sidebar" anchor="bottom"
-                    icon="AllIcons.General.Alpha"/>
+                    id="CodeEpiphany Sidebar"
+                    secondary="false"
+                    anchor="bottom"
+                    icon="CodeEpiphanyIcons.PLUGIN"/>
         <toolWindow factoryClass="com.wenjunhuang.codeepiphany.toolwindows.dojo.CodeDojoToolWindowFactory"
-                    icon="AllIcons.General.Alpha"
-                    id="CodeEpiphany.Dojos" anchor="left"/>
+                    icon="CodeEpiphanyIcons.PLUGIN"
+                    id="CodeEpiphany CodeDojos" anchor="left"/>
 
         <registryKey defaultValue="false" description="Enable debug" key="codeepiphany.debug"/>
 
@@ -218,7 +220,9 @@
         <fileEditorProvider id="CodeEpiphany.SubmissionCodeEditorProvider"
                             implementation="com.wenjunhuang.codeepiphany.vfs.SubmissionCodeEditorProvider"/>
         <vfs.asyncListener implementation="com.wenjunhuang.codeepiphany.editor.extensions.ChallengeFileRenameListener"/>
-        <virtualFileSystem key="submission-code" implementationClass="com.wenjunhuang.codeepiphany.vfs.SubmissionCodeFileSystem"/>
-        <virtualFileSystem key="solution-remark" implementationClass="com.wenjunhuang.codeepiphany.vfs.SolutionRemarkFileSystem"/>
+        <virtualFileSystem key="submission-code"
+                           implementationClass="com.wenjunhuang.codeepiphany.vfs.SubmissionCodeFileSystem"/>
+        <virtualFileSystem key="solution-remark"
+                           implementationClass="com.wenjunhuang.codeepiphany.vfs.SolutionRemarkFileSystem"/>
     </extensions>
 </idea-plugin>
