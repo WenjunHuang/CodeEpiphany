@@ -164,6 +164,17 @@ object challenge {
           challengeRecord.setTitle(challenge.name)
           challengeRecord.store()
 
+          val leetCodeChallengeRecord = dsl
+            .fetchOne(LEETCODE_CHALLENGE, LEETCODE_CHALLENGE.ID.eq(challengeRecord.getId)) match
+            case null =>
+              dsl.newRecord(LEETCODE_CHALLENGE).setId(challengeRecord.getId)
+            case r => r
+
+          leetCodeChallengeRecord
+            .setFrontendquestionid(content.frontendQuestionId)
+            .setTestcase(content.exampleTestcases)
+          leetCodeChallengeRecord.store()
+
           val challengeLanguageRecord = dsl.fetchOne(
             CHALLENGE_LANGUAGE,
             CHALLENGE_LANGUAGE.CHALLENGEID
@@ -182,12 +193,7 @@ object challenge {
           challengeLanguageRecord.setCodetemplate(StringUtil.convertLineSeparators(challenge.getCode))
           challengeLanguageRecord.store()
 
-          val leetCodeChallengeRecord = dsl
-            .newRecord(LEETCODE_CHALLENGE)
-            .setId(challengeRecord.getId)
-            .setFrontendquestionid(content.frontendQuestionId)
-            .setTestcase(content.exampleTestcases)
-          leetCodeChallengeRecord.store()
+
 
           (ChallengeId(challengeRecord.getId), ChallengeLanguageId(challengeLanguageRecord.getId))
         }

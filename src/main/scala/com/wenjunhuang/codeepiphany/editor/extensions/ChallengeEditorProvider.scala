@@ -6,10 +6,10 @@ import com.intellij.internal.statistic.collectors.fus.DataContextUtils
 import com.intellij.openapi.fileEditor.*
 import com.intellij.openapi.fileEditor.AsyncFileEditorProvider.Builder
 import com.intellij.openapi.fileEditor.impl.text.PsiAwareTextEditorProvider
-import com.intellij.openapi.project.{DumbAware, Project}
+import com.intellij.openapi.project.{ DumbAware, Project }
 import com.intellij.openapi.vfs.VirtualFile
 
-import com.wenjunhuang.codeepiphany.editor.actions.SubmitCodeAction.{SUBMITCODE_PROVIDER_KEY, SubmitCodeProvider}
+import com.wenjunhuang.codeepiphany.editor.actions.SubmitCodeAction.{ SUBMITCODE_PROVIDER_KEY, SubmitCodeProvider }
 import com.wenjunhuang.codeepiphany.settings.ChallengeSettings
 
 class ChallengeEditorProvider extends AsyncFileEditorProvider with DumbAware {
@@ -21,7 +21,6 @@ class ChallengeEditorProvider extends AsyncFileEditorProvider with DumbAware {
       val path = file.getCanonicalPath
       ChallengeSettings.getInstance(project).findChallengeId(path) match
         case None =>
-          println(s"Cannot find challenge id for $path")
           false
         case Some(challenge) =>
           true
@@ -49,7 +48,8 @@ class ChallengeEditorProvider extends AsyncFileEditorProvider with DumbAware {
   }
 
   private def setupEditor(editor: FileEditor, project: Project, file: VirtualFile): FileEditor = {
-    editor.putUserData(SUBMITCODE_PROVIDER_KEY, SubmitCodeProvider.createProvider(file, project))
-    editor
+    val editorWrapper = ChallengeEditor(editor)
+    editorWrapper.putUserData(SUBMITCODE_PROVIDER_KEY, SubmitCodeProvider.createProvider(file, project))
+    editorWrapper
   }
 }

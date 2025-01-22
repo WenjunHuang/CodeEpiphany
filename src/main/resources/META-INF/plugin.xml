@@ -141,6 +141,11 @@
             <reference ref="CompareFileWithEditor"/>
         </group>
 
+        <group id="CodeEpiphany.ChallengeEditor.Toolbar.Group">
+            <reference ref="CodeEpiphany.Actions.RunCode"/>
+            <reference ref="CodeEpiphany.Actions.SubmitCode"/>
+        </group>
+
         <!-- test -->
         <!--        <action id="com.wenjunhuang.codeepiphany.test.actions.ShowLoginDialogAction"-->
         <!--                class="com.wenjunhuang.codeepiphany.test.actions.ShowLoginDialogAction" text="Show Login Dialog"-->
