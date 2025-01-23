@@ -14,7 +14,7 @@ import com.intellij.openapi.util.text.StringUtil
 import com.wenjunhuang.codeepiphany.database.Tables.{ CHALLENGE, CHALLENGE_LANGUAGE, LEETCODE_CHALLENGE }
 import com.wenjunhuang.codeepiphany.editor.services.database.getOrCreateDefaultSolution
 import com.wenjunhuang.codeepiphany.leetcode.model.*
-import com.wenjunhuang.codeepiphany.leetcode.settings.{ LeetCodeCNSettings, LeetCodeCNSettingsConfigurable }
+import com.wenjunhuang.codeepiphany.leetcode.settings.{ LeetCodeCNSettings, LeetCodeSettingsConfigurable }
 import com.wenjunhuang.codeepiphany.model.*
 import com.wenjunhuang.codeepiphany.model.ChallengeRepository.{ ChallengeId, ChallengeLanguageId, SolutionId }
 import com.wenjunhuang.codeepiphany.services.file.{ openTextEditor, refreshAndFindFileByIoFile, saveTextToFile }
@@ -42,14 +42,14 @@ object challenge {
               .yesNo("Error", "Please set the source folder and language in the settings")
               .ask(project)
             if r then
-              ShowSettingsUtil.getInstance().showSettingsDialog(project, classOf[LeetCodeCNSettingsConfigurable])
+              ShowSettingsUtil.getInstance().showSettingsDialog(project, classOf[LeetCodeSettingsConfigurable])
             None
           else Some((state.sourceFolder.get, language, state.fileNameTemplate.get, state.codeTemplate.get))
         case None =>
           val r = MessageDialogBuilder
             .yesNo("Error", "Please set the source folder and language in the settings")
             .ask(project)
-          if r then ShowSettingsUtil.getInstance().showSettingsDialog(project, classOf[LeetCodeCNSettingsConfigurable])
+          if r then ShowSettingsUtil.getInstance().showSettingsDialog(project, classOf[LeetCodeSettingsConfigurable])
           None
     }.evalOnEDTAny().flatMap {
       case None => Async[F].unit

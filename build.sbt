@@ -1,8 +1,25 @@
 import sbtjooq.codegen.CodegenMode.Unmanaged
-
+import com.vladsch.flexmark.html.HtmlRenderer
+import com.vladsch.flexmark.html.HtmlRenderer
+import com.vladsch.flexmark.parser.Parser
+import com.vladsch.flexmark.util.data.MutableDataSet
+import scala.io.Source
+import scala.util.Using
 ThisBuild / scalaVersion     := "3.3.4"
 ThisBuild / intellijPlatform := IntelliJPlatform.IdeaCommunity
 ThisBuild / intellijBuild    := "242.20224.300"
+
+def markdownToHtml(file:File):String = {
+  val options        = new MutableDataSet()
+  val parser         = Parser.builder(options).build()
+  val renderer       = HtmlRenderer.builder(options).build()
+
+  Using(Source.fromFile(file)) { markdownSource =>
+    val document = parser.parse(markdownSource.mkString)
+    val r = renderer.render(document)
+    r
+  }.get
+}
 
 lazy val codeEpiphany = (project in file("."))
   .settings(
@@ -28,6 +45,7 @@ lazy val codeEpiphany = (project in file("."))
     patchPluginXml := pluginXmlOptions { xml =>
       xml.version = version.value
       xml.sinceBuild = intellijBuild.value
+      xml.pluginDescription = s"<![CDATA[${markdownToHtml(baseDirectory.value / "README.md")}]]>"
     },
     libraryDependencies ++= Seq(
       "org.typelevel"           %% "cats-effect"      % "3.5.7",

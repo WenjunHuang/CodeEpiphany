@@ -28,7 +28,7 @@ enum SubmissionResult(val value: String) {
         s"<html><font color='${SUBMISSION_COMPILEERROR_COLOR}'>${CompilationError.show}</font></html>"
       case Timeout =>
         s"<html><font color='${SUBMISSION_TIMEOUT_COLOR}'>${Timeout.show}</font></html>"
-      case Timeout =>
+      case RuntimeError =>
         s"<html><font color='${SUBMISSION_RUNTIMEERROR_COLOR}'>${Timeout.show}</font></html>"
       case Unknown =>
         s"<html><font color='${SUBMISSION_UNKNOWN_COLOR}'>${Unknown.show}</font></html>"

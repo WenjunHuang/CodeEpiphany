@@ -4,7 +4,7 @@ import cats.effect.IO
 import cats.effect.std.Queue
 import fs2.Stream
 import java.time.LocalDateTime
-import javax.swing.{ JComponent, JTree }
+import javax.swing.{JComponent, JTree}
 import javax.swing.tree.DefaultMutableTreeNode
 import org.jooq.impl.DSL
 import org.typelevel.ci.CIString
@@ -13,19 +13,12 @@ import scala.concurrent.duration.*
 import scala.jdk.CollectionConverters.*
 import scala.jdk.OptionConverters.*
 
-import com.intellij.lang.documentation.ide.impl.DocumentationManager
-import com.intellij.openapi.fileEditor.{
-  FileDocumentManager,
-  FileEditorManager,
-  FileEditorManagerEvent,
-  FileEditorManagerListener
-}
+import com.intellij.openapi.fileEditor.{FileEditorManager, FileEditorManagerEvent, FileEditorManagerListener}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.Disposable
-import com.intellij.openapi.application.WriteAction
 import com.intellij.openapi.util.Disposer
 import com.intellij.openapi.util.text.StringUtil
-import com.intellij.ui.treeStructure.treetable.{ ListTreeTableModelOnColumns, TreeColumnInfo }
+import com.intellij.ui.treeStructure.treetable.{ListTreeTableModelOnColumns, TreeColumnInfo}
 import com.intellij.ui.ColoredTreeCellRenderer
 import com.intellij.util.ui.ColumnInfo
 
@@ -35,7 +28,7 @@ import com.wenjunhuang.codeepiphany.model.ChallengeRepository.ChallengeId
 import com.wenjunhuang.codeepiphany.settings.ChallengeSettings
 import com.wenjunhuang.codeepiphany.utils.implicits.*
 import com.wenjunhuang.codeepiphany.utils.IdGenerator
-import com.wenjunhuang.codeepiphany.vfs.{ SolutionRemarkFile, SolutionRemarkFileSystem }
+import com.wenjunhuang.codeepiphany.vfs.{SolutionRemarkFile, SolutionRemarkFileSystem}
 
 class SolutionListPresenter(val myProject: Project) extends Disposable {
   private val myLogger = LoggerFactory[IO].getLogger
@@ -51,14 +44,14 @@ class SolutionListPresenter(val myProject: Project) extends Disposable {
   val myTreeRender: ColoredTreeCellRenderer = new ColoredTreeCellRenderer {
     override def customizeCellRenderer(
       tree: JTree,
-      value: Any,
+      value: AnyRef,
       selected: Boolean,
       expanded: Boolean,
       leaf: Boolean,
       row: Int,
       hasFocus: Boolean
     ): Unit = {
-      value match {
+      value match
         case node: DefaultMutableTreeNode =>
           node.getUserObject match {
             case SolutionEntry.SolutionNode(_, title, _, _) =>
@@ -68,7 +61,6 @@ class SolutionListPresenter(val myProject: Project) extends Disposable {
               append(s"${language.show} ${version.version}")
           }
         case _ =>
-      }
     }
   }
 
@@ -127,9 +119,9 @@ class SolutionListPresenter(val myProject: Project) extends Disposable {
                 .getOrElse(("Unknown", None))
               val solutions = dsl
                 .select(
-                  (DSL.count().`as`("submissions") +:
+                  DSL.count().`as`("submissions") +:
                     (SOLUTION_SUBMISSION.fields() ++ SOLUTION.fields() ++ CHALLENGE_LANGUAGE.fields() ++ CHALLENGE
-                      .fields()))*
+                      .fields()) *
                 )
                 .from(SOLUTION)
                 .leftJoin(SOLUTION_SUBMISSION)
@@ -278,7 +270,7 @@ class SolutionListPresenter(val myProject: Project) extends Disposable {
       case None =>
   }
 
-  def requery() = {
+  def requery(): Unit = {
     myQueue.foreach(_.offer(mySelectedChallenge).unsafeRunAndForget())
   }
 

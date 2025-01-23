@@ -13,23 +13,22 @@ import com.wenjunhuang.codeepiphany.PluginBundle
 import com.wenjunhuang.codeepiphany.leetcode.model.LeetCodeChallengeCodeTemplate
 import com.wenjunhuang.codeepiphany.leetcode.settings.LeetCodeSettingsConfigurable.{ getDemoTemplate, LANGUAGES }
 import com.wenjunhuang.codeepiphany.model.*
-import com.wenjunhuang.codeepiphany.model.CodeDojo.LeetCodeCN
+import com.wenjunhuang.codeepiphany.model.CodeDojo.LeetCode
 import com.wenjunhuang.codeepiphany.model.Language.*
 import com.wenjunhuang.codeepiphany.model.LanguageVersion.*
 import com.wenjunhuang.codeepiphany.settings.dojo.{ BaseCodeDojoSettings, BaseSettingsConfigurable }
 
-import LeetCodeCNSettingsConfigurable.*
-class LeetCodeCNSettingsConfigurable(project: Project)
+class LeetCodeSettingsConfigurable(project: Project)
     extends BaseSettingsConfigurable(
       project,
-      CodeDojo.LeetCodeCN,
-      "CodeEpiphany.Settings.LeetCodeCN",
-      PluginBundle.message("leetcodecn.settings.displayName"),
-      "CodeEpiphany.Settings.LeetCodeCN.HelpTopic"
+      CodeDojo.LeetCode,
+      "CodeEpiphany.Settings.LeetCode",
+      PluginBundle.message("leetcode.settings.displayName"),
+      "CodeEpiphany.Settings.LeetCode.HelpTopic"
     ) {
 
   override def getSettings: BaseCodeDojoSettings.CodeDojoSettingsState =
-    LeetCodeCNSettings.getInstance(myProject).getState
+    LeetCodeSettings.getInstance(myProject).getState
 
   override def supportedLanguages: List[(Language, LanguageVersion)] = LANGUAGES
 
@@ -37,7 +36,7 @@ class LeetCodeCNSettingsConfigurable(project: Project)
     getDemoTemplate(language, languageVersion)
 }
 
-object LeetCodeCNSettingsConfigurable {
+object LeetCodeSettingsConfigurable {
   private val codeTemplateJson =
     parse(
       StringUtil.join(
@@ -85,11 +84,11 @@ object LeetCodeCNSettingsConfigurable {
             LeetCodeChallengeCodeTemplate(
               "4",
               "4",
-              LeetCodeCN,
-              "寻找两个正序数组的中位数",
+              LeetCode,
+              "Median of two sorted arrays",
               StringUtil.replace(code, "\\n", "\n"),
               "median-of-two-sorted-arrays",
-              "寻找两个正序数组的中位数",
+              "Median of two sorted arrays",
               ChallengeDifficulty.Hard.value,
               language,
               languageVersion

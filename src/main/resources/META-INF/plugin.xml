@@ -2,9 +2,9 @@
 <idea-plugin>
     <id>com.wenjunhuang.codeepiphany</id>
     <name>Code Epiphany</name>
-    <vendor>Huang wenjun</vendor>
-    <description>
-        <![CDATA[Your ultimate plugin for mastering coding challenges directly in Idea platforms!]]></description>
+    <vendor>Wenjun Huang</vendor>
+    <version>0.0.0</version>
+    <description>Your ultimate plugin for mastering coding challenges directly in Idea platforms!</description>
 
     <idea-version since-build="231.0"/>
 
@@ -153,26 +153,8 @@
             <reference ref="CompareTwoFiles"/>
             <reference ref="CompareFileWithEditor"/>
         </group>
-
-        <!-- test -->
-        <!--        <action id="com.wenjunhuang.codeepiphany.test.actions.ShowLoginDialogAction"-->
-        <!--                class="com.wenjunhuang.codeepiphany.test.actions.ShowLoginDialogAction" text="Show Login Dialog"-->
-        <!--                description="Show Login Dialog">-->
-        <!--            <add-to-group group-id="ToolsMenu" anchor="first"/>-->
-        <!--        </action>-->
-        <!--        <action id="com.wenjunhuang.codeepiphany.test.actions.ChallengeSettingsTestAction"-->
-        <!--                class="com.wenjunhuang.codeepiphany.test.actions.ChallengeSettingsTestAction"-->
-        <!--                text="Challenge Settings Test"-->
-        <!--                description="Challenge Settings Test">-->
-        <!--            <add-to-group group-id="ToolsMenu" anchor="first"/>-->
-        <!--        </action>-->
     </actions>
 
-    <applicationListeners>
-        <!--        <listener class="com.wenjunhuang.codeepiphany.toolwindows.sidebar.ChallengeCodeFileEditorListener"-->
-        <!--                  topic="com.intellij.openapi.fileEditor.FileEditorManagerListener"/>-->
-
-    </applicationListeners>
 
     <extensions defaultExtensionNs="com.intellij">
         <notificationGroup displayType="BALLOON" id="My Plugin Notification"/>
@@ -194,6 +176,9 @@
             <configurable id="CodeEpiphany.Settings.LeetCodeCN"
                           instance="com.wenjunhuang.codeepiphany.leetcode.settings.LeetCodeCNSettingsConfigurable"
                           key="leetcodecn.settings.displayName"/>
+            <configurable id="CodeEpiphany.Settings.LeetCode"
+                          instance="com.wenjunhuang.codeepiphany.leetcode.settings.LeetCodeSettingsConfigurable"
+                          key="leetcode.settings.displayName"/>
             <configurable
                     id="CodeEpiphany.Settings.HackerRank"
                     instance="com.wenjunhuang.codeepiphany.hackerrank.settings.HackerRankSettingsConfigurable"
