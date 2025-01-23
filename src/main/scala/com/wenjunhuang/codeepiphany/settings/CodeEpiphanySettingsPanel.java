@@ -48,12 +48,12 @@ public class CodeEpiphanySettingsPanel extends SettingsUi<CodeEpiphanySettings.C
 
     @Override
     public void reset(@NotNull CodeEpiphanySettings.CodeEpiphanySettingsState settings) {
-        myDatabaseFolder.setText(settings.databaseFolder().getOrElse(() -> ""));
+        myDatabaseFolder.setText(settings.getDatabaseFolder(myProject()));
     }
 
     @Override
     public boolean isModified(CodeEpiphanySettings.CodeEpiphanySettingsState settings) {
-        return !StringUtil.equals(settings.databaseFolder().getOrElse(() -> ""), myDatabaseFolder.getText());
+        return !StringUtil.equals(settings.getDatabaseFolder(myProject()), myDatabaseFolder.getText());
     }
 
     @Override
@@ -66,7 +66,7 @@ public class CodeEpiphanySettingsPanel extends SettingsUi<CodeEpiphanySettings.C
                     if (info != null) validationInfos.add(info);
                 });
         if (validationInfos.isEmpty()) {
-            settings.databaseFolder_$eq(Option.apply(myDatabaseFolder.getText()));
+            settings.setDatabaseFolder(myDatabaseFolder.getText(), myProject());
             myProject().getMessageBus().syncPublisher(CodeEpiphanySettings.DATABASE_FOLDER_TOPIC())
                     .databaseFolderChanged(new File(myDatabaseFolder.getText()));
         }

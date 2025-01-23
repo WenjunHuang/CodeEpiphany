@@ -1,0 +1,10 @@
+package leetcodecn;
+
+class $velocity.camelCaseName($challenge.slug) {
+
+    $challenge.code
+
+public static void main(String[] args) {
+    // add your test code
+}
+}

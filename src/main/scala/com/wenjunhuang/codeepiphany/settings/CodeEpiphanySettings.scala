@@ -3,7 +3,7 @@ package com.wenjunhuang.codeepiphany.settings
 import java.io.File
 import scala.annotation.meta.field
 
-import com.intellij.openapi.components.{PersistentStateComponent, Service, State, Storage}
+import com.intellij.openapi.components.{ PathMacroManager, PersistentStateComponent, Service, State, Storage }
 import com.intellij.openapi.components.Service.Level
 import com.intellij.openapi.project.Project
 import com.intellij.util.messages.Topic
@@ -23,14 +23,23 @@ final class CodeEpiphanySettings(private val myProject: Project)
 
   override def loadState(newState: CodeEpiphanySettingsState): Unit =
     state = newState
+
 }
 
 object CodeEpiphanySettings {
   def getInstance(project: Project): CodeEpiphanySettings = project.getService(classOf[CodeEpiphanySettings])
 
   class CodeEpiphanySettingsState {
-    @(Attribute @field)(converter = classOf[StringOptionConverter])
-    var databaseFolder: Option[String] = None
+    @(Attribute @field)
+    var databaseFolder: String = s"$$PROJECT_DIR$$/.idea/${Constants.PROJECT_NAME}"
+
+    def getDatabaseFolder(project: Project): String = {
+      PathMacroManager.getInstance(project).expandPath(databaseFolder)
+    }
+
+    def setDatabaseFolder(folder: String, project: Project): Unit = {
+      databaseFolder = PathMacroManager.getInstance(project).collapsePath(folder)
+    }
   }
 
   trait DatabaseFolderNotifier {

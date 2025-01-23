@@ -1,16 +1,16 @@
 package com.wenjunhuang.codeepiphany.model
 
-import cats.effect.{ Async, IO }
+import cats.effect.{Async, IO}
 import cats.effect.kernel.Resource
 import com.zaxxer.hikari.HikariDataSource
 import java.io.File
 import org.flywaydb.core.Flyway
-import org.jooq.{ DSLContext, Log, SQLDialect }
+import org.jooq.{DSLContext, Log, SQLDialect}
 import org.jooq.impl.DSL
 import org.jooq.tools.JooqLogger
 
 import com.intellij.openapi.Disposable
-import com.intellij.openapi.components.Service
+import com.intellij.openapi.components.{PathMacroManager, Service}
 import com.intellij.openapi.components.Service.Level
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
@@ -58,14 +58,7 @@ final class ChallengeRepository(private val myProject: Project) extends Disposab
 
   private def getDatabaseFile: File = {
     val settings = CodeEpiphanySettings.getInstance(myProject).getState
-    val folder = settings.databaseFolder match
-      case Some(folder) => File(folder)
-      case None =>
-        val projectIdeaFolder    = File(myProject.getWorkspaceFile.getParent.getPath)
-        val projectSettingFolder = File(projectIdeaFolder, Constants.PROJECT_NAME)
-        projectSettingFolder.mkdirs()
-        projectSettingFolder
-
+    val folder = settings.getDatabaseFolder(myProject)
     val file = File(folder, Constants.CHALLENGE_STORAGE_FILE)
     FileUtil.createIfDoesntExist(file)
     file
