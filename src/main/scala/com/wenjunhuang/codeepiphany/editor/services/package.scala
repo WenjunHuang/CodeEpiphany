@@ -2,17 +2,21 @@ package com.wenjunhuang.codeepiphany.editor
 
 import cats.effect.{Async, Concurrent}
 import cats.syntax.all.*
+import java.time.LocalDateTime
+import org.jooq.DSLContext
 import org.typelevel.log4cats.LoggerFactory
 
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.{VfsUtil, VirtualFile}
 
+import com.wenjunhuang.codeepiphany.database.Tables.SOLUTION
 import com.wenjunhuang.codeepiphany.model.CodeDojo
 import com.wenjunhuang.codeepiphany.services.console
 import com.wenjunhuang.codeepiphany.services.http.HttpClientManager
 import com.wenjunhuang.codeepiphany.settings.ChallengeSettings
 import com.wenjunhuang.codeepiphany.toolwindows.sidebar.{LogConsoleView, SidebarWindowFactory}
 import com.wenjunhuang.codeepiphany.utils.implicits.*
+import com.wenjunhuang.codeepiphany.utils.IdGenerator
 
 package object services {
   def runCode[F[_]: Async: Concurrent: HttpClientManager: LoggerFactory](vf: VirtualFile, project: Project): F[Unit] = {

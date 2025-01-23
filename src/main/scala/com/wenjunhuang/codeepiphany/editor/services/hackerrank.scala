@@ -1,6 +1,6 @@
 package com.wenjunhuang.codeepiphany.editor.services
 
-import cats.effect.{Async, Concurrent}
+import cats.effect.{ Async, Concurrent }
 import cats.effect.kernel.Resource.ExitCase
 import fs2.Stream
 import java.time.LocalDateTime
@@ -10,12 +10,12 @@ import org.typelevel.ci.CIString
 import scala.jdk.OptionConverters.*
 
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.vfs.{VirtualFile, VirtualFileUtil}
+import com.intellij.openapi.vfs.{ VirtualFile, VirtualFileUtil }
 
 import com.wenjunhuang.codeepiphany.database.Tables.*
 import com.wenjunhuang.codeepiphany.hackerrank.model.HackerRankContest
 import com.wenjunhuang.codeepiphany.hackerrank.services.HackerRankApi
-import com.wenjunhuang.codeepiphany.model.{ChallengeRepository, Language, SubmissionResult}
+import com.wenjunhuang.codeepiphany.model.{ ChallengeRepository, Language, SubmissionResult }
 import com.wenjunhuang.codeepiphany.model.SubmissionResult.CompilationError
 import com.wenjunhuang.codeepiphany.services.console
 import com.wenjunhuang.codeepiphany.services.http.HttpClientManager
@@ -82,7 +82,7 @@ object hackerrank {
                 val basicInfo  = queryChallengeBasicInfo(item, dsl)
                 val localCode  = VirtualFileUtil.readText(vf)
                 val submitCode = basicInfo._2.extractSubmitCode(localCode)
-                val solutionId = item.solutionId.getOrElse(getOrCreateDefaultSolution(dsl, item.challengeId))
+                val solutionId = item.solutionId
 
                 val submissionRecord = dsl
                   .newRecord(SOLUTION_SUBMISSION)

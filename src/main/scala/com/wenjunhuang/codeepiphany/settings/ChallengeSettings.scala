@@ -1,20 +1,20 @@
 package com.wenjunhuang.codeepiphany.settings
 
 import java.util as ju
-import scala.annotation.meta.{beanGetter, beanSetter}
+import scala.annotation.meta.{ beanGetter, beanSetter }
 import scala.beans.BeanProperty
 import scala.compiletime.uninitialized
 
-import com.intellij.openapi.components.{PersistentStateComponent, Service, State, Storage}
+import com.intellij.openapi.components.{ PersistentStateComponent, Service, State, Storage }
 import com.intellij.openapi.components.Service.Level
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.util.xmlb.annotations.OptionTag
 
-import com.wenjunhuang.codeepiphany.model.{CodeDojo, Constants, Language}
-import com.wenjunhuang.codeepiphany.model.ChallengeRepository.{ChallengeId, ChallengeLanguageId, SolutionId}
-import com.wenjunhuang.codeepiphany.settings.ChallengeSettings.{ChallengeSettingsState, ChallengeSettingsStateItem}
-import com.wenjunhuang.codeepiphany.utils.XmlUtils.{CodeDojoConverter, IntOptionConverter, LanguageConverter}
+import com.wenjunhuang.codeepiphany.model.{ CodeDojo, Constants, Language }
+import com.wenjunhuang.codeepiphany.model.ChallengeRepository.{ ChallengeId, ChallengeLanguageId, SolutionId }
+import com.wenjunhuang.codeepiphany.settings.ChallengeSettings.{ ChallengeSettingsState, ChallengeSettingsStateItem }
+import com.wenjunhuang.codeepiphany.utils.XmlUtils.{ CodeDojoConverter, IntOptionConverter, LanguageConverter }
 
 @Service(Array(Level.PROJECT))
 @State(name = Constants.CHALLENGE_SETTING, storages = Array(new Storage(Constants.CHALLENGE_SETTING_FILE)))
@@ -53,6 +53,12 @@ final class ChallengeSettings extends PersistentStateComponent[ChallengeSettings
     }
   }
 
+  def setChallengeSolutionId(vf: VirtualFile, solutionId: SolutionId): Unit = synchronized {
+    Option(myState.challenges.get(vf.getCanonicalPath)).foreach { item =>
+      item.solutionId = solutionId.value
+    }
+  }
+
   def findChallengeId(vf: VirtualFile): Option[ChallengeSettingsStateItem] =
     findChallengeId(vf.getCanonicalPath)
 }
@@ -76,9 +82,8 @@ object ChallengeSettings {
     @BeanProperty
     var language: Language = uninitialized
 
-    @(OptionTag @beanGetter @beanSetter)(converter = classOf[IntOptionConverter])
     @BeanProperty
-    var solutionId: Option[Long] = None
+    var solutionId: Long = uninitialized
   }
 
   object ChallengeSettingsStateItem {
@@ -87,14 +92,14 @@ object ChallengeSettings {
       challengeLanguageId: ChallengeLanguageId,
       codeDojo: CodeDojo,
       language: Language,
-      solutionId: Option[SolutionId]
+      solutionId:SolutionId
     ): ChallengeSettingsStateItem = {
       val r = new ChallengeSettingsStateItem()
       r.challengeId = challengeId.value
       r.challengeLanguageId = challengeLanguageId.value
       r.dojo = codeDojo
       r.language = language
-      r.solutionId = solutionId.map(_.value)
+      r.solutionId = solutionId.value
       r
     }
   }

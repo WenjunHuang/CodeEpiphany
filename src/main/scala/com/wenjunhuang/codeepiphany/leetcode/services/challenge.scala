@@ -12,10 +12,11 @@ import com.intellij.openapi.ui.{ MessageDialogBuilder, Messages }
 import com.intellij.openapi.util.text.StringUtil
 
 import com.wenjunhuang.codeepiphany.database.Tables.{ CHALLENGE, CHALLENGE_LANGUAGE, LEETCODE_CHALLENGE }
+import com.wenjunhuang.codeepiphany.editor.services.database.getOrCreateDefaultSolution
 import com.wenjunhuang.codeepiphany.leetcode.model.*
 import com.wenjunhuang.codeepiphany.leetcode.settings.{ LeetCodeCNSettings, LeetCodeCNSettingsConfigurable }
 import com.wenjunhuang.codeepiphany.model.*
-import com.wenjunhuang.codeepiphany.model.ChallengeRepository.{ ChallengeId, ChallengeLanguageId }
+import com.wenjunhuang.codeepiphany.model.ChallengeRepository.{ ChallengeId, ChallengeLanguageId, SolutionId }
 import com.wenjunhuang.codeepiphany.services.file.{ openTextEditor, refreshAndFindFileByIoFile, saveTextToFile }
 import com.wenjunhuang.codeepiphany.services.http.HttpClientManager
 import com.wenjunhuang.codeepiphany.settings.ChallengeSettings
@@ -122,17 +123,17 @@ object challenge {
                 (
                   saveTextToFile(file, code).flatMap(refreshAndFindFileByIoFile),
                   storeChallengeToDatabase(project, codeDojo, template, content)
-                ).parTupled.map { case (file, (challengeId, challengeLangId)) =>
+                ).parTupled.map { case (file, (challengeId, challengeLangId, solutionId)) =>
                   val settings = ChallengeSettings.getInstance(project)
                   settings.addChallenge(
-                    file.get.getCanonicalPath,
-                    ChallengeSettingsStateItem(challengeId, challengeLangId, codeDojo, language, None)
+                    file,
+                    ChallengeSettingsStateItem(challengeId, challengeLangId, codeDojo, language, solutionId)
                   )
                   file
                 }
           }.sequence.flatMap {
             case Left(e)   => Async[F].delay(Messages.showErrorDialog(e.getMessage, "Error")).evalOnEDTAny()
-            case Right(vf) => vf.fold(Async[F].unit)(openTextEditor(_, project).void)
+            case Right(vf) => openTextEditor(vf, project).void
           }
       }
       .handleErrorWith(e => Logger[F].warn(e)("Failed to open challenge"))
@@ -143,7 +144,7 @@ object challenge {
     codeDojo: CodeDojo,
     challenge: LeetCodeChallengeCodeTemplate,
     content: LeetCodeChallengeData
-  ): F[(ChallengeId, ChallengeLanguageId)] = {
+  ): F[(ChallengeId, ChallengeLanguageId, SolutionId)] = {
     val repository = ChallengeRepository.getInstance(project)
     repository.getDSLContextResource.use { client =>
       Async[F].blocking {
@@ -193,9 +194,13 @@ object challenge {
           challengeLanguageRecord.setCodetemplate(StringUtil.convertLineSeparators(challenge.getCode))
           challengeLanguageRecord.store()
 
+          val defaultSolutionId = getOrCreateDefaultSolution(dsl, challengeRecord.getId)
 
-
-          (ChallengeId(challengeRecord.getId), ChallengeLanguageId(challengeLanguageRecord.getId))
+          (
+            ChallengeId(challengeRecord.getId),
+            ChallengeLanguageId(challengeLanguageRecord.getId),
+            SolutionId(defaultSolutionId)
+          )
         }
       }
     }

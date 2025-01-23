@@ -9,6 +9,8 @@ import com.intellij.openapi.fileEditor.impl.text.PsiAwareTextEditorProvider
 import com.intellij.openapi.project.{ DumbAware, Project }
 import com.intellij.openapi.vfs.VirtualFile
 
+import com.wenjunhuang.codeepiphany.editor.actions.SolutionSelectionAction
+import com.wenjunhuang.codeepiphany.editor.actions.SolutionSelectionAction.SOLUTION_PROVIDER_KEY
 import com.wenjunhuang.codeepiphany.editor.actions.SubmitCodeAction.{ SUBMITCODE_PROVIDER_KEY, SubmitCodeProvider }
 import com.wenjunhuang.codeepiphany.settings.ChallengeSettings
 
@@ -18,8 +20,7 @@ class ChallengeEditorProvider extends AsyncFileEditorProvider with DumbAware {
   override def accept(project: Project, file: VirtualFile): Boolean = {
     if !delegate.accept(project, file) then false
     else
-      val path = file.getCanonicalPath
-      ChallengeSettings.getInstance(project).findChallengeId(path) match
+      ChallengeSettings.getInstance(project).findChallengeId(file) match
         case None =>
           false
         case Some(challenge) =>
@@ -48,8 +49,20 @@ class ChallengeEditorProvider extends AsyncFileEditorProvider with DumbAware {
   }
 
   private def setupEditor(editor: FileEditor, project: Project, file: VirtualFile): FileEditor = {
-    val editorWrapper = ChallengeEditor(editor)
-    editorWrapper.putUserData(SUBMITCODE_PROVIDER_KEY, SubmitCodeProvider.createProvider(file, project))
-    editorWrapper
+    ChallengeSettings.getInstance(project).findChallengeId(file) match
+      case Some(challenge) =>
+        val editorWrapper = ChallengeEditor(editor)
+        editorWrapper.putUserData(
+          SUBMITCODE_PROVIDER_KEY,
+          SubmitCodeProvider.createProvider(file, project, challenge.dojo)
+        )
+        editorWrapper.putUserData(
+          SOLUTION_PROVIDER_KEY,
+          SolutionSelectionAction.createSolutionSelectionProvider(project, file)
+        )
+        editorWrapper
+      case None =>
+        // should never happen
+        editor
   }
 }

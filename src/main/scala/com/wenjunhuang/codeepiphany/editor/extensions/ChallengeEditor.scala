@@ -7,8 +7,13 @@ import javax.swing.{ JComponent, JLayeredPane }
 
 import com.intellij.openapi.actionSystem.{ ActionGroup, ActionManager }
 import com.intellij.openapi.editor.impl.EditorComponentImpl
-import com.intellij.openapi.fileEditor.{ FileEditor, FileEditorState, LayoutActionsFloatingToolbar }
-import com.intellij.openapi.util.{ Disposer, UserDataHolderBase }
+import com.intellij.openapi.fileEditor.{
+  FileEditor,
+  FileEditorState,
+  FileEditorStateLevel,
+  LayoutActionsFloatingToolbar
+}
+import com.intellij.openapi.util.{ Disposer, Key, UserDataHolderBase }
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.ui.components.JBLayeredPane
@@ -19,8 +24,7 @@ import com.wenjunhuang.codeepiphany.editor.extensions.ChallengeEditor.*
 import com.wenjunhuang.codeepiphany.model.Actions
 
 class ChallengeEditor(private val myDelegate: FileEditor, private val myName: String = "ChallengeEditor")
-    extends UserDataHolderBase
-    with FileEditor {
+    extends FileEditor {
 
   private lazy val myUi = MyUi()
 
@@ -28,13 +32,19 @@ class ChallengeEditor(private val myDelegate: FileEditor, private val myName: St
     myUi
   })
 
-  override def getComponent: JComponent = myUi.myLayeredPane
+  Disposer.register(this, myDelegate)
 
-  override def getPreferredFocusedComponent: JComponent = myDelegate.getPreferredFocusedComponent
+  override def getComponent: JComponent = myUi.myLayeredPane
 
   override def getName: String = myName
 
+  override def getFile: VirtualFile = myDelegate.getFile
+
+  override def getPreferredFocusedComponent: JComponent = myDelegate.getPreferredFocusedComponent
+
   override def setState(state: FileEditorState): Unit = myDelegate.setState(state)
+
+  override def getState(level: FileEditorStateLevel): FileEditorState = myDelegate.getState(level)
 
   override def isModified: Boolean = myDelegate.isModified
 
@@ -46,16 +56,18 @@ class ChallengeEditor(private val myDelegate: FileEditor, private val myName: St
   override def removePropertyChangeListener(listener: PropertyChangeListener): Unit =
     myDelegate.removePropertyChangeListener(listener)
 
-  override def dispose(): Unit = {
-    myDelegate.dispose()
-  }
+  override def dispose(): Unit = {}
 
-  def createActionGroup(): ActionGroup = {
+  override def getUserData[T](key: Key[T]): T = myDelegate.getUserData(key)
+
+  override def putUserData[T](key: Key[T], value: T): Unit = myDelegate.putUserData(key, value)
+
+  private def createActionGroup(): ActionGroup = {
     val ag = ActionManager.getInstance().getAction(Actions.CHALLENGE_EDITOR_TOOLBAR_GROUP).asInstanceOf[ActionGroup]
     ag
   }
 
-  def registerToolbarListener(actualComponent: JComponent, toolbar: LayoutActionsFloatingToolbar): Unit = {
+  private def registerToolbarListener(actualComponent: JComponent, toolbar: LayoutActionsFloatingToolbar): Unit = {
     StartupUiUtil.addAwtListener(AWTEvent.MOUSE_MOTION_EVENT_MASK, toolbar, MyMouseListener(toolbar))
     UIUtil.findComponentOfType(actualComponent, classOf[EditorComponentImpl]) match
       case null =>
@@ -73,8 +85,6 @@ class ChallengeEditor(private val myDelegate: FileEditor, private val myName: St
           }
         )
   }
-
-  override def getFile: VirtualFile = myDelegate.getFile
 
   private class MyUi {
     private val myEditorComponent = myDelegate.getComponent

@@ -13,10 +13,11 @@ import com.intellij.openapi.ui.{ MessageDialogBuilder, Messages }
 import com.intellij.openapi.util.text.StringUtil
 
 import com.wenjunhuang.codeepiphany.database.Tables.*
+import com.wenjunhuang.codeepiphany.editor.services.database.getOrCreateDefaultSolution
 import com.wenjunhuang.codeepiphany.hackerrank.model.{ HackerRankChallengeCodeTemplate, HackerRankContest }
 import com.wenjunhuang.codeepiphany.hackerrank.settings.{ HackerRankSettings, HackerRankSettingsConfigurable }
 import com.wenjunhuang.codeepiphany.model.*
-import com.wenjunhuang.codeepiphany.model.ChallengeRepository.{ ChallengeId, ChallengeLanguageId }
+import com.wenjunhuang.codeepiphany.model.ChallengeRepository.{ ChallengeId, ChallengeLanguageId, SolutionId }
 import com.wenjunhuang.codeepiphany.model.CodeDojo.HackerRank
 import com.wenjunhuang.codeepiphany.services.file.*
 import com.wenjunhuang.codeepiphany.services.http.HttpClientManager
@@ -124,17 +125,17 @@ object challenge {
                 (
                   saveTextToFile(file, code).flatMap(refreshAndFindFileByIoFile),
                   storeChallengeToDatabase(project, template)
-                ).parTupled.map { case (file, (challengeId, challengeLangId)) =>
+                ).parTupled.map { case (file, (challengeId, challengeLangId, solutionId)) =>
                   val settings = ChallengeSettings.getInstance(project)
                   settings.addChallenge(
-                    file.get.getCanonicalPath,
-                    ChallengeSettingsStateItem(challengeId, challengeLangId, HackerRank, language, None)
+                    file,
+                    ChallengeSettingsStateItem(challengeId, challengeLangId, HackerRank, language, solutionId)
                   )
                   file
                 }
           }.sequence.flatMap {
             case Left(e)   => Async[F].delay(Messages.showErrorDialog(e.getMessage, "Error")).evalOnEDTAny()
-            case Right(vf) => vf.fold(Async[F].unit)(openTextEditor(_, project).void)
+            case Right(vf) => openTextEditor(vf, project).void
           }
       }
       .handleErrorWith(e => Logger[F].warn(e)("Failed to open challenge"))
@@ -143,7 +144,7 @@ object challenge {
   def storeChallengeToDatabase[F[_]: Async](
     project: Project,
     challenge: HackerRankChallengeCodeTemplate
-  ): F[(ChallengeId, ChallengeLanguageId)] = {
+  ): F[(ChallengeId, ChallengeLanguageId, SolutionId)] = {
     val repository = ChallengeRepository.getInstance(project)
     repository.getDSLContextResource.use { client =>
       Async[F].blocking {
@@ -203,7 +204,13 @@ object challenge {
           hackerRankLangRecord.setCodetail(StringUtil.convertLineSeparators(challenge.tail))
           hackerRankLangRecord.store()
 
-          (ChallengeId(challengeRecord.getId), ChallengeLanguageId(challengeLanguageRecord.getId))
+          val defaultSolutionId = getOrCreateDefaultSolution(dsl, challengeRecord.getId)
+
+          (
+            ChallengeId(challengeRecord.getId),
+            ChallengeLanguageId(challengeLanguageRecord.getId),
+            SolutionId(defaultSolutionId)
+          )
         }
       }
     }

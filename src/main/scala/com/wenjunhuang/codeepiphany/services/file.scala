@@ -1,14 +1,14 @@
 package com.wenjunhuang.codeepiphany.services
-import cats.effect.{Resource, Sync}
+import cats.effect.{ Resource, Sync }
 import cats.effect.kernel.Async
 import cats.syntax.all.*
-import java.io.{File, PrintWriter}
+import java.io.{ File, PrintWriter }
 import org.typelevel.log4cats.LoggerFactory
 
 import com.intellij.openapi.editor.Editor
-import com.intellij.openapi.fileEditor.{FileDocumentManager, FileEditorManager, OpenFileDescriptor}
+import com.intellij.openapi.fileEditor.{ FileDocumentManager, FileEditorManager, OpenFileDescriptor }
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.vfs.{LocalFileSystem, VirtualFile}
+import com.intellij.openapi.vfs.{ LocalFileSystem, VirtualFile }
 
 import com.wenjunhuang.codeepiphany.utils.implicits.*
 
@@ -23,8 +23,12 @@ object file {
     }
   }
 
-  def refreshAndFindFileByIoFile[F[_]: Sync](file: File): F[Option[VirtualFile]] =
-    Sync[F].blocking(Option(LocalFileSystem.getInstance().refreshAndFindFileByIoFile(file)))
+  def refreshAndFindFileByIoFile[F[_]: Sync](file: File): F[VirtualFile] =
+    Sync[F].blocking {
+      val vf = LocalFileSystem.getInstance().refreshAndFindFileByIoFile(file)
+      if vf == null then throw new IllegalArgumentException(s"Cannot find file: ${file}")
+      else vf
+    }
 
   def openTextEditor[F[_]: Async](vf: VirtualFile, project: Project): F[Editor] =
     Async[F].delay {
@@ -40,7 +44,7 @@ object file {
           Async[F].delay {
             val fdm = FileDocumentManager.getInstance()
             fdm.saveDocument(fdm.getDocument(file))
-          }.evalOnEDTAny().attempt
+          }.evalOnEDTWithWrite().attempt
         else Async[F].pure(Right(()))
       }
 

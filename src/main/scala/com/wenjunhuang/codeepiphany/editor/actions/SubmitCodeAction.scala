@@ -10,7 +10,11 @@ import com.intellij.openapi.vfs.{ VfsUtil, VirtualFile }
 
 import com.wenjunhuang.codeepiphany.editor.actions.SubmitCodeAction.*
 import com.wenjunhuang.codeepiphany.editor.services.{ runCode, submitCode }
+import com.wenjunhuang.codeepiphany.model.CodeDojo
 import com.wenjunhuang.codeepiphany.services.http.{ HttpClientManager, HttpClientService }
+import com.wenjunhuang.codeepiphany.services.AuthService
+import com.wenjunhuang.codeepiphany.services.file.saveEditedFile
+import com.wenjunhuang.codeepiphany.settings.ChallengeSettings
 import com.wenjunhuang.codeepiphany.utils.extensions.*
 import com.wenjunhuang.codeepiphany.utils.implicits.*
 
@@ -23,11 +27,8 @@ class SubmitCodeAction extends AnAction {
   }
 
   override def update(e: AnActionEvent): Unit = {
-    getProvider(e) match
-      case Some(provider) =>
-        e.getPresentation.setEnabledAndVisible(true)
-      case None =>
-        e.getPresentation.setEnabledAndVisible(false)
+    val enabled = getProvider(e).exists(_.canSubmit)
+    e.getPresentation.setEnabled(enabled)
   }
 
   override def getActionUpdateThread: ActionUpdateThread = ActionUpdateThread.BGT
@@ -44,29 +45,44 @@ object SubmitCodeAction {
   trait SubmitCodeProvider {
     def submitCurrent(): Unit
 
+    def canSubmit: Boolean
+
     def runCurrent(): Unit
+
+    def canRun: Boolean
   }
 
   object SubmitCodeProvider {
 
-    def createProvider(vf: VirtualFile, project: Project): SubmitCodeProvider = new SubmitCodeProvider:
-      implicit val httpClientKeeper: HttpClientManager[IO] = HttpClientService.getInstance(project).httpClientManager
+    def createProvider(vf: VirtualFile, project: Project, codeDojo: CodeDojo): SubmitCodeProvider =
+      new SubmitCodeProvider:
+        implicit val httpClientKeeper: HttpClientManager[IO] = HttpClientService.getInstance(project).httpClientManager
 
-      override def submitCurrent(): Unit = {
-        (saveFile() *>
-          submitCode[IO](vf, project))
-          .unsafeRunAsBackgroundProgressCancellable(project, "Submitting code")
-      }
+        override def canSubmit: Boolean = {
+          ChallengeSettings.getInstance(project).findChallengeId(vf).exists { challenge =>
+            AuthService.getInstance(project).isLoggedIn(challenge.dojo)
+          }
+        }
 
-      override def runCurrent(): Unit = {
-        (saveFile() *>
-          runCode[IO](vf, project))
-          .unsafeRunAsBackgroundProgressCancellable(project, "Running code")
-      }
+        override def canRun: Boolean = {
+          ChallengeSettings.getInstance(project).findChallengeId(vf).exists { challenge =>
+            AuthService.getInstance(project).isLoggedIn(challenge.dojo)
+          }
+        }
 
-      private def saveFile(): IO[Unit] = IO.delay {
-        val fdm = FileDocumentManager.getInstance()
-        if fdm.isFileModified(vf) then fdm.saveDocument(fdm.getDocument(vf))
-      }.evalOnWrite()
+        override def submitCurrent(): Unit = {
+          if canSubmit then
+            (saveEditedFile[IO](vf) *>
+              submitCode[IO](vf, project))
+              .unsafeRunAsBackgroundProgressCancellable(project, "Submitting code")
+        }
+
+        override def runCurrent(): Unit = {
+          if canRun then
+            (saveEditedFile[IO](vf) *>
+              runCode[IO](vf, project))
+              .unsafeRunAsBackgroundProgressCancellable(project, "Running code")
+        }
+
   }
 }

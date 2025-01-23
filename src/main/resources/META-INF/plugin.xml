@@ -54,16 +54,29 @@
                     class="com.wenjunhuang.codeepiphany.leetcode.actions.LeetCodeCategoryParameterAction"/>
         </group>
 
+        <action id="CodeEpiphany.Actions.SolutionSelection"
+                class="com.wenjunhuang.codeepiphany.editor.actions.SolutionSelectionAction"
+                icon="CodeEpiphanyIcons.SOLUTION">
+        </action>
+
         <group id="CodeEpiphany.Editor.Group">
             <reference ref="CodeEpiphany.Actions.RunCode"/>
             <reference ref="CodeEpiphany.Actions.SubmitCode"/>
+            <reference ref="CodeEpiphany.Actions.SolutionSelection"/>
         </group>
+        <group id="CodeEpiphany.ChallengeEditor.Toolbar.Group">
+            <reference ref="CodeEpiphany.Actions.RunCode"/>
+            <reference ref="CodeEpiphany.Actions.SubmitCode"/>
+            <reference ref="CodeEpiphany.Actions.SolutionSelection"/>
+        </group>
+
 
         <group id="CodeEpiphany.Editor.Menu" class="com.wenjunhuang.codeepiphany.editor.actions.EditorMenuActionGroup"
                popup="true">
             <reference ref="CodeEpiphany.Editor.Group"/>
             <add-to-group group-id="EditorPopupMenu" anchor="first"/>
         </group>
+
 
         <group id="CodeEpiphany.Dojos.Actions.OpenChallengeGroup"
                popup="true"
@@ -139,11 +152,6 @@
             <reference ref="CodeEpiphany.Actions.OpenSubmissionCode"/>
             <reference ref="CompareTwoFiles"/>
             <reference ref="CompareFileWithEditor"/>
-        </group>
-
-        <group id="CodeEpiphany.ChallengeEditor.Toolbar.Group">
-            <reference ref="CodeEpiphany.Actions.RunCode"/>
-            <reference ref="CodeEpiphany.Actions.SubmitCode"/>
         </group>
 
         <!-- test -->

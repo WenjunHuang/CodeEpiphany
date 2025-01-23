@@ -175,7 +175,7 @@ object leetcode {
                 val (dojoId, _, language, langVer, challengeSlug) = queryChallengeBasicInfo(item, dsl)
                 val localCode                                     = VirtualFileUtil.readText(vf)
                 val submitCode                                    = language.extractSubmitCode(localCode)
-                val solutionId = item.solutionId.getOrElse(getOrCreateDefaultSolution(dsl, item.challengeId))
+                val solutionId                                    = item.solutionId
 
                 val submissionRecord = dsl
                   .newRecord(SOLUTION_SUBMISSION)
@@ -245,26 +245,6 @@ object leetcode {
       }
       .compile
       .drain
-  }
-
-  def getOrCreateDefaultSolution(dsl: DSLContext, challengeId: Long): Long = {
-    val solutionRecord = dsl
-      .selectFrom(SOLUTION)
-      .where(SOLUTION.CHALLENGEID.eq(challengeId).and(SOLUTION.ISDEFAULT.eq(1)))
-      .fetchOptional()
-      .toScala
-      .getOrElse {
-        val newRecord = dsl
-          .newRecord(SOLUTION)
-          .setId(IdGenerator.nextId())
-          .setChallengeid(challengeId)
-          .setTitle("Default")
-          .setIsdefault(1)
-          .setCreatedatetime(LocalDateTime.now())
-        newRecord.store()
-        newRecord
-      }
-    solutionRecord.getId
   }
 
   private def queryChallengeBasicInfo(

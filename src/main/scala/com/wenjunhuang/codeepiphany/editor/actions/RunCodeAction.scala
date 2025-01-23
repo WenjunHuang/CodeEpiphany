@@ -8,16 +8,14 @@ class RunCodeAction extends AnAction {
   override def actionPerformed(e: AnActionEvent): Unit = {
     getProvider(e) match
       case Some(provider) =>
-        provider.runCurrent()
+        if provider.canRun then
+          provider.runCurrent()
       case None =>
   }
 
   override def update(e: AnActionEvent): Unit = {
-    getProvider(e) match
-      case Some(provider) =>
-        e.getPresentation.setEnabledAndVisible(true)
-      case None =>
-        e.getPresentation.setEnabledAndVisible(false)
+    val enabled = getProvider(e).exists(_.canRun)
+    e.getPresentation.setEnabled(enabled)
   }
 
   override def getActionUpdateThread: ActionUpdateThread = ActionUpdateThread.BGT
