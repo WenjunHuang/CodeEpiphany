@@ -1,5 +1,8 @@
 package com.wenjunhuang.codeepiphany.utils.template
 
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
+
 object VelocityTool {
   // split str with any space, hyphen , capitalize each word, and join them with no space
   def camelCaseName(str: String): String = str match
@@ -19,5 +22,7 @@ object VelocityTool {
     case null => ""
     case _    => str.split("(?=[A-Z])").map(_.toLowerCase).mkString("_")
 
+  def dateTime():String = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
+  
   override def toString: String = ""
 }

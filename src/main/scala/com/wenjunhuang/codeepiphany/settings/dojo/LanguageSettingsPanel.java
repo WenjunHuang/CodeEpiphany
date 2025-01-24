@@ -5,6 +5,7 @@ import com.intellij.icons.AllIcons;
 import com.intellij.ide.IdeBundle;
 import com.intellij.ide.fileTemplates.FileTemplateManager;
 import com.intellij.ide.ui.laf.darcula.ui.DarculaEditorTextFieldBorder;
+import com.intellij.l10n.LocalizationUtil;
 import com.intellij.openapi.actionSystem.*;
 import com.intellij.openapi.actionSystem.ex.ActionManagerEx;
 import com.intellij.openapi.actionSystem.impl.ActionToolbarImpl;
@@ -73,8 +74,8 @@ public class LanguageSettingsPanel extends SettingsUi<BaseCodeDojoSettings.Langu
     private JEditorPane myDescription;
     private Language myLanguage;
     private LanguageVersion myLanguageVersion;
-    private BiFunction<Language, LanguageVersion, Object> myDemoTemplateSupplier;
-    private CodeDojo myCodeDojo;
+    private final BiFunction<Language, LanguageVersion, Object> myDemoTemplateSupplier;
+    private final CodeDojo myCodeDojo;
 
     public LanguageSettingsPanel(Project project,
                                  CodeDojo codeDojo,
@@ -120,9 +121,13 @@ public class LanguageSettingsPanel extends SettingsUi<BaseCodeDojoSettings.Langu
         myDescription.setEditable(false);
         myDescription.addHyperlinkListener(new BrowserHyperlinkListener());
 
+        // get current ide locale
+        var locale = LocalizationUtil.INSTANCE.getLocaleOrNullForDefault();
+        var localString = locale != null ? "_" + locale.getLanguage() : "";
         try {
+            var file = "/settings/CodeTemplate_" + myCodeDojo.value() + localString + ".html";
             var description =
-                    StringUtil.join(IOUtils.readLines(Objects.requireNonNull(getClass().getResourceAsStream("/settings/TemplateDescription.html")), StandardCharsets.UTF_8), "");
+                    StringUtil.join(IOUtils.readLines(Objects.requireNonNull(getClass().getResourceAsStream(file)), StandardCharsets.UTF_8), "\n");
             description = XmlStringUtil.stripHtml(description);
             description = IdeBundle.message("http.velocity", description);
             myDescription.setText(description);

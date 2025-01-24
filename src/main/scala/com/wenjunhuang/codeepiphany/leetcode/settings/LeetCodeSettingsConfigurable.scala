@@ -83,7 +83,7 @@ object LeetCodeSettingsConfigurable {
           (language, languageVersion) ->
             LeetCodeChallengeCodeTemplate(
               "4",
-              "4",
+              "Interview 4",
               LeetCode,
               "Median of two sorted arrays",
               StringUtil.replace(code, "\\n", "\n"),

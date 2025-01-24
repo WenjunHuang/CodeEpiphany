@@ -1,12 +1,13 @@
 package com.wenjunhuang.codeepiphany.hackerrank.model
 
+import scala.annotation.meta.beanGetter
 import scala.beans.BeanProperty
 
 import com.wenjunhuang.codeepiphany.model.{CodeDojo, Language, LanguageVersion}
 
 case class HackerRankChallengeCodeTemplate(
   @BeanProperty
-  dojoId: String,
+  id: String,
   dojo: CodeDojo,
   @BeanProperty
   name: String,

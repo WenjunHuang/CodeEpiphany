@@ -110,6 +110,7 @@ class SubmissionLogTableModel(private val myPresenter: SubmissionLogPresenter)
     new OrderByColumnInfo[SubmissionLogEntry, String](PluginBundle.message("submissionLog.ui.resultDateTime.title")) {
       override def valueOf(item: SubmissionLogEntry): String =
         s"${item.resultDateTime.map(_.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))).getOrElse("")}"
+
       override def getPreferredStringValue: String = StringUtil.repeat("W", 20)
 
       override def getOrderFilter: Option[OrderDirection] = myPresenter.getResultDateTimeOrderFilter

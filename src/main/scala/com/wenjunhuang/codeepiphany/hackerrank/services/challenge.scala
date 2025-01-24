@@ -152,7 +152,7 @@ object challenge {
           val dsl = trx.dsl()
           val challengeRecord = dsl.fetchOne(
             CHALLENGE,
-            CHALLENGE.DOJO.eq(CodeDojo.HackerRank.value).and(CHALLENGE.DOJOID.eq(challenge.dojoId))
+            CHALLENGE.DOJO.eq(CodeDojo.HackerRank.value).and(CHALLENGE.DOJOID.eq(challenge.id))
           ) match {
             case null => dsl.newRecord(CHALLENGE).setId(IdGenerator.nextId())
             case r    => r
@@ -160,7 +160,7 @@ object challenge {
           challengeRecord.setDescription(challenge.description)
           challengeRecord.setDifficulty(challenge.difficulty)
           challengeRecord.setDojo(CodeDojo.HackerRank.value)
-          challengeRecord.setDojoid(challenge.dojoId)
+          challengeRecord.setDojoid(challenge.id)
           challengeRecord.setSlug(challenge.slug)
           challengeRecord.setTitle(challenge.name)
           challengeRecord.store()
