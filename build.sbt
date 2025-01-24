@@ -9,14 +9,14 @@ ThisBuild / scalaVersion     := "3.3.4"
 ThisBuild / intellijPlatform := IntelliJPlatform.IdeaCommunity
 ThisBuild / intellijBuild    := "242.20224.300"
 
-def markdownToHtml(file:File):String = {
-  val options        = new MutableDataSet()
-  val parser         = Parser.builder(options).build()
-  val renderer       = HtmlRenderer.builder(options).build()
+def markdownToHtml(file: File): String = {
+  val options  = new MutableDataSet()
+  val parser   = Parser.builder(options).build()
+  val renderer = HtmlRenderer.builder(options).build()
 
   Using(Source.fromFile(file)) { markdownSource =>
     val document = parser.parse(markdownSource.mkString)
-    val r = renderer.render(document)
+    val r        = renderer.render(document)
     r
   }.get
 }
@@ -49,7 +49,7 @@ lazy val codeEpiphany = (project in file("."))
     },
     libraryDependencies ++= Seq(
       "org.typelevel"           %% "cats-effect"      % "3.5.7",
-      "org.typelevel"           %% "cats-core"        % "2.12.0",
+      "org.typelevel"           %% "cats-core"        % "2.13.0",
       "org.typelevel"           %% "cats-mtl"         % "1.5.0",
       "io.circe"                %% "circe-core"       % "0.14.10",
       "io.circe"                %% "circe-generic"    % "0.14.10",
