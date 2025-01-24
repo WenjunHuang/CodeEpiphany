@@ -90,7 +90,7 @@ class SubmissionLogPresenter(private val myProject: Project) extends UiDataProvi
     }
   }
 
-  private val myDojoProvider = new CodeDojoParameterProvider {
+  private val myCodeDojoProvider = new CodeDojoParameterProvider {
     override def getAllItems: List[CodeDojo] = CodeDojo.values.toList
 
     override def isMultipleSelection: Boolean = true
@@ -180,7 +180,7 @@ class SubmissionLogPresenter(private val myProject: Project) extends UiDataProvi
 
   def getView: JComponent = myView
 
-  private def requery(): Unit = {
+  def requery(): Unit = {
     myQueryQueue.foreach(_.offer(Some(myQueryParams)).unsafeRunAndForget())
   }
 
@@ -243,7 +243,7 @@ class SubmissionLogPresenter(private val myProject: Project) extends UiDataProvi
         dojo.show,
         dojo.getIcon,
         CODEDOJO_TAG_RADIUS,
-        Some(() => myDojoProvider.removeSelectedItems(List(dojo)))
+        Some(() => myCodeDojoProvider.removeSelectedItems(List(dojo)))
       )
     }
     myQueryParams.languages.foreach { case (language, version) =>
@@ -319,7 +319,7 @@ class SubmissionLogPresenter(private val myProject: Project) extends UiDataProvi
 
   override def uiDataSnapshot(dataSink: DataSink): Unit = {
     dataSink.set(REFRESH_PROVIDER_KEY, myRefreshProvider)
-    dataSink.set(CODEDOJO_PROVIDER_KEY, myDojoProvider)
+    dataSink.set(CODEDOJO_PROVIDER_KEY, myCodeDojoProvider)
     dataSink.set(LANGUAGE_PROVIDER_KEY, myLanguageProvider)
     dataSink.set(OPEN_SUBMISSION_PROVIDER_KEY, myOpenSubmissionCodeProvider)
     dataSink.`lazy`(

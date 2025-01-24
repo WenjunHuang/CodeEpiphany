@@ -12,4 +12,7 @@ object CookieUtil {
           val Array(name, value) = cookie.trim.split("=", 2)
           HttpCookie(name, value)
       }.toList
+    
+  def encodeCookies(cookies:List[HttpCookie]):String =
+    cookies.map(cookie => s"${cookie.getName}=${cookie.getValue}").mkString(";")
 }

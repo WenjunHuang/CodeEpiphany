@@ -2,7 +2,7 @@ package com.wenjunhuang.codeepiphany.actions
 
 import icons.CodeEpiphanyIcons
 
-import com.intellij.openapi.actionSystem.{ActionUpdateThread, AnAction, AnActionEvent, DataKey}
+import com.intellij.openapi.actionSystem.{ ActionUpdateThread, AnAction, AnActionEvent, DataKey }
 
 import com.wenjunhuang.codeepiphany.actions.LoginAction.*
 
@@ -28,6 +28,7 @@ class LoginAction extends AnAction {
 
   override def getActionUpdateThread: ActionUpdateThread = ActionUpdateThread.BGT
 }
+
 object LoginAction {
   final val LOGIN_LOGOUT_KEY = DataKey.create[LoginLogoutProvider]("LOGIN_LOGOUT_KEY")
   trait LoginLogoutProvider {

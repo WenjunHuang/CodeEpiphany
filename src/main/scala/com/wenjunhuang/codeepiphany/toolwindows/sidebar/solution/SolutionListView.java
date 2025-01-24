@@ -13,10 +13,8 @@ import com.intellij.ui.dualView.TreeTableView;
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.uiDesigner.core.Spacer;
-import com.intellij.util.ui.JBUI;
 import com.wenjunhuang.codeepiphany.model.CodeDojo;
 import com.wenjunhuang.codeepiphany.utils.ui.TagUI;
-import com.wenjunhuang.codeepiphany.vfs.SolutionRemarkFileSystem;
 import org.apache.commons.collections.CollectionUtils;
 import org.jetbrains.annotations.NotNull;
 import scala.Option;
@@ -25,6 +23,8 @@ import javax.swing.*;
 import javax.swing.border.TitledBorder;
 import javax.swing.tree.DefaultMutableTreeNode;
 import java.awt.*;
+import java.awt.event.HierarchyEvent;
+import java.awt.event.HierarchyListener;
 
 public class SolutionListView {
 

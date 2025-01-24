@@ -36,6 +36,18 @@
                     icon="CodeEpiphanyIcons.SUBMIT"/>
             <action id="CodeEpiphany.Actions.OpenSubmissionCode"
                     class="com.wenjunhuang.codeepiphany.actions.OpenSubmissionCodeAction"/>
+            <action id="CodeEpiphany.Actions.ActivateDescriptionView"
+                    class="com.wenjunhuang.codeepiphany.actions.ActivateDescriptionViewAction"
+                    icon="CodeEpiphanyIcons.DESCRIPTION"/>
+            <action id="CodeEpiphany.Actions.ActivateSolutionsView"
+                    class="com.wenjunhuang.codeepiphany.actions.ActivateSolutionsViewAction"
+                    icon="CodeEpiphanyIcons.SOLUTION"/>
+            <action id="CodeEpiphany.Actions.ActivateSubmissionsView"
+                    class="com.wenjunhuang.codeepiphany.actions.ActivateSubmissionsViewAction"
+                    icon="CodeEpiphanyIcons.SUBMISSIONS"/>
+            <action id="CodeEpiphany.Actions.SolutionSelection"
+                    class="com.wenjunhuang.codeepiphany.editor.actions.SolutionSelectionAction">
+            </action>
         </group>
         <group id="CodeEpiphany.HackerRank.Group">
             <action id="CodeEpiphany.Actions.HackerRank.ChangeUI"
@@ -54,22 +66,24 @@
                     class="com.wenjunhuang.codeepiphany.leetcode.actions.LeetCodeCategoryParameterAction"/>
         </group>
 
-        <action id="CodeEpiphany.Actions.SolutionSelection"
-                class="com.wenjunhuang.codeepiphany.editor.actions.SolutionSelectionAction"
-                icon="CodeEpiphanyIcons.SOLUTION">
-        </action>
 
         <group id="CodeEpiphany.Editor.Group">
             <reference ref="CodeEpiphany.Actions.RunCode"/>
             <reference ref="CodeEpiphany.Actions.SubmitCode"/>
             <reference ref="CodeEpiphany.Actions.SolutionSelection"/>
+            <reference ref="CodeEpiphany.Actions.ActivateSolutionsView"/>
+            <reference ref="CodeEpiphany.Actions.ActivateDescriptionView"/>
+            <reference ref="CodeEpiphany.Actions.ActivateSubmissionsView"/>
         </group>
+
         <group id="CodeEpiphany.ChallengeEditor.Toolbar.Group">
             <reference ref="CodeEpiphany.Actions.RunCode"/>
             <reference ref="CodeEpiphany.Actions.SubmitCode"/>
             <reference ref="CodeEpiphany.Actions.SolutionSelection"/>
+            <reference ref="CodeEpiphany.Actions.ActivateSolutionsView"/>
+            <reference ref="CodeEpiphany.Actions.ActivateDescriptionView"/>
+            <reference ref="CodeEpiphany.Actions.ActivateSubmissionsView"/>
         </group>
-
 
         <group id="CodeEpiphany.Editor.Menu" class="com.wenjunhuang.codeepiphany.editor.actions.EditorMenuActionGroup"
                popup="true">

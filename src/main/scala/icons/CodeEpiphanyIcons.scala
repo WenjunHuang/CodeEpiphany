@@ -27,16 +27,22 @@ object CodeEpiphanyIcons {
   val SUBMIT: Icon = IconLoader.getIcon("/icons/submit.svg", CodeEpiphanyIcons.getClass.getClassLoader)
 
   @static
-  val SOLUTION:Icon = IconLoader.getIcon("/icons/solution.svg",CodeEpiphanyIcons.getClass.getClassLoader)
+  val SOLUTION: Icon = IconLoader.getIcon("/icons/solution.svg", CodeEpiphanyIcons.getClass.getClassLoader)
 
   @static
-  val QuestionToolWindowIcon: Icon =
-    IconLoader.getIcon("/icons/file-lines-regular.svg", CodeEpiphanyIcons.getClass.getClassLoader)
+  val SUBMISSIONS: Icon = IconLoader.getIcon("/icons/submissions.svg", CodeEpiphanyIcons.getClass.getClassLoader)
 
   @static
-  val SEARCH: Icon = AllIcons.Actions.Search
+  val CONSOLE: Icon = IconLoader.getIcon("/icons/console.svg", CodeEpiphanyIcons.getClass.getClassLoader)
+
   @static
-  val QUERY_PARAM: Icon = AllIcons.General.Filter
+  val SEARCH: Icon = IconLoader.getIcon("/icons/search.svg", CodeEpiphanyIcons.getClass.getClassLoader)
+
+  @static
+  val QUERY_PARAM: Icon = IconLoader.getIcon("/icons/filter.svg", CodeEpiphanyIcons.getClass.getClassLoader)
+
+  @static
+  val DESCRIPTION:Icon = IconLoader.getIcon("/icons/book.svg",CodeEpiphanyIcons.getClass.getClassLoader)
 
   @static
   val LOADING: AnimatedIcon = AnimatedIcon.Default.INSTANCE

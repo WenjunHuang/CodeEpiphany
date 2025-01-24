@@ -11,7 +11,7 @@ import com.wenjunhuang.codeepiphany.utils.actions.{ParameterComboBoxAction, Para
 class CodeDojoParameterAction
     extends ParameterComboBoxAction[CodeDojo, CodeDojoParameterProvider](
       CODEDOJO_PROVIDER_KEY,
-      item => item.value,
+      item => item.show,
       item => Option(item.show),
       item => item.getIcon
     ) {}

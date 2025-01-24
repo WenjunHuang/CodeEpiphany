@@ -52,6 +52,11 @@ class SubmissionLogView(private val myPresenter: SubmissionLogPresenter) extends
   def getTableModel: SubmissionLogTableModel  = myTableModel
   def getTable: TableView[SubmissionLogEntry] = myTable
 
+  override def addNotify(): Unit = {
+    super.addNotify()
+    myPresenter.requery()
+  }
+
   override def uiDataSnapshot(sink: DataSink): Unit = {
     myPresenter.uiDataSnapshot(sink)
   }

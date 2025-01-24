@@ -1,6 +1,7 @@
 package com.wenjunhuang.codeepiphany.services
 
-import cats.effect.kernel.Async
+import cats.effect.implicits.*
+import cats.effect.Async
 import cats.syntax.all.*
 import java.net.HttpCookie
 import java.util.concurrent.atomic.AtomicReference
@@ -11,7 +12,7 @@ import com.intellij.openapi.project.Project
 
 import com.wenjunhuang.codeepiphany.hackerrank.services.HackerRankApi
 import com.wenjunhuang.codeepiphany.leetcode.services.LeetCodeApi
-import com.wenjunhuang.codeepiphany.model.{ CodeDojo, SensitiveDataStore }
+import com.wenjunhuang.codeepiphany.model.{CodeDojo, SensitiveDataStore}
 import com.wenjunhuang.codeepiphany.model.CodeDojo.*
 import com.wenjunhuang.codeepiphany.services.http.HttpClientManager
 import com.wenjunhuang.codeepiphany.services.login.LoginDialog
@@ -23,7 +24,7 @@ final class AuthService(private val myProject: Project) {
   private val myLoginCache = AtomicReference[Set[CodeDojo]](Set.empty)
 
   def askForLogout[F[_]: Async: HttpClientManager](codeDojo: CodeDojo): F[Unit] =
-    HttpClientManager[F].clearCookiesForHost(codeDojo.domain) *> Async[F].unit
+    (removeAuthentication(codeDojo), HttpClientManager[F].clearCookiesForHost(codeDojo.domain)).parTupled.void
 
   def validateUserCookieAndTestLogin[F[_]: Async: HttpClientManager](codeDojo: CodeDojo, cookie: String): F[Boolean] =
     Async[F]
@@ -65,16 +66,14 @@ final class AuthService(private val myProject: Project) {
       case None => ().pure[F]
     }
 
-  private def saveAuthentication[F[_]: Async: HttpClientManager](
-    codeDojo: CodeDojo,
-    authCookies: List[HttpCookie]
-  ): F[Unit] =
-    Async[F].delay {
-      SensitiveDataStore.saveData(
-        codeDojo.value,
-        authCookies.map(cookie => s"${cookie.getName}=${cookie.getValue}").mkString(";")
-      )
+  private def saveAuthentication[F[_]: Async](codeDojo: CodeDojo, authCookies: List[HttpCookie]): F[Unit] =
+    Async[F].blocking {
+      SensitiveDataStore.saveData(codeDojo.value, CookieUtil.encodeCookies(authCookies))
     }
+
+  private def removeAuthentication[F[_]: Async](codeDojo: CodeDojo): F[Unit] = Async[F].blocking {
+    SensitiveDataStore.removeData(codeDojo.value)
+  }
 
   private def askForLogin[F[_]: Async](codeDojo: CodeDojo): F[AskForLoginResult] =
     Async[F]

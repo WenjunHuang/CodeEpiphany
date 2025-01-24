@@ -42,7 +42,7 @@ class LogConsoleView(private val myProject: Project) extends SimpleToolWindowPan
 
 object LogConsoleView {
   final val DISPLAY_NAME     = "Console"
-  final val CONSOLE_VIEW_KEY = DataKey.create[ConsoleView]("ConsoleViewKey")
+  final val CONSOLE_VIEW_KEY: DataKey[ConsoleView] = DataKey.create[ConsoleView]("ConsoleViewKey")
 
   def getConsoleView(project: Project): ConsoleView = {
     ThreadingAssertions.assertEventDispatchThread()

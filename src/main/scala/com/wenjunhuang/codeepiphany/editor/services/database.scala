@@ -10,14 +10,14 @@ import scala.jdk.OptionConverters.*
 object database {
 
   def getOrCreateDefaultSolution(dsl: DSLContext, challengeId: Long): Long = {
-    val solutionRecord = dsl
+    dsl
       .selectFrom(SOLUTION)
       .where(SOLUTION.CHALLENGEID.eq(challengeId).and(SOLUTION.ISDEFAULT.eq(1)))
       .fetchOptional()
       .toScala
       .getOrElse {
-        val newRecord = dsl
-          .newRecord(SOLUTION)
+        val newRecord = dsl.newRecord(SOLUTION)
+        newRecord
           .setId(IdGenerator.nextId())
           .setChallengeid(challengeId)
           .setTitle("Default")
@@ -26,6 +26,6 @@ object database {
         newRecord.store()
         newRecord
       }
-    solutionRecord.getId
+      .getId
   }
 }
