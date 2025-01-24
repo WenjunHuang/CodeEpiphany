@@ -102,9 +102,9 @@ class LoginDialog(
         .validateUserCookieAndTestLogin[IO](myCodeDojo, text)
         .flatMap {
           case true =>
-            IO.delay(myLoginCallback(Right(AskForLoginResult.Done))) *> IO
-              .delay(close(DialogWrapper.OK_EXIT_CODE, true))
-              .evalOnEDTAny()
+            IO.delay(close(DialogWrapper.OK_EXIT_CODE, true))
+              .evalOnEDTAny() *>
+              IO.delay(myLoginCallback(Right(AskForLoginResult.Done)))
           case false =>
             IO.delay {
               ComponentValidator
@@ -151,7 +151,8 @@ class LoginDialog(
 
   override def createActions(): Array[Action] = {
     val helpAction: Action = new AbstractAction(PluginBundle.message("loginDialog.help")) {
-      override def actionPerformed(e: ActionEvent): Unit = ???
+      override def actionPerformed(e: ActionEvent): Unit =
+        BrowserUtil.browse(s"https://github.com/WenjunHuang/CodeEpiphany/wiki/Log-in#${myCodeDojo.value}")
     }
     Array(helpAction, myOkAction, getCancelAction)
   }
@@ -253,6 +254,7 @@ class LoginDialog(
                   case true =>
                     IO.delay(myLoginCallback(Right(AskForLoginResult.Done))) *>
                       IO.delay(close(DialogWrapper.OK_EXIT_CODE)).evalOnEDTAny()
+
                   case false => myLogger.warn("Browser login failed")
                 }
             else myLogger.warn(s"Browser login failed due to no candidate cookie. CodeDojo:$myCodeDojo")
