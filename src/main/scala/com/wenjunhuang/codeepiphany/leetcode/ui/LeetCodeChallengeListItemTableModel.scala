@@ -1,27 +1,23 @@
 package com.wenjunhuang.codeepiphany.leetcode.ui
 
 import java.awt.Color
-import java.awt.event.{ MouseAdapter, MouseEvent }
-import javax.swing.{ Icon, JTable, ListSelectionModel, SwingConstants }
-import javax.swing.table.{ DefaultTableCellRenderer, TableCellRenderer }
+import java.awt.event.{MouseAdapter, MouseEvent}
+import javax.swing.{Icon, JTable, ListSelectionModel, SwingConstants}
+import javax.swing.table.{DefaultTableCellRenderer, TableCellRenderer}
 
 import com.intellij.icons.AllIcons
-import com.intellij.openapi.actionSystem.{ ActionGroup, ActionManager, DataSink, UiDataProvider }
+import com.intellij.openapi.actionSystem.{ActionGroup, ActionManager}
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.ui.PopupHandler
 import com.intellij.ui.table.TableView
-import com.intellij.util.ui.{ ColumnInfo, JBUI, ListTableModel }
+import com.intellij.util.ui.{ColumnInfo, JBUI, ListTableModel}
 import com.intellij.util.ui.components.BorderLayoutPanel
 import com.intellij.util.ui.table.IconTableCellRenderer
 
-import com.wenjunhuang.codeepiphany.leetcode.model.{
-  fromLeetCodeDifficulty,
-  fromLeetCodeStatus,
-  LeetCodeChallengeListItem
-}
+import com.wenjunhuang.codeepiphany.leetcode.model.{fromLeetCodeDifficulty, fromLeetCodeStatus, LeetCodeChallengeListItem}
 import com.wenjunhuang.codeepiphany.leetcode.services.LeetCodeSearchOrderBy
 import com.wenjunhuang.codeepiphany.leetcode.ui.LeetCodeChallengeListItemTableModel.ColumnTitle.*
-import com.wenjunhuang.codeepiphany.model.{ ChallengeStatus, CodeDojo, OrderDirection, OrderDirectionProvider }
+import com.wenjunhuang.codeepiphany.model.{ChallengeStatus, CodeDojo, OrderDirection, OrderDirectionProvider}
 import com.wenjunhuang.codeepiphany.model.Actions.*
 import com.wenjunhuang.codeepiphany.utils.OrderByColumnInfo
 import com.wenjunhuang.codeepiphany.utils.OrderByColumnInfo.nextOrderFilter

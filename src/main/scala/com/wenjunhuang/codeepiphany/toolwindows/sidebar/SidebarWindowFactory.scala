@@ -2,17 +2,14 @@ package com.wenjunhuang.codeepiphany.toolwindows.sidebar
 
 import scala.annotation.static
 
-import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.wm.{ ToolWindow, ToolWindowFactory, ToolWindowManager }
+import com.intellij.openapi.wm.{ToolWindow, ToolWindowFactory, ToolWindowManager}
 import com.intellij.openapi.wm.impl.content.ToolWindowContentUi
 
 import com.wenjunhuang.codeepiphany.toolwindows.sidebar.description.ChallengeDescriptionPresenter
 import com.wenjunhuang.codeepiphany.toolwindows.sidebar.solution.SolutionListPresenter
 import com.wenjunhuang.codeepiphany.toolwindows.sidebar.submissionlog.SubmissionLogPresenter
-import com.wenjunhuang.codeepiphany.toolwindows.sidebar.SidebarWindowFactory.CONSOLE
-
-import SidebarWindowFactory.*
+import com.wenjunhuang.codeepiphany.toolwindows.sidebar.SidebarWindowFactory.*
 class SidebarWindowFactory extends ToolWindowFactory() {
 
   override def createToolWindowContent(project: Project, toolWindow: ToolWindow): Unit = {

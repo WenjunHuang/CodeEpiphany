@@ -26,7 +26,7 @@ class SubmissionLogView(private val myPresenter: SubmissionLogPresenter) extends
   setToolbar(myToolbar.getComponent)
 
   private val myTableModel = new SubmissionLogTableModel(myPresenter)
-  private val myTable      = myTableModel.createTableView(myPresenter.uiDataSnapshot)
+  private val myTable      = myTableModel.createTableView()
 
   PopupHandler.installRowSelectionTablePopup(
     myTable,
