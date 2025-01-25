@@ -19,7 +19,6 @@ import com.intellij.uiDesigner.core.Spacer;
 import com.intellij.util.ui.JBUI;
 import com.intellij.util.ui.components.BorderLayoutPanel;
 import com.wenjunhuang.codeepiphany.PluginBundle;
-import com.wenjunhuang.codeepiphany.hackerrank.model.HackerRankChallengeCodeTemplate;
 import com.wenjunhuang.codeepiphany.model.CodeDojo;
 import com.wenjunhuang.codeepiphany.model.Language;
 import com.wenjunhuang.codeepiphany.model.LanguageVersion;
@@ -31,7 +30,10 @@ import scala.Tuple2;
 
 import javax.swing.*;
 import java.awt.*;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 

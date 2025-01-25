@@ -2,10 +2,10 @@ package com.wenjunhuang.codeepiphany.editor.services
 
 import java.time.LocalDateTime
 import org.jooq.DSLContext
+import scala.jdk.OptionConverters.*
 
 import com.wenjunhuang.codeepiphany.database.Tables.SOLUTION
 import com.wenjunhuang.codeepiphany.utils.IdGenerator
-import scala.jdk.OptionConverters.*
 
 object database {
 

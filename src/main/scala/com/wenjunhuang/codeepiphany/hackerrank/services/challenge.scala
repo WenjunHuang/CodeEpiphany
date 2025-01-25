@@ -1,6 +1,6 @@
 package com.wenjunhuang.codeepiphany.hackerrank.services
 
-import cats.effect.{ Async, Concurrent }
+import cats.effect.{Async, Concurrent}
 import cats.effect.implicits.*
 import cats.syntax.all.*
 import java.io.File
@@ -9,15 +9,15 @@ import org.typelevel.log4cats.Logger
 
 import com.intellij.openapi.options.ShowSettingsUtil
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.ui.{ MessageDialogBuilder, Messages }
+import com.intellij.openapi.ui.{MessageDialogBuilder, Messages}
 import com.intellij.openapi.util.text.StringUtil
 
 import com.wenjunhuang.codeepiphany.database.Tables.*
 import com.wenjunhuang.codeepiphany.editor.services.database.getOrCreateDefaultSolution
-import com.wenjunhuang.codeepiphany.hackerrank.model.{ HackerRankChallengeCodeTemplate, HackerRankContest }
-import com.wenjunhuang.codeepiphany.hackerrank.settings.{ HackerRankSettings, HackerRankSettingsConfigurable }
+import com.wenjunhuang.codeepiphany.hackerrank.model.{HackerRankChallengeCodeTemplate, HackerRankContest}
+import com.wenjunhuang.codeepiphany.hackerrank.settings.{HackerRankSettings, HackerRankSettingsConfigurable}
 import com.wenjunhuang.codeepiphany.model.*
-import com.wenjunhuang.codeepiphany.model.ChallengeRepository.{ ChallengeId, ChallengeLanguageId, SolutionId }
+import com.wenjunhuang.codeepiphany.model.ChallengeRepository.{ChallengeId, ChallengeLanguageId, SolutionId}
 import com.wenjunhuang.codeepiphany.model.CodeDojo.HackerRank
 import com.wenjunhuang.codeepiphany.services.file.*
 import com.wenjunhuang.codeepiphany.services.http.HttpClientManager

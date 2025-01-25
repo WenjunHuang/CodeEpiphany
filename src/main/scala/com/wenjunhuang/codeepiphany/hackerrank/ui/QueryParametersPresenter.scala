@@ -7,7 +7,7 @@ import fs2.Stream
 import fs2.concurrent.SignallingRef
 import javax.swing.JComponent
 import org.typelevel.ci.CIString
-import org.typelevel.log4cats.{ Logger, LoggerFactory }
+import org.typelevel.log4cats.{Logger, LoggerFactory}
 import scala.concurrent.duration.*
 import scala.jdk.CollectionConverters.*
 
@@ -18,35 +18,20 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
 import com.intellij.util.concurrency.annotations.RequiresEdt
 
-import com.wenjunhuang.codeepiphany.actions.DifficultyParameterAction.{
-  DIFFICULTIES_PROVIDER_KEY,
-  DifficultyParameterProvider
-}
-import com.wenjunhuang.codeepiphany.actions.OpenChallengeActionGroup.{ CHALLENGE_PROVIDER_KEY, OpenChallengeProvider }
-import com.wenjunhuang.codeepiphany.actions.PaginationParameterActionGroup.{
-  PAGINATION_PROVIDER_KEY,
-  PageSize,
-  PaginationParameterProvider
-}
-import com.wenjunhuang.codeepiphany.actions.RefreshAction.{ REFRESH_PROVIDER_KEY, RefreshProvider }
-import com.wenjunhuang.codeepiphany.actions.StatusParameterAction.{ STATUS_PROVIDER_KEY, StatusParameterProvider }
-import com.wenjunhuang.codeepiphany.actions.TagsAction.{ SingleTagGroupProvider, TAG_PROVIDER_KEY, Tag }
-import com.wenjunhuang.codeepiphany.hackerrank.actions.CategoryParameterAction.{
-  CATEGORY_PROVIDER_KEY,
-  Category,
-  CategoryProvider
-}
-import com.wenjunhuang.codeepiphany.hackerrank.actions.SkillParameterAction.{
-  SKILL_PROVIDER_KEY,
-  SkillParameterProvider
-}
+import com.wenjunhuang.codeepiphany.actions.DifficultyParameterAction.{DIFFICULTIES_PROVIDER_KEY, DifficultyParameterProvider}
+import com.wenjunhuang.codeepiphany.actions.OpenChallengeActionGroup.{CHALLENGE_PROVIDER_KEY, OpenChallengeProvider}
+import com.wenjunhuang.codeepiphany.actions.PaginationParameterActionGroup.{PageSize, PAGINATION_PROVIDER_KEY, PaginationParameterProvider}
+import com.wenjunhuang.codeepiphany.actions.RefreshAction.{REFRESH_PROVIDER_KEY, RefreshProvider}
+import com.wenjunhuang.codeepiphany.actions.StatusParameterAction.{STATUS_PROVIDER_KEY, StatusParameterProvider}
+import com.wenjunhuang.codeepiphany.actions.TagsAction.{SingleTagGroupProvider, Tag, TAG_PROVIDER_KEY}
+import com.wenjunhuang.codeepiphany.hackerrank.actions.CategoryParameterAction.{Category, CATEGORY_PROVIDER_KEY, CategoryProvider}
+import com.wenjunhuang.codeepiphany.hackerrank.actions.SkillParameterAction.{SKILL_PROVIDER_KEY, SkillParameterProvider}
 import com.wenjunhuang.codeepiphany.hackerrank.model.*
 import com.wenjunhuang.codeepiphany.hackerrank.services.HackerRankApi
 import com.wenjunhuang.codeepiphany.hackerrank.services.challenge.openChallenge
 import com.wenjunhuang.codeepiphany.hackerrank.settings.HackerRankSettings
 import com.wenjunhuang.codeepiphany.model.*
-import com.wenjunhuang.codeepiphany.model.CodeDojo.HackerRank
-import com.wenjunhuang.codeepiphany.services.http.{ HttpClientManager, HttpClientService }
+import com.wenjunhuang.codeepiphany.services.http.{HttpClientManager, HttpClientService}
 import com.wenjunhuang.codeepiphany.utils.extensions.*
 import com.wenjunhuang.codeepiphany.utils.implicits.*
 

@@ -1,6 +1,6 @@
 package com.wenjunhuang.codeepiphany.utils.jcef
 
-import java.net.URL
+import java.net.URI
 import org.cef.browser.{CefBrowser, CefFrame}
 import org.cef.callback.CefCallback
 import org.cef.handler.*
@@ -30,7 +30,7 @@ class CefLocalRequestHandler(
 
   private val RESOURCE_REQUEST_HANDLER = new CefResourceRequestHandlerAdapter {
     override def getResourceHandler(browser: CefBrowser, frame: CefFrame, request: CefRequest): CefResourceHandler = {
-      val url = URL(request.getURL)
+      val url = URI(request.getURL).toURL
       if url.getProtocol != myProtocol || url.getAuthority != myAuthority then
         OUTSIDE_REQUEST_HANDLER.getResourceHandler(browser, frame, request)
       else

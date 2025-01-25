@@ -2,7 +2,7 @@ package com.wenjunhuang.codeepiphany.toolwindows.sidebar.submissionlog
 
 import javax.swing.ScrollPaneConstants
 
-import com.intellij.openapi.actionSystem.{ ActionGroup, ActionManager, DataSink }
+import com.intellij.openapi.actionSystem.{ActionGroup, ActionManager, DataSink}
 import com.intellij.openapi.ui.SimpleToolWindowPanel
 import com.intellij.ui.PopupHandler
 import com.intellij.ui.components.JBScrollPane

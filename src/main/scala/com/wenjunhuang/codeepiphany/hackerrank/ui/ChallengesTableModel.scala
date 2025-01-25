@@ -1,21 +1,21 @@
 package com.wenjunhuang.codeepiphany.hackerrank.ui
 
-import javax.swing.{ Icon, JTable, ListSelectionModel, SwingConstants }
-import javax.swing.table.{ DefaultTableCellRenderer, TableCellRenderer }
+import javax.swing.{Icon, JTable, ListSelectionModel, SwingConstants}
+import javax.swing.table.{DefaultTableCellRenderer, TableCellRenderer}
 import org.typelevel.ci.CIString
 
 import com.intellij.icons.AllIcons
-import com.intellij.openapi.actionSystem.{ ActionGroup, ActionManager, DataSink, UiDataProvider }
+import com.intellij.openapi.actionSystem.{ActionGroup, ActionManager, DataSink, UiDataProvider}
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.ui.PopupHandler
 import com.intellij.ui.table.TableView
-import com.intellij.util.ui.{ ColumnInfo, ListTableModel }
+import com.intellij.util.ui.{ColumnInfo, ListTableModel}
 import com.intellij.util.ui.table.IconTableCellRenderer
 
 import com.wenjunhuang.codeepiphany.hackerrank.model.HackerRankChallengeDetail
 import com.wenjunhuang.codeepiphany.hackerrank.ui.ChallengesTableModel.*
 import com.wenjunhuang.codeepiphany.hackerrank.ui.ChallengesTableModel.ColumnTitle.*
-import com.wenjunhuang.codeepiphany.model.{ ChallengeDifficulty, ChallengeStatus }
+import com.wenjunhuang.codeepiphany.model.{ChallengeDifficulty, ChallengeStatus}
 import com.wenjunhuang.codeepiphany.model.Actions.*
 
 class ChallengesTableModel extends ListTableModel[HackerRankChallengeDetail]() {
@@ -36,7 +36,7 @@ class ChallengesTableModel extends ListTableModel[HackerRankChallengeDetail]() {
           override def getIcon(value: ChallengeStatus, table: JTable, row: Int): Icon =
             value match {
               case ChallengeStatus.Solved => AllIcons.General.GreenCheckmark
-              case ChallengeStatus.Unsolved =>
+              case _ =>
                 if item.attempted.contains(true) then AllIcons.General.Modified
                 else null
             }

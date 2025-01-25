@@ -1,19 +1,19 @@
 package com.wenjunhuang.codeepiphany.utils.ui
 
-import java.awt.{ Color, Dimension, Graphics, GridBagConstraints, GridBagLayout }
-import java.awt.event.{ ActionEvent, MouseAdapter, MouseEvent }
-import javax.swing.{ Icon, JLayeredPane, JPanel, SwingConstants }
+import java.awt.{Color, Dimension, Graphics, GridBagConstraints, GridBagLayout}
+import java.awt.event.{ActionEvent, MouseAdapter, MouseEvent}
+import javax.swing.{Icon, JLayeredPane, JPanel, SwingConstants}
 import scala.jdk.CollectionConverters.*
 
 import com.intellij.icons.AllIcons
-import com.intellij.openapi.actionSystem.{ ActionManager, DefaultActionGroup }
+import com.intellij.openapi.actionSystem.{ActionManager, DefaultActionGroup}
 import com.intellij.openapi.actionSystem.ex.DefaultCustomComponentAction
 import com.intellij.openapi.actionSystem.toolbarLayout.ToolbarLayoutStrategy
 import com.intellij.openapi.ui.popup.IconButton
-import com.intellij.ui.{ Gray, InplaceButton, JBColor }
-import com.intellij.ui.components.{ JBLabel, JBLayeredPane }
+import com.intellij.ui.{Gray, InplaceButton, JBColor}
+import com.intellij.ui.components.{JBLabel, JBLayeredPane}
 import com.intellij.util.concurrency.annotations.RequiresEdt
-import com.intellij.util.ui.{ JBInsets, JBUI }
+import com.intellij.util.ui.{JBInsets, JBUI}
 import com.intellij.util.ui.components.BorderLayoutPanel
 
 class TagPane(val noBorderTop: Boolean = true, val actions: List[TagPaneAction] = Nil) extends BorderLayoutPanel {

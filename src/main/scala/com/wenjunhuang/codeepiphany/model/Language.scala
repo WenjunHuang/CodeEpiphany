@@ -7,7 +7,7 @@ import scala.collection.mutable
 
 import com.intellij.openapi.util.text.StringUtil
 
-import com.wenjunhuang.codeepiphany.model.LanguageVersion.{ AnyVersion, SpecificVersion }
+import com.wenjunhuang.codeepiphany.model.LanguageVersion.{AnyVersion, SpecificVersion}
 
 enum LanguageVersion {
   case AnyVersion
@@ -66,7 +66,7 @@ enum Language(val value: String, val fileExt: String, val show: String, val icon
     case C | Cpp | CSharp | GO | Java | Kotlin | ObjectiveC | PHP | Rust | Scala | Swift | Dart | Javascript |
         Typescript | Cangjie =>
       s"//$comment"
-    case Clojure =>
+    case Clojure | Racket =>
       s";$comment"
     case Pypy | Python | Ruby | Julia | Perl | R | Elixir =>
       s"#$comment"

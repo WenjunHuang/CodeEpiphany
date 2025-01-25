@@ -1,24 +1,19 @@
 package com.wenjunhuang.codeepiphany.editor.extensions
 
-import java.awt.{ AWTEvent, EventQueue }
-import java.awt.event.{ AWTEventListener, KeyAdapter }
+import java.awt.{AWTEvent, EventQueue}
+import java.awt.event.{AWTEventListener, KeyAdapter}
 import java.beans.PropertyChangeListener
-import javax.swing.{ JComponent, JLayeredPane }
+import javax.swing.{JComponent, JLayeredPane}
 
-import com.intellij.openapi.actionSystem.{ ActionGroup, ActionManager }
+import com.intellij.openapi.actionSystem.{ActionGroup, ActionManager}
 import com.intellij.openapi.editor.impl.EditorComponentImpl
-import com.intellij.openapi.fileEditor.{
-  FileEditor,
-  FileEditorState,
-  FileEditorStateLevel,
-  LayoutActionsFloatingToolbar
-}
-import com.intellij.openapi.util.{ Disposer, Key, UserDataHolderBase }
+import com.intellij.openapi.fileEditor.{FileEditor, FileEditorState, FileEditorStateLevel, LayoutActionsFloatingToolbar}
+import com.intellij.openapi.util.{Disposer, Key}
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.ui.components.JBLayeredPane
 import com.intellij.util.Alarm
-import com.intellij.util.ui.{ StartupUiUtil, UIUtil }
+import com.intellij.util.ui.{StartupUiUtil, UIUtil}
 
 import com.wenjunhuang.codeepiphany.editor.extensions.ChallengeEditor.*
 import com.wenjunhuang.codeepiphany.model.Actions

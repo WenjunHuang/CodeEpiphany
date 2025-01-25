@@ -1,12 +1,12 @@
 package com.wenjunhuang.codeepiphany.vfs
 
-import java.io.{ ByteArrayInputStream, InputStream, OutputStream }
+import java.io.{ByteArrayInputStream, InputStream, OutputStream}
 
 import com.intellij.openapi.fileEditor.impl.FileDocumentManagerBase
 import com.intellij.openapi.fileTypes.FileType
 import com.intellij.openapi.project.ex.ProjectManagerEx
 import com.intellij.openapi.util.text.StringUtil
-import com.intellij.openapi.vfs.{ VirtualFilePathWrapper, VirtualFileSystem }
+import com.intellij.openapi.vfs.{VirtualFilePathWrapper, VirtualFileSystem}
 import com.intellij.testFramework.LightVirtualFileBase
 import com.intellij.util.LocalTimeCounter
 

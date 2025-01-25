@@ -2,7 +2,7 @@ package com.wenjunhuang.codeepiphany.leetcode.model
 
 import scala.beans.BeanProperty
 
-import com.wenjunhuang.codeepiphany.model.{ CodeDojo, Language, LanguageVersion }
+import com.wenjunhuang.codeepiphany.model.{CodeDojo, Language, LanguageVersion}
 
 case class LeetCodeChallengeCodeTemplate(
   @BeanProperty

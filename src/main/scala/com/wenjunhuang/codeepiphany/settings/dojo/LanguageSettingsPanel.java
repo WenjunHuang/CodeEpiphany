@@ -32,7 +32,6 @@ import com.intellij.util.ui.HTMLEditorKitBuilder;
 import com.intellij.util.ui.JBUI;
 import com.intellij.xml.util.XmlStringUtil;
 import com.wenjunhuang.codeepiphany.PluginBundle;
-import com.wenjunhuang.codeepiphany.hackerrank.model.HackerRankChallengeCodeTemplate;
 import com.wenjunhuang.codeepiphany.model.CodeDojo;
 import com.wenjunhuang.codeepiphany.model.Language;
 import com.wenjunhuang.codeepiphany.model.LanguageVersion;

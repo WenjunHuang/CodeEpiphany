@@ -1,14 +1,14 @@
 package com.wenjunhuang.codeepiphany.actions
 
-import java.awt.{ Dimension, GridBagConstraints, GridBagLayout }
+import java.awt.{Dimension, GridBagConstraints, GridBagLayout}
 import javax.swing.*
 
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.actionSystem.*
-import com.intellij.openapi.actionSystem.ex.{ CheckboxAction, ComboBoxAction }
-import com.intellij.openapi.ui.popup.{ JBPopup, JBPopupFactory }
+import com.intellij.openapi.actionSystem.ex.{CheckboxAction, ComboBoxAction}
+import com.intellij.openapi.ui.popup.{JBPopup, JBPopupFactory}
 import com.intellij.openapi.util.Disposer
-import com.intellij.ui.components.{ JBScrollPane, JBTabbedPane }
+import com.intellij.ui.components.{JBScrollPane, JBTabbedPane}
 import com.intellij.ui.dsl.builder.impl.CollapsibleTitledSeparatorImpl
 import com.intellij.uiDesigner.core.Spacer
 import com.intellij.util.ui.components.BorderLayoutPanel
@@ -17,7 +17,7 @@ import com.intellij.util.ui.JBUI
 import com.wenjunhuang.codeepiphany.actions.TagsAction.*
 import com.wenjunhuang.codeepiphany.utils.actions.ParameterProvider
 import com.wenjunhuang.codeepiphany.utils.implicits.*
-import com.wenjunhuang.codeepiphany.utils.ui.{ TagPane, TagPaneAction }
+import com.wenjunhuang.codeepiphany.utils.ui.{TagPane, TagPaneAction}
 
 class TagsAction extends ComboBoxAction {
   override def update(e: AnActionEvent): Unit =

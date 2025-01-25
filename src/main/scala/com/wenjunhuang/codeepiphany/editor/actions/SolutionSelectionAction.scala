@@ -5,7 +5,7 @@ import scala.jdk.CollectionConverters.*
 import scala.jdk.OptionConverters.*
 
 import com.intellij.openapi.actionSystem.*
-import com.intellij.openapi.actionSystem.ex.{ CheckboxAction, ComboBoxAction }
+import com.intellij.openapi.actionSystem.ex.{CheckboxAction, ComboBoxAction}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Key
 import com.intellij.openapi.vfs.VirtualFile

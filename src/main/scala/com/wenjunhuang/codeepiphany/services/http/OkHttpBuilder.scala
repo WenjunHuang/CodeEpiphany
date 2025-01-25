@@ -1,25 +1,15 @@
 package com.wenjunhuang.codeepiphany.services.http
 
-import cats.effect.{ Async, Resource }
+import cats.effect.{Async, Resource}
 import cats.effect.std.Dispatcher
 import cats.syntax.all.*
 import fs2.io.readInputStream
 import java.io.IOException
 import java.net.HttpCookie
 import java.util.concurrent.atomic.AtomicBoolean
-import okhttp3.{
-  Call,
-  Callback,
-  Headers as OKHeaders,
-  MediaType as OKMediaType,
-  OkHttpClient,
-  Protocol,
-  Request as OKRequest,
-  RequestBody,
-  Response as OKResponse
-}
+import okhttp3.{Call, Callback, OkHttpClient, Protocol, RequestBody, Headers as OKHeaders, MediaType as OKMediaType, Request as OKRequest, Response as OKResponse}
 import okio.BufferedSink
-import org.http4s.{ Headers, HttpVersion, Method, Request, Response, Status }
+import org.http4s.{Headers, HttpVersion, Method, Request, Response, Status}
 import org.http4s.client.Client
 import org.http4s.headers.`Content-Type`
 import org.typelevel.ci.CIString

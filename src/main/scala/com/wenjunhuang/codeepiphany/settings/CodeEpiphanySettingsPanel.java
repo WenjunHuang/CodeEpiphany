@@ -13,7 +13,6 @@ import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.uiDesigner.core.Spacer;
 import com.wenjunhuang.codeepiphany.PluginBundle;
 import org.jetbrains.annotations.NotNull;
-import scala.Option;
 
 import javax.swing.*;
 import java.awt.*;

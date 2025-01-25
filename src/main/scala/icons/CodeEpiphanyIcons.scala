@@ -1,11 +1,10 @@
 package icons
 
-import com.intellij.icons.AllIcons
-import com.intellij.openapi.util.IconLoader
-import com.intellij.ui.AnimatedIcon
-
 import javax.swing.Icon
 import scala.annotation.static
+
+import com.intellij.openapi.util.IconLoader
+import com.intellij.ui.AnimatedIcon
 
 trait CodeEpiphanyIcons {}
 

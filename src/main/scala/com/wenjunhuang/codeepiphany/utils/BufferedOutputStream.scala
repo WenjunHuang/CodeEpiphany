@@ -1,7 +1,6 @@
 package com.wenjunhuang.codeepiphany.utils
 
-import java.io.{ ByteArrayOutputStream, OutputStream }
-import scala.collection.mutable
+import java.io.{ByteArrayOutputStream, OutputStream}
 
 class BufferedOutputStream(private val myOnFlush: (Array[Byte]) => Unit) extends OutputStream {
   private val myBuffer = ByteArrayOutputStream()

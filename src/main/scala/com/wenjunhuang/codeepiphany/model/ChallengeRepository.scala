@@ -3,6 +3,7 @@ package com.wenjunhuang.codeepiphany.model
 import cats.effect.{Async, IO}
 import cats.effect.kernel.Resource
 import com.zaxxer.hikari.HikariDataSource
+import io.circe.*
 import java.io.File
 import org.flywaydb.core.Flyway
 import org.jooq.{DSLContext, Log, SQLDialect}
@@ -10,7 +11,7 @@ import org.jooq.impl.DSL
 import org.jooq.tools.JooqLogger
 
 import com.intellij.openapi.Disposable
-import com.intellij.openapi.components.{PathMacroManager, Service}
+import com.intellij.openapi.components.Service
 import com.intellij.openapi.components.Service.Level
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
@@ -19,7 +20,6 @@ import com.intellij.openapi.util.io.FileUtil
 import com.wenjunhuang.codeepiphany.settings.CodeEpiphanySettings
 import com.wenjunhuang.codeepiphany.utils.implicits.*
 import com.wenjunhuang.codeepiphany.utils.isDebug
-import io.circe.*
 
 @Service(Array(Level.PROJECT))
 final class ChallengeRepository(private val myProject: Project) extends Disposable {

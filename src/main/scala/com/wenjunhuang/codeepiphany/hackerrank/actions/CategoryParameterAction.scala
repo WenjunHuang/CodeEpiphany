@@ -2,7 +2,7 @@ package com.wenjunhuang.codeepiphany.hackerrank.actions
 
 import com.intellij.openapi.actionSystem.*
 
-import CategoryParameterAction.*
+import com.wenjunhuang.codeepiphany.hackerrank.actions.CategoryParameterAction.*
 import com.wenjunhuang.codeepiphany.utils.actions.{ParameterComboBoxAction, ParameterProvider}
 
 class CategoryParameterAction

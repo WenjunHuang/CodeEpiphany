@@ -1,8 +1,8 @@
 package com.wenjunhuang.codeepiphany.editor.services
 
-import cats.syntax.all.*
 import cats.effect.{ Async, Concurrent }
 import cats.effect.kernel.Resource.ExitCase
+import cats.syntax.all.*
 import fs2.Stream
 import java.time.LocalDateTime
 import org.jooq.DSLContext
@@ -16,7 +16,7 @@ import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.vfs.{ VirtualFile, VirtualFileUtil }
 
 import com.wenjunhuang.codeepiphany.database.Tables.*
-import com.wenjunhuang.codeepiphany.leetcode.model.{ submitAnswer, * }
+import com.wenjunhuang.codeepiphany.leetcode.model.*
 import com.wenjunhuang.codeepiphany.leetcode.model.runCode.LeetCodeRunResult
 import com.wenjunhuang.codeepiphany.leetcode.model.submitAnswer.LeetCodeSubmitAnswerResult
 import com.wenjunhuang.codeepiphany.leetcode.services.LeetCodeApi
@@ -228,9 +228,9 @@ object leetcode {
                 record.store()
 
                 (result, response)
-              case _ => throw new Exception("Cannot find submission record")
+              case _ => throw new IllegalStateException("Cannot find submission record")
           }
-        case None => throw new IllegalStateException("should not happened")
+        case _ => throw new IllegalStateException("should not happened")
       }
       .evalTap { case (result, response) =>
         reportSubmitResult(project, result, response)

@@ -11,14 +11,13 @@ import com.intellij.openapi.util.text.StringUtil
 
 import com.wenjunhuang.codeepiphany.PluginBundle
 import com.wenjunhuang.codeepiphany.leetcode.model.LeetCodeChallengeCodeTemplate
-import com.wenjunhuang.codeepiphany.leetcode.settings.LeetCodeSettingsConfigurable.{ getDemoTemplate, LANGUAGES }
+import com.wenjunhuang.codeepiphany.leetcode.settings.LeetCodeCNSettingsConfigurable.*
+import com.wenjunhuang.codeepiphany.leetcode.settings.LeetCodeSettingsConfigurable.getDemoTemplate
 import com.wenjunhuang.codeepiphany.model.*
 import com.wenjunhuang.codeepiphany.model.CodeDojo.LeetCodeCN
 import com.wenjunhuang.codeepiphany.model.Language.*
 import com.wenjunhuang.codeepiphany.model.LanguageVersion.*
-import com.wenjunhuang.codeepiphany.settings.dojo.{ BaseCodeDojoSettings, BaseSettingsConfigurable }
-
-import LeetCodeCNSettingsConfigurable.*
+import com.wenjunhuang.codeepiphany.settings.dojo.{BaseCodeDojoSettings, BaseSettingsConfigurable}
 class LeetCodeCNSettingsConfigurable(project: Project)
     extends BaseSettingsConfigurable(
       project,

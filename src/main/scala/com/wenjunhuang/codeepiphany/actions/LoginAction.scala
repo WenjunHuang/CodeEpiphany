@@ -2,7 +2,7 @@ package com.wenjunhuang.codeepiphany.actions
 
 import icons.CodeEpiphanyIcons
 
-import com.intellij.openapi.actionSystem.{ ActionUpdateThread, AnAction, AnActionEvent, DataKey }
+import com.intellij.openapi.actionSystem.{ActionUpdateThread, AnAction, AnActionEvent, DataKey}
 
 import com.wenjunhuang.codeepiphany.actions.LoginAction.*
 

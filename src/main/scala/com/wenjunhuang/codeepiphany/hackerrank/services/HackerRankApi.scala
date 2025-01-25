@@ -1,13 +1,13 @@
 package com.wenjunhuang.codeepiphany.hackerrank.services
 
-import cats.effect.{ Async, Concurrent, Temporal }
+import cats.effect.{Async, Concurrent, Temporal}
 import cats.syntax.all.*
 import fs2.Stream
 import io.circe.*
 import io.circe.optics.JsonPath
 import io.circe.parser.parse
 import io.circe.syntax.*
-import org.http4s.{ Headers, Method, Request, Uri }
+import org.http4s.{Headers, Method, Request, Uri}
 import org.http4s.circe.*
 import org.http4s.circe.CirceEntityEncoder.*
 import org.http4s.client.Client
@@ -17,8 +17,8 @@ import org.jsoup.Jsoup
 import scala.concurrent.duration.*
 
 import com.wenjunhuang.codeepiphany.hackerrank.model.*
-import com.wenjunhuang.codeepiphany.hackerrank.model.HackerRankContest.{ Master, ProjectEuler }
-import com.wenjunhuang.codeepiphany.model.{ ApiError, ChallengeDifficulty, ChallengeStatus, Language }
+import com.wenjunhuang.codeepiphany.hackerrank.model.HackerRankContest.{Master, ProjectEuler}
+import com.wenjunhuang.codeepiphany.model.{ApiError, ChallengeDifficulty, ChallengeStatus, Language}
 import com.wenjunhuang.codeepiphany.model.CodeDojo.HackerRank
 import com.wenjunhuang.codeepiphany.services.http.HttpClientManager
 

@@ -1,7 +1,6 @@
 package com.wenjunhuang.codeepiphany.toolwindows.dojo
 
 import cats.syntax.all.*
-
 import scala.jdk.CollectionConverters.*
 
 import com.intellij.openapi.actionSystem.{ActionManager, AnAction}

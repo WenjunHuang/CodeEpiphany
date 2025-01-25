@@ -159,6 +159,8 @@ object hackerrank {
             console.info[F](project, "🎉 Passed!")
           case SubmissionResult.Failure =>
             console.error[F](project, message)
+          case SubmissionResult.RuntimeError =>
+            console.error[F](project, message)
           case SubmissionResult.CompilationError =>
             console.error[F](project, s"Compilation Error: \n ${message}")
           case SubmissionResult.Processing =>
