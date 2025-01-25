@@ -30,7 +30,7 @@ class KeywordSearchView(
   private val myChallengesTableModel: LeetCodeChallengeListItemTableModel =
     LeetCodeChallengeListItemTableModel(myPresenter, myCodeDojo)
   private val myChallengesTable =
-    myChallengesTableModel.createTableView(myPresenter.uiDataSnapshot)
+    myChallengesTableModel.createTableView()
 
   mySearchTextField.getTextEditor.getEmptyText
     .appendText(

@@ -6,6 +6,7 @@ import cats.effect.std.Queue
 import cats.syntax.all.*
 import fs2.Stream
 import fs2.concurrent.SignallingRef
+import java.time.format.DateTimeFormatter
 import javax.swing.JComponent
 import org.jooq.{Record, SelectOnConditionStep}
 import org.typelevel.ci.CIString
@@ -14,8 +15,11 @@ import scala.concurrent.duration.*
 import scala.jdk.CollectionConverters.*
 import scala.util.Try
 
+import com.intellij.diff.requests.SimpleDiffRequest
+import com.intellij.diff.tools.util.DiffDataKeys
+import com.intellij.diff.DiffContentFactory
 import com.intellij.openapi.Disposable
-import com.intellij.openapi.actionSystem.{CommonDataKeys, DataSink, UiDataProvider}
+import com.intellij.openapi.actionSystem.{DataSink, UiDataProvider}
 import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
@@ -323,14 +327,25 @@ class SubmissionLogPresenter(private val myProject: Project) extends UiDataProvi
     dataSink.set(LANGUAGE_PROVIDER_KEY, myLanguageProvider)
     dataSink.set(OPEN_SUBMISSION_PROVIDER_KEY, myOpenSubmissionCodeProvider)
     dataSink.`lazy`(
-      CommonDataKeys.VIRTUAL_FILE_ARRAY,
+      DiffDataKeys.DIFF_REQUEST_TO_COMPARE,
       { () =>
         val table = myView.getTable
         table.getSelectedObjects.asScala.toList match
-          case Nil  => null
-          case list => list.map(_.id).map(getSubmissionCodeFile).toArray
+          case f :: (s :: Nil) =>
+            SimpleDiffRequest(
+              "Submission Log Diff",
+              DiffContentFactory.getInstance().create(myProject, getSubmissionCodeFile(f.id)),
+              DiffContentFactory.getInstance().create(myProject, getSubmissionCodeFile(s.id)),
+              createDiffTitle(f),
+              createDiffTitle(s)
+            )
+          case _ => null
       }
     )
+  }
+
+  private def createDiffTitle(logEntry: SubmissionLogEntry): String = {
+    s"${logEntry.solution}-${logEntry.challengeTitle}-${logEntry.submissionDateTime.map(_.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))).getOrElse("")}"
   }
 }
 

@@ -4,12 +4,11 @@ import java.awt.Color
 
 import com.intellij.ide.ui.UISettings
 import com.intellij.openapi.editor.HighlighterColors
-import com.intellij.openapi.editor.colors.{EditorColorsManager, EditorColorsScheme}
+import com.intellij.openapi.editor.colors.{ EditorColorsManager, EditorColorsScheme }
 import com.intellij.openapi.editor.colors.impl.AppEditorFontOptions
 import com.intellij.ui.JBColor
-import com.intellij.util.ui.{JBUI, UIUtil}
-
-import com.wenjunhuang.codeepiphany.toolwindows.sidebar.description.ChallengeDescriptionStyleProvider.*
+import com.intellij.util.ui.{ JBUI, UIUtil }
+import com.wenjunhuang.codeepiphany.utils.extensions.*
 
 trait ChallengeDescriptionStyleProvider {
 
@@ -31,18 +30,4 @@ trait ChallengeDescriptionStyleProvider {
   def separatorColor: JBColor          = JBColor.namedColor("Group.separatorColor", panelBackground)
   def infoForeground: JBColor          = JBColor.namedColor("Component.infoForeground", contrastedForeground)
   def fenceBackgroundColor             = JBColor(Color(212, 222, 231, 255 / 4), Color(212, 222, 231, 25))
-}
-
-object ChallengeDescriptionStyleProvider {
-  extension (color: Color) {
-    def contrast(coefficient: Double): Color =
-      Color(
-        (coefficient * (color.getRed - 128) + 128).toInt,
-        (coefficient * (color.getGreen - 128) + 128).toInt,
-        (coefficient * (color.getBlue - 128) + 128).toInt
-      )
-
-    def webRgba(alpha: Double = color.getAlpha.toDouble / 255.0): String =
-      s"rgba(${color.getRed}, ${color.getGreen}, ${color.getBlue}, ${alpha})"
-  }
 }

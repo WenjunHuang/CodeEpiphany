@@ -1,6 +1,6 @@
 package com.wenjunhuang.codeepiphany.toolwindows.sidebar.description
 
-import cats.effect.{IO, Resource, SyncIO}
+import cats.effect.{ IO, Resource, SyncIO }
 import cats.syntax.all.*
 import io.circe.*
 import io.circe.generic.auto.*
@@ -12,12 +12,12 @@ import org.apache.commons.io.IOUtils
 import org.cef.browser.*
 import org.cef.handler.*
 import org.intellij.lang.annotations.Language
-import org.typelevel.log4cats.{Logger, LoggerFactory}
+import org.typelevel.log4cats.{ Logger, LoggerFactory }
 
 import com.intellij.ide.ui.UISettingsListener
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.application.ApplicationManager
-import com.intellij.openapi.editor.colors.{EditorColorsListener, EditorColorsManager}
+import com.intellij.openapi.editor.colors.{ EditorColorsListener, EditorColorsManager }
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
 import com.intellij.ui.jcef.*
@@ -26,15 +26,16 @@ import com.wenjunhuang.codeepiphany.model.CodeDojo
 import com.wenjunhuang.codeepiphany.toolwindows.sidebar.description.JCefDescriptionView.*
 import com.wenjunhuang.codeepiphany.utils.implicits.*
 import com.wenjunhuang.codeepiphany.utils.isDebug
-import com.wenjunhuang.codeepiphany.utils.jcef.{CefLocalRequestHandler, CefStreamResourceHandler}
+import com.wenjunhuang.codeepiphany.utils.jcef.{ CefLocalRequestHandler, CefStreamResourceHandler }
 
 class JCefDescriptionView(
   private val presenter: ChallengeDescriptionPresenter,
   private val styleProvider: ChallengeDescriptionStyleProvider,
-  private val myProject:Project
+  private val myProject: Project
 ) extends Disposable {
-  implicit private val logger: Logger[SyncIO] = LoggerFactory[SyncIO].getLogger
+  private implicit val logger: Logger[SyncIO] = LoggerFactory[SyncIO].getLogger
 
+  @volatile
   private var myDescription: Option[(String, CodeDojo)] = None
 
   private val myLifeSpanHandler =
@@ -53,11 +54,16 @@ class JCefDescriptionView(
   private val myLocalRequestHandler = createRequestHandler()
 
   private def createRequestHandler(): CefLocalRequestHandler = {
-    val requestHandler = new CefLocalRequestHandler(PROTOCOL, HOST,myProject,(urlClicked)=>presenter.userClickedLink[IO](urlClicked).unsafeRunAndForget())
+    val requestHandler = new CefLocalRequestHandler(
+      PROTOCOL,
+      HOST,
+      myProject,
+      urlClicked => presenter.userClickedLink[IO](urlClicked).unsafeRunAndForget()
+    )
     requestHandler.addResource(VIEW_PATH) { () =>
       val content =
         Resource
-          .fromAutoCloseable(SyncIO.delay(getClass.getResourceAsStream("resources/descriptionViewer.html")))
+          .fromAutoCloseable(SyncIO.delay(getClass.getResourceAsStream("/html/descriptionViewer.html")))
           .use { is =>
             IOUtils.toString(is, StandardCharsets.UTF_8).pure[SyncIO]
           }
@@ -115,8 +121,7 @@ class JCefDescriptionView(
       builder
         .setOffScreenRendering(false)
         .setEnableOpenDevToolsMenuItem(true)
-    else
-      builder.setOffScreenRendering(true)  
+    else builder.setOffScreenRendering(true)
     builder.build()
   }
   private var myState = ViewerState()
@@ -156,7 +161,7 @@ class JCefDescriptionView(
   busConnection.subscribe(UISettingsListener.TOPIC, uiSettings => reloadStyles())
 
   def reload(): Unit =
-    myBrowser.loadURL(VIEWER_URL)
+    myBrowser.loadURL(VIEWER_URL + s"?${System.currentTimeMillis()}")
 
   def uiComponent: JComponent = myBrowser.getComponent
 

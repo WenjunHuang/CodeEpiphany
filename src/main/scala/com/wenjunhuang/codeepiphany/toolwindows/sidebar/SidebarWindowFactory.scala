@@ -2,7 +2,6 @@ package com.wenjunhuang.codeepiphany.toolwindows.sidebar
 
 import scala.annotation.static
 
-import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.wm.{ToolWindow, ToolWindowFactory, ToolWindowManager}
 import com.intellij.openapi.wm.impl.content.ToolWindowContentUi
@@ -10,21 +9,21 @@ import com.intellij.openapi.wm.impl.content.ToolWindowContentUi
 import com.wenjunhuang.codeepiphany.toolwindows.sidebar.description.ChallengeDescriptionPresenter
 import com.wenjunhuang.codeepiphany.toolwindows.sidebar.solution.SolutionListPresenter
 import com.wenjunhuang.codeepiphany.toolwindows.sidebar.submissionlog.SubmissionLogPresenter
-
+import com.wenjunhuang.codeepiphany.toolwindows.sidebar.SidebarWindowFactory.*
 class SidebarWindowFactory extends ToolWindowFactory() {
 
   override def createToolWindowContent(project: Project, toolWindow: ToolWindow): Unit = {
-    FileEditorManager.getInstance(project).getFocusedEditor
+    val cm = toolWindow.getContentManager
+    val cf = cm.getFactory
+
     val descriptionPresenter   = ChallengeDescriptionPresenter(project)
     val submissionLogPresenter = SubmissionLogPresenter(project)
     val solutionPresenter      = SolutionListPresenter(project)
-    val cm                     = toolWindow.getContentManager
-    val cf                     = cm.getFactory
 
-    cm.addContent(cf.createContent(LogConsoleView(project), LogConsoleView.DISPLAY_NAME, false))
-    cm.addContent(cf.createContent(descriptionPresenter.getView, "Description", false))
-    cm.addContent(cf.createContent(submissionLogPresenter.getView, "Submissions", false))
-    cm.addContent(cf.createContent(solutionPresenter.getView, "Solutions", false))
+    cm.addContent(cf.createContent(LogConsoleView(project), CONSOLE, false))
+    cm.addContent(cf.createContent(descriptionPresenter.getView, DESCRIPTION, false))
+    cm.addContent(cf.createContent(submissionLogPresenter.getView, SUBMISSIONS, false))
+    cm.addContent(cf.createContent(solutionPresenter.getView, SOLUTIONS, false))
     toolWindow.getComponent.putClientProperty(ToolWindowContentUi.HIDE_ID_LABEL, "true")
   }
 }

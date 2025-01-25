@@ -1,10 +1,10 @@
 import sbtjooq.codegen.CodegenMode.Unmanaged
 import com.vladsch.flexmark.html.HtmlRenderer
-import com.vladsch.flexmark.html.HtmlRenderer
 import com.vladsch.flexmark.parser.Parser
 import com.vladsch.flexmark.util.data.MutableDataSet
 import scala.io.Source
 import scala.util.Using
+
 ThisBuild / scalaVersion     := "3.3.4"
 ThisBuild / intellijPlatform := IntelliJPlatform.IdeaCommunity
 ThisBuild / intellijBuild    := "242.20224.300"
@@ -23,8 +23,9 @@ def markdownToHtml(file: File): String = {
 
 lazy val codeEpiphany = (project in file("."))
   .settings(
-    name    := "CodeEpiphany",
-    version := "0.5.68",
+    name         := "CodeEpiphany",
+    version      := "0.5.73",
+    compileOrder := CompileOrder.Mixed,
     scalacOptions ++= Seq(
       "-Wunused:imports",
       "-language:implicitConversions",
@@ -86,6 +87,9 @@ lazy val codeEpiphany = (project in file("."))
         .exclude("org.typelevel", "log4cats-slf4j_3")
         .exclude("org.jetbrains.kotlin", "*")
     ),
+    // copy all graphql files in src/main/scala to target when compile
+
+
     Compile / unmanagedSourceDirectories += baseDirectory.value / "gen",
     Compile / unmanagedSourceDirectories += baseDirectory.value / "src" / "main" / "jooq-generated",
     Test / managedResourceDirectories += baseDirectory.value / "testResources",

@@ -6,7 +6,7 @@ import javax.swing.{Icon, JTable, ListSelectionModel, SwingConstants}
 import javax.swing.table.{DefaultTableCellRenderer, TableCellRenderer}
 
 import com.intellij.icons.AllIcons
-import com.intellij.openapi.actionSystem.{ActionGroup, ActionManager, DataSink, UiDataProvider}
+import com.intellij.openapi.actionSystem.{ActionGroup, ActionManager}
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.ui.PopupHandler
 import com.intellij.ui.table.TableView
@@ -149,10 +149,8 @@ class LeetCodeChallengeListItemTableModel(
 
   setColumnInfos(myColumns.asInstanceOf[Array[ColumnInfo[?, ?]]])
 
-  def createTableView(setDataSink: DataSink => Unit): TableView[LeetCodeChallengeListItem] = {
-    val tableView = new TableView(this) with UiDataProvider {
-      override def uiDataSnapshot(dataSink: DataSink): Unit = setDataSink(dataSink)
-    }
+  def createTableView(): TableView[LeetCodeChallengeListItem] = {
+    val tableView = new TableView[LeetCodeChallengeListItem](this)
     tableView.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION)
     tableView.setShowGrid(false)
     tableView.setShowColumns(true)

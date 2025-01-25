@@ -14,6 +14,7 @@ import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.uiDesigner.core.Spacer;
 import com.wenjunhuang.codeepiphany.model.CodeDojo;
+import com.wenjunhuang.codeepiphany.toolwindows.sidebar.solution.*;
 import com.wenjunhuang.codeepiphany.utils.ui.TagUI;
 import org.apache.commons.collections.CollectionUtils;
 import org.jetbrains.annotations.NotNull;
