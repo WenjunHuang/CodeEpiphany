@@ -216,7 +216,7 @@ object leetcode {
                       SubmissionResult.Failure | SubmissionResult.Unknown | SubmissionResult.Processing =>
                     response.statusMsg
                   case SubmissionResult.CompilationError =>
-                    response.fullRuntimeError.orElse(response.compileError).getOrElse(response.statusMsg)
+                    response.fullCompileError.orElse(response.compileError).getOrElse(response.statusMsg)
                   case SubmissionResult.RuntimeError =>
                     response.fullRuntimeError.orElse(response.runtimeError).getOrElse(response.statusMsg)
 

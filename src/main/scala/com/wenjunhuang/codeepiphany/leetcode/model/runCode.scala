@@ -1,7 +1,7 @@
 package com.wenjunhuang.codeepiphany.leetcode.model
 
 import cats.syntax.all.*
-import io.circe.derivation.{Configuration, ConfiguredDecoder, ConfiguredEncoder}
+import io.circe.derivation.{ Configuration, ConfiguredDecoder, ConfiguredEncoder }
 import io.circe.Decoder
 
 object runCode {
@@ -11,11 +11,12 @@ object runCode {
   case class LeetCodeRunRequest(lang: String, dataInput: String, questionId: String, typedCode: String)
       derives ConfiguredEncoder
 
-  case class LeetCodeRunResponse(interpretId: String, testCase: String, interpretExpectedId: String)
+  case class LeetCodeRunResponse(interpretId: String, testCase: String, interpretExpectedId: Option[String] = None)
       derives ConfiguredDecoder
 
   enum LeetCodeRunResult {
     case Started(state: String)
+    case Pending(state:String)
     case Success(
       state: String,
       statusCode: Int,
@@ -37,8 +38,8 @@ object runCode {
       taskFinishTime: Long,
       taskName: String,
       statusMsg: String,
-      fastSubmit: Boolean,
-      totalCorrect: Option[Int] = none,
+      fastSubmit: Option[Boolean] = None,
+      totalCorrect: Option[Int] = None,
       totalTestcases: Option[Int] = None,
       submissionId: String,
       runtimePercentile: Option[Double] = None,
@@ -51,12 +52,14 @@ object runCode {
   object LeetCodeRunResult {
     private implicit val successDecoder: Decoder[Success] = ConfiguredDecoder.derived[Success]
     private implicit val startedDecoder: Decoder[Started] = ConfiguredDecoder.derived[Started]
+    private implicit val pendingDecoder: Decoder[Pending] = ConfiguredDecoder.derived[Pending]
     implicit val decoder: Decoder[LeetCodeRunResult] = Decoder.instance { cursor =>
       for {
         discriminator <- cursor.downField("state").as[String]
         result <- discriminator match {
           case "SUCCESS" => cursor.as[Success].widen
           case "STARTED" => cursor.as[Started].widen
+          case "PENDING" => cursor.as[Pending].widen
           case _         => Left(io.circe.DecodingFailure(s"Unknown state: $discriminator", cursor.history))
         }
       } yield result

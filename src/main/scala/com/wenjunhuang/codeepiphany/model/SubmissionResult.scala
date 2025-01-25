@@ -29,7 +29,7 @@ enum SubmissionResult(val value: String) {
       case Timeout =>
         s"<html><font color='${SUBMISSION_TIMEOUT_COLOR}'>${Timeout.show}</font></html>"
       case RuntimeError =>
-        s"<html><font color='${SUBMISSION_RUNTIMEERROR_COLOR}'>${Timeout.show}</font></html>"
+        s"<html><font color='${SUBMISSION_RUNTIMEERROR_COLOR}'>${RuntimeError.show}</font></html>"
       case Unknown =>
         s"<html><font color='${SUBMISSION_UNKNOWN_COLOR}'>${Unknown.show}</font></html>"
 }
@@ -51,7 +51,7 @@ object SubmissionResult {
     else if ciString == CIString(Failure.value) then Some(Failure)
     else if ciString == CIString(CompilationError.value) then Some(CompilationError)
     else if ciString == CIString(Timeout.value) then Some(Timeout)
-    else if ciString == CIString(RuntimeError.value) then Some(Timeout)
+    else if ciString == CIString(RuntimeError.value) then Some(RuntimeError)
     else if ciString == CIString(Unknown.value) then Some(Unknown)
     else if ciString == CIString(Processing.value) then Some(Processing)
     else None
