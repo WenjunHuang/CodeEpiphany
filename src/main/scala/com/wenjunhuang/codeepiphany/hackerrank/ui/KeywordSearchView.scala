@@ -4,9 +4,10 @@ import java.awt.BorderLayout
 import javax.swing.ScrollPaneConstants
 
 import com.intellij.ide.plugins.newui.ListPluginComponent
+import com.intellij.openapi.actionSystem.{ DataSink, UiDataProvider }
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.SimpleToolWindowPanel
-import com.intellij.ui.{SearchTextField, SimpleTextAttributes}
+import com.intellij.ui.{ SearchTextField, SimpleTextAttributes }
 import com.intellij.ui.components.JBScrollPane
 import com.intellij.ui.table.TableView
 
@@ -14,11 +15,12 @@ import com.wenjunhuang.codeepiphany.PluginBundle
 import com.wenjunhuang.codeepiphany.hackerrank.model.HackerRankChallengeDetail
 
 class KeywordSearchView(private val myProject: Project, private val myPresenter: KeywordSearchViewPresenter)
-    extends SimpleToolWindowPanel(true,true) {
+    extends SimpleToolWindowPanel(true, true)
+    with UiDataProvider {
   private val mySearchTextField                            = SearchTextField(true)
   private val myChallengesTableModel: ChallengesTableModel = ChallengesTableModel()
   private val myChallengesTable: TableView[HackerRankChallengeDetail] =
-    myChallengesTableModel.createTableView(myPresenter.uiDataSnapshot)
+    myChallengesTableModel.createTableView()
 
   mySearchTextField.getTextEditor.getEmptyText
     .appendText(
@@ -37,7 +39,11 @@ class KeywordSearchView(private val myProject: Project, private val myPresenter:
     BorderLayout.CENTER
   )
 
+  override def uiDataSnapshot(sink: DataSink): Unit = {
+    myPresenter.uiDataSnapshot(sink)
+  }
+
   def getTable: TableView[HackerRankChallengeDetail] = myChallengesTable
-  def getTableModel: ChallengesTableModel  = myChallengesTableModel
+  def getTableModel: ChallengesTableModel            = myChallengesTableModel
 
 }

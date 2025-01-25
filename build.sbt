@@ -24,7 +24,7 @@ def markdownToHtml(file: File): String = {
 lazy val codeEpiphany = (project in file("."))
   .settings(
     name    := "CodeEpiphany",
-    version := "0.5.68",
+    version := "0.5.69",
     scalacOptions ++= Seq(
       "-Wunused:imports",
       "-language:implicitConversions",

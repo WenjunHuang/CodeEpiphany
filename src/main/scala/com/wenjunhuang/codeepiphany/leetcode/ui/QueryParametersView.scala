@@ -39,7 +39,7 @@ class QueryParametersView(
   myContent.add(myTagPane, BorderLayout.NORTH)
 
   private val myChallengesTableModel = LeetCodeChallengeListItemTableModel(myPresenter, myCodeDojo)
-  private val myChallengesTable      = myChallengesTableModel.createTableView(uiDataSnapshot)
+  private val myChallengesTable      = myChallengesTableModel.createTableView()
 
   myContent.add(
     JBScrollPane(

@@ -34,7 +34,7 @@ class QueryParametersView(private val myProject: Project, private val myPresente
 
   private val myChallengesTableModel: ChallengesTableModel = ChallengesTableModel()
   private val myChallengesTable: TableView[model.HackerRankChallengeDetail] =
-    myChallengesTableModel.createTableView(uiDataSnapshot)
+    myChallengesTableModel.createTableView()
 
   myContent.add(
     JBScrollPane(
