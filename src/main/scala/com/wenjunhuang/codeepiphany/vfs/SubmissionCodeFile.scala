@@ -2,6 +2,7 @@ package com.wenjunhuang.codeepiphany.vfs
 
 import java.io.{ByteArrayInputStream, InputStream, OutputStream}
 import java.nio.charset.StandardCharsets
+import java.nio.file.Path
 
 import com.intellij.openapi.project.ex.ProjectManagerEx
 import com.intellij.openapi.vfs.{VirtualFilePathWrapper, VirtualFileSystem}
@@ -27,6 +28,8 @@ class SubmissionCodeFile(
   private var myContent: Option[String] = None
 
   override def getPresentablePath: String = myPath.getSessionId
+
+  override def toNioPath: Path = super.toNioPath
 
   override def enforcePresentableName(): Boolean = true
 
