@@ -19,7 +19,6 @@ import com.intellij.util.LineSeparator
 
 import com.wenjunhuang.codeepiphany.leetcode.model.*
 import com.wenjunhuang.codeepiphany.leetcode.model.runCode.*
-import com.wenjunhuang.codeepiphany.leetcode.model.runCode.LeetCodeRunResult.Started
 import com.wenjunhuang.codeepiphany.leetcode.model.submitAnswer.{
   LeetCodeSubmitAnswerRequest,
   LeetCodeSubmitAnswerResponse,
@@ -499,9 +498,9 @@ object LeetCodeApi {
           .blocking(
             Source.fromInputStream(
               if dojo == CodeDojo.LeetCodeCN then
-                Option(getClass.getResourceAsStream(s"graphql/${fileName}_cn.graphql"))
-                  .getOrElse(getClass.getResourceAsStream(s"graphql/$fileName.graphql"))
-              else getClass.getResourceAsStream(s"graphql/$fileName.graphql")
+                Option(getClass.getResourceAsStream(s"/leetcode/graphql/${fileName}_cn.graphql"))
+                  .getOrElse(getClass.getResourceAsStream(s"/leetcode/graphql/$fileName.graphql"))
+              else getClass.getResourceAsStream(s"/leetcode/graphql/$fileName.graphql")
             )
           )
       )

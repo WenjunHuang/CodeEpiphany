@@ -57,7 +57,7 @@ class JCefDescriptionView(
     requestHandler.addResource(VIEW_PATH) { () =>
       val content =
         Resource
-          .fromAutoCloseable(SyncIO.delay(getClass.getResourceAsStream("resources/descriptionViewer.html")))
+          .fromAutoCloseable(SyncIO.delay(getClass.getResourceAsStream("/html/descriptionViewer.html")))
           .use { is =>
             IOUtils.toString(is, StandardCharsets.UTF_8).pure[SyncIO]
           }
