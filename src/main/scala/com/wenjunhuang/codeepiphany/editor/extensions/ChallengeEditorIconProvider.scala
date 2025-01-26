@@ -1,7 +1,6 @@
 package com.wenjunhuang.codeepiphany.editor.extensions
 
 import javax.swing.Icon
-import org.typelevel.ci.CIString
 
 import com.intellij.ide.FileIconPatcher
 import com.intellij.openapi.project.Project
@@ -9,8 +8,7 @@ import com.intellij.openapi.util.Key
 import com.intellij.openapi.vfs.VirtualFile
 
 import com.wenjunhuang.codeepiphany.database.Tables.*
-import com.wenjunhuang.codeepiphany.editor.extensions.ChallengeEditorIconProvider.{ FILE_ICON_KEY, FileIcon }
-import com.wenjunhuang.codeepiphany.model.{ ChallengeRepository, CodeDojo }
+import com.wenjunhuang.codeepiphany.editor.extensions.ChallengeEditorIconProvider.{FILE_ICON_KEY, FileIcon}
 import com.wenjunhuang.codeepiphany.settings.ChallengeSettings
 
 class ChallengeEditorIconProvider extends FileIconPatcher {
