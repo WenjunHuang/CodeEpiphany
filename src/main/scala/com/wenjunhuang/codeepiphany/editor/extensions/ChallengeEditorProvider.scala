@@ -29,7 +29,7 @@ class ChallengeEditorProvider extends AsyncFileEditorProvider with DumbAware {
   override def getPolicy: FileEditorPolicy = FileEditorPolicy.HIDE_DEFAULT_EDITOR
 
   override def createEditor(project: Project, file: VirtualFile): FileEditor =
-    setupEditor(delegate.createEditor(project, file), project, file)
+    setupEditor(delegate.createEditor(project, file).asInstanceOf[TextEditor], project, file)
 
   override def readState(element: Element, project: Project, file: VirtualFile): FileEditorState = {
     delegate.readState(element, project, file)
@@ -44,10 +44,10 @@ class ChallengeEditorProvider extends AsyncFileEditorProvider with DumbAware {
   }
 
   override def createEditorAsync(project: Project, file: VirtualFile): AsyncFileEditorProvider.Builder = new Builder() {
-    override def build(): FileEditor = setupEditor(delegate.createEditor(project, file), project, file)
+    override def build(): FileEditor = setupEditor(delegate.createEditor(project, file).asInstanceOf[TextEditor], project, file)
   }
 
-  private def setupEditor(editor: FileEditor, project: Project, file: VirtualFile): FileEditor = {
+  private def setupEditor(editor: TextEditor, project: Project, file: VirtualFile): TextEditor = {
     ChallengeSettings.getInstance(project).findChallengeId(file) match
       case Some(challenge) =>
         val editorWrapper = ChallengeEditor(editor)

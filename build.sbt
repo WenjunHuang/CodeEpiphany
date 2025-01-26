@@ -24,7 +24,7 @@ def markdownToHtml(file: File): String = {
 lazy val codeEpiphany = (project in file("."))
   .settings(
     name         := "CodeEpiphany",
-    version      := "0.5.74",
+    version      := "0.5.75",
     compileOrder := CompileOrder.Mixed,
     scalacOptions ++= Seq(
       "-Wunused:imports",
@@ -88,7 +88,6 @@ lazy val codeEpiphany = (project in file("."))
         .exclude("org.jetbrains.kotlin", "*")
     ),
     // copy all graphql files in src/main/scala to target when compile
-
 
     Compile / unmanagedSourceDirectories += baseDirectory.value / "gen",
     Compile / unmanagedSourceDirectories += baseDirectory.value / "src" / "main" / "jooq-generated",

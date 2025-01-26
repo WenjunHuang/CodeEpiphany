@@ -6,7 +6,7 @@ import fs2.Stream
 import fs2.concurrent.SignallingRef
 import javax.swing.JComponent
 import javax.swing.event.DocumentEvent
-import org.typelevel.log4cats.{Logger, LoggerFactory}
+import org.typelevel.log4cats.{ Logger, LoggerFactory }
 import scala.concurrent.duration.*
 import scala.jdk.CollectionConverters.*
 
@@ -17,32 +17,44 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
 import com.intellij.ui.DocumentAdapter
 
-import com.wenjunhuang.codeepiphany.actions.OpenChallengeActionGroup.{CHALLENGE_PROVIDER_KEY, OpenChallengeProvider}
-import com.wenjunhuang.codeepiphany.actions.PaginationParameterActionGroup.{PageSize, PAGINATION_PROVIDER_KEY, PaginationParameterProvider}
-import com.wenjunhuang.codeepiphany.actions.RefreshAction.{REFRESH_PROVIDER_KEY, RefreshProvider}
+import com.wenjunhuang.codeepiphany.actions.OpenChallengeActionGroup.{ CHALLENGE_PROVIDER_KEY, OpenChallengeProvider }
+import com.wenjunhuang.codeepiphany.actions.PaginationParameterActionGroup.{
+  PAGINATION_PROVIDER_KEY,
+  PageSize,
+  PaginationParameterProvider
+}
+import com.wenjunhuang.codeepiphany.actions.RefreshAction.{ REFRESH_PROVIDER_KEY, RefreshProvider }
 import com.wenjunhuang.codeepiphany.leetcode.model.LeetCodeChallengeListItem
-import com.wenjunhuang.codeepiphany.leetcode.services.{LeetCodeApi, LeetCodeSearchOrderBy}
+import com.wenjunhuang.codeepiphany.leetcode.services.{ LeetCodeApi, LeetCodeSearchOrderBy }
 import com.wenjunhuang.codeepiphany.leetcode.services.challenge.openChallenge
-import com.wenjunhuang.codeepiphany.leetcode.settings.LeetCodeCNSettings
+import com.wenjunhuang.codeepiphany.leetcode.settings.{ LeetCodeCNSettings, LeetCodeSettings }
 import com.wenjunhuang.codeepiphany.leetcode.ui.KeywordSearchViewPresenter.SearchParam
-import com.wenjunhuang.codeepiphany.model.CodeDojo.{LeetCode, LeetCodeCN}
-import com.wenjunhuang.codeepiphany.model.{Language, LanguageVersion, OrderDirection, OrderDirectionProvider}
-import com.wenjunhuang.codeepiphany.services.http.{HttpClientManager, HttpClientService}
+import com.wenjunhuang.codeepiphany.model.CodeDojo.{ LeetCode, LeetCodeCN }
+import com.wenjunhuang.codeepiphany.model.{
+  CodeDojo,
+  Language,
+  LanguageVersion,
+  OrderDirection,
+  OrderDirectionProvider
+}
+import com.wenjunhuang.codeepiphany.services.http.{ HttpClientManager, HttpClientService }
 import com.wenjunhuang.codeepiphany.utils.extensions.*
 import com.wenjunhuang.codeepiphany.utils.implicits.*
 
-class KeywordSearchViewPresenter(private val myProject: Project, private val myCodeDojo: LeetCode.type | LeetCodeCN.type)
-    extends DocumentAdapter
+class KeywordSearchViewPresenter(
+  private val myProject: Project,
+  private val myCodeDojo: LeetCode.type | LeetCodeCN.type
+) extends DocumentAdapter
     with OrderDirectionProvider[LeetCodeSearchOrderBy]
     with Disposable {
-  implicit private val myLogger: Logger[IO] = LoggerFactory[IO].getLogger
+  private implicit val myLogger: Logger[IO] = LoggerFactory[IO].getLogger
 
-  implicit private val httpClientKeeper: HttpClientManager[IO] =
+  private implicit val httpClientKeeper: HttpClientManager[IO] =
     HttpClientService.getInstance(myProject).httpClientManager
 
   private val myApi = LeetCodeApi[IO](myCodeDojo)
 
-  private val myView: KeywordSearchView = KeywordSearchView(myProject, this,myCodeDojo)
+  private val myView: KeywordSearchView = KeywordSearchView(myProject, this, myCodeDojo)
 
   private var myState = KeywordSearchViewPresenter.EMPTY_PARAM
 
@@ -105,8 +117,13 @@ class KeywordSearchViewPresenter(private val myProject: Project, private val myC
     }
 
     override def getLanguages: List[(Language, LanguageVersion)] = {
-      val settings = LeetCodeCNSettings.getInstance(myProject)
-      settings.getSelectedLanguages
+      myCodeDojo match
+        case CodeDojo.LeetCode =>
+          val settings = LeetCodeSettings.getInstance(myProject)
+          settings.getSelectedLanguages
+        case CodeDojo.LeetCodeCN =>
+          val settings = LeetCodeCNSettings.getInstance(myProject)
+          settings.getSelectedLanguages
     }
 
     override def currentSelectedCanBeOpened: Boolean = {

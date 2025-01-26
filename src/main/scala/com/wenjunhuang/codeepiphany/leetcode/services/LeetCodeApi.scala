@@ -83,8 +83,9 @@ trait LeetCodeApi[F[_]] {
 }
 
 object LeetCodeApi {
-  def apply[F[_]: Async: Concurrent: HttpClientManager](dojo: CodeDojo): LeetCodeApi[F] = new LeetCodeApi[F]
-    with Http4sClientDsl[F] {
+  def apply[F[_]: Async: Concurrent: HttpClientManager](
+    dojo: CodeDojo.LeetCode.type | CodeDojo.LeetCodeCN.type
+  ): LeetCodeApi[F] = new LeetCodeApi[F] with Http4sClientDsl[F] {
 
     private val graphqlUrl = Uri.unsafeFromString(s"https://${dojo.domain.toString}/graphql/")
 
@@ -277,8 +278,6 @@ object LeetCodeApi {
             getTagTypeWithTagsLeetCodeCN(client)
           case LeetCode =>
             getTagTypeWithTagsLeetCode(client)
-          case _ => Async[F].raiseError(new IllegalArgumentException("Only LeetCode Supported"))
-
       }
 
     private def getTagTypeWithTagsLeetCode(client: Client[F]): F[List[LeetCodeTagTypeWithTags]] = {
