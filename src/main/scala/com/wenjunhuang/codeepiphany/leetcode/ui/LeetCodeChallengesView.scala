@@ -21,7 +21,7 @@ import com.wenjunhuang.codeepiphany.utils.extensions.*
 import com.wenjunhuang.codeepiphany.utils.implicits.*
 import com.wenjunhuang.codeepiphany.utils.ui.UnauthenticatedView
 
-class LeetCodeChallengesView(private val myProject: Project, private val myCodeDojo: CodeDojo)
+class LeetCodeChallengesView(private val myProject: Project, private val myCodeDojo: CodeDojo.LeetCode.type|CodeDojo.LeetCodeCN.type)
     extends CardLayoutPanel[LeetCodeUI, LeetCodeUI, JComponent]
     with UiDataProvider
     with Disposable {

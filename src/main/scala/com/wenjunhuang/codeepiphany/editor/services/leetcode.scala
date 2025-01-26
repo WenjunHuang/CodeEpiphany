@@ -127,8 +127,8 @@ object leetcode {
         val msg = Tabulator.format(
           List("Runtime", "Memory"),
           List(
-            s"${success.statusRuntime} defeated ${success.runtimePercentile.getOrElse(0.0)}%",
-            s"${success.statusMemory} defeated ${success.memoryPercentile.getOrElse(0.0)}%"
+            f"${success.statusRuntime} defeated ${success.runtimePercentile.getOrElse(0.0f)}%.2f%%",
+            f"${success.statusMemory} defeated ${success.memoryPercentile.getOrElse(0.0f)}%.2f%%"
           )
         )
         console.info[F](project, s"🎉 Passed!\n$msg")
@@ -226,6 +226,26 @@ object leetcode {
                   .setResult(result.value)
                   .setMessage(message)
                 record.store()
+
+                dsl
+                  .selectFrom(LEETCODE_SUBMISSION)
+                  .where(LEETCODE_SUBMISSION.ID.eq(submissionId))
+                  .fetchOptional()
+                  .toScala
+                  .getOrElse(dsl.newRecord(LEETCODE_SUBMISSION).setId(record.getId))
+                  .setExpectedoutput(response.expectedOutput.orNull)
+                  .setInputformatted(response.inputFormatted.orNull)
+                  .setLasttestcase(response.lastTestcase.orNull)
+                  .setMemory(response.memory)
+                  .setMemorypercentile(response.memoryPercentile.map(float2Float).orNull)
+                  .setRuntimepercentile(response.runtimePercentile.map(float2Float).orNull)
+                  .setStatusmemory(response.statusMemory)
+                  .setTotalcorrect(response.totalCorrect.map(int2Integer).orNull)
+                  .setTotaltestcases(response.totalTestcases.map(int2Integer).orNull)
+                  .setStatusruntime(response.statusRuntime)
+                  .setCodeoutput(response.codeOutput.orNull)
+                  .setStdoutput(response.stdOutput.orNull)
+                  .store()
 
                 (result, response)
               case _ => throw new IllegalStateException("Cannot find submission record")

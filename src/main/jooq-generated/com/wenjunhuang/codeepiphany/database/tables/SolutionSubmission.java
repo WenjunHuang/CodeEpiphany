@@ -8,6 +8,7 @@ import com.wenjunhuang.codeepiphany.database.DefaultSchema;
 import com.wenjunhuang.codeepiphany.database.Keys;
 import com.wenjunhuang.codeepiphany.database.tables.ChallengeLanguage.ChallengeLanguagePath;
 import com.wenjunhuang.codeepiphany.database.tables.HackerrankSubmissionCase.HackerrankSubmissionCasePath;
+import com.wenjunhuang.codeepiphany.database.tables.LeetcodeSubmission.LeetcodeSubmissionPath;
 import com.wenjunhuang.codeepiphany.database.tables.Solution.SolutionPath;
 import com.wenjunhuang.codeepiphany.database.tables.records.SolutionSubmissionRecord;
 
@@ -226,6 +227,19 @@ public class SolutionSubmission extends TableImpl<SolutionSubmissionRecord> {
             _hackerrankSubmissionCase = new HackerrankSubmissionCasePath(this, null, Keys.HACKERRANK_SUBMISSION_CASE__FK_HACKERRANK_SUBMISSION_CASE_PK_SOLUTION_SUBMISSION.getInverseKey());
 
         return _hackerrankSubmissionCase;
+    }
+
+    private transient LeetcodeSubmissionPath _leetcodeSubmission;
+
+    /**
+     * Get the implicit to-many join path to the
+     * <code>leetcode_submission</code> table
+     */
+    public LeetcodeSubmissionPath leetcodeSubmission() {
+        if (_leetcodeSubmission == null)
+            _leetcodeSubmission = new LeetcodeSubmissionPath(this, null, Keys.LEETCODE_SUBMISSION__FK_LEETCODE_SUBMISSION_PK_SOLUTION_SUBMISSION.getInverseKey());
+
+        return _leetcodeSubmission;
     }
 
     @Override

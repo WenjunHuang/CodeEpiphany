@@ -25,12 +25,13 @@ import com.wenjunhuang.codeepiphany.leetcode.services.{LeetCodeApi, LeetCodeSear
 import com.wenjunhuang.codeepiphany.leetcode.services.challenge.openChallenge
 import com.wenjunhuang.codeepiphany.leetcode.settings.LeetCodeCNSettings
 import com.wenjunhuang.codeepiphany.leetcode.ui.KeywordSearchViewPresenter.SearchParam
-import com.wenjunhuang.codeepiphany.model.*
+import com.wenjunhuang.codeepiphany.model.CodeDojo.{LeetCode, LeetCodeCN}
+import com.wenjunhuang.codeepiphany.model.{Language, LanguageVersion, OrderDirection, OrderDirectionProvider}
 import com.wenjunhuang.codeepiphany.services.http.{HttpClientManager, HttpClientService}
 import com.wenjunhuang.codeepiphany.utils.extensions.*
 import com.wenjunhuang.codeepiphany.utils.implicits.*
 
-class KeywordSearchViewPresenter(private val myProject: Project, private val myCodeDojo: CodeDojo)
+class KeywordSearchViewPresenter(private val myProject: Project, private val myCodeDojo: LeetCode.type | LeetCodeCN.type)
     extends DocumentAdapter
     with OrderDirectionProvider[LeetCodeSearchOrderBy]
     with Disposable {

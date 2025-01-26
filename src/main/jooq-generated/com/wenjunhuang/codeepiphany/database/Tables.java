@@ -10,6 +10,7 @@ import com.wenjunhuang.codeepiphany.database.tables.HackerrankChallenge;
 import com.wenjunhuang.codeepiphany.database.tables.HackerrankChallengeLanguage;
 import com.wenjunhuang.codeepiphany.database.tables.HackerrankSubmissionCase;
 import com.wenjunhuang.codeepiphany.database.tables.LeetcodeChallenge;
+import com.wenjunhuang.codeepiphany.database.tables.LeetcodeSubmission;
 import com.wenjunhuang.codeepiphany.database.tables.Solution;
 import com.wenjunhuang.codeepiphany.database.tables.SolutionSubmission;
 
@@ -49,6 +50,11 @@ public class Tables {
      * The table <code>leetcode_challenge</code>.
      */
     public static final LeetcodeChallenge LEETCODE_CHALLENGE = LeetcodeChallenge.LEETCODE_CHALLENGE;
+
+    /**
+     * The table <code>leetcode_submission</code>.
+     */
+    public static final LeetcodeSubmission LEETCODE_SUBMISSION = LeetcodeSubmission.LEETCODE_SUBMISSION;
 
     /**
      * The table <code>solution</code>.
