@@ -6,8 +6,8 @@ import scala.io.Source
 import scala.util.Using
 
 ThisBuild / scalaVersion     := "3.3.4"
-ThisBuild / intellijPlatform := IntelliJPlatform.IdeaCommunity
-ThisBuild / intellijBuild    := "242.20224.300"
+ThisBuild / intellijPlatform := versions.intellijPlatform
+ThisBuild / intellijBuild    := versions.intellijBuild
 
 def markdownToHtml(file: File): String = {
   val options  = new MutableDataSet()

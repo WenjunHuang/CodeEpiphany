@@ -5,5 +5,5 @@ object $velocity.camelCaseName(${challenge.slug}) {
 }
 
 @main
-def $velocity.smallCamelCaseName(${challenge.slug})(args: Array[String]) {
+def $velocity.smallCamelCaseName(${challenge.slug})(args: Array[String]):Unit = {
 }

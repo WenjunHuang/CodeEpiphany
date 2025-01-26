@@ -17,10 +17,10 @@ object VelocityTool {
         case "" => ""
         case s  => s"${s.head.toLower}${s.tail}"
 
-  // change from camel case to snake case
+  // change to snake case
   def snakeCaseName(str: String): String = str match
     case null => ""
-    case _    => str.split("(?=[A-Z])").map(_.toLowerCase).mkString("_")
+    case _    => str.split("(?=[A-Z])").flatMap(_.split("[\\s_-]")).map(_.toLowerCase).mkString("_")
 
   def dateTime():String = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
   

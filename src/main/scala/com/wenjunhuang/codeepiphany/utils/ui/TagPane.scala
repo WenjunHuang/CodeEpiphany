@@ -1,20 +1,21 @@
 package com.wenjunhuang.codeepiphany.utils.ui
 
-import java.awt.{ Color, Dimension, Graphics, GridBagConstraints, GridBagLayout }
-import java.awt.event.{ ActionEvent, MouseAdapter, MouseEvent }
-import javax.swing.{ Icon, JLayeredPane, JPanel, SwingConstants }
+import java.awt.{Color, Dimension, Graphics, GridBagConstraints, GridBagLayout}
+import java.awt.event.{ActionEvent, MouseAdapter, MouseEvent}
+import javax.swing.{Icon, JLayeredPane, JPanel, SwingConstants}
 import scala.jdk.CollectionConverters.*
 
 import com.intellij.icons.AllIcons
-import com.intellij.openapi.actionSystem.{ ActionManager, DefaultActionGroup }
+import com.intellij.openapi.actionSystem.{ActionManager, DefaultActionGroup}
 import com.intellij.openapi.actionSystem.ex.DefaultCustomComponentAction
 import com.intellij.openapi.actionSystem.toolbarLayout.ToolbarLayoutStrategy
 import com.intellij.openapi.ui.popup.IconButton
-import com.intellij.ui.{ Gray, InplaceButton, JBColor }
-import com.intellij.ui.components.{ JBLabel, JBLayeredPane }
+import com.intellij.ui.{Gray, InplaceButton, JBColor}
+import com.intellij.ui.components.{JBLabel, JBLayeredPane}
 import com.intellij.util.concurrency.annotations.RequiresEdt
-import com.intellij.util.ui.{ JBInsets, JBUI }
+import com.intellij.util.ui.{JBInsets, JBUI}
 import com.intellij.util.ui.components.BorderLayoutPanel
+
 import com.wenjunhuang.codeepiphany.utils.extensions.*
 
 class TagPane(val noBorderTop: Boolean = true, val actions: List[TagPaneAction] = Nil) extends BorderLayoutPanel {
@@ -140,13 +141,13 @@ class TagUI(
     )
   }
 
-  def setText(text: String) = {
+  def setText(text: String): Unit = {
     myLabel.setText(text)
     layoutContent()
     repaint()
   }
 
-  def setIcon(icon: Icon) = {
+  def setIcon(icon: Icon): Unit = {
     myLabel.setIcon(icon)
     layoutContent()
     repaint()
@@ -162,8 +163,8 @@ class TagUI(
 }
 
 object TagUI {
-  private final val padding           = JBInsets.create(3, 8)
-  private final val textIconGap       = JBUI.scale(4)
-  private def backgroundColor: Color  = JBColor.namedColor("Tag.background", Gray.xDF).contrast(0.8)
-  private def selectedBackgroundColor = JBColor.namedColor("Tag.selectionBackground", Gray.xC9).contrast(1.2)
+  private final val padding                  = JBInsets.create(3, 8)
+  private final val textIconGap              = JBUI.scale(4)
+  private def backgroundColor: Color         = JBColor.namedColor("Tag.background", Gray.xDF).contrast(0.8)
+  private def selectedBackgroundColor: Color = JBColor.namedColor("Tag.selectionBackground", Gray.xC9).contrast(1.2)
 }

@@ -1,19 +1,24 @@
 package com.wenjunhuang.codeepiphany.editor.extensions
 
-import java.awt.{AWTEvent, EventQueue}
-import java.awt.event.{AWTEventListener, KeyAdapter}
+import java.awt.{ AWTEvent, EventQueue }
+import java.awt.event.{ AWTEventListener, KeyAdapter }
 import java.beans.PropertyChangeListener
-import javax.swing.{JComponent, JLayeredPane}
+import javax.swing.{ JComponent, JLayeredPane }
 
-import com.intellij.openapi.actionSystem.{ActionGroup, ActionManager}
+import com.intellij.openapi.actionSystem.{ ActionGroup, ActionManager }
 import com.intellij.openapi.editor.impl.EditorComponentImpl
-import com.intellij.openapi.fileEditor.{FileEditor, FileEditorState, FileEditorStateLevel, LayoutActionsFloatingToolbar}
-import com.intellij.openapi.util.{Disposer, Key}
+import com.intellij.openapi.fileEditor.{
+  FileEditor,
+  FileEditorState,
+  FileEditorStateLevel,
+  LayoutActionsFloatingToolbar
+}
+import com.intellij.openapi.util.{ Disposer, Key }
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.ui.components.JBLayeredPane
 import com.intellij.util.Alarm
-import com.intellij.util.ui.{StartupUiUtil, UIUtil}
+import com.intellij.util.ui.{ StartupUiUtil, UIUtil }
 
 import com.wenjunhuang.codeepiphany.editor.extensions.ChallengeEditor.*
 import com.wenjunhuang.codeepiphany.model.Actions
@@ -63,7 +68,7 @@ class ChallengeEditor(private val myDelegate: FileEditor, private val myName: St
   }
 
   private def registerToolbarListener(actualComponent: JComponent, toolbar: LayoutActionsFloatingToolbar): Unit = {
-    StartupUiUtil.addAwtListener(AWTEvent.MOUSE_MOTION_EVENT_MASK, toolbar, MyMouseListener(toolbar))
+    StartupUiUtil.addAwtListener(AWTEvent.MOUSE_MOTION_EVENT_MASK, ChallengeEditor.this, MyMouseListener(toolbar))
     UIUtil.findComponentOfType(actualComponent, classOf[EditorComponentImpl]) match
       case null =>
       case actualEditor =>
@@ -74,10 +79,8 @@ class ChallengeEditor(private val myDelegate: FileEditor, private val myName: St
         }
         actualEditor.getEditor.getContentComponent.addKeyListener(editorKeyListener)
         Disposer.register(
-          toolbar,
-          () => {
-            actualEditor.getEditor.getContentComponent.removeKeyListener(editorKeyListener)
-          }
+          ChallengeEditor.this,
+          () => actualEditor.getEditor.getContentComponent.removeKeyListener(editorKeyListener)
         )
   }
 
@@ -93,7 +96,7 @@ class ChallengeEditor(private val myDelegate: FileEditor, private val myName: St
   }
 
   private class MyMouseListener(private val myToolbar: LayoutActionsFloatingToolbar) extends AWTEventListener {
-    private val myAlarm = Alarm(Alarm.ThreadToUse.POOLED_THREAD, myToolbar)
+    private val myAlarm = Alarm(Alarm.ThreadToUse.POOLED_THREAD, ChallengeEditor.this)
 
     override def eventDispatched(event: AWTEvent): Unit = {
       val isMouseOutsideToolbar = myToolbar.getMousePosition == null

@@ -29,6 +29,11 @@ public class CodeEpiphanySettingsPanel extends SettingsUi<CodeEpiphanySettings.C
         super(myProject);
         $$$setupUI$$$();
 
+//        myDatabaseFolder.addBrowseFolderListener(myProject,
+//                FileChooserDescriptorFactory.createSingleFolderDescriptor()
+//                        .withTitle(PluginBundle.message("settings.databaseFolder.title"))
+//                        .withDescription(PluginBundle.message("settings.databaseFolder.description")),
+//        );
         myDatabaseFolder.addBrowseFolderListener(PluginBundle.message("settings.databaseFolder.title"),
                 null,
                 myProject, FileChooserDescriptorFactory.createSingleFolderDescriptor());
