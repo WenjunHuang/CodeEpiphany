@@ -10,6 +10,7 @@ import com.wenjunhuang.codeepiphany.database.tables.HackerrankChallenge;
 import com.wenjunhuang.codeepiphany.database.tables.HackerrankChallengeLanguage;
 import com.wenjunhuang.codeepiphany.database.tables.HackerrankSubmissionCase;
 import com.wenjunhuang.codeepiphany.database.tables.LeetcodeChallenge;
+import com.wenjunhuang.codeepiphany.database.tables.LeetcodeSubmission;
 import com.wenjunhuang.codeepiphany.database.tables.Solution;
 import com.wenjunhuang.codeepiphany.database.tables.SolutionSubmission;
 import com.wenjunhuang.codeepiphany.database.tables.records.ChallengeLanguageRecord;
@@ -18,6 +19,7 @@ import com.wenjunhuang.codeepiphany.database.tables.records.HackerrankChallengeL
 import com.wenjunhuang.codeepiphany.database.tables.records.HackerrankChallengeRecord;
 import com.wenjunhuang.codeepiphany.database.tables.records.HackerrankSubmissionCaseRecord;
 import com.wenjunhuang.codeepiphany.database.tables.records.LeetcodeChallengeRecord;
+import com.wenjunhuang.codeepiphany.database.tables.records.LeetcodeSubmissionRecord;
 import com.wenjunhuang.codeepiphany.database.tables.records.SolutionRecord;
 import com.wenjunhuang.codeepiphany.database.tables.records.SolutionSubmissionRecord;
 
@@ -45,6 +47,7 @@ public class Keys {
     public static final UniqueKey<HackerrankChallengeLanguageRecord> HACKERRANK_CHALLENGE_LANGUAGE__PK_HACKERRANK_CHALLENGE_LANGUAGE = Internal.createUniqueKey(HackerrankChallengeLanguage.HACKERRANK_CHALLENGE_LANGUAGE, DSL.name("pk_hackerrank_challenge_language"), new TableField[] { HackerrankChallengeLanguage.HACKERRANK_CHALLENGE_LANGUAGE.ID }, true);
     public static final UniqueKey<HackerrankSubmissionCaseRecord> HACKERRANK_SUBMISSION_CASE__PK_HACKERRANK_SUBMISSION_CASE = Internal.createUniqueKey(HackerrankSubmissionCase.HACKERRANK_SUBMISSION_CASE, DSL.name("pk_hackerrank_submission_case"), new TableField[] { HackerrankSubmissionCase.HACKERRANK_SUBMISSION_CASE.ID }, true);
     public static final UniqueKey<LeetcodeChallengeRecord> LEETCODE_CHALLENGE__PK_LEETCODE_CHALLENGE = Internal.createUniqueKey(LeetcodeChallenge.LEETCODE_CHALLENGE, DSL.name("pk_leetcode_challenge"), new TableField[] { LeetcodeChallenge.LEETCODE_CHALLENGE.ID }, true);
+    public static final UniqueKey<LeetcodeSubmissionRecord> LEETCODE_SUBMISSION__PK_LEETCODE_SUBMISSION = Internal.createUniqueKey(LeetcodeSubmission.LEETCODE_SUBMISSION, DSL.name("pk_leetcode_submission"), new TableField[] { LeetcodeSubmission.LEETCODE_SUBMISSION.ID }, true);
     public static final UniqueKey<SolutionRecord> SOLUTION__PK_SOLUTION = Internal.createUniqueKey(Solution.SOLUTION, DSL.name("pk_solution"), new TableField[] { Solution.SOLUTION.ID }, true);
     public static final UniqueKey<SolutionSubmissionRecord> SOLUTION_SUBMISSION__PK_SOLUTION_SUBMISSION = Internal.createUniqueKey(SolutionSubmission.SOLUTION_SUBMISSION, DSL.name("pk_solution_submission"), new TableField[] { SolutionSubmission.SOLUTION_SUBMISSION.ID }, true);
 
@@ -57,6 +60,7 @@ public class Keys {
     public static final ForeignKey<HackerrankChallengeLanguageRecord, ChallengeLanguageRecord> HACKERRANK_CHALLENGE_LANGUAGE__FK_HACKERRANK_CHALLENGE_LANGUAGE_PK_CHALLENGE_LANGUAGE = Internal.createForeignKey(HackerrankChallengeLanguage.HACKERRANK_CHALLENGE_LANGUAGE, DSL.name("fk_hackerrank_challenge_language_pk_challenge_language"), new TableField[] { HackerrankChallengeLanguage.HACKERRANK_CHALLENGE_LANGUAGE.ID }, Keys.CHALLENGE_LANGUAGE__PK_CHALLENGE_LANGUAGE, new TableField[] { ChallengeLanguage.CHALLENGE_LANGUAGE.ID }, true);
     public static final ForeignKey<HackerrankSubmissionCaseRecord, SolutionSubmissionRecord> HACKERRANK_SUBMISSION_CASE__FK_HACKERRANK_SUBMISSION_CASE_PK_SOLUTION_SUBMISSION = Internal.createForeignKey(HackerrankSubmissionCase.HACKERRANK_SUBMISSION_CASE, DSL.name("fk_hackerrank_submission_case_pk_solution_submission"), new TableField[] { HackerrankSubmissionCase.HACKERRANK_SUBMISSION_CASE.SUBMISSIONID }, Keys.SOLUTION_SUBMISSION__PK_SOLUTION_SUBMISSION, new TableField[] { SolutionSubmission.SOLUTION_SUBMISSION.ID }, true);
     public static final ForeignKey<LeetcodeChallengeRecord, ChallengeRecord> LEETCODE_CHALLENGE__FK_LEETCODE_CHALLENGE_PK_CHALLENGE = Internal.createForeignKey(LeetcodeChallenge.LEETCODE_CHALLENGE, DSL.name("fk_leetcode_challenge_pk_challenge"), new TableField[] { LeetcodeChallenge.LEETCODE_CHALLENGE.ID }, Keys.CHALLENGE__PK_CHALLENGE, new TableField[] { Challenge.CHALLENGE.ID }, true);
+    public static final ForeignKey<LeetcodeSubmissionRecord, SolutionSubmissionRecord> LEETCODE_SUBMISSION__FK_LEETCODE_SUBMISSION_PK_SOLUTION_SUBMISSION = Internal.createForeignKey(LeetcodeSubmission.LEETCODE_SUBMISSION, DSL.name("fk_leetcode_submission_pk_solution_submission"), new TableField[] { LeetcodeSubmission.LEETCODE_SUBMISSION.ID }, Keys.SOLUTION_SUBMISSION__PK_SOLUTION_SUBMISSION, new TableField[] { SolutionSubmission.SOLUTION_SUBMISSION.ID }, true);
     public static final ForeignKey<SolutionRecord, ChallengeRecord> SOLUTION__FK_SOLUTION_PK_CHALLENGE = Internal.createForeignKey(Solution.SOLUTION, DSL.name("fk_solution_pk_challenge"), new TableField[] { Solution.SOLUTION.CHALLENGEID }, Keys.CHALLENGE__PK_CHALLENGE, new TableField[] { Challenge.CHALLENGE.ID }, true);
     public static final ForeignKey<SolutionSubmissionRecord, ChallengeLanguageRecord> SOLUTION_SUBMISSION__FK_SOLUTION_SUBMISSION_PK_CHALLENGE_LANGUAGE = Internal.createForeignKey(SolutionSubmission.SOLUTION_SUBMISSION, DSL.name("fk_solution_submission_pk_challenge_language"), new TableField[] { SolutionSubmission.SOLUTION_SUBMISSION.CHALLENGELANGUAGEID }, Keys.CHALLENGE_LANGUAGE__PK_CHALLENGE_LANGUAGE, new TableField[] { ChallengeLanguage.CHALLENGE_LANGUAGE.ID }, true);
     public static final ForeignKey<SolutionSubmissionRecord, SolutionRecord> SOLUTION_SUBMISSION__FK_SOLUTION_SUBMISSION_PK_SOLUTION = Internal.createForeignKey(SolutionSubmission.SOLUTION_SUBMISSION, DSL.name("fk_solution_submission_pk_solution"), new TableField[] { SolutionSubmission.SOLUTION_SUBMISSION.SOLUTIONID }, Keys.SOLUTION__PK_SOLUTION, new TableField[] { Solution.SOLUTION.ID }, true);

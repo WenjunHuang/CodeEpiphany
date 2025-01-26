@@ -42,9 +42,9 @@ object submitAnswer {
       totalCorrect: Option[Int] = None,
       totalTestcases: Option[Int] = None,
       submissionId: String,
-      runtimePercentile: Option[Double],
+      runtimePercentile: Option[Float],
       statusMemory: String,
-      memoryPercentile: Option[Double],
+      memoryPercentile: Option[Float],
       prettyLang: String,
       inputFormatted: Option[String] = None,
       input: Option[String] = None

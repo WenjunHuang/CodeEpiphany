@@ -137,7 +137,7 @@ object ChallengeDescriptionPresenter {
           val vf = LocalFileSystem.getInstance().refreshAndFindFileByIoFile(file)
           FileEditorManager.getInstance(project).openFile(vf, false) match
             case null | Array() =>
-              FileTypeChooser.getKnownFileTypeOrAssociate(vf, project) match
+              FileTypeChooser.associateFileType(vf.getName) match
                 case null | FileTypes.UNKNOWN =>
                 case _ =>
                   FileEditorManager.getInstance(project).openFile(vf, false)

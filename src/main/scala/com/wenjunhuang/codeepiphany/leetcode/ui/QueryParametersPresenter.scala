@@ -6,7 +6,7 @@ import cats.syntax.all.*
 import fs2.Stream
 import fs2.concurrent.SignallingRef
 import javax.swing.JComponent
-import org.typelevel.log4cats.{Logger, LoggerFactory}
+import org.typelevel.log4cats.{ Logger, LoggerFactory }
 import scala.concurrent.duration.*
 import scala.jdk.CollectionConverters.*
 
@@ -17,27 +17,39 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
 import com.intellij.util.concurrency.annotations.RequiresEdt
 
-import com.wenjunhuang.codeepiphany.actions.DifficultyParameterAction.{DIFFICULTIES_PROVIDER_KEY, DifficultyParameterProvider}
-import com.wenjunhuang.codeepiphany.actions.OpenChallengeActionGroup.{CHALLENGE_PROVIDER_KEY, OpenChallengeProvider}
-import com.wenjunhuang.codeepiphany.actions.PaginationParameterActionGroup.{PageSize, PAGINATION_PROVIDER_KEY, PaginationParameterProvider}
-import com.wenjunhuang.codeepiphany.actions.RefreshAction.{REFRESH_PROVIDER_KEY, RefreshProvider}
-import com.wenjunhuang.codeepiphany.actions.StatusParameterAction.{STATUS_PROVIDER_KEY, StatusParameterProvider}
+import com.wenjunhuang.codeepiphany.actions.DifficultyParameterAction.{
+  DIFFICULTIES_PROVIDER_KEY,
+  DifficultyParameterProvider
+}
+import com.wenjunhuang.codeepiphany.actions.OpenChallengeActionGroup.{ CHALLENGE_PROVIDER_KEY, OpenChallengeProvider }
+import com.wenjunhuang.codeepiphany.actions.PaginationParameterActionGroup.{
+  PAGINATION_PROVIDER_KEY,
+  PageSize,
+  PaginationParameterProvider
+}
+import com.wenjunhuang.codeepiphany.actions.RefreshAction.{ REFRESH_PROVIDER_KEY, RefreshProvider }
+import com.wenjunhuang.codeepiphany.actions.StatusParameterAction.{ STATUS_PROVIDER_KEY, StatusParameterProvider }
 import com.wenjunhuang.codeepiphany.actions.TagsAction
 import com.wenjunhuang.codeepiphany.actions.TagsAction.*
 import com.wenjunhuang.codeepiphany.leetcode.actions.FavoriteParameterAction.*
-import com.wenjunhuang.codeepiphany.leetcode.actions.LeetCodeCategoryParameterAction.{LEETCODE_CATEGORY_PROVIDER_KEY, LeetCodeCategoryProvider}
+import com.wenjunhuang.codeepiphany.leetcode.actions.LeetCodeCategoryParameterAction.{
+  LEETCODE_CATEGORY_PROVIDER_KEY,
+  LeetCodeCategoryProvider
+}
 import com.wenjunhuang.codeepiphany.leetcode.model.*
-import com.wenjunhuang.codeepiphany.leetcode.services.{LeetCodeApi, LeetCodeSearchOrderBy}
+import com.wenjunhuang.codeepiphany.leetcode.services.{ LeetCodeApi, LeetCodeSearchOrderBy }
 import com.wenjunhuang.codeepiphany.leetcode.services.challenge.openChallenge
 import com.wenjunhuang.codeepiphany.leetcode.settings.LeetCodeCNSettings
 import com.wenjunhuang.codeepiphany.leetcode.ui.QueryParametersPresenter.*
 import com.wenjunhuang.codeepiphany.model.*
-import com.wenjunhuang.codeepiphany.services.http.{HttpClientManager, HttpClientService}
+import com.wenjunhuang.codeepiphany.services.http.{ HttpClientManager, HttpClientService }
 import com.wenjunhuang.codeepiphany.utils.extensions.*
 import com.wenjunhuang.codeepiphany.utils.implicits.*
 
-class QueryParametersPresenter(private val myProject: Project, private val myCodeDojo: CodeDojo)
-    extends OrderDirectionProvider[LeetCodeSearchOrderBy]
+class QueryParametersPresenter(
+  private val myProject: Project,
+  private val myCodeDojo: CodeDojo.LeetCode.type | CodeDojo.LeetCodeCN.type
+) extends OrderDirectionProvider[LeetCodeSearchOrderBy]
     with Disposable {
 
   private implicit val myLogger: Logger[IO] = LoggerFactory[IO].getLogger

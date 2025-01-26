@@ -10,6 +10,7 @@ import com.wenjunhuang.codeepiphany.database.tables.HackerrankChallenge;
 import com.wenjunhuang.codeepiphany.database.tables.HackerrankChallengeLanguage;
 import com.wenjunhuang.codeepiphany.database.tables.HackerrankSubmissionCase;
 import com.wenjunhuang.codeepiphany.database.tables.LeetcodeChallenge;
+import com.wenjunhuang.codeepiphany.database.tables.LeetcodeSubmission;
 import com.wenjunhuang.codeepiphany.database.tables.Solution;
 import com.wenjunhuang.codeepiphany.database.tables.SolutionSubmission;
 
@@ -65,6 +66,11 @@ public class DefaultSchema extends SchemaImpl {
     public final LeetcodeChallenge LEETCODE_CHALLENGE = LeetcodeChallenge.LEETCODE_CHALLENGE;
 
     /**
+     * The table <code>leetcode_submission</code>.
+     */
+    public final LeetcodeSubmission LEETCODE_SUBMISSION = LeetcodeSubmission.LEETCODE_SUBMISSION;
+
+    /**
      * The table <code>solution</code>.
      */
     public final Solution SOLUTION = Solution.SOLUTION;
@@ -96,6 +102,7 @@ public class DefaultSchema extends SchemaImpl {
             HackerrankChallengeLanguage.HACKERRANK_CHALLENGE_LANGUAGE,
             HackerrankSubmissionCase.HACKERRANK_SUBMISSION_CASE,
             LeetcodeChallenge.LEETCODE_CHALLENGE,
+            LeetcodeSubmission.LEETCODE_SUBMISSION,
             Solution.SOLUTION,
             SolutionSubmission.SOLUTION_SUBMISSION
         );

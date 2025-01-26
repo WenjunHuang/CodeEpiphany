@@ -1,6 +1,6 @@
 package com.wenjunhuang.codeepiphany.leetcode.services
 
-import cats.effect.{Async, Concurrent}
+import cats.effect.{ Async, Concurrent }
 import cats.effect.implicits.*
 import cats.syntax.all.*
 import java.io.File
@@ -8,16 +8,21 @@ import org.typelevel.log4cats.Logger
 
 import com.intellij.openapi.options.ShowSettingsUtil
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.ui.{MessageDialogBuilder, Messages}
+import com.intellij.openapi.ui.{ MessageDialogBuilder, Messages }
 import com.intellij.openapi.util.text.StringUtil
 
-import com.wenjunhuang.codeepiphany.database.Tables.{CHALLENGE, CHALLENGE_LANGUAGE, LEETCODE_CHALLENGE}
+import com.wenjunhuang.codeepiphany.database.Tables.{ CHALLENGE, CHALLENGE_LANGUAGE, LEETCODE_CHALLENGE }
 import com.wenjunhuang.codeepiphany.editor.services.database.getOrCreateDefaultSolution
 import com.wenjunhuang.codeepiphany.leetcode.model.*
-import com.wenjunhuang.codeepiphany.leetcode.settings.{LeetCodeCNSettings, LeetCodeSettingsConfigurable}
+import com.wenjunhuang.codeepiphany.leetcode.settings.{
+  LeetCodeCNSettings,
+  LeetCodeSettings,
+  LeetCodeSettingsConfigurable
+}
 import com.wenjunhuang.codeepiphany.model.*
-import com.wenjunhuang.codeepiphany.model.ChallengeRepository.{ChallengeId, ChallengeLanguageId, SolutionId}
-import com.wenjunhuang.codeepiphany.services.file.{openTextEditor, refreshAndFindFileByIoFile, saveTextToFile}
+import com.wenjunhuang.codeepiphany.model.ChallengeRepository.{ ChallengeId, ChallengeLanguageId, SolutionId }
+import com.wenjunhuang.codeepiphany.model.CodeDojo.{ LeetCode, LeetCodeCN }
+import com.wenjunhuang.codeepiphany.services.file.{ openTextEditor, refreshAndFindFileByIoFile, saveTextToFile }
 import com.wenjunhuang.codeepiphany.services.http.HttpClientManager
 import com.wenjunhuang.codeepiphany.settings.ChallengeSettings
 import com.wenjunhuang.codeepiphany.settings.ChallengeSettings.ChallengeSettingsStateItem
@@ -28,21 +33,27 @@ import com.wenjunhuang.codeepiphany.utils.template.VelocityUtils
 object challenge {
   def openChallenge[F[_]: Async: Concurrent: HttpClientManager: Logger](
     project: Project,
-    codeDojo: CodeDojo,
+    codeDojo: LeetCode.type | LeetCodeCN.type,
     challengeSlug: String,
     language: Language,
     languageVersion: LanguageVersion
   ): F[Unit] = {
     Async[F].delay {
-      val settings = LeetCodeCNSettings.getInstance(project)
-      settings.getLanguageSetting(language, languageVersion) match
+      val languageSetting = codeDojo match
+        case LeetCodeCN =>
+          val settings = LeetCodeCNSettings.getInstance(project)
+          settings.getLanguageSetting(language, languageVersion)
+        case LeetCode =>
+          val settings = LeetCodeSettings.getInstance(project)
+          settings.getLanguageSetting(language, languageVersion)
+
+      languageSetting match
         case Some(state) =>
           if state.sourceFolder.isEmpty || state.language.isEmpty then
             val r = MessageDialogBuilder
               .yesNo("Error", "Please set the source folder and language in the settings")
               .ask(project)
-            if r then
-              ShowSettingsUtil.getInstance().showSettingsDialog(project, classOf[LeetCodeSettingsConfigurable])
+            if r then ShowSettingsUtil.getInstance().showSettingsDialog(project, classOf[LeetCodeSettingsConfigurable])
             None
           else Some((state.sourceFolder.get, language, state.fileNameTemplate.get, state.codeTemplate.get))
         case None =>

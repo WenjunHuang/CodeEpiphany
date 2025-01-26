@@ -106,5 +106,24 @@ create table hackerrank_submission_case
     codecheckerTime   REAL,
     testcaseStatus    integer
 );
-
+create table leetcode_submission
+(
+    id                INTEGER not null
+        constraint leetcode_submission_pk
+            primary key
+        constraint leetcode_submission_solution_submission_id_fk
+            references solution_submission,
+    memory            integer,
+    totalCorrect      integer,
+    totalTestcases    integer,
+    statusMemory      TEXT,
+    runtimePercentile REAL,
+    memoryPercentile  REAL,
+    lastTestcase      TEXT,
+    inputFormatted    TEXT,
+    expectedOutput    TEXT,
+    codeOutput        TEXT,
+    stdOutput         TEXT,
+    statusRuntime     TEXT
+);
 

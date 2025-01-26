@@ -6,8 +6,8 @@ import scala.io.Source
 import scala.util.Using
 
 ThisBuild / scalaVersion     := "3.3.4"
-ThisBuild / intellijPlatform := IntelliJPlatform.IdeaCommunity
-ThisBuild / intellijBuild    := "242.20224.300"
+ThisBuild / intellijPlatform := versions.intellijPlatform
+ThisBuild / intellijBuild    := versions.intellijBuild
 
 def markdownToHtml(file: File): String = {
   val options  = new MutableDataSet()
@@ -24,7 +24,7 @@ def markdownToHtml(file: File): String = {
 lazy val codeEpiphany = (project in file("."))
   .settings(
     name         := "CodeEpiphany",
-    version      := "0.5.73",
+    version      := "0.5.74",
     compileOrder := CompileOrder.Mixed,
     scalacOptions ++= Seq(
       "-Wunused:imports",
