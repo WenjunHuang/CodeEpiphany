@@ -2,16 +2,13 @@ package com.wenjunhuang.codeepiphany.toolwindows.sidebar.submissionlog;
 
 import com.intellij.codeInsight.hint.EditorFragmentComponent;
 import com.intellij.ide.ui.laf.darcula.ui.DarculaEditorTextFieldBorder;
-import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.EditorFactory;
 import com.intellij.openapi.editor.colors.EditorFontType;
 import com.intellij.openapi.fileTypes.FileTypeManager;
 import com.intellij.ui.EditorTextField;
-import com.intellij.ui.components.JBFontScaler;
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.uiDesigner.core.Spacer;
-import com.intellij.util.FontUtil;
 import com.intellij.util.ui.JBFont;
 import com.intellij.util.ui.JBUI;
 import com.wenjunhuang.codeepiphany.PluginBundle;
@@ -29,7 +26,6 @@ import javax.swing.border.TitledBorder;
 import java.awt.*;
 import java.lang.reflect.Method;
 import java.time.format.DateTimeFormatter;
-import java.util.Objects;
 import java.util.ResourceBundle;
 
 public class LeetCodeSubmissionResultForm {
