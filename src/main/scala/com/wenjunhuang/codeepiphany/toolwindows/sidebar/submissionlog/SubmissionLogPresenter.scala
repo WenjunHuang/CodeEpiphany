@@ -8,28 +8,39 @@ import fs2.Stream
 import fs2.concurrent.SignallingRef
 import java.time.format.DateTimeFormatter
 import javax.swing.JComponent
-import org.jooq.{Record, SelectOnConditionStep}
+import org.jooq.{ Record, SelectOnConditionStep }
 import org.typelevel.ci.CIString
 import org.typelevel.log4cats.LoggerFactory
 import scala.concurrent.duration.*
 import scala.jdk.CollectionConverters.*
+import scala.jdk.OptionConverters.*
 import scala.util.Try
 
 import com.intellij.diff.requests.SimpleDiffRequest
 import com.intellij.diff.tools.util.DiffDataKeys
 import com.intellij.diff.DiffContentFactory
 import com.intellij.openapi.Disposable
-import com.intellij.openapi.actionSystem.{DataSink, UiDataProvider}
+import com.intellij.openapi.actionSystem.{ DataSink, UiDataProvider }
 import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
 
-import com.wenjunhuang.codeepiphany.actions.CodeDojoParameterAction.{CODEDOJO_PROVIDER_KEY, CodeDojoParameterProvider}
-import com.wenjunhuang.codeepiphany.actions.LanguageParameterAction.{LANGUAGE_PROVIDER_KEY, LanguageParameterProvider}
-import com.wenjunhuang.codeepiphany.actions.OpenSubmissionCodeAction.{OPEN_SUBMISSION_PROVIDER_KEY, OpenSubmissionCodeProvider}
-import com.wenjunhuang.codeepiphany.actions.RefreshAction.{REFRESH_PROVIDER_KEY, RefreshProvider}
+import com.wenjunhuang.codeepiphany.actions.CodeDojoParameterAction.{ CODEDOJO_PROVIDER_KEY, CodeDojoParameterProvider }
+import com.wenjunhuang.codeepiphany.actions.LanguageParameterAction.{ LANGUAGE_PROVIDER_KEY, LanguageParameterProvider }
+import com.wenjunhuang.codeepiphany.actions.OpenSubmissionCodeAction.{
+  OPEN_SUBMISSION_PROVIDER_KEY,
+  OpenSubmissionCodeProvider
+}
+import com.wenjunhuang.codeepiphany.actions.RefreshAction.{ REFRESH_PROVIDER_KEY, RefreshProvider }
 import com.wenjunhuang.codeepiphany.database.Tables.*
+import com.wenjunhuang.codeepiphany.database.tables.records.{
+  HackerrankSubmissionCaseRecord,
+  LeetcodeSubmissionRecord,
+  SolutionSubmissionRecord
+}
 import com.wenjunhuang.codeepiphany.model.*
+import com.wenjunhuang.codeepiphany.model.ChallengeRepository.SubmissionId
+import com.wenjunhuang.codeepiphany.model.CodeDojo.{ HackerRank, LeetCode, LeetCodeCN }
 import com.wenjunhuang.codeepiphany.toolwindows.sidebar.submissionlog.SubmissionLogPresenter.*
 import com.wenjunhuang.codeepiphany.utils.extensions.*
 import com.wenjunhuang.codeepiphany.utils.implicits.*
@@ -87,6 +98,51 @@ class SubmissionLogPresenter(private val myProject: Project) extends UiDataProvi
   } yield ()
 
   myQueryWorker.unsafeRunAndForget()
+
+  @volatile
+  private var mySelectedSubmissionQueue: Option[Queue[IO, Option[SubmissionLogEntry]]] = None
+
+  private val mySelectedSubmissionCanceller = (for {
+    q <- Queue.unbounded[IO, Option[SubmissionLogEntry]]
+    _ <- IO.delay {mySelectedSubmissionQueue = Some(q)}
+    notInterrupted <- SignallingRef.of[IO, Boolean](false)
+    _ <- Stream
+      .fromQueueUnterminated(q)
+      // when a new query is received, we need to cancel the ongoing query to dump the old results
+      .evalMapAccumulate(notInterrupted) { case (signal, state) =>
+        for {
+          _         <- signal.set(true)
+          newSignal <- SignallingRef.of[IO, Boolean](false)
+        } yield (newSignal, state)
+      }
+      .debounce(200.millis)
+      .evalTap { (signal, state) =>
+        state match
+          case Some(selected) =>
+            Stream
+              .eval(fetchSubmission(SubmissionId(selected.id)))
+              .evalTap {
+                case Some(submission) =>
+                  IO.delay { myView.setDetail(submission) }.evalOnEDTAny()
+                case None =>
+                  IO.delay { myView.setDetailEmpty() }.evalOnEDTAny()
+              }
+              .interruptWhen(signal)
+              .attempt
+              .compile
+              .drain
+          case None =>
+            IO.delay { myView.setDetailEmpty() }.evalOnEDTAny()
+      }
+      .compile()
+      .drain
+  } yield ()).unsafeRunCancelable()
+
+  myView.getTable.getSelectionModel.addListSelectionListener { event =>
+    if !event.getValueIsAdjusting then
+      val selected = myView.getTable.getSelectedObject
+      if selected != null then mySelectedSubmissionQueue.foreach(_.offer(Some(selected)).unsafeRunAndForget())
+  }
 
   private val myRefreshProvider = new RefreshProvider {
     override def refresh(): Unit = {
@@ -186,6 +242,56 @@ class SubmissionLogPresenter(private val myProject: Project) extends UiDataProvi
 
   def requery(): Unit = {
     myQueryQueue.foreach(_.offer(Some(myQueryParams)).unsafeRunAndForget())
+  }
+
+  private def fetchSubmission(submissionId: SubmissionId): IO[Option[SubmissionType]] = {
+    ChallengeRepository
+      .getInstance(myProject)
+      .getDSLContextResource[IO]
+      .use { dsl =>
+        IO.delay {
+          dsl
+            .select((SOLUTION_SUBMISSION.fields() ++ CHALLENGE_LANGUAGE.fields() ++ CHALLENGE.fields())*)
+            .from(SOLUTION_SUBMISSION)
+            .innerJoin(CHALLENGE_LANGUAGE)
+            .on(SOLUTION_SUBMISSION.CHALLENGELANGUAGEID.eq(CHALLENGE_LANGUAGE.ID))
+            .innerJoin(CHALLENGE)
+            .on(CHALLENGE_LANGUAGE.CHALLENGEID.eq(CHALLENGE.ID))
+            .where(SOLUTION_SUBMISSION.ID.eq(submissionId.value))
+            .fetchOptional()
+            .toScala
+            .flatMap { record =>
+              val language = Language.fromCIString(CIString(record.get(CHALLENGE_LANGUAGE.LANGUAGE)))
+              val codeDojo = CodeDojo.fromCIString(CIString(record.get(CHALLENGE.DOJO)))
+              (language, codeDojo).mapN { (lang, dojo) =>
+                val submissionRecord = record.into(SOLUTION_SUBMISSION)
+                dojo match {
+                  case dojo @ (LeetCode | LeetCodeCN) =>
+                    dsl
+                      .selectFrom(LEETCODE_SUBMISSION)
+                      .where(LEETCODE_SUBMISSION.ID.eq(submissionId.value))
+                      .fetchOptional()
+                      .toScala
+                      .map { leetcodeSubmission =>
+                        dojo match {
+                          case LeetCode => SubmissionType.LeetCodeSubmission(lang, submissionRecord, leetcodeSubmission)
+                          case LeetCodeCN =>
+                            SubmissionType.LeetCodeCNSubmission(lang, submissionRecord, leetcodeSubmission)
+                        }
+                      }
+                  case HackerRank =>
+                    val hackerCases = dsl
+                      .selectFrom(HACKERRANK_SUBMISSION_CASE)
+                      .where(HACKERRANK_SUBMISSION_CASE.SUBMISSIONID.eq(submissionId.value))
+                      .fetch()
+                      .asScala
+                      .toList
+                    Some(SubmissionType.HackerRankSubmission(lang, submissionRecord, hackerCases))
+                }
+              }.flatten
+            }
+        }
+      }
   }
 
   private def querySubmissionLogs(queryParams: QueryParams): IO[List[SubmissionLogEntry]] = {
@@ -319,6 +425,7 @@ class SubmissionLogPresenter(private val myProject: Project) extends UiDataProvi
 
   override def dispose(): Unit = {
     myQueryQueue.foreach(_.offer(None).unsafeRunSync())
+    mySelectedSubmissionCanceller()
   }
 
   override def uiDataSnapshot(dataSink: DataSink): Unit = {
@@ -358,6 +465,25 @@ object SubmissionLogPresenter {
     case SubmissionDateTimeField
     case ResultDateTimeField
   }
+
+  enum SubmissionType {
+    case LeetCodeSubmission(
+      language: Language,
+      record: SolutionSubmissionRecord,
+      leetCodeSubmission: LeetcodeSubmissionRecord
+    )
+    case LeetCodeCNSubmission(
+      language: Language,
+      record: SolutionSubmissionRecord,
+      leetCodeSubmission: LeetcodeSubmissionRecord
+    )
+    case HackerRankSubmission(
+      language: Language,
+      record: SolutionSubmissionRecord,
+      hackerCases: List[HackerrankSubmissionCaseRecord]
+    )
+  }
+
   private val EMPTY_QUERY_PARAMS = QueryParams(
     dojos = List.empty,
     languages = List.empty,
@@ -366,6 +492,7 @@ object SubmissionLogPresenter {
     titleKeyword = None,
     orderBy = None
   )
+
   private case class QueryParams(
     dojos: List[CodeDojo],
     languages: List[(Language, LanguageVersion)],

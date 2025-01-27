@@ -1,10 +1,12 @@
 package com.wenjunhuang.codeepiphany
 
 import org.jetbrains.annotations.{NotNull, PropertyKey}
+import scala.annotation.varargs
 
 import com.intellij.DynamicBundle
 
 object PluginBundle {
+  @varargs
   def message(@PropertyKey(resourceBundle = BUNDLE) key: String, @NotNull params: Any*): String =
     INSTANCE.getMessage(key, params*)
 

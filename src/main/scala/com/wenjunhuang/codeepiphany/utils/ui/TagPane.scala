@@ -165,6 +165,6 @@ class TagUI(
 object TagUI {
   private final val padding                  = JBInsets.create(3, 8)
   private final val textIconGap              = JBUI.scale(4)
-  private def backgroundColor: Color         = JBColor.namedColor("Tag.background", Gray.xDF).contrast(0.8)
+  def backgroundColor: Color         = JBColor.namedColor("Tag.background", Gray.xDF).contrast(0.8)
   private def selectedBackgroundColor: Color = JBColor.namedColor("Tag.selectionBackground", Gray.xC9).contrast(1.2)
 }
