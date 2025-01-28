@@ -1,8 +1,6 @@
 package com.wenjunhuang.codeepiphany.toolwindows.sidebar.submissionlog
 
-import java.time.format.DateTimeFormatter
-import javax.swing.{ JComponent, ScrollPaneConstants }
-import org.typelevel.ci.CIString
+import javax.swing.{ JComponent, ScrollPaneConstants, SwingConstants }
 
 import com.intellij.openapi.actionSystem.{ ActionGroup, ActionManager, DataSink }
 import com.intellij.openapi.ui.{ SimpleToolWindowPanel, Splitter }
@@ -10,16 +8,18 @@ import com.intellij.ui.PopupHandler
 import com.intellij.ui.components.{ JBLabel, JBScrollPane }
 import com.intellij.ui.table.TableView
 import com.intellij.util.ui.components.BorderLayoutPanel
+import scala.jdk.CollectionConverters.*
 
-import com.wenjunhuang.codeepiphany.database.tables.records.{ LeetcodeSubmissionRecord, SolutionSubmissionRecord }
-import com.wenjunhuang.codeepiphany.model.{ Actions, Language, SubmissionResult }
+import com.wenjunhuang.codeepiphany.model.Actions
 import com.wenjunhuang.codeepiphany.toolwindows.sidebar.submissionlog.SubmissionLogPresenter.SubmissionType
 import com.wenjunhuang.codeepiphany.toolwindows.sidebar.submissionlog.SubmissionLogPresenter.SubmissionType.{
+  HackerRankSubmission,
   LeetCodeCNSubmission,
   LeetCodeSubmission
 }
 import com.wenjunhuang.codeepiphany.toolwindows.sidebar.submissionlog.SubmissionLogView.EMPTY_FORM
 import com.wenjunhuang.codeepiphany.toolwindows.sidebar.submissionlog.leetcode.LeetCodeSubmissionResultForm
+import com.wenjunhuang.codeepiphany.toolwindows.sidebar.submissionlog.hackerrank.HackerRankSubmissionResultForm
 import com.wenjunhuang.codeepiphany.utils.ui.TagPane
 
 class SubmissionLogView(private val myPresenter: SubmissionLogPresenter) extends SimpleToolWindowPanel(true, true) {
@@ -77,7 +77,8 @@ class SubmissionLogView(private val myPresenter: SubmissionLogPresenter) extends
         LeetCodeSubmissionResultForm(language, submission, leetCodeSubmission).getComponent
       case LeetCodeCNSubmission(language, submission, leetCodeSubmission) =>
         LeetCodeSubmissionResultForm(language, submission, leetCodeSubmission).getComponent
-      case _ => EMPTY_FORM
+      case HackerRankSubmission(language, submission, hackerCases) =>
+        HackerRankSubmissionResultForm(language, submission, hackerCases.asJavaCollection).getComponent
     }
     mySplitter.setSecondComponent(
       JBScrollPane(
@@ -104,6 +105,7 @@ class SubmissionLogView(private val myPresenter: SubmissionLogPresenter) extends
 }
 
 object SubmissionLogView {
-  val EMPTY_FORM: JComponent =
-    BorderLayoutPanel().addToCenter(new JBLabel("Please select a submission to view the result."))
+  val EMPTY_FORM: JComponent = BorderLayoutPanel().addToCenter(
+    new JBLabel("Please select a submission to view the result.", SwingConstants.CENTER)
+  )
 }
