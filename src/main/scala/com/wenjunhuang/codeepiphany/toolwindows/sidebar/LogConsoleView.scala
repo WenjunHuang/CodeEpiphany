@@ -3,9 +3,8 @@ package com.wenjunhuang.codeepiphany.toolwindows.sidebar
 import cats.effect.Async
 
 import com.intellij.execution.filters.TextConsoleBuilderFactory
-import com.intellij.execution.ui.{ ConsoleView, ConsoleViewContentType }
+import com.intellij.execution.ui.{ConsoleView, ConsoleViewContentType}
 import com.intellij.ide.DataManager
-import com.intellij.lang.Language
 import com.intellij.openapi.actionSystem.*
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.SimpleToolWindowPanel

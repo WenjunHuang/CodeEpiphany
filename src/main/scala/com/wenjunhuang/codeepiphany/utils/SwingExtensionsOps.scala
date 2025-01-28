@@ -1,7 +1,6 @@
 package com.wenjunhuang.codeepiphany.utils
 
-import java.awt.{ Color, Graphics2D }
-import scala.util.Using.Releasable
+import java.awt.Color
 
 trait SwingExtensionsOps {
   extension (color: Color) {

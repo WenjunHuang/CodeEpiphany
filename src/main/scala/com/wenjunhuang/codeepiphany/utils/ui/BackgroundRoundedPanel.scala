@@ -1,11 +1,10 @@
 package com.wenjunhuang.codeepiphany.utils.ui
 
-import java.awt.{ Graphics, Graphics2D, LayoutManager }
+import java.awt.{Graphics, Graphics2D, LayoutManager}
 import javax.swing.JComponent
 import scala.util.Using
 
 import com.intellij.util.ui.GraphicsUtil
-import com.intellij.util.ui.components.JBComponent
 
 import com.wenjunhuang.codeepiphany.utils.implicits.*
 

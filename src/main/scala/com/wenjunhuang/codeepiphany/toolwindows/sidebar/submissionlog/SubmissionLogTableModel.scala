@@ -1,7 +1,7 @@
 package com.wenjunhuang.codeepiphany.toolwindows.sidebar.submissionlog
 
 import cats.syntax.all.*
-import java.awt.{Color, Component}
+import java.awt.Component
 import java.awt.event.{MouseAdapter, MouseEvent}
 import java.time.format.DateTimeFormatter
 import javax.swing.{Icon, JTable, ListSelectionModel}
