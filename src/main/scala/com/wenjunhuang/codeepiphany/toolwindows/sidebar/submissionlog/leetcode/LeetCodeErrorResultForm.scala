@@ -7,8 +7,8 @@ import com.intellij.ui.components.JBTextArea
 import com.intellij.ui.JBColor
 import com.intellij.util.ui.JBUI
 
-import com.wenjunhuang.codeepiphany.toolwindows.sidebar.submissionlog.leetcode.LeetCodeErrorResultForm.{BACKGROUND, FOREGROUND}
 import com.wenjunhuang.codeepiphany.utils.ui.BackgroundRoundedPanel
+import com.wenjunhuang.codeepiphany.utils.ColorUtils
 
 class LeetCodeErrorResultForm(errorText: String) {
   private val myErrorPane = BackgroundRoundedPanel(12, BorderLayout())
@@ -16,15 +16,13 @@ class LeetCodeErrorResultForm(errorText: String) {
 
   myLabel.setMinimumSize(JBUI.emptySize())
   myLabel.setLineWrap(true)
-  myLabel.setForeground(FOREGROUND)
+  myLabel.setForeground(ColorUtils.ERROR_FOREGROUND)
   myLabel.setOpaque(false)
-  myErrorPane.setBackground(BACKGROUND)
+  myErrorPane.setBackground(ColorUtils.ERROR_BACKGROUND)
   myErrorPane.setBorder(JBUI.Borders.empty(5))
-  myErrorPane.add(myLabel,BorderLayout.CENTER)
+  myErrorPane.add(myLabel, BorderLayout.CENTER)
 
   def getComponent: JComponent = myErrorPane
 }
-object LeetCodeErrorResultForm {
-  private val FOREGROUND = JBColor(0xeb353a, 0xee615e)
-  private val BACKGROUND = JBColor(0xfdeff0, 0x362b2a)
-}
+
+object LeetCodeErrorResultForm {}
