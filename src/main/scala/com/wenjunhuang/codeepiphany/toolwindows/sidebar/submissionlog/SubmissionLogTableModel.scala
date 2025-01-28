@@ -1,5 +1,6 @@
 package com.wenjunhuang.codeepiphany.toolwindows.sidebar.submissionlog
 
+import cats.syntax.all.*
 import java.awt.{Color, Component}
 import java.awt.event.{MouseAdapter, MouseEvent}
 import java.time.format.DateTimeFormatter
@@ -31,12 +32,14 @@ class SubmissionLogTableModel(private val myPresenter: SubmissionLogPresenter)
 
       override def getRenderer(item: SubmissionLogEntry): TableCellRenderer =
         new IconTableCellRenderer[CodeDojo]() {
+          setToolTipText(item.dojo.show)
           override def getIcon(value: CodeDojo, table: JTable, row: Int): Icon =
             value.getIcon.orNull
 
           override def isCenterAlignment: Boolean = true
 
           override def getText: String = null
+
         }
 
       override def getOrderFilter: Option[OrderDirection] = myPresenter.getCodeDojoOrderFilter
@@ -141,7 +144,6 @@ class SubmissionLogTableModel(private val myPresenter: SubmissionLogPresenter)
         nameLabel.setBorder(JBUI.Borders.empty(0, 4, 0, 0))
         nameLabel.setText(value.asInstanceOf[String])
         val panel = BorderLayoutPanel()
-        panel.setBackground(new Color(0, 0, 0, 0))
         panel.addToCenter(nameLabel)
 
         if myColumns(column).enableOrderBy then
@@ -152,7 +154,6 @@ class SubmissionLogTableModel(private val myPresenter: SubmissionLogPresenter)
             case Some(OrderDirection.Descending) => sortIcon.setIcon(AllIcons.General.ArrowDown)
           panel.addToRight(sortIcon)
         else
-
           panel
       }
     })

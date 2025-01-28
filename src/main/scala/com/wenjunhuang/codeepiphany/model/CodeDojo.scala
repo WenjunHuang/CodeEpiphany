@@ -33,7 +33,11 @@ enum CodeDojo(val domain: CIString, val value: String) {
 }
 
 object CodeDojo {
-  implicit val codeDojoShow: Show[CodeDojo] = Show.show(_.toString)
+  implicit val codeDojoShow: Show[CodeDojo] = Show.show {
+    case HackerRank => "HackerRank"
+    case LeetCode   => "LeetCode"
+    case LeetCodeCN => "力扣"
+  }
 
   @static
   def show(dojo: CodeDojo): String = dojo.show

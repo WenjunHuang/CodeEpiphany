@@ -1,13 +1,13 @@
-package com.wenjunhuang.codeepiphany.toolwindows.sidebar.submissionlog
+package com.wenjunhuang.codeepiphany.toolwindows.sidebar.submissionlog.leetcode
 
-import java.awt.{BorderLayout, FlowLayout}
+import java.awt.BorderLayout
 import javax.swing.JComponent
 
 import com.intellij.ui.components.JBTextArea
 import com.intellij.ui.JBColor
 import com.intellij.util.ui.JBUI
 
-import com.wenjunhuang.codeepiphany.toolwindows.sidebar.submissionlog.LeetCodeErrorResultForm.{BACKGROUND, FOREGROUND}
+import com.wenjunhuang.codeepiphany.toolwindows.sidebar.submissionlog.leetcode.LeetCodeErrorResultForm.{BACKGROUND, FOREGROUND}
 import com.wenjunhuang.codeepiphany.utils.ui.BackgroundRoundedPanel
 
 class LeetCodeErrorResultForm(errorText: String) {

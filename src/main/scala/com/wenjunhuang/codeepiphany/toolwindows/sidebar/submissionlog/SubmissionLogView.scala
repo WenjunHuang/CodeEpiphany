@@ -19,6 +19,7 @@ import com.wenjunhuang.codeepiphany.toolwindows.sidebar.submissionlog.Submission
   LeetCodeSubmission
 }
 import com.wenjunhuang.codeepiphany.toolwindows.sidebar.submissionlog.SubmissionLogView.EMPTY_FORM
+import com.wenjunhuang.codeepiphany.toolwindows.sidebar.submissionlog.leetcode.LeetCodeSubmissionResultForm
 import com.wenjunhuang.codeepiphany.utils.ui.TagPane
 
 class SubmissionLogView(private val myPresenter: SubmissionLogPresenter) extends SimpleToolWindowPanel(true, true) {
@@ -78,8 +79,13 @@ class SubmissionLogView(private val myPresenter: SubmissionLogPresenter) extends
         LeetCodeSubmissionResultForm(language, submission, leetCodeSubmission).getComponent
       case _ => EMPTY_FORM
     }
-    mySplitter.setSecondComponent(comp)
-    mySplitter.revalidate()
+    mySplitter.setSecondComponent(
+      JBScrollPane(
+        comp,
+        ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
+        ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER
+      )
+    )
   }
 
   def getTagPane: TagPane                     = myFilterTagsPane

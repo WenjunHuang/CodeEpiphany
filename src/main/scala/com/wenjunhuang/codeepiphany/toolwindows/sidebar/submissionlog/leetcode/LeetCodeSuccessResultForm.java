@@ -1,4 +1,4 @@
-package com.wenjunhuang.codeepiphany.toolwindows.sidebar.submissionlog;
+package com.wenjunhuang.codeepiphany.toolwindows.sidebar.submissionlog.leetcode;
 
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;

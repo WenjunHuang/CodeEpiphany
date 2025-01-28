@@ -1,4 +1,4 @@
-package com.wenjunhuang.codeepiphany.toolwindows.sidebar.submissionlog;
+package com.wenjunhuang.codeepiphany.toolwindows.sidebar.submissionlog.leetcode;
 
 import com.intellij.codeInsight.hint.EditorFragmentComponent;
 import com.intellij.ide.ui.laf.darcula.ui.DarculaEditorTextFieldBorder;
