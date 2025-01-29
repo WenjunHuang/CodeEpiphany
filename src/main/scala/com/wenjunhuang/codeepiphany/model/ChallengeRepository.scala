@@ -113,8 +113,8 @@ object ChallengeRepository {
 
   opaque type SubmissionId = Long
   object SubmissionId {
-    def apply(value: Long): SolutionId = value
-    extension (id: SolutionId) {
+    def apply(value: Long): SubmissionId = value
+    extension (id: SubmissionId) {
       def value: Long = id
     }
   }

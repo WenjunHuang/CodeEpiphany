@@ -1,30 +1,30 @@
 package com.wenjunhuang.codeepiphany.editor.extensions
 
-import java.awt.{ AWTEvent, EventQueue }
-import java.awt.event.{ AWTEventListener, KeyAdapter }
+import java.awt.{AWTEvent, EventQueue}
+import java.awt.event.{AWTEventListener, KeyAdapter}
 import java.beans.PropertyChangeListener
-import javax.swing.{ JComponent, JLayeredPane }
+import java.util
+import javax.swing.{JComponent, JLayeredPane}
 
-import com.intellij.openapi.actionSystem.{ ActionGroup, ActionManager }
+import com.intellij.codeHighlighting.BackgroundEditorHighlighter
+import com.intellij.ide.structureView.StructureViewBuilder
+import com.intellij.openapi.actionSystem.{ActionGroup, ActionManager}
 import com.intellij.openapi.editor.impl.EditorComponentImpl
-import com.intellij.openapi.fileEditor.{
-  FileEditor,
-  FileEditorState,
-  FileEditorStateLevel,
-  LayoutActionsFloatingToolbar
-}
-import com.intellij.openapi.util.{ Disposer, Key }
+import com.intellij.openapi.util.{Disposer, Key}
 import com.intellij.openapi.Disposable
+import com.intellij.openapi.editor.Editor
+import com.intellij.openapi.fileEditor.*
 import com.intellij.openapi.vfs.VirtualFile
+import com.intellij.pom.Navigatable
 import com.intellij.ui.components.JBLayeredPane
 import com.intellij.util.Alarm
-import com.intellij.util.ui.{ StartupUiUtil, UIUtil }
+import com.intellij.util.ui.{StartupUiUtil, UIUtil}
 
 import com.wenjunhuang.codeepiphany.editor.extensions.ChallengeEditor.*
 import com.wenjunhuang.codeepiphany.model.Actions
 
-class ChallengeEditor(private val myDelegate: FileEditor, private val myName: String = "ChallengeEditor")
-    extends FileEditor {
+class ChallengeEditor(private val myDelegate: TextEditor, private val myName: String = "ChallengeEditor")
+    extends TextEditor {
 
   private lazy val myUi = MyUi()
 
@@ -33,6 +33,14 @@ class ChallengeEditor(private val myDelegate: FileEditor, private val myName: St
   })
 
   Disposer.register(this, myDelegate)
+
+  override def getEditor: Editor = myDelegate.getEditor
+
+  override def canNavigateTo(navigatable: Navigatable): Boolean = myDelegate.canNavigateTo(navigatable)
+
+  override def navigateTo(navigatable: Navigatable): Unit = myDelegate.navigateTo(navigatable)
+
+  override def isEditorLoaded: Boolean = myDelegate.isEditorLoaded
 
   override def getComponent: JComponent = myUi.myLayeredPane
 
@@ -61,6 +69,22 @@ class ChallengeEditor(private val myDelegate: FileEditor, private val myName: St
   override def getUserData[T](key: Key[T]): T = myDelegate.getUserData(key)
 
   override def putUserData[T](key: Key[T], value: T): Unit = myDelegate.putUserData(key, value)
+
+  override def setState(state: FileEditorState, exactState: Boolean): Unit = myDelegate.setState(state, exactState)
+
+  override def selectNotify(): Unit = myDelegate.selectNotify()
+
+  override def deselectNotify(): Unit = myDelegate.deselectNotify()
+
+  override def getBackgroundHighlighter: BackgroundEditorHighlighter = myDelegate.getBackgroundHighlighter
+
+  override def getCurrentLocation: FileEditorLocation = myDelegate.getCurrentLocation
+
+  override def getStructureViewBuilder: StructureViewBuilder = myDelegate.getStructureViewBuilder
+
+  override def getFilesToRefresh: util.List[VirtualFile] = myDelegate.getFilesToRefresh
+
+  override def getTabActions: ActionGroup = myDelegate.getTabActions
 
   private def createActionGroup(): ActionGroup = {
     val ag = ActionManager.getInstance().getAction(Actions.CHALLENGE_EDITOR_TOOLBAR_GROUP).asInstanceOf[ActionGroup]

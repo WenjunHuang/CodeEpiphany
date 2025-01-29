@@ -80,7 +80,7 @@ object challenge {
 
   private def fetchChallengeContentAndOpen[F[_]: Async: Concurrent: HttpClientManager: Logger](
     project: Project,
-    codeDojo: CodeDojo,
+    codeDojo: CodeDojo.LeetCode.type | CodeDojo.LeetCodeCN.type,
     challengeSlug: String,
     language: Language,
     languageVersion: LanguageVersion,

@@ -1,43 +1,41 @@
+🌐 语言:
+[中文](README.md) | [English](README_en.md)
+
 ### Code Epiphany 🌟
 
-**A feature-rich plugin designed to streamline coding challenges in JetBrains IDEs.**
+**专为JetBrains IDE设计的全功能插件，助您高效应对编程挑战**
 
-🚀 **Code Epiphany** integrates popular competitive programming platforms into
-your JetBrains IDEs. Solve, debug, and optimize coding challenges seamlessly without ever leaving your favorite
-development environment.
+🚀 **Code Epiphany** 将主流编程竞赛平台深度集成至JetBrains IDE。无需切换界面，即可无缝完成题目解答、调试与优化。
 
-#### Key Features:
+#### 核心功能:
 
-- 🌐 **Platform Integration**: Access problems from various platforms directly within JetBrains IDEs.
-- ⚡ **One-Click Submission**: Submit your solutions and get instant feedback without switching to a browser.
-- 🔄 **Multi-Platform and Multi-Language Support**: Work on problems from multiple platforms and in multiple programming languages—all within a single project. No need to open multiple IDEs or create
-  separate projects, making it perfect for algorithm enthusiasts and learners.
-- ✍️ **Multiple Solutions per Problem**: Support writing multiple solutions for the same problem. You can code, test,
-  and
-  document explanations for each solution, enabling thorough exploration of different approaches.
-- 📊 More Features Coming Soon: Stay tuned for even more powerful tools to enhance your competitive programming experience!
+- 🌐 **平台直连**: 在IDE内直接获取各大编程平台的题目
+- ⚡ **一键提交**: 代码秒速提交并获取实时反馈，告别浏览器切换
+- 🔄 **多平台多语言支持**: 单一项目中兼容多个编程平台与多种编程语言。算法爱好者无需多开IDE或创建多个项目，即可轻松切换不同解题环境
+- ✍️ **多解法支持**: 同一题目支持编写多种解法。您可为每种方案编写代码、测试用例与解题说明，全方位探索不同思路
+- 📊 **持续更新**: 更多强大功能即将上线，全面提升您的编程竞赛体验！
 
 ---
 
-### 🚀 Current Supported Platforms
+### 🚀 当前支持平台
 
 - **[LeetCode](https://www.leetcode.com)**
-- **[力扣(LeetCode Chinese)](https://www.leetcode.cn)**
+- **[力扣(LeetCode中文)](https://www.leetcode.cn)**
 - **[HackerRank](https://www.hackerrank.com)**
 
-### 🛠️ Installation
+### 🛠️ 安装指南
 
-1. Open one of your JetBrains IDE and navigate to **Plugins > Marketplace**.
-2. Search for **Code Epiphany** and click **Install**.
-3. Restart IDE to activate the plugin.
+1. 打开JetBrains IDE，进入 **插件 > 市场**
+2. 搜索 **Code Epiphany** 并点击 **安装**
+3. 重启IDE激活插件
 
 ---
 
-### 🔗 Learn More
+### 🔗 了解更多
 
-- **[📖Documentation](https://github.com/WenjunHuang/CodeEpiphany/wiki)**
-- **[🐛 Report Issues](https://github.com/WenjunHuang/CodeEpiphany/issues)**
+- **[📖使用文档](https://github.com/WenjunHuang/CodeEpiphany/wiki)**
+- **[🐛 提交问题](https://github.com/WenjunHuang/CodeEpiphany/issues)**
 
-💡Start your journey to mastering algorithms and coding challenges with **Code Epiphany** today! 
+💡立即使用 **Code Epiphany**，开启您的算法征服之旅！
 
---- 
+---
