@@ -10,3 +10,4 @@ project/plugins/project/
 .lib/
 testResources/apiTestData/*
 tempData/
+tools/

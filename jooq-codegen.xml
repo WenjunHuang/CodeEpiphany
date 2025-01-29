@@ -3,16 +3,16 @@
     <!-- Configure the database connection here -->
     <jdbc>
         <driver>org.sqlite.JDBC</driver>
-        <url>jdbc:sqlite:./database/design.sqlite</url>
+        <url>jdbc:sqlite:./database/designv2.sqlite</url>
     </jdbc>
     <generator>
 
         <database>
             <name>org.jooq.meta.sqlite.SQLiteDatabase</name>
             <includes>.*</includes>
-            <excludes></excludes>
+            <excludes>.*?_(config|data|docsize|idx)</excludes>
             <outputSchemaToDefault>true</outputSchemaToDefault>
-
+            <includeSystemTables>false</includeSystemTables>
             <forcedTypes>
                 <forcedType>
                     <name>LOCALDATETIME</name>
