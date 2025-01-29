@@ -10,4 +10,8 @@ project/plugins/project/
 .lib/
 testResources/apiTestData/*
 tempData/
-tools/
+tools/*
+/jflex-1.9.1.jar
+/idea-flex.skeleton
+/flyway.user.toml
+/flyway.toml
