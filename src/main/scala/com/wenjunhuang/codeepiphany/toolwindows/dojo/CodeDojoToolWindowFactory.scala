@@ -15,7 +15,7 @@ import com.wenjunhuang.codeepiphany.leetcode.ui.LeetCodeChallengesView
 import com.wenjunhuang.codeepiphany.model.{ Actions, CodeDojo }
 import com.wenjunhuang.codeepiphany.model.Actions.TITLE_TOOLBAR_GROUP
 
-class CodeDojoToolWindowFactory extends ToolWindowFactory with DumbAware {
+class CodeDojoToolWindowFactory extends ToolWindowFactory {
   override def createToolWindowContent(project: Project, toolWindow: ToolWindow): Unit = {
     val contentManager = toolWindow.getContentManager
     val contentFactory = contentManager.getFactory

@@ -25,7 +25,7 @@ CREATE VIRTUAL TABLE codeforces_problemsets_fts using fts5
     contestId UNINDEXED,
     solvedCount UNINDEXED,
     lastUpdateDateTime UNINDEXED,
-    rating UNINDEXED,
+    rating,
     points UNINDEXED,
     "index" UNINDEXED,
     name,

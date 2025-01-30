@@ -40,8 +40,6 @@ class ChallengeEditor(private val myDelegate: TextEditor, private val myName: St
 
   override def navigateTo(navigatable: Navigatable): Unit = myDelegate.navigateTo(navigatable)
 
-  override def isEditorLoaded: Boolean = myDelegate.isEditorLoaded
-
   override def getComponent: JComponent = myUi.myLayeredPane
 
   override def getName: String = myName
@@ -85,6 +83,8 @@ class ChallengeEditor(private val myDelegate: TextEditor, private val myName: St
   override def getFilesToRefresh: util.List[VirtualFile] = myDelegate.getFilesToRefresh
 
   override def getTabActions: ActionGroup = myDelegate.getTabActions
+
+  override def isEditorLoaded: Boolean = super.isEditorLoaded
 
   private def createActionGroup(): ActionGroup = {
     val ag = ActionManager.getInstance().getAction(Actions.CHALLENGE_EDITOR_TOOLBAR_GROUP).asInstanceOf[ActionGroup]

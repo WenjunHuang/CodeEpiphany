@@ -61,52 +61,57 @@ class KeywordSearchViewPresenter(private val myProject: Project)
         } yield (newSignal, keyword)
       }
       .debounce(200.millis)
-      .evalTap { case (signal, SearchParam(keyword, orderBy, currentPage, pageSize, _, _)) =>
+      .evalTap { case (signal, sp @ SearchParam(keyword, orderBy, currentPage, pageSize, _, _)) =>
         Stream
           .eval(
-            ChallengeRepository
-              .getInstance(myProject)
-              .getDSLContextResource[IO]
-              .use { dsl =>
-                IO.delay {
-                  val total = dsl.selectCount
-                    .from(CODEFORCES_PROBLEMSETS_FTS)
-                    .where(
-                      DSL.condition("{0} MATCH {1}", DSL.field(CODEFORCES_PROBLEMSETS_FTS.getUnqualifiedName), keyword)
-                    )
-                    .fetchOne(0, classOf[Int])
+            IO.delay {
+              myState = sp
+            } *>
+              ChallengeRepository
+                .getInstance(myProject)
+                .getDSLContextResource[IO]
+                .use { dsl =>
+                  IO.delay {
+                    val total = dsl.selectCount
+                      .from(CODEFORCES_PROBLEMSETS_FTS)
+                      .where(
+                        DSL
+                          .condition("{0} MATCH {1}", DSL.field(CODEFORCES_PROBLEMSETS_FTS.getUnqualifiedName), keyword)
+                      )
+                      .fetchOne(0, classOf[Int])
 
-                  val base = dsl
-                    .selectFrom(CODEFORCES_PROBLEMSETS_FTS)
-                    .where(
-                      DSL.condition("{0} MATCH {1}", DSL.field(CODEFORCES_PROBLEMSETS_FTS.getUnqualifiedName), keyword)
-                    )
+                    val base = dsl
+                      .selectFrom(CODEFORCES_PROBLEMSETS_FTS)
+                      .where(
+                        DSL
+                          .condition("{0} MATCH {1}", DSL.field(CODEFORCES_PROBLEMSETS_FTS.getUnqualifiedName), keyword)
+                      )
 
-                  (
-                    total,
-                    orderBy match
-                      case None =>
-                        base
-                          .limit(pageSize.value)
-                          .offset((currentPage - 1) * pageSize.value)
-                          .fetchInto(classOf[CodeforcesProblemsetsRecord])
-                          .asScala
-                          .toList
-                      case Some(order) =>
-                        (order match
-                          case (CodeForcesSearchOrderBy.ContestIdIndex, dir) =>
-                            base.orderBy(dir.toJooqSortField(CODEFORCES_PROBLEMSETS_FTS.CONTESTIDINDEX))
-                          case (CodeForcesSearchOrderBy.Rating, dir) =>
-                            base.orderBy(dir.toJooqSortField(CODEFORCES_PROBLEMSETS_FTS.RATING))
-                        )
-                          .limit(pageSize.value)
-                          .offset((currentPage - 1) * pageSize.value)
-                          .fetchInto(classOf[CodeforcesProblemsetsRecord])
-                          .asScala
-                          .toList
-                  )
+                    (
+                      total,
+                      orderBy match
+                        case None =>
+                          base
+                            .limit(pageSize.value)
+                            .offset((currentPage - 1) * pageSize.value)
+                            .fetchInto(classOf[CodeforcesProblemsetsRecord])
+                            .asScala
+                            .toList
+                        case Some(order) =>
+                          (order match
+                            case (CodeForcesSearchOrderBy.ContestIdIndex, dir) =>
+                              base.orderBy(dir.toJooqSortField(CODEFORCES_PROBLEMSETS_FTS.CONTESTIDINDEX))
+                            case (CodeForcesSearchOrderBy.Rating, dir) =>
+                              base.orderBy(dir.toJooqSortField(CODEFORCES_PROBLEMSETS_FTS.RATING))
+                          )
+                            .limit(pageSize.value)
+                            .offset((currentPage - 1) * pageSize.value)
+                            .fetchInto(classOf[CodeforcesProblemsetsRecord])
+                            .asScala
+                            .toList
+                    )
+                  }
                 }
-              }
           )
           .evalMap { (total, challenges) =>
             IO.delay {

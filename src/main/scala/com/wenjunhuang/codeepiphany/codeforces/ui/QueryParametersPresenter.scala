@@ -100,9 +100,17 @@ class QueryParametersPresenter(private val myProject: Project)
                     .from(CODEFORCES_PROBLEMSETS_FTS)
                     .where(condition)
                     .fetchOne(0, classOf[Int])
+
+                  val orderBy = state.orderBy.map {
+                    case (CodeForcesSearchOrderBy.Rating, dir) => dir.toJooqSortField(CODEFORCES_PROBLEMSETS_FTS.RATING)
+                    case (CodeForcesSearchOrderBy.ContestIdIndex, dir) =>
+                      dir.toJooqSortField(CODEFORCES_PROBLEMSETS_FTS.CONTESTIDINDEX)
+                  }
+
                   val query = dsl
                     .selectFrom(CODEFORCES_PROBLEMSETS_FTS)
                     .where(condition)
+                    .orderBy(orderBy.toList*)
                     .limit(from, limit)
                     .fetchInto(classOf[CodeforcesProblemsetsRecord])
                     .asScala
