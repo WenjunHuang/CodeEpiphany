@@ -1,16 +1,23 @@
 package com.wenjunhuang.codeepiphany.codeforces.services
 
-import cats.effect.{Async, Concurrent}
+import cats.effect.{ Async, Concurrent }
 import cats.syntax.all.*
-import org.http4s.circe.CirceEntityCodec.*
 import org.http4s.client.dsl.Http4sClientDsl
 import org.http4s.implicits.uri
+import org.jsoup.Jsoup
+import scala.jdk.CollectionConverters.*
 
-import com.wenjunhuang.codeepiphany.codeforces.models.{CodeForcesProblem, CodeForcesProblemResponse, CodeForcesProblemStatistics}
+import com.wenjunhuang.codeepiphany.codeforces.models.{
+  CodeForcesProblem,
+  CodeForcesProblemResponse,
+  CodeForcesProblemStatistics
+}
 import com.wenjunhuang.codeepiphany.services.http.HttpClientManager
 
 trait CodeForcesApi[F[_]] {
   def getAllProblemSets: F[List[(CodeForcesProblem, CodeForcesProblemStatistics)]]
+  def checkLogin(): F[Boolean]
+  def getProblemTags: F[List[String]]
 }
 
 object CodeForcesApi {
@@ -19,10 +26,29 @@ object CodeForcesApi {
     with Http4sClientDsl[F] {
     override def getAllProblemSets: F[List[(CodeForcesProblem, CodeForcesProblemStatistics)]] =
       HttpClientManager[F].getClient.use { client =>
+        import org.http4s.circe.CirceEntityCodec.*
         client.expect[CodeForcesProblemResponse](uri"https://codeforces.com/api/problemset.problems").map { response =>
           response.result.problems
             .zip(response.result.problemStatistics)
         }
       }
+
+    override def checkLogin(): F[Boolean] = {
+      HttpClientManager[F].getClient.use { client =>
+        client.get(uri"https://codeforces.com/settings/general") { response =>
+          Async[F].delay { response.status.isSuccess }
+        }
+      }
+    }
+
+    override def getProblemTags: F[List[String]] = HttpClientManager[F].getClient.use { client =>
+      client.expect[String](uri"https://codeforces.com/problemset").flatMap { content =>
+        Async[F].delay {
+          Jsoup.parse(content).select("label._FilterByTagsFrame_addTagLabel > option").asScala.toList.collect {
+            case elem if elem.hasAttr("value") => elem.attr("value")
+          }
+        }
+      }
+    }
   }
 }

@@ -1,23 +1,38 @@
-CREATE TABLE "codeforces_problemsets"
+create table codeforces_problemsets
 (
-    contestId          integer not null,
+    id                 INTEGER not null
+        constraint codeforces_problemsets_pk primary key,
+    contestId          INTEGER,
+    solvedCount        INTEGER,
+    lastUpdateDateTime INTEGER,
+    rating             INTEGER,
+    points             REAL,
     "index"            TEXT    not null,
     name               TEXT    not null,
     type               TEXT    not null,
-    points             REAL,
+    contestIdIndex     TEXT    not null,
     tags               TEXT,
-    solvedCount        integer,
-    lastUpdateDateTime INTEGER,
-    id                 INTEGER not null
-        constraint codeforces_problemsets_pk
-            primary key
+    problemsetName     TEXT
 );
-CREATE INDEX codeforces_problemsets_contestId_index_index
+
+create index codeforces_problemsets_contestId_index_index
     on codeforces_problemsets (contestId, "index");
 
-CREATE VIRTUAL TABLE codeforces_tags_fts using fts5
+
+CREATE VIRTUAL TABLE codeforces_problemsets_fts using fts5
 (
+    id UNINDEXED,
+    contestId UNINDEXED,
+    solvedCount UNINDEXED,
+    lastUpdateDateTime UNINDEXED,
+    rating UNINDEXED,
+    points UNINDEXED,
+    "index" UNINDEXED,
+    name,
+    type,
+    contestIdIndex,
     tags,
+    problemsetName,
     content='codeforces_problemsets',
     content_rowid='id'
 );
@@ -26,20 +41,24 @@ create trigger codeforces_problemsets_ai
     after insert
     on codeforces_problemsets
 begin
-    insert into codeforces_tags_fts(rowid, tags) values (new.id, new.tags);
-end;
-
-create trigger codeforces_problemsets_ad
-    after delete
-    on codeforces_problemsets
-begin
-    insert into codeforces_tags_fts(codeforces_tags_fts, rowid, tags) values ('delete', old.id, old.tags);
+    insert into codeforces_problemsets_fts(rowid, id,contestId,solvedCount,lastUpdateDateTime,rating,points,"index",name,type,contestIdIndex,tags,problemsetName)
+    values (new.id, new.id, new.contestId, new.solvedCount, new.lastUpdateDateTime, new.rating, new.points, new."index", new.name, new.type, new.contestIdIndex, new.tags, new.problemsetName);
 end;
 
 create trigger codeforces_problemsets_au
     after update
     on codeforces_problemsets
 begin
-    insert into codeforces_tags_fts(codeforces_tags_fts, rowid, tags) values ('delete', old.id, old.tags);
-    insert into codeforces_tags_fts(rowid, tags) values (new.id, new.tags);
+    insert into codeforces_problemsets_fts(codeforces_problemsets_fts,rowid, id,contestId,solvedCount,lastUpdateDateTime,rating,points,"index",name,type,contestIdIndex,tags,problemsetName)
+    values ('delete',old.id, old.id, old.contestId, old.solvedCount, old.lastUpdateDateTime, old.rating, old.points, old."index", old.name, old.type, old.contestIdIndex, old.tags, old.problemsetName);
+    insert into codeforces_problemsets_fts(rowid, id,contestId,solvedCount,lastUpdateDateTime,rating,points,"index",name,type,contestIdIndex,tags,problemsetName)
+    values (new.id, new.id, new.contestId, new.solvedCount, new.lastUpdateDateTime, new.rating, new.points, new."index", new.name, new.type, new.contestIdIndex, new.tags, new.problemsetName);
+end;
+
+create trigger codeforces_problemsets_ad
+    after delete
+    on codeforces_problemsets
+begin
+    insert into codeforces_problemsets_fts(codeforces_problemsets_fts,rowid, id,contestId,solvedCount,lastUpdateDateTime,rating,points,"index",name,type,contestIdIndex,tags,problemsetName)
+    values ('delete',old.id, old.id, old.contestId, old.solvedCount, old.lastUpdateDateTime, old.rating, old.points, old."index", old.name, old.type, old.contestIdIndex, old.tags, old.problemsetName);
 end;

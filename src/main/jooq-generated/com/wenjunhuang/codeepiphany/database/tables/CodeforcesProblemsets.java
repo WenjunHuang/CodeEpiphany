@@ -55,9 +55,34 @@ public class CodeforcesProblemsets extends TableImpl<CodeforcesProblemsetsRecord
     }
 
     /**
+     * The column <code>codeforces_problemsets.id</code>.
+     */
+    public final TableField<CodeforcesProblemsetsRecord, Long> ID = createField(DSL.name("id"), SQLDataType.BIGINT.nullable(false), this, "");
+
+    /**
      * The column <code>codeforces_problemsets.contestId</code>.
      */
-    public final TableField<CodeforcesProblemsetsRecord, Long> CONTESTID = createField(DSL.name("contestId"), SQLDataType.BIGINT.nullable(false), this, "");
+    public final TableField<CodeforcesProblemsetsRecord, Long> CONTESTID = createField(DSL.name("contestId"), SQLDataType.BIGINT, this, "");
+
+    /**
+     * The column <code>codeforces_problemsets.solvedCount</code>.
+     */
+    public final TableField<CodeforcesProblemsetsRecord, Integer> SOLVEDCOUNT = createField(DSL.name("solvedCount"), SQLDataType.INTEGER, this, "");
+
+    /**
+     * The column <code>codeforces_problemsets.lastUpdateDateTime</code>.
+     */
+    public final TableField<CodeforcesProblemsetsRecord, LocalDateTime> LASTUPDATEDATETIME = createField(DSL.name("lastUpdateDateTime"), SQLDataType.LOCALDATETIME(0), this, "");
+
+    /**
+     * The column <code>codeforces_problemsets.rating</code>.
+     */
+    public final TableField<CodeforcesProblemsetsRecord, Integer> RATING = createField(DSL.name("rating"), SQLDataType.INTEGER, this, "");
+
+    /**
+     * The column <code>codeforces_problemsets.points</code>.
+     */
+    public final TableField<CodeforcesProblemsetsRecord, Float> POINTS = createField(DSL.name("points"), SQLDataType.REAL, this, "");
 
     /**
      * The column <code>codeforces_problemsets.index</code>.
@@ -75,9 +100,9 @@ public class CodeforcesProblemsets extends TableImpl<CodeforcesProblemsetsRecord
     public final TableField<CodeforcesProblemsetsRecord, String> TYPE = createField(DSL.name("type"), SQLDataType.CLOB.nullable(false), this, "");
 
     /**
-     * The column <code>codeforces_problemsets.points</code>.
+     * The column <code>codeforces_problemsets.contestIdIndex</code>.
      */
-    public final TableField<CodeforcesProblemsetsRecord, Float> POINTS = createField(DSL.name("points"), SQLDataType.REAL, this, "");
+    public final TableField<CodeforcesProblemsetsRecord, String> CONTESTIDINDEX = createField(DSL.name("contestIdIndex"), SQLDataType.CLOB.nullable(false), this, "");
 
     /**
      * The column <code>codeforces_problemsets.tags</code>.
@@ -85,19 +110,9 @@ public class CodeforcesProblemsets extends TableImpl<CodeforcesProblemsetsRecord
     public final TableField<CodeforcesProblemsetsRecord, String> TAGS = createField(DSL.name("tags"), SQLDataType.CLOB, this, "");
 
     /**
-     * The column <code>codeforces_problemsets.solvedCount</code>.
+     * The column <code>codeforces_problemsets.problemsetName</code>.
      */
-    public final TableField<CodeforcesProblemsetsRecord, Integer> SOLVEDCOUNT = createField(DSL.name("solvedCount"), SQLDataType.INTEGER, this, "");
-
-    /**
-     * The column <code>codeforces_problemsets.lastUpdateDateTime</code>.
-     */
-    public final TableField<CodeforcesProblemsetsRecord, LocalDateTime> LASTUPDATEDATETIME = createField(DSL.name("lastUpdateDateTime"), SQLDataType.LOCALDATETIME(0), this, "");
-
-    /**
-     * The column <code>codeforces_problemsets.id</code>.
-     */
-    public final TableField<CodeforcesProblemsetsRecord, Long> ID = createField(DSL.name("id"), SQLDataType.BIGINT.nullable(false), this, "");
+    public final TableField<CodeforcesProblemsetsRecord, String> PROBLEMSETNAME = createField(DSL.name("problemsetName"), SQLDataType.CLOB, this, "");
 
     private CodeforcesProblemsets(Name alias, Table<CodeforcesProblemsetsRecord> aliased) {
         this(alias, aliased, (Field<?>[]) null, null);

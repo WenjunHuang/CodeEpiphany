@@ -7,7 +7,7 @@ import scala.collection.mutable
 
 import com.intellij.openapi.util.text.StringUtil
 
-import com.wenjunhuang.codeepiphany.model.LanguageVersion.{AnyVersion, SpecificVersion}
+import com.wenjunhuang.codeepiphany.model.LanguageVersion.{ AnyVersion, SpecificVersion }
 
 enum LanguageVersion {
   case AnyVersion
@@ -41,6 +41,9 @@ enum Language(val value: String, val fileExt: String, val show: String, val icon
   case CSharp     extends Language("csharp", "cs", "C#", CodeEpiphanyIcons.Languages.CSHARP)
   case Cangjie    extends Language("cangjie", "cj", "Cangjie", CodeEpiphanyIcons.Languages.CANGJIE)
   case Dart       extends Language("dart", "dart", "Dart", CodeEpiphanyIcons.Languages.DART)
+  case Delphi     extends Language("delphi", "pas", "Delphi", CodeEpiphanyIcons.Languages.DELPHI)
+  case Pascal     extends Language("pascal", "pas", "Pascal", CodeEpiphanyIcons.Languages.PASCAL)
+  case D          extends Language("d", "d", "D", CodeEpiphanyIcons.Languages.DLANG)
   case Erlang     extends Language("erlang", "erl", "Erlang", CodeEpiphanyIcons.Languages.ERLANG)
   case Elixir     extends Language("elixir", "ex", "Elixir", CodeEpiphanyIcons.Languages.ELIXIR)
   case GO         extends Language("go", "go", "Go", CodeEpiphanyIcons.Languages.GO)
@@ -50,6 +53,7 @@ enum Language(val value: String, val fileExt: String, val show: String, val icon
   case Julia      extends Language("julia", "jl", "Julia", CodeEpiphanyIcons.Languages.JULIA)
   case Kotlin     extends Language("kotlin", "kt", "Kotlin", CodeEpiphanyIcons.Languages.KOTLIN)
   case ObjectiveC extends Language("objectivec", "objc", "ObjectiveC", CodeEpiphanyIcons.Languages.OBJECTIVEC)
+  case OCaml      extends Language("ocaml", "ml", "OCaml", CodeEpiphanyIcons.Languages.OCAML)
   case Perl       extends Language("perl", "pl", "Perl", CodeEpiphanyIcons.Languages.PERL)
   case PHP        extends Language("php", "php", "PHP", CodeEpiphanyIcons.Languages.PHP)
   case Pypy       extends Language("pypy", "py", "Pypy", CodeEpiphanyIcons.Languages.PYTHON)
@@ -63,8 +67,8 @@ enum Language(val value: String, val fileExt: String, val show: String, val icon
   case Typescript extends Language("typescript", "ts", "Typescript", CodeEpiphanyIcons.Languages.TYPESCRIPT)
 
   def createComment(comment: String): String = this match {
-    case C | Cpp | CSharp | GO | Java | Kotlin | ObjectiveC | PHP | Rust | Scala | Swift | Dart | Javascript |
-        Typescript | Cangjie =>
+    case C | Cpp | CSharp | D | GO | Java | Kotlin | ObjectiveC | PHP | Rust | Scala | Swift | Dart | Javascript |
+        Typescript | Cangjie | Delphi | Pascal =>
       s"//$comment"
     case Clojure | Racket =>
       s";$comment"
@@ -74,6 +78,8 @@ enum Language(val value: String, val fileExt: String, val show: String, val icon
       s"--$comment"
     case Erlang =>
       s"%$comment"
+    case OCaml =>
+      s"(*$comment*)"
   }
 
   def makeCodeRegion(code: String): String =

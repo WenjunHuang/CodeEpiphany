@@ -10,6 +10,7 @@ import com.intellij.openapi.components.Service
 import com.intellij.openapi.components.Service.Level
 import com.intellij.openapi.project.Project
 
+import com.wenjunhuang.codeepiphany.codeforces.services.CodeForcesApi
 import com.wenjunhuang.codeepiphany.hackerrank.services.HackerRankApi
 import com.wenjunhuang.codeepiphany.leetcode.services.LeetCodeApi
 import com.wenjunhuang.codeepiphany.model.{CodeDojo, SensitiveDataStore}
@@ -88,6 +89,7 @@ final class AuthService(private val myProject: Project) {
       case CodeDojo.HackerRank => HackerRankApi[F]().checkLogin()
       case CodeDojo.LeetCode   => LeetCodeApi[F](LeetCode).checkLogin()
       case CodeDojo.LeetCodeCN => LeetCodeApi[F](LeetCodeCN).checkLogin()
+      case CodeDojo.CodeForces => CodeForcesApi[F]().checkLogin()
 }
 
 object AuthService {

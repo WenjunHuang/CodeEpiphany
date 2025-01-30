@@ -7,7 +7,7 @@ package com.wenjunhuang.codeepiphany.database;
 import com.wenjunhuang.codeepiphany.database.tables.Challenge;
 import com.wenjunhuang.codeepiphany.database.tables.ChallengeLanguage;
 import com.wenjunhuang.codeepiphany.database.tables.CodeforcesProblemsets;
-import com.wenjunhuang.codeepiphany.database.tables.CodeforcesTagsFts;
+import com.wenjunhuang.codeepiphany.database.tables.CodeforcesProblemsetsFts;
 import com.wenjunhuang.codeepiphany.database.tables.HackerrankChallenge;
 import com.wenjunhuang.codeepiphany.database.tables.HackerrankChallengeLanguage;
 import com.wenjunhuang.codeepiphany.database.tables.HackerrankSubmissionCase;
@@ -53,9 +53,9 @@ public class DefaultSchema extends SchemaImpl {
     public final CodeforcesProblemsets CODEFORCES_PROBLEMSETS = CodeforcesProblemsets.CODEFORCES_PROBLEMSETS;
 
     /**
-     * The table <code>codeforces_tags_fts</code>.
+     * The table <code>codeforces_problemsets_fts</code>.
      */
-    public final CodeforcesTagsFts CODEFORCES_TAGS_FTS = CodeforcesTagsFts.CODEFORCES_TAGS_FTS;
+    public final CodeforcesProblemsetsFts CODEFORCES_PROBLEMSETS_FTS = CodeforcesProblemsetsFts.CODEFORCES_PROBLEMSETS_FTS;
 
     /**
      * The table <code>hackerrank_challenge</code>.
@@ -111,7 +111,7 @@ public class DefaultSchema extends SchemaImpl {
             Challenge.CHALLENGE,
             ChallengeLanguage.CHALLENGE_LANGUAGE,
             CodeforcesProblemsets.CODEFORCES_PROBLEMSETS,
-            CodeforcesTagsFts.CODEFORCES_TAGS_FTS,
+            CodeforcesProblemsetsFts.CODEFORCES_PROBLEMSETS_FTS,
             HackerrankChallenge.HACKERRANK_CHALLENGE,
             HackerrankChallengeLanguage.HACKERRANK_CHALLENGE_LANGUAGE,
             HackerrankSubmissionCase.HACKERRANK_SUBMISSION_CASE,

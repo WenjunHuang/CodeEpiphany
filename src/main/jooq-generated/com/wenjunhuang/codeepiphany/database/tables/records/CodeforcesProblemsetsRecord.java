@@ -21,130 +21,10 @@ public class CodeforcesProblemsetsRecord extends UpdatableRecordImpl<CodeforcesP
     private static final long serialVersionUID = 1L;
 
     /**
-     * Setter for <code>codeforces_problemsets.contestId</code>.
-     */
-    public CodeforcesProblemsetsRecord setContestid(Long value) {
-        set(0, value);
-        return this;
-    }
-
-    /**
-     * Getter for <code>codeforces_problemsets.contestId</code>.
-     */
-    public Long getContestid() {
-        return (Long) get(0);
-    }
-
-    /**
-     * Setter for <code>codeforces_problemsets.index</code>.
-     */
-    public CodeforcesProblemsetsRecord setIndex(String value) {
-        set(1, value);
-        return this;
-    }
-
-    /**
-     * Getter for <code>codeforces_problemsets.index</code>.
-     */
-    public String getIndex() {
-        return (String) get(1);
-    }
-
-    /**
-     * Setter for <code>codeforces_problemsets.name</code>.
-     */
-    public CodeforcesProblemsetsRecord setName(String value) {
-        set(2, value);
-        return this;
-    }
-
-    /**
-     * Getter for <code>codeforces_problemsets.name</code>.
-     */
-    public String getName() {
-        return (String) get(2);
-    }
-
-    /**
-     * Setter for <code>codeforces_problemsets.type</code>.
-     */
-    public CodeforcesProblemsetsRecord setType(String value) {
-        set(3, value);
-        return this;
-    }
-
-    /**
-     * Getter for <code>codeforces_problemsets.type</code>.
-     */
-    public String getType() {
-        return (String) get(3);
-    }
-
-    /**
-     * Setter for <code>codeforces_problemsets.points</code>.
-     */
-    public CodeforcesProblemsetsRecord setPoints(Float value) {
-        set(4, value);
-        return this;
-    }
-
-    /**
-     * Getter for <code>codeforces_problemsets.points</code>.
-     */
-    public Float getPoints() {
-        return (Float) get(4);
-    }
-
-    /**
-     * Setter for <code>codeforces_problemsets.tags</code>.
-     */
-    public CodeforcesProblemsetsRecord setTags(String value) {
-        set(5, value);
-        return this;
-    }
-
-    /**
-     * Getter for <code>codeforces_problemsets.tags</code>.
-     */
-    public String getTags() {
-        return (String) get(5);
-    }
-
-    /**
-     * Setter for <code>codeforces_problemsets.solvedCount</code>.
-     */
-    public CodeforcesProblemsetsRecord setSolvedcount(Integer value) {
-        set(6, value);
-        return this;
-    }
-
-    /**
-     * Getter for <code>codeforces_problemsets.solvedCount</code>.
-     */
-    public Integer getSolvedcount() {
-        return (Integer) get(6);
-    }
-
-    /**
-     * Setter for <code>codeforces_problemsets.lastUpdateDateTime</code>.
-     */
-    public CodeforcesProblemsetsRecord setLastupdatedatetime(LocalDateTime value) {
-        set(7, value);
-        return this;
-    }
-
-    /**
-     * Getter for <code>codeforces_problemsets.lastUpdateDateTime</code>.
-     */
-    public LocalDateTime getLastupdatedatetime() {
-        return (LocalDateTime) get(7);
-    }
-
-    /**
      * Setter for <code>codeforces_problemsets.id</code>.
      */
     public CodeforcesProblemsetsRecord setId(Long value) {
-        set(8, value);
+        set(0, value);
         return this;
     }
 
@@ -152,7 +32,172 @@ public class CodeforcesProblemsetsRecord extends UpdatableRecordImpl<CodeforcesP
      * Getter for <code>codeforces_problemsets.id</code>.
      */
     public Long getId() {
-        return (Long) get(8);
+        return (Long) get(0);
+    }
+
+    /**
+     * Setter for <code>codeforces_problemsets.contestId</code>.
+     */
+    public CodeforcesProblemsetsRecord setContestid(Long value) {
+        set(1, value);
+        return this;
+    }
+
+    /**
+     * Getter for <code>codeforces_problemsets.contestId</code>.
+     */
+    public Long getContestid() {
+        return (Long) get(1);
+    }
+
+    /**
+     * Setter for <code>codeforces_problemsets.solvedCount</code>.
+     */
+    public CodeforcesProblemsetsRecord setSolvedcount(Integer value) {
+        set(2, value);
+        return this;
+    }
+
+    /**
+     * Getter for <code>codeforces_problemsets.solvedCount</code>.
+     */
+    public Integer getSolvedcount() {
+        return (Integer) get(2);
+    }
+
+    /**
+     * Setter for <code>codeforces_problemsets.lastUpdateDateTime</code>.
+     */
+    public CodeforcesProblemsetsRecord setLastupdatedatetime(LocalDateTime value) {
+        set(3, value);
+        return this;
+    }
+
+    /**
+     * Getter for <code>codeforces_problemsets.lastUpdateDateTime</code>.
+     */
+    public LocalDateTime getLastupdatedatetime() {
+        return (LocalDateTime) get(3);
+    }
+
+    /**
+     * Setter for <code>codeforces_problemsets.rating</code>.
+     */
+    public CodeforcesProblemsetsRecord setRating(Integer value) {
+        set(4, value);
+        return this;
+    }
+
+    /**
+     * Getter for <code>codeforces_problemsets.rating</code>.
+     */
+    public Integer getRating() {
+        return (Integer) get(4);
+    }
+
+    /**
+     * Setter for <code>codeforces_problemsets.points</code>.
+     */
+    public CodeforcesProblemsetsRecord setPoints(Float value) {
+        set(5, value);
+        return this;
+    }
+
+    /**
+     * Getter for <code>codeforces_problemsets.points</code>.
+     */
+    public Float getPoints() {
+        return (Float) get(5);
+    }
+
+    /**
+     * Setter for <code>codeforces_problemsets.index</code>.
+     */
+    public CodeforcesProblemsetsRecord setIndex(String value) {
+        set(6, value);
+        return this;
+    }
+
+    /**
+     * Getter for <code>codeforces_problemsets.index</code>.
+     */
+    public String getIndex() {
+        return (String) get(6);
+    }
+
+    /**
+     * Setter for <code>codeforces_problemsets.name</code>.
+     */
+    public CodeforcesProblemsetsRecord setName(String value) {
+        set(7, value);
+        return this;
+    }
+
+    /**
+     * Getter for <code>codeforces_problemsets.name</code>.
+     */
+    public String getName() {
+        return (String) get(7);
+    }
+
+    /**
+     * Setter for <code>codeforces_problemsets.type</code>.
+     */
+    public CodeforcesProblemsetsRecord setType(String value) {
+        set(8, value);
+        return this;
+    }
+
+    /**
+     * Getter for <code>codeforces_problemsets.type</code>.
+     */
+    public String getType() {
+        return (String) get(8);
+    }
+
+    /**
+     * Setter for <code>codeforces_problemsets.contestIdIndex</code>.
+     */
+    public CodeforcesProblemsetsRecord setContestidindex(String value) {
+        set(9, value);
+        return this;
+    }
+
+    /**
+     * Getter for <code>codeforces_problemsets.contestIdIndex</code>.
+     */
+    public String getContestidindex() {
+        return (String) get(9);
+    }
+
+    /**
+     * Setter for <code>codeforces_problemsets.tags</code>.
+     */
+    public CodeforcesProblemsetsRecord setTags(String value) {
+        set(10, value);
+        return this;
+    }
+
+    /**
+     * Getter for <code>codeforces_problemsets.tags</code>.
+     */
+    public String getTags() {
+        return (String) get(10);
+    }
+
+    /**
+     * Setter for <code>codeforces_problemsets.problemsetName</code>.
+     */
+    public CodeforcesProblemsetsRecord setProblemsetname(String value) {
+        set(11, value);
+        return this;
+    }
+
+    /**
+     * Getter for <code>codeforces_problemsets.problemsetName</code>.
+     */
+    public String getProblemsetname() {
+        return (String) get(11);
     }
 
     // -------------------------------------------------------------------------
@@ -178,18 +223,21 @@ public class CodeforcesProblemsetsRecord extends UpdatableRecordImpl<CodeforcesP
     /**
      * Create a detached, initialised CodeforcesProblemsetsRecord
      */
-    public CodeforcesProblemsetsRecord(Long contestid, String index, String name, String type, Float points, String tags, Integer solvedcount, LocalDateTime lastupdatedatetime, Long id) {
+    public CodeforcesProblemsetsRecord(Long id, Long contestid, Integer solvedcount, LocalDateTime lastupdatedatetime, Integer rating, Float points, String index, String name, String type, String contestidindex, String tags, String problemsetname) {
         super(CodeforcesProblemsets.CODEFORCES_PROBLEMSETS);
 
+        setId(id);
         setContestid(contestid);
+        setSolvedcount(solvedcount);
+        setLastupdatedatetime(lastupdatedatetime);
+        setRating(rating);
+        setPoints(points);
         setIndex(index);
         setName(name);
         setType(type);
-        setPoints(points);
+        setContestidindex(contestidindex);
         setTags(tags);
-        setSolvedcount(solvedcount);
-        setLastupdatedatetime(lastupdatedatetime);
-        setId(id);
+        setProblemsetname(problemsetname);
         resetChangedOnNotNull();
     }
 }

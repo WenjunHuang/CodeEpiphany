@@ -1,7 +1,6 @@
 package com.wenjunhuang.codeepiphany.codeforces
 
 import cats.effect.IO
-import cats.syntax.all.*
 import java.io.FileInputStream
 import java.net.HttpCookie
 import org.hamcrest.CoreMatchers.*
@@ -9,14 +8,11 @@ import org.hamcrest.MatcherAssert.assertThat
 import scala.io.Source
 
 import com.intellij.testFramework.fixtures.BasePlatformTestCase
-import com.intellij.util.net.{ ProxyConfiguration, ProxySettings }
+import com.intellij.util.net.{ProxyConfiguration, ProxySettings}
 
 import com.wenjunhuang.codeepiphany.codeforces.services.CodeForcesApi
-import com.wenjunhuang.codeepiphany.hackerrank.model.HackerRankContest.{ Master, ProjectEuler }
-import com.wenjunhuang.codeepiphany.hackerrank.model.HackerRankContest
-import com.wenjunhuang.codeepiphany.hackerrank.services.HackerRankApi
-import com.wenjunhuang.codeepiphany.model.{ ApiError, CodeDojo, Language }
-import com.wenjunhuang.codeepiphany.services.http.{ HttpClientManager, HttpClientService }
+import com.wenjunhuang.codeepiphany.model.CodeDojo
+import com.wenjunhuang.codeepiphany.services.http.{HttpClientManager, HttpClientService}
 import com.wenjunhuang.codeepiphany.utils.CookieUtil
 import com.wenjunhuang.codeepiphany.utils.implicits.*
 

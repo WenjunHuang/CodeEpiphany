@@ -41,7 +41,7 @@ object CodeEpiphanyIcons {
   val QUERY_PARAM: Icon = IconLoader.getIcon("/icons/filter.svg", CodeEpiphanyIcons.getClass.getClassLoader)
 
   @static
-  val DESCRIPTION:Icon = IconLoader.getIcon("/icons/book.svg",CodeEpiphanyIcons.getClass.getClassLoader)
+  val DESCRIPTION: Icon = IconLoader.getIcon("/icons/book.svg", CodeEpiphanyIcons.getClass.getClassLoader)
 
   @static
   val LOADING: AnimatedIcon = AnimatedIcon.Default.INSTANCE
@@ -49,6 +49,7 @@ object CodeEpiphanyIcons {
   object Dojos {
     val LEETCODE: Icon   = IconLoader.getIcon("/icons/dojos/leetcode.svg", CodeEpiphanyIcons.getClass.getClassLoader)
     val HACKERRANK: Icon = IconLoader.getIcon("/icons/dojos/hackerrank.svg", CodeEpiphanyIcons.getClass.getClassLoader)
+    val CODEFORCES: Icon = IconLoader.getIcon("/icons/dojos/codeforces.svg", CodeEpiphanyIcons.getClass.getClassLoader)
   }
 
   object Languages {
@@ -62,6 +63,14 @@ object CodeEpiphanyIcons {
       IconLoader.getIcon("/icons/languages/csharp.svg", CodeEpiphanyIcons.getClass.getClassLoader)
     final val CANGJIE: Icon =
       IconLoader.getIcon("/icons/languages/cangjie.svg", CodeEpiphanyIcons.getClass.getClassLoader)
+
+    final val DLANG: Icon = IconLoader.getIcon("/icons/languages/dlang.svg", CodeEpiphanyIcons.getClass.getClassLoader)
+
+    final val PASCAL: Icon =
+      IconLoader.getIcon("/icons/language/freepascal.svg", CodeEpiphanyIcons.getClass.getClassLoader)
+    final val DELPHI: Icon =
+      IconLoader.getIcon("/icons/languages/delphi.svg", CodeEpiphanyIcons.getClass.getClassLoader)
+
     final val DART: Icon =
       IconLoader.getIcon("/icons/languages/dart.svg", CodeEpiphanyIcons.getClass.getClassLoader)
     final val ERLANG: Icon =
@@ -82,6 +91,8 @@ object CodeEpiphanyIcons {
       IconLoader.getIcon("/icons/languages/kotlin.svg", CodeEpiphanyIcons.getClass.getClassLoader)
     final val OBJECTIVEC: Icon =
       IconLoader.getIcon("/icons/languages/objectivec.svg", CodeEpiphanyIcons.getClass.getClassLoader)
+    final val OCAML: Icon =
+      IconLoader.getIcon("/icons/languages/ocaml.svg", CodeEpiphanyIcons.getClass.getClassLoader)
     final val PERL: Icon =
       IconLoader.getIcon("/icons/languages/perl.svg", CodeEpiphanyIcons.getClass.getClassLoader)
     final val PHP: Icon =

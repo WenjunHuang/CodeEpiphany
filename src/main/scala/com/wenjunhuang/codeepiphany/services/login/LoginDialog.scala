@@ -5,12 +5,12 @@ import cats.effect.std.Queue
 import cats.syntax.all.*
 import fs2.Stream
 import java.awt.Font
-import java.awt.datatransfer.{DataFlavor, StringSelection}
+import java.awt.datatransfer.{ DataFlavor, StringSelection }
 import java.awt.event.ActionEvent
 import java.net.HttpCookie
 import javax.swing.*
 import javax.swing.event.DocumentEvent
-import org.cef.browser.CefBrowser
+import org.cef.browser.{ CefBrowser, CefFrame }
 import org.cef.callback.CefCookieVisitor
 import org.cef.handler.CefLoadHandlerAdapter
 import org.cef.misc.BoolRef
@@ -24,19 +24,19 @@ import com.intellij.openapi.actionSystem.*
 import com.intellij.openapi.editor.colors.impl.AppEditorFontOptions
 import com.intellij.openapi.ide.CopyPasteManager
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.ui.{ComponentValidator, DialogWrapper, ValidationInfo}
+import com.intellij.openapi.ui.{ ComponentValidator, DialogWrapper, ValidationInfo }
 import com.intellij.openapi.util.Disposer
-import com.intellij.ui.{AnimatedIcon, DocumentAdapter, PopupHandler}
-import com.intellij.ui.components.{JBScrollPane, JBTextArea}
-import com.intellij.ui.content.{ContentManagerEvent, ContentManagerListener, TabbedPaneContentUI}
+import com.intellij.ui.{ AnimatedIcon, DocumentAdapter, PopupHandler }
+import com.intellij.ui.components.{ JBScrollPane, JBTextArea }
+import com.intellij.ui.content.{ ContentManagerEvent, ContentManagerListener, TabbedPaneContentUI }
 import com.intellij.ui.content.impl.ContentManagerImpl
-import com.intellij.ui.jcef.{JBCefBrowser, JBCefBrowserBuilder}
+import com.intellij.ui.jcef.{ JBCefBrowser, JBCefBrowserBuilder }
 import com.intellij.util.ui.JBUI
 
 import com.wenjunhuang.codeepiphany.PluginBundle
 import com.wenjunhuang.codeepiphany.model.CodeDojo
-import com.wenjunhuang.codeepiphany.services.{AskForLoginResult, AuthService}
-import com.wenjunhuang.codeepiphany.services.http.{HttpClientManager, HttpClientService}
+import com.wenjunhuang.codeepiphany.services.{ AskForLoginResult, AuthService }
+import com.wenjunhuang.codeepiphany.services.http.{ HttpClientManager, HttpClientService }
 import com.wenjunhuang.codeepiphany.utils.implicits.*
 import com.wenjunhuang.codeepiphany.utils.isDebug
 
@@ -229,14 +229,17 @@ class LoginDialog(
     }
 
     @volatile
-    var queueHandle: Option[Queue[IO, Option[CookieCheck]]] = None
+    var queueHandle: Option[Queue[IO, CookieCheck]] = None
 
-    val cookieProcessingStream =
-      for
-        queue <- Queue.unbounded[IO, Option[CookieCheck]]
+    val myCookieProcessingStreamCanceller =
+      (for
+        queue <- Queue.unbounded[IO, CookieCheck]
         _     <- IO.delay { queueHandle = Some(queue) }
         _ <- Stream
-          .fromQueueNoneTerminated(queue)
+          .fromQueueUnterminated(queue)
+          .evalTap { cc =>
+            myLogger.info(s"Cookie processing stream received ${cc}")
+          }
           .mapAccumulate(Nil: List[HttpCookie]) {
             case (acc, CookieCheck.Add(cookie)) =>
               (cookie +: acc, None)
@@ -245,25 +248,31 @@ class LoginDialog(
           }
           .collect { case (_, Some(cookies)) => cookies }
           .evalTap { cookies =>
-            if myCodeDojo.loginCandidateCookies(cookies) then
-              // found a candidate cookie, but need to test it to see if it's valid
-              AuthService
-                .getInstance(myProject)
-                .validateUserCookieAndTestLogin[IO](myCodeDojo, cookies)
-                .flatMap {
-                  case true =>
-                    IO.delay(myLoginCallback(Right(AskForLoginResult.Done))) *>
-                      IO.delay(close(DialogWrapper.OK_EXIT_CODE)).evalOnEDTAny()
+            IO.delay {
+              myCodeDojo.loginCandidateCookies(cookies)
+            }.flatMap { result =>
+              if result then
+                // found a candidate cookie, but need to test it to see if it's valid
+                myLogger.info(s"Found login cookies for $myCodeDojo") *>
+                  AuthService
+                    .getInstance(myProject)
+                    .validateUserCookieAndTestLogin[IO](myCodeDojo, cookies)
+                    .flatMap {
+                      case true =>
+                        myLogger.info(s"Browser login $myCodeDojo successful") *>
+                          IO.delay(myLoginCallback(Right(AskForLoginResult.Done))) *>
+                          IO.delay(close(DialogWrapper.OK_EXIT_CODE)).evalOnEDTAny()
 
-                  case false => myLogger.warn("Browser login failed")
-                }
-            else myLogger.warn(s"Browser login failed due to no candidate cookie. CodeDojo:$myCodeDojo")
+                      case false =>
+                        myLogger.warn("Browser login failed")
+                    }
+              else myLogger.info(s"Browser login failed due to no candidate cookie. CodeDojo:$myCodeDojo")
+            }
           }
-          .onFinalize(myLogger.info("Cookie processing stream finalized"))
+          .onFinalizeCase { existCase => myLogger.info(s"Cookie processing stream finalized because of ${existCase}") }
           .compile
           .drain
-      yield ()
-    cookieProcessingStream.unsafeRunAndForget()
+      yield ()).unsafeRunCancelable()
 
     val loadHandler = new CefLoadHandlerAdapter {
       override def onLoadingStateChange(
@@ -271,7 +280,7 @@ class LoginDialog(
         isLoading: Boolean,
         canGoBack: Boolean,
         canGoForward: Boolean
-      ): Unit =
+      ): Unit = {
         browser.getJBCefCookieManager.getCefCookieManager.visitAllCookies {
           (cefCookie: CefCookie, count: Int, total: Int, _: BoolRef) =>
             if CIString(cefCookie.domain).contains(myCodeDojo.domain) then
@@ -281,19 +290,19 @@ class LoginDialog(
 
               if count == total - 1 then
                 queueHandle.foreach(q =>
-                  (q.offer(Some(CookieCheck.Add(cookie))) *> q.offer(Some(CookieCheck.Check))).unsafeRunAndForget()
+                  (q.offer(CookieCheck.Add(cookie)) *> q.offer(CookieCheck.Check)).unsafeRunAndForget()
                 )
-              else queueHandle.foreach(_.offer(Some(CookieCheck.Add(cookie))).unsafeRunAndForget())
-            else if count == total - 1 then queueHandle.foreach(q => q.offer(None).unsafeRunAndForget())
+              else queueHandle.foreach(_.offer(CookieCheck.Add(cookie)).unsafeRunAndForget())
             true
         }
+      }
     }
     browser.getJBCefClient.addLoadHandler(loadHandler, browser.getCefBrowser)
 
     Disposer.register(
       getDisposable,
       { () =>
-        queueHandle.foreach(_.offer(None).unsafeRunAndForget())
+        myCookieProcessingStreamCanceller()
         browser.getJBCefCookieManager.getCefCookieManager.deleteCookies(null, null)
         browser.getJBCefClient.removeLoadHandler(loadHandler, browser.getCefBrowser)
         Disposer.dispose(browser)
