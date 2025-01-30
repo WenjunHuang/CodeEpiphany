@@ -1,17 +1,16 @@
 package com.wenjunhuang.codeepiphany.codeforces.services
 
-import cats.effect.{ Async, Concurrent }
+import cats.effect.{Async, Concurrent}
+import cats.effect.implicits.*
 import cats.syntax.all.*
 import org.http4s.client.dsl.Http4sClientDsl
 import org.http4s.implicits.uri
 import org.jsoup.Jsoup
 import scala.jdk.CollectionConverters.*
 
-import com.wenjunhuang.codeepiphany.codeforces.models.{
-  CodeForcesProblem,
-  CodeForcesProblemResponse,
-  CodeForcesProblemStatistics
-}
+import com.intellij.openapi.util.text.StringUtil
+
+import com.wenjunhuang.codeepiphany.codeforces.models.{CodeForcesProblem, CodeForcesProblemResponse, CodeForcesProblemStatistics}
 import com.wenjunhuang.codeepiphany.services.http.HttpClientManager
 
 trait CodeForcesApi[F[_]] {
@@ -27,10 +26,22 @@ object CodeForcesApi {
     override def getAllProblemSets: F[List[(CodeForcesProblem, CodeForcesProblemStatistics)]] =
       HttpClientManager[F].getClient.use { client =>
         import org.http4s.circe.CirceEntityCodec.*
-        client.expect[CodeForcesProblemResponse](uri"https://codeforces.com/api/problemset.problems").map { response =>
-          response.result.problems
-            .zip(response.result.problemStatistics)
-        }
+
+        (
+          client.expect[CodeForcesProblemResponse](uri"https://codeforces.com/api/problemset.problems").map {
+            response =>
+              response.result.problems
+                .zip(response.result.problemStatistics)
+          },
+          client
+            .expect[CodeForcesProblemResponse](
+              uri"https://codeforces.com/api/problemset.problems?problemsetName=acmsguru"
+            )
+            .map { response =>
+              response.result.problems
+                .zip(response.result.problemStatistics)
+            }
+        ).parMapN(_ ++ _)
       }
 
     override def checkLogin(): F[Boolean] = {
@@ -44,8 +55,8 @@ object CodeForcesApi {
     override def getProblemTags: F[List[String]] = HttpClientManager[F].getClient.use { client =>
       client.expect[String](uri"https://codeforces.com/problemset").flatMap { content =>
         Async[F].delay {
-          Jsoup.parse(content).select("label._FilterByTagsFrame_addTagLabel > option").asScala.toList.collect {
-            case elem if elem.hasAttr("value") => elem.attr("value")
+          Jsoup.parse(content).select("label._FilterByTagsFrame_addTagLabel option").asScala.toList.collect {
+            case elem if elem.hasAttr("value") && StringUtil.isNotEmpty(elem.attr("value")) => elem.attr("value")
           }
         }
       }

@@ -8,11 +8,11 @@ import org.hamcrest.MatcherAssert.assertThat
 import scala.io.Source
 
 import com.intellij.testFramework.fixtures.BasePlatformTestCase
-import com.intellij.util.net.{ProxyConfiguration, ProxySettings}
+import com.intellij.util.net.{ ProxyConfiguration, ProxySettings }
 
 import com.wenjunhuang.codeepiphany.codeforces.services.CodeForcesApi
 import com.wenjunhuang.codeepiphany.model.CodeDojo
-import com.wenjunhuang.codeepiphany.services.http.{HttpClientManager, HttpClientService}
+import com.wenjunhuang.codeepiphany.services.http.{ HttpClientManager, HttpClientService }
 import com.wenjunhuang.codeepiphany.utils.CookieUtil
 import com.wenjunhuang.codeepiphany.utils.implicits.*
 
@@ -20,7 +20,7 @@ class CodeforcesApiIntegrationTest extends BasePlatformTestCase {
   private var cookies: List[HttpCookie] = Nil
 
   private def setCookie(httpClientKeeper: HttpClientManager[IO]): IO[Unit] = {
-    httpClientKeeper.updateCookiesForHost(CodeDojo.HackerRank.domain, cookies)
+    httpClientKeeper.updateCookiesForHost(CodeDojo.CodeForces.domain, cookies)
   }
 
   override def setUp(): Unit = {
@@ -46,5 +46,35 @@ class CodeforcesApiIntegrationTest extends BasePlatformTestCase {
         println(problems.size)
       }
     }.unsafeRunSync()
+  }
+
+  def testCheckLogin(): Unit = {
+    val httpClientKeeper = HttpClientService.getInstance(getProject)
+    import httpClientKeeper.*
+    val api = CodeForcesApi[IO]()
+    (setCookie(httpClientKeeper.httpClientManager)
+      *>
+        api
+          .checkLogin()).flatMap { result =>
+      IO.delay {
+        assertThat(result, is(true))
+      }
+    }
+      .unsafeRunSync()
+  }
+
+  def testGetTags(): Unit = {
+    val httpClientKeeper = HttpClientService.getInstance(getProject)
+    import httpClientKeeper.*
+    val api = CodeForcesApi[IO]()
+    (setCookie(httpClientKeeper.httpClientManager)
+      *>
+      api
+        .getProblemTags).flatMap { result =>
+        IO.delay {
+          assertThat(result.size, not(0))
+        }
+      }
+      .unsafeRunSync()
   }
 }

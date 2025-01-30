@@ -2,21 +2,31 @@ package com.wenjunhuang.codeepiphany.codeforces.ui
 
 import cats.effect.IO
 import cats.syntax.all.*
+import java.util.concurrent.atomic.AtomicBoolean
 import javax.swing.JComponent
 import org.typelevel.log4cats.LoggerFactory
 
 import com.intellij.openapi.Disposable
-import com.intellij.openapi.actionSystem.{ActionGroup, ActionManager, DataSink, UiDataProvider}
+import com.intellij.openapi.actionSystem.{ ActionGroup, ActionManager, DataSink, UiDataProvider }
 import com.intellij.openapi.project.Project
 import com.intellij.ui.CardLayoutPanel
 
-import com.wenjunhuang.codeepiphany.actions.LoginAction.{LOGIN_LOGOUT_KEY, LoginLogoutProvider}
-import com.wenjunhuang.codeepiphany.codeforces.actions.CodeForcesChangeUIAction.{CODEFORCES_CHANGE_UI_PROVIDER_KEY, CodeForcesChangeUIProvider, CodeForcesUI}
-import com.wenjunhuang.codeepiphany.model.Actions.LEETCODE_TITLE_TOOLBAR_GROUP
+import com.wenjunhuang.codeepiphany.actions.LoginAction.{ LOGIN_LOGOUT_KEY, LoginLogoutProvider }
+import com.wenjunhuang.codeepiphany.codeforces.actions.CodeForcesChangeUIAction.{
+  CODEFORCES_CHANGE_UI_PROVIDER_KEY,
+  CodeForcesChangeUIProvider,
+  CodeForcesUI
+}
+import com.wenjunhuang.codeepiphany.codeforces.actions.CodeForcesUpdateProblemSetsAction.{
+  CODEFORCES_UPDATE_PROBLEM_SETS_PROVIDER_KEY,
+  CodeForcesUpdateProblemSetsProvider
+}
+import com.wenjunhuang.codeepiphany.codeforces.services.problemsets.fetchAndUpdateProblemSets
+import com.wenjunhuang.codeepiphany.model.Actions.{ CODEFORCES_TITLE_TOOLBAR_GROUP, LEETCODE_TITLE_TOOLBAR_GROUP }
 import com.wenjunhuang.codeepiphany.model.CodeDojo
 import com.wenjunhuang.codeepiphany.model.CodeDojo.CodeForces
-import com.wenjunhuang.codeepiphany.services.{console, AskForLoginResult, AuthService}
-import com.wenjunhuang.codeepiphany.services.http.{HttpClientManager, HttpClientService}
+import com.wenjunhuang.codeepiphany.services.{ console, AskForLoginResult, AuthService }
+import com.wenjunhuang.codeepiphany.services.http.{ HttpClientManager, HttpClientService }
 import com.wenjunhuang.codeepiphany.utils.extensions.*
 import com.wenjunhuang.codeepiphany.utils.implicits.*
 import com.wenjunhuang.codeepiphany.utils.ui.UnauthenticatedView
@@ -89,9 +99,21 @@ class CodeForcesChallengesView(private val myProject: Project)
     override def getCurrentUI: CodeForcesUI = myCurrentUI
   }
 
+  private val myUpdateProblemsProvider = new CodeForcesUpdateProblemSetsProvider {
+    private val myUpdating = AtomicBoolean(false)
+    override def updateProblemSets(): Unit =
+      if !myUpdating.compareAndExchange(false, true) then
+        (fetchAndUpdateProblemSets[IO](myProject).handleErrorWith { e =>
+          myLogger.warn(e)("Failed to update CodeForces problem sets") *>
+            console.error[IO](myProject, s"Failed to update problem sets because of \"${e.getMessage}\"")
+        } *> IO.delay(myUpdating.set(false))).unsafeRunAndForget()
+
+    override def isUpdatingProblemSets: Boolean = myUpdating.get()
+  }
+
   def getActions: ActionGroup = {
     val actionManager = ActionManager.getInstance()
-    val actionGroup   = actionManager.getAction(LEETCODE_TITLE_TOOLBAR_GROUP).asInstanceOf[ActionGroup]
+    val actionGroup   = actionManager.getAction(CODEFORCES_TITLE_TOOLBAR_GROUP).asInstanceOf[ActionGroup]
     actionGroup
   }
 
@@ -106,4 +128,5 @@ class CodeForcesChallengesView(private val myProject: Project)
   override def uiDataSnapshot(dataSink: DataSink): Unit =
     dataSink.set(LOGIN_LOGOUT_KEY, myLoginLogoutProvider)
     dataSink.set(CODEFORCES_CHANGE_UI_PROVIDER_KEY, mySwitchUIProvider)
+    dataSink.set(CODEFORCES_UPDATE_PROBLEM_SETS_PROVIDER_KEY, myUpdateProblemsProvider)
 }

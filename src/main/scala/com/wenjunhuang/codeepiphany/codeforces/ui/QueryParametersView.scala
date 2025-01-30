@@ -1,7 +1,7 @@
 package com.wenjunhuang.codeepiphany.codeforces.ui
 
 import java.awt.BorderLayout
-import javax.swing.{JPanel, ScrollPaneConstants}
+import javax.swing.{ JPanel, ScrollPaneConstants }
 
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.actionSystem.*
@@ -14,19 +14,15 @@ import com.intellij.util.concurrency.annotations.RequiresEdt
 
 import com.wenjunhuang.codeepiphany.actions.PaginationParameterActionGroup
 import com.wenjunhuang.codeepiphany.database.tables.records.CodeforcesProblemsetsRecord
-import com.wenjunhuang.codeepiphany.leetcode.model.LeetCodeChallengeListItem
 import com.wenjunhuang.codeepiphany.model.Actions.*
-import com.wenjunhuang.codeepiphany.model.CodeDojo
 import com.wenjunhuang.codeepiphany.utils.ui.TagPane
 
-class QueryParametersView(
-  private val myProject: Project,
-  private val myPresenter: QueryParametersPresenter
-) extends SimpleToolWindowPanel(true, true)
+class QueryParametersView(private val myProject: Project, private val myPresenter: QueryParametersPresenter)
+    extends SimpleToolWindowPanel(true, true)
     with UiDataProvider
     with Disposable {
   private val actionManager = ActionManager.getInstance()
-  private val myActionGroup = actionManager.getAction(LEETCODE_TOOLBAR_GROUP).asInstanceOf[ActionGroup]
+  private val myActionGroup = actionManager.getAction(CODEFORCES_TOOLBAR_GROUP).asInstanceOf[ActionGroup]
   private val myMainToolbar = actionManager.createActionToolbar(TOOLBAR_PLACE, myActionGroup, true)
   myMainToolbar.setTargetComponent(this)
   setToolbar(myMainToolbar.getComponent)
@@ -58,7 +54,7 @@ class QueryParametersView(
 
   def getTableModel: CodeForcesChallengeListItemTableModel = myChallengesTableModel
   def getTable: TableView[CodeforcesProblemsetsRecord]     = myChallengesTable
-  def getTagPane: TagPane                                = myTagPane
+  def getTagPane: TagPane                                  = myTagPane
 
   @RequiresEdt
   def refreshTagToolbar(): Unit =

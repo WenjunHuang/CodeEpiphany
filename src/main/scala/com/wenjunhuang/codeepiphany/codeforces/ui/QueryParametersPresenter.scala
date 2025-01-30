@@ -89,19 +89,17 @@ class QueryParametersPresenter(private val myProject: Project)
               .use { dsl =>
                 IO.delay {
                   val condition =
-                    DSL.condition(
-                      "{0} MATCH '{1}'",
-                      DSL.field(CODEFORCES_PROBLEMSETS_FTS.getUnqualifiedName),
-                      s"""\"${CODEFORCES_PROBLEMSETS_FTS.TAGS.getUnqualifiedName}\":${
-                        state.selectedTags
-                          .map(tag => "\"" + tag.value + "\"")
-                          .mkString(" + ")
-                      }"""
-                    )
+                    if state.selectedTags.isEmpty then DSL.trueCondition()
+                    else
+                      val matches = s"${CODEFORCES_PROBLEMSETS_FTS.TAGS.getUnqualifiedName}:${state.selectedTags
+                          .map(tag => tag.value)
+                          .mkString(" + ")}"
+                      DSL.condition("{0} MATCH {1}", DSL.field(CODEFORCES_PROBLEMSETS_FTS.getUnqualifiedName), matches)
                   val total = dsl
                     .selectCount()
                     .from(CODEFORCES_PROBLEMSETS_FTS)
-                    .where(condition).fetchOne(0, classOf[Int])
+                    .where(condition)
+                    .fetchOne(0, classOf[Int])
                   val query = dsl
                     .selectFrom(CODEFORCES_PROBLEMSETS_FTS)
                     .where(condition)
@@ -122,7 +120,9 @@ class QueryParametersPresenter(private val myProject: Project)
             }.evalOnEDTAny()
           }
           .interruptWhen(signal)
-          .onFinalizeCaseWeak(c => myLogger.info(s"${CodeDojo.CodeForces.show} Query Parameter stream finalized, because of $c"))
+          .onFinalizeCaseWeak(c =>
+            myLogger.info(s"${CodeDojo.CodeForces.show} Query Parameter stream finalized, because of $c")
+          )
           .compile
           .drain
           .evalAsBackgroundProgress(myProject, "Querying challenges...")
@@ -150,7 +150,8 @@ class QueryParametersPresenter(private val myProject: Project)
 
   def initialize(): IO[InitialData] = {
     myApi.getProblemTags.map { tags =>
-      InitialData(tags)
+      myInitialData = InitialData(tags)
+      myInitialData
     }
   }
 

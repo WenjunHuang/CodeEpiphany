@@ -41,6 +41,7 @@ object CodeDojo {
     case HackerRank => "HackerRank"
     case LeetCode   => "LeetCode"
     case LeetCodeCN => "力扣"
+    case CodeForces => "CodeForces"
   }
 
   @static
@@ -50,6 +51,7 @@ object CodeDojo {
     case _ if s.contains(HackerRank.domain) => Some(CodeDojo.HackerRank)
     case _ if s.contains(LeetCode.domain)   => Some(CodeDojo.LeetCode)
     case _ if s.contains(LeetCodeCN.domain) => Some(CodeDojo.LeetCodeCN)
+    case _ if s.contains(CodeForces.domain) => Some(CodeDojo.CodeForces)
     case _                                  => None
   }
 

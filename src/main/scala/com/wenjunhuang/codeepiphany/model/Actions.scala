@@ -3,6 +3,7 @@ package com.wenjunhuang.codeepiphany.model
 object Actions {
   final val HACKERRANK_TOOLBAR_GROUP = "CodeEpiphany.Dojos.HackerRank.Toolbar"
   final val LEETCODE_TOOLBAR_GROUP   = "CodeEpiphany.Dojos.LeetCode.Toolbar"
+  final val CODEFORCES_TOOLBAR_GROUP = "CodeEpiphany.Dojos.CodeForces.Toolbar"
   final val TOOLBAR_PLACE            = "CodeEpiphany.Dojos.Toolbar.Place"
 
   final val TITLE_TOOLBAR_GROUP = "CodeEpiphany.Dojos.TitleToolbar"
