@@ -22,12 +22,12 @@ create index codeforces_problemsets_contestId_index_index
 CREATE VIRTUAL TABLE codeforces_problemsets_fts using fts5
 (
     id UNINDEXED,
-    contestId UNINDEXED,
+    contestId,
     solvedCount UNINDEXED,
     lastUpdateDateTime UNINDEXED,
     rating,
     points UNINDEXED,
-    "index" UNINDEXED,
+    "index",
     name,
     type,
     contestIdIndex,

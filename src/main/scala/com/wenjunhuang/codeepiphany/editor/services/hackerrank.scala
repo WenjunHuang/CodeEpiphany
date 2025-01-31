@@ -38,7 +38,7 @@ object hackerrank {
           }
       )
       .flatMap { case (contest, language, langVer, challengeSlug) =>
-        val extractedCode = language.extractSubmitCode(VirtualFileUtil.readText(vf))
+        val extractedCode = language.extractCodeFromRegion(VirtualFileUtil.readText(vf))
         HackerRankApi[F]()
           .runAnswer(challengeSlug, contest, language, langVer, extractedCode)
       }
@@ -81,7 +81,7 @@ object hackerrank {
                 val dsl        = DSL.using(trx)
                 val basicInfo  = queryChallengeBasicInfo(item, dsl)
                 val localCode  = VirtualFileUtil.readText(vf)
-                val submitCode = basicInfo._2.extractSubmitCode(localCode)
+                val submitCode = basicInfo._2.extractCodeFromRegion(localCode)
                 val solutionId = item.solutionId
 
                 val submissionRecord = dsl

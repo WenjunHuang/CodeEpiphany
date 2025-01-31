@@ -24,13 +24,13 @@ case class HackerRankChallengeCodeTemplate(
   language: Language,
   languageVersion: LanguageVersion
 ) {
-  def getHeader: String = language.makeCodeRegion(header)
+  def getHeader: String = language.encloseCodeInRegion(header)
 
-  def getTemplate: String = language.makeCodeRegion(template)
+  def getTemplate: String = language.encloseCodeInRegion(template)
 
-  def getTail: String = language.makeCodeRegion(tail)
+  def getTail: String = language.encloseCodeInRegion(tail)
 
-  def getCode: String = language.makeCodeRegion(s"$header\n$template\n$tail")
+  def getCode: String = language.encloseCodeInRegion(s"$header\n$template\n$tail")
 
   def getCodeDojo: String = dojo.value
 

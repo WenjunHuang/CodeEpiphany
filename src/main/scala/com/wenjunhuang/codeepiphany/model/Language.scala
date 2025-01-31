@@ -82,10 +82,10 @@ enum Language(val value: String, val fileExt: String, val show: String, val icon
       s"(*$comment*)"
   }
 
-  def makeCodeRegion(code: String): String =
+  def encloseCodeInRegion(code: String): String =
     s"\n${createComment(Constants.SUBMIT_CODE_REGION_BEGIN)}\n$code\n${createComment(Constants.SUBMIT_CODE_REGION_END)}"
 
-  def extractSubmitCode(code: String): String = {
+  def extractCodeFromRegion(code: String): String = {
     val begin = createComment(Constants.SUBMIT_CODE_REGION_BEGIN)
     val end   = createComment(Constants.SUBMIT_CODE_REGION_END)
 

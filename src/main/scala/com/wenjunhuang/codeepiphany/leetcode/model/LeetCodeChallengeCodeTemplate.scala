@@ -22,7 +22,7 @@ case class LeetCodeChallengeCodeTemplate(
   language: Language,
   languageVersion: LanguageVersion
 ) {
-  def getCode: String            = language.makeCodeRegion(s"$code")
+  def getCode: String            = language.encloseCodeInRegion(s"$code")
   def getCodeDojo: String        = dojo.value
   def getLanguage: String        = language.value
   def getLanguageVersion: String = languageVersion.version

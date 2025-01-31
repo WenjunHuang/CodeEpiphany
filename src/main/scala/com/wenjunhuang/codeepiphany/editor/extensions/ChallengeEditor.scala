@@ -84,7 +84,7 @@ class ChallengeEditor(private val myDelegate: TextEditor, private val myName: St
 
   override def getTabActions: ActionGroup = myDelegate.getTabActions
 
-  override def isEditorLoaded: Boolean = super.isEditorLoaded
+//  override def isEditorLoaded: Boolean = super.isEditorLoaded
 
   private def createActionGroup(): ActionGroup = {
     val ag = ActionManager.getInstance().getAction(Actions.CHALLENGE_EDITOR_TOOLBAR_GROUP).asInstanceOf[ActionGroup]

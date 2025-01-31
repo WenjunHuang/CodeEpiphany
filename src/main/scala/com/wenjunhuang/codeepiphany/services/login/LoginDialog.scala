@@ -4,13 +4,13 @@ import cats.effect.IO
 import cats.effect.std.Queue
 import cats.syntax.all.*
 import fs2.Stream
-import java.awt.Font
-import java.awt.datatransfer.{ DataFlavor, StringSelection }
+import java.awt.{BorderLayout, Font}
+import java.awt.datatransfer.{DataFlavor, StringSelection}
 import java.awt.event.ActionEvent
 import java.net.HttpCookie
 import javax.swing.*
 import javax.swing.event.DocumentEvent
-import org.cef.browser.{ CefBrowser, CefFrame }
+import org.cef.browser.CefBrowser
 import org.cef.callback.CefCookieVisitor
 import org.cef.handler.CefLoadHandlerAdapter
 import org.cef.misc.BoolRef
@@ -19,24 +19,24 @@ import org.typelevel.ci.CIString
 import org.typelevel.log4cats.LoggerFactory
 
 import com.intellij.ide.*
+import com.intellij.ide.ui.laf.darcula.ui.DarculaTextBorder
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.actionSystem.*
 import com.intellij.openapi.editor.colors.impl.AppEditorFontOptions
 import com.intellij.openapi.ide.CopyPasteManager
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.ui.{ ComponentValidator, DialogWrapper, ValidationInfo }
+import com.intellij.openapi.ui.{ComponentValidator, DialogPanel, DialogWrapper, ValidationInfo}
 import com.intellij.openapi.util.Disposer
-import com.intellij.ui.{ AnimatedIcon, DocumentAdapter, PopupHandler }
-import com.intellij.ui.components.{ JBScrollPane, JBTextArea }
-import com.intellij.ui.content.{ ContentManagerEvent, ContentManagerListener, TabbedPaneContentUI }
-import com.intellij.ui.content.impl.ContentManagerImpl
-import com.intellij.ui.jcef.{ JBCefBrowser, JBCefBrowserBuilder }
+import com.intellij.ui.{AnimatedIcon, DocumentAdapter, PopupHandler}
+import com.intellij.ui.components.{JBScrollPane, JBTextArea}
+import com.intellij.ui.jcef.{JBCefBrowser, JBCefBrowserBuilder}
+import com.intellij.ui.tabs.{JBTabsEx, JBTabsFactory, TabInfo, TabsListener}
 import com.intellij.util.ui.JBUI
 
 import com.wenjunhuang.codeepiphany.PluginBundle
 import com.wenjunhuang.codeepiphany.model.CodeDojo
-import com.wenjunhuang.codeepiphany.services.{ AskForLoginResult, AuthService }
-import com.wenjunhuang.codeepiphany.services.http.{ HttpClientManager, HttpClientService }
+import com.wenjunhuang.codeepiphany.services.{AskForLoginResult, AuthService}
+import com.wenjunhuang.codeepiphany.services.http.{HttpClientManager, HttpClientService}
 import com.wenjunhuang.codeepiphany.utils.implicits.*
 import com.wenjunhuang.codeepiphany.utils.isDebug
 
@@ -44,13 +44,13 @@ class LoginDialog(
   private val myProject: Project,
   private val myCodeDojo: CodeDojo,
   private val myLoginCallback: Either[Throwable, AskForLoginResult] => Unit
-) extends DialogWrapper(myProject, false, DialogWrapper.IdeModalityType.IDE) {
-  private val myLogger = LoggerFactory[IO].getLogger
-  private val myContentManager =
-    ContentManagerImpl(TabbedPaneContentUI(SwingConstants.TOP), false, myProject, getDisposable)
+) extends DialogWrapper(myProject, false, DialogWrapper.IdeModalityType.MODELESS) {
+  private val myLogger         = LoggerFactory[IO].getLogger
+  private val myTabs: JBTabsEx = JBTabsFactory.createTabs(myProject, myDisposable).asInstanceOf[JBTabsEx]
 
   private val myCookieText = JBTextArea(10, 20)
   myCookieText.setLineWrap(true)
+  myCookieText.setBorder(JBUI.Borders.compound(JBUI.Borders.empty(5), DarculaTextBorder()))
   myCookieText.setFont(JBUI.Fonts.label())
 
   private val fontOptions = AppEditorFontOptions.getInstance().getState
@@ -70,20 +70,34 @@ class LoginDialog(
   })
 
   private val myCookieLoginPane = createCookieLoginPane()
-  private val myLoginViaCookiePanel =
-    myContentManager.getFactory.createContent(myCookieLoginPane, PluginBundle.message("loginDialog.viaCookie"), true)
-
-  if !isDebug then PopupHandler.installPopupMenu(myCookieText, IdeActions.GROUP_CUT_COPY_PASTE, ActionPlaces.POPUP)
+  myTabs.addTab(
+    new TabInfo(myCookieLoginPane)
+      .setText(PluginBundle.message("loginDialog.viaCookie"))
+      .setObject(myCookieLoginPane)
+  )
 
   private val myLoginBrowser = createBrowser()
-  private val myLoginViaBrowserPanel = myContentManager.getFactory.createContent(
-    JBScrollPane(
-      myLoginBrowser.getComponent,
-      ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
-      ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER
-    ),
-    PluginBundle.message("loginDialog.viaBrowser"),
-    true
+  myTabs.addTab(
+    new TabInfo(
+      JBScrollPane(
+        myLoginBrowser.getComponent,
+        ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
+        ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER
+      )
+    ).setText(PluginBundle.message("loginDialog.viaBrowser"))
+      .setObject(myLoginBrowser)
+  )
+
+  myTabs.addListener(
+    new TabsListener {
+      override def selectionChanged(oldSelection: TabInfo, newSelection: TabInfo): Unit = {
+        if newSelection.getObject == myCookieLoginPane then getButton(myOkAction).setVisible(true)
+        else if newSelection.getObject == myLoginBrowser then
+          myLoginBrowser.getComponent.requestFocus()
+          getButton(myOkAction).setVisible(false)
+      }
+    },
+    myDisposable
   )
 
   private implicit val myHttpClientKeeper: HttpClientManager[IO] =
@@ -124,24 +138,17 @@ class LoginDialog(
     }
   }
 
-  myContentManager.addContent(myLoginViaCookiePanel)
-  myContentManager.addContent(myLoginViaBrowserPanel)
-  myContentManager.addContentManagerListener(new ContentManagerListener {
-    override def selectionChanged(event: ContentManagerEvent): Unit =
-      event.getOperation match
-        case ContentManagerEvent.ContentOperation.add =>
-          if event.getContent == myLoginViaCookiePanel then getButton(myOkAction).setVisible(true)
-          else if event.getContent == myLoginViaBrowserPanel then
-            myLoginBrowser.getComponent.requestFocus()
-            getButton(myOkAction).setVisible(false)
-        case _ =>
-  })
+  private val myDialogPane = DialogPanel(BorderLayout())
+  myDialogPane.add(myTabs.getComponent, BorderLayout.CENTER)
+  myDialogPane.setPreferredFocusedComponent(myCookieText)
 
   init()
   setTitle(PluginBundle.message("loginDialog.title", myCodeDojo.show))
   setOKButtonText(PluginBundle.message("loginDialog.ok"))
 
-  override def createCenterPanel(): JComponent = myContentManager.getComponent
+  if !isDebug then PopupHandler.installPopupMenu(myCookieText, IdeActions.GROUP_CUT_COPY_PASTE, ActionPlaces.POPUP)
+
+  override def createCenterPanel(): JComponent = myDialogPane
 
   override def doCancelAction(): Unit =
     myLoginCallback(Right(AskForLoginResult.Cancelled))
@@ -209,6 +216,7 @@ class LoginDialog(
         )
       }
     }
+
   private def createBrowser(): JBCefBrowser = {
     val builder = JBCefBrowserBuilder()
     if isDebug then

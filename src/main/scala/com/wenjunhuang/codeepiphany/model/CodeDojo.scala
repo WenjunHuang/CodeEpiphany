@@ -34,6 +34,15 @@ enum CodeDojo(val domain: CIString, val value: String) {
     case CodeForces => cookies.exists(cookie => cookie.getName == "X-User" && cookie.getValue.nonEmpty)
   }
 
+  def requiresCodeRegionEnclosure: Boolean = {
+    this match {
+      case HackerRank => true
+      case LeetCode   => true
+      case LeetCodeCN => true
+      case CodeForces => false
+    }
+  }
+
 }
 
 object CodeDojo {

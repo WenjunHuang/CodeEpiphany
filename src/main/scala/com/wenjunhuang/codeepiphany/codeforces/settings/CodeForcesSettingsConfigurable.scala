@@ -1,22 +1,14 @@
 package com.wenjunhuang.codeepiphany.codeforces.settings
 
-import cats.syntax.all.*
-import io.circe.optics.JsonPath
-import io.circe.parser.*
-import java.nio.charset.StandardCharsets
-import java.util.Objects
-import org.apache.commons.io.IOUtils
-
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.util.text.StringUtil
 
 import com.wenjunhuang.codeepiphany.PluginBundle
+import com.wenjunhuang.codeepiphany.codeforces.models.CodeForcesChallengeCodeTemplate
+import com.wenjunhuang.codeepiphany.codeforces.settings.CodeForcesSettingsConfigurable.*
 import com.wenjunhuang.codeepiphany.model.*
 import com.wenjunhuang.codeepiphany.model.Language.*
 import com.wenjunhuang.codeepiphany.model.LanguageVersion.*
 import com.wenjunhuang.codeepiphany.settings.dojo.{ BaseCodeDojoSettings, BaseSettingsConfigurable }
-import CodeForcesSettingsConfigurable.*
-import com.wenjunhuang.codeepiphany.codeforces.models.CodeForcesChallengeCodeTemplate
 
 class CodeForcesSettingsConfigurable(project: Project)
     extends BaseSettingsConfigurable(
@@ -37,7 +29,9 @@ class CodeForcesSettingsConfigurable(project: Project)
   override def createDemoTemplate(
     language: Language,
     languageVersion: LanguageVersion
-  ): Option[CodeForcesChallengeCodeTemplate] = None
+  ): Option[CodeForcesChallengeCodeTemplate] = Some(
+    DEMO_CHALLENGE_TEMPLAGE.copy(language = language, languageVersion = languageVersion)
+  )
 }
 
 object CodeForcesSettingsConfigurable {
@@ -71,6 +65,15 @@ object CodeForcesSettingsConfigurable {
     (Javascript, AnyVersion, "55")
   ).sorted
 
+  val DEMO_CHALLENGE_TEMPLAGE: CodeForcesChallengeCodeTemplate = CodeForcesChallengeCodeTemplate(
+    "2061I",
+    "Kevin and Nivek",
+    Java,
+    SpecificVersion("8"),
+    Some(3500),
+    None,
+    List("divide and conquer", "dp")
+  )
 //  private val codeTemplateJson =
 //    parse(
 //      StringUtil.join(
