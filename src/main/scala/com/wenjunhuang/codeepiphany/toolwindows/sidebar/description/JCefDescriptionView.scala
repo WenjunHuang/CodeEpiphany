@@ -68,7 +68,9 @@ class JCefDescriptionView(
             IOUtils.toString(is, StandardCharsets.UTF_8).pure[SyncIO]
           }
           .map { template =>
-            template.replace(TEMPLATE_PLACEHOLDER, myDescription.map(_._1).getOrElse("No challenge selected 🌟"))
+            template
+              .replace(TEMPLATE_PLACEHOLDER, myDescription.map(_._1).getOrElse("No challenge selected 🌟"))
+              .replace(CODEDOJO_HEADER, myDescription.map(_._2).map(CodoDojoHeaders.getHeader).getOrElse(""))
           }
           .unsafeRunSync()
       CefStreamResourceHandler(ByteArrayInputStream(content.getBytes(StandardCharsets.UTF_8)), "text/html", this).some
@@ -205,6 +207,7 @@ class JCefDescriptionView(
 
 object JCefDescriptionView {
   final val TEMPLATE_PLACEHOLDER        = "{{questionDescription}}"
+  final val CODEDOJO_HEADER             = "{{codeDojoHeader}}"
   final val PROTOCOL                    = "http"
   final val HOST                        = "localhost"
   final val VIEW_PATH                   = "/descriptionViewer.html"

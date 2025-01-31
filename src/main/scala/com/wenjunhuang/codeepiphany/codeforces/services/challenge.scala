@@ -1,27 +1,35 @@
 package com.wenjunhuang.codeepiphany.codeforces.services
 
-import cats.effect.{Async, Concurrent}
+import cats.effect.{ Async, Concurrent }
 import cats.effect.implicits.*
 import cats.syntax.all.*
 import java.io.File
+import org.jooq.impl.DSL
 import org.typelevel.log4cats.Logger
 
 import com.intellij.openapi.options.ShowSettingsUtil
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.ui.{MessageDialogBuilder, Messages}
+import com.intellij.openapi.ui.{ MessageDialogBuilder, Messages }
 import com.intellij.openapi.util.text.StringUtil
 
-import com.wenjunhuang.codeepiphany.codeforces.models.{CodeForcesChallengeCodeTemplate, CodeForcesChallengeData}
-import com.wenjunhuang.codeepiphany.codeforces.settings.{CodeForcesSettings, CodeForcesSettingsConfigurable}
+import com.wenjunhuang.codeepiphany.codeforces.models.{
+  codeForcesRatingToDifficulty,
+  CodeForcesChallengeCodeTemplate,
+  CodeForcesChallengeData
+}
+import com.wenjunhuang.codeepiphany.codeforces.settings.{ CodeForcesSettings, CodeForcesSettingsConfigurable }
 import com.wenjunhuang.codeepiphany.database.tables.records.CodeforcesProblemsetsRecord
-import com.wenjunhuang.codeepiphany.model.{CodeDojo, Language, LanguageVersion}
-import com.wenjunhuang.codeepiphany.model.ChallengeRepository.{ChallengeId, ChallengeLanguageId, SolutionId}
+import com.wenjunhuang.codeepiphany.database.Tables.*
+import com.wenjunhuang.codeepiphany.editor.services.database.getOrCreateDefaultSolution
+import com.wenjunhuang.codeepiphany.model.{ ChallengeRepository, CodeDojo, Language, LanguageVersion }
+import com.wenjunhuang.codeepiphany.model.ChallengeRepository.{ ChallengeId, ChallengeLanguageId, SolutionId }
 import com.wenjunhuang.codeepiphany.services.file.*
 import com.wenjunhuang.codeepiphany.services.http.HttpClientManager
 import com.wenjunhuang.codeepiphany.settings.ChallengeSettings
 import com.wenjunhuang.codeepiphany.settings.ChallengeSettings.ChallengeSettingsStateItem
 import com.wenjunhuang.codeepiphany.utils.implicits.*
-import com.wenjunhuang.codeepiphany.utils.template.VelocityUtils
+import com.wenjunhuang.codeepiphany.utils.template.{ VelocityTool, VelocityUtils }
+import com.wenjunhuang.codeepiphany.utils.IdGenerator
 
 object challenge {
   def openChallenge[F[_]: Async: Concurrent: HttpClientManager: Logger](
@@ -103,9 +111,7 @@ object challenge {
               case None =>
                 (
                   saveTextToFile(file, code).flatMap(refreshAndFindFileByIoFile),
-                  storeChallengeToDatabase(project,
-                    record,
-                    challengeData)
+                  storeChallengeToDatabase(project, language, languageVersion, code, record, challengeData)
                 ).parTupled.map { case (file, (challengeId, challengeLangId, solutionId)) =>
                   val settings = ChallengeSettings.getInstance(project)
                   settings.addChallenge(
@@ -124,7 +130,57 @@ object challenge {
 
   def storeChallengeToDatabase[F[_]: Async](
     project: Project,
+    language: Language,
+    languageVersion: LanguageVersion,
+    codeTemplate: String,
     record: CodeforcesProblemsetsRecord,
     challengeData: CodeForcesChallengeData
-  ): F[(ChallengeId, ChallengeLanguageId, SolutionId)] = ???
+  ): F[(ChallengeId, ChallengeLanguageId, SolutionId)] = {
+    ChallengeRepository.getInstance(project).getDSLContextResource[F].use { client =>
+      Async[F].blocking {
+        client.transactionResult { trx =>
+          val dsl = trx.dsl()
+          val dojoId = s"${record.getContestid},${record.getIndex}"
+          val challengeRecord =
+            dsl.fetchOne(CHALLENGE, CHALLENGE.DOJO.eq(CodeDojo.CodeForces.value).and(CHALLENGE.DOJOID.eq(dojoId))) match {
+              case null => dsl.newRecord(CHALLENGE).setId(IdGenerator.nextId())
+              case r => r
+            }
+          challengeRecord.setDescription(challengeData.description)
+          challengeRecord.setDifficulty(codeForcesRatingToDifficulty(Option(record.getRating).map(_.toInt)).value)
+          challengeRecord.setDojo(CodeDojo.HackerRank.value)
+          challengeRecord.setDojoid(dojoId)
+          challengeRecord.setSlug(VelocityTool.slugify(record.getName))
+          challengeRecord.setTitle(record.getName)
+          challengeRecord.store()
+
+          val challengeLanguageRecord = dsl.fetchOne(
+            CHALLENGE_LANGUAGE,
+            CHALLENGE_LANGUAGE.CHALLENGEID
+              .eq(challengeRecord.getId)
+              .and(CHALLENGE_LANGUAGE.LANGUAGE.eq(language.value))
+              .and(CHALLENGE_LANGUAGE.LANGUAGEVERSION.eq(languageVersion.version))
+          ) match
+            case null =>
+              dsl
+                .newRecord(CHALLENGE_LANGUAGE)
+                .setId(IdGenerator.nextId())
+            case r => r
+          challengeLanguageRecord.setChallengeid(challengeRecord.getId)
+          challengeLanguageRecord.setLanguage(language.value)
+          challengeLanguageRecord.setLanguageversion(languageVersion.version)
+          challengeLanguageRecord.setCodetemplate(codeTemplate)
+          challengeLanguageRecord.store()
+
+          val defaultSolutionId = getOrCreateDefaultSolution(dsl, challengeRecord.getId)
+
+          (
+            ChallengeId(challengeRecord.getId),
+            ChallengeLanguageId(challengeLanguageRecord.getId),
+            SolutionId(defaultSolutionId)
+          )
+        }
+      }
+    }
+  }
 }

@@ -3,16 +3,17 @@ package com.wenjunhuang.codeepiphany.codeforces
 import cats.effect.IO
 import java.io.FileInputStream
 import java.net.HttpCookie
+import junit.framework.TestCase.fail
 import org.hamcrest.CoreMatchers.*
 import org.hamcrest.MatcherAssert.assertThat
 import scala.io.Source
 
 import com.intellij.testFramework.fixtures.BasePlatformTestCase
-import com.intellij.util.net.{ ProxyConfiguration, ProxySettings }
+import com.intellij.util.net.{ProxyConfiguration, ProxySettings}
 
 import com.wenjunhuang.codeepiphany.codeforces.services.CodeForcesApi
 import com.wenjunhuang.codeepiphany.model.CodeDojo
-import com.wenjunhuang.codeepiphany.services.http.{ HttpClientManager, HttpClientService }
+import com.wenjunhuang.codeepiphany.services.http.{HttpClientManager, HttpClientService}
 import com.wenjunhuang.codeepiphany.utils.CookieUtil
 import com.wenjunhuang.codeepiphany.utils.implicits.*
 
@@ -73,6 +74,25 @@ class CodeforcesApiIntegrationTest extends BasePlatformTestCase {
         .getProblemTags).flatMap { result =>
         IO.delay {
           assertThat(result.size, not(0))
+        }
+      }
+      .unsafeRunSync()
+  }
+
+  def testGetChallengeData(): Unit = {
+    val httpClientKeeper = HttpClientService.getInstance(getProject)
+    import httpClientKeeper.*
+    val api = CodeForcesApi[IO]()
+    (setCookie(httpClientKeeper.httpClientManager)
+      *>
+      api
+        .getChallengeData(None,2063,"F2")).flatMap { result =>
+        IO.delay {
+          result match
+            case None => fail("No challenge data found")
+            case Some(r) =>
+              println(r)
+              assertThat(r.description,notNullValue())
         }
       }
       .unsafeRunSync()
