@@ -1,17 +1,17 @@
 package com.wenjunhuang.codeepiphany.codeforces.services
 
 import cats.effect.kernel.Async
-import org.typelevel.log4cats.{ Logger, LoggerFactory }
 import cats.syntax.all.*
 import java.time.LocalDateTime
 import org.jooq.impl.DSL
+import org.typelevel.log4cats.{Logger, LoggerFactory}
 
 import com.intellij.openapi.project.Project
 
-import com.wenjunhuang.codeepiphany.model.ChallengeRepository
-import com.wenjunhuang.codeepiphany.services.http.HttpClientManager
 import com.wenjunhuang.codeepiphany.database.Tables.*
+import com.wenjunhuang.codeepiphany.model.ChallengeRepository
 import com.wenjunhuang.codeepiphany.services.console
+import com.wenjunhuang.codeepiphany.services.http.HttpClientManager
 import com.wenjunhuang.codeepiphany.utils.IdGenerator
 
 object problemsets {

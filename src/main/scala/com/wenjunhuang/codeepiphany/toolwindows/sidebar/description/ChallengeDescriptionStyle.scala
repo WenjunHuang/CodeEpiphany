@@ -6,7 +6,7 @@ import com.intellij.ui.JBColor
 import com.intellij.ui.jcef.JBCefScrollbarsHelper
 
 import com.wenjunhuang.codeepiphany.model.CodeDojo
-import com.wenjunhuang.codeepiphany.model.CodeDojo.{ HackerRank, LeetCode, LeetCodeCN }
+import com.wenjunhuang.codeepiphany.model.CodeDojo.{CodeForces, HackerRank, LeetCode, LeetCodeCN}
 import com.wenjunhuang.codeepiphany.utils.extensions.*
 
 object ChallengeDescriptionStyle {
@@ -69,6 +69,8 @@ object ChallengeDescriptionStyle {
         getLeetcodeCNStyle(styleProvider)
       case HackerRank =>
         getHackerRankStyle(styleProvider)
+      case CodeForces => ???
+
 
   private def getHackerRankStyle(styleProvider: ChallengeDescriptionStyleProvider): String =
     // language=CSS

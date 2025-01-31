@@ -4,8 +4,8 @@ import cats.syntax.all.*
 import scala.jdk.CollectionConverters.*
 
 import com.intellij.openapi.actionSystem.{ActionManager, AnAction}
-import com.intellij.openapi.project.{DumbAware, Project}
-import com.intellij.openapi.wm.{ToolWindow, ToolWindowContentUiType, ToolWindowFactory}
+import com.intellij.openapi.project.Project
+import com.intellij.openapi.wm.{ToolWindow, ToolWindowContentUiType}
 import com.intellij.openapi.wm.impl.content.ToolWindowContentUi
 import com.intellij.ui.content.{ContentManagerEvent, ContentManagerListener}
 

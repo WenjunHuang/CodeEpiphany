@@ -3,11 +3,10 @@ package com.wenjunhuang.codeepiphany.hackerrank.ui
 import java.awt.BorderLayout
 import javax.swing.ScrollPaneConstants
 
-import com.intellij.ide.plugins.newui.ListPluginComponent
-import com.intellij.openapi.actionSystem.{DataSink, UiDataProvider}
+import com.intellij.openapi.actionSystem.{ DataSink, UiDataProvider }
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.SimpleToolWindowPanel
-import com.intellij.ui.{Gray, JBColor, SearchTextField, SimpleTextAttributes}
+import com.intellij.ui.{ SearchTextField, SimpleTextAttributes }
 import com.intellij.ui.components.JBScrollPane
 import com.intellij.ui.table.TableView
 

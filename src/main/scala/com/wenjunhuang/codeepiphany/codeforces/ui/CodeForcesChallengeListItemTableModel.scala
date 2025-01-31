@@ -1,24 +1,22 @@
 package com.wenjunhuang.codeepiphany.codeforces.ui
 
 import java.awt.Color
-import java.awt.event.{ MouseAdapter, MouseEvent }
-import javax.swing.{ Icon, JTable, ListSelectionModel, SwingConstants }
-import javax.swing.table.{ DefaultTableCellRenderer, TableCellRenderer }
+import java.awt.event.{MouseAdapter, MouseEvent}
+import javax.swing.{JTable, ListSelectionModel}
+import javax.swing.table.{DefaultTableCellRenderer, TableCellRenderer}
 
 import com.intellij.icons.AllIcons
-import com.intellij.openapi.actionSystem.{ ActionGroup, ActionManager }
+import com.intellij.openapi.actionSystem.{ActionGroup, ActionManager}
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.ui.PopupHandler
 import com.intellij.ui.table.TableView
-import com.intellij.util.ui.{ ColumnInfo, JBUI, ListTableModel }
+import com.intellij.util.ui.{ColumnInfo, JBUI, ListTableModel}
 import com.intellij.util.ui.components.BorderLayoutPanel
-import com.intellij.util.ui.table.IconTableCellRenderer
 
 import com.wenjunhuang.codeepiphany.codeforces.models.CodeForcesSearchOrderBy
 import com.wenjunhuang.codeepiphany.codeforces.models.CodeForcesSearchOrderBy.ContestIdIndex
-import com.wenjunhuang.codeepiphany.database.tables.CodeforcesProblemsets
 import com.wenjunhuang.codeepiphany.database.tables.records.CodeforcesProblemsetsRecord
-import com.wenjunhuang.codeepiphany.model.{ ChallengeStatus, CodeDojo, OrderDirection, OrderDirectionProvider }
+import com.wenjunhuang.codeepiphany.model.{OrderDirection, OrderDirectionProvider}
 import com.wenjunhuang.codeepiphany.model.Actions.*
 import com.wenjunhuang.codeepiphany.utils.OrderByColumnInfo
 import com.wenjunhuang.codeepiphany.utils.OrderByColumnInfo.nextOrderFilter

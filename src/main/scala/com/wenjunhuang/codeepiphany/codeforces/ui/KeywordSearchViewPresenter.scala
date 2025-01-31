@@ -7,7 +7,7 @@ import fs2.concurrent.SignallingRef
 import javax.swing.JComponent
 import javax.swing.event.DocumentEvent
 import org.jooq.impl.DSL
-import org.typelevel.log4cats.{ Logger, LoggerFactory }
+import org.typelevel.log4cats.{Logger, LoggerFactory}
 import scala.concurrent.duration.*
 import scala.jdk.CollectionConverters.*
 
@@ -18,20 +18,15 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
 import com.intellij.ui.DocumentAdapter
 
-import com.wenjunhuang.codeepiphany.actions.OpenChallengeActionGroup.{ CHALLENGE_PROVIDER_KEY, OpenChallengeProvider }
-import com.wenjunhuang.codeepiphany.actions.PaginationParameterActionGroup.{
-  PAGINATION_PROVIDER_KEY,
-  PageSize,
-  PaginationParameterProvider
-}
-import com.wenjunhuang.codeepiphany.actions.RefreshAction.{ REFRESH_PROVIDER_KEY, RefreshProvider }
+import com.wenjunhuang.codeepiphany.actions.OpenChallengeActionGroup.{CHALLENGE_PROVIDER_KEY, OpenChallengeProvider}
+import com.wenjunhuang.codeepiphany.actions.PaginationParameterActionGroup.{PageSize, PAGINATION_PROVIDER_KEY, PaginationParameterProvider}
+import com.wenjunhuang.codeepiphany.actions.RefreshAction.{REFRESH_PROVIDER_KEY, RefreshProvider}
 import com.wenjunhuang.codeepiphany.codeforces.models.CodeForcesSearchOrderBy
 import com.wenjunhuang.codeepiphany.codeforces.settings.CodeForcesSettings
 import com.wenjunhuang.codeepiphany.codeforces.ui.KeywordSearchViewPresenter.*
 import com.wenjunhuang.codeepiphany.database.Tables.*
 import com.wenjunhuang.codeepiphany.database.tables.records.CodeforcesProblemsetsRecord
 import com.wenjunhuang.codeepiphany.model.*
-import com.wenjunhuang.codeepiphany.services.http.{ HttpClientManager, HttpClientService }
 import com.wenjunhuang.codeepiphany.utils.extensions.*
 import com.wenjunhuang.codeepiphany.utils.implicits.*
 

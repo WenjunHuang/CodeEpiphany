@@ -3,7 +3,6 @@ package com.wenjunhuang.codeepiphany.leetcode.ui
 import java.awt.BorderLayout
 import javax.swing.ScrollPaneConstants
 
-import com.intellij.ide.plugins.newui.ListPluginComponent
 import com.intellij.openapi.actionSystem.{ActionManager, DataSink, UiDataProvider}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.SimpleToolWindowPanel
