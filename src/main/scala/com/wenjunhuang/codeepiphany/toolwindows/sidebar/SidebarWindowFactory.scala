@@ -10,7 +10,8 @@ import com.wenjunhuang.codeepiphany.toolwindows.sidebar.description.ChallengeDes
 import com.wenjunhuang.codeepiphany.toolwindows.sidebar.solution.SolutionListPresenter
 import com.wenjunhuang.codeepiphany.toolwindows.sidebar.submissionlog.SubmissionLogPresenter
 import com.wenjunhuang.codeepiphany.toolwindows.sidebar.SidebarWindowFactory.*
-class SidebarWindowFactory extends ToolWindowFactory() {
+
+class SidebarWindowFactory extends ToolWindowFactory {
 
   override def createToolWindowContent(project: Project, toolWindow: ToolWindow): Unit = {
     val cm = toolWindow.getContentManager

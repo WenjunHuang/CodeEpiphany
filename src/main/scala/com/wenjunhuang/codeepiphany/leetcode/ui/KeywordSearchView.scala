@@ -18,6 +18,7 @@ import com.wenjunhuang.codeepiphany.actions.PaginationParameterActionGroup
 import com.wenjunhuang.codeepiphany.leetcode.model.LeetCodeChallengeListItem
 import com.wenjunhuang.codeepiphany.model.Actions.TOOLBAR_PLACE
 import com.wenjunhuang.codeepiphany.model.CodeDojo
+import com.wenjunhuang.codeepiphany.utils.ColorUtils
 
 class KeywordSearchView(
   private val myProject: Project,
@@ -35,7 +36,7 @@ class KeywordSearchView(
   mySearchTextField.getTextEditor.getEmptyText
     .appendText(
       PluginBundle.message("hackerrank.ui.query.searchHint"),
-      new SimpleTextAttributes(SimpleTextAttributes.STYLE_PLAIN, ListPluginComponent.GRAY_COLOR)
+      new SimpleTextAttributes(SimpleTextAttributes.STYLE_PLAIN, ColorUtils.LABEL_GRAY_COLOR)
     )
   mySearchTextField.addDocumentListener(myPresenter)
 

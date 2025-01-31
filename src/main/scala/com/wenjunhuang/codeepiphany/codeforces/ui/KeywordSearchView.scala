@@ -8,7 +8,7 @@ import com.intellij.openapi.actionSystem.{ActionManager, DataSink, UiDataProvide
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.SimpleToolWindowPanel
 import com.intellij.openapi.Disposable
-import com.intellij.ui.{SearchTextField, SimpleTextAttributes}
+import com.intellij.ui.{Gray, JBColor, SearchTextField, SimpleTextAttributes}
 import com.intellij.ui.components.JBScrollPane
 import com.intellij.ui.table.TableView
 import com.intellij.util.concurrency.annotations.RequiresEdt
@@ -19,11 +19,10 @@ import com.wenjunhuang.codeepiphany.database.tables.records.CodeforcesProblemset
 import com.wenjunhuang.codeepiphany.leetcode.model.LeetCodeChallengeListItem
 import com.wenjunhuang.codeepiphany.model.Actions.TOOLBAR_PLACE
 import com.wenjunhuang.codeepiphany.model.CodeDojo
+import com.wenjunhuang.codeepiphany.utils.ColorUtils
 
-class KeywordSearchView(
-  private val myProject: Project,
-  private val myPresenter: KeywordSearchViewPresenter
-) extends SimpleToolWindowPanel(true, true)
+class KeywordSearchView(private val myProject: Project, private val myPresenter: KeywordSearchViewPresenter)
+    extends SimpleToolWindowPanel(true, true)
     with UiDataProvider
     with Disposable {
   private val mySearchTextField = SearchTextField(true)
@@ -35,7 +34,10 @@ class KeywordSearchView(
   mySearchTextField.getTextEditor.getEmptyText
     .appendText(
       PluginBundle.message("hackerrank.ui.query.searchHint"),
-      new SimpleTextAttributes(SimpleTextAttributes.STYLE_PLAIN, ListPluginComponent.GRAY_COLOR)
+      new SimpleTextAttributes(
+        SimpleTextAttributes.STYLE_PLAIN,
+        ColorUtils.LABEL_GRAY_COLOR
+      )
     )
   mySearchTextField.addDocumentListener(myPresenter)
 
