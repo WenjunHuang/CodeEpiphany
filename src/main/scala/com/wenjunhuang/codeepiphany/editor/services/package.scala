@@ -30,6 +30,8 @@ package object services {
               leetcode.runCode[F](CodeDojo.LeetCodeCN, vf, project, item)
             case CodeDojo.LeetCode =>
               leetcode.runCode[F](CodeDojo.LeetCode, vf, project, item)
+            case CodeDojo.CodeForces =>
+              Async[F].unit
         case None => Async[F].unit
       }
   }

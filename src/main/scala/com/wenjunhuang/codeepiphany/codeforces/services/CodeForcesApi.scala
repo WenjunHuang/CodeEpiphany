@@ -1,38 +1,28 @@
 package com.wenjunhuang.codeepiphany.codeforces.services
 
-import cats.effect.{ Async, Concurrent, Temporal }
+import cats.effect.{Async, Concurrent, Temporal}
 import cats.effect.implicits.*
 import cats.syntax.all.*
-import org.http4s.client.dsl.Http4sClientDsl
-import org.http4s.implicits.uri
-import org.http4s.{ FormDataDecoder, Headers, Method, Uri, UrlForm }
-import org.jsoup.Jsoup
-import scala.jdk.CollectionConverters.*
 import fs2.Stream
-import io.circe.Json
 import io.circe.optics.JsonPath
 import io.circe.parser.parse
-import java.time.{ LocalDateTime, ZoneId, ZonedDateTime }
+import java.time.{LocalDateTime, ZoneId}
 import java.time.format.DateTimeFormatter
-import java.util.regex.Pattern
 import java.util.Locale
-import org.http4s.client.{ Client, UnexpectedStatus }
+import org.http4s.{Headers, Method, Uri, UrlForm}
+import org.http4s.client.{Client, UnexpectedStatus}
+import org.http4s.client.dsl.Http4sClientDsl
 import org.http4s.headers.Referer
+import org.http4s.implicits.uri
+import org.jsoup.Jsoup
 import org.typelevel.ci.CIString
-import scala.util.matching.Regex
 import scala.concurrent.duration.*
+import scala.jdk.CollectionConverters.*
 
 import com.intellij.openapi.util.text.StringUtil
 
-import com.wenjunhuang.codeepiphany.codeforces.models.{
-  CodeForcesChallengeData,
-  CodeForcesProblem,
-  CodeForcesProblemResponse,
-  CodeForcesProblemStatistics,
-  CodeForcesSubmissionResponse
-}
-import com.wenjunhuang.codeepiphany.leetcode.model.submitAnswer.LeetCodeSubmitAnswerResult
-import com.wenjunhuang.codeepiphany.model.{ ApiError, CodeDojo, SubmissionResult }
+import com.wenjunhuang.codeepiphany.codeforces.models.*
+import com.wenjunhuang.codeepiphany.model.{ApiError, CodeDojo, SubmissionResult}
 import com.wenjunhuang.codeepiphany.services.http.HttpClientManager
 
 trait CodeForcesApi[F[_]] {

@@ -4,7 +4,7 @@ import cats.effect.kernel.Async
 import cats.syntax.all.*
 import java.time.LocalDateTime
 import org.jooq.impl.DSL
-import org.typelevel.log4cats.{Logger, LoggerFactory}
+import org.typelevel.log4cats.LoggerFactory
 
 import com.intellij.openapi.project.Project
 
