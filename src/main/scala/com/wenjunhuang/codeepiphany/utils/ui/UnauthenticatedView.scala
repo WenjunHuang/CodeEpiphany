@@ -23,6 +23,7 @@ class UnauthenticatedView(private val myCodeDojo: CodeDojo,
       setContent(myLabel)
     case Some(tips) =>
       val tipsLabel = JEditorPane()
+      tipsLabel.setFont(JBUI.Fonts.label().biggerOn(1.5))
       tipsLabel.setEditorKit(HTMLEditorKitBuilder.simple());
       tipsLabel.setEditable(false);
       tipsLabel.addHyperlinkListener(BrowserHyperlinkListener())
