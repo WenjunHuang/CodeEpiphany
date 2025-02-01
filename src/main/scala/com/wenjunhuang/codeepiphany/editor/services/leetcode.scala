@@ -43,7 +43,7 @@ object leetcode {
           }
       )
       .flatMap { case (dojoId, testCase, language, langVer, challengeSlug) =>
-        val extractedCode = language.extractSubmitCode(VirtualFileUtil.readText(vf))
+        val extractedCode = language.extractCodeFromRegion(VirtualFileUtil.readText(vf))
         LeetCodeApi[F](codeDojo)
           .runAnswer(dojoId, challengeSlug, testCase, language, langVer, extractedCode)
           .map((_, testCase))
@@ -175,7 +175,7 @@ object leetcode {
                     val dsl                                           = DSL.using(trx)
                     val (dojoId, _, language, langVer, challengeSlug) = queryChallengeBasicInfo(item, dsl)
                     val localCode                                     = VirtualFileUtil.readText(vf)
-                    val submitCode                                    = language.extractSubmitCode(localCode)
+                    val submitCode                                    = language.extractCodeFromRegion(localCode)
                     val solutionId                                    = item.solutionId
 
                     val submissionRecord = dsl

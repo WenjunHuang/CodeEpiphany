@@ -3,7 +3,6 @@ package com.wenjunhuang.codeepiphany.hackerrank.ui
 import java.awt.BorderLayout
 import javax.swing.ScrollPaneConstants
 
-import com.intellij.ide.plugins.newui.ListPluginComponent
 import com.intellij.openapi.actionSystem.{ DataSink, UiDataProvider }
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.SimpleToolWindowPanel
@@ -13,6 +12,7 @@ import com.intellij.ui.table.TableView
 
 import com.wenjunhuang.codeepiphany.PluginBundle
 import com.wenjunhuang.codeepiphany.hackerrank.model.HackerRankChallengeDetail
+import com.wenjunhuang.codeepiphany.utils.ColorUtils
 
 class KeywordSearchView(private val myProject: Project, private val myPresenter: KeywordSearchViewPresenter)
     extends SimpleToolWindowPanel(true, true)
@@ -25,7 +25,7 @@ class KeywordSearchView(private val myProject: Project, private val myPresenter:
   mySearchTextField.getTextEditor.getEmptyText
     .appendText(
       PluginBundle.message("hackerrank.ui.query.searchHint"),
-      new SimpleTextAttributes(SimpleTextAttributes.STYLE_PLAIN, ListPluginComponent.GRAY_COLOR)
+      new SimpleTextAttributes(SimpleTextAttributes.STYLE_PLAIN, ColorUtils.LABEL_GRAY_COLOR)
     )
   mySearchTextField.addDocumentListener(myPresenter)
 

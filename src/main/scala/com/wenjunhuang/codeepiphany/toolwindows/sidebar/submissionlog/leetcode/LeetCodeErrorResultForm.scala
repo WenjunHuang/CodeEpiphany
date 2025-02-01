@@ -4,7 +4,6 @@ import java.awt.BorderLayout
 import javax.swing.JComponent
 
 import com.intellij.ui.components.JBTextArea
-import com.intellij.ui.JBColor
 import com.intellij.util.ui.JBUI
 
 import com.wenjunhuang.codeepiphany.utils.ui.BackgroundRoundedPanel

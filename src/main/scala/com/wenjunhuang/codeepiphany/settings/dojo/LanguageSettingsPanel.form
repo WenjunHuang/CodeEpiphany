@@ -54,11 +54,8 @@
           <hspacer id="7c3fa">
             <constraints border-constraint="Center"/>
           </hspacer>
-          <component id="cccc4" class="com.intellij.openapi.actionSystem.impl.ActionToolbarImpl" binding="myFileNameToolbar" custom-create="true">
+          <component id="21c0c" class="javax.swing.JComponent" binding="myFileNameToolbarComponent" custom-create="true">
             <constraints border-constraint="East"/>
-            <properties>
-              <targetComponent value="root"/>
-            </properties>
           </component>
         </children>
       </grid>
@@ -78,9 +75,8 @@
           <hspacer id="abd5d">
             <constraints border-constraint="Center"/>
           </hspacer>
-          <component id="1a1e5" class="com.intellij.openapi.actionSystem.impl.ActionToolbarImpl" binding="myCodeTemplateToolbar" custom-create="true">
+          <component id="49e1c" class="javax.swing.JComponent" binding="myCodeTemplateToolbarComponent" custom-create="true">
             <constraints border-constraint="East"/>
-            <properties/>
           </component>
         </children>
       </grid>

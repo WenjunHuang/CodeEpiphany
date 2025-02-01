@@ -38,7 +38,7 @@ object hackerrank {
           }
       )
       .flatMap { case (contest, language, langVer, challengeSlug) =>
-        val extractedCode = language.extractSubmitCode(VirtualFileUtil.readText(vf))
+        val extractedCode = language.extractCodeFromRegion(VirtualFileUtil.readText(vf))
         HackerRankApi[F]()
           .runAnswer(challengeSlug, contest, language, langVer, extractedCode)
       }
@@ -81,7 +81,7 @@ object hackerrank {
                 val dsl        = DSL.using(trx)
                 val basicInfo  = queryChallengeBasicInfo(item, dsl)
                 val localCode  = VirtualFileUtil.readText(vf)
-                val submitCode = basicInfo._2.extractSubmitCode(localCode)
+                val submitCode = basicInfo._2.extractCodeFromRegion(localCode)
                 val solutionId = item.solutionId
 
                 val submissionRecord = dsl
@@ -180,26 +180,6 @@ object hackerrank {
       }
       .compile
       .drain
-  }
-
-  def getOrCreateDefaultSolution(dsl: DSLContext, challengeId: Long): Long = {
-    val solutionRecord = dsl
-      .selectFrom(SOLUTION)
-      .where(SOLUTION.CHALLENGEID.eq(challengeId).and(SOLUTION.ISDEFAULT.eq(1)))
-      .fetchOptional()
-      .toScala
-      .getOrElse {
-        val newRecord = dsl
-          .newRecord(SOLUTION)
-          .setId(IdGenerator.nextId())
-          .setChallengeid(challengeId)
-          .setTitle("Default")
-          .setIsdefault(1)
-          .setCreatedatetime(LocalDateTime.now())
-        newRecord.store()
-        newRecord
-      }
-    solutionRecord.getId
   }
 
   private def queryChallengeBasicInfo(

@@ -7,6 +7,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.util.messages.Topic
 
 import com.wenjunhuang.codeepiphany.model.Constants.PROJECT_ID
+import cats.syntax.all.*
 
 enum ApiError extends NoStackTrace {
   case NotFound(dojo: CodeDojo, message: String) extends ApiError
@@ -19,12 +20,14 @@ enum ApiError extends NoStackTrace {
 
   case InvalidContent(dojo: CodeDojo, message: String) extends ApiError
 
-  override def toString: String = this match
-    case NotFound(dojo, message)       => s"CodeDojo:${dojo.value} NotFound: $message"
-    case BadRequest(dojo, message)     => s"CodeDojo:${dojo.value} BadRequest: $message"
-    case Unauthorized(dojo, message)   => s"CodeDojo:${dojo.value} Unauthorized: $message"
-    case Conflict(dojo, message)       => s"CodeDojo:${dojo.value} Conflict: $message"
-    case InvalidContent(dojo, message) => s"CodeDojo:${dojo.value} InvalidContent: $message"
+  override def getMessage: String = this match
+    case NotFound(dojo, message)       => s"${dojo.show} NotFound: $message"
+    case BadRequest(dojo, message)     => s"${dojo.show} BadRequest: $message"
+    case Unauthorized(dojo, message)   => s"${dojo.show} Unauthorized: $message"
+    case Conflict(dojo, message)       => s"${dojo.show} Conflict: $message"
+    case InvalidContent(dojo, message) => s"${dojo.show} InvalidContent: $message"
+
+  override def toString: String = getMessage
 }
 
 trait DojoLoginNotifier {

@@ -65,6 +65,13 @@
             <action id="CodeEpiphany.Actions.LeetCode.Category"
                     class="com.wenjunhuang.codeepiphany.leetcode.actions.LeetCodeCategoryParameterAction"/>
         </group>
+        <group id="CodeEpiphany.CodeForces.Group">
+            <action id="CodeEpiphany.Actions.CodeForces.ChangeUI"
+                    class="com.wenjunhuang.codeepiphany.codeforces.actions.CodeForcesChangeUIAction"/>
+            <action id="CodeEpiphany.Actions.CodeForces.UpdateProblemSets"
+                    class="com.wenjunhuang.codeepiphany.codeforces.actions.CodeForcesUpdateProblemSetsAction"
+                    icon="CodeEpiphanyIcons.DOWNLOAD"/>
+        </group>
 
 
         <group id="CodeEpiphany.Editor.Group">
@@ -113,6 +120,11 @@
             <reference ref="CodeEpiphany.Actions.Tags"/>
             <reference ref="CodeEpiphany.Actions.Refresh"/>
         </group>
+        <group id="CodeEpiphany.Dojos.CodeForces.Toolbar">
+            <reference ref="CodeEpiphany.Actions.Difficulty"/>
+            <reference ref="CodeEpiphany.Actions.Tags"/>
+            <reference ref="CodeEpiphany.Actions.Refresh"/>
+        </group>
 
         <group id="CodeEpiphany.Dojos.TitleToolbar">
             <reference ref="CodeEpiphany.Actions.Login"/>
@@ -123,6 +135,10 @@
         </group>
         <group id="CodeEpiphany.Dojos.TitleToolbar.LeetCode">
             <reference ref="CodeEpiphany.Actions.LeetCode.ChangeUI"/>
+        </group>
+        <group id="CodeEpiphany.Dojos.TitleToolbar.CodeForces">
+            <reference ref="CodeEpiphany.Actions.CodeForces.ChangeUI"/>
+            <reference ref="CodeEpiphany.Actions.CodeForces.UpdateProblemSets"/>
         </group>
 
         <group id="CodeEpiphany.Dojos.ChallengesTable.Popupmenu">
@@ -193,6 +209,9 @@
             <configurable id="CodeEpiphany.Settings.LeetCode"
                           instance="com.wenjunhuang.codeepiphany.leetcode.settings.LeetCodeSettingsConfigurable"
                           key="leetcode.settings.displayName"/>
+            <configurable id="CodeEpiphany.Settings.CodeForces"
+                          instance="com.wenjunhuang.codeepiphany.codeforces.settings.CodeForcesSettingsConfigurable"
+                          key="codeforces.settings.displayName"/>
             <configurable
                     id="CodeEpiphany.Settings.HackerRank"
                     instance="com.wenjunhuang.codeepiphany.hackerrank.settings.HackerRankSettingsConfigurable"

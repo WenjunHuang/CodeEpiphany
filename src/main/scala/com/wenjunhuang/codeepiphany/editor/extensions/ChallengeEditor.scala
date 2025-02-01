@@ -24,7 +24,7 @@ import com.wenjunhuang.codeepiphany.editor.extensions.ChallengeEditor.*
 import com.wenjunhuang.codeepiphany.model.Actions
 
 class ChallengeEditor(private val myDelegate: TextEditor, private val myName: String = "ChallengeEditor")
-    extends TextEditor {
+    extends TextEditorBridge {
 
   private lazy val myUi = MyUi()
 
@@ -39,8 +39,6 @@ class ChallengeEditor(private val myDelegate: TextEditor, private val myName: St
   override def canNavigateTo(navigatable: Navigatable): Boolean = myDelegate.canNavigateTo(navigatable)
 
   override def navigateTo(navigatable: Navigatable): Unit = myDelegate.navigateTo(navigatable)
-
-  override def isEditorLoaded: Boolean = myDelegate.isEditorLoaded
 
   override def getComponent: JComponent = myUi.myLayeredPane
 
@@ -85,6 +83,8 @@ class ChallengeEditor(private val myDelegate: TextEditor, private val myName: St
   override def getFilesToRefresh: util.List[VirtualFile] = myDelegate.getFilesToRefresh
 
   override def getTabActions: ActionGroup = myDelegate.getTabActions
+
+//  override def isEditorLoaded: Boolean = super.isEditorLoaded
 
   private def createActionGroup(): ActionGroup = {
     val ag = ActionManager.getInstance().getAction(Actions.CHALLENGE_EDITOR_TOOLBAR_GROUP).asInstanceOf[ActionGroup]

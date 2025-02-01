@@ -22,6 +22,9 @@ object VelocityTool {
     case null => ""
     case _    => str.split("(?=[A-Z])").flatMap(_.split("[\\s_-]")).map(_.toLowerCase).mkString("_")
 
+  def slugify(str: String): String = str match
+    case null => ""
+    case _    => str.split("[\\s_-]").map(_.toLowerCase).mkString("-")
   def dateTime():String = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
   
   override def toString: String = ""

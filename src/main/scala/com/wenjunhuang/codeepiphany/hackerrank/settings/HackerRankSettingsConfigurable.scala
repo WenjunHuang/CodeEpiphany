@@ -18,7 +18,7 @@ import com.wenjunhuang.codeepiphany.model.*
 import com.wenjunhuang.codeepiphany.model.CodeDojo.HackerRank
 import com.wenjunhuang.codeepiphany.model.Language.*
 import com.wenjunhuang.codeepiphany.model.LanguageVersion.*
-import com.wenjunhuang.codeepiphany.settings.dojo.{BaseCodeDojoSettings, BaseSettingsConfigurable}
+import com.wenjunhuang.codeepiphany.settings.dojo.{ BaseCodeDojoSettings, BaseSettingsConfigurable }
 
 class HackerRankSettingsConfigurable(project: Project)
     extends BaseSettingsConfigurable(
@@ -34,11 +34,44 @@ class HackerRankSettingsConfigurable(project: Project)
 
   override def supportedLanguages: List[(Language, LanguageVersion)] = HACKERRANK_LANGUAGES
 
-  override def createDemoTemplate(language: Language, languageVersion: LanguageVersion): Option[HackerRankChallengeCodeTemplate] =
+  override def createDemoTemplate(
+    language: Language,
+    languageVersion: LanguageVersion
+  ): Option[HackerRankChallengeCodeTemplate] =
     getDemoTemplate(language, languageVersion)
 }
 
 object HackerRankSettingsConfigurable {
+  val HACKERRANK_LANGUAGES: List[(Language, LanguageVersion)] = List(
+    (Julia, AnyVersion),
+    (Java, AnyVersion),
+    (Java, SpecificVersion("8")),
+    (Java, SpecificVersion("15")),
+    (Javascript, AnyVersion),
+    (R, AnyVersion),
+    (Kotlin, AnyVersion),
+    (Typescript, AnyVersion),
+    (Erlang, AnyVersion),
+    (Cpp, AnyVersion),
+    (Cpp, SpecificVersion("14")),
+    (Cpp, SpecificVersion("20")),
+    (PHP, AnyVersion),
+    (Swift, AnyVersion),
+    (Rust, AnyVersion),
+    (Scala, AnyVersion),
+    (Perl, AnyVersion),
+    (CSharp, AnyVersion),
+    (Haskell, AnyVersion),
+    (GO, AnyVersion),
+    (Ruby, AnyVersion),
+    (Clojure, AnyVersion),
+    (C, AnyVersion),
+    (ObjectiveC, AnyVersion),
+    (Python, AnyVersion),
+    (Python, SpecificVersion("3")),
+    (Pypy, AnyVersion),
+    (Pypy, SpecificVersion("3"))
+  ).sorted
   private val codeTemplateJson =
     parse(
       StringUtil.join(
@@ -51,38 +84,7 @@ object HackerRankSettingsConfigurable {
     ).toOption.get
 
   private def createCodeTemplate(): Map[(Language, LanguageVersion), HackerRankChallengeCodeTemplate] = {
-    val keys = List(
-      (Julia, AnyVersion),
-      (Java, AnyVersion),
-      (Java, SpecificVersion("8")),
-      (Java, SpecificVersion("15")),
-      (Javascript, AnyVersion),
-      (R, AnyVersion),
-      (Kotlin, AnyVersion),
-      (Typescript, AnyVersion),
-      (Erlang, AnyVersion),
-      (Cpp, AnyVersion),
-      (Cpp, SpecificVersion("14")),
-      (Cpp, SpecificVersion("20")),
-      (PHP, AnyVersion),
-      (Swift, AnyVersion),
-      (Rust, AnyVersion),
-      (Scala, AnyVersion),
-      (Perl, AnyVersion),
-      (CSharp, AnyVersion),
-      (Haskell, AnyVersion),
-      (GO, AnyVersion),
-      (Ruby, AnyVersion),
-      (Clojure, AnyVersion),
-      (C, AnyVersion),
-      (ObjectiveC, AnyVersion),
-      (Python, AnyVersion),
-      (Python, SpecificVersion("3")),
-      (Pypy, AnyVersion),
-      (Pypy, SpecificVersion("3"))
-    )
-
-    keys
+    HACKERRANK_LANGUAGES
       .map((language, languageVersion) => {
         val t = JsonPath.root
           .selectDynamic(s"${language.value}${languageVersion.version}_template")
@@ -119,8 +121,6 @@ object HackerRankSettingsConfigurable {
   }
 
   private val DEMOS_CODE_TEMPLATES = createCodeTemplate()
-
-  private val HACKERRANK_LANGUAGES: List[(Language, LanguageVersion)] = DEMOS_CODE_TEMPLATES.keys.toList.sorted
 
   def getDemoTemplate(language: Language, languageVersion: LanguageVersion): Option[HackerRankChallengeCodeTemplate] =
     DEMOS_CODE_TEMPLATES.get((language, languageVersion))

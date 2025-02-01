@@ -40,7 +40,7 @@ import com.wenjunhuang.codeepiphany.database.tables.records.{
 }
 import com.wenjunhuang.codeepiphany.model.*
 import com.wenjunhuang.codeepiphany.model.ChallengeRepository.SubmissionId
-import com.wenjunhuang.codeepiphany.model.CodeDojo.{ HackerRank, LeetCode, LeetCodeCN }
+import com.wenjunhuang.codeepiphany.model.CodeDojo.{ CodeForces, HackerRank, LeetCode, LeetCodeCN }
 import com.wenjunhuang.codeepiphany.toolwindows.sidebar.submissionlog.SubmissionLogPresenter.*
 import com.wenjunhuang.codeepiphany.utils.extensions.*
 import com.wenjunhuang.codeepiphany.utils.implicits.*
@@ -103,8 +103,8 @@ class SubmissionLogPresenter(private val myProject: Project) extends UiDataProvi
   private var mySelectedSubmissionQueue: Option[Queue[IO, Option[SubmissionLogEntry]]] = None
 
   private val mySelectedSubmissionCanceller = (for {
-    q <- Queue.unbounded[IO, Option[SubmissionLogEntry]]
-    _ <- IO.delay {mySelectedSubmissionQueue = Some(q)}
+    q              <- Queue.unbounded[IO, Option[SubmissionLogEntry]]
+    _              <- IO.delay { mySelectedSubmissionQueue = Some(q) }
     notInterrupted <- SignallingRef.of[IO, Boolean](false)
     _ <- Stream
       .fromQueueUnterminated(q)
@@ -287,6 +287,20 @@ class SubmissionLogPresenter(private val myProject: Project) extends UiDataProvi
                       .asScala
                       .toList
                     Some(SubmissionType.HackerRankSubmission(lang, submissionRecord, hackerCases))
+                  case CodeForces =>
+                    dsl
+                      .selectFrom(CODEFORCES_CHALLENGE)
+                      .where(CODEFORCES_CHALLENGE.ID.eq(record.get(CHALLENGE.ID)))
+                      .fetchOptional()
+                      .toScala
+                      .map { codeForcesChallenge =>
+                        SubmissionType.CodeForcesSubmission(
+                          lang,
+                          submissionRecord,
+                          codeForcesChallenge.getContestid,
+                          Option(codeForcesChallenge.getProblemsetname)
+                        )
+                      }
                 }
               }.flatten
             }
@@ -481,6 +495,12 @@ object SubmissionLogPresenter {
       language: Language,
       record: SolutionSubmissionRecord,
       hackerCases: List[HackerrankSubmissionCaseRecord]
+    )
+    case CodeForcesSubmission(
+      language: Language,
+      record: SolutionSubmissionRecord,
+      contestId: Long,
+      problemsetName: Option[String]
     )
   }
 

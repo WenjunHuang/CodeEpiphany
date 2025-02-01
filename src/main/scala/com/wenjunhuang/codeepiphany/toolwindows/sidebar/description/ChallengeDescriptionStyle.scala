@@ -6,7 +6,7 @@ import com.intellij.ui.JBColor
 import com.intellij.ui.jcef.JBCefScrollbarsHelper
 
 import com.wenjunhuang.codeepiphany.model.CodeDojo
-import com.wenjunhuang.codeepiphany.model.CodeDojo.{ HackerRank, LeetCode, LeetCodeCN }
+import com.wenjunhuang.codeepiphany.model.CodeDojo.{CodeForces, HackerRank, LeetCode, LeetCodeCN}
 import com.wenjunhuang.codeepiphany.utils.extensions.*
 
 object ChallengeDescriptionStyle {
@@ -69,6 +69,9 @@ object ChallengeDescriptionStyle {
         getLeetcodeCNStyle(styleProvider)
       case HackerRank =>
         getHackerRankStyle(styleProvider)
+      case CodeForces =>
+        getCodeForcesStyle(styleProvider)
+
 
   private def getHackerRankStyle(styleProvider: ChallengeDescriptionStyleProvider): String =
     // language=CSS
@@ -123,6 +126,542 @@ object ChallengeDescriptionStyle {
        |}
        |""".stripMargin
 
+  private def getCodeForcesStyle(styleProvider: ChallengeDescriptionStyleProvider):String = {
+    // language=CSS
+    s"""
+       |@media print {
+       |    div.print-content article.node .node-blog .clearfix div.item-body p a { display: none; }
+       |
+       |    .compact-problemset div.ttypography {
+       |        margin: 0 !important;
+       |    }
+       |
+       |    .compact-problemset .problem-statement p {
+       |        margin-bottom: 0.75em !important;
+       |        page-break-inside: avoid;
+       |    }
+       |    .compact-problemset .problem-frames {
+       |        column-count: 2;
+       |    }
+       |
+       |    .compact-problemset .problem-statement .input,
+       |    .compact-problemset .problem-statement .output {
+       |        page-break-inside: avoid;
+       |    }
+       |
+       |    .compact-problemset .problem-statement .output {
+       |        page-break-inside: avoid;
+       |    }
+       |
+       |    .compact-problemset .problem-statement {
+       |        margin: 0.25em;
+       |        line-height: 1.45em;
+       |        font-size: 1.4rem;
+       |    }
+       |
+       |    .compact-problemset #header {
+       |        display: none;
+       |    }
+       |
+       |    .compact-problemset .problem-statement .time-limit,
+       |    .compact-problemset .problem-statement .memory-limit {
+       |        display: inline;
+       |    }
+       |
+       |    .compact-problemset .problem-statement .time-limit::after {
+       |        content: ", ";
+       |    }
+       |
+       |    .compact-problemset .problem-statement .property-title {
+       |        display: none;
+       |    }
+       |
+       |    .compact-problemset .problem-statement .input-file,
+       |    .compact-problemset .problem-statement .output-file {
+       |        display: none;
+       |    }
+       |
+       |    .compact-problemset .problem-statement .sample-tests .section-title,
+       |    .compact-problemset .problem-statement .note .section-title {
+       |        display: none;
+       |    }
+       |
+       |    .compact-problemset .input-output-copier {
+       |        display: none;
+       |    }
+       |}
+       |
+       |.problem-statement {
+       |    margin: 0.5em;
+       |    /*font-family: verdana,arial,sans-serif;*/
+       |    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+       |    line-height: 1.5em;
+       |    font-size: 1.4rem;
+       |}
+       |
+       |.problem-statement .epigraph {
+       |/*    margin-left: 67%;*/
+       |/*    width: 33%;*/
+       |}
+       |
+       |.problem-statement .epigraph-text {
+       |    margin-left: 67%;
+       |    width: 33%;
+       |}
+       |
+       |.problem-statement .epigraph-source {
+       |    border-top: 1px solid #888;
+       |    text-align: right;
+       |}
+       |
+       |
+       |.problem-statement .lstlisting {
+       |    padding: 0.5em;
+       |}
+       |
+       |.problem-statement .tex-tabular {
+       |    margin: 1em 0;
+       |    border-collapse: collapse;
+       |    border-spacing: 0;
+       |    border: initial !important;
+       |}
+       |
+       |.problem-statement .tex-tabular * {
+       |    border: initial !important;
+       |}
+       |
+       |.problem-statement .tex-tabular tr:hover * {
+       |    background: initial;
+       |}
+       |
+       |.problem-statement .tex-tabular .tex-tabular-border-left {
+       |    border-left: 1px #ccc solid !important;
+       |}
+       |
+       |.problem-statement .tex-tabular .tex-tabular-border-right {
+       |    border-right: 1px #ccc solid !important;
+       |}
+       |
+       |.problem-statement .tex-tabular .tex-tabular-border-top {
+       |    border-top: 1px #ccc solid !important;
+       |}
+       |
+       |.problem-statement .tex-tabular .tex-tabular-border-bottom {
+       |    border-bottom: 1px #ccc solid !important;
+       |}
+       |
+       |.problem-statement .tex-tabular .tex-tabular-text-align-left {
+       |    text-align: left;
+       |}
+       |
+       |.problem-statement .tex-tabular .tex-tabular-text-align-center {
+       |    text-align: center;
+       |}
+       |
+       |.problem-statement .tex-tabular .tex-tabular-text-align-right {
+       |    text-align: right;
+       |}
+       |
+       |.problem-statement .tex-tabular td {
+       |    padding: 0.4em;
+       |    vertical-align: middle;
+       |}
+       |
+       |.problem-statement p {
+       |    margin: 0 0 1em 0 !important;
+       |}
+       |
+       |.problem-statement .header {
+       |    margin-bottom: 1em;
+       |    text-align: center;
+       |}
+       |
+       |.problem-statement .header .title {
+       |    font-size: 150%;
+       |    margin-bottom: 0.5em;
+       |}
+       |
+       |.problem-statement .header .title {
+       |    font-size: 150%;
+       |}
+       |
+       |.problem-statement ul {
+       |    list-style: disc outside;
+       |    margin-top: 1em !important;
+       |    margin-bottom: 1em !important;
+       |}
+       |
+       |.problem-statement ol {
+       |    list-style: decimal outside;
+       |    margin-top: 1em !important;
+       |    margin-bottom: 1em !important;
+       |}
+       |
+       |.problem-statement li {
+       |    line-height: 1.5em;
+       |}
+       |
+       |.problem-statement .property-title {
+       |    display: inline;
+       |    padding-right: 4px;
+       |}
+       |
+       |.problem-statement .property-title:after {
+       |    content: ":";
+       |}
+       |
+       |.problem-statement .time-limit, .problem-statement .memory-limit, .problem-statement .input-file, .problem-statement .output-file {
+       |    margin: 0 auto;
+       |}
+       |
+       |.problem-statement .legend {
+       |    margin-bottom: 1em;
+       |}
+       |
+       |.problem-statement .section-title {
+       |    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+       |    /*font-family: arial,sans-serif;*/
+       |    font-size: 115%;
+       |    font-weight: bold;
+       |}
+       |
+       |.problem-statement .input-specification,
+       |    .problem-statement .output-specification,
+       |    .problem-statement .sample-tests,
+       |    .problem-statement .author,
+       |    .problem-statement .resource,
+       |    .problem-statement .date {
+       |    /*margin-bottom: 1em;*/
+       |}
+       |
+       |.problem-statement .output-specification {
+       |    margin-bottom: 1em;
+       |}
+       |
+       |.problem-statement .sample-tests .sample-test {
+       |}
+       |
+       |.problem-statement .sample-tests .input, .problem-statement .sample-tests .output {
+       |    border: 1px solid #888;
+       |}
+       |
+       |.problem-statement .sample-tests .output {
+       |    margin-bottom: 1em;
+       |    position: relative;
+       |    top: -1px;
+       |}
+       |
+       |.problem-statement .sample-tests pre {
+       |    line-height: 1.25em;
+       |    padding: 0.25em;
+       |    margin: 0;
+       |}
+       |
+       |.problem-statement .sample-tests {
+       |    font-family: Consolas, "Lucida Console", "Andale Mono", "Bitstream Vera Sans Mono", "Courier New", Courier, monospace;
+       |    font-size: 0.9em;
+       |}
+       |
+       |.problem-statement .sample-tests .title {
+       |    /*font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;*/
+       |    /*font-family: arial,sans-serif;*/
+       |    font-size: 1.3em;
+       |    padding: 0.25em;
+       |    border-bottom: 1px solid #888;
+       |    text-transform: lowercase;
+       |    font-weight: bold;
+       |}
+       |
+       |.problem-statement .test {
+       |    margin-bottom: 3em;
+       |}
+       |
+       |.problem-statement .test-title {
+       |    /*font-size: 150%;*/
+       |    font-weight: bold;
+       |}
+       |
+       |.problem-statement .test-stem, .problem-statement .test-explanation-note {
+       |    margin: 0.5em 0 0.5em 0;
+       |}
+       |
+       |.problem-statement input[type="submit"] {
+       |    margin-top: 0.5em;
+       |    margin-right: 1em;
+       |    padding: 0 1em;
+       |}
+       |
+       |.problemindexholder {
+       |    position: relative;
+       |}
+       |
+       |div .problem-statement-overlay {
+       |    position: absolute;
+       |    top: 0;
+       |    left: 0;
+       |    height: 100%;
+       |    width: 100%;
+       |    background-color: #000;
+       |    z-index: 50;
+       |    opacity: 0.2;
+       |}
+       |
+       |.load-answers-waiting-indicator {
+       |    position: absolute;
+       |    top: 49%;
+       |    left: 49%;
+       |}
+       |
+       |.problem-statement input[type="radio"] {
+       |    margin-right: 0.5em;
+       |}
+       |
+       |.problem-statement input[type="checkbox"] {
+       |    margin-right: 0.5em;
+       |}
+       |
+       |
+       |.problem-statement input[type="text"] {
+       |    width: 20em;
+       |}
+       |
+       |.problem-statement textarea {
+       |    width: 20em;
+       |    height: 7em;
+       |}
+       |
+       |.problem-statement .test-form {
+       |    line-height: 1.75em;
+       |}
+       |
+       |.problem-statement .test-form {
+       |    line-height: 1.75em;
+       |}
+       |
+       |.tex-formula {
+       |    font-family: times new roman,sans-serif;
+       |    vertical-align: middle;
+       |    margin: 0;
+       |    border:medium none;
+       |    position: relative;
+       |    bottom: 2px;
+       |}
+       |
+       |.tex-span {
+       |    font-size: 125%;
+       |    font-family: times new roman,sans-serif;
+       |    white-space: nowrap;
+       |}
+       |
+       |.tex-font-size-tiny {
+       |    font-size: 70%;
+       |}
+       |
+       |.tex-font-size-script {
+       |    font-size: 75%;
+       |}
+       |
+       |.tex-font-size-footnotes {
+       |    font-size: 85%;
+       |}
+       |
+       |.tex-font-size-small {
+       |    font-size: 85%;
+       |}
+       |
+       |.tex-font-size-normal {
+       |    font-size: 100%;
+       |}
+       |
+       |.tex-font-size-large-1 {
+       |    font-size: 115%;
+       |}
+       |
+       |.tex-font-size-large-2 {
+       |    font-size: 130%;
+       |}
+       |
+       |.tex-font-size-large-3 {
+       |    font-size: 145%;
+       |}
+       |
+       |.tex-font-size-huge-1 {
+       |    font-size: 175%;
+       |}
+       |
+       |.tex-font-size-huge-2 {
+       |    font-size: 200%;
+       |}
+       |
+       |.tex-font-style-rm {
+       |}
+       |
+       |.tex-font-style-sf {
+       |    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+       |    /*font-family: arial,sans-serif;*/
+       |}
+       |
+       |.tex-font-style-tt {
+       |    font-size: 110%;
+       |    font-family: courier new,monospace;
+       |}
+       |
+       |.tex-font-style-md {
+       |}
+       |
+       |.tex-font-style-bf {
+       |    font-weight: bold;
+       |}
+       |
+       |.tex-font-style-up {
+       |}
+       |
+       |.tex-font-style-it {
+       |    font-style: italic;
+       |}
+       |
+       |.tex-font-style-sl {
+       |    font-style: italic;
+       |}
+       |
+       |.tex-font-style-sc {
+       |    text-transform: uppercase;
+       |}
+       |
+       |.tex-font-style-striked {
+       |    text-decoration: line-through;
+       |}
+       |
+       |.tex-font-style-underline {
+       |    text-decoration: underline;
+       |}
+       |
+       |.tex-graphics {
+       |    display: block;
+       |}
+       |
+       |.tex-font-style-part {
+       |    font-size: 187.5%;
+       |    font-weight: bold;
+       |    font-family: Tahoma, Arial, Helvetica, sans-serif;
+       |}
+       |
+       |.tex-font-style-chapter {
+       |    font-size: 162.5%;
+       |    font-weight: bold;
+       |    font-family: Tahoma, Arial, Helvetica, sans-serif;
+       |}
+       |
+       |.tex-font-style-section {
+       |    font-size: 137.5%;
+       |    font-weight: bold;
+       |}
+       |
+       |.tex-font-style-subsection {
+       |    font-size: 125%;
+       |    font-weight: bold;
+       |}
+       |
+       |.tex-font-style-subsubsection {
+       |    font-size: 112.5%;
+       |    font-weight: bold;
+       |}
+       |
+       |.tex-font-style-paragraph {
+       |    font-size: 100%;
+       |    font-weight: bold;
+       |}
+       |
+       |.tex-font-style-subparagraph {
+       |    font-size: 100%;
+       |    font-style: italic;
+       |}
+       |
+       |.problem-statement .tex-tabular .tex-graphics {
+       |    max-width: 100%;
+       |}
+       |
+       |.problem-statement .tex-tabular td > p {
+       |    margin-bottom: 0 !important;
+       |}
+       |
+       |.problem-statement .test-example-line-even {
+       |    background-color: ${styleProvider.backgroundColor.webRgba()};
+       |}
+       |
+       |.statement-footnote {
+       |    font-size: 85%;
+       |    position: relative;
+       |}
+       |
+       |.statement-footnote::before {
+       |    content: "";
+       |    position: absolute;
+       |    top: -2px;
+       |    width: 25%;
+       |    border-top: 1px solid #888;
+       |}
+       |
+       |.statement-footnote p {
+       |    margin-bottom: 0.25em !important;
+       |}
+       |
+       |.statement-footnote p:last-child {
+       |    margin-bottom: 1em;
+       |}
+       |
+       |.problem-statement .header .input-standard,
+       |.problem-statement .header .output-standard {
+       |    display: none;
+       |}
+       |
+       |.test-form-item textarea {
+       |    width: 100%;
+       |    font-family: Consolas, "Lucida Console", "Andale Mono", "Bitstream Vera Sans Mono", "Courier New", Courier, monospace;
+       |    height: 20rem;
+       |    font-size: 1.3rem;
+       |}
+       |.MathJax_Display {text-align: center; margin: 1em 0em; position: relative; display: block!important; text-indent: 0; max-width: none; max-height: none; min-width: 0; min-height: 0; width: 100%}
+       |.MathJax .merror {background-color: #FFFF88; color: #CC0000; border: 1px solid #CC0000; padding: 1px 3px; font-style: normal; font-size: 90%}
+       |.MathJax .MJX-monospace {font-family: monospace}
+       |.MathJax .MJX-sans-serif {font-family: sans-serif}
+       |#MathJax_Tooltip {background-color: InfoBackground; color: InfoText; border: 1px solid black; box-shadow: 2px 2px 5px #AAAAAA; -webkit-box-shadow: 2px 2px 5px #AAAAAA; -moz-box-shadow: 2px 2px 5px #AAAAAA; -khtml-box-shadow: 2px 2px 5px #AAAAAA; filter: progid:DXImageTransform.Microsoft.dropshadow(OffX=2, OffY=2, Color='gray', Positive='true'); padding: 3px 4px; z-index: 401; position: absolute; left: 0; top: 0; width: auto; height: auto; display: none}
+       |.MathJax {display: inline; font-style: normal; font-weight: normal; line-height: normal; font-size: 100%; font-size-adjust: none; text-indent: 0; text-align: left; text-transform: none; letter-spacing: normal; word-spacing: normal; word-wrap: normal; white-space: nowrap; float: none; direction: ltr; max-width: none; max-height: none; min-width: 0; min-height: 0; border: 0; padding: 0; margin: 0}
+       |.MathJax:focus, body :focus .MathJax {display: inline-table}
+       |.MathJax.MathJax_FullWidth {text-align: center; display: table-cell!important; width: 10000em!important}
+       |.MathJax img, .MathJax nobr, .MathJax a {border: 0; padding: 0; margin: 0; max-width: none; max-height: none; min-width: 0; min-height: 0; vertical-align: 0; line-height: normal; text-decoration: none}
+       |img.MathJax_strut {border: 0!important; padding: 0!important; margin: 0!important; vertical-align: 0!important}
+       |.MathJax span {display: inline; position: static; border: 0; padding: 0; margin: 0; vertical-align: 0; line-height: normal; text-decoration: none; box-sizing: content-box}
+       |.MathJax nobr {white-space: nowrap!important}
+       |.MathJax img {display: inline!important; float: none!important}
+       |.MathJax * {transition: none; -webkit-transition: none; -moz-transition: none; -ms-transition: none; -o-transition: none}
+       |.MathJax_Processing {visibility: hidden; position: fixed; width: 0; height: 0; overflow: hidden}
+       |.MathJax_Processed {display: none!important}
+       |.MathJax_test {font-style: normal; font-weight: normal; font-size: 100%; font-size-adjust: none; text-indent: 0; text-transform: none; letter-spacing: normal; word-spacing: normal; overflow: hidden; height: 1px}
+       |.MathJax_test.mjx-test-display {display: table!important}
+       |.MathJax_test.mjx-test-inline {display: inline!important; margin-right: -1px}
+       |.MathJax_test.mjx-test-default {display: block!important; clear: both}
+       |.MathJax_ex_box {display: inline-block!important; position: absolute; overflow: hidden; min-height: 0; max-height: none; padding: 0; border: 0; margin: 0; width: 1px; height: 60ex}
+       |.MathJax_em_box {display: inline-block!important; position: absolute; overflow: hidden; min-height: 0; max-height: none; padding: 0; border: 0; margin: 0; width: 1px; height: 60em}
+       |.mjx-test-inline .MathJax_left_box {display: inline-block; width: 0; float: left}
+       |.mjx-test-inline .MathJax_right_box {display: inline-block; width: 0; float: right}
+       |.mjx-test-display .MathJax_right_box {display: table-cell!important; width: 10000em!important; min-width: 0; max-width: none; padding: 0; border: 0; margin: 0}
+       |.MathJax .MathJax_HitBox {cursor: text; background: white; opacity: 0; filter: alpha(opacity=0)}
+       |.MathJax .MathJax_HitBox * {filter: none; opacity: 1; background: transparent}
+       |#MathJax_Tooltip * {filter: none; opacity: 1; background: transparent}
+       |@font-face {font-family: MathJax_Main; src: url('https://codeforces.com/mathjax.codeforces.org/fonts/HTML-CSS/TeX/woff/MathJax_Main-Regular.woff?V=2.7.9') format('woff'), url('https://codeforces.com/mathjax.codeforces.org/fonts/HTML-CSS/TeX/otf/MathJax_Main-Regular.otf?V=2.7.9') format('opentype')}
+       |@font-face {font-family: MathJax_Main-bold; src: url('https://codeforces.com/mathjax.codeforces.org/fonts/HTML-CSS/TeX/woff/MathJax_Main-Bold.woff?V=2.7.9') format('woff'), url('https://codeforces.com/mathjax.codeforces.org/fonts/HTML-CSS/TeX/otf/MathJax_Main-Bold.otf?V=2.7.9') format('opentype')}
+       |@font-face {font-family: MathJax_Main-italic; src: url('https://codeforces.com/mathjax.codeforces.org/fonts/HTML-CSS/TeX/woff/MathJax_Main-Italic.woff?V=2.7.9') format('woff'), url('https://codeforces.com/mathjax.codeforces.org/fonts/HTML-CSS/TeX/otf/MathJax_Main-Italic.otf?V=2.7.9') format('opentype')}
+       |@font-face {font-family: MathJax_Math-italic; src: url('https://codeforces.com/mathjax.codeforces.org/fonts/HTML-CSS/TeX/woff/MathJax_Math-Italic.woff?V=2.7.9') format('woff'), url('https://codeforces.com/mathjax.codeforces.org/fonts/HTML-CSS/TeX/otf/MathJax_Math-Italic.otf?V=2.7.9') format('opentype')}
+       |@font-face {font-family: MathJax_Caligraphic; src: url('https://codeforces.com/mathjax.codeforces.org/fonts/HTML-CSS/TeX/woff/MathJax_Caligraphic-Regular.woff?V=2.7.9') format('woff'), url('https://codeforces.com/mathjax.codeforces.org/fonts/HTML-CSS/TeX/otf/MathJax_Caligraphic-Regular.otf?V=2.7.9') format('opentype')}
+       |@font-face {font-family: MathJax_Size1; src: url('https://codeforces.com/mathjax.codeforces.org/fonts/HTML-CSS/TeX/woff/MathJax_Size1-Regular.woff?V=2.7.9') format('woff'), url('https://codeforces.com/mathjax.codeforces.org/fonts/HTML-CSS/TeX/otf/MathJax_Size1-Regular.otf?V=2.7.9') format('opentype')}
+       |@font-face {font-family: MathJax_Size2; src: url('https://codeforces.com/mathjax.codeforces.org/fonts/HTML-CSS/TeX/woff/MathJax_Size2-Regular.woff?V=2.7.9') format('woff'), url('https://codeforces.com/mathjax.codeforces.org/fonts/HTML-CSS/TeX/otf/MathJax_Size2-Regular.otf?V=2.7.9') format('opentype')}
+       |@font-face {font-family: MathJax_Size3; src: url('https://codeforces.com/mathjax.codeforces.org/fonts/HTML-CSS/TeX/woff/MathJax_Size3-Regular.woff?V=2.7.9') format('woff'), url('https://codeforces.com/mathjax.codeforces.org/fonts/HTML-CSS/TeX/otf/MathJax_Size3-Regular.otf?V=2.7.9') format('opentype')}
+       |@font-face {font-family: MathJax_Size4; src: url('https://codeforces.com/mathjax.codeforces.org/fonts/HTML-CSS/TeX/woff/MathJax_Size4-Regular.woff?V=2.7.9') format('woff'), url('https://codeforces.com/mathjax.codeforces.org/fonts/HTML-CSS/TeX/otf/MathJax_Size4-Regular.otf?V=2.7.9') format('opentype')}
+       |.MathJax .noError {vertical-align: ; font-size: 90%; text-align: left; color: black; padding: 1px 3px; border: 1px solid}
+       |
+       |""".stripMargin
+  }
   private val normalizeCss: String =
     // language=CSS
     """

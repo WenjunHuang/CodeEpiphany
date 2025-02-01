@@ -1,6 +1,3 @@
-🌐 Languages:
-[中文](README.md) | [English](README_en.md) 
-
 ### Code Epiphany 🌟
 
 **A feature-rich plugin designed to streamline coding challenges in JetBrains IDEs.**
@@ -26,6 +23,7 @@ development environment.
 
 - **[LeetCode](https://www.leetcode.com)**
 - **[力扣(LeetCode Chinese)](https://www.leetcode.cn)**
+- **[CodeForces](https://codeforces.com/)**
 - **[HackerRank](https://www.hackerrank.com)**
 
 ### 🛠️ Installation

@@ -8,6 +8,7 @@ import com.wenjunhuang.codeepiphany.database.DefaultSchema;
 import com.wenjunhuang.codeepiphany.database.Indexes;
 import com.wenjunhuang.codeepiphany.database.Keys;
 import com.wenjunhuang.codeepiphany.database.tables.ChallengeLanguage.ChallengeLanguagePath;
+import com.wenjunhuang.codeepiphany.database.tables.CodeforcesChallenge.CodeforcesChallengePath;
 import com.wenjunhuang.codeepiphany.database.tables.HackerrankChallenge.HackerrankChallengePath;
 import com.wenjunhuang.codeepiphany.database.tables.LeetcodeChallenge.LeetcodeChallengePath;
 import com.wenjunhuang.codeepiphany.database.tables.Solution.SolutionPath;
@@ -194,6 +195,19 @@ public class Challenge extends TableImpl<ChallengeRecord> {
             _challengeLanguage = new ChallengeLanguagePath(this, null, Keys.CHALLENGE_LANGUAGE__FK_CHALLENGE_LANGUAGE_PK_CHALLENGE.getInverseKey());
 
         return _challengeLanguage;
+    }
+
+    private transient CodeforcesChallengePath _codeforcesChallenge;
+
+    /**
+     * Get the implicit to-many join path to the
+     * <code>codeforces_challenge</code> table
+     */
+    public CodeforcesChallengePath codeforcesChallenge() {
+        if (_codeforcesChallenge == null)
+            _codeforcesChallenge = new CodeforcesChallengePath(this, null, Keys.CODEFORCES_CHALLENGE__FK_CODEFORCES_CHALLENGE_PK_CHALLENGE.getInverseKey());
+
+        return _codeforcesChallenge;
     }
 
     private transient HackerrankChallengePath _hackerrankChallenge;

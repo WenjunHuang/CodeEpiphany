@@ -6,6 +6,9 @@ package com.wenjunhuang.codeepiphany.database;
 
 import com.wenjunhuang.codeepiphany.database.tables.Challenge;
 import com.wenjunhuang.codeepiphany.database.tables.ChallengeLanguage;
+import com.wenjunhuang.codeepiphany.database.tables.CodeforcesChallenge;
+import com.wenjunhuang.codeepiphany.database.tables.CodeforcesProblemsets;
+import com.wenjunhuang.codeepiphany.database.tables.CodeforcesProblemsetsFts;
 import com.wenjunhuang.codeepiphany.database.tables.HackerrankChallenge;
 import com.wenjunhuang.codeepiphany.database.tables.HackerrankChallengeLanguage;
 import com.wenjunhuang.codeepiphany.database.tables.HackerrankSubmissionCase;
@@ -44,6 +47,21 @@ public class DefaultSchema extends SchemaImpl {
      * The table <code>challenge_language</code>.
      */
     public final ChallengeLanguage CHALLENGE_LANGUAGE = ChallengeLanguage.CHALLENGE_LANGUAGE;
+
+    /**
+     * The table <code>codeforces_challenge</code>.
+     */
+    public final CodeforcesChallenge CODEFORCES_CHALLENGE = CodeforcesChallenge.CODEFORCES_CHALLENGE;
+
+    /**
+     * The table <code>codeforces_problemsets</code>.
+     */
+    public final CodeforcesProblemsets CODEFORCES_PROBLEMSETS = CodeforcesProblemsets.CODEFORCES_PROBLEMSETS;
+
+    /**
+     * The table <code>codeforces_problemsets_fts</code>.
+     */
+    public final CodeforcesProblemsetsFts CODEFORCES_PROBLEMSETS_FTS = CodeforcesProblemsetsFts.CODEFORCES_PROBLEMSETS_FTS;
 
     /**
      * The table <code>hackerrank_challenge</code>.
@@ -98,6 +116,9 @@ public class DefaultSchema extends SchemaImpl {
         return Arrays.asList(
             Challenge.CHALLENGE,
             ChallengeLanguage.CHALLENGE_LANGUAGE,
+            CodeforcesChallenge.CODEFORCES_CHALLENGE,
+            CodeforcesProblemsets.CODEFORCES_PROBLEMSETS,
+            CodeforcesProblemsetsFts.CODEFORCES_PROBLEMSETS_FTS,
             HackerrankChallenge.HACKERRANK_CHALLENGE,
             HackerrankChallengeLanguage.HACKERRANK_CHALLENGE_LANGUAGE,
             HackerrankSubmissionCase.HACKERRANK_SUBMISSION_CASE,

@@ -30,6 +30,8 @@ package object services {
               leetcode.runCode[F](CodeDojo.LeetCodeCN, vf, project, item)
             case CodeDojo.LeetCode =>
               leetcode.runCode[F](CodeDojo.LeetCode, vf, project, item)
+            case CodeDojo.CodeForces =>
+              Async[F].unit
         case None => Async[F].unit
       }
   }
@@ -49,6 +51,7 @@ package object services {
               case CodeDojo.HackerRank => hackerrank.submitCode[F](vf, project, item)
               case CodeDojo.LeetCodeCN => leetcode.submitCode[F](vf, project, item)
               case CodeDojo.LeetCode   => leetcode.submitCode[F](vf, project, item)
+              case CodeDojo.CodeForces => codeforces.submitCode[F](vf, project, item)
           )
       case None => Async[F].unit
     ).handleErrorWith { e =>

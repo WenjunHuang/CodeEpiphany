@@ -8,7 +8,6 @@ import com.intellij.ide.ui.laf.darcula.ui.DarculaEditorTextFieldBorder;
 import com.intellij.l10n.LocalizationUtil;
 import com.intellij.openapi.actionSystem.*;
 import com.intellij.openapi.actionSystem.ex.ActionManagerEx;
-import com.intellij.openapi.actionSystem.impl.ActionToolbarImpl;
 import com.intellij.openapi.editor.EditorFactory;
 import com.intellij.openapi.editor.colors.EditorFontType;
 import com.intellij.openapi.editor.event.DocumentEvent;
@@ -65,10 +64,12 @@ public class LanguageSettingsPanel extends SettingsUi<BaseCodeDojoSettings.Langu
     private EditorTextField myCodeTemplatePreview;
     private JPanel rootPanel;
     private Splitter myFileNameSplitter;
-    private ActionToolbarImpl myFileNameToolbar;
+    private ActionToolbar myFileNameToolbar;
+    private JComponent myFileNameToolbarComponent;
     private JPanel myFileNameLabel;
     private JPanel myCodeTemplateLabel;
-    private ActionToolbarImpl myCodeTemplateToolbar;
+    private ActionToolbar myCodeTemplateToolbar;
+    private JComponent myCodeTemplateToolbarComponent;
     private Splitter myCodeTemplateSplitter;
     private JEditorPane myDescription;
     private Language myLanguage;
@@ -179,11 +180,11 @@ public class LanguageSettingsPanel extends SettingsUi<BaseCodeDojoSettings.Langu
         myCodeTemplateSplitter.setSecondComponent(myCodeTemplatePreview);
         var actionGroup = createCodeTemplateActionGroup();
 
-        myCodeTemplateToolbar = (ActionToolbarImpl) ((ActionManagerEx) ActionManager
+        myCodeTemplateToolbar = ((ActionManagerEx) ActionManager
                 .getInstance())
                 .createActionToolbar("CodeTemplate", actionGroup, true, false, false);
-        myCodeTemplateToolbar.setActionButtonBorder(JBUI.Borders.emptyRight(5));
-        myCodeTemplateToolbar.setBorder(JBUI.Borders.empty());
+        myCodeTemplateToolbarComponent = myCodeTemplateToolbar.getComponent();
+        myCodeTemplateToolbarComponent.setBorder(JBUI.Borders.empty());
         myCodeTemplateToolbar.setTargetComponent(myCodeTemplateEditor);
     }
 
@@ -295,11 +296,12 @@ public class LanguageSettingsPanel extends SettingsUi<BaseCodeDojoSettings.Langu
         myFileNameSplitter.setSecondComponent(myFileNamePreview);
         var actionGroup = createFileNameActionGroup();
 
-        myFileNameToolbar = (ActionToolbarImpl) ((ActionManagerEx) ActionManager
+        myFileNameToolbar = ((ActionManagerEx) ActionManager
                 .getInstance())
                 .createActionToolbar("HackerRankSetting.FileName", actionGroup, true, false, false);
-        myFileNameToolbar.setActionButtonBorder(JBUI.Borders.emptyRight(5));
-        myFileNameToolbar.setBorder(JBUI.Borders.empty());
+//        myFileNameToolbar.setActionButtonBorder(JBUI.Borders.emptyRight(5));
+        myFileNameToolbarComponent = myFileNameToolbar.getComponent();
+        myFileNameToolbarComponent.setBorder(JBUI.Borders.empty());
         myFileNameToolbar.setTargetComponent(myFileNameEditor);
     }
 
@@ -438,7 +440,7 @@ public class LanguageSettingsPanel extends SettingsUi<BaseCodeDojoSettings.Langu
         myFileNameLabel.add(label2, BorderLayout.WEST);
         final Spacer spacer1 = new Spacer();
         myFileNameLabel.add(spacer1, BorderLayout.CENTER);
-        myFileNameLabel.add(myFileNameToolbar, BorderLayout.EAST);
+        myFileNameLabel.add(myFileNameToolbarComponent, BorderLayout.EAST);
         myCodeTemplateLabel = new JPanel();
         myCodeTemplateLabel.setLayout(new BorderLayout(0, 0));
         rootPanel.add(myCodeTemplateLabel, new GridConstraints(3, 0, 1, 2, GridConstraints.ANCHOR_NORTH, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
@@ -447,7 +449,7 @@ public class LanguageSettingsPanel extends SettingsUi<BaseCodeDojoSettings.Langu
         myCodeTemplateLabel.add(label3, BorderLayout.WEST);
         final Spacer spacer2 = new Spacer();
         myCodeTemplateLabel.add(spacer2, BorderLayout.CENTER);
-        myCodeTemplateLabel.add(myCodeTemplateToolbar, BorderLayout.EAST);
+        myCodeTemplateLabel.add(myCodeTemplateToolbarComponent, BorderLayout.EAST);
         rootPanel.add(myCodeTemplateSplitter, new GridConstraints(4, 0, 1, 2, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, null, new Dimension(-1, 300), null, 0, false));
         final JScrollPane scrollPane1 = new JScrollPane();
         rootPanel.add(scrollPane1, new GridConstraints(5, 0, 1, 2, GridConstraints.ANCHOR_NORTH, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, new Dimension(-1, 180), null, 0, false));
