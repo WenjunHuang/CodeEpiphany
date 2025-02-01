@@ -28,7 +28,7 @@ class CodeDojoToolWindowFactory extends ToolWindowFactoryBridge {
       override def selectionChanged(event: ContentManagerEvent): Unit = {
         Option(event.getContent.getActions) match
           case Some(actions) =>
-            toolWindow.setTitleActions((actions.getChildren(null).toList ++ createTitleActions()).asJava)
+            toolWindow.setTitleActions((actions.getChildren(null,ActionManager.getInstance()).toList ++ createTitleActions()).asJava)
           case None =>
             toolWindow.setTitleActions(createTitleActions().asJava)
       }

@@ -24,7 +24,7 @@ import com.wenjunhuang.codeepiphany.editor.extensions.ChallengeEditor.*
 import com.wenjunhuang.codeepiphany.model.Actions
 
 class ChallengeEditor(private val myDelegate: TextEditor, private val myName: String = "ChallengeEditor")
-    extends TextEditor {
+    extends TextEditorBridge {
 
   private lazy val myUi = MyUi()
 

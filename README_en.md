@@ -1,6 +1,3 @@
-🌐 Languages:
-[中文](README.md) | [English](README_en.md) 
-
 ### Code Epiphany 🌟
 
 **A feature-rich plugin designed to streamline coding challenges in JetBrains IDEs.**
