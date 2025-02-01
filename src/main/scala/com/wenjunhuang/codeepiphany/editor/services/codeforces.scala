@@ -1,0 +1,171 @@
+package com.wenjunhuang.codeepiphany.editor.services
+
+import cats.effect.{ Async, Concurrent }
+import cats.effect.kernel.Resource.ExitCase
+import fs2.Stream
+import java.time.LocalDateTime
+import org.jooq.impl.DSL
+import org.jooq.DSLContext
+import org.typelevel.ci.CIString
+import scala.jdk.OptionConverters.*
+
+import com.intellij.openapi.project.Project
+import com.intellij.openapi.vfs.{ VirtualFile, VirtualFileUtil }
+
+import com.wenjunhuang.codeepiphany.codeforces.services.CodeForcesApi
+import com.wenjunhuang.codeepiphany.codeforces.settings.CodeForcesSettingsConfigurable
+import com.wenjunhuang.codeepiphany.database.Tables.*
+import com.wenjunhuang.codeepiphany.model.*
+import com.wenjunhuang.codeepiphany.services.console
+import com.wenjunhuang.codeepiphany.services.http.HttpClientManager
+import com.wenjunhuang.codeepiphany.settings.ChallengeSettings.ChallengeSettingsStateItem
+import com.wenjunhuang.codeepiphany.utils.IdGenerator
+
+object codeforces {
+  def submitCode[F[_]: Async: Concurrent: HttpClientManager](
+    vf: VirtualFile,
+    project: Project,
+    item: ChallengeSettingsStateItem
+  ): F[Unit] = {
+    item.dojo match
+      case CodeDojo.CodeForces =>
+        Stream
+          .eval(
+            ChallengeRepository
+              .getInstance(project)
+              .getDSLContextResource[F]
+              .use { client =>
+                Async[F].delay {
+                  client.transactionResult { trx =>
+                    val dsl                                                   = DSL.using(trx)
+                    val (contestId, index, problemsetName, language, langVer) = queryChallengeBasicInfo(item, dsl)
+                    val localCode                                             = VirtualFileUtil.readText(vf)
+//                    val submitCode = language.extractCodeFromRegion(localCode)
+                    val submitCode = localCode
+                    val solutionId = item.solutionId
+
+                    val submissionRecord = dsl
+                      .newRecord(SOLUTION_SUBMISSION)
+                      .setId(IdGenerator.nextId())
+                      .setChallengelanguageid(item.challengeLanguageId)
+                      .setLocalcode(localCode)
+                      .setSubmitcode(submitCode)
+                      .setSubmitdatetime(java.time.LocalDateTime.now())
+                      .setSolutionid(solutionId)
+                      .setResult(SubmissionResult.Processing.value)
+                    submissionRecord.store()
+
+                    (submissionRecord.getId, contestId, index, problemsetName, language, langVer, submitCode)
+                  }
+                }
+              }
+          )
+          .flatMap { case (submissionId, contestId, index, problemsetName, language, langVer, submitCode) =>
+            val programTypeId = CodeForcesSettingsConfigurable.CODEFORCES_LANGUAGES
+              .find(p => p._1 == language && p._2 == langVer)
+              .map(_._3)
+              .getOrElse(
+                throw new IllegalStateException(s"Cannot find CodeForces program type id for $language $langVer")
+              )
+            CodeForcesApi[F]()
+              .submitAnswer(contestId, index, problemsetName, programTypeId, submitCode)
+              .map((submissionId, _))
+              .onFinalizeCase {
+                case ExitCase.Errored(e) =>
+                  ChallengeRepository
+                    .getInstance(project)
+                    .getDSLContextResource[F]
+                    .use { dsl =>
+                      Async[F].delay {
+                        dsl
+                          .update(SOLUTION_SUBMISSION)
+                          .set(SOLUTION_SUBMISSION.RESULT, SubmissionResult.Failure.value)
+                          .set(SOLUTION_SUBMISSION.MESSAGE, e.getMessage)
+                          .where(SOLUTION_SUBMISSION.ID.eq(submissionId))
+                          .execute()
+                      }
+                    }
+                case _ => Async[F].unit
+              }
+          }
+          .last
+          .map {
+            case Some((submissionId, response)) =>
+              val client = ChallengeRepository.getInstance(project).getDSLContext
+              client.transactionResult { trx =>
+                val dsl = DSL.using(trx)
+                dsl
+                  .selectFrom(SOLUTION_SUBMISSION)
+                  .where(SOLUTION_SUBMISSION.ID.eq(submissionId))
+                  .fetchOptional()
+                  .toScala match
+                  case Some(record) =>
+                    record
+                      .setDojosubmissionid(response.submissionId.toString)
+                      .setResultdatetime(LocalDateTime.now())
+                      .setResult(response.result.value)
+                      .setMessage(response.message)
+                    record.store()
+                    (response.result, response.message)
+                  case _ => throw new IllegalStateException("Cannot find submission record")
+              }
+            case _ => throw new IllegalStateException("should not happened")
+          }
+          .evalTap { case (result, message) =>
+            result match
+              case SubmissionResult.Success =>
+                console.info[F](project, "🎉 Passed!")
+              case SubmissionResult.Failure =>
+                console.error[F](project, message)
+              case SubmissionResult.RuntimeError =>
+                console.error[F](project, message)
+              case SubmissionResult.CompilationError =>
+                console.error[F](project, s"Compilation Error: \n ${message}")
+              case SubmissionResult.Processing =>
+                console.info[F](project, message)
+              case SubmissionResult.Timeout =>
+                console.error[F](project, message)
+              case SubmissionResult.Unknown =>
+                console.error[F](project, message)
+          }
+          .compile
+          .drain
+      case _ =>
+        Async[F].raiseError(new IllegalStateException("Challenge's dojo type is NOT CodeForces"))
+  }
+
+  private def queryChallengeBasicInfo(
+    item: ChallengeSettingsStateItem,
+    client: DSLContext
+  ): (Long, String, Option[String], Language, LanguageVersion) = {
+    client
+      .select(
+        CHALLENGE.DOJOID,
+        CODEFORCES_CHALLENGE.CONTESTID,
+        CODEFORCES_CHALLENGE.INDEX,
+        CODEFORCES_CHALLENGE.PROBLEMSETNAME,
+        CHALLENGE_LANGUAGE.LANGUAGE,
+        CHALLENGE_LANGUAGE.LANGUAGEVERSION
+      )
+      .from(CHALLENGE)
+      .innerJoin(CODEFORCES_CHALLENGE)
+      .on(CHALLENGE.ID.eq(CODEFORCES_CHALLENGE.ID))
+      .innerJoin(CHALLENGE_LANGUAGE)
+      .on(CHALLENGE.ID.eq(CHALLENGE_LANGUAGE.CHALLENGEID))
+      .where(CHALLENGE.ID.eq(item.challengeId).and(CHALLENGE_LANGUAGE.ID.eq(item.challengeLanguageId)))
+      .fetchOptional()
+      .toScala
+      .flatMap { record =>
+        val contestId: Long = Option(record.get(CODEFORCES_CHALLENGE.CONTESTID)).map(_.toLong).getOrElse(99999L)
+        val index           = record.get(CODEFORCES_CHALLENGE.INDEX)
+        val problemsetName  = Option(record.get(CODEFORCES_CHALLENGE.PROBLEMSETNAME))
+        val language        = Language.fromCIString(CIString(record.get(CHALLENGE_LANGUAGE.LANGUAGE)))
+        val langVer         = LanguageVersion.fromString(record.get(CHALLENGE_LANGUAGE.LANGUAGEVERSION))
+
+        language.map { l => (contestId, index, problemsetName, l, langVer) }
+      } match {
+      case Some(value) => value
+      case None        => throw new Exception("Cannot find data for file")
+    }
+  }
+}

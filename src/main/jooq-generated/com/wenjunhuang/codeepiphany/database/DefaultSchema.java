@@ -6,6 +6,7 @@ package com.wenjunhuang.codeepiphany.database;
 
 import com.wenjunhuang.codeepiphany.database.tables.Challenge;
 import com.wenjunhuang.codeepiphany.database.tables.ChallengeLanguage;
+import com.wenjunhuang.codeepiphany.database.tables.CodeforcesChallenge;
 import com.wenjunhuang.codeepiphany.database.tables.CodeforcesProblemsets;
 import com.wenjunhuang.codeepiphany.database.tables.CodeforcesProblemsetsFts;
 import com.wenjunhuang.codeepiphany.database.tables.HackerrankChallenge;
@@ -46,6 +47,11 @@ public class DefaultSchema extends SchemaImpl {
      * The table <code>challenge_language</code>.
      */
     public final ChallengeLanguage CHALLENGE_LANGUAGE = ChallengeLanguage.CHALLENGE_LANGUAGE;
+
+    /**
+     * The table <code>codeforces_challenge</code>.
+     */
+    public final CodeforcesChallenge CODEFORCES_CHALLENGE = CodeforcesChallenge.CODEFORCES_CHALLENGE;
 
     /**
      * The table <code>codeforces_problemsets</code>.
@@ -110,6 +116,7 @@ public class DefaultSchema extends SchemaImpl {
         return Arrays.asList(
             Challenge.CHALLENGE,
             ChallengeLanguage.CHALLENGE_LANGUAGE,
+            CodeforcesChallenge.CODEFORCES_CHALLENGE,
             CodeforcesProblemsets.CODEFORCES_PROBLEMSETS,
             CodeforcesProblemsetsFts.CODEFORCES_PROBLEMSETS_FTS,
             HackerrankChallenge.HACKERRANK_CHALLENGE,

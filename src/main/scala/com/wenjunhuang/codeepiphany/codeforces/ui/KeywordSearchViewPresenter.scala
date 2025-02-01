@@ -7,7 +7,7 @@ import fs2.concurrent.SignallingRef
 import javax.swing.JComponent
 import javax.swing.event.DocumentEvent
 import org.jooq.impl.DSL
-import org.typelevel.log4cats.{Logger, LoggerFactory}
+import org.typelevel.log4cats.{ Logger, LoggerFactory }
 import scala.concurrent.duration.*
 import scala.jdk.CollectionConverters.*
 
@@ -18,15 +18,22 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
 import com.intellij.ui.DocumentAdapter
 
-import com.wenjunhuang.codeepiphany.actions.OpenChallengeActionGroup.{CHALLENGE_PROVIDER_KEY, OpenChallengeProvider}
-import com.wenjunhuang.codeepiphany.actions.PaginationParameterActionGroup.{PageSize, PAGINATION_PROVIDER_KEY, PaginationParameterProvider}
-import com.wenjunhuang.codeepiphany.actions.RefreshAction.{REFRESH_PROVIDER_KEY, RefreshProvider}
+import com.wenjunhuang.codeepiphany.actions.OpenChallengeActionGroup.{ CHALLENGE_PROVIDER_KEY, OpenChallengeProvider }
+import com.wenjunhuang.codeepiphany.actions.PaginationParameterActionGroup.{
+  PAGINATION_PROVIDER_KEY,
+  PageSize,
+  PaginationParameterProvider
+}
+import com.wenjunhuang.codeepiphany.actions.RefreshAction.{ REFRESH_PROVIDER_KEY, RefreshProvider }
 import com.wenjunhuang.codeepiphany.codeforces.models.CodeForcesSearchOrderBy
+import com.wenjunhuang.codeepiphany.codeforces.services.challenge.openChallenge
 import com.wenjunhuang.codeepiphany.codeforces.settings.CodeForcesSettings
 import com.wenjunhuang.codeepiphany.codeforces.ui.KeywordSearchViewPresenter.*
 import com.wenjunhuang.codeepiphany.database.Tables.*
 import com.wenjunhuang.codeepiphany.database.tables.records.CodeforcesProblemsetsRecord
 import com.wenjunhuang.codeepiphany.model.*
+import com.wenjunhuang.codeepiphany.services.console
+import com.wenjunhuang.codeepiphany.services.http.{ HttpClientManager, HttpClientService }
 import com.wenjunhuang.codeepiphany.utils.extensions.*
 import com.wenjunhuang.codeepiphany.utils.implicits.*
 
@@ -35,6 +42,8 @@ class KeywordSearchViewPresenter(private val myProject: Project)
     with OrderDirectionProvider[CodeForcesSearchOrderBy]
     with Disposable {
   private implicit val myLogger: Logger[IO] = LoggerFactory[IO].getLogger
+  private implicit val httpClientKeeper: HttpClientManager[IO] =
+    HttpClientService.getInstance(myProject).httpClientManager
 
   private val myView: KeywordSearchView = KeywordSearchView(myProject, this)
 
@@ -137,9 +146,16 @@ class KeywordSearchViewPresenter(private val myProject: Project)
 
   private val myChallengeProvider = new OpenChallengeProvider {
     override def openCurrentSelectedChallenge(language: Language, languageVersion: LanguageVersion): Unit = {
-      Option(myView.getTable.getSelectedObject) match
+      Option(myView.getTable.getSelectedObject) match {
         case Some(selected) =>
-        case None           => ()
+          (console.info[IO](myProject, s"Opening challenge ${selected.getName}") *>
+            openChallenge[IO](myProject, selected, language, languageVersion) *>
+            console.info[IO](myProject, s"Challenge ${selected.getName} opened")).handleErrorWith { e =>
+            console.error[IO](myProject, s"Failed to open challenge ${selected.getName} because of ${e.getMessage}")
+          }.evalAsBackgroundProgress(myProject, s"Opening challenge ${selected.getName}...")
+            .unsafeRunAndForget()
+        case None => ()
+      }
     }
 
     override def getLanguages: List[(Language, LanguageVersion)] =

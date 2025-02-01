@@ -6,6 +6,7 @@ package com.wenjunhuang.codeepiphany.database;
 
 import com.wenjunhuang.codeepiphany.database.tables.Challenge;
 import com.wenjunhuang.codeepiphany.database.tables.ChallengeLanguage;
+import com.wenjunhuang.codeepiphany.database.tables.CodeforcesChallenge;
 import com.wenjunhuang.codeepiphany.database.tables.CodeforcesProblemsets;
 import com.wenjunhuang.codeepiphany.database.tables.HackerrankChallenge;
 import com.wenjunhuang.codeepiphany.database.tables.HackerrankChallengeLanguage;
@@ -16,6 +17,7 @@ import com.wenjunhuang.codeepiphany.database.tables.Solution;
 import com.wenjunhuang.codeepiphany.database.tables.SolutionSubmission;
 import com.wenjunhuang.codeepiphany.database.tables.records.ChallengeLanguageRecord;
 import com.wenjunhuang.codeepiphany.database.tables.records.ChallengeRecord;
+import com.wenjunhuang.codeepiphany.database.tables.records.CodeforcesChallengeRecord;
 import com.wenjunhuang.codeepiphany.database.tables.records.CodeforcesProblemsetsRecord;
 import com.wenjunhuang.codeepiphany.database.tables.records.HackerrankChallengeLanguageRecord;
 import com.wenjunhuang.codeepiphany.database.tables.records.HackerrankChallengeRecord;
@@ -45,6 +47,7 @@ public class Keys {
 
     public static final UniqueKey<ChallengeRecord> CHALLENGE__PK_CHALLENGE = Internal.createUniqueKey(Challenge.CHALLENGE, DSL.name("pk_challenge"), new TableField[] { Challenge.CHALLENGE.ID }, true);
     public static final UniqueKey<ChallengeLanguageRecord> CHALLENGE_LANGUAGE__PK_CHALLENGE_LANGUAGE = Internal.createUniqueKey(ChallengeLanguage.CHALLENGE_LANGUAGE, DSL.name("pk_challenge_language"), new TableField[] { ChallengeLanguage.CHALLENGE_LANGUAGE.ID }, true);
+    public static final UniqueKey<CodeforcesChallengeRecord> CODEFORCES_CHALLENGE__PK_CODEFORCES_CHALLENGE = Internal.createUniqueKey(CodeforcesChallenge.CODEFORCES_CHALLENGE, DSL.name("pk_codeforces_challenge"), new TableField[] { CodeforcesChallenge.CODEFORCES_CHALLENGE.ID }, true);
     public static final UniqueKey<CodeforcesProblemsetsRecord> CODEFORCES_PROBLEMSETS__PK_CODEFORCES_PROBLEMSETS = Internal.createUniqueKey(CodeforcesProblemsets.CODEFORCES_PROBLEMSETS, DSL.name("pk_codeforces_problemsets"), new TableField[] { CodeforcesProblemsets.CODEFORCES_PROBLEMSETS.ID }, true);
     public static final UniqueKey<HackerrankChallengeRecord> HACKERRANK_CHALLENGE__PK_HACKERRANK_CHALLENGE = Internal.createUniqueKey(HackerrankChallenge.HACKERRANK_CHALLENGE, DSL.name("pk_hackerrank_challenge"), new TableField[] { HackerrankChallenge.HACKERRANK_CHALLENGE.ID }, true);
     public static final UniqueKey<HackerrankChallengeLanguageRecord> HACKERRANK_CHALLENGE_LANGUAGE__PK_HACKERRANK_CHALLENGE_LANGUAGE = Internal.createUniqueKey(HackerrankChallengeLanguage.HACKERRANK_CHALLENGE_LANGUAGE, DSL.name("pk_hackerrank_challenge_language"), new TableField[] { HackerrankChallengeLanguage.HACKERRANK_CHALLENGE_LANGUAGE.ID }, true);
@@ -59,6 +62,7 @@ public class Keys {
     // -------------------------------------------------------------------------
 
     public static final ForeignKey<ChallengeLanguageRecord, ChallengeRecord> CHALLENGE_LANGUAGE__FK_CHALLENGE_LANGUAGE_PK_CHALLENGE = Internal.createForeignKey(ChallengeLanguage.CHALLENGE_LANGUAGE, DSL.name("fk_challenge_language_pk_challenge"), new TableField[] { ChallengeLanguage.CHALLENGE_LANGUAGE.CHALLENGEID }, Keys.CHALLENGE__PK_CHALLENGE, new TableField[] { Challenge.CHALLENGE.ID }, true);
+    public static final ForeignKey<CodeforcesChallengeRecord, ChallengeRecord> CODEFORCES_CHALLENGE__FK_CODEFORCES_CHALLENGE_PK_CHALLENGE = Internal.createForeignKey(CodeforcesChallenge.CODEFORCES_CHALLENGE, DSL.name("fk_codeforces_challenge_pk_challenge"), new TableField[] { CodeforcesChallenge.CODEFORCES_CHALLENGE.ID }, Keys.CHALLENGE__PK_CHALLENGE, new TableField[] { Challenge.CHALLENGE.ID }, true);
     public static final ForeignKey<HackerrankChallengeRecord, ChallengeRecord> HACKERRANK_CHALLENGE__FK_HACKERRANK_CHALLENGE_PK_CHALLENGE = Internal.createForeignKey(HackerrankChallenge.HACKERRANK_CHALLENGE, DSL.name("fk_hackerrank_challenge_pk_challenge"), new TableField[] { HackerrankChallenge.HACKERRANK_CHALLENGE.ID }, Keys.CHALLENGE__PK_CHALLENGE, new TableField[] { Challenge.CHALLENGE.ID }, true);
     public static final ForeignKey<HackerrankChallengeLanguageRecord, ChallengeLanguageRecord> HACKERRANK_CHALLENGE_LANGUAGE__FK_HACKERRANK_CHALLENGE_LANGUAGE_PK_CHALLENGE_LANGUAGE = Internal.createForeignKey(HackerrankChallengeLanguage.HACKERRANK_CHALLENGE_LANGUAGE, DSL.name("fk_hackerrank_challenge_language_pk_challenge_language"), new TableField[] { HackerrankChallengeLanguage.HACKERRANK_CHALLENGE_LANGUAGE.ID }, Keys.CHALLENGE_LANGUAGE__PK_CHALLENGE_LANGUAGE, new TableField[] { ChallengeLanguage.CHALLENGE_LANGUAGE.ID }, true);
     public static final ForeignKey<HackerrankSubmissionCaseRecord, SolutionSubmissionRecord> HACKERRANK_SUBMISSION_CASE__FK_HACKERRANK_SUBMISSION_CASE_PK_SOLUTION_SUBMISSION = Internal.createForeignKey(HackerrankSubmissionCase.HACKERRANK_SUBMISSION_CASE, DSL.name("fk_hackerrank_submission_case_pk_solution_submission"), new TableField[] { HackerrankSubmissionCase.HACKERRANK_SUBMISSION_CASE.SUBMISSIONID }, Keys.SOLUTION_SUBMISSION__PK_SOLUTION_SUBMISSION, new TableField[] { SolutionSubmission.SOLUTION_SUBMISSION.ID }, true);

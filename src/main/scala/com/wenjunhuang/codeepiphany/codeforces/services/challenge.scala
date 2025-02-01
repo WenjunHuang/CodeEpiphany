@@ -4,7 +4,6 @@ import cats.effect.{ Async, Concurrent }
 import cats.effect.implicits.*
 import cats.syntax.all.*
 import java.io.File
-import org.jooq.impl.DSL
 import org.typelevel.log4cats.Logger
 
 import com.intellij.openapi.options.ShowSettingsUtil
@@ -139,16 +138,19 @@ object challenge {
     ChallengeRepository.getInstance(project).getDSLContextResource[F].use { client =>
       Async[F].blocking {
         client.transactionResult { trx =>
-          val dsl = trx.dsl()
-          val dojoId = s"${record.getContestid},${record.getIndex}"
+          val dsl    = trx.dsl()
+          val dojoId = record.getContestidindex
           val challengeRecord =
-            dsl.fetchOne(CHALLENGE, CHALLENGE.DOJO.eq(CodeDojo.CodeForces.value).and(CHALLENGE.DOJOID.eq(dojoId))) match {
+            dsl.fetchOne(
+              CHALLENGE,
+              CHALLENGE.DOJO.eq(CodeDojo.CodeForces.value).and(CHALLENGE.DOJOID.eq(dojoId))
+            ) match {
               case null => dsl.newRecord(CHALLENGE).setId(IdGenerator.nextId())
-              case r => r
+              case r    => r
             }
           challengeRecord.setDescription(challengeData.description)
           challengeRecord.setDifficulty(codeForcesRatingToDifficulty(Option(record.getRating).map(_.toInt)).value)
-          challengeRecord.setDojo(CodeDojo.HackerRank.value)
+          challengeRecord.setDojo(CodeDojo.CodeForces.value)
           challengeRecord.setDojoid(dojoId)
           challengeRecord.setSlug(VelocityTool.slugify(record.getName))
           challengeRecord.setTitle(record.getName)
@@ -173,6 +175,16 @@ object challenge {
           challengeLanguageRecord.store()
 
           val defaultSolutionId = getOrCreateDefaultSolution(dsl, challengeRecord.getId)
+
+          val codeForcesChallenge =
+            dsl.fetchOne(CODEFORCES_CHALLENGE, CODEFORCES_CHALLENGE.ID.eq(challengeRecord.getId)) match
+              case null =>
+                dsl.newRecord(CODEFORCES_CHALLENGE).setId(challengeRecord.getId)
+              case r => r
+          codeForcesChallenge.setContestid(challengeData.contestId)
+          codeForcesChallenge.setIndex(challengeData.index)
+          codeForcesChallenge.setProblemsetname(record.getProblemsetname)
+          codeForcesChallenge.store()
 
           (
             ChallengeId(challengeRecord.getId),

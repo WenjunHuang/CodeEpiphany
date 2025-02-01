@@ -49,6 +49,7 @@ package object services {
               case CodeDojo.HackerRank => hackerrank.submitCode[F](vf, project, item)
               case CodeDojo.LeetCodeCN => leetcode.submitCode[F](vf, project, item)
               case CodeDojo.LeetCode   => leetcode.submitCode[F](vf, project, item)
+              case CodeDojo.CodeForces => codeforces.submitCode[F](vf, project, item)
           )
       case None => Async[F].unit
     ).handleErrorWith { e =>

@@ -6,6 +6,7 @@ package com.wenjunhuang.codeepiphany.database;
 
 import com.wenjunhuang.codeepiphany.database.tables.Challenge;
 import com.wenjunhuang.codeepiphany.database.tables.ChallengeLanguage;
+import com.wenjunhuang.codeepiphany.database.tables.CodeforcesChallenge;
 import com.wenjunhuang.codeepiphany.database.tables.CodeforcesProblemsets;
 import com.wenjunhuang.codeepiphany.database.tables.CodeforcesProblemsetsFts;
 import com.wenjunhuang.codeepiphany.database.tables.HackerrankChallenge;
@@ -32,6 +33,11 @@ public class Tables {
      * The table <code>challenge_language</code>.
      */
     public static final ChallengeLanguage CHALLENGE_LANGUAGE = ChallengeLanguage.CHALLENGE_LANGUAGE;
+
+    /**
+     * The table <code>codeforces_challenge</code>.
+     */
+    public static final CodeforcesChallenge CODEFORCES_CHALLENGE = CodeforcesChallenge.CODEFORCES_CHALLENGE;
 
     /**
      * The table <code>codeforces_problemsets</code>.
