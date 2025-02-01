@@ -26,6 +26,7 @@ development environment.
 
 - **[LeetCode](https://www.leetcode.com)**
 - **[力扣(LeetCode Chinese)](https://www.leetcode.cn)**
+- **[CodeForces](https://codeforces.com/)**
 - **[HackerRank](https://www.hackerrank.com)**
 
 ### 🛠️ Installation

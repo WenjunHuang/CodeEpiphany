@@ -9,15 +9,18 @@ import com.intellij.ui.components.{ JBLabel, JBScrollPane }
 import com.intellij.ui.table.TableView
 import com.intellij.util.ui.components.BorderLayoutPanel
 import scala.jdk.CollectionConverters.*
+import scala.jdk.OptionConverters.*
 
 import com.wenjunhuang.codeepiphany.model.Actions
 import com.wenjunhuang.codeepiphany.toolwindows.sidebar.submissionlog.SubmissionLogPresenter.SubmissionType
 import com.wenjunhuang.codeepiphany.toolwindows.sidebar.submissionlog.SubmissionLogPresenter.SubmissionType.{
+  CodeForcesSubmission,
   HackerRankSubmission,
   LeetCodeCNSubmission,
   LeetCodeSubmission
 }
 import com.wenjunhuang.codeepiphany.toolwindows.sidebar.submissionlog.SubmissionLogView.EMPTY_FORM
+import com.wenjunhuang.codeepiphany.toolwindows.sidebar.submissionlog.codeforces.CodeForcesSubmissionResultForm
 import com.wenjunhuang.codeepiphany.toolwindows.sidebar.submissionlog.leetcode.LeetCodeSubmissionResultForm
 import com.wenjunhuang.codeepiphany.toolwindows.sidebar.submissionlog.hackerrank.HackerRankSubmissionResultForm
 import com.wenjunhuang.codeepiphany.utils.ui.TagPane
@@ -79,6 +82,8 @@ class SubmissionLogView(private val myPresenter: SubmissionLogPresenter) extends
         LeetCodeSubmissionResultForm(language, submission, leetCodeSubmission).getComponent
       case HackerRankSubmission(language, submission, hackerCases) =>
         HackerRankSubmissionResultForm(language, submission, hackerCases.asJavaCollection).getComponent
+      case CodeForcesSubmission(language, submission, contestId, problemsetName) =>
+        CodeForcesSubmissionResultForm(language, submission, contestId, problemsetName.toJava).getComponent
     }
     mySplitter.setSecondComponent(
       JBScrollPane(

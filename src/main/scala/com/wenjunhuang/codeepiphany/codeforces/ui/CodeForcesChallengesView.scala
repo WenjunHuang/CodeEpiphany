@@ -23,6 +23,7 @@ import com.wenjunhuang.codeepiphany.services.http.{HttpClientManager, HttpClient
 import com.wenjunhuang.codeepiphany.utils.extensions.*
 import com.wenjunhuang.codeepiphany.utils.implicits.*
 import com.wenjunhuang.codeepiphany.utils.ui.UnauthenticatedView
+import com.wenjunhuang.codeepiphany.PluginBundle
 
 class CodeForcesChallengesView(private val myProject: Project)
     extends CardLayoutPanel[CodeForcesUI, CodeForcesUI, JComponent]
@@ -32,7 +33,7 @@ class CodeForcesChallengesView(private val myProject: Project)
   private implicit val httpClientManager: HttpClientManager[IO] =
     HttpClientService.getInstance(myProject).httpClientManager
 
-  private val myUnauthenticatedView    = UnauthenticatedView(CodeForces)
+  private val myUnauthenticatedView    = UnauthenticatedView(CodeForces,Some(PluginBundle.message("codeforces.unauthenticatedView.tips")))
   private val myQueryParamPresenter    = QueryParametersPresenter(myProject)
   private val myKeywordSearchPresenter = KeywordSearchViewPresenter(myProject)
   private var myCurrentUI              = CodeForcesUI.Unauthenticated

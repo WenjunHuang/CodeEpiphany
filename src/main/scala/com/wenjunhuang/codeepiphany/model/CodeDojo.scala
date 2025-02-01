@@ -49,7 +49,7 @@ object CodeDojo {
   implicit val codeDojoShow: Show[CodeDojo] = Show.show {
     case HackerRank => "HackerRank"
     case LeetCode   => "LeetCode"
-    case LeetCodeCN => "力扣"
+    case LeetCodeCN => "LeetCodeCN"
     case CodeForces => "CodeForces"
   }
 
