@@ -14,7 +14,7 @@ import org.cef.handler.*
 import org.intellij.lang.annotations.Language
 import org.typelevel.log4cats.{ Logger, LoggerFactory }
 
-import com.intellij.ide.ui.UISettingsListener
+import com.intellij.ide.ui.{ LafManagerListener, UISettingsListener }
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.editor.colors.{ EditorColorsListener, EditorColorsManager }
@@ -159,8 +159,8 @@ class JCefDescriptionView(
   myBrowser.getJBCefClient.addLoadHandler(myLoadHandler, myBrowser.getCefBrowser)
 
   private val busConnection = ApplicationManager.getApplication.getMessageBus.connect(this)
-  busConnection.subscribe(EditorColorsManager.TOPIC, scheme => reloadStyles())
-  busConnection.subscribe(UISettingsListener.TOPIC, uiSettings => reloadStyles())
+  busConnection.subscribe(EditorColorsManager.TOPIC, _ => reloadStyles())
+  busConnection.subscribe(LafManagerListener.TOPIC, _ => reloadStyles())
 
   def reload(): Unit =
     myBrowser.loadURL(VIEWER_URL + s"?${System.currentTimeMillis()}")
