@@ -1,16 +1,16 @@
 package com.wenjunhuang.codeepiphany.codeforces.services
 
-import cats.effect.{Async, Concurrent, Temporal}
+import cats.effect.{ Async, Concurrent, Temporal }
 import cats.effect.implicits.*
 import cats.syntax.all.*
 import fs2.Stream
 import io.circe.optics.JsonPath
 import io.circe.parser.parse
-import java.time.{LocalDateTime, ZoneId}
+import java.time.{ LocalDateTime, ZoneId }
 import java.time.format.DateTimeFormatter
 import java.util.Locale
-import org.http4s.{Headers, Method, Uri, UrlForm}
-import org.http4s.client.{Client, UnexpectedStatus}
+import org.http4s.{ Headers, Method, Uri, UrlForm }
+import org.http4s.client.{ Client, UnexpectedStatus }
 import org.http4s.client.dsl.Http4sClientDsl
 import org.http4s.headers.Referer
 import org.http4s.implicits.uri
@@ -22,7 +22,7 @@ import scala.jdk.CollectionConverters.*
 import com.intellij.openapi.util.text.StringUtil
 
 import com.wenjunhuang.codeepiphany.codeforces.models.*
-import com.wenjunhuang.codeepiphany.model.{ApiError, CodeDojo, SubmissionResult}
+import com.wenjunhuang.codeepiphany.model.{ ApiError, CodeDojo, SubmissionResult }
 import com.wenjunhuang.codeepiphany.services.http.HttpClientManager
 
 trait CodeForcesApi[F[_]] {
@@ -160,7 +160,7 @@ object CodeForcesApi {
                   .toList
                 tdList match
                   case num :: when :: who :: problem :: lang :: verdict :: time :: memory :: Nil =>
-                    val (problemContestIdIndex, problemName) = StringUtil.trim(problem.text()).split("-") match
+                    val (problemContestIdIndex, problemName) = StringUtil.trim(problem.text()).split("-", 2) match
                       case Array(id, name) => (StringUtil.trim(id), StringUtil.trim(name))
                       case Array(name)     => ("", StringUtil.trim(name))
 
@@ -184,11 +184,11 @@ object CodeForcesApi {
       }
     }
 
-    private def parseDateTime(dateTime: String): LocalDateTime = {
-      val formatter     = DateTimeFormatter.ofPattern("MMM/dd/yyyy HH:mm", Locale.ENGLISH)
-      val localDateTime = LocalDateTime.parse(dateTime, formatter)
-      localDateTime.atZone(ZoneId.of("UTC+3")).toLocalDateTime
-    }
+    private def parseDateTime(dateTime: String): LocalDateTime =
+      LocalDateTime
+        .parse(dateTime, DateTimeFormatter.ofPattern("MMM/dd/yyyy HH:mm", Locale.ENGLISH))
+        .atZone(ZoneId.of("UTC+3"))
+        .toLocalDateTime
 
     private def getSubmitAnswerResult(
       oldResponse: CodeForcesSubmissionResponse,
@@ -208,24 +208,43 @@ object CodeForcesApi {
             parse(content)
               .leftMap(e => ApiError.InvalidContent(CodeDojo.CodeForces, e.getMessage))
               .map { json =>
-                JsonPath.root.verdict.string.getOption(json) match
-                  case Some(value) =>
-                    val ciString = CIString(value)
-                    if ciString.contains(CIString("Accepted")) then oldResponse.copy(result = SubmissionResult.Success)
-                    else
-                      val msg =
-                        JsonPath.root.selectDynamic("checkerStdoutAndStderr#1").string.getOption(json).getOrElse("")
-                      if ciString.contains(CIString("Wrong answer")) then
-                        oldResponse.copy(result = SubmissionResult.Failure, message = msg)
-                      else if ciString.contains(CIString("Compilation error")) then
-                        oldResponse.copy(result = SubmissionResult.CompilationError, message = msg)
-                      else if ciString.contains(CIString("Time limit exceeded")) then
-                        oldResponse.copy(result = SubmissionResult.Timeout, message = msg)
-                      else if ciString.contains(CIString("Runtime error")) then
-                        oldResponse.copy(result = SubmissionResult.RuntimeError, message = msg)
-                      else oldResponse
-                  case _ =>
-                    oldResponse
+                JsonPath.root.verdict.string.getOption(json).map(CIString(_)) match {
+                  case Some(verdict) if verdict.contains(CIString("Accepted")) =>
+                    oldResponse.copy(result = SubmissionResult.Success)
+                  case Some(verdict) if verdict.contains(CIString("Running"))   =>
+                    oldResponse.copy(result = SubmissionResult.Processing)
+                  case Some(verdict) =>
+                    val msg = JsonPath.root
+                      .selectDynamic("checkerStdoutAndStderr#1")
+                      .string
+                      .getOption(json)
+                      .filter(StringUtil.isNotEmpty)
+                    verdict match {
+                      case v if v.contains(CIString("Wrong answer")) =>
+                        oldResponse.copy(
+                          result = SubmissionResult.Failure,
+                          message = msg.getOrElse(SubmissionResult.Failure.show)
+                        )
+                      case v if v.contains(CIString("Compilation error")) =>
+                        oldResponse.copy(
+                          result = SubmissionResult.CompilationError,
+                          message = msg.getOrElse(SubmissionResult.CompilationError.show)
+                        )
+                      case v if v.contains(CIString("Time limit exceeded")) =>
+                        oldResponse.copy(
+                          result = SubmissionResult.Timeout,
+                          message = msg.getOrElse(SubmissionResult.Timeout.show)
+                        )
+                      case v if v.contains(CIString("Runtime error")) =>
+                        oldResponse.copy(
+                          result = SubmissionResult.RuntimeError,
+                          message = msg.getOrElse(SubmissionResult.RuntimeError.show)
+                        )
+                      case _ =>
+                        oldResponse
+                    }
+                  case None => oldResponse
+                }
               }
               .liftTo[F]
           }
@@ -270,18 +289,14 @@ object CodeForcesApi {
                     )
                   )
               )
-              .flatMap { content =>
-                extractSubmissionResult(content)
-              }
-              .map { response =>
-                (csrfToken, response)
-              }
+              .flatMap(extractSubmissionResult)
+              .map((csrfToken, _))
           }
         }
         .flatMap { case (csrfToken, response) =>
           Stream
             .repeatEval(Temporal[F].sleep(2.second))
-            .evalScan(response) { (oldResponse, _) => getSubmitAnswerResult(oldResponse, csrfToken) }
+            .evalScan(response) { (lastResponse, _) => getSubmitAnswerResult(lastResponse, csrfToken) }
             .flatMap { response =>
               response.result match
                 case SubmissionResult.Processing => Stream(Option(response).widen)

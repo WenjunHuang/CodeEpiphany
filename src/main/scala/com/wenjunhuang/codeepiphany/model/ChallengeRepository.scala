@@ -2,7 +2,7 @@ package com.wenjunhuang.codeepiphany.model
 
 import cats.effect.{Async, IO}
 import cats.effect.kernel.Resource
-import com.zaxxer.hikari.HikariDataSource
+import com.zaxxer.hikari.{HikariConfig, HikariDataSource}
 import io.circe.*
 import java.io.File
 import org.flywaydb.core.Flyway
@@ -31,29 +31,35 @@ final class ChallengeRepository(private val myProject: Project) extends Disposab
       CodeEpiphanySettings.DATABASE_FOLDER_TOPIC,
       _ => {
         closeDataSource(false)
-        createDataSource()
+        myDataSource = None
       }
     )
 
   @volatile
-  private var dataSource: Option[HikariDataSource] = None
+  private var myDataSource: Option[HikariDataSource] = None
 
-  createDataSource()
 
-  private def createDataSource(): Unit = {
-    val ds     = HikariDataSource()
-    val dbFile = getDatabaseFile
-    ds.setDriverClassName("org.sqlite.JDBC")
-    ds.setJdbcUrl(s"jdbc:sqlite:${dbFile.getCanonicalPath}")
-    val flyway = Flyway
-      .configure(getClass.getClassLoader)
-      .dataSource(ds)
-      .locations("classpath:db/migration")
-      .load()
-    flyway.migrate()
-    dataSource = Some(ds)
+  private def createDataSource(): HikariDataSource = synchronized {
+    myDataSource.getOrElse {
+      val config = HikariConfig()
+      val dbFile = getDatabaseFile
+      config.setDriverClassName("org.sqlite.JDBC")
+      config.setJdbcUrl(s"jdbc:sqlite:${dbFile.getCanonicalPath}")
+      config.setPoolName("CodeEpiphanyHikariPool")
+      config.setRegisterMbeans(true)
 
-    if isDebug then JooqLogger.globalThreshold(Log.Level.DEBUG)
+      val ds = HikariDataSource(config)
+      val flyway = Flyway
+        .configure(getClass.getClassLoader)
+        .dataSource(ds)
+        .locations("classpath:db/migration")
+        .load()
+      flyway.migrate()
+      myDataSource = Some(ds)
+
+      if isDebug then JooqLogger.globalThreshold(Log.Level.DEBUG)
+      ds
+    }
   }
 
   private def getDatabaseFile: File = {
@@ -65,12 +71,12 @@ final class ChallengeRepository(private val myProject: Project) extends Disposab
   }
 
   private def closeDataSource(wait: Boolean): Unit = {
-    if wait then dataSource.foreach(_.close())
-    else dataSource.foreach { ds => IO.delay(ds.close()).unsafeRunAndForget() }
-    dataSource = None
+    if wait then myDataSource.foreach(_.close())
+    else myDataSource.foreach { ds => IO.delay(ds.close()).unsafeRunAndForget() }
+    myDataSource = None
   }
 
-  def getDSLContext: DSLContext = DSL.using(dataSource.get, SQLDialect.SQLITE)
+  def getDSLContext: DSLContext = DSL.using(createDataSource(), SQLDialect.SQLITE)
 
   def getDSLContextResource[F[_]: Async]: Resource[F, DSLContext] =
     Resource.make(Async[F].delay(getDSLContext))(dsl => Async[F].pure(()))

@@ -2,6 +2,7 @@ package com.wenjunhuang.codeepiphany.editor.services
 
 import cats.effect.{ Async, Concurrent }
 import cats.effect.kernel.Resource.ExitCase
+import cats.syntax.all.*
 import fs2.Stream
 import java.time.LocalDateTime
 import org.jooq.impl.DSL
@@ -30,8 +31,9 @@ object codeforces {
     item.dojo match
       case CodeDojo.CodeForces =>
         Stream
-          .eval(
-            ChallengeRepository
+          .eval(for
+            localCode <- Async[F].blocking { VirtualFileUtil.readText(vf) }
+            result <- ChallengeRepository
               .getInstance(project)
               .getDSLContextResource[F]
               .use { client =>
@@ -39,9 +41,18 @@ object codeforces {
                   client.transactionResult { trx =>
                     val dsl                                                   = DSL.using(trx)
                     val (contestId, index, problemsetName, language, langVer) = queryChallengeBasicInfo(item, dsl)
-                    val localCode                                             = VirtualFileUtil.readText(vf)
-//                    val submitCode = language.extractCodeFromRegion(localCode)
-                    val submitCode = localCode
+                    val submitCode =
+                      if CodeDojo.CodeForces.requiresCodeRegionEnclosure then language.extractCodeFromRegion(localCode)
+                      else localCode
+                    val programTypeId = CodeForcesSettingsConfigurable.CODEFORCES_LANGUAGES
+                      .find(p => p._1 == language && p._2 == langVer)
+                      .map(_._3)
+                      .getOrElse(
+                        throw new IllegalStateException(
+                          s"Cannot find CodeForces program type id for $language $langVer"
+                        )
+                      )
+
                     val solutionId = item.solutionId
 
                     val submissionRecord = dsl
@@ -55,18 +66,12 @@ object codeforces {
                       .setResult(SubmissionResult.Processing.value)
                     submissionRecord.store()
 
-                    (submissionRecord.getId, contestId, index, problemsetName, language, langVer, submitCode)
+                    (submissionRecord.getId, contestId, index, problemsetName, submitCode, programTypeId)
                   }
                 }
               }
-          )
-          .flatMap { case (submissionId, contestId, index, problemsetName, language, langVer, submitCode) =>
-            val programTypeId = CodeForcesSettingsConfigurable.CODEFORCES_LANGUAGES
-              .find(p => p._1 == language && p._2 == langVer)
-              .map(_._3)
-              .getOrElse(
-                throw new IllegalStateException(s"Cannot find CodeForces program type id for $language $langVer")
-              )
+          yield result)
+          .flatMap { case (submissionId, contestId, index, problemsetName, submitCode, programTypeId) =>
             CodeForcesApi[F]()
               .submitAnswer(contestId, index, problemsetName, programTypeId, submitCode)
               .map((submissionId, _))
@@ -114,13 +119,13 @@ object codeforces {
           .evalTap { case (result, message) =>
             result match
               case SubmissionResult.Success =>
-                console.info[F](project, "🎉 Passed!")
+                console.info[F](project, s"🎉 Passed!\n${message}")
               case SubmissionResult.Failure =>
                 console.error[F](project, message)
               case SubmissionResult.RuntimeError =>
                 console.error[F](project, message)
               case SubmissionResult.CompilationError =>
-                console.error[F](project, s"Compilation Error: \n ${message}")
+                console.error[F](project, message)
               case SubmissionResult.Processing =>
                 console.info[F](project, message)
               case SubmissionResult.Timeout =>
@@ -131,7 +136,7 @@ object codeforces {
           .compile
           .drain
       case _ =>
-        Async[F].raiseError(new IllegalStateException("Challenge's dojo type is NOT CodeForces"))
+        Async[F].raiseError(new IllegalStateException("The dojo type of the challenge is not CodeForces"))
   }
 
   private def queryChallengeBasicInfo(

@@ -33,9 +33,7 @@ object hackerrank {
         ChallengeRepository
           .getInstance(project)
           .getDSLContextResource[F]
-          .use { dsl =>
-            Async[F].delay { queryChallengeBasicInfo(item, dsl) }
-          }
+          .use(dsl => Async[F].delay(queryChallengeBasicInfo(item, dsl)))
       )
       .flatMap { case (contest, language, langVer, challengeSlug) =>
         val extractedCode = language.extractCodeFromRegion(VirtualFileUtil.readText(vf))
