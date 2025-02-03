@@ -97,12 +97,18 @@ object LeetCodeApi {
     private def getSubmitAnswerResult(submissionId: Int): F[LeetCodeSubmitAnswerResult] =
       useClient { client =>
         getCSRFToken.flatMap { csrfToken =>
-          client.expect[LeetCodeSubmitAnswerResult](
-            Method.GET(
-              Uri.unsafeFromString(s"https://${dojo.domain.toString}/submissions/detail/${submissionId}/check/"),
-              headers = commonHeaders(csrfToken)
+          client
+            .expect[LeetCodeSubmitAnswerResult](
+              Method.GET(
+                Uri.unsafeFromString(s"https://${dojo.domain.toString}/submissions/detail/${submissionId}/check/"),
+                headers = commonHeaders(csrfToken)
+              )
             )
-          )
+            .map {
+              case r: LeetCodeSubmitAnswerResult.Started => r.copy(leetCodeSubmissionId = submissionId.toString)
+              case r: LeetCodeSubmitAnswerResult.Pending => r.copy(leetCodeSubmissionId = submissionId.toString)
+              case r                                     => r
+            }
         }
       }
 

@@ -13,8 +13,16 @@ object submitAnswer {
   case class LeetCodeSubmitAnswerResponse(submissionId: Int) derives ConfiguredDecoder
 
   enum LeetCodeSubmitAnswerResult {
-    case Started(state: String)
-    case Pending(state: String)
+    case Started(
+      @transient
+      leetCodeSubmissionId: String = "",
+      state: String
+    )
+    case Pending(
+      @transient
+      leetCodeSubmissionId: String = "",
+      state: String
+    )
     case Success(
       statusCode: Int,
       lang: String,

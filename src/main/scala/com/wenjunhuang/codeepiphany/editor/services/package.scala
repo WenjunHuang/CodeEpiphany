@@ -51,8 +51,8 @@ package object services {
           (
             item.dojo match
               case CodeDojo.HackerRank => HackerRankService[F]().submitCode(vf, project, item)
-              case CodeDojo.LeetCodeCN => LeetCodeService[F]().submitCode(vf, project, item)
-              case CodeDojo.LeetCode   => LeetCodeService[F]().submitCode(vf, project, item)
+              case CodeDojo.LeetCodeCN => LeetCodeSubmissionService[F](project, CodeDojo.LeetCodeCN).submitCode(vf)
+              case CodeDojo.LeetCode   => LeetCodeSubmissionService[F](project, CodeDojo.LeetCode).submitCode(vf)
               case CodeDojo.CodeForces => CodeForcesService[F]().submitCode(vf, project, item)
           )
       case None => Async[F].unit

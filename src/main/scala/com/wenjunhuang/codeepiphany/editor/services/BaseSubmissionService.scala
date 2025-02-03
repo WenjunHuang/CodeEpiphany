@@ -57,7 +57,7 @@ abstract class BaseSubmissionService[F[_]: Async: Concurrent: HttpClientManager:
   ): F[Unit] = {
     callApi(basicInfo, processedCode).evalMap { response =>
       updateSubmissionRecord(submissionId, response).map((_, response))
-    }.compile.last.map {
+    }.compile.last.flatMap {
       case Some((lastResponseInfo, lastResponse)) => reportSubmitResult(lastResponseInfo, lastResponse)
       case None                                   => Async[F].unit
     }
