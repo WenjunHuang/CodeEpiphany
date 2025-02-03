@@ -83,9 +83,9 @@ trait LeetCodeApi[F[_]] {
 }
 
 object LeetCodeApi {
-  def apply[F[_]: Async: Concurrent: HttpClientManager](
-    dojo: CodeDojo.LeetCode.type | CodeDojo.LeetCodeCN.type
-  ): LeetCodeApi[F] = new LeetCodeApi[F] with Http4sClientDsl[F] {
+  type LeetCodeDojo = CodeDojo.LeetCode.type | CodeDojo.LeetCodeCN.type
+  def apply[F[_]: Async: Concurrent: HttpClientManager](dojo: LeetCodeDojo): LeetCodeApi[F] = new LeetCodeApi[F]
+    with Http4sClientDsl[F] {
 
     private val graphqlUrl = Uri.unsafeFromString(s"https://${dojo.domain.toString}/graphql/")
 

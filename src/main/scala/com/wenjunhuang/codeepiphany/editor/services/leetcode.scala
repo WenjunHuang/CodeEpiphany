@@ -7,6 +7,7 @@ import fs2.Stream
 import java.time.LocalDateTime
 import org.jooq.DSLContext
 import org.jooq.impl.DSL
+import org.jooq.Record
 import org.typelevel.ci.CIString
 import org.typelevel.log4cats.LoggerFactory
 import scala.jdk.OptionConverters.*
@@ -16,7 +17,7 @@ import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.vfs.{ VirtualFile, VirtualFileUtil }
 
 import com.wenjunhuang.codeepiphany.database.Tables.*
-import com.wenjunhuang.codeepiphany.leetcode.model.*
+import com.wenjunhuang.codeepiphany.leetcode.model.{ submitAnswer, * }
 import com.wenjunhuang.codeepiphany.leetcode.model.runCode.LeetCodeRunResult
 import com.wenjunhuang.codeepiphany.leetcode.model.submitAnswer.LeetCodeSubmitAnswerResult
 import com.wenjunhuang.codeepiphany.leetcode.services.LeetCodeApi
@@ -25,6 +26,350 @@ import com.wenjunhuang.codeepiphany.services.console
 import com.wenjunhuang.codeepiphany.services.http.HttpClientManager
 import com.wenjunhuang.codeepiphany.settings.ChallengeSettings.ChallengeSettingsStateItem
 import com.wenjunhuang.codeepiphany.utils.{ IdGenerator, Tabulator }
+
+object LeetCodeService {
+  type LeetCodeDojo = CodeDojo.LeetCode.type | CodeDojo.LeetCodeCN.type
+
+  def runCode[F[_]: Async: Concurrent: HttpClientManager: LoggerFactory](
+    vf: VirtualFile,
+    project: Project,
+    item: ChallengeSettingsStateItem
+  ): F[Unit] = {
+    item.dojo match {
+      case codeDojo: LeetCodeDojo =>
+        for {
+          challengeInfo <- fetchChallengeInfo(project, item)
+          localCode          <- readLocalCode(codeDojo, vf, challengeInfo.language)
+          processedCode <- extractCode(codeDojo, localCode, challengeInfo.language)
+          _ <- executeLeetCodeRun(codeDojo, challengeInfo, processedCode)
+            .evalMap(response => handleRunResult(codeDojo, project, response, challengeInfo.testCase))
+            .compile
+            .drain
+        } yield ()
+      case _ =>
+        Async[F].raiseError(new IllegalArgumentException("Unsupported LeetCode platform"))
+    }
+  }
+
+  def submitCode[F[_]: Async: Concurrent: HttpClientManager](
+    vf: VirtualFile,
+    project: Project,
+    item: ChallengeSettingsStateItem
+  ): F[Unit] = item.dojo match {
+    case codeDojo @ (CodeDojo.LeetCode | CodeDojo.LeetCodeCN) =>
+      for {
+        challengeInfo <- fetchChallengeInfo(project, item)
+        localCode     <- readLocalCode(codeDojo, vf, challengeInfo.language)
+        processedCode <- extractCode(codeDojo, localCode, challengeInfo.language)
+        submissionId  <- storeSubmission(project, item, localCode, processedCode)
+        _             <- executeLeetCodeSubmit(project, codeDojo, challengeInfo, processedCode, submissionId)
+      } yield ()
+    case _ =>
+      Async[F].raiseError(new IllegalArgumentException("Unsupported LeetCode platform"))
+  }
+
+  private def executeLeetCodeSubmit[F[_]: Async: Concurrent: HttpClientManager](
+    project: Project,
+    codeDojo: CodeDojo.LeetCode.type | CodeDojo.LeetCodeCN.type,
+    info: LeetCodeChallengeInfo,
+    code: String,
+    submissionId: Long
+  ) = {
+    LeetCodeApi[F](codeDojo)
+      .submitAnswer(info.dojoId, info.challengeSlug, info.language, info.langVer, code)
+      .evalMap(apiResponse =>
+        updateSubmissionRecord(project, codeDojo, submissionId, apiResponse) >> Async[F].pure(apiResponse)
+      )
+      .compile
+      .last
+      .flatMap {
+        case Some(response: submitAnswer.LeetCodeSubmitAnswerResult.Success) =>
+          reportSubmitResult(project, codeDojo, response)
+        case _ => Async[F].unit
+      }
+      .handleErrorWith(error => updateSubmissionOnError(project, submissionId, error) >> Async[F].raiseError(error))
+  }
+
+  private def updateSubmissionOnError[F[_]: Async](project: Project, submissionId: Long, error: Throwable): F[Unit] = {
+    ChallengeRepository
+      .getInstance(project)
+      .getDSLContextResource[F]
+      .use { dsl =>
+        Async[F].delay {
+          dsl
+            .update(SOLUTION_SUBMISSION)
+            .set(SOLUTION_SUBMISSION.RESULT, SubmissionResult.Failure.value)
+            .set(SOLUTION_SUBMISSION.MESSAGE, error.getMessage)
+            .where(SOLUTION_SUBMISSION.ID.eq(submissionId))
+            .execute()
+        }
+      }
+  }
+
+  private def fetchChallengeInfo[F[_]: Async](
+    project: Project,
+    item: ChallengeSettingsStateItem
+  ): F[LeetCodeChallengeInfo] = {
+    ChallengeRepository
+      .getInstance(project)
+      .getDSLContextResource[F]
+      .use(client => Async[F].delay(queryChallengeInfo(item, client)))
+  }
+
+  private def readLocalCode[F[_]: Async](codeDojo: LeetCodeDojo, vf: VirtualFile, language: Language): F[String] =
+    Async[F].blocking {
+      VirtualFileUtil.readText(vf)
+    }
+
+  private def extractCode[F[_]: Async](codeDojo: LeetCodeDojo, rawCode: String, language: Language): F[String] =
+    Async[F].blocking {
+      if codeDojo.requiresCodeRegionEnclosure then language.extractCodeFromRegion(rawCode)
+      else rawCode
+    }
+
+  private def executeLeetCodeRun[F[_]: Async: Concurrent: HttpClientManager](
+    codeDojo: LeetCodeDojo,
+    info: LeetCodeChallengeInfo,
+    code: String
+  ): Stream[F, LeetCodeRunResult] = {
+    LeetCodeApi[F](codeDojo)
+      .runAnswer(info.dojoId, info.challengeSlug, info.testCase, info.language, info.langVer, code)
+  }
+
+  private def storeSubmission[F[_]: Async](
+    project: Project,
+    item: ChallengeSettingsStateItem,
+    localCode: String,
+    processedCode: String
+  ): F[Long] = {
+    ChallengeRepository
+      .getInstance(project)
+      .getDSLContextResource[F]
+      .use { dsl =>
+        Async[F].delay {
+          dsl.transactionResult { trx =>
+            val ctx = DSL.using(trx)
+            val record = ctx
+              .newRecord(SOLUTION_SUBMISSION)
+              .setId(IdGenerator.nextId())
+              .setChallengelanguageid(item.challengeLanguageId)
+              .setLocalcode(localCode)
+              .setSubmitcode(processedCode)
+              .setSubmitdatetime(LocalDateTime.now())
+              .setSolutionid(item.solutionId)
+              .setResult(SubmissionResult.Processing.value)
+            record.store()
+            record.getId
+          }
+        }
+      }
+  }
+
+  private def updateSubmissionRecord[F[_]: Async](
+    project: Project,
+    codeDojo: CodeDojo,
+    submissionId: Long,
+    response: LeetCodeSubmitAnswerResult
+  ): F[Unit] = {
+    ChallengeRepository
+      .getInstance(project)
+      .getDSLContextResource[F]
+      .use { dsl =>
+        Async[F].delay {
+          dsl.transaction { trx =>
+            response match
+              case success: LeetCodeSubmitAnswerResult.Success =>
+                val ctx = DSL.using(trx)
+                updateMainSubmission(ctx, codeDojo, submissionId, success)
+                updateLeetCodeSpecificData(ctx, submissionId, success)
+              case _ =>
+          }
+        }
+      }
+  }
+
+  // 结果处理
+  private def handleRunResult[F[_]: Async](
+    codeDojo: CodeDojo,
+    project: Project,
+    result: LeetCodeRunResult,
+    testCase: String
+  ): F[Unit] = result match {
+    case success: LeetCodeRunResult.Success =>
+      handleRunSuccess(codeDojo, project, success, testCase)
+    case _ => Async[F].unit
+  }
+
+  // 数据库操作辅助方法
+  private def queryChallengeInfo(item: ChallengeSettingsStateItem, client: DSLContext): LeetCodeChallengeInfo = {
+    client
+      .select(
+        CHALLENGE.SLUG,
+        CHALLENGE.DOJOID,
+        LEETCODE_CHALLENGE.TESTCASE,
+        CHALLENGE_LANGUAGE.LANGUAGE,
+        CHALLENGE_LANGUAGE.LANGUAGEVERSION
+      )
+      .from(CHALLENGE)
+      .innerJoin(LEETCODE_CHALLENGE)
+      .on(CHALLENGE.ID.eq(LEETCODE_CHALLENGE.ID))
+      .innerJoin(CHALLENGE_LANGUAGE)
+      .on(CHALLENGE.ID.eq(CHALLENGE_LANGUAGE.CHALLENGEID))
+      .where(CHALLENGE.ID.eq(item.challengeId).and(CHALLENGE_LANGUAGE.ID.eq(item.challengeLanguageId)))
+      .fetchOptional()
+      .toScala
+      .flatMap(parseLeetCodeRecord)
+      .getOrElse(throw new IllegalStateException("LeetCode challenge data not found"))
+  }
+
+  private def parseLeetCodeRecord(record: Record): Option[LeetCodeChallengeInfo] = {
+    for {
+      dojoId <- Option(record.get(CHALLENGE.DOJOID))
+      testCase = Option(record.get(LEETCODE_CHALLENGE.TESTCASE))
+      language <- Language.fromCIString(CIString(record.get(CHALLENGE_LANGUAGE.LANGUAGE)))
+      langVer = LanguageVersion.fromString(record.get(CHALLENGE_LANGUAGE.LANGUAGEVERSION))
+      slug <- Option(record.get(CHALLENGE.SLUG))
+    } yield LeetCodeChallengeInfo(dojoId, testCase.getOrElse(""), language, langVer, slug)
+  }
+
+  private def updateMainSubmission(
+    ctx: DSLContext,
+    codeDojo: CodeDojo,
+    submissionId: Long,
+    response: LeetCodeSubmitAnswerResult.Success
+  ): Unit = {
+    val result = codeDojo.fromLeetCodeRunResult(response.statusMsg)
+    val msg    = formatErrorMessage(result, response)
+    ctx
+      .update(SOLUTION_SUBMISSION)
+      .set(SOLUTION_SUBMISSION.DOJOSUBMISSIONID, response.submissionId)
+      .set(SOLUTION_SUBMISSION.RESULTDATETIME, LocalDateTime.now())
+      .set(SOLUTION_SUBMISSION.RESULT, result.value)
+      .set(SOLUTION_SUBMISSION.MESSAGE, msg)
+      .where(SOLUTION_SUBMISSION.ID.eq(submissionId))
+      .execute()
+  }
+
+  private def updateLeetCodeSpecificData(
+    ctx: DSLContext,
+    submissionId: Long,
+    response: LeetCodeSubmitAnswerResult.Success
+  ): Unit = {
+    val record = ctx
+      .newRecord(LEETCODE_SUBMISSION)
+      .setId(submissionId)
+      .setExpectedoutput(response.expectedOutput.orNull)
+      .setInputformatted(response.inputFormatted.orNull)
+      .setLasttestcase(response.lastTestcase.orNull)
+      .setMemory(response.memory)
+      .setMemorypercentile(response.memoryPercentile.map(float2Float).orNull)
+      .setRuntimepercentile(response.runtimePercentile.map(float2Float).orNull)
+      .setStatusmemory(response.statusMemory)
+      .setTotalcorrect(response.totalCorrect.map(int2Integer).orNull)
+      .setTotaltestcases(response.totalTestcases.map(int2Integer).orNull)
+      .setStatusruntime(response.statusRuntime)
+      .setCodeoutput(response.codeOutput.orNull)
+      .setStdoutput(response.stdOutput.orNull)
+    record.store()
+  }
+
+  // 结果报告（保持原有实现但优化结构）
+  private def handleRunSuccess[F[_]: Async](
+    codeDojo: CodeDojo,
+    project: Project,
+    success: LeetCodeRunResult.Success,
+    testCase: String
+  ): F[Unit] = {
+    codeDojo.fromLeetCodeRunResult(success.statusMsg) match {
+      case SubmissionResult.Success if success.correctAnswer.contains(true) =>
+        console.info[F](project, "🎉 Passed!")
+      case SubmissionResult.Success =>
+        console.error[F](project, s"Wrong Answer!\n${formatResultDiff(success, testCase)}")
+      case result =>
+        console.error[F](project, formatErrorMessage(result, success))
+    }
+  }
+
+  private def formatResultDiff(result: LeetCodeRunResult.Success, testCase: String): String = {
+    val cases = StringUtil.splitByLines(testCase).toList
+    val comparisons = cases.zip(result.codeAnswer.zip(result.expectedCodeAnswer)) ++
+      cases.zip(result.stdOutputList.zip(result.expectedStdOutputList))
+
+    Tabulator.format(
+      List("Case", "Your Answer", "Expected Answer") +:
+        comparisons.collect {
+          case (testCase, (output, expected)) if output != expected =>
+            List(
+              StringUtil.escapeLineBreak(testCase),
+              StringUtil.escapeLineBreak(output),
+              StringUtil.escapeLineBreak(expected)
+            )
+        }
+    )
+  }
+
+  private def formatErrorMessage(result: SubmissionResult, response: LeetCodeRunResult.Success): String =
+    result match {
+      case SubmissionResult.CompilationError =>
+        response.fullCompileError.orElse(response.compileError).getOrElse(response.statusMsg)
+      case SubmissionResult.RuntimeError =>
+        response.fullRuntimeError.orElse(response.runtimeError).getOrElse(response.statusMsg)
+      case _ =>
+        response.statusMsg
+    }
+
+  private def formatErrorMessage(result: SubmissionResult, response: LeetCodeSubmitAnswerResult.Success): String =
+    result match {
+      case SubmissionResult.CompilationError =>
+        response.fullCompileError.orElse(response.compileError).getOrElse(response.statusMsg)
+      case SubmissionResult.RuntimeError =>
+        response.fullRuntimeError.orElse(response.runtimeError).getOrElse(response.statusMsg)
+      case _ =>
+        response.statusMsg
+    }
+
+  private def reportSubmitResult[F[_]: Async](
+    project: Project,
+    codeDojo: CodeDojo,
+    response: LeetCodeSubmitAnswerResult.Success
+  ): F[Unit] =
+    val result = codeDojo.fromLeetCodeRunResult(response.statusMsg)
+    result match {
+      case SubmissionResult.Success =>
+        console.info[F](project, formatSuccessMetrics(response))
+      case SubmissionResult.Failure =>
+        console.error[F](project, formatFailureDetails(response))
+      case _ =>
+        console.error[F](project, formatErrorMessage(result, response))
+    }
+
+  private def formatSuccessMetrics(response: LeetCodeSubmitAnswerResult.Success): String = {
+    Tabulator.format(
+      List("Metric", "Value"),
+      List(
+        List("Runtime", f"${response.statusRuntime} (Top ${response.runtimePercentile.getOrElse(0.0f)}%2f%%)"),
+        List("Memory", f"${response.statusMemory} (Top ${response.memoryPercentile.getOrElse(0.0f)}%2f%%)")
+      )
+    )
+  }
+
+  private def formatFailureDetails(response: LeetCodeSubmitAnswerResult.Success): String = {
+    Tabulator.format(
+      List("Input", "Output", "Expected"),
+      List(response.input, response.codeOutput, response.expectedOutput)
+        .map(_.getOrElse(""))
+        .map(StringUtil.escapeLineBreak)
+    )
+  }
+
+  private case class LeetCodeChallengeInfo(
+    dojoId: String,
+    testCase: String,
+    language: Language,
+    langVer: LanguageVersion,
+    challengeSlug: String
+  )
+}
 
 object leetcode {
   def runCode[F[_]: Async: Concurrent: HttpClientManager: LoggerFactory](

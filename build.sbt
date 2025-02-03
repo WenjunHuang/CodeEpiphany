@@ -29,6 +29,7 @@ lazy val codeEpiphany = (project in file("."))
     scalacOptions ++= Seq(
       "-Wunused:imports",
       "-language:implicitConversions",
+      "-Ykind-projector:underscores",
       "-source:future", // enabling better-monadic-for syntax
       "-feature",
       "-deprecation",

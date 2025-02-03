@@ -55,11 +55,11 @@ package object model {
     }
 
     def fromLeetCodeRunResult(result: String): SubmissionResult = CIString(result) match
-      case s if s == CIString("Accepted")            => SubmissionResult.Success
-      case c if c == CIString("Compile Error")       => SubmissionResult.CompilationError
-      case r if r == CIString("Runtime Error")       => SubmissionResult.RuntimeError
-      case u if u == CIString("Time Limit Exceeded") => SubmissionResult.Timeout
-      case e if e == CIString("Wrong Answer") => SubmissionResult.Failure
-      case _                                         => SubmissionResult.Unknown
+      case s if s.contains(CIString("Accepted"))            => SubmissionResult.Success
+      case c if c.contains(CIString("Compile Error"))       => SubmissionResult.CompilationError
+      case r if r.contains(CIString("Runtime Error"))       => SubmissionResult.RuntimeError
+      case u if u.contains(CIString("Time Limit Exceeded")) => SubmissionResult.Timeout
+      case e if e.contains(CIString("Wrong Answer"))        => SubmissionResult.Failure
+      case _                                                => SubmissionResult.Unknown
   }
 }
