@@ -29,7 +29,7 @@ package object services {
             case CodeDojo.LeetCodeCN =>
               LeetCodeCodeEvaluationService[F](project, CodeDojo.LeetCodeCN).evaluateCode(vf, None)
             case CodeDojo.LeetCode =>
-              LeetCodeService[F]().runCode(vf, project, item)
+              LeetCodeCodeEvaluationService[F](project, CodeDojo.LeetCode).evaluateCode(vf, None)
             case CodeDojo.CodeForces =>
               Async[F].unit
         case None => Async[F].unit

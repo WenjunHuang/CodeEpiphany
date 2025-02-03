@@ -1,5 +1,6 @@
 package com.wenjunhuang.codeepiphany.editor.services
 
+import cats.syntax.all.*
 import cats.effect.{ Async, Concurrent }
 import org.jooq.{ DSLContext, Record }
 import org.typelevel.ci.CIString
@@ -141,9 +142,9 @@ class LeetCodeCodeEvaluationService[F[_]: Async: Concurrent: HttpClientManager: 
   ): F[Unit] = {
     lastResponseInfo.result match
       case SubmissionResult.Success =>
-        console.info[F](project, lastResponseInfo.message)
-      case _ =>
-        console.error[F](project, lastResponseInfo.message)
+        console.info[F](project, s"${SubmissionResult.Success.show}\n${lastResponseInfo.message}")
+      case result =>
+        console.error[F](project, s"${result.show}\n${lastResponseInfo.message}")
   }
 
   case class LeetCodeEvaluationRequest(
