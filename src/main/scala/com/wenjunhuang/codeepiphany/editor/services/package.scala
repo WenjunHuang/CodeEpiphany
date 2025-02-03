@@ -46,14 +46,13 @@ package object services {
     val settings                   = ChallengeSettings.getInstance(project)
     (settings.findChallengeId(vf) match
       case Some(item) =>
-        showConsole(project) *>
-          console.info[F](project, s"Start to submit ${vf.getName} to ${item.dojo.show}") *>
+        showConsole(project) >> console.info[F](project, s"Start to submit ${vf.getName} to ${item.dojo.show}") >>
           (
             item.dojo match
               case CodeDojo.HackerRank => HackerRankSubmissionService[F](project).submitCode(vf)
               case CodeDojo.LeetCodeCN => LeetCodeSubmissionService[F](project, CodeDojo.LeetCodeCN).submitCode(vf)
               case CodeDojo.LeetCode   => LeetCodeSubmissionService[F](project, CodeDojo.LeetCode).submitCode(vf)
-              case CodeDojo.CodeForces => CodeForcesService[F]().submitCode(vf, project, item)
+              case CodeDojo.CodeForces => CodeForcesSubmissionService[F](project).submitCode(vf)
           )
       case None => Async[F].unit
     ).handleErrorWith { e =>
