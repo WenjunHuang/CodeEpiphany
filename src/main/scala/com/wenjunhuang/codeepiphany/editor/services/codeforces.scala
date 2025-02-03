@@ -24,8 +24,8 @@ import com.wenjunhuang.codeepiphany.services.http.HttpClientManager
 import com.wenjunhuang.codeepiphany.settings.ChallengeSettings.ChallengeSettingsStateItem
 import com.wenjunhuang.codeepiphany.utils.IdGenerator
 
-object CodeForcesService {
-  def submitCode[F[_]: Async: Concurrent: HttpClientManager: Logger](
+class CodeForcesService[F[_]: Async: Concurrent: HttpClientManager: Logger]{
+  def submitCode(
     vf: VirtualFile,
     project: Project,
     item: ChallengeSettingsStateItem
@@ -46,10 +46,10 @@ object CodeForcesService {
     case _ => Async[F].raiseError(new IllegalArgumentException("Unsupported code dojo"))
   }
 
-  private def readFileContent[F[_]: Async](vf: VirtualFile): F[String] =
+  private def readFileContent(vf: VirtualFile): F[String] =
     Async[F].blocking(VirtualFileUtil.readText(vf))
 
-  private def fetchBasicInfo[F[_]: Async](
+  private def fetchBasicInfo(
     project: Project,
     item: ChallengeSettingsStateItem
   ): F[CFChallengeBasicInfo] = {
@@ -59,7 +59,7 @@ object CodeForcesService {
       .use(client => Async[F].delay(queryBasicInfo(item, client)))
   }
 
-  private def extractCode[F[_]: Async](rawCode: String, language: Language): F[String] = Async[F].delay {
+  private def extractCode(rawCode: String, language: Language): F[String] = Async[F].delay {
     if (CodeDojo.CodeForces.requiresCodeRegionEnclosure)
       language.extractCodeFromRegion(rawCode)
     else
@@ -71,7 +71,7 @@ object CodeForcesService {
       lang == language && ver == version
     }.map(_._3)
 
-  private def storeSubmissionRecord[F[_]: Async](
+  private def storeSubmissionRecord(
     project: Project,
     item: ChallengeSettingsStateItem,
     localCode: String,
@@ -100,7 +100,7 @@ object CodeForcesService {
       }
   }
 
-  private def submitToCodeForces[F[_]: Async: HttpClientManager](
+  private def submitToCodeForces(
     basicInfo: CFChallengeBasicInfo,
     code: String
   ): Stream[F, CodeForcesSubmissionResponse] = {
@@ -113,7 +113,7 @@ object CodeForcesService {
     )
   }
 
-  private def handleSubmissionResponse[F[_]: Async](
+  private def handleSubmissionResponse(
     project: Project,
     submissionId: Long,
     response: CodeForcesSubmissionResponse
@@ -122,7 +122,7 @@ object CodeForcesService {
       logResult(project, response.result, response.message)
   }
 
-  private def updateSubmissionRecord[F[_]: Async](
+  private def updateSubmissionRecord(
     project: Project,
     submissionId: Long,
     response: CodeForcesSubmissionResponse
@@ -147,7 +147,7 @@ object CodeForcesService {
       }
   }
 
-  private def logResult[F[_]: Async](project: Project, result: SubmissionResult, message: String): F[Unit] =
+  private def logResult(project: Project, result: SubmissionResult, message: String): F[Unit] =
     result match {
       case SubmissionResult.Success =>
         console.info[F](project, s"🎉 Passed!\n$message")
@@ -157,7 +157,7 @@ object CodeForcesService {
         console.error[F](project, s"${result.toString.toUpperCase}: $message")
     }
 
-  private def updateSubmissionOnError[F[_]: Async](project: Project, submissionId: Long, error: Throwable): F[Unit] = {
+  private def updateSubmissionOnError(project: Project, submissionId: Long, error: Throwable): F[Unit] = {
     ChallengeRepository
       .getInstance(project)
       .getDSLContextResource[F]

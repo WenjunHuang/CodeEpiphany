@@ -54,8 +54,10 @@ package object model {
         case _ => None
     }
 
-    def fromLeetCodeRunResult(result: String): SubmissionResult = CIString(result) match
-      case s if s.contains(CIString("Accepted"))            => SubmissionResult.Success
+    def fromLeetCodeRunResult(result: String, correctAnswer: Option[Boolean]): SubmissionResult = CIString(result) match
+      case s if s.contains(CIString("Accepted")) =>
+        if correctAnswer.contains(false) then SubmissionResult.Failure
+        else SubmissionResult.Success
       case c if c.contains(CIString("Compile Error"))       => SubmissionResult.CompilationError
       case r if r.contains(CIString("Runtime Error"))       => SubmissionResult.RuntimeError
       case u if u.contains(CIString("Time Limit Exceeded")) => SubmissionResult.Timeout

@@ -27,12 +27,14 @@ package object services {
             case CodeDojo.HackerRank =>
               HackerRankService[F]().runCode(vf, project, item)
             case CodeDojo.LeetCodeCN =>
-              LeetCodeService[F]().runCode(vf, project, item)
+              LeetCodeCodeEvaluationService[F](project, CodeDojo.LeetCodeCN).evaluateCode(vf, None)
             case CodeDojo.LeetCode =>
               LeetCodeService[F]().runCode(vf, project, item)
             case CodeDojo.CodeForces =>
               Async[F].unit
         case None => Async[F].unit
+      }.handleErrorWith { e =>
+        console.error[F](project, s"Error to run code: \n ${e.getMessage}")
       }
   }
 
@@ -51,7 +53,7 @@ package object services {
               case CodeDojo.HackerRank => HackerRankService[F]().submitCode(vf, project, item)
               case CodeDojo.LeetCodeCN => LeetCodeService[F]().submitCode(vf, project, item)
               case CodeDojo.LeetCode   => LeetCodeService[F]().submitCode(vf, project, item)
-              case CodeDojo.CodeForces => CodeForcesService.submitCode[F](vf, project, item)
+              case CodeDojo.CodeForces => CodeForcesService[F]().submitCode(vf, project, item)
           )
       case None => Async[F].unit
     ).handleErrorWith { e =>

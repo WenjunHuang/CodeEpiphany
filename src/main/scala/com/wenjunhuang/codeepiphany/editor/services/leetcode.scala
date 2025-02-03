@@ -224,7 +224,7 @@ class LeetCodeService[F[_]: Async: Concurrent: HttpClientManager: LoggerFactory]
     submissionId: Long,
     response: LeetCodeSubmitAnswerResult.Success
   ): Unit = {
-    val result = codeDojo.fromLeetCodeRunResult(response.statusMsg)
+    val result = codeDojo.fromLeetCodeRunResult(response.statusMsg, None)
     val msg    = formatErrorMessage(result, response)
     ctx
       .update(SOLUTION_SUBMISSION)
@@ -265,7 +265,7 @@ class LeetCodeService[F[_]: Async: Concurrent: HttpClientManager: LoggerFactory]
     success: LeetCodeRunResult.Success,
     testCase: String
   ): F[Unit] = {
-    codeDojo.fromLeetCodeRunResult(success.statusMsg) match {
+    codeDojo.fromLeetCodeRunResult(success.statusMsg,success.correctAnswer) match {
       case SubmissionResult.Success if success.correctAnswer.contains(true) =>
         console.info[F](project, "🎉 Passed!")
       case SubmissionResult.Success =>
@@ -318,7 +318,7 @@ class LeetCodeService[F[_]: Async: Concurrent: HttpClientManager: LoggerFactory]
     codeDojo: CodeDojo,
     response: LeetCodeSubmitAnswerResult.Success
   ): F[Unit] =
-    val result = codeDojo.fromLeetCodeRunResult(response.statusMsg)
+    val result = codeDojo.fromLeetCodeRunResult(response.statusMsg,None)
     result match {
       case SubmissionResult.Success =>
         console.info[F](project, formatSuccessMetrics(response))
@@ -425,7 +425,7 @@ object leetcode {
     success: LeetCodeRunResult.Success,
     testCase: String
   ) = {
-    codeDojo.fromLeetCodeRunResult(success.statusMsg) match
+    codeDojo.fromLeetCodeRunResult(success.statusMsg,success.correctAnswer) match
       case SubmissionResult.Success =>
         if success.correctAnswer.contains(true) then console.info[F](project, "🎉 Passed!")
         else
@@ -541,7 +541,7 @@ object leetcode {
                   .fetchOptional()
                   .toScala match
                   case Some(record) =>
-                    val result = codeDojo.fromLeetCodeRunResult(response.statusMsg)
+                    val result = codeDojo.fromLeetCodeRunResult(response.statusMsg,None)
                     val message = result match
                       case SubmissionResult.Success | SubmissionResult.Failure | SubmissionResult.Timeout |
                           SubmissionResult.Failure | SubmissionResult.Unknown | SubmissionResult.Processing =>

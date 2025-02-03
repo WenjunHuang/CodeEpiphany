@@ -10,10 +10,8 @@ import com.wenjunhuang.codeepiphany.model.{CodeDojo, Language, LanguageVersion}
 object XmlUtils {
 
   class LanguageConverter extends Converter[Language] {
-    override def fromString(value: String): Language =
-      Language.fromCIString(CIString(value)).orNull
-    override def toString(value: Language): String =
-      value.value
+    override def fromString(value: String): Language = Language.fromCIString(CIString(value)).orNull
+    override def toString(value: Language): String = value.value
   }
 
   class LanguageVersionConverter extends Converter[LanguageVersion] {
