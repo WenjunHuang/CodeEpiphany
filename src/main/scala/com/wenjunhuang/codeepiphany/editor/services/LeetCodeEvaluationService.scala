@@ -24,7 +24,7 @@ import com.wenjunhuang.codeepiphany.model.SubmissionResult.Processing
 import com.wenjunhuang.codeepiphany.services.console
 import com.wenjunhuang.codeepiphany.utils.Tabulator
 
-class LeetCodeCodeEvaluationService[F[_]: Async: Concurrent: HttpClientManager: LoggerFactory](
+class LeetCodeEvaluationService[F[_]: Async: Concurrent: HttpClientManager: LoggerFactory](
   project: Project,
   private val myLeetCode: CodeDojo.LeetCode.type | CodeDojo.LeetCodeCN.type
 ) extends BaseCodeEvaluationService[F](project, myLeetCode) {

@@ -1,13 +1,13 @@
 package com.wenjunhuang.codeepiphany.hackerrank.services
 
-import cats.effect.{Async, Concurrent, Temporal}
+import cats.effect.{ Async, Concurrent, Temporal }
 import cats.syntax.all.*
 import fs2.Stream
 import io.circe.*
 import io.circe.optics.JsonPath
 import io.circe.parser.parse
 import io.circe.syntax.*
-import org.http4s.{Headers, Method, Request, Uri}
+import org.http4s.{ Headers, Method, Request, Uri }
 import org.http4s.circe.*
 import org.http4s.circe.CirceEntityEncoder.*
 import org.http4s.client.Client
@@ -17,8 +17,8 @@ import org.jsoup.Jsoup
 import scala.concurrent.duration.*
 
 import com.wenjunhuang.codeepiphany.hackerrank.model.*
-import com.wenjunhuang.codeepiphany.hackerrank.model.HackerRankContest.{Master, ProjectEuler}
-import com.wenjunhuang.codeepiphany.model.{ApiError, ChallengeDifficulty, ChallengeStatus, Language}
+import com.wenjunhuang.codeepiphany.hackerrank.model.HackerRankContest.{ Master, ProjectEuler }
+import com.wenjunhuang.codeepiphany.model.{ ApiError, ChallengeDifficulty, ChallengeStatus, Language, LanguageVersion }
 import com.wenjunhuang.codeepiphany.model.CodeDojo.HackerRank
 import com.wenjunhuang.codeepiphany.services.http.HttpClientManager
 
@@ -48,7 +48,7 @@ trait HackerRankApi[F[_]] {
     challengeSlug: String,
     contest: HackerRankContest,
     language: Language,
-    langVer: String,
+    langVer: LanguageVersion,
     code: String
   ): Stream[F, HackerRankSubmissionResponse]
 
@@ -56,7 +56,7 @@ trait HackerRankApi[F[_]] {
     challengeSlug: String,
     contest: HackerRankContest,
     language: Language,
-    langVer: String,
+    langVer: LanguageVersion,
     code: String
   ): Stream[F, HackerRankRunCodeResponse]
 }
@@ -290,7 +290,7 @@ object HackerRankApi {
       challengeSlug: String,
       contest: HackerRankContest,
       language: Language,
-      langVer: String,
+      langVer: LanguageVersion,
       code: String
     ): Stream[F, HackerRankRunCodeResponse] = {
       Stream
@@ -304,7 +304,7 @@ object HackerRankApi {
               .withEntity(
                 JsonObject.fromMap(
                   Map(
-                    "language"       -> s"${language.value}$langVer".asJson,
+                    "language"       -> s"${language.value}${langVer.version}".asJson,
                     "playlist_slug"  -> "".asJson,
                     "customtestcase" -> false.asJson,
                     "code"           -> code.asJson
@@ -386,7 +386,7 @@ object HackerRankApi {
     private def getSubmitCodeResult(
       contest: HackerRankContest,
       challengeSlug: String,
-      submissionId: Int
+      submissionId: Long
     ): F[HackerRankSubmissionResponse] =
       HttpClientManager[F].getClient.use { client =>
         val request = Method.GET(
@@ -413,7 +413,7 @@ object HackerRankApi {
       challengeSlug: String,
       contest: HackerRankContest,
       language: Language,
-      langVer: String,
+      langVer: LanguageVersion,
       code: String
     ): Stream[F, HackerRankSubmissionResponse] = Stream
       .eval(HttpClientManager[F].getClient.use { client =>
@@ -425,7 +425,7 @@ object HackerRankApi {
             )
             .withEntity(
               Map(
-                "language"       -> s"${language.value}$langVer",
+                "language"       -> s"${language.value}${langVer.version}",
                 "contest_slug"   -> contest.slug,
                 "challenge_slug" -> challengeSlug,
                 "code"           -> code
@@ -435,7 +435,7 @@ object HackerRankApi {
             parse(response)
               .leftMap(e => ApiError.InvalidContent(HackerRank, e.getMessage))
               .flatMap { json =>
-                JsonPath.root.model.id.int
+                JsonPath.root.model.id.long
                   .getOption(json)
                   .toRight(
                     ApiError.InvalidContent(HackerRank, s"invalid submit code response json with ${json.noSpaces}")
@@ -449,7 +449,7 @@ object HackerRankApi {
         // keep running getSubmitCodeResult until SubmissionResponse.status is not "Processing"  and pass it to the next step
         Stream
           .repeatEval(
-            Temporal[F].sleep(1.second) *>
+            Temporal[F].sleep(3.second) *>
               getSubmitCodeResult(contest, challengeSlug, submissionId)
           )
           .flatMap { result =>
