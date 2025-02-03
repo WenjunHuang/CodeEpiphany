@@ -5,9 +5,8 @@ import cats.effect.kernel.Resource.ExitCase
 import cats.syntax.all.*
 import fs2.Stream
 import java.time.LocalDateTime
-import org.jooq.DSLContext
 import org.jooq.impl.DSL
-import org.jooq.Record
+import org.jooq.{ DSLContext, Record }
 import org.typelevel.ci.CIString
 import org.typelevel.log4cats.LoggerFactory
 import scala.jdk.OptionConverters.*
@@ -17,7 +16,7 @@ import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.vfs.{ VirtualFile, VirtualFileUtil }
 
 import com.wenjunhuang.codeepiphany.database.Tables.*
-import com.wenjunhuang.codeepiphany.leetcode.model.{ submitAnswer, * }
+import com.wenjunhuang.codeepiphany.leetcode.model.*
 import com.wenjunhuang.codeepiphany.leetcode.model.runCode.LeetCodeRunResult
 import com.wenjunhuang.codeepiphany.leetcode.model.submitAnswer.LeetCodeSubmitAnswerResult
 import com.wenjunhuang.codeepiphany.leetcode.services.LeetCodeApi
@@ -27,19 +26,15 @@ import com.wenjunhuang.codeepiphany.services.http.HttpClientManager
 import com.wenjunhuang.codeepiphany.settings.ChallengeSettings.ChallengeSettingsStateItem
 import com.wenjunhuang.codeepiphany.utils.{ IdGenerator, Tabulator }
 
-object LeetCodeService {
+class LeetCodeService[F[_]: Async: Concurrent: HttpClientManager: LoggerFactory] {
   type LeetCodeDojo = CodeDojo.LeetCode.type | CodeDojo.LeetCodeCN.type
 
-  def runCode[F[_]: Async: Concurrent: HttpClientManager: LoggerFactory](
-    vf: VirtualFile,
-    project: Project,
-    item: ChallengeSettingsStateItem
-  ): F[Unit] = {
+  def runCode(vf: VirtualFile, project: Project, item: ChallengeSettingsStateItem): F[Unit] = {
     item.dojo match {
       case codeDojo: LeetCodeDojo =>
         for {
           challengeInfo <- fetchChallengeInfo(project, item)
-          localCode          <- readLocalCode(codeDojo, vf, challengeInfo.language)
+          localCode     <- readLocalCode(codeDojo, vf, challengeInfo.language)
           processedCode <- extractCode(codeDojo, localCode, challengeInfo.language)
           _ <- executeLeetCodeRun(codeDojo, challengeInfo, processedCode)
             .evalMap(response => handleRunResult(codeDojo, project, response, challengeInfo.testCase))
@@ -51,16 +46,12 @@ object LeetCodeService {
     }
   }
 
-  def submitCode[F[_]: Async: Concurrent: HttpClientManager](
-    vf: VirtualFile,
-    project: Project,
-    item: ChallengeSettingsStateItem
-  ): F[Unit] = item.dojo match {
+  def submitCode(vf: VirtualFile, project: Project, item: ChallengeSettingsStateItem): F[Unit] = item.dojo match {
     case codeDojo @ (CodeDojo.LeetCode | CodeDojo.LeetCodeCN) =>
       for {
+        localCode     <- readLocalCode(codeDojo, vf, item.language)
+        processedCode <- extractCode(codeDojo, localCode, item.language)
         challengeInfo <- fetchChallengeInfo(project, item)
-        localCode     <- readLocalCode(codeDojo, vf, challengeInfo.language)
-        processedCode <- extractCode(codeDojo, localCode, challengeInfo.language)
         submissionId  <- storeSubmission(project, item, localCode, processedCode)
         _             <- executeLeetCodeSubmit(project, codeDojo, challengeInfo, processedCode, submissionId)
       } yield ()
@@ -68,7 +59,7 @@ object LeetCodeService {
       Async[F].raiseError(new IllegalArgumentException("Unsupported LeetCode platform"))
   }
 
-  private def executeLeetCodeSubmit[F[_]: Async: Concurrent: HttpClientManager](
+  private def executeLeetCodeSubmit(
     project: Project,
     codeDojo: CodeDojo.LeetCode.type | CodeDojo.LeetCodeCN.type,
     info: LeetCodeChallengeInfo,
@@ -90,7 +81,7 @@ object LeetCodeService {
       .handleErrorWith(error => updateSubmissionOnError(project, submissionId, error) >> Async[F].raiseError(error))
   }
 
-  private def updateSubmissionOnError[F[_]: Async](project: Project, submissionId: Long, error: Throwable): F[Unit] = {
+  private def updateSubmissionOnError(project: Project, submissionId: Long, error: Throwable): F[Unit] = {
     ChallengeRepository
       .getInstance(project)
       .getDSLContextResource[F]
@@ -106,28 +97,25 @@ object LeetCodeService {
       }
   }
 
-  private def fetchChallengeInfo[F[_]: Async](
-    project: Project,
-    item: ChallengeSettingsStateItem
-  ): F[LeetCodeChallengeInfo] = {
+  private def fetchChallengeInfo(project: Project, item: ChallengeSettingsStateItem): F[LeetCodeChallengeInfo] = {
     ChallengeRepository
       .getInstance(project)
       .getDSLContextResource[F]
       .use(client => Async[F].delay(queryChallengeInfo(item, client)))
   }
 
-  private def readLocalCode[F[_]: Async](codeDojo: LeetCodeDojo, vf: VirtualFile, language: Language): F[String] =
+  private def readLocalCode(codeDojo: LeetCodeDojo, vf: VirtualFile, language: Language): F[String] =
     Async[F].blocking {
       VirtualFileUtil.readText(vf)
     }
 
-  private def extractCode[F[_]: Async](codeDojo: LeetCodeDojo, rawCode: String, language: Language): F[String] =
-    Async[F].blocking {
+  private def extractCode(codeDojo: LeetCodeDojo, rawCode: String, language: Language): F[String] =
+    Async[F].delay {
       if codeDojo.requiresCodeRegionEnclosure then language.extractCodeFromRegion(rawCode)
       else rawCode
     }
 
-  private def executeLeetCodeRun[F[_]: Async: Concurrent: HttpClientManager](
+  private def executeLeetCodeRun(
     codeDojo: LeetCodeDojo,
     info: LeetCodeChallengeInfo,
     code: String
@@ -136,7 +124,7 @@ object LeetCodeService {
       .runAnswer(info.dojoId, info.challengeSlug, info.testCase, info.language, info.langVer, code)
   }
 
-  private def storeSubmission[F[_]: Async](
+  private def storeSubmission(
     project: Project,
     item: ChallengeSettingsStateItem,
     localCode: String,
@@ -165,7 +153,7 @@ object LeetCodeService {
       }
   }
 
-  private def updateSubmissionRecord[F[_]: Async](
+  private def updateSubmissionRecord(
     project: Project,
     codeDojo: CodeDojo,
     submissionId: Long,
@@ -188,8 +176,7 @@ object LeetCodeService {
       }
   }
 
-  // 结果处理
-  private def handleRunResult[F[_]: Async](
+  private def handleRunResult(
     codeDojo: CodeDojo,
     project: Project,
     result: LeetCodeRunResult,
@@ -200,7 +187,6 @@ object LeetCodeService {
     case _ => Async[F].unit
   }
 
-  // 数据库操作辅助方法
   private def queryChallengeInfo(item: ChallengeSettingsStateItem, client: DSLContext): LeetCodeChallengeInfo = {
     client
       .select(
@@ -273,8 +259,7 @@ object LeetCodeService {
     record.store()
   }
 
-  // 结果报告（保持原有实现但优化结构）
-  private def handleRunSuccess[F[_]: Async](
+  private def handleRunSuccess(
     codeDojo: CodeDojo,
     project: Project,
     success: LeetCodeRunResult.Success,
@@ -328,7 +313,7 @@ object LeetCodeService {
         response.statusMsg
     }
 
-  private def reportSubmitResult[F[_]: Async](
+  private def reportSubmitResult(
     project: Project,
     codeDojo: CodeDojo,
     response: LeetCodeSubmitAnswerResult.Success

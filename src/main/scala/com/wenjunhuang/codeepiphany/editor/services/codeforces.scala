@@ -1,19 +1,18 @@
 package com.wenjunhuang.codeepiphany.editor.services
 
-import cats.effect.{ Async, Concurrent }
+import cats.effect.{Async, Concurrent}
 import cats.effect.kernel.Resource.ExitCase
 import cats.syntax.all.*
 import fs2.Stream
 import java.time.LocalDateTime
+import org.jooq.{DSLContext, Record}
 import org.jooq.impl.DSL
-import org.jooq.DSLContext
-import org.jooq.Record
 import org.typelevel.ci.CIString
 import org.typelevel.log4cats.Logger
 import scala.jdk.OptionConverters.*
 
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.vfs.{ VirtualFile, VirtualFileUtil }
+import com.intellij.openapi.vfs.{VirtualFile, VirtualFileUtil}
 
 import com.wenjunhuang.codeepiphany.codeforces.models.CodeForcesSubmissionResponse
 import com.wenjunhuang.codeepiphany.codeforces.services.CodeForcesApi
@@ -31,27 +30,20 @@ object CodeForcesService {
     project: Project,
     item: ChallengeSettingsStateItem
   ): F[Unit] = item.dojo match {
-    case CodeDojo.CodeForces => submissionFlow(vf, project, item)
-    case _                   => Async[F].raiseError(new IllegalArgumentException("Unsupported code dojo"))
-  }
+    case CodeDojo.CodeForces =>
+      for {
+        localCode    <- readFileContent(vf)
+        submitCode   <- extractCode(localCode, item.language)
+        basicInfo    <- fetchBasicInfo(project, item)
+        submissionId <- storeSubmissionRecord(project, item, localCode, submitCode)
+        _ <- submitToCodeForces(basicInfo, submitCode)
+          .evalMap(response => handleSubmissionResponse(project, submissionId, response))
+          .compile
+          .drain
+          .handleErrorWith(e => updateSubmissionOnError(project, submissionId, e) >> Async[F].raiseError(e))
+      } yield ()
 
-  private def submissionFlow[F[_]: Async: Concurrent: HttpClientManager: Logger](
-    vf: VirtualFile,
-    project: Project,
-    item: ChallengeSettingsStateItem
-  ): F[Unit] = {
-    for {
-      localCode    <- readFileContent(vf)
-      basicInfo    <- fetchBasicInfo(project, item)
-      submitCode   <- processCode(localCode, basicInfo.language)
-      programType  <- resolveProgramType(basicInfo.language, basicInfo.langVer)
-      submissionId <- storeSubmissionRecord(project, item, localCode, submitCode)
-      _ <- submitToCodeForces(basicInfo, submitCode, programType)
-        .evalMap(response => handleSubmissionResponse(project, submissionId, response))
-        .compile
-        .drain
-        .handleErrorWith(e => updateSubmissionOnError(project, submissionId, e) >> Async[F].raiseError(e))
-    } yield ()
+    case _ => Async[F].raiseError(new IllegalArgumentException("Unsupported code dojo"))
   }
 
   private def readFileContent[F[_]: Async](vf: VirtualFile): F[String] =
@@ -67,21 +59,17 @@ object CodeForcesService {
       .use(client => Async[F].delay(queryBasicInfo(item, client)))
   }
 
-  private def processCode[F[_]: Async](rawCode: String, language: Language): F[String] = Async[F].delay {
+  private def extractCode[F[_]: Async](rawCode: String, language: Language): F[String] = Async[F].delay {
     if (CodeDojo.CodeForces.requiresCodeRegionEnclosure)
       language.extractCodeFromRegion(rawCode)
     else
       rawCode
   }
 
-  private def resolveProgramType[F[_]: Async](language: Language, version: LanguageVersion): F[String] =
-    Async[F].fromOption(
-      CodeForcesSettingsConfigurable.CODEFORCES_LANGUAGES.find { case (lang, ver, _) =>
-        lang == language && ver == version
-      }
-        .map(_._3),
-      new IllegalStateException(s"Unsupported language: $language $version")
-    )
+  private def resolveProgramType(language: Language, version: LanguageVersion): Option[String] =
+    CodeForcesSettingsConfigurable.CODEFORCES_LANGUAGES.find { case (lang, ver, _) =>
+      lang == language && ver == version
+    }.map(_._3)
 
   private def storeSubmissionRecord[F[_]: Async](
     project: Project,
@@ -114,10 +102,15 @@ object CodeForcesService {
 
   private def submitToCodeForces[F[_]: Async: HttpClientManager](
     basicInfo: CFChallengeBasicInfo,
-    code: String,
-    programTypeId: String
+    code: String
   ): Stream[F, CodeForcesSubmissionResponse] = {
-    CodeForcesApi[F]().submitAnswer(basicInfo.contestId, basicInfo.index, basicInfo.problemsetName, programTypeId, code)
+    CodeForcesApi[F]().submitAnswer(
+      basicInfo.contestId,
+      basicInfo.index,
+      basicInfo.problemsetName,
+      basicInfo.programTypeId,
+      code
+    )
   }
 
   private def handleSubmissionResponse[F[_]: Async](
@@ -180,11 +173,6 @@ object CodeForcesService {
       }
   }
 
-  private def handleSubmissionError[F[_]: Async: Logger](project: Project, error: Throwable): F[Unit] = {
-    Logger[F].warn(error)("Error to submit code") *>
-      console.error[F](project, s"Submission failed: ${error.getMessage}")
-  }
-
   private def queryBasicInfo(item: ChallengeSettingsStateItem, client: DSLContext): CFChallengeBasicInfo = {
     client
       .select(
@@ -214,7 +202,8 @@ object CodeForcesService {
       problemset = Option(record.get(CODEFORCES_CHALLENGE.PROBLEMSETNAME))
       language <- Language.fromCIString(CIString(record.get(CHALLENGE_LANGUAGE.LANGUAGE)))
       langVer = LanguageVersion.fromString(record.get(CHALLENGE_LANGUAGE.LANGUAGEVERSION))
-    } yield CFChallengeBasicInfo(contestId, index, problemset, language, langVer)
+      programTypeId <- resolveProgramType(language, langVer)
+    } yield CFChallengeBasicInfo(contestId, index, problemset, language, langVer, programTypeId)
   }
 
   private case class CFChallengeBasicInfo(
@@ -222,7 +211,8 @@ object CodeForcesService {
     index: String,
     problemsetName: Option[String],
     language: Language,
-    langVer: LanguageVersion
+    langVer: LanguageVersion,
+    programTypeId: String
   )
 }
 
@@ -323,7 +313,7 @@ object codeforces {
           .evalTap { case (result, message) =>
             result match
               case SubmissionResult.Success =>
-                console.info[F](project, s"🎉 Passed!\n${message}")
+                console.info[F](project, s"🎉 Passed!\n$message")
               case SubmissionResult.Failure =>
                 console.error[F](project, message)
               case SubmissionResult.RuntimeError =>

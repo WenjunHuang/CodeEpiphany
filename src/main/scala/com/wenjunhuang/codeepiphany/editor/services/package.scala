@@ -25,11 +25,11 @@ package object services {
         case Some(item) =>
           item.dojo match
             case CodeDojo.HackerRank =>
-              hackerrank.runCode[F](vf, project, item)
+              HackerRankService[F]().runCode(vf, project, item)
             case CodeDojo.LeetCodeCN =>
-              LeetCodeService.runCode[F](vf, project, item)
+              LeetCodeService[F]().runCode(vf, project, item)
             case CodeDojo.LeetCode =>
-              LeetCodeService.runCode[F](vf, project, item)
+              LeetCodeService[F]().runCode(vf, project, item)
             case CodeDojo.CodeForces =>
               Async[F].unit
         case None => Async[F].unit
@@ -48,9 +48,9 @@ package object services {
           console.info[F](project, s"Start to submit ${vf.getName} to ${item.dojo.show}") *>
           (
             item.dojo match
-              case CodeDojo.HackerRank => hackerrank.submitCode[F](vf, project, item)
-              case CodeDojo.LeetCodeCN => LeetCodeService.submitCode[F](vf, project, item)
-              case CodeDojo.LeetCode   => LeetCodeService.submitCode[F](vf, project, item)
+              case CodeDojo.HackerRank => HackerRankService[F]().submitCode(vf, project, item)
+              case CodeDojo.LeetCodeCN => LeetCodeService[F]().submitCode(vf, project, item)
+              case CodeDojo.LeetCode   => LeetCodeService[F]().submitCode(vf, project, item)
               case CodeDojo.CodeForces => CodeForcesService.submitCode[F](vf, project, item)
           )
       case None => Async[F].unit
