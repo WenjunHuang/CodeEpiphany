@@ -94,9 +94,7 @@ class CodeForcesSubmissionService[F[_]: Async: Concurrent: HttpClientManager: Lo
     } yield CFRequest(contestId, index, problemset, language, langVer, programTypeId)
   }
   private def resolveProgramType(language: Language, version: LanguageVersion): Option[String] =
-    CodeForcesSettingsConfigurable.CODEFORCES_LANGUAGES.find { case (lang, ver, _) =>
-      lang == language && ver == version
-    }.map(_._3)
+    CodeForcesSettingsConfigurable.CODEFORCES_LANGUAGES.get((language,version))
 
   case class CFRequest(
     contestId: Long,

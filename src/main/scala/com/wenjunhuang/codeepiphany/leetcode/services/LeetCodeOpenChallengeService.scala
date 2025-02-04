@@ -72,9 +72,9 @@ class LeetCodeOpenChallengeService[F[_]: Async: Concurrent: HttpClientManager: L
   }
 
   override protected def createTemplate(
-                                         req: LeetCodeOpenChallengeRequest,
-                                         language: Language,
-                                         languageVersion: LanguageVersion
+    req: LeetCodeOpenChallengeRequest,
+    language: Language,
+    languageVersion: LanguageVersion
   ): F[(CodeDojoChallengeId, LeetCodeChallengeCodeTemplate)] = {
     LeetCodeApi[F](myLeetCodeDojo)
       .getQuestionData(req.questionSlug)
@@ -85,9 +85,11 @@ class LeetCodeOpenChallengeService[F[_]: Async: Concurrent: HttpClientManager: L
             .contains(language, languageVersion)
         }.map { codeSnippet => (content, codeSnippet) }
       }
-      .flatMap { maybeContentAndSnippet =>
-        maybeContentAndSnippet.liftTo[F](new Exception("Failed to find code snippet")).map {
-          case (content, codeSnippet) =>
+      .flatMap {
+        case None =>
+          Async[F].raiseError(new Exception(s"This challenge does not support ${language.show}${languageVersion.version}"))
+        case Some((content, codeSnippet)) =>
+          Async[F].pure(
             (
               CodeDojoChallengeId(content.questionId),
               LeetCodeChallengeCodeTemplate(
@@ -104,7 +106,7 @@ class LeetCodeOpenChallengeService[F[_]: Async: Concurrent: HttpClientManager: L
                 content = content
               )
             )
-        }
+          )
       }
   }
 }

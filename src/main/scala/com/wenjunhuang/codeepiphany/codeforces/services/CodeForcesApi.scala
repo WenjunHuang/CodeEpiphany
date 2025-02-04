@@ -22,6 +22,7 @@ import scala.jdk.CollectionConverters.*
 import com.intellij.openapi.util.text.StringUtil
 
 import com.wenjunhuang.codeepiphany.codeforces.models.*
+import com.wenjunhuang.codeepiphany.codeforces.settings.{ CodeForcesSettings, CodeForcesSettingsConfigurable }
 import com.wenjunhuang.codeepiphany.model.{ ApiError, CodeDojo, SubmissionResult }
 import com.wenjunhuang.codeepiphany.services.http.HttpClientManager
 
@@ -106,8 +107,23 @@ object CodeForcesApi {
     ): F[Option[CodeForcesChallengeData]] =
       HttpClientManager[F].getClient.use { client =>
         client.expect[String](Method.GET(createChallengeDataUrl(problemsetName, contestId, index))).map { content =>
-          Jsoup.parse(content).select("div#pageContent div.ttypography").asScala.toList.headOption.map { element =>
-            CodeForcesChallengeData(contestId = contestId, index = index, description = element.outerHtml())
+          val jsoup = Jsoup.parse(content)
+          jsoup.select("div#pageContent div.ttypography").asScala.toList.headOption.map { element =>
+            val supportedLanguages = jsoup
+              .select("select[name=programTypeId] option")
+              .asScala
+              .toList
+              .collect {
+                case option if StringUtil.isNotEmpty(option.attr("value")) =>
+                  CodeForcesSettingsConfigurable.CODEFORCES_LANGUAGES_REVERSE.get(option.attr("value"))
+              }
+              .collect { case Some(value) => value }
+            CodeForcesChallengeData(
+              contestId = contestId,
+              index = index,
+              description = element.outerHtml(),
+              supportedLanguages.toSet
+            )
           }
         }
       }
@@ -211,7 +227,7 @@ object CodeForcesApi {
                 JsonPath.root.verdict.string.getOption(json).map(CIString(_)) match {
                   case Some(verdict) if verdict.contains(CIString("Accepted")) =>
                     oldResponse.copy(result = SubmissionResult.Success)
-                  case Some(verdict) if verdict.contains(CIString("Running"))   =>
+                  case Some(verdict) if verdict.contains(CIString("Running")) =>
                     oldResponse.copy(result = SubmissionResult.Processing)
                   case Some(verdict) =>
                     val msg = JsonPath.root

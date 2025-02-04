@@ -26,7 +26,7 @@ import com.wenjunhuang.codeepiphany.actions.PaginationParameterActionGroup.{
 }
 import com.wenjunhuang.codeepiphany.actions.RefreshAction.{ REFRESH_PROVIDER_KEY, RefreshProvider }
 import com.wenjunhuang.codeepiphany.codeforces.models.CodeForcesSearchOrderBy
-import com.wenjunhuang.codeepiphany.codeforces.services.challenge.openChallenge
+import com.wenjunhuang.codeepiphany.codeforces.services.CodeForcesOpenChallengeService
 import com.wenjunhuang.codeepiphany.codeforces.settings.CodeForcesSettings
 import com.wenjunhuang.codeepiphany.codeforces.ui.KeywordSearchViewPresenter.*
 import com.wenjunhuang.codeepiphany.database.Tables.*
@@ -148,11 +148,13 @@ class KeywordSearchViewPresenter(private val myProject: Project)
     override def openCurrentSelectedChallenge(language: Language, languageVersion: LanguageVersion): Unit = {
       Option(myView.getTable.getSelectedObject) match {
         case Some(selected) =>
-          (console.info[IO](myProject, s"Opening challenge ${selected.getName}") *>
-            openChallenge[IO](myProject, selected, language, languageVersion) *>
-            console.info[IO](myProject, s"Challenge ${selected.getName} opened")).handleErrorWith { e =>
-            console.error[IO](myProject, s"Failed to open challenge ${selected.getName} because of ${e.getMessage}")
-          }.evalAsBackgroundProgress(myProject, s"Opening challenge ${selected.getName}...")
+          CodeForcesOpenChallengeService[IO](myProject)
+            .openChallenge(selected, language, languageVersion)
+            .handleErrorWith(e =>
+              console.error[IO](myProject, e.getMessage) *>
+                myLogger.warn(e)("Failed to open challenge")
+            )
+            .evalAsBackgroundProgress(myProject, s"Opening challenge ${selected.getName}...")
             .unsafeRunAndForget()
         case None => ()
       }

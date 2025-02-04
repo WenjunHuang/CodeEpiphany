@@ -14,7 +14,8 @@ case class CodeForcesChallengeCodeTemplate(
   languageVersion: LanguageVersion,
   rating: Option[Int],
   problemsetName: Option[String],
-  tags: List[String]
+  tags: List[String],
+  content: CodeForcesChallengeData
 ) {
   def getCodeDojo: String        = CodeDojo.CodeForces.show
   def getLanguage: String        = language.show
