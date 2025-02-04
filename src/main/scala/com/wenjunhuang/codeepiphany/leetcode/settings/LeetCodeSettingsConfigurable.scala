@@ -10,13 +10,13 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.text.StringUtil
 
 import com.wenjunhuang.codeepiphany.PluginBundle
-import com.wenjunhuang.codeepiphany.leetcode.model.LeetCodeChallengeCodeTemplate
-import com.wenjunhuang.codeepiphany.leetcode.settings.LeetCodeSettingsConfigurable.{getDemoTemplate, LANGUAGES}
+import com.wenjunhuang.codeepiphany.leetcode.model.{ LeetCodeChallengeCodeTemplate, LeetCodeChallengeData }
+import com.wenjunhuang.codeepiphany.leetcode.settings.LeetCodeSettingsConfigurable.{ getDemoTemplate, LANGUAGES }
 import com.wenjunhuang.codeepiphany.model.*
 import com.wenjunhuang.codeepiphany.model.CodeDojo.LeetCode
 import com.wenjunhuang.codeepiphany.model.Language.*
 import com.wenjunhuang.codeepiphany.model.LanguageVersion.*
-import com.wenjunhuang.codeepiphany.settings.dojo.{BaseCodeDojoSettings, BaseSettingsConfigurable}
+import com.wenjunhuang.codeepiphany.settings.dojo.{ BaseCodeDojoSettings, BaseSettingsConfigurable }
 
 class LeetCodeSettingsConfigurable(project: Project)
     extends BaseSettingsConfigurable(
@@ -91,7 +91,29 @@ object LeetCodeSettingsConfigurable {
               "Median of two sorted arrays",
               ChallengeDifficulty.Hard.value,
               language,
-              languageVersion
+              languageVersion,
+              LeetCodeChallengeData(
+                questionId = "4",
+                frontendQuestionId = "Interview 4",
+                title = "Median of two sorted arrays",
+                titleSlug = "median-of-two-sorted-arrays",
+                content = "",
+                translatedTitle = None,
+                translatedContent = None,
+                isPaidOnly = false,
+                difficulty = "",
+                likes = 0,
+                dislikes = 0,
+                isLiked = None,
+                similarQuestions = "",
+                exampleTestcases = "",
+                topicTags = Nil,
+                codeSnippets = Nil,
+                hints = Nil,
+                status = None,
+                testCase = "",
+                metaData = ""
+              )
             )
         }
       })

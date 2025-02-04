@@ -19,7 +19,9 @@ class CodeForcesUpdateProblemSetsAction extends AnAction {
   }
 
   override def update(e: AnActionEvent): Unit = {
-    if !AuthService.getInstance(e.getProject).isLoggedIn(CodeForces) then e.getPresentation.setEnabledAndVisible(false)
+    if e.getProject == null then e.getPresentation.setEnabledAndVisible(false)
+    else if !AuthService.getInstance(e.getProject).isLoggedIn(CodeForces) then
+      e.getPresentation.setEnabledAndVisible(false)
     else
       Option(
         CodeForcesUpdateProblemSetsAction.CODEFORCES_UPDATE_PROBLEM_SETS_PROVIDER_KEY.getData(e.getDataContext)

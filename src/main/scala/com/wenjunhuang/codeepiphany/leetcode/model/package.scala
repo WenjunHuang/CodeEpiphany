@@ -32,6 +32,8 @@ package object model {
       case ns if ns == CIString("NOT_STARTED") => ChallengeStatus.Unsolved
       case ac if ac == CIString("AC")          => ChallengeStatus.Solved
       case t if t == CIString("TRIED")         => ChallengeStatus.Tried
+      case nac if nac == CIString("NOTAC")     => ChallengeStatus.Tried
+      case _                                   => ChallengeStatus.Unsolved
 
     def leetCodeOrderDirection(direction: OrderDirection): String = direction match
       case OrderDirection.Ascending  => "ASCENDING"

@@ -15,9 +15,9 @@ import com.intellij.openapi.vfs.VirtualFile
 
 import com.wenjunhuang.codeepiphany.database.tables.records.{ChallengeLanguageRecord, ChallengeRecord}
 import com.wenjunhuang.codeepiphany.database.Tables.*
-import database.getOrCreateDefaultSolution
 import com.wenjunhuang.codeepiphany.model.{ChallengeRepository, CodeDojo, Language, LanguageVersion}
 import com.wenjunhuang.codeepiphany.model.newtypes.*
+import com.wenjunhuang.codeepiphany.services.database.getOrCreateDefaultSolution
 import com.wenjunhuang.codeepiphany.services.file.{openTextEditor, refreshAndFindFileByIoFile, saveTextWithConflictResolution}
 import com.wenjunhuang.codeepiphany.settings.dojo.BaseCodeDojoSettings.LanguageSettingsState
 import com.wenjunhuang.codeepiphany.settings.dojo.BaseSettingsConfigurable
@@ -140,7 +140,7 @@ abstract class BaseOpenChallengeService[F[_]: Async, Req, Template](
             val dsl = trx.dsl()
             val challengeRecord = dsl.fetchOne(
               CHALLENGE,
-              CHALLENGE.DOJO.eq(CodeDojo.HackerRank.value).and(CHALLENGE.DOJOID.eq(state.codeDojoChallengeId.value))
+              CHALLENGE.DOJO.eq(myCodeDojo.value).and(CHALLENGE.DOJOID.eq(state.codeDojoChallengeId.value))
             ) match {
               case null => dsl.newRecord(CHALLENGE).setId(IdGenerator.nextId())
               case r    => r

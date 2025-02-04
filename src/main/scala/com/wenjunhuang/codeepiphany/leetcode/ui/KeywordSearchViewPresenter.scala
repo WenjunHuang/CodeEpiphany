@@ -25,8 +25,12 @@ import com.wenjunhuang.codeepiphany.actions.PaginationParameterActionGroup.{
 }
 import com.wenjunhuang.codeepiphany.actions.RefreshAction.{ REFRESH_PROVIDER_KEY, RefreshProvider }
 import com.wenjunhuang.codeepiphany.leetcode.model.LeetCodeChallengeListItem
-import com.wenjunhuang.codeepiphany.leetcode.services.{ LeetCodeApi, LeetCodeSearchOrderBy }
-import com.wenjunhuang.codeepiphany.leetcode.services.challenge.openChallenge
+import com.wenjunhuang.codeepiphany.leetcode.services.{
+  LeetCodeApi,
+  LeetCodeOpenChallengeRequest,
+  LeetCodeOpenChallengeService,
+  LeetCodeSearchOrderBy
+}
 import com.wenjunhuang.codeepiphany.leetcode.settings.{ LeetCodeCNSettings, LeetCodeSettings }
 import com.wenjunhuang.codeepiphany.leetcode.ui.KeywordSearchViewPresenter.SearchParam
 import com.wenjunhuang.codeepiphany.model.CodeDojo.{ LeetCode, LeetCodeCN }
@@ -37,9 +41,11 @@ import com.wenjunhuang.codeepiphany.model.{
   OrderDirection,
   OrderDirectionProvider
 }
+import com.wenjunhuang.codeepiphany.services.console
 import com.wenjunhuang.codeepiphany.services.http.{ HttpClientManager, HttpClientService }
 import com.wenjunhuang.codeepiphany.utils.extensions.*
 import com.wenjunhuang.codeepiphany.utils.implicits.*
+import cats.syntax.all.*
 
 class KeywordSearchViewPresenter(
   private val myProject: Project,
@@ -112,7 +118,14 @@ class KeywordSearchViewPresenter(
     override def openCurrentSelectedChallenge(language: Language, languageVersion: LanguageVersion): Unit = {
       Option(myView.getTable.getSelectedObject) match
         case Some(selected) =>
-          openChallenge[IO](myProject, myCodeDojo, selected.titleSlug, language, languageVersion).unsafeRunAndForget()
+          LeetCodeOpenChallengeService[IO](myProject, myCodeDojo)
+            .openChallenge(LeetCodeOpenChallengeRequest(selected.titleSlug), language, languageVersion)
+            .handleErrorWith(e =>
+              console.error[IO](myProject, e.getMessage) *>
+                myLogger.error(e)("Failed to open challenge")
+            )
+            .evalAsBackgroundProgress(myProject, s"Opening  ${myCodeDojo.show} challenge ${selected.title}...")
+            .unsafeRunAndForget()
         case None => ()
     }
 

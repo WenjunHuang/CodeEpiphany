@@ -2,13 +2,13 @@ package com.wenjunhuang.codeepiphany.leetcode.model
 
 import scala.beans.BeanProperty
 
-import com.wenjunhuang.codeepiphany.model.{CodeDojo, Language, LanguageVersion}
+import com.wenjunhuang.codeepiphany.model.{ CodeDojo, Language, LanguageVersion }
 
 case class LeetCodeChallengeCodeTemplate(
   @BeanProperty
   questionId: String,
   @BeanProperty
-  frontendQuestionId:String,
+  frontendQuestionId: String,
   dojo: CodeDojo,
   @BeanProperty
   name: String,
@@ -20,7 +20,8 @@ case class LeetCodeChallengeCodeTemplate(
   @BeanProperty
   difficulty: String,
   language: Language,
-  languageVersion: LanguageVersion
+  languageVersion: LanguageVersion,
+  content: LeetCodeChallengeData
 ) {
   def getCode: String            = language.encloseCodeInRegion(s"$code")
   def getCodeDojo: String        = dojo.value
