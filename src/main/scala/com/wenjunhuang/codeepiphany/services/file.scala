@@ -1,23 +1,22 @@
 package com.wenjunhuang.codeepiphany.services
-import cats.effect.{ Resource, Sync }
+import cats.effect.{Resource, Sync}
 import cats.effect.kernel.Async
 import cats.syntax.all.*
-import java.io.{ File, PrintWriter }
+import java.io.{File, PrintWriter}
 import org.typelevel.log4cats.LoggerFactory
 
 import com.intellij.openapi.editor.Editor
-import com.intellij.openapi.fileEditor.{ FileDocumentManager, FileEditorManager, OpenFileDescriptor }
+import com.intellij.openapi.fileEditor.{FileDocumentManager, FileEditorManager, OpenFileDescriptor}
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.ui.{ InputValidator, MessageUtil, Messages }
+import com.intellij.openapi.ui.{InputValidator, Messages}
 import com.intellij.openapi.util.io.FileUtilRt
-import com.intellij.openapi.util.text.StringUtil
-import com.intellij.openapi.vfs.{ LocalFileSystem, VirtualFile }
+import com.intellij.openapi.vfs.{LocalFileSystem, VirtualFile}
 
 import com.wenjunhuang.codeepiphany.utils.implicits.*
 
 object file {
   def saveTextWithConflictResolution[F[_]: Async](file: File, content: String): F[Option[File]] = {
-    Async[F].blocking {
+    Async[F].delay {
       if file.exists() then
         // show a rename dialog
         val extWithDot = FileUtilRt.getExtension(file.getName) match
@@ -40,7 +39,8 @@ object file {
           )
         ).map { newName => File(file.getParentFile, s"${newName}${extWithDot}") }
       else Some(file)
-    }.evalOnEDTAny().flatMap {
+    }.evalOnEDTAny()
+     .flatMap {
       case None          => Async[F].pure(None)
       case Some(newFile) => saveTextToFile(newFile, content).map(Some(_))
     }

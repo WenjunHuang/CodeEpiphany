@@ -1,4 +1,4 @@
-package com.wenjunhuang.codeepiphany.editor.services
+package com.wenjunhuang.codeepiphany.leetcode.services
 
 import cats.syntax.all.*
 import cats.effect.{Async, Concurrent}

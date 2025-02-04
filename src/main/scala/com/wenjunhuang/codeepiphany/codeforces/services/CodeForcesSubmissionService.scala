@@ -1,4 +1,4 @@
-package com.wenjunhuang.codeepiphany.editor.services
+package com.wenjunhuang.codeepiphany.codeforces.services
 
 import cats.effect.Concurrent
 import cats.effect.kernel.Async

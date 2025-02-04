@@ -1,4 +1,4 @@
-package com.wenjunhuang.codeepiphany.editor.services
+package com.wenjunhuang.codeepiphany.hackerrank.services
 
 import cats.effect.{Async, Concurrent}
 import cats.syntax.all.*
@@ -13,8 +13,8 @@ import com.intellij.openapi.project.Project
 import com.wenjunhuang.codeepiphany.database.Tables.{CHALLENGE, CHALLENGE_LANGUAGE, HACKERRANK_CHALLENGE}
 import com.wenjunhuang.codeepiphany.hackerrank.model.{HackerRankContest, HackerRankRunCodeResponse}
 import com.wenjunhuang.codeepiphany.hackerrank.services.HackerRankApi
-import com.wenjunhuang.codeepiphany.model.CodeDojo.HackerRank
 import com.wenjunhuang.codeepiphany.model.*
+import com.wenjunhuang.codeepiphany.model.CodeDojo.HackerRank
 import com.wenjunhuang.codeepiphany.services.{console, BaseCodeEvaluationService}
 import com.wenjunhuang.codeepiphany.services.http.HttpClientManager
 import com.wenjunhuang.codeepiphany.settings.ChallengeSettings.ChallengeSettingsStateItem

@@ -1,13 +1,13 @@
 package com.wenjunhuang.codeepiphany.utils
 
 import cats.effect.kernel.Async
-import cats.effect.unsafe.{IORuntime, IORuntimeConfig, Scheduler}
-import java.util.concurrent.Executors
-import scala.concurrent.{ExecutionContext, ExecutionContextExecutorService}
+import cats.effect.unsafe.{ IORuntime, IORuntimeConfig, Scheduler }
+import java.util.concurrent.{ Executor, Executors }
+import scala.concurrent.{ ExecutionContext, ExecutionContextExecutorService }
 
-import com.intellij.openapi.application.{ApplicationManager, ModalityState}
+import com.intellij.openapi.application.{ ApplicationManager, ModalityState }
 import com.intellij.openapi.application.ex.ApplicationManagerEx
-import com.intellij.openapi.progress.{ProgressIndicator, ProgressManager, Task}
+import com.intellij.openapi.progress.{ ProgressIndicator, ProgressManager, Task }
 import com.intellij.openapi.project.Project
 
 private trait IOOps {
@@ -55,7 +55,8 @@ private trait IOOps {
       })
     )
 
-  private val intellijIOScheduler: Scheduler = Scheduler.fromScheduledExecutor(Executors.newSingleThreadScheduledExecutor())
+  private val intellijIOScheduler: Scheduler =
+    Scheduler.fromScheduledExecutor(Executors.newSingleThreadScheduledExecutor())
 
   def intellijProgressContext(project: Project, taskName: String): ExecutionContext =
     ExecutionContext.fromExecutor(runnable =>

@@ -19,7 +19,7 @@ import com.wenjunhuang.codeepiphany.codeforces.models.{
 import com.wenjunhuang.codeepiphany.codeforces.settings.{ CodeForcesSettings, CodeForcesSettingsConfigurable }
 import com.wenjunhuang.codeepiphany.database.tables.records.CodeforcesProblemsetsRecord
 import com.wenjunhuang.codeepiphany.database.Tables.*
-import com.wenjunhuang.codeepiphany.editor.services.database.getOrCreateDefaultSolution
+import com.wenjunhuang.codeepiphany.services.database.getOrCreateDefaultSolution
 import com.wenjunhuang.codeepiphany.model.{ ChallengeRepository, CodeDojo, Language, LanguageVersion }
 import com.wenjunhuang.codeepiphany.model.newtypes.*
 import com.wenjunhuang.codeepiphany.services.file.*
