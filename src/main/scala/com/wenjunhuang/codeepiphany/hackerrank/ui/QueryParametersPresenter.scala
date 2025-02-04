@@ -7,7 +7,7 @@ import fs2.Stream
 import fs2.concurrent.SignallingRef
 import javax.swing.JComponent
 import org.typelevel.ci.CIString
-import org.typelevel.log4cats.{Logger, LoggerFactory}
+import org.typelevel.log4cats.{ Logger, LoggerFactory }
 import scala.concurrent.duration.*
 import scala.jdk.CollectionConverters.*
 
@@ -18,20 +18,38 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
 import com.intellij.util.concurrency.annotations.RequiresEdt
 
-import com.wenjunhuang.codeepiphany.actions.DifficultyParameterAction.{DIFFICULTIES_PROVIDER_KEY, DifficultyParameterProvider}
-import com.wenjunhuang.codeepiphany.actions.OpenChallengeActionGroup.{CHALLENGE_PROVIDER_KEY, OpenChallengeProvider}
-import com.wenjunhuang.codeepiphany.actions.PaginationParameterActionGroup.{PageSize, PAGINATION_PROVIDER_KEY, PaginationParameterProvider}
-import com.wenjunhuang.codeepiphany.actions.RefreshAction.{REFRESH_PROVIDER_KEY, RefreshProvider}
-import com.wenjunhuang.codeepiphany.actions.StatusParameterAction.{STATUS_PROVIDER_KEY, StatusParameterProvider}
-import com.wenjunhuang.codeepiphany.actions.TagsAction.{SingleTagGroupProvider, Tag, TAG_PROVIDER_KEY}
-import com.wenjunhuang.codeepiphany.hackerrank.actions.CategoryParameterAction.{Category, CATEGORY_PROVIDER_KEY, CategoryProvider}
-import com.wenjunhuang.codeepiphany.hackerrank.actions.SkillParameterAction.{SKILL_PROVIDER_KEY, SkillParameterProvider}
+import com.wenjunhuang.codeepiphany.actions.DifficultyParameterAction.{
+  DIFFICULTIES_PROVIDER_KEY,
+  DifficultyParameterProvider
+}
+import com.wenjunhuang.codeepiphany.actions.OpenChallengeActionGroup.{ CHALLENGE_PROVIDER_KEY, OpenChallengeProvider }
+import com.wenjunhuang.codeepiphany.actions.PaginationParameterActionGroup.{
+  PAGINATION_PROVIDER_KEY,
+  PageSize,
+  PaginationParameterProvider
+}
+import com.wenjunhuang.codeepiphany.actions.RefreshAction.{ REFRESH_PROVIDER_KEY, RefreshProvider }
+import com.wenjunhuang.codeepiphany.actions.StatusParameterAction.{ STATUS_PROVIDER_KEY, StatusParameterProvider }
+import com.wenjunhuang.codeepiphany.actions.TagsAction.{ SingleTagGroupProvider, TAG_PROVIDER_KEY, Tag }
+import com.wenjunhuang.codeepiphany.hackerrank.actions.CategoryParameterAction.{
+  CATEGORY_PROVIDER_KEY,
+  Category,
+  CategoryProvider
+}
+import com.wenjunhuang.codeepiphany.hackerrank.actions.SkillParameterAction.{
+  SKILL_PROVIDER_KEY,
+  SkillParameterProvider
+}
 import com.wenjunhuang.codeepiphany.hackerrank.model.*
-import com.wenjunhuang.codeepiphany.hackerrank.services.HackerRankApi
-import com.wenjunhuang.codeepiphany.hackerrank.services.challenge.openChallenge
+import com.wenjunhuang.codeepiphany.hackerrank.services.{
+  HackerRankApi,
+  HackerRankOpenChallengeRequest,
+  HackerRankOpenChallengeService
+}
 import com.wenjunhuang.codeepiphany.hackerrank.settings.HackerRankSettings
 import com.wenjunhuang.codeepiphany.model.*
-import com.wenjunhuang.codeepiphany.services.http.{HttpClientManager, HttpClientService}
+import com.wenjunhuang.codeepiphany.services.console
+import com.wenjunhuang.codeepiphany.services.http.{ HttpClientManager, HttpClientService }
 import com.wenjunhuang.codeepiphany.utils.extensions.*
 import com.wenjunhuang.codeepiphany.utils.implicits.*
 
@@ -132,13 +150,23 @@ class QueryParametersPresenter(private val myProject: Project) extends Disposabl
     override def openCurrentSelectedChallenge(language: Language, languageVersion: LanguageVersion): Unit = {
       Option(myView.getTable.getSelectedObject) match
         case Some(selected) =>
-          openChallenge[IO](
-            myProject,
-            selected.slug,
-            HackerRankContest.fromCIString(CIString(selected.contestSlug)).get,
-            language,
-            languageVersion
-          ).unsafeRunAsBackgroundProgress(myProject, "Opening challenge")
+          HackerRankOpenChallengeService[IO](myProject)
+            .openChallenge(
+              HackerRankOpenChallengeRequest(
+                selected.slug,
+                HackerRankContest.fromCIString(CIString(selected.contestSlug)).get
+              ),
+              language,
+              languageVersion
+            )
+            .handleErrorWith(e =>
+              console.error[IO](myProject, e.getMessage) *> myLogger.warn(e)(
+                s"Failed to open challenge ${selected.slug}"
+              )
+            )
+            .evalAsBackgroundProgress(myProject, s"Opening HackerRank challenge '${selected.name}'...")
+            .unsafeRunAndForget()
+
         case None => ()
     }
 
@@ -182,12 +210,12 @@ class QueryParametersPresenter(private val myProject: Project) extends Disposabl
 
   private val myDifficultiesProvider = new DifficultyParameterProvider {
     override def isSelected(item: ChallengeDifficulty): Boolean =
-      myState.selectedDifficulties.exists(_ == item)
+      myState.selectedDifficulties.contains(item)
 
     override def isMultipleSelection: Boolean = true
 
     override def toggleSelection(item: ChallengeDifficulty): Unit =
-      if myState.selectedDifficulties.exists(_ == item) then
+      if myState.selectedDifficulties.contains(item) then
         myState = myState.copy(selectedDifficulties = myState.selectedDifficulties.filterNot(_ == item))
       else myState = myState.copy(selectedDifficulties = myState.selectedDifficulties :+ item)
 

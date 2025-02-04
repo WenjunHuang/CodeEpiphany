@@ -1,11 +1,10 @@
 package com.wenjunhuang.codeepiphany.services
 
 import cats.data.ReaderT
-import cats.effect.{Async, Concurrent}
+import cats.effect.Async
 import cats.syntax.all.*
 import java.io.File
 import org.jooq.DSLContext
-import org.typelevel.log4cats.Logger
 import scala.jdk.OptionConverters.*
 
 import com.intellij.openapi.options.ShowSettingsUtil
@@ -20,7 +19,6 @@ import com.wenjunhuang.codeepiphany.editor.services.database.getOrCreateDefaultS
 import com.wenjunhuang.codeepiphany.model.{ChallengeRepository, CodeDojo, Language, LanguageVersion}
 import com.wenjunhuang.codeepiphany.model.newtypes.*
 import com.wenjunhuang.codeepiphany.services.file.{openTextEditor, refreshAndFindFileByIoFile, saveTextWithConflictResolution}
-import com.wenjunhuang.codeepiphany.services.http.HttpClientManager
 import com.wenjunhuang.codeepiphany.settings.dojo.BaseCodeDojoSettings.LanguageSettingsState
 import com.wenjunhuang.codeepiphany.settings.dojo.BaseSettingsConfigurable
 import com.wenjunhuang.codeepiphany.settings.ChallengeSettings
@@ -29,13 +27,13 @@ import com.wenjunhuang.codeepiphany.utils.implicits.*
 import com.wenjunhuang.codeepiphany.utils.template.VelocityUtils
 import com.wenjunhuang.codeepiphany.utils.IdGenerator
 
-abstract class BaseOpenChallengeService[F[_]: Async: Concurrent: HttpClientManager: Logger, Req, Template](
+abstract class BaseOpenChallengeService[F[_]: Async, Req, Template](
   protected val myProject: Project,
   protected val myCodeDojo: CodeDojo,
   protected val myConfigClass: Class[? <: BaseSettingsConfigurable]
 ) {
 
-  private case class ServiceState(
+  case class ServiceState(
     sourceFolder: File,
     language: Language,
     languageVersion: LanguageVersion,
@@ -47,7 +45,7 @@ abstract class BaseOpenChallengeService[F[_]: Async: Concurrent: HttpClientManag
   )
 
   protected def findLanguageSetting(language: Language, languageVersion: LanguageVersion): Option[LanguageSettingsState]
-  protected def fillChallengeRecord(record: ChallengeRecord, template: Template): Unit
+  protected def fillChallengeRecord(record: ChallengeRecord, state: ServiceState): Unit
   protected def storeExtraChallengeData(
     dsl: DSLContext,
     challenge: Template,
@@ -55,7 +53,11 @@ abstract class BaseOpenChallengeService[F[_]: Async: Concurrent: HttpClientManag
     challengeLanguageRecord: ChallengeLanguageRecord
   ): Unit
 
-  protected def createTemplate(req: Req, language: Language, languageVersion: LanguageVersion): F[(String, Template)]
+  protected def createTemplate(
+    req: Req,
+    language: Language,
+    languageVersion: LanguageVersion
+  ): F[(CodeDojoChallengeId, Template)]
 
   def openChallenge(req: Req, language: Language, languageVersion: LanguageVersion): F[Unit] = {
     for {
@@ -116,7 +118,7 @@ abstract class BaseOpenChallengeService[F[_]: Async: Concurrent: HttpClientManag
   ): ReaderT[F, ServiceState, VirtualFile] =
     for {
       state <- ReaderT.ask[F, ServiceState]
-      vf <- ReaderT.liftF(Async[F].blocking {
+      vf <- ReaderT.liftF(Async[F].delay {
         ChallengeSettings
           .getInstance(myProject)
           .addChallenge(
@@ -143,7 +145,7 @@ abstract class BaseOpenChallengeService[F[_]: Async: Concurrent: HttpClientManag
               case null => dsl.newRecord(CHALLENGE).setId(IdGenerator.nextId())
               case r    => r
             }
-            fillChallengeRecord(challengeRecord, state.template)
+            fillChallengeRecord(challengeRecord, state)
             challengeRecord.store()
 
             val challengeLanguageRecord = dsl
@@ -201,7 +203,7 @@ abstract class BaseOpenChallengeService[F[_]: Async: Concurrent: HttpClientManag
         CodeTemplate(setting.codeTemplate.get),
         req,
         template,
-        CodeDojoChallengeId(codeDojoChallengeId)
+        codeDojoChallengeId
       )
     }
   }
