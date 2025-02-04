@@ -1,29 +1,28 @@
-package com.wenjunhuang.codeepiphany.editor.services
+package com.wenjunhuang.codeepiphany.leetcode.services
 
-import cats.syntax.all.*
 import cats.effect.Concurrent
 import cats.effect.kernel.Async
-import org.jooq.{ DSLContext, Record }
+import cats.syntax.all.*
+import org.jooq.{DSLContext, Record}
 import org.typelevel.ci.CIString
 import org.typelevel.log4cats.LoggerFactory
-
-import com.intellij.openapi.project.Project
 import scala.jdk.OptionConverters.*
 
+import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.text.StringUtil
 
+import com.wenjunhuang.codeepiphany.database.Tables.*
+import com.wenjunhuang.codeepiphany.leetcode.model.*
 import com.wenjunhuang.codeepiphany.leetcode.model.submitAnswer.LeetCodeSubmitAnswerResult
-import com.wenjunhuang.codeepiphany.model.{ ChallengeRepository, CodeDojo, Language, LanguageVersion, SubmissionResult }
-import com.wenjunhuang.codeepiphany.model.ChallengeRepository.SubmissionId
+import com.wenjunhuang.codeepiphany.leetcode.model.submitAnswer.LeetCodeSubmitAnswerResult.{Pending, Started, Success}
+import com.wenjunhuang.codeepiphany.leetcode.services.LeetCodeApi
+import com.wenjunhuang.codeepiphany.model.*
+import com.wenjunhuang.codeepiphany.model.newtypes.SubmissionId
+import com.wenjunhuang.codeepiphany.model.SubmissionResult.Processing
+import com.wenjunhuang.codeepiphany.services.{console, BaseSubmissionService}
 import com.wenjunhuang.codeepiphany.services.http.HttpClientManager
 import com.wenjunhuang.codeepiphany.settings.ChallengeSettings
 import com.wenjunhuang.codeepiphany.settings.ChallengeSettings.ChallengeSettingsStateItem
-import com.wenjunhuang.codeepiphany.database.Tables.*
-import com.wenjunhuang.codeepiphany.leetcode.model.submitAnswer.LeetCodeSubmitAnswerResult.{ Pending, Started, Success }
-import com.wenjunhuang.codeepiphany.leetcode.model.*
-import com.wenjunhuang.codeepiphany.leetcode.services.LeetCodeApi
-import com.wenjunhuang.codeepiphany.model.SubmissionResult.Processing
-import com.wenjunhuang.codeepiphany.services.console
 import com.wenjunhuang.codeepiphany.utils.Tabulator
 
 class LeetCodeSubmissionService[F[_]: Async: Concurrent: HttpClientManager: LoggerFactory](

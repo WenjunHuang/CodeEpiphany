@@ -42,7 +42,6 @@ enum CodeDojo(val domain: CIString, val value: String) {
       case CodeForces => false
     }
   }
-
 }
 
 object CodeDojo {

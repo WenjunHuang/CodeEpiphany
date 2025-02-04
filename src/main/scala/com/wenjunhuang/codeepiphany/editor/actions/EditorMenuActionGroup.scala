@@ -1,6 +1,6 @@
 package com.wenjunhuang.codeepiphany.editor.actions
 
-import com.intellij.openapi.actionSystem.{ActionUpdateThread, AnActionEvent, CommonDataKeys, DefaultActionGroup}
+import com.intellij.openapi.actionSystem.{ ActionUpdateThread, AnActionEvent, CommonDataKeys, DefaultActionGroup }
 
 import com.wenjunhuang.codeepiphany.services.AuthService
 import com.wenjunhuang.codeepiphany.settings.ChallengeSettings
@@ -9,7 +9,7 @@ import com.wenjunhuang.codeepiphany.PluginBundle
 class EditorMenuActionGroup extends DefaultActionGroup {
   override def update(e: AnActionEvent): Unit = {
     val presentation = e.getPresentation
-    presentation.setEnabled(false)
+    presentation.setEnabledAndVisible(false)
 
     val project = e.getProject
     if project != null then
@@ -18,8 +18,11 @@ class EditorMenuActionGroup extends DefaultActionGroup {
         ChallengeSettings.getInstance(project).findChallengeId(vf.getCanonicalPath) match
           case Some(challenge) =>
             presentation.setIcon(challenge.dojo.getIcon.orNull)
-            if AuthService.getInstance(project).isLoggedIn(challenge.dojo) then presentation.setEnabled(true)
-            else presentation.setText(PluginBundle.message("group.CodeEpiphany.Editor.Menu.login"))
+            if AuthService.getInstance(project).isLoggedIn(challenge.dojo) then presentation.setEnabledAndVisible(true)
+            else
+              presentation.setVisible(true)
+              presentation.setEnabled(false)
+              presentation.setText(PluginBundle.message("group.CodeEpiphany.Editor.Menu.login"))
           case _ =>
   }
 

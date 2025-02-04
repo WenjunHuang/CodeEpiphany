@@ -1,21 +1,21 @@
-package com.wenjunhuang.codeepiphany.editor.services
+package com.wenjunhuang.codeepiphany.hackerrank.services
 
-import cats.effect.{ Async, Concurrent }
+import cats.effect.{Async, Concurrent}
 import cats.syntax.all.*
 import fs2.Stream
-import org.jooq.{ DSLContext, Record }
+import org.jooq.{DSLContext, Record}
 import org.typelevel.ci.CIString
 import org.typelevel.log4cats.LoggerFactory
 import scala.jdk.OptionConverters.*
 
 import com.intellij.openapi.project.Project
 
-import com.wenjunhuang.codeepiphany.database.Tables.{ CHALLENGE, CHALLENGE_LANGUAGE, HACKERRANK_CHALLENGE }
-import com.wenjunhuang.codeepiphany.hackerrank.model.{ HackerRankContest, HackerRankRunCodeResponse }
+import com.wenjunhuang.codeepiphany.database.Tables.{CHALLENGE, CHALLENGE_LANGUAGE, HACKERRANK_CHALLENGE}
+import com.wenjunhuang.codeepiphany.hackerrank.model.{HackerRankContest, HackerRankRunCodeResponse}
 import com.wenjunhuang.codeepiphany.hackerrank.services.HackerRankApi
-import com.wenjunhuang.codeepiphany.model.CodeDojo.HackerRank
 import com.wenjunhuang.codeepiphany.model.*
-import com.wenjunhuang.codeepiphany.services.console
+import com.wenjunhuang.codeepiphany.model.CodeDojo.HackerRank
+import com.wenjunhuang.codeepiphany.services.{console, BaseCodeEvaluationService}
 import com.wenjunhuang.codeepiphany.services.http.HttpClientManager
 import com.wenjunhuang.codeepiphany.settings.ChallengeSettings.ChallengeSettingsStateItem
 

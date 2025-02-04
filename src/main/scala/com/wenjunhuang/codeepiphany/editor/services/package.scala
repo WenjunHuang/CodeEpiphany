@@ -1,17 +1,20 @@
 package com.wenjunhuang.codeepiphany.editor
 
-import cats.effect.{ Async, Concurrent }
+import cats.effect.{Async, Concurrent}
 import cats.syntax.all.*
-import org.typelevel.log4cats.{ Logger, LoggerFactory, SelfAwareStructuredLogger }
+import org.typelevel.log4cats.{Logger, LoggerFactory}
 
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
 
+import com.wenjunhuang.codeepiphany.codeforces.services.CodeForcesSubmissionService
+import com.wenjunhuang.codeepiphany.hackerrank.services.{HackerRankEvaluationService, HackerRankSubmissionService}
+import com.wenjunhuang.codeepiphany.leetcode.services.{LeetCodeEvaluationService, LeetCodeSubmissionService}
 import com.wenjunhuang.codeepiphany.model.CodeDojo
 import com.wenjunhuang.codeepiphany.services.console
 import com.wenjunhuang.codeepiphany.services.http.HttpClientManager
 import com.wenjunhuang.codeepiphany.settings.ChallengeSettings
-import com.wenjunhuang.codeepiphany.toolwindows.sidebar.{ LogConsoleView, SidebarWindowFactory }
+import com.wenjunhuang.codeepiphany.toolwindows.sidebar.{LogConsoleView, SidebarWindowFactory}
 import com.wenjunhuang.codeepiphany.utils.implicits.*
 
 package object services {
@@ -56,7 +59,8 @@ package object services {
           )
       case None => Async[F].unit
     ).handleErrorWith { e =>
-      logger.warn(e)("Error to submit code") *> console.error[F](project, s"Error to submit code: \n ${e.getMessage}")
+      console.error[F](project, s"Error to submit code: \n ${e.getMessage}") >>
+        logger.warn(e)("Error to submit code")
     }
   }
 

@@ -1,27 +1,24 @@
-package com.wenjunhuang.codeepiphany.editor.services
+package com.wenjunhuang.codeepiphany.services
 
 import cats.effect.kernel.Async
-import cats.effect.Concurrent
-import org.jooq.DSLContext
-import org.typelevel.log4cats.LoggerFactory
 import cats.syntax.all.*
+import fs2.Stream
 import java.time.LocalDateTime
+import org.jooq.DSLContext
 import org.jooq.impl.DSL
 import scala.jdk.OptionConverters.*
 
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.vfs.{ VirtualFile, VirtualFileUtil }
+import com.intellij.openapi.vfs.{VirtualFile, VirtualFileUtil}
 
-import com.wenjunhuang.codeepiphany.model.ChallengeRepository.SubmissionId
-import com.wenjunhuang.codeepiphany.model.{ ChallengeRepository, CodeDojo, Language, SubmissionResult }
-import com.wenjunhuang.codeepiphany.services.http.HttpClientManager
+import com.wenjunhuang.codeepiphany.database.Tables.*
+import com.wenjunhuang.codeepiphany.model.{ChallengeRepository, CodeDojo, Language, SubmissionResult}
+import com.wenjunhuang.codeepiphany.model.newtypes.SubmissionId
 import com.wenjunhuang.codeepiphany.settings.ChallengeSettings
 import com.wenjunhuang.codeepiphany.settings.ChallengeSettings.ChallengeSettingsStateItem
-import com.wenjunhuang.codeepiphany.database.Tables.*
 import com.wenjunhuang.codeepiphany.utils.IdGenerator
-import fs2.Stream
 
-abstract class BaseSubmissionService[F[_]: Async: Concurrent: HttpClientManager: LoggerFactory](
+abstract class BaseSubmissionService[F[_]: Async](
   protected val myProject: Project,
   protected val myCodeDojo: CodeDojo
 ) {

@@ -12,7 +12,7 @@ import com.intellij.openapi.ui.{ MessageDialogBuilder, Messages }
 import com.intellij.openapi.util.text.StringUtil
 
 import com.wenjunhuang.codeepiphany.database.Tables.{ CHALLENGE, CHALLENGE_LANGUAGE, LEETCODE_CHALLENGE }
-import com.wenjunhuang.codeepiphany.editor.services.database.getOrCreateDefaultSolution
+import com.wenjunhuang.codeepiphany.services.database.getOrCreateDefaultSolution
 import com.wenjunhuang.codeepiphany.leetcode.model.*
 import com.wenjunhuang.codeepiphany.leetcode.settings.{
   LeetCodeCNSettings,
@@ -20,7 +20,7 @@ import com.wenjunhuang.codeepiphany.leetcode.settings.{
   LeetCodeSettingsConfigurable
 }
 import com.wenjunhuang.codeepiphany.model.*
-import com.wenjunhuang.codeepiphany.model.ChallengeRepository.{ ChallengeId, ChallengeLanguageId, SolutionId }
+import com.wenjunhuang.codeepiphany.model.newtypes.*
 import com.wenjunhuang.codeepiphany.model.CodeDojo.{ LeetCode, LeetCodeCN }
 import com.wenjunhuang.codeepiphany.services.file.{ openTextEditor, refreshAndFindFileByIoFile, saveTextToFile }
 import com.wenjunhuang.codeepiphany.services.http.HttpClientManager

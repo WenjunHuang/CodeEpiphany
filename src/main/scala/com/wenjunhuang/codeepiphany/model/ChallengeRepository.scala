@@ -89,39 +89,4 @@ final class ChallengeRepository(private val myProject: Project) extends Disposab
 object ChallengeRepository {
   def getInstance(project: Project): ChallengeRepository = project.getService(classOf[ChallengeRepository])
 
-  opaque type ChallengeId = Long
-
-  object ChallengeId {
-    implicit val decoder: Decoder[ChallengeId] = Decoder.decodeLong.map(ChallengeId.apply)
-    implicit val encoder: Encoder[ChallengeId] = Encoder.encodeLong.contramap(_.value)
-    
-    def apply(value: Long): ChallengeId        = value
-    extension (id: ChallengeId) {
-      def value: Long = id
-    }
-  }
-
-  opaque type ChallengeLanguageId = Long
-  object ChallengeLanguageId {
-    def apply(value: Long): ChallengeLanguageId = value
-    extension (id: ChallengeLanguageId) {
-      def value: Long = id
-    }
-  }
-
-  opaque type SolutionId = Long
-  object SolutionId {
-    def apply(value: Long): SolutionId = value
-    extension (id: SolutionId) {
-      def value: Long = id
-    }
-  }
-
-  opaque type SubmissionId = Long
-  object SubmissionId {
-    def apply(value: Long): SubmissionId = value
-    extension (id: SubmissionId) {
-      def value: Long = id
-    }
-  }
 }

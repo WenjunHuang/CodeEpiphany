@@ -16,15 +16,14 @@ def markdownToHtml(file: File): String = {
 
   Using(Source.fromFile(file)) { markdownSource =>
     val document = parser.parse(markdownSource.mkString)
-    val r        = renderer.render(document)
-    r
+    renderer.render(document)
   }.get
 }
 
 lazy val codeEpiphany = (project in file("."))
   .settings(
     name         := "CodeEpiphany",
-    version      := "0.6.3",
+    version      := "0.6.4",
     compileOrder := CompileOrder.Mixed,
     scalacOptions ++= Seq(
       "-Wunused:imports",
@@ -47,27 +46,30 @@ lazy val codeEpiphany = (project in file("."))
     patchPluginXml := pluginXmlOptions { xml =>
       xml.version = version.value
       xml.sinceBuild = intellijBuild.value
+      xml.changeNotes = s"<![CDATA[${markdownToHtml(baseDirectory.value / "CHANGELOG.md")}]]>"
       xml.pluginDescription = s"<![CDATA[${markdownToHtml(baseDirectory.value / "README_en.md")}]]>"
     },
     libraryDependencies ++= Seq(
-      "org.typelevel"           %% "cats-effect"      % "3.5.7",
-      "org.typelevel"           %% "cats-core"        % "2.13.0",
-      "org.typelevel"           %% "cats-mtl"         % "1.5.0",
-      "io.circe"                %% "circe-core"       % "0.14.10",
-      "io.circe"                %% "circe-generic"    % "0.14.10",
-      "io.circe"                %% "circe-parser"     % "0.14.10",
-      "io.circe"                %% "circe-optics"     % "0.15.0",
-      "co.fs2"                  %% "fs2-core"         % "3.11.0",
-      "dev.optics"              %% "monocle-core"     % "3.3.0",
-      "dev.optics"              %% "monocle-macro"    % "3.3.0",
-      "org.typelevel"           %% "log4cats-core"    % "2.7.0",
-      "org.typelevel"           %% "case-insensitive" % "1.4.2",
-      "org.http4s"              %% "http4s-client"    % "0.23.30",
-      "org.http4s"              %% "http4s-dsl"       % "0.23.30",
-      "org.http4s"              %% "http4s-circe"     % "0.23.30",
-      "com.squareup.okhttp3"     % "okhttp"           % "4.12.0",
-      "org.jsoup"                % "jsoup"            % "1.18.3",
-      "com.softwaremill.common" %% "id-generator"     % "1.4.0",
+      "org.typelevel"           %% "cats-effect"          % "3.5.7",
+      "org.typelevel"           %% "cats-core"            % "2.13.0",
+      "org.typelevel"           %% "cats-mtl"             % "1.5.0",
+      "io.circe"                %% "circe-core"           % "0.14.10",
+      "io.circe"                %% "circe-generic"        % "0.14.10",
+      "io.circe"                %% "circe-parser"         % "0.14.10",
+      "io.circe"                %% "circe-optics"         % "0.15.0",
+      "co.fs2"                  %% "fs2-core"             % "3.11.0",
+      "dev.optics"              %% "monocle-core"         % "3.3.0",
+      "dev.optics"              %% "monocle-macro"        % "3.3.0",
+      "org.typelevel"           %% "log4cats-core"        % "2.7.0",
+      "org.typelevel"           %% "case-insensitive"     % "1.4.2",
+      "org.http4s"              %% "http4s-client"        % "0.23.30",
+      "org.http4s"              %% "http4s-dsl"           % "0.23.30",
+      "org.http4s"              %% "http4s-circe"         % "0.23.30",
+      "com.squareup.okhttp3"     % "okhttp"               % "4.12.0",
+      "org.jsoup"                % "jsoup"                % "1.18.3",
+      "com.softwaremill.common" %% "id-generator"         % "1.4.0",
+      "io.monix"                %% "newtypes-core"        % "0.3.0",
+      "io.monix"                %% "newtypes-circe-v0-14" % "0.3.0",
       // add jooq and sqlite,
       "org.jooq"            % "jooq"             % "3.19.18",
       "org.reactivestreams" % "reactive-streams" % "1.0.4",
@@ -76,7 +78,7 @@ lazy val codeEpiphany = (project in file("."))
       "org.jooq"            % "jooq-meta"        % "3.19.18"  % JooqCodegen,
       "org.jooq"            % "jooq-codegen"     % "3.19.18"  % JooqCodegen,
       "org.xerial"          % "sqlite-jdbc"      % "3.48.0.0" % JooqCodegen,
-      "org.flywaydb"        % "flyway-core"      % "11.2.0",
+      "org.flywaydb"        % "flyway-core"      % "11.3.0",
       "com.zaxxer"          % "HikariCP"         % "6.2.1",
       "org.scalatest"      %% "scalatest"        % "3.2.19"   % Test,
       "junit"               % "junit"            % "4.13.2"   % Test,

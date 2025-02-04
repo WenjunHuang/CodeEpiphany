@@ -1,4 +1,4 @@
-package com.wenjunhuang.codeepiphany.editor.services
+package com.wenjunhuang.codeepiphany.hackerrank.services
 
 import cats.syntax.all.*
 import cats.effect.Concurrent
@@ -11,7 +11,7 @@ import com.intellij.openapi.project.Project
 
 import com.wenjunhuang.codeepiphany.hackerrank.model.{ HackerRankContest, HackerRankSubmissionResponse }
 import com.wenjunhuang.codeepiphany.model.{ ChallengeRepository, CodeDojo, Language, LanguageVersion, SubmissionResult }
-import com.wenjunhuang.codeepiphany.model.ChallengeRepository.SubmissionId
+import com.wenjunhuang.codeepiphany.model.newtypes.SubmissionId
 import com.wenjunhuang.codeepiphany.model.CodeDojo.HackerRank
 import com.wenjunhuang.codeepiphany.services.http.HttpClientManager
 import com.wenjunhuang.codeepiphany.settings.ChallengeSettings.ChallengeSettingsStateItem
@@ -22,7 +22,7 @@ import fs2.Stream
 import scala.jdk.OptionConverters.*
 
 import com.wenjunhuang.codeepiphany.model.SubmissionResult.Success
-import com.wenjunhuang.codeepiphany.services.console
+import com.wenjunhuang.codeepiphany.services.{ console, BaseSubmissionService }
 
 class HackerRankSubmissionService[F[_]: Async: Concurrent: HttpClientManager: LoggerFactory](project: Project)
     extends BaseSubmissionService[F](project, HackerRank) {
@@ -40,6 +40,12 @@ class HackerRankSubmissionService[F[_]: Async: Concurrent: HttpClientManager: Lo
     submissionId: SubmissionId,
     response: HackerRankSubmissionResponse
   ): SubmissionResponseInfo = {
+
+    dsl
+      .deleteFrom(HACKERRANK_SUBMISSION_CASE)
+      .where(HACKERRANK_SUBMISSION_CASE.SUBMISSIONID.eq(submissionId.value))
+      .execute()
+
     val result = toSubmissionResult(response.status)
     val message =
       if result == SubmissionResult.CompilationError then response.compileMessage.getOrElse(response.status)

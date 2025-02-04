@@ -24,7 +24,7 @@ import com.intellij.util.io.URLUtil
 
 import com.wenjunhuang.codeepiphany.database.Tables.CHALLENGE
 import com.wenjunhuang.codeepiphany.model.{ ChallengeRepository, CodeDojo }
-import com.wenjunhuang.codeepiphany.model.ChallengeRepository.ChallengeId
+import com.wenjunhuang.codeepiphany.model.newtypes.ChallengeId
 import com.wenjunhuang.codeepiphany.settings.ChallengeSettings
 import com.wenjunhuang.codeepiphany.utils.implicits.*
 

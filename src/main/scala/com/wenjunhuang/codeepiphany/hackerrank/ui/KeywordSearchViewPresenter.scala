@@ -19,13 +19,13 @@ import com.intellij.ui.DocumentAdapter
 
 import com.wenjunhuang.codeepiphany.actions.OpenChallengeActionGroup.{CHALLENGE_PROVIDER_KEY, OpenChallengeProvider}
 import com.wenjunhuang.codeepiphany.hackerrank.model.{HackerRankChallengeDetail, HackerRankContest}
-import com.wenjunhuang.codeepiphany.hackerrank.services.HackerRankApi
-import com.wenjunhuang.codeepiphany.hackerrank.services.challenge.openChallenge
+import com.wenjunhuang.codeepiphany.hackerrank.services.{HackerRankApi, HackerRankOpenChallengeRequest, HackerRankOpenChallengeService}
 import com.wenjunhuang.codeepiphany.hackerrank.settings.HackerRankSettings
-import com.wenjunhuang.codeepiphany.model.{Language, LanguageVersion}
+import com.wenjunhuang.codeepiphany.model.{CodeDojo, Language, LanguageVersion}
 import com.wenjunhuang.codeepiphany.services.http.{HttpClientManager, HttpClientService}
 import com.wenjunhuang.codeepiphany.utils.extensions.*
 import com.wenjunhuang.codeepiphany.utils.implicits.*
+import com.wenjunhuang.codeepiphany.model.*
 
 class KeywordSearchViewPresenter(private val myProject: Project) extends DocumentAdapter with Disposable {
   private implicit val myLogger: Logger[IO] = LoggerFactory[IO].getLogger
@@ -84,13 +84,16 @@ class KeywordSearchViewPresenter(private val myProject: Project) extends Documen
     override def openCurrentSelectedChallenge(language: Language, languageVersion: LanguageVersion): Unit = {
       Option(myView.getTable.getSelectedObject) match
         case Some(selected) =>
-          openChallenge[IO](
-            myProject,
-            selected.slug,
-            HackerRankContest.fromCIString(CIString(selected.contestSlug)).get,
-            language,
-            languageVersion
-          ).unsafeRunAndForget()
+          HackerRankOpenChallengeService[IO](myProject)
+            .openChallenge(
+              HackerRankOpenChallengeRequest(
+                selected.slug,
+                HackerRankContest.fromCIString(CIString(selected.contestSlug)).get
+              ),
+              language,
+              languageVersion
+            )
+            .unsafeRunAndForget()
         case None => ()
     }
 

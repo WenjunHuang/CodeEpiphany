@@ -1,4 +1,4 @@
-package com.wenjunhuang.codeepiphany.editor.services
+package com.wenjunhuang.codeepiphany.services
 
 import java.time.LocalDateTime
 import org.jooq.DSLContext

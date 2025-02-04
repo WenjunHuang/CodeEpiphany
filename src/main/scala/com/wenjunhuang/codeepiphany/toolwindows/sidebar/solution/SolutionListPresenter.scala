@@ -24,7 +24,7 @@ import com.intellij.util.ui.ColumnInfo
 
 import com.wenjunhuang.codeepiphany.database.Tables.*
 import com.wenjunhuang.codeepiphany.model.*
-import com.wenjunhuang.codeepiphany.model.ChallengeRepository.ChallengeId
+import com.wenjunhuang.codeepiphany.model.newtypes.ChallengeId
 import com.wenjunhuang.codeepiphany.settings.ChallengeSettings
 import com.wenjunhuang.codeepiphany.utils.implicits.*
 import com.wenjunhuang.codeepiphany.utils.IdGenerator
