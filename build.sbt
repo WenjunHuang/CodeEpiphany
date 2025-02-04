@@ -24,7 +24,7 @@ def markdownToHtml(file: File): String = {
 lazy val codeEpiphany = (project in file("."))
   .settings(
     name         := "CodeEpiphany",
-    version      := "0.6.3",
+    version      := "0.6.4",
     compileOrder := CompileOrder.Mixed,
     scalacOptions ++= Seq(
       "-Wunused:imports",
@@ -47,6 +47,7 @@ lazy val codeEpiphany = (project in file("."))
     patchPluginXml := pluginXmlOptions { xml =>
       xml.version = version.value
       xml.sinceBuild = intellijBuild.value
+      xml.changeNotes = s"<![CDATA[${markdownToHtml(baseDirectory.value / "CHANGELOG.md")}]]>"
       xml.pluginDescription = s"<![CDATA[${markdownToHtml(baseDirectory.value / "README_en.md")}]]>"
     },
     libraryDependencies ++= Seq(
@@ -76,7 +77,7 @@ lazy val codeEpiphany = (project in file("."))
       "org.jooq"            % "jooq-meta"        % "3.19.18"  % JooqCodegen,
       "org.jooq"            % "jooq-codegen"     % "3.19.18"  % JooqCodegen,
       "org.xerial"          % "sqlite-jdbc"      % "3.48.0.0" % JooqCodegen,
-      "org.flywaydb"        % "flyway-core"      % "11.2.0",
+      "org.flywaydb"        % "flyway-core"      % "11.3.0",
       "com.zaxxer"          % "HikariCP"         % "6.2.1",
       "org.scalatest"      %% "scalatest"        % "3.2.19"   % Test,
       "junit"               % "junit"            % "4.13.2"   % Test,
