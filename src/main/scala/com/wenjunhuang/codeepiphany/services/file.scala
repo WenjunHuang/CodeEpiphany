@@ -1,18 +1,51 @@
 package com.wenjunhuang.codeepiphany.services
-import cats.effect.{Resource, Sync}
+import cats.effect.{ Resource, Sync }
 import cats.effect.kernel.Async
 import cats.syntax.all.*
-import java.io.{File, PrintWriter}
+import java.io.{ File, PrintWriter }
 import org.typelevel.log4cats.LoggerFactory
 
 import com.intellij.openapi.editor.Editor
-import com.intellij.openapi.fileEditor.{FileDocumentManager, FileEditorManager, OpenFileDescriptor}
+import com.intellij.openapi.fileEditor.{ FileDocumentManager, FileEditorManager, OpenFileDescriptor }
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.vfs.{LocalFileSystem, VirtualFile}
+import com.intellij.openapi.ui.{ InputValidator, MessageUtil, Messages }
+import com.intellij.openapi.util.io.FileUtilRt
+import com.intellij.openapi.util.text.StringUtil
+import com.intellij.openapi.vfs.{ LocalFileSystem, VirtualFile }
 
 import com.wenjunhuang.codeepiphany.utils.implicits.*
 
 object file {
+  def saveTextWithConflictResolution[F[_]: Async](file: File, content: String): F[Option[File]] = {
+    Async[F].blocking {
+      if file.exists() then
+        // show a rename dialog
+        val extWithDot = FileUtilRt.getExtension(file.getName) match
+          case "" => ""
+          case e  => s".$e"
+
+        val nameWithoutExt = FileUtilRt.getNameWithoutExtension(file.getName)
+        Option(
+          Messages.showInputDialog(
+            "File already exists. Please enter a new name:",
+            "File Already Exists",
+            Messages.getQuestionIcon,
+            nameWithoutExt,
+            new InputValidator {
+              override def checkInput(inputString: String): Boolean =
+                !File(file.getParentFile, s"${inputString}${extWithDot}").exists()
+
+              override def canClose(inputString: String): Boolean = true
+            }
+          )
+        ).map { newName => File(file.getParentFile, s"${newName}${extWithDot}") }
+      else Some(file)
+    }.evalOnEDTAny().flatMap {
+      case None          => Async[F].pure(None)
+      case Some(newFile) => saveTextToFile(newFile, content).map(Some(_))
+    }
+  }
+
   def saveTextToFile[F[_]: Sync](file: File, content: String): F[File] = {
     Resource.make(Sync[F].blocking(PrintWriter(file)))(writer => Sync[F].blocking(writer.close())).use { writer =>
       Sync[F].blocking {

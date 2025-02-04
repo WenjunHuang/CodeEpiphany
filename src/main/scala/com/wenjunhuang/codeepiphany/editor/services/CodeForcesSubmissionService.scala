@@ -15,9 +15,9 @@ import com.wenjunhuang.codeepiphany.codeforces.services.CodeForcesApi
 import com.wenjunhuang.codeepiphany.codeforces.settings.CodeForcesSettingsConfigurable
 import com.wenjunhuang.codeepiphany.database.Tables.{CHALLENGE, CHALLENGE_LANGUAGE, CODEFORCES_CHALLENGE}
 import com.wenjunhuang.codeepiphany.model.{ChallengeRepository, Language, LanguageVersion, SubmissionResult}
-import com.wenjunhuang.codeepiphany.model.ChallengeRepository.SubmissionId
+import com.wenjunhuang.codeepiphany.model.newtypes.SubmissionId
 import com.wenjunhuang.codeepiphany.model.CodeDojo.CodeForces
-import com.wenjunhuang.codeepiphany.services.console
+import com.wenjunhuang.codeepiphany.services.{console, BaseSubmissionService}
 import com.wenjunhuang.codeepiphany.services.http.HttpClientManager
 import com.wenjunhuang.codeepiphany.settings.ChallengeSettings.ChallengeSettingsStateItem
 

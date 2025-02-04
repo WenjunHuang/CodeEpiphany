@@ -1,9 +1,11 @@
 package com.wenjunhuang.codeepiphany.hackerrank.services
 
+import cats.data.Validated
 import cats.effect.{Async, Concurrent}
 import cats.effect.implicits.*
 import cats.syntax.all.*
 import java.io.File
+import org.jooq.{Condition, DSLContext, Table, UpdatableRecord}
 import org.typelevel.ci.CIString
 import org.typelevel.log4cats.Logger
 
@@ -11,21 +13,26 @@ import com.intellij.openapi.options.ShowSettingsUtil
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.{MessageDialogBuilder, Messages}
 import com.intellij.openapi.util.text.StringUtil
+import com.intellij.openapi.vfs.VirtualFile
 
 import com.wenjunhuang.codeepiphany.database.Tables.*
+import com.wenjunhuang.codeepiphany.database.tables.records.{ChallengeLanguageRecord, ChallengeRecord}
 import com.wenjunhuang.codeepiphany.editor.services.database.getOrCreateDefaultSolution
-import com.wenjunhuang.codeepiphany.hackerrank.model.{HackerRankChallengeCodeTemplate, HackerRankContest}
+import com.wenjunhuang.codeepiphany.hackerrank.model.{HackerRankChallengeCodeTemplate, HackerRankChallengeContent, HackerRankContest, HackerRankLanguageTemplate}
 import com.wenjunhuang.codeepiphany.hackerrank.settings.{HackerRankSettings, HackerRankSettingsConfigurable}
 import com.wenjunhuang.codeepiphany.model.*
-import com.wenjunhuang.codeepiphany.model.ChallengeRepository.{ChallengeId, ChallengeLanguageId, SolutionId}
+import com.wenjunhuang.codeepiphany.model.newtypes.*
 import com.wenjunhuang.codeepiphany.model.CodeDojo.HackerRank
 import com.wenjunhuang.codeepiphany.services.file.*
 import com.wenjunhuang.codeepiphany.services.http.HttpClientManager
 import com.wenjunhuang.codeepiphany.settings.ChallengeSettings
 import com.wenjunhuang.codeepiphany.settings.ChallengeSettings.ChallengeSettingsStateItem
+import com.wenjunhuang.codeepiphany.settings.dojo.BaseCodeDojoSettings.LanguageSettingsState
+import com.wenjunhuang.codeepiphany.settings.dojo.BaseSettingsConfigurable
 import com.wenjunhuang.codeepiphany.utils.IdGenerator
 import com.wenjunhuang.codeepiphany.utils.implicits.*
 import com.wenjunhuang.codeepiphany.utils.template.VelocityUtils
+
 
 object challenge {
   def openChallenge[F[_]: Async: Concurrent: HttpClientManager: Logger](

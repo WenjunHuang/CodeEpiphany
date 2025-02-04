@@ -39,7 +39,7 @@ import com.wenjunhuang.codeepiphany.database.tables.records.{
   SolutionSubmissionRecord
 }
 import com.wenjunhuang.codeepiphany.model.*
-import com.wenjunhuang.codeepiphany.model.ChallengeRepository.SubmissionId
+import com.wenjunhuang.codeepiphany.model.newtypes.SubmissionId
 import com.wenjunhuang.codeepiphany.model.CodeDojo.{ CodeForces, HackerRank, LeetCode, LeetCodeCN }
 import com.wenjunhuang.codeepiphany.toolwindows.sidebar.submissionlog.SubmissionLogPresenter.*
 import com.wenjunhuang.codeepiphany.utils.extensions.*

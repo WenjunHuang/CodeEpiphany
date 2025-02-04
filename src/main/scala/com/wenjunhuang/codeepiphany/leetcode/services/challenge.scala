@@ -20,7 +20,7 @@ import com.wenjunhuang.codeepiphany.leetcode.settings.{
   LeetCodeSettingsConfigurable
 }
 import com.wenjunhuang.codeepiphany.model.*
-import com.wenjunhuang.codeepiphany.model.ChallengeRepository.{ ChallengeId, ChallengeLanguageId, SolutionId }
+import com.wenjunhuang.codeepiphany.model.newtypes.*
 import com.wenjunhuang.codeepiphany.model.CodeDojo.{ LeetCode, LeetCodeCN }
 import com.wenjunhuang.codeepiphany.services.file.{ openTextEditor, refreshAndFindFileByIoFile, saveTextToFile }
 import com.wenjunhuang.codeepiphany.services.http.HttpClientManager

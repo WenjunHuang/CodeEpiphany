@@ -3,15 +3,15 @@ package com.wenjunhuang.codeepiphany.editor.services
 import cats.syntax.all.*
 import cats.effect.Concurrent
 import cats.effect.kernel.Async
-import org.jooq.{ DSLContext, Record }
+import org.jooq.{DSLContext, Record}
 import org.typelevel.ci.CIString
 import org.typelevel.log4cats.LoggerFactory
 
 import com.intellij.openapi.project.Project
 
-import com.wenjunhuang.codeepiphany.hackerrank.model.{ HackerRankContest, HackerRankSubmissionResponse }
-import com.wenjunhuang.codeepiphany.model.{ ChallengeRepository, CodeDojo, Language, LanguageVersion, SubmissionResult }
-import com.wenjunhuang.codeepiphany.model.ChallengeRepository.SubmissionId
+import com.wenjunhuang.codeepiphany.hackerrank.model.{HackerRankContest, HackerRankSubmissionResponse}
+import com.wenjunhuang.codeepiphany.model.{ChallengeRepository, CodeDojo, Language, LanguageVersion, SubmissionResult}
+import com.wenjunhuang.codeepiphany.model.newtypes.SubmissionId
 import com.wenjunhuang.codeepiphany.model.CodeDojo.HackerRank
 import com.wenjunhuang.codeepiphany.services.http.HttpClientManager
 import com.wenjunhuang.codeepiphany.settings.ChallengeSettings.ChallengeSettingsStateItem
@@ -22,7 +22,7 @@ import fs2.Stream
 import scala.jdk.OptionConverters.*
 
 import com.wenjunhuang.codeepiphany.model.SubmissionResult.Success
-import com.wenjunhuang.codeepiphany.services.console
+import com.wenjunhuang.codeepiphany.services.{console, BaseSubmissionService}
 
 class HackerRankSubmissionService[F[_]: Async: Concurrent: HttpClientManager: LoggerFactory](project: Project)
     extends BaseSubmissionService[F](project, HackerRank) {

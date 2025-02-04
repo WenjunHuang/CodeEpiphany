@@ -21,7 +21,7 @@ import com.wenjunhuang.codeepiphany.database.tables.records.CodeforcesProblemset
 import com.wenjunhuang.codeepiphany.database.Tables.*
 import com.wenjunhuang.codeepiphany.editor.services.database.getOrCreateDefaultSolution
 import com.wenjunhuang.codeepiphany.model.{ ChallengeRepository, CodeDojo, Language, LanguageVersion }
-import com.wenjunhuang.codeepiphany.model.ChallengeRepository.{ ChallengeId, ChallengeLanguageId, SolutionId }
+import com.wenjunhuang.codeepiphany.model.newtypes.*
 import com.wenjunhuang.codeepiphany.services.file.*
 import com.wenjunhuang.codeepiphany.services.http.HttpClientManager
 import com.wenjunhuang.codeepiphany.settings.ChallengeSettings

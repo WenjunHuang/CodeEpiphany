@@ -13,7 +13,7 @@ import com.intellij.openapi.vfs.VirtualFile
 import com.wenjunhuang.codeepiphany.database.Tables.*
 import com.wenjunhuang.codeepiphany.editor.actions.SolutionSelectionAction.*
 import com.wenjunhuang.codeepiphany.model.ChallengeRepository
-import com.wenjunhuang.codeepiphany.model.ChallengeRepository.SolutionId
+import com.wenjunhuang.codeepiphany.model.newtypes.SolutionId
 import com.wenjunhuang.codeepiphany.services.AuthService
 import com.wenjunhuang.codeepiphany.settings.ChallengeSettings
 
