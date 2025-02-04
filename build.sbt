@@ -16,8 +16,7 @@ def markdownToHtml(file: File): String = {
 
   Using(Source.fromFile(file)) { markdownSource =>
     val document = parser.parse(markdownSource.mkString)
-    val r        = renderer.render(document)
-    r
+    renderer.render(document)
   }.get
 }
 
