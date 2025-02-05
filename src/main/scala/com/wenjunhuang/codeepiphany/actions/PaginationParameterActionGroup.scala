@@ -11,6 +11,7 @@ import com.intellij.openapi.actionSystem.ex.ComboBoxAction
 import com.wenjunhuang.codeepiphany.PluginBundle
 import com.wenjunhuang.codeepiphany.actions.PaginationParameterActionGroup.*
 import com.wenjunhuang.codeepiphany.utils.actions.ParameterProvider
+import com.wenjunhuang.codeepiphany.utils.PageSize
 
 class PaginationParameterActionGroup(private val myPageNum: Int = DEFAULT_PAGE_NUMBER) extends DefaultActionGroup {
   private var cache = (0, 0, 0)
@@ -119,26 +120,6 @@ object PaginationParameterActionGroup {
 
   final val PAGINATION_PROVIDER_KEY = DataKey.create[PaginationParameterProvider]("PAGINATION_PROVIDER_KEY")
 
-  enum PageSize(val value: Int) {
-    case Twenty     extends PageSize(20)
-    case Fifty      extends PageSize(50)
-    case OneHundred extends PageSize(100)
-  }
-
-  object PageSize {
-    implicit val showInstance: Show[PageSize] = Show.show[PageSize] {
-      case Twenty => PluginBundle.message("pagesize.20")
-      case Fifty => PluginBundle.message("pagesize.50")
-      case OneHundred => PluginBundle.message("pagesize.100")
-    }
-
-    def fromInt(value: Int): Option[PageSize] =
-      value match
-        case Twenty.value     => Some(Twenty)
-        case Fifty.value      => Some(Fifty)
-        case OneHundred.value => Some(OneHundred)
-        case _                => None
-  }
 
   trait PaginationParameterProvider extends ParameterProvider[PageSize] {
     def getPageSize: Int

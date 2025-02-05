@@ -25,7 +25,7 @@ class QueryParametersView(private val myProject: Project, private val myPresente
   myMainToolbar.setTargetComponent(this)
   setToolbar(myMainToolbar.getComponent)
 
-  private val myTagPane = TagPane()
+  private val myTagPane = TagPane(true,myPresenter.getTagsActionModel)
 
   Disposer.register(myPresenter, this)
 
@@ -53,11 +53,7 @@ class QueryParametersView(private val myProject: Project, private val myPresente
 
   def getTableModel: ChallengesTableModel        = myChallengesTableModel
   def getTable: TableView[model.HackerRankChallengeDetail] = myChallengesTable
-  def getTagPane: TagPane                        = myTagPane
 
-  @RequiresEdt
-  def refreshTagToolbar(): Unit =
-    myTagPane.updateActionsAsync()
 
   @RequiresEdt
   def refreshPagination(): Unit =

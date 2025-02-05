@@ -1,26 +1,30 @@
 package com.wenjunhuang.codeepiphany.utils.ui
 
-import java.awt.{Color, Dimension, Graphics, GridBagConstraints, GridBagLayout}
-import java.awt.event.{ActionEvent, MouseAdapter, MouseEvent}
-import javax.swing.{Icon, JLayeredPane, JPanel, SwingConstants}
-import scala.jdk.CollectionConverters.*
+import java.awt.{ Color, Dimension, Graphics, GridBagConstraints, GridBagLayout }
+import java.awt.event.{ ActionEvent, MouseAdapter, MouseEvent }
+import javax.swing.{ Icon, JLayeredPane, JPanel, SwingConstants }
 
 import com.intellij.icons.AllIcons
-import com.intellij.openapi.actionSystem.{ActionManager, DefaultActionGroup}
+import com.intellij.openapi.actionSystem.{ ActionManager, DefaultActionGroup }
 import com.intellij.openapi.actionSystem.ex.DefaultCustomComponentAction
 import com.intellij.openapi.actionSystem.toolbarLayout.ToolbarLayoutStrategy
+import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.observable.properties.ObservableProperty
 import com.intellij.openapi.ui.popup.IconButton
-import com.intellij.ui.{Gray, InplaceButton, JBColor}
-import com.intellij.ui.components.{JBLabel, JBLayeredPane}
-import com.intellij.util.concurrency.annotations.RequiresEdt
-import com.intellij.util.ui.{JBInsets, JBUI}
+import com.intellij.openapi.util.Disposer
+import com.intellij.ui.{ Gray, InplaceButton, JBColor }
+import com.intellij.ui.components.{ JBLabel, JBLayeredPane }
+import com.intellij.util.ui.{ JBInsets, JBUI }
 import com.intellij.util.ui.components.BorderLayoutPanel
 
 import com.wenjunhuang.codeepiphany.utils.extensions.*
+import com.wenjunhuang.codeepiphany.utils.implicits.*
 
-class TagPane(val noBorderTop: Boolean = true, val actions: List[TagPaneAction] = Nil) extends BorderLayoutPanel {
+class TagPane(val noBorderTop: Boolean = true, private val myTagsModel: ObservableProperty[List[TagPaneAction]])
+    extends BorderLayoutPanel {
 
-  private val myActionGroup = DefaultActionGroup(actions.asJava)
+  private val myDisposable  = Disposer.newDisposable("TagPane")
+  private val myActionGroup = DefaultActionGroup(myTagsModel.get()*)
   private val myTagToolbar =
     ActionManager.getInstance().createActionToolbar("TagPane", myActionGroup, true)
 
@@ -33,28 +37,33 @@ class TagPane(val noBorderTop: Boolean = true, val actions: List[TagPaneAction] 
     val border      = toolbarComp.getBorder.getBorderInsets(toolbarComp)
     toolbarComp.setBorder(JBUI.Borders.empty(0, border.left, border.bottom, border.right))
 
-  def removeAllTags(): Unit = myActionGroup.removeAll()
+  updateActions()
 
-  @RequiresEdt
-  def addClosableTagAction(
-    id: String,
-    text: String,
-    icon: Option[Icon],
-    radius: Float,
-    onCloseAction: Option[() => Unit]
-  ): Unit = {
-    myActionGroup.add(TagPaneAction(id, text, icon, radius, None, onCloseAction))
+  override def addNotify(): Unit = {
+    super.addNotify()
+    myTagsModel.afterChange(
+      myDisposable,
+      tags => {
+        myActionGroup.removeAll()
+        myActionGroup.addAll(tags*)
+        ApplicationManager.getApplication.invokeLater { () =>
+          updateActions()
+          revalidate()
+        }
+      }
+    )
   }
 
-  @RequiresEdt
-  def updateActionsAsync(): Unit = {
+  override def removeNotify(): Unit = {
+    super.removeNotify()
+    Disposer.dispose(myDisposable)
+  }
+
+  private def updateActions(): Unit = {
     if myActionGroup.getChildrenCount == 0 then remove(myTagToolbar.getComponent)
     else if (0 until getComponentCount).exists(i => getComponent(i) == myTagToolbar.getComponent) then
       myTagToolbar.updateActionsAsync()
-    else
-      add(myTagToolbar.getComponent, SwingConstants.CENTER)
-      revalidate()
-      repaint()
+    else add(myTagToolbar.getComponent, SwingConstants.CENTER)
   }
 }
 
@@ -165,6 +174,6 @@ class TagUI(
 object TagUI {
   private final val padding                  = JBInsets.create(3, 8)
   private final val textIconGap              = JBUI.scale(4)
-  def backgroundColor: Color         = JBColor.namedColor("Tag.background", Gray.xDF).contrast(0.8)
+  def backgroundColor: Color                 = JBColor.namedColor("Tag.background", Gray.xDF).contrast(0.8)
   private def selectedBackgroundColor: Color = JBColor.namedColor("Tag.selectionBackground", Gray.xC9).contrast(1.2)
 }

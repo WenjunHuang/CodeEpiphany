@@ -14,6 +14,7 @@ import scala.jdk.CollectionConverters.*
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.actionSystem.DataSink
 import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.observable.properties.{ AtomicProperty, ObservableProperty }
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
 import com.intellij.util.concurrency.annotations.RequiresEdt
@@ -25,7 +26,6 @@ import com.wenjunhuang.codeepiphany.actions.DifficultyParameterAction.{
 import com.wenjunhuang.codeepiphany.actions.OpenChallengeActionGroup.{ CHALLENGE_PROVIDER_KEY, OpenChallengeProvider }
 import com.wenjunhuang.codeepiphany.actions.PaginationParameterActionGroup.{
   PAGINATION_PROVIDER_KEY,
-  PageSize,
   PaginationParameterProvider
 }
 import com.wenjunhuang.codeepiphany.actions.RefreshAction.{ REFRESH_PROVIDER_KEY, RefreshProvider }
@@ -42,6 +42,8 @@ import com.wenjunhuang.codeepiphany.services.console
 import com.wenjunhuang.codeepiphany.services.http.{ HttpClientManager, HttpClientService }
 import com.wenjunhuang.codeepiphany.utils.extensions.*
 import com.wenjunhuang.codeepiphany.utils.implicits.*
+import com.wenjunhuang.codeepiphany.utils.PageSize
+import com.wenjunhuang.codeepiphany.utils.ui.TagPaneAction
 
 class QueryParametersPresenter(private val myProject: Project)
     extends OrderDirectionProvider[CodeForcesSearchOrderBy]
@@ -53,6 +55,8 @@ class QueryParametersPresenter(private val myProject: Project)
     HttpClientService.getInstance(myProject).httpClientManager
 
   private val myApi = CodeForcesApi[IO]()
+
+  private val myTagsActionModel = AtomicProperty[List[TagPaneAction]](Nil)
 
   private val myView = QueryParametersView(myProject, this)
 
@@ -162,6 +166,8 @@ class QueryParametersPresenter(private val myProject: Project)
       myInitialData
     }
   }
+
+  def getTagsActionModel: ObservableProperty[List[TagPaneAction]] = myTagsActionModel
 
   def uiDataSnapshot(dataSink: DataSink): Unit = {
     dataSink.set(DIFFICULTIES_PROVIDER_KEY, myDifficultiesProvider)
@@ -301,29 +307,27 @@ class QueryParametersPresenter(private val myProject: Project)
 
   @RequiresEdt
   private def rebuildTags(): Unit = {
-    val tagPane = myView.getTagPane
-    tagPane.removeAllTags()
-
-    myState.selectedDifficulty.foreach { difficulty =>
-      tagPane.addClosableTagAction(
+    val tags = myState.selectedDifficulty.map { difficulty =>
+      TagPaneAction(
         difficulty.value,
         difficulty.showAsHtml,
         None,
         DIFFICULTY_TAG_RADIUS,
+        None,
         Some(() => myDifficultiesProvider.removeSelectedItems(List(difficulty)))
       )
-    }
-    myState.selectedTags.foreach { tag =>
-      tagPane.addClosableTagAction(
-        tag.value,
-        tag.name,
-        None,
-        TAG_TAG_RADIUS,
-        Some(() => myTagProvider.removeSelectedItems(List(tag)))
-      )
-    }
-
-    myView.refreshTagToolbar()
+    }.toList ++
+      myState.selectedTags.map { tag =>
+        TagPaneAction(
+          tag.value,
+          tag.name,
+          None,
+          TAG_TAG_RADIUS,
+          None,
+          Some(() => myTagProvider.removeSelectedItems(List(tag)))
+        )
+      }
+    myTagsActionModel.set(tags)
   }
 
   def requery(resetToFirstPage: Boolean = true): Unit =

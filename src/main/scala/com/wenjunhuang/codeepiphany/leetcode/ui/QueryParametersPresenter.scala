@@ -13,6 +13,7 @@ import scala.jdk.CollectionConverters.*
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.actionSystem.DataSink
 import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.observable.properties.{ AtomicProperty, ObservableProperty }
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
 import com.intellij.util.concurrency.annotations.RequiresEdt
@@ -24,7 +25,6 @@ import com.wenjunhuang.codeepiphany.actions.DifficultyParameterAction.{
 import com.wenjunhuang.codeepiphany.actions.OpenChallengeActionGroup.{ CHALLENGE_PROVIDER_KEY, OpenChallengeProvider }
 import com.wenjunhuang.codeepiphany.actions.PaginationParameterActionGroup.{
   PAGINATION_PROVIDER_KEY,
-  PageSize,
   PaginationParameterProvider
 }
 import com.wenjunhuang.codeepiphany.actions.RefreshAction.{ REFRESH_PROVIDER_KEY, RefreshProvider }
@@ -50,6 +50,8 @@ import com.wenjunhuang.codeepiphany.services.console
 import com.wenjunhuang.codeepiphany.services.http.{ HttpClientManager, HttpClientService }
 import com.wenjunhuang.codeepiphany.utils.extensions.*
 import com.wenjunhuang.codeepiphany.utils.implicits.*
+import com.wenjunhuang.codeepiphany.utils.PageSize
+import com.wenjunhuang.codeepiphany.utils.ui.TagPaneAction
 
 class QueryParametersPresenter(
   private val myProject: Project,
@@ -62,7 +64,8 @@ class QueryParametersPresenter(
   private implicit val httpClientKeeper: HttpClientManager[IO] =
     HttpClientService.getInstance(myProject).httpClientManager
 
-  private val myApi = LeetCodeApi[IO](myCodeDojo)
+  private val myTagsActionModel = AtomicProperty[List[TagPaneAction]](Nil)
+  private val myApi             = LeetCodeApi[IO](myCodeDojo)
 
   private val myView = QueryParametersView(myProject, this, myCodeDojo)
 
@@ -128,6 +131,8 @@ class QueryParametersPresenter(
   myQueryWorker.unsafeRunAndForget()
 
   Disposer.register(myProject, this)
+
+  def getTagsActionModel: ObservableProperty[List[TagPaneAction]] = myTagsActionModel
 
   override def getDirectionOf(field: LeetCodeSearchOrderBy): Option[OrderDirection] = myState.orderBy.collect {
     case (f, d) if f == field => d
@@ -422,57 +427,58 @@ class QueryParametersPresenter(
 
   @RequiresEdt
   private def rebuildTags(): Unit = {
-    val tagPane = myView.getTagPane
-    tagPane.removeAllTags()
 
-    myState.selectedCategory.foreach { category =>
-      tagPane.addClosableTagAction(
+    val tags = myState.selectedCategory.map { category =>
+      TagPaneAction(
         category.slug,
         category.title,
         None,
         CATEGORY_TAG_RADIUS,
+        None,
         Some(() => myCategoryProvider.removeSelectedItems(List(category)))
       )
-    }
-    myState.selectedFavorite.foreach { favorite =>
-      tagPane.addClosableTagAction(
-        favorite.id,
-        favorite.name,
-        None,
-        FAVORITE_TAG_RADIUS,
-        Some(() => myFavoriteProvider.removeSelectedItems(List(favorite)))
-      )
-    }
-
-    myState.selectedDifficulty.foreach { difficulty =>
-      tagPane.addClosableTagAction(
-        difficulty.value,
-        difficulty.showAsHtml,
-        None,
-        DIFFICULTY_TAG_RADIUS,
-        Some(() => myDifficultiesProvider.removeSelectedItems(List(difficulty)))
-      )
-    }
-    myState.selectedStatus.foreach { status =>
-      tagPane.addClosableTagAction(
-        status.value,
-        status.show,
-        None,
-        STATUS_TAG_RADIUS,
-        Some(() => myStatusProvider.removeSelectedItems(List(status)))
-      )
-    }
-    myState.selectedTags.foreach { tag =>
-      tagPane.addClosableTagAction(
-        tag.value,
-        tag.name,
-        None,
-        TAG_TAG_RADIUS,
-        Some(() => myTagProvider.removeSelectedItems(List(tag)))
-      )
-    }
-
-    myView.refreshTagToolbar()
+    }.toList ++
+      myState.selectedFavorite.map { favorite =>
+        TagPaneAction(
+          favorite.id,
+          favorite.name,
+          None,
+          FAVORITE_TAG_RADIUS,
+          None,
+          Some(() => myFavoriteProvider.removeSelectedItems(List(favorite)))
+        )
+      } ++
+      myState.selectedDifficulty.map { difficulty =>
+        TagPaneAction(
+          difficulty.value,
+          difficulty.showAsHtml,
+          None,
+          DIFFICULTY_TAG_RADIUS,
+          None,
+          Some(() => myDifficultiesProvider.removeSelectedItems(List(difficulty)))
+        )
+      } ++
+      myState.selectedStatus.map { status =>
+        TagPaneAction(
+          status.value,
+          status.show,
+          None,
+          STATUS_TAG_RADIUS,
+          None,
+          Some(() => myStatusProvider.removeSelectedItems(List(status)))
+        )
+      } ++
+      myState.selectedTags.map { tag =>
+        TagPaneAction(
+          tag.value,
+          tag.name,
+          None,
+          TAG_TAG_RADIUS,
+          None,
+          Some(() => myTagProvider.removeSelectedItems(List(tag)))
+        )
+      }
+    myTagsActionModel.set(tags)
   }
 
   def requery(resetToFirstPage: Boolean = true): Unit =

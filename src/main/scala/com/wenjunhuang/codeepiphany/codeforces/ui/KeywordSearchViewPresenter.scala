@@ -21,7 +21,6 @@ import com.intellij.ui.DocumentAdapter
 import com.wenjunhuang.codeepiphany.actions.OpenChallengeActionGroup.{ CHALLENGE_PROVIDER_KEY, OpenChallengeProvider }
 import com.wenjunhuang.codeepiphany.actions.PaginationParameterActionGroup.{
   PAGINATION_PROVIDER_KEY,
-  PageSize,
   PaginationParameterProvider
 }
 import com.wenjunhuang.codeepiphany.actions.RefreshAction.{ REFRESH_PROVIDER_KEY, RefreshProvider }
@@ -36,14 +35,14 @@ import com.wenjunhuang.codeepiphany.services.console
 import com.wenjunhuang.codeepiphany.services.http.{ HttpClientManager, HttpClientService }
 import com.wenjunhuang.codeepiphany.utils.extensions.*
 import com.wenjunhuang.codeepiphany.utils.implicits.*
+import com.wenjunhuang.codeepiphany.utils.PageSize
 
 class KeywordSearchViewPresenter(private val myProject: Project)
     extends DocumentAdapter
     with OrderDirectionProvider[CodeForcesSearchOrderBy]
     with Disposable {
   private implicit val myLogger: Logger[IO] = LoggerFactory[IO].getLogger
-  private implicit val httpClientKeeper: HttpClientManager[IO] =
-    HttpClientService.getInstance(myProject).httpClientManager
+  private implicit val myHttpClientManager: HttpClientManager[IO] = HttpClientService.getInstance(myProject).httpClientManager
 
   private val myView: KeywordSearchView = KeywordSearchView(myProject, this)
 

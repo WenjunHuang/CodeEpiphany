@@ -1,7 +1,7 @@
 package com.wenjunhuang.codeepiphany.leetcode.ui
 
 import java.awt.BorderLayout
-import javax.swing.{JPanel, ScrollPaneConstants}
+import javax.swing.{ JPanel, ScrollPaneConstants }
 
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.actionSystem.*
@@ -31,7 +31,7 @@ class QueryParametersView(
   myMainToolbar.setTargetComponent(this)
   setToolbar(myMainToolbar.getComponent)
 
-  private val myTagPane = TagPane()
+  private val myTagPane = TagPane(true, myPresenter.getTagsActionModel)
 
   Disposer.register(myPresenter, this)
 
@@ -58,11 +58,6 @@ class QueryParametersView(
 
   def getTableModel: LeetCodeChallengeListItemTableModel = myChallengesTableModel
   def getTable: TableView[LeetCodeChallengeListItem]     = myChallengesTable
-  def getTagPane: TagPane                                = myTagPane
-
-  @RequiresEdt
-  def refreshTagToolbar(): Unit =
-    myTagPane.updateActionsAsync()
 
   @RequiresEdt
   def refreshPagination(): Unit =

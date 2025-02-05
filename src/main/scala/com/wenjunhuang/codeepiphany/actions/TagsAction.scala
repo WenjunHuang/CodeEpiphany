@@ -1,14 +1,15 @@
 package com.wenjunhuang.codeepiphany.actions
 
-import java.awt.{Dimension, GridBagConstraints, GridBagLayout}
+import java.awt.{ Dimension, GridBagConstraints, GridBagLayout }
 import javax.swing.*
 
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.actionSystem.*
-import com.intellij.openapi.actionSystem.ex.{CheckboxAction, ComboBoxAction}
-import com.intellij.openapi.ui.popup.{JBPopup, JBPopupFactory}
+import com.intellij.openapi.actionSystem.ex.{ CheckboxAction, ComboBoxAction }
+import com.intellij.openapi.observable.properties.AtomicProperty
+import com.intellij.openapi.ui.popup.{ JBPopup, JBPopupFactory }
 import com.intellij.openapi.util.Disposer
-import com.intellij.ui.components.{JBScrollPane, JBTabbedPane}
+import com.intellij.ui.components.{ JBScrollPane, JBTabbedPane }
 import com.intellij.uiDesigner.core.Spacer
 import com.intellij.util.ui.components.BorderLayoutPanel
 import com.intellij.util.ui.JBUI
@@ -16,7 +17,7 @@ import com.intellij.util.ui.JBUI
 import com.wenjunhuang.codeepiphany.actions.TagsAction.*
 import com.wenjunhuang.codeepiphany.utils.actions.ParameterProvider
 import com.wenjunhuang.codeepiphany.utils.implicits.*
-import com.wenjunhuang.codeepiphany.utils.ui.{CollapsibleTitledSeparator, TagPane, TagPaneAction}
+import com.wenjunhuang.codeepiphany.utils.ui.{ CollapsibleTitledSeparator, TagPane, TagPaneAction }
 
 class TagsAction extends ComboBoxAction {
   override def update(e: AnActionEvent): Unit =
@@ -36,7 +37,7 @@ class TagsAction extends ComboBoxAction {
     val tabs       = provider.getTabs
     val tabbedPane = JBTabbedPane(SwingConstants.TOP)
     tabbedPane.setTabComponentInsets(JBUI.emptyInsets())
-    tabbedPane.setMaximumSize(new Dimension(300, 400))
+    tabbedPane.setMaximumSize(new Dimension(300, 300))
     tabs.foreach { tab =>
       tabbedPane.add(tab.name, createTagGroupTab(provider, tab))
     }
@@ -61,30 +62,30 @@ class TagsAction extends ComboBoxAction {
     gbc.weightx = 1.0
     gbc.gridx = 0
     tab.tagGroups.zipWithIndex.foreach { (tagGroup, index) =>
-      val actionTags = tagGroup.tags.map { tag =>
-        TagPaneAction(
-          tag.value,
-          tag.name,
-          None,
-          0.5f,
-          Some(
-            { () => provider.isSelected(tag) },
-            { selected =>
-              if selected then provider.addSelectedItems(List(tag))
-              else provider.removeSelectedItems(List(tag))
-            }
-          ),
-          None
-        )
-      }
-      val tagGroupPane = TagPane(actions = actionTags)
+      val actionTags =
+        AtomicProperty(tagGroup.tags.map { tag =>
+          TagPaneAction(
+            tag.value,
+            tag.name,
+            None,
+            0.5f,
+            Some(
+              { () => provider.isSelected(tag) },
+              { selected =>
+                if selected then provider.addSelectedItems(List(tag))
+                else provider.removeSelectedItems(List(tag))
+              }
+            ),
+            None
+          )
+        })
+      val tagGroupPane = TagPane(true, actionTags)
       val titled       = CollapsibleTitledSeparator(tagGroup.name)
       titled.onAction { isExpanded =>
         if isExpanded then tagGroupPane.setVisible(true)
         else tagGroupPane.setVisible(false)
       }
       titled.setExpanded(true)
-      tagGroupPane.updateActionsAsync()
 
       panel.add(
         BorderLayoutPanel()

@@ -6,7 +6,7 @@ import fs2.Stream
 import fs2.concurrent.SignallingRef
 import javax.swing.JComponent
 import javax.swing.event.DocumentEvent
-import org.typelevel.log4cats.{ Logger, LoggerFactory }
+import org.typelevel.log4cats.{Logger, LoggerFactory}
 import scala.concurrent.duration.*
 import scala.jdk.CollectionConverters.*
 
@@ -17,35 +17,22 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
 import com.intellij.ui.DocumentAdapter
 
-import com.wenjunhuang.codeepiphany.actions.OpenChallengeActionGroup.{ CHALLENGE_PROVIDER_KEY, OpenChallengeProvider }
-import com.wenjunhuang.codeepiphany.actions.PaginationParameterActionGroup.{
-  PAGINATION_PROVIDER_KEY,
-  PageSize,
-  PaginationParameterProvider
-}
-import com.wenjunhuang.codeepiphany.actions.RefreshAction.{ REFRESH_PROVIDER_KEY, RefreshProvider }
+import com.wenjunhuang.codeepiphany.actions.OpenChallengeActionGroup.{CHALLENGE_PROVIDER_KEY, OpenChallengeProvider}
+import com.wenjunhuang.codeepiphany.actions.PaginationParameterActionGroup.{PAGINATION_PROVIDER_KEY, PaginationParameterProvider}
+import com.wenjunhuang.codeepiphany.actions.RefreshAction.{REFRESH_PROVIDER_KEY, RefreshProvider}
 import com.wenjunhuang.codeepiphany.leetcode.model.LeetCodeChallengeListItem
-import com.wenjunhuang.codeepiphany.leetcode.services.{
-  LeetCodeApi,
-  LeetCodeOpenChallengeRequest,
-  LeetCodeOpenChallengeService,
-  LeetCodeSearchOrderBy
-}
-import com.wenjunhuang.codeepiphany.leetcode.settings.{ LeetCodeCNSettings, LeetCodeSettings }
+import com.wenjunhuang.codeepiphany.leetcode.services.{LeetCodeApi, LeetCodeOpenChallengeRequest, LeetCodeOpenChallengeService, LeetCodeSearchOrderBy}
+import com.wenjunhuang.codeepiphany.leetcode.settings.{LeetCodeCNSettings, LeetCodeSettings}
 import com.wenjunhuang.codeepiphany.leetcode.ui.KeywordSearchViewPresenter.SearchParam
-import com.wenjunhuang.codeepiphany.model.CodeDojo.{ LeetCode, LeetCodeCN }
-import com.wenjunhuang.codeepiphany.model.{
-  CodeDojo,
-  Language,
-  LanguageVersion,
-  OrderDirection,
-  OrderDirectionProvider
-}
+import com.wenjunhuang.codeepiphany.model.CodeDojo.{LeetCode, LeetCodeCN}
+import com.wenjunhuang.codeepiphany.model.{CodeDojo, Language, LanguageVersion, OrderDirection, OrderDirectionProvider}
 import com.wenjunhuang.codeepiphany.services.console
-import com.wenjunhuang.codeepiphany.services.http.{ HttpClientManager, HttpClientService }
+import com.wenjunhuang.codeepiphany.services.http.{HttpClientManager, HttpClientService}
 import com.wenjunhuang.codeepiphany.utils.extensions.*
 import com.wenjunhuang.codeepiphany.utils.implicits.*
 import cats.syntax.all.*
+
+import com.wenjunhuang.codeepiphany.utils.PageSize
 
 class KeywordSearchViewPresenter(
   private val myProject: Project,

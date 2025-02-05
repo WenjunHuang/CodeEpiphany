@@ -34,8 +34,8 @@ class CodeForcesChallengesView(private val myProject: Project)
     HttpClientService.getInstance(myProject).httpClientManager
 
   private val myUnauthenticatedView    = UnauthenticatedView(CodeForces,Some(PluginBundle.message("codeforces.unauthenticatedView.tips")))
-  private val myQueryParamPresenter    = QueryParametersPresenter(myProject)
-  private val myKeywordSearchPresenter = KeywordSearchViewPresenter(myProject)
+  private val myQueryParamPresenter    = new QueryParametersPresenter(myProject)
+  private val myKeywordSearchPresenter = new KeywordSearchViewPresenter(myProject)
   private var myCurrentUI              = CodeForcesUI.Unauthenticated
   private val myLogger                 = LoggerFactory.getLogger[IO]
 

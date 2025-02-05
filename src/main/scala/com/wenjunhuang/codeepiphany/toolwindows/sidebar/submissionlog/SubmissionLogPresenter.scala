@@ -22,6 +22,7 @@ import com.intellij.diff.DiffContentFactory
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.actionSystem.{ DataSink, UiDataProvider }
 import com.intellij.openapi.fileEditor.FileEditorManager
+import com.intellij.openapi.observable.properties.{ AtomicProperty, ObservableProperty }
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
 
@@ -44,13 +45,16 @@ import com.wenjunhuang.codeepiphany.model.CodeDojo.{ CodeForces, HackerRank, Lee
 import com.wenjunhuang.codeepiphany.toolwindows.sidebar.submissionlog.SubmissionLogPresenter.*
 import com.wenjunhuang.codeepiphany.utils.extensions.*
 import com.wenjunhuang.codeepiphany.utils.implicits.*
+import com.wenjunhuang.codeepiphany.utils.ui.TagPaneAction
 import com.wenjunhuang.codeepiphany.vfs.SubmissionCodeFileSystem
 import com.wenjunhuang.codeepiphany.vfs.SubmissionCodeFileSystem.SubmissionCodeFilePath
 
 class SubmissionLogPresenter(private val myProject: Project) extends UiDataProvider with Disposable {
-  private val myView        = SubmissionLogView(this)
-  private val myLogger      = LoggerFactory[IO].getLogger
-  private var myQueryParams = EMPTY_QUERY_PARAMS
+  private val myLogger          = LoggerFactory[IO].getLogger
+  private val myTagsActionModel = AtomicProperty[List[TagPaneAction]](Nil)
+  private var myQueryParams     = EMPTY_QUERY_PARAMS
+
+  private val myView = SubmissionLogView(this)
 
   @volatile
   private var myQueryQueue: Option[Queue[IO, Option[QueryParams]]] = None
@@ -143,6 +147,7 @@ class SubmissionLogPresenter(private val myProject: Project) extends UiDataProvi
       val selected = myView.getTable.getSelectedObject
       if selected != null then mySelectedSubmissionQueue.foreach(_.offer(Some(selected)).unsafeRunAndForget())
   }
+
 
   private val myRefreshProvider = new RefreshProvider {
     override def refresh(): Unit = {
@@ -238,7 +243,8 @@ class SubmissionLogPresenter(private val myProject: Project) extends UiDataProvi
       )
   }
 
-  def getView: JComponent = myView
+  def getTagsActionModel: ObservableProperty[List[TagPaneAction]] = myTagsActionModel
+  def getView: JComponent                                         = myView
 
   def requery(): Unit = {
     myQueryQueue.foreach(_.offer(Some(myQueryParams)).unsafeRunAndForget())
@@ -358,29 +364,28 @@ class SubmissionLogPresenter(private val myProject: Project) extends UiDataProvi
   }
 
   private def refreshTags(): Unit = {
-    val tagPane = myView.getTagPane
-    tagPane.removeAllTags()
 
-    myQueryParams.dojos.foreach { dojo =>
-      tagPane.addClosableTagAction(
+    val tagsActions = myQueryParams.dojos.map { dojo =>
+      TagPaneAction(
         dojo.value,
         dojo.show,
         dojo.getIcon,
         CODEDOJO_TAG_RADIUS,
+        None,
         Some(() => myCodeDojoProvider.removeSelectedItems(List(dojo)))
       )
-    }
-    myQueryParams.languages.foreach { case (language, version) =>
-      tagPane.addClosableTagAction(
-        s"${language.show} ${version.version}",
-        s"${language.show} ${version.version}",
-        Option(language.icon),
-        LANGUAGE_TAG_RADIUS,
-        Some(() => myLanguageProvider.removeSelectedItems(List(language -> version)))
-      )
-    }
-
-    myView.getTagPane.updateActionsAsync()
+    } ++
+      myQueryParams.languages.map { case (language, version) =>
+        TagPaneAction(
+          s"${language.show} ${version.version}",
+          s"${language.show} ${version.version}",
+          Option(language.icon),
+          LANGUAGE_TAG_RADIUS,
+          None,
+          Some(() => myLanguageProvider.removeSelectedItems(List(language -> version)))
+        )
+      }
+    myTagsActionModel.set(tagsActions)
   }
 
   def clearOrderFilter(): Unit = {

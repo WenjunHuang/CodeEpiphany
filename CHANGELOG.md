@@ -1,3 +1,13 @@
+## 0.6.4
+### Added
+
+### Changed
+- Fix [#3](https://github.com/WenjunHuang/CodeEpiphany/issues/3)
+
+### Deprecated
+
+### Removed
+
 ## 0.6.3
 
 ### Added

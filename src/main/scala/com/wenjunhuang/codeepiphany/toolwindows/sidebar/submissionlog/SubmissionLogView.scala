@@ -46,7 +46,7 @@ class SubmissionLogView(private val myPresenter: SubmissionLogPresenter) extends
     Actions.SUBMISSIONS_TABLE_POPUP_PLACE
   )
 
-  private val myFilterTagsPane = TagPane()
+  private val myFilterTagsPane = TagPane(true,myPresenter.getTagsActionModel)
 
   private val mySplitter: Splitter = initSplitter()
 

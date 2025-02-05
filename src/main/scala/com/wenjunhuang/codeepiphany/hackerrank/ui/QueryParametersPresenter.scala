@@ -7,56 +7,42 @@ import fs2.Stream
 import fs2.concurrent.SignallingRef
 import javax.swing.JComponent
 import org.typelevel.ci.CIString
-import org.typelevel.log4cats.{ Logger, LoggerFactory }
+import org.typelevel.log4cats.{Logger, LoggerFactory}
 import scala.concurrent.duration.*
 import scala.jdk.CollectionConverters.*
 
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.actionSystem.DataSink
 import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.observable.properties.{AtomicBooleanProperty, AtomicProperty}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
 import com.intellij.util.concurrency.annotations.RequiresEdt
 
-import com.wenjunhuang.codeepiphany.actions.DifficultyParameterAction.{
-  DIFFICULTIES_PROVIDER_KEY,
-  DifficultyParameterProvider
-}
-import com.wenjunhuang.codeepiphany.actions.OpenChallengeActionGroup.{ CHALLENGE_PROVIDER_KEY, OpenChallengeProvider }
-import com.wenjunhuang.codeepiphany.actions.PaginationParameterActionGroup.{
-  PAGINATION_PROVIDER_KEY,
-  PageSize,
-  PaginationParameterProvider
-}
-import com.wenjunhuang.codeepiphany.actions.RefreshAction.{ REFRESH_PROVIDER_KEY, RefreshProvider }
-import com.wenjunhuang.codeepiphany.actions.StatusParameterAction.{ STATUS_PROVIDER_KEY, StatusParameterProvider }
-import com.wenjunhuang.codeepiphany.actions.TagsAction.{ SingleTagGroupProvider, TAG_PROVIDER_KEY, Tag }
-import com.wenjunhuang.codeepiphany.hackerrank.actions.CategoryParameterAction.{
-  CATEGORY_PROVIDER_KEY,
-  Category,
-  CategoryProvider
-}
-import com.wenjunhuang.codeepiphany.hackerrank.actions.SkillParameterAction.{
-  SKILL_PROVIDER_KEY,
-  SkillParameterProvider
-}
+import com.wenjunhuang.codeepiphany.utils.PageSize
+import com.wenjunhuang.codeepiphany.actions.DifficultyParameterAction.{DIFFICULTIES_PROVIDER_KEY, DifficultyParameterProvider}
+import com.wenjunhuang.codeepiphany.actions.OpenChallengeActionGroup.{CHALLENGE_PROVIDER_KEY, OpenChallengeProvider}
+import com.wenjunhuang.codeepiphany.actions.PaginationParameterActionGroup.{PAGINATION_PROVIDER_KEY, PaginationParameterProvider}
+import com.wenjunhuang.codeepiphany.actions.RefreshAction.{REFRESH_PROVIDER_KEY, RefreshProvider}
+import com.wenjunhuang.codeepiphany.actions.StatusParameterAction.{STATUS_PROVIDER_KEY, StatusParameterProvider}
+import com.wenjunhuang.codeepiphany.actions.TagsAction.{SingleTagGroupProvider, Tag, TAG_PROVIDER_KEY}
+import com.wenjunhuang.codeepiphany.hackerrank.actions.CategoryParameterAction.{Category, CATEGORY_PROVIDER_KEY, CategoryProvider}
+import com.wenjunhuang.codeepiphany.hackerrank.actions.SkillParameterAction.{SKILL_PROVIDER_KEY, SkillParameterProvider}
 import com.wenjunhuang.codeepiphany.hackerrank.model.*
-import com.wenjunhuang.codeepiphany.hackerrank.services.{
-  HackerRankApi,
-  HackerRankOpenChallengeRequest,
-  HackerRankOpenChallengeService
-}
+import com.wenjunhuang.codeepiphany.hackerrank.services.{HackerRankApi, HackerRankOpenChallengeRequest, HackerRankOpenChallengeService}
 import com.wenjunhuang.codeepiphany.hackerrank.settings.HackerRankSettings
 import com.wenjunhuang.codeepiphany.model.*
 import com.wenjunhuang.codeepiphany.services.console
-import com.wenjunhuang.codeepiphany.services.http.{ HttpClientManager, HttpClientService }
+import com.wenjunhuang.codeepiphany.services.http.{HttpClientManager, HttpClientService}
 import com.wenjunhuang.codeepiphany.utils.extensions.*
 import com.wenjunhuang.codeepiphany.utils.implicits.*
+import com.wenjunhuang.codeepiphany.utils.ui.TagPaneAction
 
 class QueryParametersPresenter(private val myProject: Project) extends Disposable {
   import QueryParametersPresenter.*
 
   private implicit val myLogger: Logger[IO] = LoggerFactory[IO].getLogger
+  private val myTagsActionModel             = AtomicProperty[List[TagPaneAction]](Nil)
 
   private implicit val httpClientKeeper: HttpClientManager[IO] =
     HttpClientService.getInstance(myProject).httpClientManager
@@ -134,6 +120,8 @@ class QueryParametersPresenter(private val myProject: Project) extends Disposabl
       requery()
     }
   }
+
+  def getTagsActionModel = myTagsActionModel
 
   def uiDataSnapshot(dataSink: DataSink): Unit = {
     dataSink.set(CATEGORY_PROVIDER_KEY, myCategoryProvider)
@@ -381,58 +369,53 @@ class QueryParametersPresenter(private val myProject: Project) extends Disposabl
 
   @RequiresEdt
   private def refreshTags(): Unit = {
-    val tagPane = myView.getTagPane
-    tagPane.removeAllTags()
-
-    tagPane.addClosableTagAction(
-      myState.selectedDomain.slug,
-      myState.selectedDomain.name,
-      None,
-      DOMAIN_TAG_RADIUS,
-      None
-    )
-
-    myState.selectedDifficulties.foreach { difficulty =>
-      tagPane.addClosableTagAction(
-        difficulty.value,
-        difficulty.showAsHtml,
-        None,
-        DIFFICULTY_TAG_RADIUS,
-        Some(() => myDifficultiesProvider.removeSelectedItems(List(difficulty)))
-      )
-    }
-    myState.selectedStatus.foreach { status =>
-      tagPane.addClosableTagAction(
-        status.value,
-        status.show,
-        None,
-        STATUS_TAG_RADIUS,
-        Some(() => myStatusProvider.removeSelectedItems(List(status)))
-      )
-    }
-
-    myState.selectedSkills.foreach { skill =>
-      tagPane.addClosableTagAction(
-        skill.value,
-        skill.show,
-        None,
-        SKILL_TAG_RADIUS,
-        Some(() => mySkillProvider.removeSelectedItems(List(skill)))
-      )
-    }
-    myState.selectedSubdomains.foreach { subdomain =>
-      tagPane.addClosableTagAction(
-        subdomain.slug,
-        subdomain.name,
-        None,
-        SUBDOMAIN_TAG_RADIUS,
-        Some(() =>
-          myTagProvider.removeSelectedItems(List(Tag(subdomain.name, subdomain.slug, myState.selectedDomain.slug)))
+    val tags = List(
+      TagPaneAction(myState.selectedDomain.slug, myState.selectedDomain.name, None, DOMAIN_TAG_RADIUS, None, None)
+    ) ++
+      myState.selectedDifficulties.map { difficulty =>
+        TagPaneAction(
+          difficulty.value,
+          difficulty.showAsHtml,
+          None,
+          DIFFICULTY_TAG_RADIUS,
+          None,
+          Some(() => myDifficultiesProvider.removeSelectedItems(List(difficulty)))
         )
-      )
-    }
+      } ++
+      myState.selectedStatus.map { status =>
+        TagPaneAction(
+          status.value,
+          status.show,
+          None,
+          STATUS_TAG_RADIUS,
+          None,
+          Some(() => myStatusProvider.removeSelectedItems(List(status)))
+        )
+      } ++
+      myState.selectedSkills.map { skill =>
+        TagPaneAction(
+          skill.value,
+          skill.show,
+          None,
+          SKILL_TAG_RADIUS,
+          None,
+          Some(() => mySkillProvider.removeSelectedItems(List(skill)))
+        )
+      } ++
+      myState.selectedSubdomains.map { subdomain =>
+        TagPaneAction(
+          subdomain.slug,
+          subdomain.name,
+          None,
+          SUBDOMAIN_TAG_RADIUS,
+          None,
+          Some(() =>
+            myTagProvider.removeSelectedItems(List(Tag(subdomain.name, subdomain.slug, myState.selectedDomain.slug)))
+          )
+        )
+      }
+    myTagsActionModel.set(tags)
 
-    myView.refreshTagToolbar()
   }
 
   private def requery(resetToFirstPage: Boolean = true): Unit =
