@@ -8,7 +8,7 @@ import fs2.Stream
 import fs2.concurrent.SignallingRef
 import java.time.format.DateTimeFormatter
 import javax.swing.JComponent
-import org.jooq.{ Record, SelectOnConditionStep }
+import org.jooq.{Record, SelectOnConditionStep}
 import org.typelevel.ci.CIString
 import org.typelevel.log4cats.LoggerFactory
 import scala.concurrent.duration.*
@@ -20,28 +20,21 @@ import com.intellij.diff.requests.SimpleDiffRequest
 import com.intellij.diff.tools.util.DiffDataKeys
 import com.intellij.diff.DiffContentFactory
 import com.intellij.openapi.Disposable
-import com.intellij.openapi.actionSystem.{ DataSink, UiDataProvider }
+import com.intellij.openapi.actionSystem.{DataSink, UiDataProvider}
 import com.intellij.openapi.fileEditor.FileEditorManager
-import com.intellij.openapi.observable.properties.{ AtomicProperty, ObservableProperty }
+import com.intellij.openapi.observable.properties.{AtomicProperty, ObservableProperty}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
 
-import com.wenjunhuang.codeepiphany.actions.CodeDojoParameterAction.{ CODEDOJO_PROVIDER_KEY, CodeDojoParameterProvider }
-import com.wenjunhuang.codeepiphany.actions.LanguageParameterAction.{ LANGUAGE_PROVIDER_KEY, LanguageParameterProvider }
-import com.wenjunhuang.codeepiphany.actions.OpenSubmissionCodeAction.{
-  OPEN_SUBMISSION_PROVIDER_KEY,
-  OpenSubmissionCodeProvider
-}
-import com.wenjunhuang.codeepiphany.actions.RefreshAction.{ REFRESH_PROVIDER_KEY, RefreshProvider }
+import com.wenjunhuang.codeepiphany.actions.CodeDojoParameterAction.{CODEDOJO_PROVIDER_KEY, CodeDojoParameterProvider}
+import com.wenjunhuang.codeepiphany.actions.LanguageParameterAction.{LANGUAGE_PROVIDER_KEY, LanguageParameterProvider}
+import com.wenjunhuang.codeepiphany.actions.OpenSubmissionCodeAction.{OPEN_SUBMISSION_PROVIDER_KEY, OpenSubmissionCodeProvider}
+import com.wenjunhuang.codeepiphany.actions.RefreshAction.{REFRESH_PROVIDER_KEY, RefreshProvider}
 import com.wenjunhuang.codeepiphany.database.Tables.*
-import com.wenjunhuang.codeepiphany.database.tables.records.{
-  HackerrankSubmissionCaseRecord,
-  LeetcodeSubmissionRecord,
-  SolutionSubmissionRecord
-}
+import com.wenjunhuang.codeepiphany.database.tables.records.{HackerrankSubmissionCaseRecord, LeetcodeSubmissionRecord, SolutionSubmissionRecord}
 import com.wenjunhuang.codeepiphany.model.*
 import com.wenjunhuang.codeepiphany.model.newtypes.SubmissionId
-import com.wenjunhuang.codeepiphany.model.CodeDojo.{ CodeForces, HackerRank, LeetCode, LeetCodeCN }
+import com.wenjunhuang.codeepiphany.model.CodeDojo.{CodeForces, HackerRank, LeetCode, LeetCodeCN}
 import com.wenjunhuang.codeepiphany.toolwindows.sidebar.submissionlog.SubmissionLogPresenter.*
 import com.wenjunhuang.codeepiphany.utils.extensions.*
 import com.wenjunhuang.codeepiphany.utils.implicits.*

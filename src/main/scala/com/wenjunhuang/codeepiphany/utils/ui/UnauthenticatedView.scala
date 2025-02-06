@@ -6,8 +6,8 @@ import javax.swing.{JEditorPane, SwingConstants}
 import com.intellij.openapi.ui.SimpleToolWindowPanel
 import com.intellij.ui.components.JBLabel
 import com.intellij.ui.BrowserHyperlinkListener
-import com.intellij.util.ui.components.BorderLayoutPanel
 import com.intellij.util.ui.{HTMLEditorKitBuilder, JBUI}
+import com.intellij.util.ui.components.BorderLayoutPanel
 
 import com.wenjunhuang.codeepiphany.model.CodeDojo
 import com.wenjunhuang.codeepiphany.PluginBundle

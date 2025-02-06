@@ -5,7 +5,7 @@ import icons.CodeEpiphanyIcons
 import com.intellij.openapi.actionSystem.*
 import com.intellij.openapi.project.DumbAwareAction
 
-import CodeForcesChangeUIAction.*
+import com.wenjunhuang.codeepiphany.codeforces.actions.CodeForcesChangeUIAction.*
 import com.wenjunhuang.codeepiphany.codeforces.actions.CodeForcesChangeUIAction.CodeForcesUI.*
 
 class CodeForcesChangeUIAction extends DumbAwareAction {

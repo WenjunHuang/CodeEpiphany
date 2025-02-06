@@ -1,5 +1,6 @@
 package com.wenjunhuang.codeepiphany.model
 
+import cats.syntax.all.*
 import scala.util.control.NoStackTrace
 
 import com.intellij.openapi.application.ApplicationManager
@@ -7,7 +8,6 @@ import com.intellij.openapi.project.Project
 import com.intellij.util.messages.Topic
 
 import com.wenjunhuang.codeepiphany.model.Constants.PROJECT_ID
-import cats.syntax.all.*
 
 enum ApiError extends NoStackTrace {
   case NotFound(dojo: CodeDojo, message: String) extends ApiError

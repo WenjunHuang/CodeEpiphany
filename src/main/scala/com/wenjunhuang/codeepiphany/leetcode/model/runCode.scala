@@ -1,7 +1,7 @@
 package com.wenjunhuang.codeepiphany.leetcode.model
 
 import cats.syntax.all.*
-import io.circe.derivation.{ Configuration, ConfiguredDecoder, ConfiguredEncoder }
+import io.circe.derivation.{Configuration, ConfiguredDecoder, ConfiguredEncoder}
 import io.circe.Decoder
 
 object runCode {

@@ -7,7 +7,7 @@ import scala.collection.mutable
 
 import com.intellij.openapi.util.text.StringUtil
 
-import com.wenjunhuang.codeepiphany.model.LanguageVersion.{ AnyVersion, SpecificVersion }
+import com.wenjunhuang.codeepiphany.model.LanguageVersion.{AnyVersion, SpecificVersion}
 
 enum LanguageVersion {
   case AnyVersion

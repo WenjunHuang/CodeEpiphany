@@ -1,6 +1,6 @@
 package com.wenjunhuang.codeepiphany.editor.actions
 
-import com.intellij.openapi.actionSystem.{ ActionUpdateThread, AnActionEvent, CommonDataKeys, DefaultActionGroup }
+import com.intellij.openapi.actionSystem.{ActionUpdateThread, AnActionEvent, CommonDataKeys, DefaultActionGroup}
 
 import com.wenjunhuang.codeepiphany.services.AuthService
 import com.wenjunhuang.codeepiphany.settings.ChallengeSettings

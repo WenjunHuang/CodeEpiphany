@@ -1,8 +1,8 @@
 package com.wenjunhuang.codeepiphany.leetcode.ui
 
 import cats.effect.IO
-import javax.swing.{ Icon, JTable, SwingConstants }
-import javax.swing.table.{ DefaultTableCellRenderer, TableCellRenderer }
+import javax.swing.{Icon, JTable, SwingConstants}
+import javax.swing.table.{DefaultTableCellRenderer, TableCellRenderer}
 import monocle.syntax.all.*
 
 import com.intellij.icons.AllIcons
@@ -13,12 +13,12 @@ import com.intellij.util.ui.table.IconTableCellRenderer
 
 import com.wenjunhuang.codeepiphany.actions.OpenChallengeActionGroup
 import com.wenjunhuang.codeepiphany.leetcode.model.*
-import com.wenjunhuang.codeepiphany.leetcode.services.{ LeetCodeApi, LeetCodeSearchOrderBy }
+import com.wenjunhuang.codeepiphany.leetcode.services.{LeetCodeApi, LeetCodeSearchOrderBy}
 import com.wenjunhuang.codeepiphany.leetcode.ui.LeetCodeKeywordQueryPresenter.QueryParams
 import com.wenjunhuang.codeepiphany.model.*
-import com.wenjunhuang.codeepiphany.services.{ KeywordQueryPresenter, QueryContext }
-import com.wenjunhuang.codeepiphany.services.http.{ HttpClientManager, HttpClientService }
-import com.wenjunhuang.codeepiphany.utils.{ OrderByColumnInfo, Pagination }
+import com.wenjunhuang.codeepiphany.services.{KeywordQueryPresenter, QueryContext}
+import com.wenjunhuang.codeepiphany.services.http.{HttpClientManager, HttpClientService}
+import com.wenjunhuang.codeepiphany.utils.{OrderByColumnInfo, Pagination}
 import com.wenjunhuang.codeepiphany.utils.implicits.*
 
 class LeetCodeKeywordQueryPresenter(

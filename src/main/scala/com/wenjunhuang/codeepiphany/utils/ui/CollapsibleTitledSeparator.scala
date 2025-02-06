@@ -1,15 +1,15 @@
 package com.wenjunhuang.codeepiphany.utils.ui
 
 import java.awt.Insets
-import java.awt.event.{ MouseAdapter, MouseEvent }
+import java.awt.event.{MouseAdapter, MouseEvent}
+import kotlin.jvm.functions.Function1
 
 import com.intellij.openapi.observable.properties.AtomicBooleanProperty
 import com.intellij.openapi.util.IconLoader
 import com.intellij.ui.TitledSeparator
-import com.intellij.util.ui.{ IndentedIcon, UIUtil }
+import com.intellij.util.ui.{IndentedIcon, UIUtil}
 
 import com.wenjunhuang.codeepiphany.utils.implicits.*
-import kotlin.jvm.functions.Function1
 
 class CollapsibleTitledSeparator(title: String) extends TitledSeparator(title) {
   private val myExpanded = AtomicBooleanProperty(true)

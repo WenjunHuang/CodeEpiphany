@@ -1,6 +1,6 @@
 package com.wenjunhuang.codeepiphany.codeforces.models
 
-import com.wenjunhuang.codeepiphany.model.{ Language, LanguageVersion }
+import com.wenjunhuang.codeepiphany.model.{Language, LanguageVersion}
 
 case class CodeForcesChallengeData(
   contestId: Long,

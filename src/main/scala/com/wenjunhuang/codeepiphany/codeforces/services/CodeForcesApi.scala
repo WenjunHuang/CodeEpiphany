@@ -1,16 +1,16 @@
 package com.wenjunhuang.codeepiphany.codeforces.services
 
-import cats.effect.{ Async, Concurrent, Temporal }
+import cats.effect.{Async, Concurrent, Temporal}
 import cats.effect.implicits.*
 import cats.syntax.all.*
 import fs2.Stream
 import io.circe.optics.JsonPath
 import io.circe.parser.parse
-import java.time.{ LocalDateTime, ZoneId }
+import java.time.{LocalDateTime, ZoneId}
 import java.time.format.DateTimeFormatter
 import java.util.Locale
-import org.http4s.{ Headers, Method, Uri, UrlForm }
-import org.http4s.client.{ Client, UnexpectedStatus }
+import org.http4s.{Headers, Method, Uri, UrlForm}
+import org.http4s.client.{Client, UnexpectedStatus}
 import org.http4s.client.dsl.Http4sClientDsl
 import org.http4s.headers.Referer
 import org.http4s.implicits.uri
@@ -23,7 +23,7 @@ import com.intellij.openapi.util.text.StringUtil
 
 import com.wenjunhuang.codeepiphany.codeforces.models.*
 import com.wenjunhuang.codeepiphany.codeforces.settings.CodeForcesSettingsConfigurable
-import com.wenjunhuang.codeepiphany.model.{ ApiError, CodeDojo, SubmissionResult }
+import com.wenjunhuang.codeepiphany.model.{ApiError, CodeDojo, SubmissionResult}
 import com.wenjunhuang.codeepiphany.services.http.HttpClientManager
 
 trait CodeForcesApi[F[_]] {

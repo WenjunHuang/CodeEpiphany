@@ -2,7 +2,7 @@ package com.wenjunhuang.codeepiphany.actions
 
 import javax.swing.JComponent
 
-import com.intellij.openapi.actionSystem.{ ActionUpdateThread, AnAction, AnActionEvent, Presentation }
+import com.intellij.openapi.actionSystem.{ActionUpdateThread, AnAction, AnActionEvent, Presentation}
 import com.intellij.openapi.actionSystem.ex.CustomComponentAction
 import com.intellij.ui.SearchTextField
 

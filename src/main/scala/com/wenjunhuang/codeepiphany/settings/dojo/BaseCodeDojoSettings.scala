@@ -9,7 +9,7 @@ import com.intellij.openapi.components.PersistentStateComponent
 import com.intellij.openapi.project.Project
 import com.intellij.util.xmlb.annotations.Attribute
 
-import com.wenjunhuang.codeepiphany.model.{ Language, LanguageVersion }
+import com.wenjunhuang.codeepiphany.model.{Language, LanguageVersion}
 import com.wenjunhuang.codeepiphany.settings.dojo.BaseCodeDojoSettings.*
 import com.wenjunhuang.codeepiphany.utils.XmlUtils.*
 

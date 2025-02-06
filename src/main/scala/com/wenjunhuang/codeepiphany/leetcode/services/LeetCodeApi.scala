@@ -1,31 +1,27 @@
 package com.wenjunhuang.codeepiphany.leetcode.services
 
-import cats.effect.{ Async, Concurrent, Resource, Temporal }
+import cats.effect.{Async, Concurrent, Resource, Temporal}
 import cats.syntax.all.*
 import fs2.Stream
-import io.circe.{ Json, JsonObject }
+import io.circe.{Json, JsonObject}
 import io.circe.optics.JsonPath
 import io.circe.syntax.*
-import org.http4s.{ Headers, Method, Uri }
+import org.http4s.{Headers, Method, Uri}
 import org.http4s.circe.CirceEntityCodec.*
 import org.http4s.client.dsl.Http4sClientDsl
 import org.http4s.client.Client
 import org.http4s.headers.Referer
 import org.typelevel.ci.CIString
 import scala.concurrent.duration.*
-import scala.io.{ BufferedSource, Source }
+import scala.io.{BufferedSource, Source}
 
 import com.intellij.util.LineSeparator
 
 import com.wenjunhuang.codeepiphany.leetcode.model.*
 import com.wenjunhuang.codeepiphany.leetcode.model.runCode.*
-import com.wenjunhuang.codeepiphany.leetcode.model.submitAnswer.{
-  LeetCodeSubmitAnswerRequest,
-  LeetCodeSubmitAnswerResponse,
-  LeetCodeSubmitAnswerResult
-}
+import com.wenjunhuang.codeepiphany.leetcode.model.submitAnswer.{LeetCodeSubmitAnswerRequest, LeetCodeSubmitAnswerResponse, LeetCodeSubmitAnswerResult}
 import com.wenjunhuang.codeepiphany.model.*
-import com.wenjunhuang.codeepiphany.model.CodeDojo.{ LeetCode, LeetCodeCN }
+import com.wenjunhuang.codeepiphany.model.CodeDojo.{LeetCode, LeetCodeCN}
 import com.wenjunhuang.codeepiphany.services.http.HttpClientManager
 
 enum LeetCodeSearchOrderBy(val value: String) {

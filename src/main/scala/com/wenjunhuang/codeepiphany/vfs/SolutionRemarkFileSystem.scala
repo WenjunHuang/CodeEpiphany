@@ -5,9 +5,9 @@ import io.circe.parser.*
 import io.circe.syntax.*
 import scala.collection.mutable
 
-import com.intellij.openapi.fileTypes.{ FileTypeManager, FileTypes, LanguageFileType }
+import com.intellij.openapi.fileTypes.{FileTypeManager, FileTypes, LanguageFileType}
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.vfs.{ VirtualFile, VirtualFileManager }
+import com.intellij.openapi.vfs.{VirtualFile, VirtualFileManager}
 import com.intellij.vcs.editor.ComplexPathVirtualFileSystem
 
 import com.wenjunhuang.codeepiphany.model.newtypes.ChallengeId

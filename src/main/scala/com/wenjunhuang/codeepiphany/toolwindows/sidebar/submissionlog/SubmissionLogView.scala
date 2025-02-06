@@ -1,28 +1,23 @@
 package com.wenjunhuang.codeepiphany.toolwindows.sidebar.submissionlog
 
-import javax.swing.{ JComponent, ScrollPaneConstants, SwingConstants }
-
-import com.intellij.openapi.actionSystem.{ ActionGroup, ActionManager, DataSink }
-import com.intellij.openapi.ui.{ SimpleToolWindowPanel, Splitter }
-import com.intellij.ui.PopupHandler
-import com.intellij.ui.components.{ JBLabel, JBScrollPane }
-import com.intellij.ui.table.TableView
-import com.intellij.util.ui.components.BorderLayoutPanel
+import javax.swing.{JComponent, ScrollPaneConstants, SwingConstants}
 import scala.jdk.CollectionConverters.*
 import scala.jdk.OptionConverters.*
 
+import com.intellij.openapi.actionSystem.{ActionGroup, ActionManager, DataSink}
+import com.intellij.openapi.ui.{SimpleToolWindowPanel, Splitter}
+import com.intellij.ui.PopupHandler
+import com.intellij.ui.components.{JBLabel, JBScrollPane}
+import com.intellij.ui.table.TableView
+import com.intellij.util.ui.components.BorderLayoutPanel
+
 import com.wenjunhuang.codeepiphany.model.Actions
 import com.wenjunhuang.codeepiphany.toolwindows.sidebar.submissionlog.SubmissionLogPresenter.SubmissionType
-import com.wenjunhuang.codeepiphany.toolwindows.sidebar.submissionlog.SubmissionLogPresenter.SubmissionType.{
-  CodeForcesSubmission,
-  HackerRankSubmission,
-  LeetCodeCNSubmission,
-  LeetCodeSubmission
-}
+import com.wenjunhuang.codeepiphany.toolwindows.sidebar.submissionlog.SubmissionLogPresenter.SubmissionType.{CodeForcesSubmission, HackerRankSubmission, LeetCodeCNSubmission, LeetCodeSubmission}
 import com.wenjunhuang.codeepiphany.toolwindows.sidebar.submissionlog.SubmissionLogView.EMPTY_FORM
 import com.wenjunhuang.codeepiphany.toolwindows.sidebar.submissionlog.codeforces.CodeForcesSubmissionResultForm
-import com.wenjunhuang.codeepiphany.toolwindows.sidebar.submissionlog.leetcode.LeetCodeSubmissionResultForm
 import com.wenjunhuang.codeepiphany.toolwindows.sidebar.submissionlog.hackerrank.HackerRankSubmissionResultForm
+import com.wenjunhuang.codeepiphany.toolwindows.sidebar.submissionlog.leetcode.LeetCodeSubmissionResultForm
 import com.wenjunhuang.codeepiphany.utils.ui.TagPane
 
 class SubmissionLogView(private val myPresenter: SubmissionLogPresenter) extends SimpleToolWindowPanel(true, true) {
