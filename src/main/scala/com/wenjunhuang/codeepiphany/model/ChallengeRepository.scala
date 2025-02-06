@@ -3,7 +3,6 @@ package com.wenjunhuang.codeepiphany.model
 import cats.effect.{Async, IO}
 import cats.effect.kernel.Resource
 import com.zaxxer.hikari.{HikariConfig, HikariDataSource}
-import io.circe.*
 import java.io.File
 import org.flywaydb.core.Flyway
 import org.jooq.{DSLContext, Log, SQLDialect}

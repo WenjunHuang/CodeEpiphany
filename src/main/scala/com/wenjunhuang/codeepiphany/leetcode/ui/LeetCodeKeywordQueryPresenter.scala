@@ -6,11 +6,12 @@ import javax.swing.table.{ DefaultTableCellRenderer, TableCellRenderer }
 import monocle.syntax.all.*
 
 import com.intellij.icons.AllIcons
+import com.intellij.openapi.actionSystem.DataSink
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.text.StringUtil
-import com.intellij.util.ui.ColumnInfo
 import com.intellij.util.ui.table.IconTableCellRenderer
 
+import com.wenjunhuang.codeepiphany.actions.OpenChallengeActionGroup
 import com.wenjunhuang.codeepiphany.leetcode.model.*
 import com.wenjunhuang.codeepiphany.leetcode.services.{ LeetCodeApi, LeetCodeSearchOrderBy }
 import com.wenjunhuang.codeepiphany.leetcode.ui.LeetCodeKeywordQueryPresenter.QueryParams
@@ -47,6 +48,15 @@ class LeetCodeKeywordQueryPresenter(
       .map { response =>
         (context.pagination.copy(totalSize = response.total), response.questions)
       }
+  }
+
+  override def uiDataSnapshot(dataSink: DataSink): Unit = {
+    super.uiDataSnapshot(dataSink)
+
+    dataSink.set(
+      OpenChallengeActionGroup.CHALLENGE_PROVIDER_KEY,
+      createLeetCodeChallengeProvider(myProject, myQueryResultSelectionModel, myQueryResultTableModel, myLeetCodeDojo)
+    )
   }
 
   override def getQueryResultColumns: Array[OrderByColumnInfo[LeetCodeChallengeListItem, ?]] = {

@@ -2,7 +2,7 @@ package com.wenjunhuang.codeepiphany.services
 
 import java.awt.{BorderLayout, Color}
 import java.awt.event.{MouseAdapter, MouseEvent}
-import javax.swing.{JPanel, JTable, ScrollPaneConstants}
+import javax.swing.{JTable, ScrollPaneConstants}
 import javax.swing.table.DefaultTableCellRenderer
 
 import com.intellij.icons.AllIcons

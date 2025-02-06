@@ -12,7 +12,6 @@ import com.intellij.icons.AllIcons
 import com.intellij.openapi.actionSystem.{ActionGroup, ActionManager, DataSink}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.text.StringUtil
-import com.intellij.util.ui.ColumnInfo
 import com.intellij.util.ui.table.IconTableCellRenderer
 
 import com.wenjunhuang.codeepiphany.actions.{DifficultyParameterAction, OpenChallengeActionGroup, StatusParameterAction, TagsAction}
@@ -53,7 +52,6 @@ class HackerRankQueryParametersPresenter(project: Project, bootstraps: HackerRan
     updater: (QueryContext[QueryParams] => QueryContext[QueryParams]) => Unit,
     dataSink: DataSink
   ): ActionGroup = {
-
     val myCategoryProvider = new CategoryProvider {
       override def isSelected(item: Category): Boolean =
         getter().criteria.selectedDomain.slug == item.value

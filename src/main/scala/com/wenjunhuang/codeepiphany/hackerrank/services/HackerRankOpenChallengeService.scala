@@ -1,23 +1,18 @@
 package com.wenjunhuang.codeepiphany.hackerrank.services
 
-import cats.effect.{ Async, Concurrent }
+import cats.effect.{Async, Concurrent}
 import cats.syntax.all.*
 import org.jooq.DSLContext
 import org.typelevel.ci.CIString
-import org.typelevel.log4cats.{ Logger, LoggerFactory }
+import org.typelevel.log4cats.LoggerFactory
 
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.text.StringUtil
 
 import com.wenjunhuang.codeepiphany.database.Tables.*
-import com.wenjunhuang.codeepiphany.database.tables.records.{ ChallengeLanguageRecord, ChallengeRecord }
-import com.wenjunhuang.codeepiphany.hackerrank.model.{
-  HackerRankChallengeCodeTemplate,
-  HackerRankChallengeContent,
-  HackerRankContest,
-  HackerRankLanguageTemplate
-}
-import com.wenjunhuang.codeepiphany.hackerrank.settings.{ HackerRankSettings, HackerRankSettingsConfigurable }
+import com.wenjunhuang.codeepiphany.database.tables.records.{ChallengeLanguageRecord, ChallengeRecord}
+import com.wenjunhuang.codeepiphany.hackerrank.model.{HackerRankChallengeCodeTemplate, HackerRankChallengeContent, HackerRankContest, HackerRankLanguageTemplate}
+import com.wenjunhuang.codeepiphany.hackerrank.settings.{HackerRankSettings, HackerRankSettingsConfigurable}
 import com.wenjunhuang.codeepiphany.model.*
 import com.wenjunhuang.codeepiphany.model.newtypes.*
 import com.wenjunhuang.codeepiphany.model.CodeDojo.HackerRank

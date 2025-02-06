@@ -15,4 +15,11 @@ package object models {
       case Some(r) if r < 2200  => ChallengeDifficulty.Advanced
       case Some(r) if r >= 2200 => ChallengeDifficulty.Expert
       case _                    => ChallengeDifficulty.Easy
+  def codeForcesDifficultyToRatingRange(difficulty: ChallengeDifficulty): (Int, Int) =
+    difficulty match
+      case ChallengeDifficulty.Easy     => (0, 1199)
+      case ChallengeDifficulty.Medium   => (1200, 1599)
+      case ChallengeDifficulty.Hard     => (1600, 1899)
+      case ChallengeDifficulty.Advanced => (1900, 2199)
+      case ChallengeDifficulty.Expert   => (2200, Int.MaxValue)
 }

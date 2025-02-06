@@ -1,6 +1,5 @@
 package com.wenjunhuang.codeepiphany.model
 
-import io.circe.{ Decoder, Encoder }
 import monix.newtypes.NewtypeWrapped
 import monix.newtypes.integrations.DerivedCirceCodec
 

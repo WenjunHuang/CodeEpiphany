@@ -2,47 +2,32 @@ package com.wenjunhuang.codeepiphany.leetcode.ui
 
 import cats.effect.IO
 import cats.syntax.all.*
-import javax.swing.{ Icon, JTable, SwingConstants }
-import javax.swing.table.{ DefaultTableCellRenderer, TableCellRenderer }
+import javax.swing.{Icon, JTable, SwingConstants}
+import javax.swing.table.{DefaultTableCellRenderer, TableCellRenderer}
 import monocle.syntax.all.*
 import org.typelevel.log4cats.LoggerFactory
 
 import com.intellij.icons.AllIcons
-import com.intellij.openapi.actionSystem.{ ActionGroup, ActionManager, DataSink }
+import com.intellij.openapi.actionSystem.{ActionGroup, ActionManager, DataSink}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.text.StringUtil
-import com.intellij.util.ui.ColumnInfo
 import com.intellij.util.ui.table.IconTableCellRenderer
 
-import com.wenjunhuang.codeepiphany.actions.DifficultyParameterAction.{
-  DIFFICULTIES_PROVIDER_KEY,
-  DifficultyParameterProvider
-}
-import com.wenjunhuang.codeepiphany.actions.OpenChallengeActionGroup.{ CHALLENGE_PROVIDER_KEY, OpenChallengeProvider }
-import com.wenjunhuang.codeepiphany.actions.StatusParameterAction.{ STATUS_PROVIDER_KEY, StatusParameterProvider }
-import com.wenjunhuang.codeepiphany.actions.TagsAction
+import com.wenjunhuang.codeepiphany.actions.{OpenChallengeActionGroup, TagsAction}
+import com.wenjunhuang.codeepiphany.actions.DifficultyParameterAction.{DIFFICULTIES_PROVIDER_KEY, DifficultyParameterProvider}
+import com.wenjunhuang.codeepiphany.actions.OpenChallengeActionGroup.{CHALLENGE_PROVIDER_KEY, OpenChallengeProvider}
+import com.wenjunhuang.codeepiphany.actions.StatusParameterAction.{STATUS_PROVIDER_KEY, StatusParameterProvider}
 import com.wenjunhuang.codeepiphany.actions.TagsAction.*
-import com.wenjunhuang.codeepiphany.leetcode.actions.FavoriteParameterAction.{
-  FAVORITE_PROVIDER_KEY,
-  FavoriteParameterProvider
-}
-import com.wenjunhuang.codeepiphany.leetcode.actions.LeetCodeCategoryParameterAction.{
-  LEETCODE_CATEGORY_PROVIDER_KEY,
-  LeetCodeCategoryProvider
-}
+import com.wenjunhuang.codeepiphany.leetcode.actions.FavoriteParameterAction.{FAVORITE_PROVIDER_KEY, FavoriteParameterProvider}
+import com.wenjunhuang.codeepiphany.leetcode.actions.LeetCodeCategoryParameterAction.{LEETCODE_CATEGORY_PROVIDER_KEY, LeetCodeCategoryProvider}
 import com.wenjunhuang.codeepiphany.leetcode.model.*
-import com.wenjunhuang.codeepiphany.leetcode.services.{
-  LeetCodeApi,
-  LeetCodeOpenChallengeRequest,
-  LeetCodeOpenChallengeService,
-  LeetCodeSearchOrderBy
-}
-import com.wenjunhuang.codeepiphany.leetcode.settings.{ LeetCodeCNSettings, LeetCodeSettings }
+import com.wenjunhuang.codeepiphany.leetcode.services.{LeetCodeApi, LeetCodeOpenChallengeRequest, LeetCodeOpenChallengeService, LeetCodeSearchOrderBy}
+import com.wenjunhuang.codeepiphany.leetcode.settings.{LeetCodeCNSettings, LeetCodeSettings}
 import com.wenjunhuang.codeepiphany.leetcode.ui.LeetCodeParametersQueryPresenter.*
 import com.wenjunhuang.codeepiphany.model.*
-import com.wenjunhuang.codeepiphany.services.{ console, ParametersQueryPresenter, QueryContext }
-import com.wenjunhuang.codeepiphany.services.http.{ HttpClientManager, HttpClientService }
-import com.wenjunhuang.codeepiphany.utils.{ OrderByColumnInfo, Pagination }
+import com.wenjunhuang.codeepiphany.services.{console, ParametersQueryPresenter, QueryContext}
+import com.wenjunhuang.codeepiphany.services.http.{HttpClientManager, HttpClientService}
+import com.wenjunhuang.codeepiphany.utils.{OrderByColumnInfo, Pagination}
 import com.wenjunhuang.codeepiphany.utils.extensions.*
 import com.wenjunhuang.codeepiphany.utils.implicits.*
 import com.wenjunhuang.codeepiphany.utils.ui.TagPaneAction
@@ -305,6 +290,11 @@ class LeetCodeParametersQueryPresenter(
     dataSink.set(STATUS_PROVIDER_KEY, myStatusProvider)
     dataSink.set(CHALLENGE_PROVIDER_KEY, myChallengeProvider)
     dataSink.set(TAG_PROVIDER_KEY, myTagProvider)
+
+    dataSink.set(
+      OpenChallengeActionGroup.CHALLENGE_PROVIDER_KEY,
+      createLeetCodeChallengeProvider(myProject, myQueryResultSelectionModel, myQueryResultTableModel,myLeetCodeDojo)
+    )
 
     ActionManager.getInstance().getAction(Actions.LEETCODE_TOOLBAR_GROUP).asInstanceOf[ActionGroup]
   }

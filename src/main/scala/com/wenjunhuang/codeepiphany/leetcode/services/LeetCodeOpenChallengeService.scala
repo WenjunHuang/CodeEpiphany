@@ -1,27 +1,21 @@
 package com.wenjunhuang.codeepiphany.leetcode.services
 
+import cats.effect.{Async, Concurrent}
 import cats.syntax.all.*
-import cats.effect.{ Async, Concurrent }
 import org.jooq.DSLContext
 import org.typelevel.log4cats.LoggerFactory
 
 import com.intellij.openapi.project.Project
-import com.wenjunhuang.codeepiphany.database.Tables.*
 
-import com.wenjunhuang.codeepiphany.database.tables.records.{ ChallengeLanguageRecord, ChallengeRecord }
-import com.wenjunhuang.codeepiphany.leetcode.model.LeetCodeChallengeCodeTemplate
-import com.wenjunhuang.codeepiphany.leetcode.settings.{
-  LeetCodeCNSettings,
-  LeetCodeCNSettingsConfigurable,
-  LeetCodeSettings,
-  LeetCodeSettingsConfigurable
-}
-import com.wenjunhuang.codeepiphany.model.{ CodeDojo, Language, LanguageVersion }
+import com.wenjunhuang.codeepiphany.database.Tables.*
+import com.wenjunhuang.codeepiphany.database.tables.records.{ChallengeLanguageRecord, ChallengeRecord}
+import com.wenjunhuang.codeepiphany.leetcode.model.*
+import com.wenjunhuang.codeepiphany.leetcode.settings.{LeetCodeCNSettings, LeetCodeCNSettingsConfigurable, LeetCodeSettings, LeetCodeSettingsConfigurable}
+import com.wenjunhuang.codeepiphany.model.{CodeDojo, Language, LanguageVersion}
 import com.wenjunhuang.codeepiphany.model.newtypes.CodeDojoChallengeId
 import com.wenjunhuang.codeepiphany.services.BaseOpenChallengeService
 import com.wenjunhuang.codeepiphany.services.http.HttpClientManager
 import com.wenjunhuang.codeepiphany.settings.dojo.BaseCodeDojoSettings
-import com.wenjunhuang.codeepiphany.leetcode.model.*
 
 case class LeetCodeOpenChallengeRequest(questionSlug: String)
 

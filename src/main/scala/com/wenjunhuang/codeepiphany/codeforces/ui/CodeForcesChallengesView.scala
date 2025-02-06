@@ -24,6 +24,7 @@ import com.wenjunhuang.codeepiphany.utils.extensions.*
 import com.wenjunhuang.codeepiphany.utils.implicits.*
 import com.wenjunhuang.codeepiphany.utils.ui.UnauthenticatedView
 import com.wenjunhuang.codeepiphany.PluginBundle
+import com.wenjunhuang.codeepiphany.codeforces.services.CodeForcesApi
 
 class CodeForcesChallengesView(private val myProject: Project)
     extends CardLayoutPanel[CodeForcesUI, CodeForcesUI, JComponent]
@@ -33,17 +34,25 @@ class CodeForcesChallengesView(private val myProject: Project)
   private implicit val httpClientManager: HttpClientManager[IO] =
     HttpClientService.getInstance(myProject).httpClientManager
 
-  private val myUnauthenticatedView    = UnauthenticatedView(CodeForces,Some(PluginBundle.message("codeforces.unauthenticatedView.tips")))
-  private val myQueryParamPresenter    = new QueryParametersPresenter(myProject)
-  private val myKeywordSearchPresenter = new KeywordSearchViewPresenter(myProject)
-  private var myCurrentUI              = CodeForcesUI.Unauthenticated
-  private val myLogger                 = LoggerFactory.getLogger[IO]
+  private val myUnauthenticatedView =
+    UnauthenticatedView(CodeForces, Some(PluginBundle.message("codeforces.unauthenticatedView.tips")))
+
+  @volatile
+  private var myQueryParamPresenter: Option[CodeForcesParametersQueryPresenter] = None
+  @volatile
+  private var myKeywordSearchPresenter: Option[CodeForcesKeywordQueryPresenter] = None
+  private var myCurrentUI                                                       = CodeForcesUI.Unauthenticated
+  private val myLogger                                                          = LoggerFactory.getLogger[IO]
 
   @volatile
   private var myIsLoggingIn = false
 
   select(myCurrentUI, false)
-
+  private def initialize(): IO[CodeForcesBootstrapParameters] = {
+    CodeForcesApi[IO]().getProblemTags.map { tags =>
+      CodeForcesBootstrapParameters("*special" +: tags)
+    }
+  }
   private val myLoginLogoutProvider = new LoginLogoutProvider {
     override def login(): Unit = {
       myIsLoggingIn = true
@@ -53,10 +62,9 @@ class CodeForcesChallengesView(private val myProject: Project)
           .loadAuthenticationMayAskForLogin[IO](CodeDojo.CodeForces)
           .flatMap {
             case AskForLoginResult.Done =>
-              myQueryParamPresenter.initialize().map { initData =>
-                myKeywordSearchPresenter.setInitialData(
-                  initData
-                ) // Load data for the first time before switching to the UI
+              initialize().map { bootstrap =>
+                myQueryParamPresenter = Some(CodeForcesParametersQueryPresenter(myProject, bootstrap))
+                myKeywordSearchPresenter = Some(CodeForcesKeywordQueryPresenter(myProject, bootstrap))
               } *> IO.delay {
                 AuthService.getInstance(myProject).setLogin(CodeDojo.CodeForces)
                 mySwitchUIProvider.switchTo(CodeForcesUI.QueryParameters)
@@ -115,8 +123,9 @@ class CodeForcesChallengesView(private val myProject: Project)
 
   override def create(ui: CodeForcesUI): JComponent = ui match {
     case CodeForcesUI.Unauthenticated => myUnauthenticatedView
-    case CodeForcesUI.QueryParameters => myQueryParamPresenter.getComponent
-    case CodeForcesUI.SearchByKeyword => myKeywordSearchPresenter.getComponent
+    case CodeForcesUI.QueryParameters => myQueryParamPresenter.map(_.getViewComponent).getOrElse(myUnauthenticatedView)
+    case CodeForcesUI.SearchByKeyword =>
+      myKeywordSearchPresenter.map(_.getViewComponent).getOrElse(myUnauthenticatedView)
   }
 
   override def uiDataSnapshot(dataSink: DataSink): Unit =

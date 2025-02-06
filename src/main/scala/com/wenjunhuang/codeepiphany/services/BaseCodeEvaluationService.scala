@@ -1,16 +1,14 @@
 package com.wenjunhuang.codeepiphany.services
 
-import cats.effect.{ Async, Concurrent }
+import cats.effect.Async
 import cats.effect.kernel.Async
 import cats.syntax.all.*
 import fs2.Stream
-import org.typelevel.log4cats.LoggerFactory
 
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.vfs.{ VirtualFile, VirtualFileUtil }
+import com.intellij.openapi.vfs.{VirtualFile, VirtualFileUtil}
 
-import com.wenjunhuang.codeepiphany.model.{ CodeDojo, Language, SubmissionResult }
-import com.wenjunhuang.codeepiphany.services.http.HttpClientManager
+import com.wenjunhuang.codeepiphany.model.{CodeDojo, Language, SubmissionResult}
 import com.wenjunhuang.codeepiphany.settings.ChallengeSettings
 import com.wenjunhuang.codeepiphany.settings.ChallengeSettings.ChallengeSettingsStateItem
 
