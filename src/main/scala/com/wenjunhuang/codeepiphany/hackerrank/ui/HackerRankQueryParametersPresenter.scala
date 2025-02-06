@@ -28,7 +28,7 @@ import com.wenjunhuang.codeepiphany.hackerrank.ui.HackerRankQueryParametersPrese
 import com.wenjunhuang.codeepiphany.model.*
 import com.wenjunhuang.codeepiphany.services.{ParametersQueryPresenter, QueryContext}
 import com.wenjunhuang.codeepiphany.services.http.{HttpClientManager, HttpClientService}
-import com.wenjunhuang.codeepiphany.utils.Pagination
+import com.wenjunhuang.codeepiphany.utils.{OrderByColumnInfo, Pagination}
 import com.wenjunhuang.codeepiphany.utils.implicits.*
 import com.wenjunhuang.codeepiphany.utils.ui.TagPaneAction
 
@@ -288,10 +288,10 @@ class HackerRankQueryParametersPresenter(project: Project, bootstraps: HackerRan
       }
   }
 
-  override protected def getQueryResultColumns: Array[ColumnInfo[HackerRankChallengeDetail, ?]] = {
+  override def getQueryResultColumns: Array[OrderByColumnInfo[HackerRankChallengeDetail, ?]] = {
     import HackerRankTableColumnTitle.*
     Array(
-      new ColumnInfo[HackerRankChallengeDetail, ChallengeStatus](Status.title) {
+      new OrderByColumnInfo[HackerRankChallengeDetail, ChallengeStatus](Status.title) {
         override def valueOf(item: HackerRankChallengeDetail): ChallengeStatus = item.solved
           .map(b =>
             if b then ChallengeStatus.Solved
@@ -317,16 +317,16 @@ class HackerRankQueryParametersPresenter(project: Project, bootstraps: HackerRan
           }
 
       },
-      new ColumnInfo[HackerRankChallengeDetail, String](Title.title) {
+      new OrderByColumnInfo[HackerRankChallengeDetail, String](Title.title) {
         override def valueOf(item: HackerRankChallengeDetail): String = item.name
 
         override def getPreferredStringValue: String = StringUtil.repeat("W", 30)
       },
-      new ColumnInfo[HackerRankChallengeDetail, String](HackerRankTableColumnTitle.Difficulty.title) {
+      new OrderByColumnInfo[HackerRankChallengeDetail, String](HackerRankTableColumnTitle.Difficulty.title) {
         override def valueOf(item: HackerRankChallengeDetail): String =
           ChallengeDifficulty.fromCIString(CIString(item.difficultyName)).map(_.showAsHtml).orNull
       },
-      new ColumnInfo[HackerRankChallengeDetail, Int](MaxScore.title) {
+      new OrderByColumnInfo[HackerRankChallengeDetail, Int](MaxScore.title) {
         override def valueOf(item: HackerRankChallengeDetail): Int = item.maxScore
 
         override def getRenderer(item: HackerRankChallengeDetail): TableCellRenderer =
@@ -335,7 +335,7 @@ class HackerRankQueryParametersPresenter(project: Project, bootstraps: HackerRan
           }
 
       },
-      new ColumnInfo[HackerRankChallengeDetail, String](SuccessRate.title) {
+      new OrderByColumnInfo[HackerRankChallengeDetail, String](SuccessRate.title) {
 
         override def valueOf(item: HackerRankChallengeDetail): String = f"${item.successRatio * 100}%.2f%%"
 

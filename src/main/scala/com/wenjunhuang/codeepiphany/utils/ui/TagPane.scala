@@ -23,7 +23,6 @@ import com.wenjunhuang.codeepiphany.utils.implicits.*
 class TagPane(val noBorderTop: Boolean = true, private val myTagsModel: ObservableProperty[List[TagPaneAction]])
     extends BorderLayoutPanel {
 
-  private val myDisposable  = Disposer.newDisposable("TagPane")
   private val myActionGroup = DefaultActionGroup(myTagsModel.get()*)
   private val myTagToolbar =
     ActionManager.getInstance().createActionToolbar("TagPane", myActionGroup, true)
@@ -38,26 +37,17 @@ class TagPane(val noBorderTop: Boolean = true, private val myTagsModel: Observab
     toolbarComp.setBorder(JBUI.Borders.empty(0, border.left, border.bottom, border.right))
 
   updateActions()
-
-  override def addNotify(): Unit = {
-    super.addNotify()
-    myTagsModel.afterChange(
-      myDisposable,
-      tags => {
-        myActionGroup.removeAll()
-        myActionGroup.addAll(tags*)
-        ApplicationManager.getApplication.invokeLater { () =>
-          updateActions()
-          revalidate()
-        }
+  myTagsModel.afterChange(
+    tags => {
+      myActionGroup.removeAll()
+      myActionGroup.addAll(tags *)
+      ApplicationManager.getApplication.invokeLater { () =>
+        updateActions()
+        revalidate()
       }
-    )
-  }
+    }
+  )
 
-  override def removeNotify(): Unit = {
-    super.removeNotify()
-    Disposer.dispose(myDisposable)
-  }
 
   private def updateActions(): Unit = {
     if myActionGroup.getChildrenCount == 0 then remove(myTagToolbar.getComponent)

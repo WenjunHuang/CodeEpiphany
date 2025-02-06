@@ -1,8 +1,11 @@
 package com.wenjunhuang.codeepiphany.services
 
-import java.awt.BorderLayout
-import javax.swing.ScrollPaneConstants
+import java.awt.{ BorderLayout, Color }
+import java.awt.event.{ MouseAdapter, MouseEvent }
+import javax.swing.{ JTable, ScrollPaneConstants }
+import javax.swing.table.DefaultTableCellRenderer
 
+import com.intellij.icons.AllIcons
 import com.intellij.openapi.actionSystem.{ ActionGroup, ActionManager, DataSink, UiDataProvider }
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.project.Project
@@ -11,7 +14,7 @@ import com.intellij.ui.{ PopupHandler, SearchTextField, SimpleTextAttributes }
 import com.intellij.ui.components.JBScrollPane
 import com.intellij.ui.table.TableView
 import com.intellij.util.ui.components.BorderLayoutPanel
-import com.intellij.util.ui.EDT
+import com.intellij.util.ui.{ EDT, JBUI }
 
 import com.wenjunhuang.codeepiphany.PluginBundle
 import com.wenjunhuang.codeepiphany.actions.PaginationParameterActionGroup
@@ -21,7 +24,9 @@ import com.wenjunhuang.codeepiphany.model.Actions.{
   CHALLENGES_TABLE_POPUP_PLACE,
   TOOLBAR_PLACE
 }
+import com.wenjunhuang.codeepiphany.model.OrderDirection
 import com.wenjunhuang.codeepiphany.utils.ColorUtils
+import com.wenjunhuang.codeepiphany.utils.OrderByColumnInfo.nextOrderFilter
 
 class KeywordQueryView[Item](private val myPresenter: KeywordQueryPresenter[?, ?, Item])
     extends SimpleToolWindowPanel(true, true)
@@ -68,7 +73,35 @@ class KeywordQueryView[Item](private val myPresenter: KeywordQueryPresenter[?, ?
     tableView.setSelectionModel(myPresenter.getQueryResultTableSelectionModel)
     tableView.setShowGrid(false)
     tableView.setShowColumns(true)
+    tableView.getTableHeader.setDefaultRenderer(
+      (table: JTable, value: Any, isSelected: Boolean, hasFocus: Boolean, row: Int, column: Int) => {
+        val nameLabel = DefaultTableCellRenderer()
+        nameLabel.setBorder(JBUI.Borders.empty(0, 4, 0, 0))
+        nameLabel.setText(value.asInstanceOf[String])
+        val panel = BorderLayoutPanel()
+        panel.setBackground(new Color(0, 0, 0, 0))
+        panel.addToCenter(nameLabel)
 
+        val columnInfo = myPresenter.getQueryResultColumns(column)
+        if columnInfo.enableOrderBy then
+          val sortIcon = DefaultTableCellRenderer()
+          columnInfo.getOrderFilter match
+            case None                            => sortIcon.setIcon(AllIcons.General.ArrowSplitCenterV)
+            case Some(OrderDirection.Ascending)  => sortIcon.setIcon(AllIcons.General.ArrowUp)
+            case Some(OrderDirection.Descending) => sortIcon.setIcon(AllIcons.General.ArrowDown)
+          panel.addToRight(sortIcon)
+        else panel
+      }
+    )
+    tableView.getTableHeader.addMouseListener(new MouseAdapter {
+      override def mouseClicked(e: MouseEvent): Unit = {
+        val columnIndex = tableView.columnAtPoint(e.getPoint)
+        if columnIndex >= 0 then
+          val columnInfo = myPresenter.getQueryResultColumns(columnIndex)
+          if columnInfo.enableOrderBy then columnInfo.setOrderFilter(nextOrderFilter(columnInfo.getOrderFilter))
+          tableView.getTableHeader.revalidate()
+      }
+    })
     PopupHandler.installRowSelectionTablePopup(
       tableView,
       ActionManager.getInstance().getAction(CHALLENGES_TABLE_POPUP_GROUP).asInstanceOf[ActionGroup],

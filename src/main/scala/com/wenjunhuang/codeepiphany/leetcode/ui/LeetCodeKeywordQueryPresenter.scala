@@ -49,7 +49,7 @@ class LeetCodeKeywordQueryPresenter(
       }
   }
 
-  override protected def getQueryResultColumns: Array[ColumnInfo[LeetCodeChallengeListItem, ?]] = {
+  override def getQueryResultColumns: Array[OrderByColumnInfo[LeetCodeChallengeListItem, ?]] = {
     import LeetCodeTableColumnTitle.*
     val userIsPremium = myBoostrapParameters.userInfo.isPremium.getOrElse(false)
     Array(
