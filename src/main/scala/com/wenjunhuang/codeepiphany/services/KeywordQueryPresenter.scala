@@ -3,7 +3,6 @@ package com.wenjunhuang.codeepiphany.services
 import javax.swing.event.DocumentEvent
 import javax.swing.JComponent
 
-import com.intellij.openapi.actionSystem.DataSink
 import com.intellij.openapi.project.Project
 import com.intellij.ui.DocumentAdapter
 
@@ -23,11 +22,6 @@ abstract class KeywordQueryPresenter[UIBoostrapParameters, ResultItem](project: 
 
   override protected def refreshPagination(): Unit = {
     myView.foreach(_.refreshPagination())
-  }
-
-  override def uiDataSnapshot(dataSink: DataSink): Unit = {
-    super.uiDataSnapshot(dataSink)
-    myView.foreach(_.uiDataSnapshot(dataSink))
   }
 
   def getDocumentAdapter: DocumentAdapter = (e: DocumentEvent) => {

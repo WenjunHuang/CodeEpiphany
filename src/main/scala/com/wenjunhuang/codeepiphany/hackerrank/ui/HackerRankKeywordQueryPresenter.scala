@@ -4,25 +4,35 @@ import cats.effect.IO
 import cats.effect.implicits.*
 import cats.syntax.all.*
 import fs2.Stream
-import javax.swing.{Icon, JTable, SwingConstants}
-import javax.swing.table.{DefaultTableCellRenderer, TableCellRenderer}
+import javax.swing.{ Icon, JTable, SwingConstants }
+import javax.swing.table.{ DefaultTableCellRenderer, TableCellRenderer }
 import org.typelevel.ci.CIString
 
 import com.intellij.icons.AllIcons
+import com.intellij.openapi.actionSystem.DataSink
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.util.ui.ColumnInfo
 import com.intellij.util.ui.table.IconTableCellRenderer
 
-import com.wenjunhuang.codeepiphany.hackerrank.model.{HackerRankChallengeDetail, HackerRankContest}
-import com.wenjunhuang.codeepiphany.hackerrank.services.HackerRankApi
-import com.wenjunhuang.codeepiphany.model.{ChallengeDifficulty, ChallengeStatus}
-import com.wenjunhuang.codeepiphany.services.{KeywordQueryPresenter, QueryContext}
-import com.wenjunhuang.codeepiphany.services.http.{HttpClientManager, HttpClientService}
+import com.wenjunhuang.codeepiphany.actions.OpenChallengeActionGroup.{ CHALLENGE_PROVIDER_KEY, OpenChallengeProvider }
+import com.wenjunhuang.codeepiphany.hackerrank.model.{ HackerRankChallengeDetail, HackerRankContest }
+import com.wenjunhuang.codeepiphany.hackerrank.services.{
+  HackerRankApi,
+  HackerRankOpenChallengeRequest,
+  HackerRankOpenChallengeService
+}
+import com.wenjunhuang.codeepiphany.model.{ ChallengeDifficulty, ChallengeStatus, Language, LanguageVersion }
+import com.wenjunhuang.codeepiphany.services.{ console, KeywordQueryPresenter, QueryContext }
+import com.wenjunhuang.codeepiphany.services.http.{ HttpClientManager, HttpClientService }
 import com.wenjunhuang.codeepiphany.utils.Pagination
+import com.wenjunhuang.codeepiphany.utils.implicits.*
 
 class HackerRankKeywordQueryPresenter(project: Project)
     extends KeywordQueryPresenter[Unit, HackerRankChallengeDetail](project, ()) {
+  private implicit val httpClientManager: HttpClientManager[IO] =
+    HttpClientService.getInstance(myProject).httpClientManager
+
   override protected def createInitialQueryParameters(boostrapParameters: Unit): QueryContext[String] =
     QueryContext[String](criteria = "", pagination = Pagination())
 
@@ -31,12 +41,11 @@ class HackerRankKeywordQueryPresenter(project: Project)
   ): IO[(Pagination, List[HackerRankChallengeDetail])] = {
     if context.criteria.isEmpty then IO.pure((context.pagination, Nil))
     else
-      implicit val httpClientManager: HttpClientManager[IO] = HttpClientService.getInstance(myProject).httpClientManager
-      val api                                               = HackerRankApi[IO]()
+      val api = HackerRankApi[IO]()
       val r = (
         api.searchChallengesWithKeyword(HackerRankContest.Master, context.criteria).recoverWith(_ => IO.pure(Nil)),
         api.searchChallengesWithKeyword(HackerRankContest.ProjectEuler, context.criteria).recoverWith(_ => IO.pure(Nil))
-      ).parFoldMapA(identity)
+      ).parMapN(_ ++ _)
       Stream
         .evals(r)
         .parEvalMapUnorderedUnbounded { case (contest, challenge) =>
@@ -51,8 +60,17 @@ class HackerRankKeywordQueryPresenter(project: Project)
         .map(challenges => (context.pagination, challenges.flatten))
   }
 
+  override def uiDataSnapshot(dataSink: DataSink): Unit = {
+    super.uiDataSnapshot(dataSink)
+
+    dataSink.set(
+      CHALLENGE_PROVIDER_KEY,
+      createHackerRankChallengeProvider(myProject, myQueryResultSelectionModel, myQueryResultTableModel)
+    )
+  }
+
   override protected def getQueryResultColumns: Array[ColumnInfo[HackerRankChallengeDetail, ?]] = {
-    import ColumnTitle.*
+    import HackerRankTableColumnTitle.*
     Array(
       new ColumnInfo[HackerRankChallengeDetail, ChallengeStatus](Status.title) {
         override def valueOf(item: HackerRankChallengeDetail): ChallengeStatus = item.solved
@@ -85,7 +103,7 @@ class HackerRankKeywordQueryPresenter(project: Project)
 
         override def getPreferredStringValue: String = StringUtil.repeat("W", 30)
       },
-      new ColumnInfo[HackerRankChallengeDetail, String](ColumnTitle.Difficulty.title) {
+      new ColumnInfo[HackerRankChallengeDetail, String](HackerRankTableColumnTitle.Difficulty.title) {
         override def valueOf(item: HackerRankChallengeDetail): String =
           ChallengeDifficulty.fromCIString(CIString(item.difficultyName)).map(_.showAsHtml).orNull
       },

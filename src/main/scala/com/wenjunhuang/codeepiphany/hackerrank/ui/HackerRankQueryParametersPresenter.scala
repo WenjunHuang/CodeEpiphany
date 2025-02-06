@@ -17,33 +17,34 @@ import com.intellij.util.ui.table.IconTableCellRenderer
 
 import com.wenjunhuang.codeepiphany.actions.{DifficultyParameterAction, OpenChallengeActionGroup, StatusParameterAction, TagsAction}
 import com.wenjunhuang.codeepiphany.actions.DifficultyParameterAction.DifficultyParameterProvider
-import com.wenjunhuang.codeepiphany.actions.OpenChallengeActionGroup.OpenChallengeProvider
 import com.wenjunhuang.codeepiphany.actions.StatusParameterAction.StatusParameterProvider
 import com.wenjunhuang.codeepiphany.actions.TagsAction.{SingleTagGroupProvider, Tag}
 import com.wenjunhuang.codeepiphany.hackerrank.actions.{CategoryParameterAction, SkillParameterAction}
 import com.wenjunhuang.codeepiphany.hackerrank.actions.CategoryParameterAction.{Category, CategoryProvider}
 import com.wenjunhuang.codeepiphany.hackerrank.actions.SkillParameterAction.SkillParameterProvider
 import com.wenjunhuang.codeepiphany.hackerrank.model.*
-import com.wenjunhuang.codeepiphany.hackerrank.services.{HackerRankApi, HackerRankOpenChallengeRequest, HackerRankOpenChallengeService}
-import com.wenjunhuang.codeepiphany.hackerrank.settings.HackerRankSettings
-import com.wenjunhuang.codeepiphany.hackerrank.ui.ColumnTitle
+import com.wenjunhuang.codeepiphany.hackerrank.services.HackerRankApi
 import com.wenjunhuang.codeepiphany.hackerrank.ui.HackerRankQueryParametersPresenter.*
 import com.wenjunhuang.codeepiphany.model.*
-import com.wenjunhuang.codeepiphany.services.{console, ParametersQueryPresenter, QueryContext}
+import com.wenjunhuang.codeepiphany.services.{ParametersQueryPresenter, QueryContext}
 import com.wenjunhuang.codeepiphany.services.http.{HttpClientManager, HttpClientService}
 import com.wenjunhuang.codeepiphany.utils.Pagination
-import com.wenjunhuang.codeepiphany.utils.extensions.*
 import com.wenjunhuang.codeepiphany.utils.implicits.*
 import com.wenjunhuang.codeepiphany.utils.ui.TagPaneAction
 
 class HackerRankQueryParametersPresenter(project: Project, bootstraps: HackerRankBootstrapParameters)
-    extends ParametersQueryPresenter[HackerRankBootstrapParameters, QueryParams, HackerRankChallengeDetail](project, bootstraps) {
+    extends ParametersQueryPresenter[HackerRankBootstrapParameters, QueryParams, HackerRankChallengeDetail](
+      project,
+      bootstraps
+    ) {
   private implicit val myHttpClientManager: HttpClientManager[IO] =
     HttpClientService.getInstance(project).httpClientManager
 
   private val myLogger = LoggerFactory.getLogger[IO]
 
-  override protected def createInitialQueryParameters(boostrapParameters: HackerRankBootstrapParameters): QueryContext[QueryParams] = {
+  override protected def createInitialQueryParameters(
+    boostrapParameters: HackerRankBootstrapParameters
+  ): QueryContext[QueryParams] = {
     QueryContext[QueryParams](QueryParams(boostrapParameters.challengeDomains.head, Nil, Nil, None, Nil), Pagination())
   }
 
@@ -52,37 +53,6 @@ class HackerRankQueryParametersPresenter(project: Project, bootstraps: HackerRan
     updater: (QueryContext[QueryParams] => QueryContext[QueryParams]) => Unit,
     dataSink: DataSink
   ): ActionGroup = {
-    val myChallengeProvider = new OpenChallengeProvider {
-      override def openCurrentSelectedChallenge(language: Language, languageVersion: LanguageVersion): Unit = {
-        myQueryResultSelectionModel.getSelectedIndices.toList match
-          case first :: tail =>
-            val selected = myQueryResultTableModel.getItem(first)
-            HackerRankOpenChallengeService[IO](myProject)
-              .openChallenge(
-                HackerRankOpenChallengeRequest(
-                  selected.slug,
-                  HackerRankContest.fromCIString(CIString(selected.contestSlug)).get
-                ),
-                language,
-                languageVersion
-              )
-              .handleErrorWith(e =>
-                console.error[IO](myProject, e.getMessage) *> myLogger.warn(e)(
-                  s"Failed to open challenge ${selected.slug}"
-                )
-              )
-              .evalAsBackgroundProgress(myProject, s"Opening HackerRank challenge '${selected.name}'...")
-              .unsafeRunAndForget()
-          case _ => ()
-      }
-
-      override def getLanguages: List[(Language, LanguageVersion)] = {
-        val settings = HackerRankSettings.getInstance(myProject)
-        settings.getSelectedLanguages
-      }
-
-      override def currentSelectedCanBeOpened: Boolean = true
-    }
 
     val myCategoryProvider = new CategoryProvider {
       override def isSelected(item: Category): Boolean =
@@ -283,7 +253,10 @@ class HackerRankQueryParametersPresenter(project: Project, bootstraps: HackerRan
 
     }
 
-    dataSink.set(OpenChallengeActionGroup.CHALLENGE_PROVIDER_KEY, myChallengeProvider)
+    dataSink.set(
+      OpenChallengeActionGroup.CHALLENGE_PROVIDER_KEY,
+      createHackerRankChallengeProvider(myProject, myQueryResultSelectionModel, myQueryResultTableModel)
+    )
     dataSink.set(CategoryParameterAction.CATEGORY_PROVIDER_KEY, myCategoryProvider)
     dataSink.set(DifficultyParameterAction.DIFFICULTIES_PROVIDER_KEY, myDifficultiesProvider)
     dataSink.set(StatusParameterAction.STATUS_PROVIDER_KEY, myStatusProvider)
@@ -294,7 +267,7 @@ class HackerRankQueryParametersPresenter(project: Project, bootstraps: HackerRan
   }
 
   override protected def executeQuery(
-    context:QueryContext[QueryParams] 
+    context: QueryContext[QueryParams]
   ): IO[(Pagination, List[HackerRankChallengeDetail])] = {
     val from  = math.max((context.pagination.currentPage - 1) * context.pagination.pageSize.value, 0)
     val limit = context.pagination.pageSize.value
@@ -316,7 +289,7 @@ class HackerRankQueryParametersPresenter(project: Project, bootstraps: HackerRan
   }
 
   override protected def getQueryResultColumns: Array[ColumnInfo[HackerRankChallengeDetail, ?]] = {
-    import ColumnTitle.*
+    import HackerRankTableColumnTitle.*
     Array(
       new ColumnInfo[HackerRankChallengeDetail, ChallengeStatus](Status.title) {
         override def valueOf(item: HackerRankChallengeDetail): ChallengeStatus = item.solved
@@ -349,7 +322,7 @@ class HackerRankQueryParametersPresenter(project: Project, bootstraps: HackerRan
 
         override def getPreferredStringValue: String = StringUtil.repeat("W", 30)
       },
-      new ColumnInfo[HackerRankChallengeDetail, String](ColumnTitle.Difficulty.title) {
+      new ColumnInfo[HackerRankChallengeDetail, String](HackerRankTableColumnTitle.Difficulty.title) {
         override def valueOf(item: HackerRankChallengeDetail): String =
           ChallengeDifficulty.fromCIString(CIString(item.difficultyName)).map(_.showAsHtml).orNull
       },
