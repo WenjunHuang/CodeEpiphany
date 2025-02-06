@@ -32,7 +32,7 @@ abstract class KeywordQueryPresenter[UIBoostrapParameters, T: KeywordHolder, Res
     val keyword = e.getDocument.getText(0, e.getDocument.getLength)
     if keyword.nonEmpty then
       myQueryStateManager.update(_.updateCriteria(it => summon[KeywordHolder[T]].updateKeyword(it, keyword)))
-      requery()
+      requery(true)
   }
 }
 

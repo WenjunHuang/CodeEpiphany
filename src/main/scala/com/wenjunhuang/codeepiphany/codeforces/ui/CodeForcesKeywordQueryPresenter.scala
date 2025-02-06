@@ -32,55 +32,67 @@ class CodeForcesKeywordQueryPresenter(project: Project, bootstrap: CodeForcesBoo
 
   override protected def executeQuery(
     context: QueryContext[QueryParams]
-  ): IO[(Pagination, List[CodeforcesProblemsetsRecord])] = ChallengeRepository
-    .getInstance(myProject)
-    .getDSLContextResource[IO]
-    .use { dsl =>
-      IO.delay {
-        val keyword     = context.criteria.keyword
-        val orderBy     = context.criteria.orderBy
-        val pageSize    = context.pagination.pageSize
-        val currentPage = context.pagination.currentPage
-        val total = dsl.selectCount
-          .from(CODEFORCES_PROBLEMSETS_FTS)
-          .where(
-            DSL
-              .condition("{0} MATCH {1}", DSL.field(CODEFORCES_PROBLEMSETS_FTS.getUnqualifiedName), keyword)
-          )
-          .fetchOne(0, classOf[Int])
-
-        val base = dsl
-          .selectFrom(CODEFORCES_PROBLEMSETS_FTS)
-          .where(
-            DSL
-              .condition("{0} MATCH {1}", DSL.field(CODEFORCES_PROBLEMSETS_FTS.getUnqualifiedName), keyword)
-          )
-
-        (
-          context.pagination.copy(totalSize = total),
-          orderBy match
-            case None =>
-              base
-                .limit(pageSize.value)
-                .offset((currentPage - 1) * pageSize.value)
-                .fetchInto(classOf[CodeforcesProblemsetsRecord])
-                .asScala
-                .toList
-            case Some(order) =>
-              (order match
-                case (CodeForcesSearchOrderBy.ContestIdIndex, dir) =>
-                  base.orderBy(dir.toJooqSortField(CODEFORCES_PROBLEMSETS_FTS.CONTESTIDINDEX))
-                case (CodeForcesSearchOrderBy.Rating, dir) =>
-                  base.orderBy(dir.toJooqSortField(CODEFORCES_PROBLEMSETS_FTS.RATING))
+  ): IO[(Pagination, List[CodeforcesProblemsetsRecord])] = {
+    if context.criteria.keyword.isEmpty then IO.pure((context.pagination, Nil))
+    else
+      ChallengeRepository
+        .getInstance(myProject)
+        .getDSLContextResource[IO]
+        .use { dsl =>
+          IO.delay {
+            val keyword     = context.criteria.keyword
+            val orderBy     = context.criteria.orderBy
+            val pageSize    = context.pagination.pageSize
+            val currentPage = context.pagination.currentPage
+            val total = dsl.selectCount
+              .from(CODEFORCES_PROBLEMSETS_FTS)
+              .where(
+                DSL
+                  .condition(
+                    "{0} MATCH {1}",
+                    DSL.field(CODEFORCES_PROBLEMSETS_FTS.getUnqualifiedName),
+                    s"\"${keyword}\""
+                  )
               )
-                .limit(pageSize.value)
-                .offset((currentPage - 1) * pageSize.value)
-                .fetchInto(classOf[CodeforcesProblemsetsRecord])
-                .asScala
-                .toList
-        )
-      }
-    }
+              .fetchOne(0, classOf[Int])
+
+            val base = dsl
+              .selectFrom(CODEFORCES_PROBLEMSETS_FTS)
+              .where(
+                DSL
+                  .condition(
+                    "{0} MATCH {1}",
+                    DSL.field(CODEFORCES_PROBLEMSETS_FTS.getUnqualifiedName),
+                    s"\"${keyword}\""
+                  )
+              )
+
+            (
+              context.pagination.copy(totalSize = total),
+              orderBy match
+                case None =>
+                  base
+                    .limit(pageSize.value)
+                    .offset((currentPage - 1) * pageSize.value)
+                    .fetchInto(classOf[CodeforcesProblemsetsRecord])
+                    .asScala
+                    .toList
+                case Some(order) =>
+                  (order match
+                    case (CodeForcesSearchOrderBy.ContestIdIndex, dir) =>
+                      base.orderBy(dir.toJooqSortField(CODEFORCES_PROBLEMSETS_FTS.CONTESTIDINDEX))
+                    case (CodeForcesSearchOrderBy.Rating, dir) =>
+                      base.orderBy(dir.toJooqSortField(CODEFORCES_PROBLEMSETS_FTS.RATING))
+                  )
+                    .limit(pageSize.value)
+                    .offset((currentPage - 1) * pageSize.value)
+                    .fetchInto(classOf[CodeforcesProblemsetsRecord])
+                    .asScala
+                    .toList
+            )
+          }
+        }
+  }
 
   override protected def updateQueryUI(context: QueryContext[QueryParams]): Unit = {}
 
@@ -93,7 +105,7 @@ class CodeForcesKeywordQueryPresenter(project: Project, bootstrap: CodeForcesBoo
     direction match
       case None            => myQueryStateManager.update(_.focus(_.criteria.orderBy).replace(None))
       case Some(direction) => myQueryStateManager.update(_.focus(_.criteria.orderBy).replace(Some((field, direction))))
-    requery()
+    requery(true)
   }
 
   override def uiDataSnapshot(dataSink: DataSink): Unit = {

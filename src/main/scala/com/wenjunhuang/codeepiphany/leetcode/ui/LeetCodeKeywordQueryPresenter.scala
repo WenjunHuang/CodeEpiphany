@@ -55,7 +55,9 @@ class LeetCodeKeywordQueryPresenter(
 
     dataSink.set(
       OpenChallengeActionGroup.CHALLENGE_PROVIDER_KEY,
-      createLeetCodeChallengeProvider(myProject, myQueryResultSelectionModel, myQueryResultTableModel, myLeetCodeDojo)
+      createLeetCodeChallengeProvider(myProject, myQueryResultSelectionModel, myQueryResultTableModel, 
+        myBoostrapParameters,
+        myLeetCodeDojo)
     )
   }
 
@@ -192,7 +194,7 @@ class LeetCodeKeywordQueryPresenter(
         case Some(direction) =>
           old.focus(_.criteria.orderBy).replace(Some((field, direction)))
     }
-    requery()
+    requery(true)
   }
 }
 object LeetCodeKeywordQueryPresenter {

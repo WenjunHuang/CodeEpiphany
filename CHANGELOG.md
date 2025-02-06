@@ -3,6 +3,8 @@
 
 ### Changed
 - Fix [#3](https://github.com/WenjunHuang/CodeEpiphany/issues/3)
+- Fix a database unique index constraint that prevented adding python and python3 simultaneously.
+- Refactor code structure
 
 ### Deprecated
 

@@ -36,7 +36,7 @@ abstract class ParametersQueryPresenter[UIBoostrapParameters, T, ResultItem](
         { () => myQueryStateManager.get },
         { cb =>
           myQueryStateManager.update(cb)
-          requery()
+          requery(true)
         },
         dataSink
       )
@@ -67,7 +67,7 @@ abstract class ParametersQueryPresenter[UIBoostrapParameters, T, ResultItem](
       context,
       { cb =>
         myQueryStateManager.update(cb)
-        requery()
+        requery(true)
       }
     )
     myTagsActionModel.set(tags)

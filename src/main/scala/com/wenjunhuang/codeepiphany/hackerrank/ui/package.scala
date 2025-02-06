@@ -9,12 +9,16 @@ import com.intellij.ui.SingleSelectionModel
 import com.intellij.util.ui.ListTableModel
 
 import com.wenjunhuang.codeepiphany.actions.OpenChallengeActionGroup.OpenChallengeProvider
-import com.wenjunhuang.codeepiphany.hackerrank.model.{HackerRankChallengeDetail, HackerRankContest}
-import com.wenjunhuang.codeepiphany.hackerrank.services.{HackerRankOpenChallengeRequest, HackerRankOpenChallengeService}
+import com.wenjunhuang.codeepiphany.hackerrank.model.{ HackerRankChallengeDetail, HackerRankContest }
+import com.wenjunhuang.codeepiphany.hackerrank.services.{
+  HackerRankOpenChallengeRequest,
+  HackerRankOpenChallengeService
+}
 import com.wenjunhuang.codeepiphany.hackerrank.settings.HackerRankSettings
-import com.wenjunhuang.codeepiphany.model.{Language, LanguageVersion}
+import com.wenjunhuang.codeepiphany.model.{ Language, LanguageVersion }
 import com.wenjunhuang.codeepiphany.services.console
-import com.wenjunhuang.codeepiphany.services.http.{HttpClientManager, HttpClientService}
+import com.wenjunhuang.codeepiphany.services.console.showConsole
+import com.wenjunhuang.codeepiphany.services.http.{ HttpClientManager, HttpClientService }
 import com.wenjunhuang.codeepiphany.utils.implicits.*
 import com.wenjunhuang.codeepiphany.utils.extensions.*
 
@@ -25,7 +29,7 @@ package object ui {
     tableModel: ListTableModel[HackerRankChallengeDetail]
   ): OpenChallengeProvider = {
     implicit val httpClientManager: HttpClientManager[IO] = HttpClientService.getInstance(project).httpClientManager
-    val logger                     = LoggerFactory.getLogger[IO]
+    val logger                                            = LoggerFactory.getLogger[IO]
     new OpenChallengeProvider {
       override def openCurrentSelectedChallenge(language: Language, languageVersion: LanguageVersion): Unit = {
         selectionModel.getSelectedIndices.toList match
@@ -41,7 +45,9 @@ package object ui {
                 languageVersion
               )
               .handleErrorWith(e =>
-                console.error[IO](project, e.getMessage) *> logger.warn(e)(s"Failed to open challenge ${selected.slug}")
+                showConsole[IO](project) *>
+                console.error[IO](project, e.getMessage) *>
+                logger.warn(e)(s"Failed to open challenge ${selected.slug}")
               )
               .evalAsBackgroundProgress(project, s"Opening HackerRank challenge '${selected.name}'...")
               .unsafeRunAndForget()

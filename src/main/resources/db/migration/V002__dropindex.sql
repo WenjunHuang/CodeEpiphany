@@ -1,0 +1,1 @@
+DROP INDEX challenge_language_challengeId_language_uindex;

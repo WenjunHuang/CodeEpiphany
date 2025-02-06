@@ -1,12 +1,12 @@
 package com.wenjunhuang.codeepiphany.services
 
-import cats.effect.{IO, Resource}
+import cats.effect.{ IO, Resource }
 import cats.effect.std.Queue
 import cats.syntax.all.*
 import fs2.Stream
 import fs2.concurrent.SignallingRef
 import java.util
-import javax.swing.{JComponent, ListSelectionModel}
+import javax.swing.{ JComponent, ListSelectionModel }
 import scala.concurrent.duration.*
 import scala.jdk.CollectionConverters.*
 
@@ -15,10 +15,13 @@ import com.intellij.openapi.actionSystem.DataSink
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
 import com.intellij.ui.SingleSelectionModel
-import com.intellij.util.ui.{ColumnInfo, ListTableModel}
+import com.intellij.util.ui.{ ColumnInfo, ListTableModel }
 
-import com.wenjunhuang.codeepiphany.actions.PaginationParameterActionGroup.{PAGINATION_PROVIDER_KEY, PaginationParameterProvider}
-import com.wenjunhuang.codeepiphany.utils.{OrderByColumnInfo, PageSize, Pagination}
+import com.wenjunhuang.codeepiphany.actions.PaginationParameterActionGroup.{
+  PAGINATION_PROVIDER_KEY,
+  PaginationParameterProvider
+}
+import com.wenjunhuang.codeepiphany.utils.{ OrderByColumnInfo, PageSize, Pagination }
 import com.wenjunhuang.codeepiphany.utils.extensions.*
 import com.wenjunhuang.codeepiphany.utils.implicits.*
 
@@ -77,8 +80,8 @@ abstract class BaseQueryPresenter[UIBoostrapParameters, T, ResultItem](
 
   def getQueryResultColumns: Array[OrderByColumnInfo[ResultItem, ?]]
 
-  def requery(): Unit = {
-    val state = myQueryStateManager.get
+  def requery(resetToFirstPage: Boolean = false): Unit = {
+    val state = if resetToFirstPage then myQueryStateManager.get.resetToFirstPage else myQueryStateManager.get
     myQueryQueue.foreach { q =>
       q.offer(Some(state)).unsafeRunAndForget()
     }

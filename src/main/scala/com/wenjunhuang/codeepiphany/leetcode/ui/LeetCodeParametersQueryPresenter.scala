@@ -2,32 +2,46 @@ package com.wenjunhuang.codeepiphany.leetcode.ui
 
 import cats.effect.IO
 import cats.syntax.all.*
-import javax.swing.{Icon, JTable, SwingConstants}
-import javax.swing.table.{DefaultTableCellRenderer, TableCellRenderer}
+import javax.swing.{ Icon, JTable, SwingConstants }
+import javax.swing.table.{ DefaultTableCellRenderer, TableCellRenderer }
 import monocle.syntax.all.*
 import org.typelevel.log4cats.LoggerFactory
 
 import com.intellij.icons.AllIcons
-import com.intellij.openapi.actionSystem.{ActionGroup, ActionManager, DataSink}
+import com.intellij.openapi.actionSystem.{ ActionGroup, ActionManager, DataSink }
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.util.ui.table.IconTableCellRenderer
 
-import com.wenjunhuang.codeepiphany.actions.{OpenChallengeActionGroup, TagsAction}
-import com.wenjunhuang.codeepiphany.actions.DifficultyParameterAction.{DIFFICULTIES_PROVIDER_KEY, DifficultyParameterProvider}
-import com.wenjunhuang.codeepiphany.actions.OpenChallengeActionGroup.{CHALLENGE_PROVIDER_KEY, OpenChallengeProvider}
-import com.wenjunhuang.codeepiphany.actions.StatusParameterAction.{STATUS_PROVIDER_KEY, StatusParameterProvider}
+import com.wenjunhuang.codeepiphany.actions.{ OpenChallengeActionGroup, TagsAction }
+import com.wenjunhuang.codeepiphany.actions.DifficultyParameterAction.{
+  DIFFICULTIES_PROVIDER_KEY,
+  DifficultyParameterProvider
+}
+import com.wenjunhuang.codeepiphany.actions.OpenChallengeActionGroup.{ CHALLENGE_PROVIDER_KEY, OpenChallengeProvider }
+import com.wenjunhuang.codeepiphany.actions.StatusParameterAction.{ STATUS_PROVIDER_KEY, StatusParameterProvider }
 import com.wenjunhuang.codeepiphany.actions.TagsAction.*
-import com.wenjunhuang.codeepiphany.leetcode.actions.FavoriteParameterAction.{FAVORITE_PROVIDER_KEY, FavoriteParameterProvider}
-import com.wenjunhuang.codeepiphany.leetcode.actions.LeetCodeCategoryParameterAction.{LEETCODE_CATEGORY_PROVIDER_KEY, LeetCodeCategoryProvider}
+import com.wenjunhuang.codeepiphany.leetcode.actions.FavoriteParameterAction.{
+  FAVORITE_PROVIDER_KEY,
+  FavoriteParameterProvider
+}
+import com.wenjunhuang.codeepiphany.leetcode.actions.LeetCodeCategoryParameterAction.{
+  LEETCODE_CATEGORY_PROVIDER_KEY,
+  LeetCodeCategoryProvider
+}
 import com.wenjunhuang.codeepiphany.leetcode.model.*
-import com.wenjunhuang.codeepiphany.leetcode.services.{LeetCodeApi, LeetCodeOpenChallengeRequest, LeetCodeOpenChallengeService, LeetCodeSearchOrderBy}
-import com.wenjunhuang.codeepiphany.leetcode.settings.{LeetCodeCNSettings, LeetCodeSettings}
+import com.wenjunhuang.codeepiphany.leetcode.services.{
+  LeetCodeApi,
+  LeetCodeOpenChallengeRequest,
+  LeetCodeOpenChallengeService,
+  LeetCodeSearchOrderBy
+}
+import com.wenjunhuang.codeepiphany.leetcode.settings.{ LeetCodeCNSettings, LeetCodeSettings }
 import com.wenjunhuang.codeepiphany.leetcode.ui.LeetCodeParametersQueryPresenter.*
 import com.wenjunhuang.codeepiphany.model.*
-import com.wenjunhuang.codeepiphany.services.{console, ParametersQueryPresenter, QueryContext}
-import com.wenjunhuang.codeepiphany.services.http.{HttpClientManager, HttpClientService}
-import com.wenjunhuang.codeepiphany.utils.{OrderByColumnInfo, Pagination}
+import com.wenjunhuang.codeepiphany.services.{ console, ParametersQueryPresenter, QueryContext }
+import com.wenjunhuang.codeepiphany.services.http.{ HttpClientManager, HttpClientService }
+import com.wenjunhuang.codeepiphany.utils.{ OrderByColumnInfo, Pagination }
 import com.wenjunhuang.codeepiphany.utils.extensions.*
 import com.wenjunhuang.codeepiphany.utils.implicits.*
 import com.wenjunhuang.codeepiphany.utils.ui.TagPaneAction
@@ -80,42 +94,6 @@ class LeetCodeParametersQueryPresenter(
             old.focus(_.criteria.selectedCategory).replace(None)
           else old
         }
-      }
-    }
-
-    val myChallengeProvider = new OpenChallengeProvider {
-      override def openCurrentSelectedChallenge(language: Language, languageVersion: LanguageVersion): Unit = {
-        myQueryResultSelectionModel.getSelectedIndices.toList match
-          case head :: _ =>
-            val selected = myQueryResultTableModel.getItem(head)
-            LeetCodeOpenChallengeService[IO](myProject, myLeetCodeDojo)
-              .openChallenge(LeetCodeOpenChallengeRequest(selected.titleSlug), language, languageVersion)
-              .handleErrorWith(e =>
-                console.error[IO](myProject, e.getMessage) *>
-                  myLogger.warn(e)("Failed to open challenge")
-              )
-              .evalAsBackgroundProgress(myProject, s"Opening  ${myLeetCodeDojo.show} challenge ${selected.title}...")
-              .unsafeRunAndForget()
-          case _ => ()
-      }
-
-      override def getLanguages: List[(Language, LanguageVersion)] = {
-        myLeetCodeDojo match
-          case CodeDojo.LeetCode =>
-            val settings = LeetCodeSettings.getInstance(myProject)
-            settings.getSelectedLanguages
-          case CodeDojo.LeetCodeCN =>
-            val settings = LeetCodeCNSettings.getInstance(myProject)
-            settings.getSelectedLanguages
-      }
-
-      override def currentSelectedCanBeOpened: Boolean = {
-
-        myQueryResultSelectionModel.getSelectedIndices.toList match
-          case head :: _ =>
-            val selected = myQueryResultTableModel.getItem(head)
-            !selected.paidOnly || (selected.paidOnly && myBoostrapParameters.userInfo.isPremium.contains(true))
-          case _ => false
       }
     }
 
@@ -288,12 +266,17 @@ class LeetCodeParametersQueryPresenter(
     dataSink.set(FAVORITE_PROVIDER_KEY, myFavoriteProvider)
     dataSink.set(DIFFICULTIES_PROVIDER_KEY, myDifficultiesProvider)
     dataSink.set(STATUS_PROVIDER_KEY, myStatusProvider)
-    dataSink.set(CHALLENGE_PROVIDER_KEY, myChallengeProvider)
     dataSink.set(TAG_PROVIDER_KEY, myTagProvider)
 
     dataSink.set(
       OpenChallengeActionGroup.CHALLENGE_PROVIDER_KEY,
-      createLeetCodeChallengeProvider(myProject, myQueryResultSelectionModel, myQueryResultTableModel,myLeetCodeDojo)
+      createLeetCodeChallengeProvider(
+        myProject,
+        myQueryResultSelectionModel,
+        myQueryResultTableModel,
+        myBoostrapParameters,
+        myLeetCodeDojo
+      )
     )
 
     ActionManager.getInstance().getAction(Actions.LEETCODE_TOOLBAR_GROUP).asInstanceOf[ActionGroup]
@@ -369,7 +352,7 @@ class LeetCodeParametersQueryPresenter(
         case Some(direction) =>
           old.focus(_.criteria.orderBy).replace(Some((field, direction)))
     }
-    requery()
+    requery(true)
   }
 
   override protected def createInitialQueryParameters(

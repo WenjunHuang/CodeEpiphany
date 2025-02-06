@@ -13,6 +13,7 @@ import com.wenjunhuang.codeepiphany.codeforces.settings.CodeForcesSettings
 import com.wenjunhuang.codeepiphany.database.tables.records.CodeforcesProblemsetsRecord
 import com.wenjunhuang.codeepiphany.model.{ Language, LanguageVersion }
 import com.wenjunhuang.codeepiphany.services.console
+import com.wenjunhuang.codeepiphany.services.console.showConsole
 import com.wenjunhuang.codeepiphany.services.http.HttpClientService
 import com.wenjunhuang.codeepiphany.utils.implicits.*
 import com.wenjunhuang.codeepiphany.utils.extensions.*
@@ -35,7 +36,8 @@ package object ui {
             CodeForcesOpenChallengeService[IO](project)
               .openChallenge(selected, language, languageVersion)
               .handleErrorWith(e =>
-                console.error[IO](project, e.getMessage) *> logger.warn(e)("Failed to open challenge")
+                showConsole[IO](project) *>
+                  console.error[IO](project, e.getMessage) *> logger.warn(e)("Failed to open challenge")
               )
               .evalAsBackgroundProgress(project, s"Opening challenge ${selected.getName}...")
               .unsafeRunAndForget()

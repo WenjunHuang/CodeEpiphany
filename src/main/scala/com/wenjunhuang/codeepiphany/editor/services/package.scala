@@ -12,6 +12,7 @@ import com.wenjunhuang.codeepiphany.hackerrank.services.{HackerRankEvaluationSer
 import com.wenjunhuang.codeepiphany.leetcode.services.{LeetCodeEvaluationService, LeetCodeSubmissionService}
 import com.wenjunhuang.codeepiphany.model.CodeDojo
 import com.wenjunhuang.codeepiphany.services.console
+import com.wenjunhuang.codeepiphany.services.console.showConsole
 import com.wenjunhuang.codeepiphany.services.http.HttpClientManager
 import com.wenjunhuang.codeepiphany.settings.ChallengeSettings
 import com.wenjunhuang.codeepiphany.toolwindows.sidebar.{LogConsoleView, SidebarWindowFactory}
@@ -49,7 +50,7 @@ package object services {
     val settings                   = ChallengeSettings.getInstance(project)
     (settings.findChallengeId(vf) match
       case Some(item) =>
-        showConsole(project) >> console.info[F](project, s"Start to submit ${vf.getName} to ${item.dojo.show}") >>
+        showConsole(project) *> console.info[F](project, s"Start to submit ${vf.getName} to ${item.dojo.show}") >>
           (
             item.dojo match
               case CodeDojo.HackerRank => HackerRankSubmissionService[F](project).submitCode(vf)
@@ -64,7 +65,5 @@ package object services {
     }
   }
 
-  private def showConsole[F[_]: Async: Concurrent: HttpClientManager: LoggerFactory](project: Project) = {
-    Async[F].delay { SidebarWindowFactory.activate(project, LogConsoleView.DISPLAY_NAME) }.evalOnEDTDefault()
-  }
+
 }
