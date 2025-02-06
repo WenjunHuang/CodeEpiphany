@@ -17,6 +17,7 @@ import com.wenjunhuang.codeepiphany.codeforces.ui.CodeForcesParametersQueryPrese
 import com.wenjunhuang.codeepiphany.database.tables.records.CodeforcesProblemsetsRecord
 import com.wenjunhuang.codeepiphany.database.Tables.CODEFORCES_PROBLEMSETS_FTS
 import com.wenjunhuang.codeepiphany.model.{ Actions, ChallengeDifficulty, ChallengeRepository, OrderDirection }
+import com.wenjunhuang.codeepiphany.model.ChallengeDifficulty.{ Advanced, Expert }
 import com.wenjunhuang.codeepiphany.services.{ ParametersQueryPresenter, QueryContext }
 import com.wenjunhuang.codeepiphany.utils.{ OrderByColumnInfo, Pagination }
 import com.wenjunhuang.codeepiphany.utils.ui.TagPaneAction
@@ -83,7 +84,13 @@ class CodeForcesParametersQueryPresenter(project: Project, bootstrap: CodeForces
       }
 
       override def getAllItems: List[ChallengeDifficulty] =
-        List(ChallengeDifficulty.Easy, ChallengeDifficulty.Medium, ChallengeDifficulty.Hard)
+        List(
+          ChallengeDifficulty.Easy,
+          ChallengeDifficulty.Medium,
+          ChallengeDifficulty.Hard,
+          ChallengeDifficulty.Advanced,
+          ChallengeDifficulty.Expert
+        )
 
       override def getSelectedItems: List[ChallengeDifficulty] = getter().criteria.selectedDifficulty.toList
 

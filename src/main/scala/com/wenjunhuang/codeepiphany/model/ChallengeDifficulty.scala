@@ -46,9 +46,9 @@ object ChallengeDifficulty {
     else None
 
   // language=CSS
-  val DIFFICULTY_EASY_COLOR     = "#1ab8a3"
-  val DIFFICULTY_MEDIUM_COLOR   = "#ffc01e"
-  val DIFFICULTY_HARD_COLOR     = "#ff375f"
-  val DIFFICULTY_ADVANCED_COLOR = "#ff5164"
-  val DIFFICULTY_EXPERT_COLOR   = "#ff4f64"
+  val DIFFICULTY_EASY_COLOR     = "#4CAF50"
+  val DIFFICULTY_MEDIUM_COLOR   = "#FFC107"
+  val DIFFICULTY_HARD_COLOR     = "#F44336"
+  val DIFFICULTY_ADVANCED_COLOR = "#7C4DFF"
+  val DIFFICULTY_EXPERT_COLOR   = "#FF6D00"
 }

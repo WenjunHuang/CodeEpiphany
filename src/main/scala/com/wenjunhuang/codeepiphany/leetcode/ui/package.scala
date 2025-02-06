@@ -14,7 +14,7 @@ import com.wenjunhuang.codeepiphany.leetcode.settings.{LeetCodeCNSettings, LeetC
 import com.wenjunhuang.codeepiphany.model.{CodeDojo, Language, LanguageVersion}
 import com.wenjunhuang.codeepiphany.services.console
 import com.wenjunhuang.codeepiphany.services.console.showConsole
-import com.wenjunhuang.codeepiphany.services.http.HttpClientService
+import com.wenjunhuang.codeepiphany.services.http.{HttpClientManager, HttpClientService}
 import com.wenjunhuang.codeepiphany.utils.extensions.*
 import com.wenjunhuang.codeepiphany.utils.implicits.*
 
@@ -26,7 +26,7 @@ package object ui {
     bootstrap: LeetCodeBootstrapParameters,
     leetCodeDojo: CodeDojo.LeetCode.type | CodeDojo.LeetCodeCN.type
   ): OpenChallengeProvider = {
-    implicit val httpClientManager = HttpClientService.getInstance(project).httpClientManager
+    implicit val httpClientManager: HttpClientManager[IO] = HttpClientService.getInstance(project).httpClientManager
     val logger                     = LoggerFactory.getLogger[IO]
 
     new OpenChallengeProvider {
@@ -36,10 +36,10 @@ package object ui {
             val selected = tableModel.getItem(head)
             LeetCodeOpenChallengeService[IO](project, leetCodeDojo)
               .openChallenge(LeetCodeOpenChallengeRequest(selected.titleSlug), language, languageVersion)
-              .handleErrorWith(e =>
+              .handleErrorWith { e =>
                 showConsole[IO](project) *>
                   console.error[IO](project, e.getMessage) *> logger.warn(e)("Failed to open challenge")
-              )
+              }
               .evalAsBackgroundProgress(project, s"Opening challenge ${selected.title}...")
               .unsafeRunAndForget()
           case _ => ()

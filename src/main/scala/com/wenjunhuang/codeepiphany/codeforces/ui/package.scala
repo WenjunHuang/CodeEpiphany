@@ -14,7 +14,7 @@ import com.wenjunhuang.codeepiphany.database.tables.records.CodeforcesProblemset
 import com.wenjunhuang.codeepiphany.model.{ Language, LanguageVersion }
 import com.wenjunhuang.codeepiphany.services.console
 import com.wenjunhuang.codeepiphany.services.console.showConsole
-import com.wenjunhuang.codeepiphany.services.http.HttpClientService
+import com.wenjunhuang.codeepiphany.services.http.{ HttpClientManager, HttpClientService }
 import com.wenjunhuang.codeepiphany.utils.implicits.*
 import com.wenjunhuang.codeepiphany.utils.extensions.*
 
@@ -25,8 +25,8 @@ package object ui {
     selectionModel: SingleSelectionModel,
     tableModel: ListTableModel[CodeforcesProblemsetsRecord]
   ): OpenChallengeProvider = {
-    implicit val httpClientManager = HttpClientService.getInstance(project).httpClientManager
-    val logger                     = LoggerFactory.getLogger[IO]
+    implicit val httpClientManager: HttpClientManager[IO] = HttpClientService.getInstance(project).httpClientManager
+    val logger                                            = LoggerFactory.getLogger[IO]
 
     new OpenChallengeProvider {
       override def openCurrentSelectedChallenge(language: Language, languageVersion: LanguageVersion): Unit = {
@@ -35,10 +35,10 @@ package object ui {
             val selected = tableModel.getItem(head)
             CodeForcesOpenChallengeService[IO](project)
               .openChallenge(selected, language, languageVersion)
-              .handleErrorWith(e =>
+              .handleErrorWith { e =>
                 showConsole[IO](project) *>
                   console.error[IO](project, e.getMessage) *> logger.warn(e)("Failed to open challenge")
-              )
+              }
               .evalAsBackgroundProgress(project, s"Opening challenge ${selected.getName}...")
               .unsafeRunAndForget()
           case _ => ()
