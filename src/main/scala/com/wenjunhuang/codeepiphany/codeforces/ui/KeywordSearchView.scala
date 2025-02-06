@@ -30,7 +30,7 @@ class KeywordSearchView(private val myProject: Project, private val myPresenter:
 
   mySearchTextField.getTextEditor.getEmptyText
     .appendText(
-      PluginBundle.message("hackerrank.ui.query.searchHint"),
+      PluginBundle.message("ui.query.searchHint"),
       new SimpleTextAttributes(
         SimpleTextAttributes.STYLE_PLAIN,
         ColorUtils.LABEL_GRAY_COLOR

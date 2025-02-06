@@ -3,11 +3,11 @@ package com.wenjunhuang.codeepiphany.leetcode.ui
 import java.awt.BorderLayout
 import javax.swing.ScrollPaneConstants
 
-import com.intellij.openapi.actionSystem.{ActionManager, DataSink, UiDataProvider}
+import com.intellij.openapi.actionSystem.{ ActionManager, DataSink, UiDataProvider }
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.SimpleToolWindowPanel
 import com.intellij.openapi.Disposable
-import com.intellij.ui.{SearchTextField, SimpleTextAttributes}
+import com.intellij.ui.{ SearchTextField, SimpleTextAttributes }
 import com.intellij.ui.components.JBScrollPane
 import com.intellij.ui.table.TableView
 import com.intellij.util.concurrency.annotations.RequiresEdt
@@ -34,7 +34,7 @@ class KeywordSearchView(
 
   mySearchTextField.getTextEditor.getEmptyText
     .appendText(
-      PluginBundle.message("hackerrank.ui.query.searchHint"),
+      PluginBundle.message("ui.query.searchHint"),
       new SimpleTextAttributes(SimpleTextAttributes.STYLE_PLAIN, ColorUtils.LABEL_GRAY_COLOR)
     )
   mySearchTextField.addDocumentListener(myPresenter)
