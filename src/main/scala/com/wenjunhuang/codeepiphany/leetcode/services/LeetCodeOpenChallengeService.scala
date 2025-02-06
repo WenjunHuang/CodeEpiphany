@@ -24,6 +24,7 @@ import com.wenjunhuang.codeepiphany.settings.dojo.BaseCodeDojoSettings
 import com.wenjunhuang.codeepiphany.leetcode.model.*
 
 case class LeetCodeOpenChallengeRequest(questionSlug: String)
+
 class LeetCodeOpenChallengeService[F[_]: Async: Concurrent: HttpClientManager: LoggerFactory](
   project: Project,
   private val myLeetCodeDojo: CodeDojo.LeetCode.type | CodeDojo.LeetCodeCN.type

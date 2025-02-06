@@ -6,8 +6,12 @@ import javax.swing.JComponent
 import com.intellij.openapi.project.Project
 import com.intellij.ui.DocumentAdapter
 
-abstract class KeywordQueryPresenter[UIBoostrapParameters, ResultItem](project: Project, boostrap: UIBoostrapParameters)
-    extends BaseQueryPresenter[UIBoostrapParameters, String, ResultItem](project, boostrap) {
+import com.wenjunhuang.codeepiphany.services.KeywordQueryPresenter.KeywordHolder
+
+abstract class KeywordQueryPresenter[UIBoostrapParameters, T: KeywordHolder, ResultItem](
+  project: Project,
+  boostrap: UIBoostrapParameters
+) extends BaseQueryPresenter[UIBoostrapParameters, T, ResultItem](project, boostrap) {
   protected var myView: Option[KeywordQueryView[ResultItem]] = None
 
   override def getViewComponent: JComponent = synchronized {
@@ -27,7 +31,14 @@ abstract class KeywordQueryPresenter[UIBoostrapParameters, ResultItem](project: 
   def getDocumentAdapter: DocumentAdapter = (e: DocumentEvent) => {
     val keyword = e.getDocument.getText(0, e.getDocument.getLength)
     if keyword.nonEmpty then
-      myQueryStateManager.update(_.updateCriteria(_ => keyword))
+      myQueryStateManager.update(_.updateCriteria(it => summon[KeywordHolder[T]].updateKeyword(it, keyword)))
       requery()
+  }
+}
+
+object KeywordQueryPresenter {
+  trait KeywordHolder[T] {
+    def keyword(v: T): String
+    def updateKeyword(v: T, keyword: String): T
   }
 }

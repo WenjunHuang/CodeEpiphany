@@ -15,36 +15,36 @@ import com.intellij.openapi.util.text.StringUtil
 import com.intellij.util.ui.ColumnInfo
 import com.intellij.util.ui.table.IconTableCellRenderer
 
-import com.wenjunhuang.codeepiphany.actions.OpenChallengeActionGroup.{ CHALLENGE_PROVIDER_KEY, OpenChallengeProvider }
+import com.wenjunhuang.codeepiphany.actions.OpenChallengeActionGroup.CHALLENGE_PROVIDER_KEY
 import com.wenjunhuang.codeepiphany.hackerrank.model.{ HackerRankChallengeDetail, HackerRankContest }
-import com.wenjunhuang.codeepiphany.hackerrank.services.{
-  HackerRankApi,
-  HackerRankOpenChallengeRequest,
-  HackerRankOpenChallengeService
-}
-import com.wenjunhuang.codeepiphany.model.{ ChallengeDifficulty, ChallengeStatus, Language, LanguageVersion }
-import com.wenjunhuang.codeepiphany.services.{ console, KeywordQueryPresenter, QueryContext }
+import com.wenjunhuang.codeepiphany.hackerrank.services.HackerRankApi
+import com.wenjunhuang.codeepiphany.model.{ ChallengeDifficulty, ChallengeStatus }
+import com.wenjunhuang.codeepiphany.services.{ KeywordQueryPresenter, QueryContext }
 import com.wenjunhuang.codeepiphany.services.http.{ HttpClientManager, HttpClientService }
 import com.wenjunhuang.codeepiphany.utils.Pagination
-import com.wenjunhuang.codeepiphany.utils.implicits.*
+import HackerRankKeywordQueryPresenter.QueryParams
 
 class HackerRankKeywordQueryPresenter(project: Project)
-    extends KeywordQueryPresenter[Unit, HackerRankChallengeDetail](project, ()) {
+    extends KeywordQueryPresenter[Unit, QueryParams, HackerRankChallengeDetail](project, ()) {
   private implicit val httpClientManager: HttpClientManager[IO] =
     HttpClientService.getInstance(myProject).httpClientManager
 
-  override protected def createInitialQueryParameters(boostrapParameters: Unit): QueryContext[String] =
-    QueryContext[String](criteria = "", pagination = Pagination())
+  override protected def createInitialQueryParameters(boostrapParameters: Unit): QueryContext[QueryParams] =
+    QueryContext[QueryParams](criteria = QueryParams(""), pagination = Pagination())
 
   override protected def executeQuery(
-    context: QueryContext[String]
+    context: QueryContext[QueryParams]
   ): IO[(Pagination, List[HackerRankChallengeDetail])] = {
-    if context.criteria.isEmpty then IO.pure((context.pagination, Nil))
+    if context.criteria.keyword.isEmpty then IO.pure((context.pagination, Nil))
     else
       val api = HackerRankApi[IO]()
       val r = (
-        api.searchChallengesWithKeyword(HackerRankContest.Master, context.criteria).recoverWith(_ => IO.pure(Nil)),
-        api.searchChallengesWithKeyword(HackerRankContest.ProjectEuler, context.criteria).recoverWith(_ => IO.pure(Nil))
+        api
+          .searchChallengesWithKeyword(HackerRankContest.Master, context.criteria.keyword)
+          .recoverWith(_ => IO.pure(Nil)),
+        api
+          .searchChallengesWithKeyword(HackerRankContest.ProjectEuler, context.criteria.keyword)
+          .recoverWith(_ => IO.pure(Nil))
       ).parMapN(_ ++ _)
       Stream
         .evals(r)
@@ -128,5 +128,14 @@ class HackerRankKeywordQueryPresenter(project: Project)
     )
   }
 
-  override protected def updateQueryUI(context: QueryContext[String]): Unit = {}
+  override protected def updateQueryUI(context: QueryContext[QueryParams]): Unit = {}
+}
+object HackerRankKeywordQueryPresenter {
+  case class QueryParams(keyword: String)
+  implicit val keywordContext: KeywordQueryPresenter.KeywordHolder[QueryParams] =
+    new KeywordQueryPresenter.KeywordHolder[QueryParams] {
+      override def keyword(v: QueryParams): String = v.keyword
+
+      override def updateKeyword(v: QueryParams, keyword: String): QueryParams = v.copy(keyword = keyword)
+    }
 }

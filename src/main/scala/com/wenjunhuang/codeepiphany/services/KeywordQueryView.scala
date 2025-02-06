@@ -23,7 +23,7 @@ import com.wenjunhuang.codeepiphany.model.Actions.{
 }
 import com.wenjunhuang.codeepiphany.utils.ColorUtils
 
-class KeywordQueryView[Item](private val myPresenter: KeywordQueryPresenter[?, Item])
+class KeywordQueryView[Item](private val myPresenter: KeywordQueryPresenter[?, ?, Item])
     extends SimpleToolWindowPanel(true, true)
     with UiDataProvider {
 

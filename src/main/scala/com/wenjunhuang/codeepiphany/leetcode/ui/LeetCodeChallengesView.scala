@@ -6,34 +6,49 @@ import javax.swing.JComponent
 import org.typelevel.log4cats.LoggerFactory
 
 import com.intellij.openapi.Disposable
-import com.intellij.openapi.actionSystem.{ActionGroup, ActionManager, DataSink, UiDataProvider}
+import com.intellij.openapi.actionSystem.{ ActionGroup, ActionManager, DataSink, UiDataProvider }
 import com.intellij.openapi.project.Project
 import com.intellij.ui.CardLayoutPanel
 
-import com.wenjunhuang.codeepiphany.actions.LoginAction.{LOGIN_LOGOUT_KEY, LoginLogoutProvider}
-import com.wenjunhuang.codeepiphany.leetcode.actions.LeetCodeChangeUIAction.{LEETCODE_CHANGE_UI_PROVIDER_KEY, LeetCodeChangeUIProvider, LeetCodeUI}
+import com.wenjunhuang.codeepiphany.actions.LoginAction.{ LOGIN_LOGOUT_KEY, LoginLogoutProvider }
+import com.wenjunhuang.codeepiphany.leetcode.actions.LeetCodeChangeUIAction.{
+  LEETCODE_CHANGE_UI_PROVIDER_KEY,
+  LeetCodeChangeUIProvider,
+  LeetCodeUI
+}
 import com.wenjunhuang.codeepiphany.leetcode.actions.LeetCodeChangeUIAction.LeetCodeUI.*
+import com.wenjunhuang.codeepiphany.leetcode.services.LeetCodeApi
 import com.wenjunhuang.codeepiphany.model.Actions.LEETCODE_TITLE_TOOLBAR_GROUP
 import com.wenjunhuang.codeepiphany.model.CodeDojo
-import com.wenjunhuang.codeepiphany.services.{console, AskForLoginResult, AuthService}
-import com.wenjunhuang.codeepiphany.services.http.{HttpClientManager, HttpClientService}
+import com.wenjunhuang.codeepiphany.services.{ console, AskForLoginResult, AuthService }
+import com.wenjunhuang.codeepiphany.services.http.{ HttpClientManager, HttpClientService }
 import com.wenjunhuang.codeepiphany.utils.extensions.*
 import com.wenjunhuang.codeepiphany.utils.implicits.*
 import com.wenjunhuang.codeepiphany.utils.ui.UnauthenticatedView
 
-class LeetCodeChallengesView(private val myProject: Project, private val myCodeDojo: CodeDojo.LeetCode.type|CodeDojo.LeetCodeCN.type)
-    extends CardLayoutPanel[LeetCodeUI, LeetCodeUI, JComponent]
+class LeetCodeChallengesView(
+  private val myProject: Project,
+  private val myCodeDojo: CodeDojo.LeetCode.type | CodeDojo.LeetCodeCN.type
+) extends CardLayoutPanel[LeetCodeUI, LeetCodeUI, JComponent]
     with UiDataProvider
     with Disposable {
 
   private implicit val httpClientManager: HttpClientManager[IO] =
     HttpClientService.getInstance(myProject).httpClientManager
 
-  private val myUnauthenticatedView    = UnauthenticatedView(myCodeDojo)
-  private val myQueryParamPresenter    = QueryParametersPresenter(myProject, myCodeDojo)
-  private val myKeywordSearchPresenter = KeywordSearchViewPresenter(myProject, myCodeDojo)
-  private var myCurrentUI              = LeetCodeUI.Unauthenticated
-  private val myLogger                 = LoggerFactory.getLogger[IO]
+  private def initialize(): IO[LeetCodeBootstrapParameters] = {
+    val myApi = LeetCodeApi[IO](myCodeDojo)
+    (myApi.getUserInfo, myApi.getCategoryList, myApi.getFavoriteList, myApi.getTagTypeWithTags).parMapN {
+      (userInfo, categories, favorites, tagTypeWithTags) =>
+        LeetCodeBootstrapParameters(userInfo, categories, favorites, tagTypeWithTags)
+    }
+  }
+
+  private val myUnauthenticatedView                                           = UnauthenticatedView(myCodeDojo)
+  private var myQueryParamPresenter: Option[LeetCodeParametersQueryPresenter] = None
+  private var myKeywordSearchPresenter: Option[LeetCodeKeywordQueryPresenter] = None
+  private var myCurrentUI                                                     = LeetCodeUI.Unauthenticated
+  private val myLogger                                                        = LoggerFactory.getLogger[IO]
 
   @volatile
   private var myIsLoggingIn = false
@@ -49,10 +64,9 @@ class LeetCodeChallengesView(private val myProject: Project, private val myCodeD
           .loadAuthenticationMayAskForLogin[IO](myCodeDojo)
           .flatMap {
             case AskForLoginResult.Done =>
-              myQueryParamPresenter.initialize().map { initData =>
-                myKeywordSearchPresenter.setInitialData(
-                  initData
-                ) // Load data for the first time before switching to the UI
+              initialize().map { bootstrap =>
+                myQueryParamPresenter = Some(LeetCodeParametersQueryPresenter(myProject, bootstrap, myCodeDojo))
+                myKeywordSearchPresenter = Some(LeetCodeKeywordQueryPresenter(myProject, bootstrap, myCodeDojo))
               } *> IO.delay {
                 AuthService.getInstance(myProject).setLogin(myCodeDojo)
                 mySwitchUIProvider.switchTo(QueryParameters)
@@ -99,8 +113,8 @@ class LeetCodeChallengesView(private val myProject: Project, private val myCodeD
 
   override def create(ui: LeetCodeUI): JComponent = ui match {
     case LeetCodeUI.Unauthenticated => myUnauthenticatedView
-    case LeetCodeUI.QueryParameters => myQueryParamPresenter.getComponent
-    case LeetCodeUI.SearchByKeyword => myKeywordSearchPresenter.getComponent
+    case LeetCodeUI.QueryParameters => myQueryParamPresenter.map(_.getViewComponent).getOrElse(myUnauthenticatedView)
+    case LeetCodeUI.SearchByKeyword => myKeywordSearchPresenter.map(_.getViewComponent).getOrElse(myUnauthenticatedView)
   }
 
   override def uiDataSnapshot(dataSink: DataSink): Unit =
