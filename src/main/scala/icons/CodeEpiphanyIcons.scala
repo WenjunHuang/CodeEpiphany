@@ -47,6 +47,9 @@ object CodeEpiphanyIcons {
   val DESCRIPTION: Icon = IconLoader.getIcon("/icons/book.svg", CodeEpiphanyIcons.getClass.getClassLoader)
 
   @static
+  val APP_BRACKETS: Icon = IconLoader.getIcon("/icons/app-brackets.svg", CodeEpiphanyIcons.getClass.getClassLoader)
+
+  @static
   val LOADING: AnimatedIcon = AnimatedIcon.Default.INSTANCE
 
   object Dojos {

@@ -15,8 +15,6 @@ import com.wenjunhuang.codeepiphany.services.console
 import com.wenjunhuang.codeepiphany.services.console.showConsole
 import com.wenjunhuang.codeepiphany.services.http.HttpClientManager
 import com.wenjunhuang.codeepiphany.settings.ChallengeSettings
-import com.wenjunhuang.codeepiphany.toolwindows.sidebar.{LogConsoleView, SidebarWindowFactory}
-import com.wenjunhuang.codeepiphany.utils.implicits.*
 
 package object services {
   def runCode[F[_]: Async: Concurrent: HttpClientManager: LoggerFactory](vf: VirtualFile, project: Project): F[Unit] = {

@@ -39,7 +39,7 @@ enum CodeDojo(val domain: CIString, val value: String) {
       case HackerRank => true
       case LeetCode   => true
       case LeetCodeCN => true
-      case CodeForces => false
+      case CodeForces => true
     }
   }
 }

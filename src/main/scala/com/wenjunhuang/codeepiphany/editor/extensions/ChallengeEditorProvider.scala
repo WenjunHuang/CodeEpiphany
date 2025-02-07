@@ -5,12 +5,13 @@ import org.jdom.Element
 import com.intellij.openapi.fileEditor.*
 import com.intellij.openapi.fileEditor.AsyncFileEditorProvider.Builder
 import com.intellij.openapi.fileEditor.impl.text.PsiAwareTextEditorProvider
-import com.intellij.openapi.project.{DumbAware, Project}
+import com.intellij.openapi.project.{ DumbAware, Project }
 import com.intellij.openapi.vfs.VirtualFile
 
-import com.wenjunhuang.codeepiphany.editor.actions.SolutionSelectionAction
+import com.wenjunhuang.codeepiphany.editor.actions.{ SolutionSelectionAction, SurroundSubmissionRegionAction }
 import com.wenjunhuang.codeepiphany.editor.actions.SolutionSelectionAction.SOLUTION_PROVIDER_KEY
-import com.wenjunhuang.codeepiphany.editor.actions.SubmitCodeAction.{SUBMITCODE_PROVIDER_KEY, SubmitCodeProvider}
+import com.wenjunhuang.codeepiphany.editor.actions.SubmitCodeAction.{ SUBMITCODE_PROVIDER_KEY, SubmitCodeProvider }
+import com.wenjunhuang.codeepiphany.editor.actions.SurroundSubmissionRegionAction.SURROUND_PROVIDER_KEY
 import com.wenjunhuang.codeepiphany.settings.ChallengeSettings
 
 class ChallengeEditorProvider extends AsyncFileEditorProvider with DumbAware {
@@ -44,7 +45,8 @@ class ChallengeEditorProvider extends AsyncFileEditorProvider with DumbAware {
   }
 
   override def createEditorAsync(project: Project, file: VirtualFile): AsyncFileEditorProvider.Builder = new Builder() {
-    override def build(): FileEditor = setupEditor(delegate.createEditor(project, file).asInstanceOf[TextEditor], project, file)
+    override def build(): FileEditor =
+      setupEditor(delegate.createEditor(project, file).asInstanceOf[TextEditor], project, file)
   }
 
   private def setupEditor(editor: TextEditor, project: Project, file: VirtualFile): TextEditor = {
@@ -58,6 +60,10 @@ class ChallengeEditorProvider extends AsyncFileEditorProvider with DumbAware {
         editorWrapper.putUserData(
           SOLUTION_PROVIDER_KEY,
           SolutionSelectionAction.createSolutionSelectionProvider(project, file)
+        )
+        editorWrapper.putUserData(
+          SURROUND_PROVIDER_KEY,
+          SurroundSubmissionRegionAction.createProvider(editorWrapper.getEditor, project)
         )
         editorWrapper
       case None =>

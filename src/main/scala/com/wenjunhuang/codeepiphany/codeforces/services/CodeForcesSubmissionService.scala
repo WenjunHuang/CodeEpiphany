@@ -11,7 +11,6 @@ import scala.jdk.OptionConverters.*
 import com.intellij.openapi.project.Project
 
 import com.wenjunhuang.codeepiphany.codeforces.models.CodeForcesSubmissionResponse
-import com.wenjunhuang.codeepiphany.codeforces.services.CodeForcesApi
 import com.wenjunhuang.codeepiphany.codeforces.settings.CodeForcesSettingsConfigurable
 import com.wenjunhuang.codeepiphany.database.Tables.{CHALLENGE, CHALLENGE_LANGUAGE, CODEFORCES_CHALLENGE}
 import com.wenjunhuang.codeepiphany.model.{ChallengeRepository, Language, LanguageVersion, SubmissionResult}

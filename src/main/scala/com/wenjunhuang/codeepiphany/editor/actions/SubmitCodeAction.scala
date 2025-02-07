@@ -8,9 +8,10 @@ import com.intellij.openapi.util.Key
 import com.intellij.openapi.vfs.VirtualFile
 
 import com.wenjunhuang.codeepiphany.editor.actions.SubmitCodeAction.*
-import com.wenjunhuang.codeepiphany.editor.services.{runCode, submitCode}
+import com.wenjunhuang.codeepiphany.editor.services.{ runCode, submitCode }
 import com.wenjunhuang.codeepiphany.model.CodeDojo
-import com.wenjunhuang.codeepiphany.services.http.{HttpClientManager, HttpClientService}
+import com.wenjunhuang.codeepiphany.model.CodeDojo.CodeForces
+import com.wenjunhuang.codeepiphany.services.http.{ HttpClientManager, HttpClientService }
 import com.wenjunhuang.codeepiphany.services.AuthService
 import com.wenjunhuang.codeepiphany.services.file.saveEditedFile
 import com.wenjunhuang.codeepiphany.settings.ChallengeSettings
@@ -48,6 +49,7 @@ object SubmitCodeAction {
 
     def runCurrent(): Unit
 
+    def enabledRun: Boolean
     def canRun: Boolean
   }
 
@@ -82,6 +84,11 @@ object SubmitCodeAction {
               runCode[IO](vf, project))
               .unsafeRunAsBackgroundProgressCancellable(project, "Running code")
         }
+
+        override def enabledRun: Boolean =
+          codeDojo match
+            case CodeForces => false
+            case _          => true
 
   }
 }

@@ -46,6 +46,9 @@
             <action id="CodeEpiphany.Actions.ActivateSubmissionsView"
                     class="com.wenjunhuang.codeepiphany.actions.ActivateSubmissionsViewAction"
                     icon="CodeEpiphanyIcons.SUBMISSIONS"/>
+            <action id="CodeEpiphany.Actions.SurroundSubmissionRegion"
+                    class="com.wenjunhuang.codeepiphany.editor.actions.SurroundSubmissionRegionAction"
+                    icon="CodeEpiphanyIcons.APP_BRACKETS"/>
             <action id="CodeEpiphany.Actions.SolutionSelection"
                     class="com.wenjunhuang.codeepiphany.editor.actions.SolutionSelectionAction">
             </action>
@@ -78,6 +81,7 @@
         <group id="CodeEpiphany.Editor.Group">
             <reference ref="CodeEpiphany.Actions.RunCode"/>
             <reference ref="CodeEpiphany.Actions.SubmitCode"/>
+            <reference ref="CodeEpiphany.Actions.SurroundSubmissionRegion"/>
             <reference ref="CodeEpiphany.Actions.SolutionSelection"/>
             <reference ref="CodeEpiphany.Actions.ActivateSolutionsView"/>
             <reference ref="CodeEpiphany.Actions.ActivateDescriptionView"/>
@@ -87,6 +91,7 @@
         <group id="CodeEpiphany.ChallengeEditor.Toolbar.Group">
             <reference ref="CodeEpiphany.Actions.RunCode"/>
             <reference ref="CodeEpiphany.Actions.SubmitCode"/>
+            <reference ref="CodeEpiphany.Actions.SurroundSubmissionRegion"/>
             <reference ref="CodeEpiphany.Actions.SolutionSelection"/>
             <reference ref="CodeEpiphany.Actions.ActivateSolutionsView"/>
             <reference ref="CodeEpiphany.Actions.ActivateDescriptionView"/>
@@ -251,6 +256,8 @@
                              implementationClass="com.wenjunhuang.codeepiphany.editor.extensions.SubmissionRegionFoldingBuilder"/>
         <lang.foldingBuilder language="PHP"
                              implementationClass="com.wenjunhuang.codeepiphany.editor.extensions.SubmissionRegionFoldingBuilder"/>
+
+
         <fileIconPatcher implementation="com.wenjunhuang.codeepiphany.editor.extensions.ChallengeEditorIconProvider"
                          order="last"/>
         <editorTabTitleProvider
@@ -268,5 +275,6 @@
         <virtualFileSystem key="solution-remark"
                            physical="false"
                            implementationClass="com.wenjunhuang.codeepiphany.vfs.SolutionRemarkFileSystem"/>
+
     </extensions>
 </idea-plugin>

@@ -1,3 +1,16 @@
+## 0.6.5
+### Added
+- Implement [#6](https://github.com/WenjunHuang/CodeEpiphany/issues/6)
+- Implement [#4](https://github.com/WenjunHuang/CodeEpiphany/issues/4)
+- Add start and end markers for code regions to templates.
+### Changed
+- Offer simple templates for Code Forces challenges.
+- Optimize some UI elements, including the difficulty color scheme and the login waiting indicator.
+
+### Deprecated
+
+### Removed
+
 ## 0.6.4
 ### Added
 

@@ -4,7 +4,7 @@ import java.io.StringWriter
 import org.apache.velocity.VelocityContext
 import org.apache.velocity.app.Velocity
 
-import com.wenjunhuang.codeepiphany.model.{ Constants, Language, LanguageVersion }
+import com.wenjunhuang.codeepiphany.model.{Constants, Language}
 
 object VelocityUtils {
   def generateContent(
