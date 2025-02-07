@@ -5,7 +5,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
 
 import com.wenjunhuang.codeepiphany.database.Tables.CHALLENGE
-import com.wenjunhuang.codeepiphany.model.ChallengeRepository
+import com.wenjunhuang.codeepiphany.services.ChallengeRepository
 import com.wenjunhuang.codeepiphany.settings.ChallengeSettings
 
 class ChallengeEditorTabTitleProvider extends EditorTabTitleProvider {
@@ -15,9 +15,10 @@ class ChallengeEditorTabTitleProvider extends EditorTabTitleProvider {
       val settings = ChallengeSettings.getInstance(project)
       settings.findChallengeId(file.getCanonicalPath) match {
         case Some(item) =>
-          val repository = ChallengeRepository.getInstance(project)
           Option(
-            repository.getDSLContext
+            ChallengeRepository
+              .getInstance(project)
+              .getDSLContext
               .select(CHALLENGE.TITLE)
               .from(CHALLENGE)
               .where(CHALLENGE.ID.eq(item.challengeId))

@@ -237,12 +237,12 @@ class LoginDialog(
     }
 
     @volatile
-    var queueHandle: Option[Queue[IO, CookieCheck]] = None
+    var myQueueHandle: Option[Queue[IO, CookieCheck]] = None
 
     val myCookieProcessingStreamCanceller =
       (for
         queue <- Queue.unbounded[IO, CookieCheck]
-        _     <- IO.delay { queueHandle = Some(queue) }
+        _     <- IO.delay { myQueueHandle = Some(queue) }
         _ <- Stream
           .fromQueueUnterminated(queue)
           .evalTap { cc =>
@@ -297,10 +297,10 @@ class LoginDialog(
               cookie.setPath(cefCookie.path)
 
               if count == total - 1 then
-                queueHandle.foreach(q =>
+                myQueueHandle.foreach(q =>
                   (q.offer(CookieCheck.Add(cookie)) *> q.offer(CookieCheck.Check)).unsafeRunAndForget()
                 )
-              else queueHandle.foreach(_.offer(CookieCheck.Add(cookie)).unsafeRunAndForget())
+              else myQueueHandle.foreach(_.offer(CookieCheck.Add(cookie)).unsafeRunAndForget())
             true
         }
       }

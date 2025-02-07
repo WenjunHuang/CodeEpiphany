@@ -9,8 +9,7 @@ import org.typelevel.log4cats.LoggerFactory
 import com.intellij.openapi.project.Project
 
 import com.wenjunhuang.codeepiphany.database.Tables.*
-import com.wenjunhuang.codeepiphany.model.ChallengeRepository
-import com.wenjunhuang.codeepiphany.services.console
+import com.wenjunhuang.codeepiphany.services.{console, ChallengeRepository}
 import com.wenjunhuang.codeepiphany.services.http.HttpClientManager
 import com.wenjunhuang.codeepiphany.utils.IdGenerator
 

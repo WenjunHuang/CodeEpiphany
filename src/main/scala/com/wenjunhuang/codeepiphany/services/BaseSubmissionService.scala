@@ -12,7 +12,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.{VirtualFile, VirtualFileUtil}
 
 import com.wenjunhuang.codeepiphany.database.Tables.*
-import com.wenjunhuang.codeepiphany.model.{ChallengeRepository, CodeDojo, Language, SubmissionResult}
+import com.wenjunhuang.codeepiphany.model.{CodeDojo, Language, SubmissionResult}
 import com.wenjunhuang.codeepiphany.model.newtypes.SubmissionId
 import com.wenjunhuang.codeepiphany.settings.ChallengeSettings
 import com.wenjunhuang.codeepiphany.settings.ChallengeSettings.ChallengeSettingsStateItem

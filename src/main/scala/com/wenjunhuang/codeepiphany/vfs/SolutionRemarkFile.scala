@@ -1,19 +1,20 @@
 package com.wenjunhuang.codeepiphany.vfs
 
-import java.io.{ByteArrayInputStream, InputStream, OutputStream}
+import java.io.{ ByteArrayInputStream, InputStream, OutputStream }
 
 import com.intellij.openapi.fileEditor.impl.FileDocumentManagerBase
 import com.intellij.openapi.fileTypes.FileType
 import com.intellij.openapi.project.ex.ProjectManagerEx
 import com.intellij.openapi.util.text.StringUtil
-import com.intellij.openapi.vfs.{VirtualFilePathWrapper, VirtualFileSystem}
+import com.intellij.openapi.vfs.{ VirtualFilePathWrapper, VirtualFileSystem }
 import com.intellij.testFramework.LightVirtualFileBase
 import com.intellij.util.LocalTimeCounter
 
 import com.wenjunhuang.codeepiphany.database.Tables.*
-import com.wenjunhuang.codeepiphany.model.ChallengeRepository
+import com.wenjunhuang.codeepiphany.services.ChallengeRepository
 import com.wenjunhuang.codeepiphany.utils.BufferedOutputStream
 import com.wenjunhuang.codeepiphany.vfs.SolutionRemarkFileSystem.SolutionRemarkFilePath
+import scala.jdk.OptionConverters.*
 
 class SolutionRemarkFile(val myPath: SolutionRemarkFilePath, private val fileType: FileType)
     extends LightVirtualFileBase(myPath.getSessionId, fileType, LocalTimeCounter.currentTime())
@@ -34,8 +35,9 @@ class SolutionRemarkFile(val myPath: SolutionRemarkFilePath, private val fileTyp
     ProjectManagerEx.getInstanceEx.findOpenProjectByHash(myPath.projectHash) match
       case null => s"solutionId: ${myPath.solutionId}"
       case project =>
-        val dsl = ChallengeRepository.getInstance(project).getDSLContext
-        dsl
+        ChallengeRepository
+          .getInstance(project)
+          .getDSLContext
           .select(SOLUTION.TITLE, CHALLENGE.TITLE)
           .from(SOLUTION)
           .innerJoin(CHALLENGE)
@@ -77,10 +79,15 @@ class SolutionRemarkFile(val myPath: SolutionRemarkFilePath, private val fileTyp
         val content = ProjectManagerEx.getInstanceEx.findOpenProjectByHash(myPath.projectHash) match
           case null => ""
           case project =>
-            val dsl = ChallengeRepository.getInstance(project).getDSLContext
-            dsl.selectFrom(SOLUTION).where(SOLUTION.ID.eq(myPath.solutionId)).fetchOne() match
-              case null => ""
-              case record =>
+            ChallengeRepository
+              .getInstance(project)
+              .getDSLContext
+              .selectFrom(SOLUTION)
+              .where(SOLUTION.ID.eq(myPath.solutionId))
+              .fetchOptional()
+              .toScala match
+              case None => ""
+              case Some(record) =>
                 StringUtil.notNullize(record.getRemark)
         myContent = Some(content)
         content

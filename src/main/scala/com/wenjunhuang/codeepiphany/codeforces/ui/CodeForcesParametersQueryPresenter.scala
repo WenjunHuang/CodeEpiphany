@@ -5,20 +5,20 @@ import monocle.syntax.all.*
 import org.jooq.impl.DSL
 import scala.jdk.CollectionConverters.*
 
-import com.intellij.openapi.actionSystem.{ActionGroup, ActionManager, DataSink}
+import com.intellij.openapi.actionSystem.{ ActionGroup, ActionManager, DataSink }
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.text.StringUtil
 
-import com.wenjunhuang.codeepiphany.actions.{DifficultyParameterAction, OpenChallengeActionGroup, TagsAction}
+import com.wenjunhuang.codeepiphany.actions.{ DifficultyParameterAction, OpenChallengeActionGroup, TagsAction }
 import com.wenjunhuang.codeepiphany.actions.DifficultyParameterAction.DifficultyParameterProvider
-import com.wenjunhuang.codeepiphany.actions.TagsAction.{SingleTagGroupProvider, Tag}
-import com.wenjunhuang.codeepiphany.codeforces.models.{codeForcesDifficultyToRatingRange, CodeForcesSearchOrderBy}
+import com.wenjunhuang.codeepiphany.actions.TagsAction.{ SingleTagGroupProvider, Tag }
+import com.wenjunhuang.codeepiphany.codeforces.models.{ codeForcesDifficultyToRatingRange, CodeForcesSearchOrderBy }
 import com.wenjunhuang.codeepiphany.codeforces.ui.CodeForcesParametersQueryPresenter.*
 import com.wenjunhuang.codeepiphany.database.tables.records.CodeforcesProblemsetsRecord
 import com.wenjunhuang.codeepiphany.database.Tables.CODEFORCES_PROBLEMSETS_FTS
-import com.wenjunhuang.codeepiphany.model.{Actions, ChallengeDifficulty, ChallengeRepository, OrderDirection}
-import com.wenjunhuang.codeepiphany.services.{ParametersQueryPresenter, QueryContext}
-import com.wenjunhuang.codeepiphany.utils.{OrderByColumnInfo, Pagination}
+import com.wenjunhuang.codeepiphany.model.{ Actions, ChallengeDifficulty, OrderDirection }
+import com.wenjunhuang.codeepiphany.services.{ ChallengeRepository, ParametersQueryPresenter, QueryContext }
+import com.wenjunhuang.codeepiphany.utils.{ OrderByColumnInfo, Pagination }
 import com.wenjunhuang.codeepiphany.utils.ui.TagPaneAction
 
 class CodeForcesParametersQueryPresenter(project: Project, bootstrap: CodeForcesBootstrapParameters)
@@ -27,14 +27,13 @@ class CodeForcesParametersQueryPresenter(project: Project, bootstrap: CodeForces
       CodeForcesParametersQueryPresenter.QueryParams,
       CodeforcesProblemsetsRecord
     ](project, bootstrap) {
+  val MyQueryContext: (QueryParams, Pagination) => QueryContext[QueryParams] =
+    QueryContext[CodeForcesParametersQueryPresenter.QueryParams]
+  type MyQueryContext = QueryContext[CodeForcesParametersQueryPresenter.QueryParams]
 
   override protected def prepareProviders(
-    getter: () => QueryContext[CodeForcesParametersQueryPresenter.QueryParams],
-    updater: (
-      QueryContext[CodeForcesParametersQueryPresenter.QueryParams] => QueryContext[
-        CodeForcesParametersQueryPresenter.QueryParams
-      ]
-    ) => Unit,
+    getter: () => MyQueryContext,
+    updater: (MyQueryContext => QueryContext[CodeForcesParametersQueryPresenter.QueryParams]) => Unit,
     dataSink: DataSink
   ): ActionGroup = {
     val tagProvider = new SingleTagGroupProvider {
@@ -116,12 +115,8 @@ class CodeForcesParametersQueryPresenter(project: Project, bootstrap: CodeForces
   }
 
   override protected def createQueryParametersTags(
-    context: QueryContext[CodeForcesParametersQueryPresenter.QueryParams],
-    onCloseUpdater: (
-      QueryContext[CodeForcesParametersQueryPresenter.QueryParams] => QueryContext[
-        CodeForcesParametersQueryPresenter.QueryParams
-      ]
-    ) => Unit
+    context: MyQueryContext,
+    onCloseUpdater: (MyQueryContext => QueryContext[CodeForcesParametersQueryPresenter.QueryParams]) => Unit
   ): List[TagPaneAction] = {
     context.criteria.selectedDifficulty.map { difficulty =>
       TagPaneAction(
@@ -147,59 +142,55 @@ class CodeForcesParametersQueryPresenter(project: Project, bootstrap: CodeForces
 
   override protected def createInitialQueryParameters(
     boostrapParameters: CodeForcesBootstrapParameters
-  ): QueryContext[CodeForcesParametersQueryPresenter.QueryParams] =
-    QueryContext[CodeForcesParametersQueryPresenter.QueryParams](
-      criteria = QueryParams(None, Nil, None),
-      pagination = Pagination()
-    )
+  ): MyQueryContext =
+    MyQueryContext(QueryParams(None, Nil, None), Pagination())
 
-  override protected def executeQuery(
-    context: QueryContext[CodeForcesParametersQueryPresenter.QueryParams]
-  ): IO[(Pagination, List[CodeforcesProblemsetsRecord])] = ChallengeRepository
-    .getInstance(myProject)
-    .getDSLContextResource[IO]
-    .use { dsl =>
-      val state = context.criteria
-      val from  = math.max((context.pagination.currentPage - 1) * context.pagination.pageSize.value, 0)
-      val limit = context.pagination.pageSize.value
-      IO.delay {
-        val tagCondition =
-          if state.selectedTags.isEmpty then DSL.trueCondition()
-          else
-            val matches = s"${CODEFORCES_PROBLEMSETS_FTS.TAGS.getUnqualifiedName}:${state.selectedTags
-                .map(tag => "\"" + tag.value + "\"")
-                .mkString(" + ")}"
-            DSL.condition("{0} MATCH {1}", DSL.field(CODEFORCES_PROBLEMSETS_FTS.getUnqualifiedName), matches)
-        val diffCondition =
-          if state.selectedDifficulty.isEmpty then DSL.trueCondition()
-          else
-            val (minRating, maxRating) = codeForcesDifficultyToRatingRange(state.selectedDifficulty.get)
-            CODEFORCES_PROBLEMSETS_FTS.RATING.between(minRating, maxRating)
-        val condition = tagCondition.and(diffCondition)
-        val total = dsl
-          .selectCount()
-          .from(CODEFORCES_PROBLEMSETS_FTS)
-          .where(condition)
-          .fetchOne(0, classOf[Int])
+  override protected def executeQuery(context: MyQueryContext): IO[(Pagination, List[CodeforcesProblemsetsRecord])] =
+    ChallengeRepository
+      .getInstance(myProject)
+      .getDSLContextResource[IO]
+      .use { dsl =>
+        val state = context.criteria
+        val from  = math.max((context.pagination.currentPage - 1) * context.pagination.pageSize.value, 0)
+        val limit = context.pagination.pageSize.value
+        IO.delay {
+          val tagCondition =
+            if state.selectedTags.isEmpty then DSL.trueCondition()
+            else
+              val matches = s"${CODEFORCES_PROBLEMSETS_FTS.TAGS.getUnqualifiedName}:${state.selectedTags
+                  .map(tag => "\"" + tag.value + "\"")
+                  .mkString(" + ")}"
+              DSL.condition("{0} MATCH {1}", DSL.field(CODEFORCES_PROBLEMSETS_FTS.getUnqualifiedName), matches)
+          val diffCondition =
+            if state.selectedDifficulty.isEmpty then DSL.trueCondition()
+            else
+              val (minRating, maxRating) = codeForcesDifficultyToRatingRange(state.selectedDifficulty.get)
+              CODEFORCES_PROBLEMSETS_FTS.RATING.between(minRating, maxRating)
+          val condition = tagCondition.and(diffCondition)
+          val total = dsl
+            .selectCount()
+            .from(CODEFORCES_PROBLEMSETS_FTS)
+            .where(condition)
+            .fetchOne(0, classOf[Int])
 
-        val orderBy = state.orderBy.map {
-          case (CodeForcesSearchOrderBy.Rating, dir) => dir.toJooqSortField(CODEFORCES_PROBLEMSETS_FTS.RATING)
-          case (CodeForcesSearchOrderBy.ContestIdIndex, dir) =>
-            dir.toJooqSortField(CODEFORCES_PROBLEMSETS_FTS.CONTESTIDINDEX)
+          val orderBy = state.orderBy.map {
+            case (CodeForcesSearchOrderBy.Rating, dir) => dir.toJooqSortField(CODEFORCES_PROBLEMSETS_FTS.RATING)
+            case (CodeForcesSearchOrderBy.ContestIdIndex, dir) =>
+              dir.toJooqSortField(CODEFORCES_PROBLEMSETS_FTS.CONTESTIDINDEX)
+          }
+
+          val query = dsl
+            .selectFrom(CODEFORCES_PROBLEMSETS_FTS)
+            .where(condition)
+            .orderBy(orderBy.toList*)
+            .limit(from, limit)
+            .fetchInto(classOf[CodeforcesProblemsetsRecord])
+            .asScala
+            .toList
+
+          (context.pagination.copy(totalSize = total), query)
         }
-
-        val query = dsl
-          .selectFrom(CODEFORCES_PROBLEMSETS_FTS)
-          .where(condition)
-          .orderBy(orderBy.toList*)
-          .limit(from, limit)
-          .fetchInto(classOf[CodeforcesProblemsetsRecord])
-          .asScala
-          .toList
-
-        (context.pagination.copy(totalSize = total), query)
       }
-    }
 
   def getDirectionOf(field: CodeForcesSearchOrderBy): Option[OrderDirection] =
     myQueryStateManager.get.criteria.orderBy.collect {

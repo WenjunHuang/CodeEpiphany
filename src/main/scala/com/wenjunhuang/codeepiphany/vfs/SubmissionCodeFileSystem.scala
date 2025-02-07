@@ -6,15 +6,17 @@ import io.circe.syntax.*
 import org.typelevel.ci.CIString
 import scala.collection.mutable
 
-import com.intellij.openapi.fileTypes.{FileTypeManager, LanguageFileType, PlainTextLanguage}
+import com.intellij.openapi.fileTypes.{ FileTypeManager, LanguageFileType, PlainTextLanguage }
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.vfs.{VirtualFile, VirtualFileManager}
+import com.intellij.openapi.vfs.{ VirtualFile, VirtualFileManager }
 import com.intellij.vcs.editor.ComplexPathVirtualFileSystem
 import com.intellij.vcs.editor.ComplexPathVirtualFileSystem.ComplexPathSerializer
 
 import com.wenjunhuang.codeepiphany.database.Tables.*
-import com.wenjunhuang.codeepiphany.model.{ChallengeRepository, Language, LanguageVersion}
+import com.wenjunhuang.codeepiphany.model.{ Language, LanguageVersion }
+import com.wenjunhuang.codeepiphany.services.ChallengeRepository
 import com.wenjunhuang.codeepiphany.vfs.SubmissionCodeFileSystem.*
+import scala.jdk.OptionConverters.*
 
 class SubmissionCodeFileSystem
     extends ComplexPathVirtualFileSystem[SubmissionCodeFilePath](SubmissionCodeFilePathSerializer) {
@@ -34,9 +36,9 @@ class SubmissionCodeFileSystem
       .innerJoin(CHALLENGE_LANGUAGE)
       .on(SOLUTION_SUBMISSION.CHALLENGELANGUAGEID.eq(CHALLENGE_LANGUAGE.ID))
       .where(SOLUTION_SUBMISSION.ID.eq(pathId.submissionId))
-      .fetchOne() match
-      case null => null
-      case record =>
+      .fetchOptional()
+      .toScala
+      .map { record =>
         Language.fromCIString(CIString(record.component1())) match
           case None => null
           case Some(lang) =>
@@ -55,6 +57,8 @@ class SubmissionCodeFileSystem
                   LanguageVersion.fromString(record.component2()),
                   PlainTextLanguage.INSTANCE
                 )
+      }
+      .orNull
   }
 
 }
@@ -90,7 +94,7 @@ object SubmissionCodeFileSystem {
     override def deserialize(s: String): SubmissionCodeFilePath = {
       decode[SubmissionCodeFilePath](s) match {
         case Right(value) => value
-        case Left(error)  => throw new IllegalArgumentException(s"Cannot deserialize $s",error)
+        case Left(error)  => throw new IllegalArgumentException(s"Cannot deserialize $s", error)
       }
     }
 

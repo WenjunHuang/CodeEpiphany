@@ -13,7 +13,7 @@ import com.intellij.openapi.project.Project
 import com.wenjunhuang.codeepiphany.codeforces.services.CodeForcesApi
 import com.wenjunhuang.codeepiphany.hackerrank.services.HackerRankApi
 import com.wenjunhuang.codeepiphany.leetcode.services.LeetCodeApi
-import com.wenjunhuang.codeepiphany.model.{CodeDojo, SensitiveDataStore}
+import com.wenjunhuang.codeepiphany.model.{CodeDojo}
 import com.wenjunhuang.codeepiphany.model.CodeDojo.*
 import com.wenjunhuang.codeepiphany.services.http.HttpClientManager
 import com.wenjunhuang.codeepiphany.services.login.LoginDialog

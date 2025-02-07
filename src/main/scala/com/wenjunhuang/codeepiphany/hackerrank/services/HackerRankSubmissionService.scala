@@ -17,7 +17,7 @@ import com.wenjunhuang.codeepiphany.model.*
 import com.wenjunhuang.codeepiphany.model.newtypes.SubmissionId
 import com.wenjunhuang.codeepiphany.model.CodeDojo.HackerRank
 import com.wenjunhuang.codeepiphany.model.SubmissionResult.Success
-import com.wenjunhuang.codeepiphany.services.{console, BaseSubmissionService}
+import com.wenjunhuang.codeepiphany.services.{console, BaseSubmissionService, ChallengeRepository}
 import com.wenjunhuang.codeepiphany.services.http.HttpClientManager
 import com.wenjunhuang.codeepiphany.settings.ChallengeSettings.ChallengeSettingsStateItem
 import com.wenjunhuang.codeepiphany.utils.IdGenerator

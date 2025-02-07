@@ -14,8 +14,8 @@ import com.wenjunhuang.codeepiphany.codeforces.models.CodeForcesSearchOrderBy
 import com.wenjunhuang.codeepiphany.codeforces.ui.CodeForcesKeywordQueryPresenter.*
 import com.wenjunhuang.codeepiphany.database.tables.records.CodeforcesProblemsetsRecord
 import com.wenjunhuang.codeepiphany.database.Tables.*
-import com.wenjunhuang.codeepiphany.model.{ChallengeRepository, OrderDirection}
-import com.wenjunhuang.codeepiphany.services.{KeywordQueryPresenter, QueryContext}
+import com.wenjunhuang.codeepiphany.model.OrderDirection
+import com.wenjunhuang.codeepiphany.services.{ChallengeRepository, KeywordQueryPresenter, QueryContext}
 import com.wenjunhuang.codeepiphany.services.KeywordQueryPresenter.KeywordHolder
 import com.wenjunhuang.codeepiphany.utils.{OrderByColumnInfo, Pagination}
 

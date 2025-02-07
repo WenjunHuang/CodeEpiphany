@@ -25,6 +25,7 @@ import com.intellij.util.ui.ColumnInfo
 import com.wenjunhuang.codeepiphany.database.Tables.*
 import com.wenjunhuang.codeepiphany.model.*
 import com.wenjunhuang.codeepiphany.model.newtypes.ChallengeId
+import com.wenjunhuang.codeepiphany.services.ChallengeRepository
 import com.wenjunhuang.codeepiphany.settings.ChallengeSettings
 import com.wenjunhuang.codeepiphany.utils.implicits.*
 import com.wenjunhuang.codeepiphany.utils.IdGenerator
@@ -105,8 +106,7 @@ class SolutionListPresenter(val myProject: Project) extends Disposable {
       .debounce(200.millis)
       .evalMap {
         case Some((challengeId, codeDojo)) =>
-          val repository = ChallengeRepository.getInstance(myProject)
-          repository.getDSLContextResource[IO].use { dsl =>
+          ChallengeRepository.getInstance(myProject).getDSLContextResource[IO].use { dsl =>
             IO.blocking {
               val (title, difficulty) = dsl
                 .selectFrom(CHALLENGE)

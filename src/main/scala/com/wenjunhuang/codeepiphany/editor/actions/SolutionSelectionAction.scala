@@ -12,9 +12,8 @@ import com.intellij.openapi.vfs.VirtualFile
 
 import com.wenjunhuang.codeepiphany.database.Tables.*
 import com.wenjunhuang.codeepiphany.editor.actions.SolutionSelectionAction.*
-import com.wenjunhuang.codeepiphany.model.ChallengeRepository
 import com.wenjunhuang.codeepiphany.model.newtypes.SolutionId
-import com.wenjunhuang.codeepiphany.services.AuthService
+import com.wenjunhuang.codeepiphany.services.{AuthService, ChallengeRepository}
 import com.wenjunhuang.codeepiphany.settings.ChallengeSettings
 
 class SolutionSelectionAction extends ComboBoxAction {
@@ -88,8 +87,7 @@ object SolutionSelectionAction {
           .getInstance(project)
           .findChallengeId(vf)
           .map { challengeItem =>
-            val dsl = ChallengeRepository.getInstance(project).getDSLContext
-            dsl
+            ChallengeRepository.getInstance(project).getDSLContext
               .selectFrom(SOLUTION)
               .where(SOLUTION.CHALLENGEID.eq(challengeItem.challengeId))
               .fetch()

@@ -1,4 +1,4 @@
-package com.wenjunhuang.codeepiphany.model
+package com.wenjunhuang.codeepiphany.services
 
 import cats.effect.{Async, IO}
 import cats.effect.kernel.Resource
@@ -16,6 +16,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
 import com.intellij.openapi.util.io.FileUtil
 
+import com.wenjunhuang.codeepiphany.model.Constants
 import com.wenjunhuang.codeepiphany.settings.CodeEpiphanySettings
 import com.wenjunhuang.codeepiphany.utils.implicits.*
 import com.wenjunhuang.codeepiphany.utils.isDebug

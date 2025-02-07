@@ -15,7 +15,7 @@ import com.wenjunhuang.codeepiphany.leetcode.model.*
 import com.wenjunhuang.codeepiphany.leetcode.model.runCode.LeetCodeRunResult
 import com.wenjunhuang.codeepiphany.model.*
 import com.wenjunhuang.codeepiphany.model.SubmissionResult.Processing
-import com.wenjunhuang.codeepiphany.services.{console, BaseCodeEvaluationService}
+import com.wenjunhuang.codeepiphany.services.{console, BaseCodeEvaluationService, ChallengeRepository}
 import com.wenjunhuang.codeepiphany.services.http.HttpClientManager
 import com.wenjunhuang.codeepiphany.settings.ChallengeSettings
 import com.wenjunhuang.codeepiphany.settings.ChallengeSettings.ChallengeSettingsStateItem

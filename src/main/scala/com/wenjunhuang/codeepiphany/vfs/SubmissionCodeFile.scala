@@ -1,17 +1,19 @@
 package com.wenjunhuang.codeepiphany.vfs
 
-import java.io.{ByteArrayInputStream, InputStream, OutputStream}
+import java.io.{ ByteArrayInputStream, InputStream, OutputStream }
 import java.nio.charset.StandardCharsets
 import java.nio.file.Path
 
 import com.intellij.openapi.project.ex.ProjectManagerEx
-import com.intellij.openapi.vfs.{VirtualFilePathWrapper, VirtualFileSystem}
+import com.intellij.openapi.vfs.{ VirtualFilePathWrapper, VirtualFileSystem }
 import com.intellij.testFramework.LightVirtualFileBase
-import com.intellij.util.{IncorrectOperationException, LocalTimeCounter}
+import com.intellij.util.{ IncorrectOperationException, LocalTimeCounter }
 
 import com.wenjunhuang.codeepiphany.database.Tables.SOLUTION_SUBMISSION
-import com.wenjunhuang.codeepiphany.model.{ChallengeRepository, Language, LanguageVersion}
+import com.wenjunhuang.codeepiphany.model.{ Language, LanguageVersion }
+import com.wenjunhuang.codeepiphany.services.ChallengeRepository
 import com.wenjunhuang.codeepiphany.vfs.SubmissionCodeFileSystem.SubmissionCodeFilePath
+import scala.jdk.OptionConverters.*
 
 class SubmissionCodeFile(
   private val myPath: SubmissionCodeFilePath,
@@ -54,13 +56,19 @@ class SubmissionCodeFile(
         val content = ProjectManagerEx.getInstanceEx.findOpenProjectByHash(myPath.projectHash) match
           case null => ""
           case project =>
-            val dsl = ChallengeRepository.getInstance(project).getDSLContext
-            dsl.selectFrom(SOLUTION_SUBMISSION).where(SOLUTION_SUBMISSION.ID.eq(myPath.submissionId)).fetchOne() match
-              case null => ""
-              case record =>
+            ChallengeRepository
+              .getInstance(project)
+              .getDSLContext
+              .selectFrom(SOLUTION_SUBMISSION)
+              .where(SOLUTION_SUBMISSION.ID.eq(myPath.submissionId))
+              .fetchOptional()
+              .toScala
+              .map { record =>
                 myPath.codeType match
                   case SubmissionCodeFileSystem.CodeType.Local      => record.getLocalcode
                   case SubmissionCodeFileSystem.CodeType.Submission => record.getSubmitcode
+              }
+              .getOrElse("")
         myContent = Some(content)
         content
       case Some(content) => content
