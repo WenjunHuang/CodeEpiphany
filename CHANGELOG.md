@@ -1,3 +1,8 @@
+## 0.6.6
+### Changed
+- Fix the issue of missing text for action 'Surround Region'
+- Fix leetcode result table display issue
+
 ## 0.6.5
 ### Added
 - Implement [#6](https://github.com/WenjunHuang/CodeEpiphany/issues/6)
@@ -36,3 +41,4 @@
 ### Deprecated
 
 ### Removed
+
