@@ -13,12 +13,16 @@ import com.intellij.openapi.ui.MessageDialogBuilder
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.vfs.VirtualFile
 
-import com.wenjunhuang.codeepiphany.database.tables.records.{ChallengeLanguageRecord, ChallengeRecord}
+import com.wenjunhuang.codeepiphany.database.tables.records.{ ChallengeLanguageRecord, ChallengeRecord }
 import com.wenjunhuang.codeepiphany.database.Tables.*
-import com.wenjunhuang.codeepiphany.model.{ChallengeRepository, CodeDojo, Language, LanguageVersion}
+import com.wenjunhuang.codeepiphany.model.{ ChallengeRepository, CodeDojo, Language, LanguageVersion }
 import com.wenjunhuang.codeepiphany.model.newtypes.*
 import com.wenjunhuang.codeepiphany.services.database.getOrCreateDefaultSolution
-import com.wenjunhuang.codeepiphany.services.file.{openTextEditor, refreshAndFindFileByIoFile, saveTextWithConflictResolution}
+import com.wenjunhuang.codeepiphany.services.file.{
+  openTextEditor,
+  refreshAndFindFileByIoFile,
+  saveTextWithConflictResolution
+}
 import com.wenjunhuang.codeepiphany.settings.dojo.BaseCodeDojoSettings.LanguageSettingsState
 import com.wenjunhuang.codeepiphany.settings.dojo.BaseSettingsConfigurable
 import com.wenjunhuang.codeepiphany.settings.ChallengeSettings
@@ -91,8 +95,8 @@ abstract class BaseOpenChallengeService[F[_]: Async, Req, Template](
       state <- ReaderT.ask[F, ServiceState]
       result <- ReaderT.liftF(
         (
-          VelocityUtils.generateContent(state.fileNameTemplate.value, state.template),
-          VelocityUtils.generateContent(state.codeTemplate.value, state.template)
+          VelocityUtils.generateContent(state.fileNameTemplate.value, state.language, state.template),
+          VelocityUtils.generateContent(state.codeTemplate.value, state.language, state.template)
         ).mapN((_, _)).liftTo[F]
       )
     } yield result

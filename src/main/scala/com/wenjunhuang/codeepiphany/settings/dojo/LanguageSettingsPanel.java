@@ -3,11 +3,11 @@ package com.wenjunhuang.codeepiphany.settings.dojo;
 import com.intellij.codeInsight.hint.EditorFragmentComponent;
 import com.intellij.icons.AllIcons;
 import com.intellij.ide.IdeBundle;
-import com.intellij.ide.fileTemplates.FileTemplateManager;
 import com.intellij.ide.ui.laf.darcula.ui.DarculaEditorTextFieldBorder;
 import com.intellij.l10n.LocalizationUtil;
 import com.intellij.openapi.actionSystem.*;
 import com.intellij.openapi.actionSystem.ex.ActionManagerEx;
+import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.editor.EditorFactory;
 import com.intellij.openapi.editor.colors.EditorFontType;
 import com.intellij.openapi.editor.event.DocumentEvent;
@@ -27,6 +27,7 @@ import com.intellij.ui.EditorTextField;
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.uiDesigner.core.Spacer;
+import com.intellij.util.LineSeparator;
 import com.intellij.util.ui.HTMLEditorKitBuilder;
 import com.intellij.util.ui.JBUI;
 import com.intellij.xml.util.XmlStringUtil;
@@ -50,8 +51,10 @@ import javax.swing.border.TitledBorder;
 import java.awt.*;
 import java.lang.reflect.Method;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.function.BiFunction;
 import java.util.stream.Stream;
@@ -76,6 +79,7 @@ public class LanguageSettingsPanel extends SettingsUi<BaseCodeDojoSettings.Langu
     private LanguageVersion myLanguageVersion;
     private final BiFunction<Language, LanguageVersion, Object> myDemoTemplateSupplier;
     private final CodeDojo myCodeDojo;
+    private Logger myLogger = Logger.getInstance(LanguageSettingsPanel.class);
 
     public LanguageSettingsPanel(Project project,
                                  CodeDojo codeDojo,
@@ -218,10 +222,25 @@ public class LanguageSettingsPanel extends SettingsUi<BaseCodeDojoSettings.Langu
                 ) {
                     @Override
                     public void actionPerformed(@NotNull AnActionEvent e) {
-                        var template = FileTemplateManager.getInstance(myProject())
-                                .findInternalTemplate(myCodeDojo.value() + "_code." + myLanguage.fileExt());
-                        if (template != null) {
-                            myCodeTemplateEditor.setText(template.getText());
+                        var versionedPath = buildCodeTemplatePath(true);
+                        var fallbackPath = buildCodeTemplatePath(false);
+                        var defaultPath = "/templates/code.ft";
+                        try (var versionedStream = getClass().getResourceAsStream(versionedPath);
+                             var fallbackStream = getClass().getResourceAsStream(fallbackPath);
+                             var defaultStream = getClass().getResourceAsStream(defaultPath)) {
+
+                            // 优先尝试带版本号的模板
+                            var resourceStream = Optional.ofNullable(versionedStream)
+                                    .or(() -> Optional.ofNullable(fallbackStream))
+                                    .or(() -> Optional.ofNullable(defaultStream))
+                                    .orElseThrow(() -> new IllegalStateException("Template not found"));
+
+                            var template =
+                                    StringUtil.join(IOUtils.readLines(resourceStream, StandardCharsets.UTF_8), LineSeparator.LF.getSeparatorString());
+                            myCodeTemplateEditor.setText(template);
+
+                        } catch (Exception ex) {
+                            myLogger.warn("Failed to load default code template for " + myCodeDojo.value() + " " + myLanguage.value() + " " + myLanguageVersion.version(), ex);
                         }
                     }
 
@@ -238,9 +257,26 @@ public class LanguageSettingsPanel extends SettingsUi<BaseCodeDojoSettings.Langu
         return actionGroup;
     }
 
+    private String buildCodeTemplatePath(boolean includeVersion) {
+        String base = "/templates/" + myCodeDojo.value() + "/code/";
+        String filename = myLanguage.fileExt() +
+                (includeVersion ? myLanguageVersion.version() : "") +
+                ".ft";
+        return Paths.get(base, filename).toString().replace("\\", "/");
+    }
+
+    private String buildFileNameTemplatePath(boolean includeVersion) {
+        String base = "/templates/" + myCodeDojo.value() + "/filename/";
+        String filename = myLanguage.fileExt() +
+                (includeVersion ? myLanguageVersion.version() : "") +
+                ".ft";
+        return Paths.get(base, filename).toString().replace("\\", "/");
+    }
+
     private void updateCodeTemplatePreview() {
 
         var result = VelocityUtils.generateContent(myCodeTemplateEditor.getText(),
+                myLanguage,
                 myDemoTemplateSupplier.apply(myLanguage, myLanguageVersion));
 
         ComponentValidator.getInstance(myCodeTemplateEditor).ifPresent(validator -> {
@@ -260,7 +296,7 @@ public class LanguageSettingsPanel extends SettingsUi<BaseCodeDojoSettings.Langu
     }
 
     private void updateFileNamePreview() {
-        var result = VelocityUtils.generateContent(myFileNameEditor.getText(), myDemoTemplateSupplier.apply(myLanguage, myLanguageVersion));
+        var result = VelocityUtils.generateContent(myFileNameEditor.getText(), myLanguage, myDemoTemplateSupplier.apply(myLanguage, myLanguageVersion));
         switch (result) {
             case Left<Exception, String> left -> {
                 ComponentValidator.getInstance(myFileNameEditor).ifPresent(validator -> validator.updateInfo(new ValidationInfo(left.value().getMessage(), myFileNameEditor)));
@@ -334,10 +370,25 @@ public class LanguageSettingsPanel extends SettingsUi<BaseCodeDojoSettings.Langu
                         AllIcons.Actions.Refresh) {
                     @Override
                     public void actionPerformed(@NotNull AnActionEvent e) {
-                        var template = FileTemplateManager.getInstance(myProject())
-                                .findInternalTemplate(myCodeDojo.value() + "_filename." + myLanguage.fileExt());
-                        if (template != null) {
-                            myFileNameEditor.setText(template.getText());
+                        var versionedPath = buildFileNameTemplatePath(true);
+                        var fallbackPath = buildFileNameTemplatePath(false);
+                        var defaultPath = "/templates/filename.ft";
+                        try (var versionedStream = getClass().getResourceAsStream(versionedPath);
+                             var fallbackStream = getClass().getResourceAsStream(fallbackPath);
+                             var defaultStream = getClass().getResourceAsStream(defaultPath)) {
+
+                            // 优先尝试带版本号的模板
+                            var resourceStream = Optional.ofNullable(versionedStream)
+                                    .or(() -> Optional.ofNullable(fallbackStream))
+                                    .or(() -> Optional.ofNullable(defaultStream))
+                                    .orElseThrow(() -> new IllegalStateException("Template not found"));
+
+                            var template =
+                                    StringUtil.join(IOUtils.readLines(resourceStream, StandardCharsets.UTF_8), "");
+                            myFileNameEditor.setText(template);
+
+                        } catch (Exception ex) {
+                            myLogger.warn("Failed to load default filename template for " + myCodeDojo.value() + " " + myLanguage.value() + " " + myLanguageVersion.version(), ex);
                         }
                     }
                 };
