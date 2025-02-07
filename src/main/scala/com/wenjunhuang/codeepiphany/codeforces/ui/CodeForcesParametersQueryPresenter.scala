@@ -27,13 +27,14 @@ class CodeForcesParametersQueryPresenter(project: Project, bootstrap: CodeForces
       CodeForcesParametersQueryPresenter.QueryParams,
       CodeforcesProblemsetsRecord
     ](project, bootstrap) {
-  val MyQueryContext: (QueryParams, Pagination) => QueryContext[QueryParams] =
-    QueryContext[CodeForcesParametersQueryPresenter.QueryParams]
-  type MyQueryContext = QueryContext[CodeForcesParametersQueryPresenter.QueryParams]
 
   override protected def prepareProviders(
-    getter: () => MyQueryContext,
-    updater: (MyQueryContext => QueryContext[CodeForcesParametersQueryPresenter.QueryParams]) => Unit,
+    getter: () => QueryContext[CodeForcesParametersQueryPresenter.QueryParams],
+    updater: (
+      QueryContext[CodeForcesParametersQueryPresenter.QueryParams] => QueryContext[
+        CodeForcesParametersQueryPresenter.QueryParams
+      ]
+    ) => Unit,
     dataSink: DataSink
   ): ActionGroup = {
     val tagProvider = new SingleTagGroupProvider {
@@ -115,8 +116,12 @@ class CodeForcesParametersQueryPresenter(project: Project, bootstrap: CodeForces
   }
 
   override protected def createQueryParametersTags(
-    context: MyQueryContext,
-    onCloseUpdater: (MyQueryContext => QueryContext[CodeForcesParametersQueryPresenter.QueryParams]) => Unit
+    context: QueryContext[CodeForcesParametersQueryPresenter.QueryParams],
+    onCloseUpdater: (
+      QueryContext[CodeForcesParametersQueryPresenter.QueryParams] => QueryContext[
+        CodeForcesParametersQueryPresenter.QueryParams
+      ]
+    ) => Unit
   ): List[TagPaneAction] = {
     context.criteria.selectedDifficulty.map { difficulty =>
       TagPaneAction(
@@ -142,10 +147,12 @@ class CodeForcesParametersQueryPresenter(project: Project, bootstrap: CodeForces
 
   override protected def createInitialQueryParameters(
     boostrapParameters: CodeForcesBootstrapParameters
-  ): MyQueryContext =
-    MyQueryContext(QueryParams(None, Nil, None), Pagination())
+  ): QueryContext[CodeForcesParametersQueryPresenter.QueryParams] =
+    QueryContext[CodeForcesParametersQueryPresenter.QueryParams](QueryParams(None, Nil, None), Pagination())
 
-  override protected def executeQuery(context: MyQueryContext): IO[(Pagination, List[CodeforcesProblemsetsRecord])] =
+  override protected def executeQuery(
+    context: QueryContext[CodeForcesParametersQueryPresenter.QueryParams]
+  ): IO[(Pagination, List[CodeforcesProblemsetsRecord])] =
     ChallengeRepository
       .getInstance(myProject)
       .getDSLContextResource[IO]

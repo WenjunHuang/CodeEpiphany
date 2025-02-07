@@ -3,7 +3,7 @@ package com.wenjunhuang.codeepiphany.leetcode.services
 import cats.effect.Concurrent
 import cats.effect.kernel.Async
 import cats.syntax.all.*
-import org.jooq.{DSLContext, Record}
+import org.jooq.{ DSLContext, Record }
 import org.typelevel.ci.CIString
 import org.typelevel.log4cats.LoggerFactory
 import scala.jdk.OptionConverters.*
@@ -14,11 +14,11 @@ import com.intellij.openapi.util.text.StringUtil
 import com.wenjunhuang.codeepiphany.database.Tables.*
 import com.wenjunhuang.codeepiphany.leetcode.model.*
 import com.wenjunhuang.codeepiphany.leetcode.model.submitAnswer.LeetCodeSubmitAnswerResult
-import com.wenjunhuang.codeepiphany.leetcode.model.submitAnswer.LeetCodeSubmitAnswerResult.{Pending, Started, Success}
+import com.wenjunhuang.codeepiphany.leetcode.model.submitAnswer.LeetCodeSubmitAnswerResult.{ Pending, Started, Success }
 import com.wenjunhuang.codeepiphany.model.*
 import com.wenjunhuang.codeepiphany.model.newtypes.SubmissionId
 import com.wenjunhuang.codeepiphany.model.SubmissionResult.Processing
-import com.wenjunhuang.codeepiphany.services.{console, BaseSubmissionService, ChallengeRepository}
+import com.wenjunhuang.codeepiphany.services.{ console, BaseSubmissionService, ChallengeRepository }
 import com.wenjunhuang.codeepiphany.services.http.HttpClientManager
 import com.wenjunhuang.codeepiphany.settings.ChallengeSettings
 import com.wenjunhuang.codeepiphany.settings.ChallengeSettings.ChallengeSettingsStateItem
@@ -95,7 +95,7 @@ class LeetCodeSubmissionService[F[_]: Async: Concurrent: HttpClientManager: Logg
   ): F[Unit] =
     lastResponseInfo.result match {
       case SubmissionResult.Success =>
-        console.info[F](project, s"${SubmissionResult.Success.show}\n${lastResponseInfo.message}")
+        console.info[F](project, s"🎉 Passed!\n${lastResponseInfo.message}")
       case _ =>
         console.error[F](project, s"${lastResponseInfo.result.show}\n${lastResponseInfo.message}")
     }
@@ -103,10 +103,8 @@ class LeetCodeSubmissionService[F[_]: Async: Concurrent: HttpClientManager: Logg
   private def formatSuccessMetrics(response: LeetCodeSubmitAnswerResult.Success): String = {
     Tabulator.format(
       List("Metric", "Value"),
-      List(
-        List("Runtime", f"${response.statusRuntime} (Top ${response.runtimePercentile.getOrElse(0.0f)}%2f%%)"),
-        List("Memory", f"${response.statusMemory} (Top ${response.memoryPercentile.getOrElse(0.0f)}%2f%%)")
-      )
+      List("Runtime", f"${response.statusRuntime} (Top ${response.runtimePercentile.getOrElse(0.0f)}%.2f%%)"),
+      List("Memory", f"${response.statusMemory} (Top ${response.memoryPercentile.getOrElse(0.0f)}%.2f%%)")
     )
   }
 
