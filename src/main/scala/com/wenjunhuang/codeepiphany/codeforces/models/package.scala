@@ -22,4 +22,5 @@ package object models {
       case ChallengeDifficulty.Hard     => (1600, 1899)
       case ChallengeDifficulty.Advanced => (1900, 2199)
       case ChallengeDifficulty.Expert   => (2200, Int.MaxValue)
+      case ChallengeDifficulty.CodeDojoDefined(_, _) => (0, Int.MaxValue)
 }

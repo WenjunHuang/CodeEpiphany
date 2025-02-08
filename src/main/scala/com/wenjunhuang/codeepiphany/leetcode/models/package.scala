@@ -11,11 +11,12 @@ package object models {
   extension (codeDojo: CodeDojo) {
     def leetCodeDifficulty(difficulty: ChallengeDifficulty): String =
       difficulty match
-        case ChallengeDifficulty.Easy     => "EASY"
-        case ChallengeDifficulty.Medium   => "MEDIUM"
-        case ChallengeDifficulty.Hard     => "HARD"
-        case ChallengeDifficulty.Advanced => "HARD"
-        case ChallengeDifficulty.Expert   => "HARD"
+        case ChallengeDifficulty.Easy                  => "EASY"
+        case ChallengeDifficulty.Medium                => "MEDIUM"
+        case ChallengeDifficulty.Hard                  => "HARD"
+        case ChallengeDifficulty.Advanced              => "HARD"
+        case ChallengeDifficulty.Expert                => "HARD"
+        case ChallengeDifficulty.CodeDojoDefined(_, _) => "HARD"
 
     def fromLeetCodeDifficulty(difficulty: String): ChallengeDifficulty =
       CIString(difficulty) match

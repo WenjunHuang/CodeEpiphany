@@ -1,7 +1,5 @@
 package com.wenjunhuang.codeepiphany.atcoder.models
 
-import java.time.LocalDateTime
-
 import com.wenjunhuang.codeepiphany.model.SubmissionResult
 
 case class AtCoderSubmissionResponse(

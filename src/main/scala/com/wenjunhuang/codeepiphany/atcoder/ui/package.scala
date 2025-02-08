@@ -10,11 +10,10 @@ import com.intellij.util.ui.ListTableModel
 import com.wenjunhuang.codeepiphany.actions.OpenChallengeActionGroup.OpenChallengeProvider
 import com.wenjunhuang.codeepiphany.atcoder.services.AtCoderOpenChallengeService
 import com.wenjunhuang.codeepiphany.atcoder.settings.AtCoderSettings
-import com.wenjunhuang.codeepiphany.codeforces.settings.CodeForcesSettings
-import com.wenjunhuang.codeepiphany.model.{ Language, LanguageVersion }
+import com.wenjunhuang.codeepiphany.model.{Language, LanguageVersion}
 import com.wenjunhuang.codeepiphany.services.console
 import com.wenjunhuang.codeepiphany.services.console.showConsole
-import com.wenjunhuang.codeepiphany.services.http.{ HttpClientManager, HttpClientService }
+import com.wenjunhuang.codeepiphany.services.http.{HttpClientManager, HttpClientService}
 import com.wenjunhuang.codeepiphany.utils.extensions.*
 import com.wenjunhuang.codeepiphany.utils.implicits.*
 
