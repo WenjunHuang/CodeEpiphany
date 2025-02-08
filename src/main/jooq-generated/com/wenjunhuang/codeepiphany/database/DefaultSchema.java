@@ -4,6 +4,10 @@
 package com.wenjunhuang.codeepiphany.database;
 
 
+import com.wenjunhuang.codeepiphany.database.tables.AtcoderContests;
+import com.wenjunhuang.codeepiphany.database.tables.AtcoderContestsFts;
+import com.wenjunhuang.codeepiphany.database.tables.AtcoderProblems;
+import com.wenjunhuang.codeepiphany.database.tables.AtcoderProblemsFts;
 import com.wenjunhuang.codeepiphany.database.tables.Challenge;
 import com.wenjunhuang.codeepiphany.database.tables.ChallengeLanguage;
 import com.wenjunhuang.codeepiphany.database.tables.CodeforcesChallenge;
@@ -37,6 +41,26 @@ public class DefaultSchema extends SchemaImpl {
      * The reference instance of <code>DEFAULT_SCHEMA</code>
      */
     public static final DefaultSchema DEFAULT_SCHEMA = new DefaultSchema();
+
+    /**
+     * The table <code>atcoder_contests</code>.
+     */
+    public final AtcoderContests ATCODER_CONTESTS = AtcoderContests.ATCODER_CONTESTS;
+
+    /**
+     * The table <code>atcoder_contests_fts</code>.
+     */
+    public final AtcoderContestsFts ATCODER_CONTESTS_FTS = AtcoderContestsFts.ATCODER_CONTESTS_FTS;
+
+    /**
+     * The table <code>atcoder_problems</code>.
+     */
+    public final AtcoderProblems ATCODER_PROBLEMS = AtcoderProblems.ATCODER_PROBLEMS;
+
+    /**
+     * The table <code>atcoder_problems_fts</code>.
+     */
+    public final AtcoderProblemsFts ATCODER_PROBLEMS_FTS = AtcoderProblemsFts.ATCODER_PROBLEMS_FTS;
 
     /**
      * The table <code>challenge</code>.
@@ -114,6 +138,10 @@ public class DefaultSchema extends SchemaImpl {
     @Override
     public final List<Table<?>> getTables() {
         return Arrays.asList(
+            AtcoderContests.ATCODER_CONTESTS,
+            AtcoderContestsFts.ATCODER_CONTESTS_FTS,
+            AtcoderProblems.ATCODER_PROBLEMS,
+            AtcoderProblemsFts.ATCODER_PROBLEMS_FTS,
             Challenge.CHALLENGE,
             ChallengeLanguage.CHALLENGE_LANGUAGE,
             CodeforcesChallenge.CODEFORCES_CHALLENGE,

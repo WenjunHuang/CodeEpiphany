@@ -12,9 +12,9 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.text.StringUtil
 
 import com.wenjunhuang.codeepiphany.database.Tables.*
-import com.wenjunhuang.codeepiphany.leetcode.model.*
-import com.wenjunhuang.codeepiphany.leetcode.model.submitAnswer.LeetCodeSubmitAnswerResult
-import com.wenjunhuang.codeepiphany.leetcode.model.submitAnswer.LeetCodeSubmitAnswerResult.{ Pending, Started, Success }
+import com.wenjunhuang.codeepiphany.leetcode.models.*
+import com.wenjunhuang.codeepiphany.leetcode.models.submitAnswer.LeetCodeSubmitAnswerResult
+import com.wenjunhuang.codeepiphany.leetcode.models.submitAnswer.LeetCodeSubmitAnswerResult.{ Pending, Started, Success }
 import com.wenjunhuang.codeepiphany.model.*
 import com.wenjunhuang.codeepiphany.model.newtypes.SubmissionId
 import com.wenjunhuang.codeepiphany.model.SubmissionResult.Processing

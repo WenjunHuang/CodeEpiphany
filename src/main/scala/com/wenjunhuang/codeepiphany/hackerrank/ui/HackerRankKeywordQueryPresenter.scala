@@ -15,7 +15,7 @@ import com.intellij.openapi.util.text.StringUtil
 import com.intellij.util.ui.table.IconTableCellRenderer
 
 import com.wenjunhuang.codeepiphany.actions.OpenChallengeActionGroup.CHALLENGE_PROVIDER_KEY
-import com.wenjunhuang.codeepiphany.hackerrank.model.{HackerRankChallengeDetail, HackerRankContest}
+import com.wenjunhuang.codeepiphany.hackerrank.models.{HackerRankChallengeDetail, HackerRankContest}
 import com.wenjunhuang.codeepiphany.hackerrank.services.HackerRankApi
 import com.wenjunhuang.codeepiphany.hackerrank.ui.HackerRankKeywordQueryPresenter.QueryParams
 import com.wenjunhuang.codeepiphany.model.{ChallengeDifficulty, ChallengeStatus}

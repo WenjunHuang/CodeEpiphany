@@ -5,7 +5,7 @@ import cats.syntax.all.*
 import com.intellij.openapi.actionSystem.*
 
 import com.wenjunhuang.codeepiphany.hackerrank.actions.SkillParameterAction.*
-import com.wenjunhuang.codeepiphany.hackerrank.model.HackerRankChallengeSkill
+import com.wenjunhuang.codeepiphany.hackerrank.models.HackerRankChallengeSkill
 import com.wenjunhuang.codeepiphany.utils.actions.{ParameterComboBoxAction, ParameterProvider}
 
 class SkillParameterAction

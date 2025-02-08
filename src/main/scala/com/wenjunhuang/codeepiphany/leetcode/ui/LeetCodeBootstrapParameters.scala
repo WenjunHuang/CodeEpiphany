@@ -1,6 +1,6 @@
 package com.wenjunhuang.codeepiphany.leetcode.ui
 
-import com.wenjunhuang.codeepiphany.leetcode.model.{LeetCodeCategoryListItem, LeetCodeFavoriteItem, LeetCodeTagTypeWithTags, LeetCodeUserInfo}
+import com.wenjunhuang.codeepiphany.leetcode.models.{LeetCodeCategoryListItem, LeetCodeFavoriteItem, LeetCodeTagTypeWithTags, LeetCodeUserInfo}
 
 case class LeetCodeBootstrapParameters(
   userInfo: LeetCodeUserInfo,

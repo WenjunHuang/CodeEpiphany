@@ -9,7 +9,7 @@ import com.intellij.ui.SingleSelectionModel
 import com.intellij.util.ui.ListTableModel
 
 import com.wenjunhuang.codeepiphany.actions.OpenChallengeActionGroup.OpenChallengeProvider
-import com.wenjunhuang.codeepiphany.hackerrank.model.{HackerRankChallengeDetail, HackerRankContest}
+import com.wenjunhuang.codeepiphany.hackerrank.models.{HackerRankChallengeDetail, HackerRankContest}
 import com.wenjunhuang.codeepiphany.hackerrank.services.{HackerRankOpenChallengeRequest, HackerRankOpenChallengeService}
 import com.wenjunhuang.codeepiphany.hackerrank.settings.HackerRankSettings
 import com.wenjunhuang.codeepiphany.model.{Language, LanguageVersion}

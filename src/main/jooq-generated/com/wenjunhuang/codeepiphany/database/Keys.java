@@ -4,6 +4,8 @@
 package com.wenjunhuang.codeepiphany.database;
 
 
+import com.wenjunhuang.codeepiphany.database.tables.AtcoderContests;
+import com.wenjunhuang.codeepiphany.database.tables.AtcoderProblems;
 import com.wenjunhuang.codeepiphany.database.tables.Challenge;
 import com.wenjunhuang.codeepiphany.database.tables.ChallengeLanguage;
 import com.wenjunhuang.codeepiphany.database.tables.CodeforcesChallenge;
@@ -15,6 +17,8 @@ import com.wenjunhuang.codeepiphany.database.tables.LeetcodeChallenge;
 import com.wenjunhuang.codeepiphany.database.tables.LeetcodeSubmission;
 import com.wenjunhuang.codeepiphany.database.tables.Solution;
 import com.wenjunhuang.codeepiphany.database.tables.SolutionSubmission;
+import com.wenjunhuang.codeepiphany.database.tables.records.AtcoderContestsRecord;
+import com.wenjunhuang.codeepiphany.database.tables.records.AtcoderProblemsRecord;
 import com.wenjunhuang.codeepiphany.database.tables.records.ChallengeLanguageRecord;
 import com.wenjunhuang.codeepiphany.database.tables.records.ChallengeRecord;
 import com.wenjunhuang.codeepiphany.database.tables.records.CodeforcesChallengeRecord;
@@ -45,6 +49,8 @@ public class Keys {
     // UNIQUE and PRIMARY KEY definitions
     // -------------------------------------------------------------------------
 
+    public static final UniqueKey<AtcoderContestsRecord> ATCODER_CONTESTS__PK_ATCODER_CONTESTS = Internal.createUniqueKey(AtcoderContests.ATCODER_CONTESTS, DSL.name("pk_atcoder_contests"), new TableField[] { AtcoderContests.ATCODER_CONTESTS.ID }, true);
+    public static final UniqueKey<AtcoderProblemsRecord> ATCODER_PROBLEMS__PK_ATCODER_PROBLEMS = Internal.createUniqueKey(AtcoderProblems.ATCODER_PROBLEMS, DSL.name("pk_atcoder_problems"), new TableField[] { AtcoderProblems.ATCODER_PROBLEMS.ID }, true);
     public static final UniqueKey<ChallengeRecord> CHALLENGE__PK_CHALLENGE = Internal.createUniqueKey(Challenge.CHALLENGE, DSL.name("pk_challenge"), new TableField[] { Challenge.CHALLENGE.ID }, true);
     public static final UniqueKey<ChallengeLanguageRecord> CHALLENGE_LANGUAGE__PK_CHALLENGE_LANGUAGE = Internal.createUniqueKey(ChallengeLanguage.CHALLENGE_LANGUAGE, DSL.name("pk_challenge_language"), new TableField[] { ChallengeLanguage.CHALLENGE_LANGUAGE.ID }, true);
     public static final UniqueKey<CodeforcesChallengeRecord> CODEFORCES_CHALLENGE__PK_CODEFORCES_CHALLENGE = Internal.createUniqueKey(CodeforcesChallenge.CODEFORCES_CHALLENGE, DSL.name("pk_codeforces_challenge"), new TableField[] { CodeforcesChallenge.CODEFORCES_CHALLENGE.ID }, true);

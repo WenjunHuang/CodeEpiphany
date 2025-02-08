@@ -19,7 +19,7 @@ import com.wenjunhuang.codeepiphany.actions.StatusParameterAction.{STATUS_PROVID
 import com.wenjunhuang.codeepiphany.actions.TagsAction.*
 import com.wenjunhuang.codeepiphany.leetcode.actions.FavoriteParameterAction.{FAVORITE_PROVIDER_KEY, FavoriteParameterProvider}
 import com.wenjunhuang.codeepiphany.leetcode.actions.LeetCodeCategoryParameterAction.{LEETCODE_CATEGORY_PROVIDER_KEY, LeetCodeCategoryProvider}
-import com.wenjunhuang.codeepiphany.leetcode.model.*
+import com.wenjunhuang.codeepiphany.leetcode.models.*
 import com.wenjunhuang.codeepiphany.leetcode.services.{LeetCodeApi, LeetCodeSearchOrderBy}
 import com.wenjunhuang.codeepiphany.leetcode.ui.LeetCodeParametersQueryPresenter.*
 import com.wenjunhuang.codeepiphany.model.*

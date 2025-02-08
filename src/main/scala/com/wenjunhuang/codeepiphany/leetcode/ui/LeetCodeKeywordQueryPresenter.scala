@@ -12,7 +12,7 @@ import com.intellij.openapi.util.text.StringUtil
 import com.intellij.util.ui.table.IconTableCellRenderer
 
 import com.wenjunhuang.codeepiphany.actions.OpenChallengeActionGroup
-import com.wenjunhuang.codeepiphany.leetcode.model.*
+import com.wenjunhuang.codeepiphany.leetcode.models.*
 import com.wenjunhuang.codeepiphany.leetcode.services.{LeetCodeApi, LeetCodeSearchOrderBy}
 import com.wenjunhuang.codeepiphany.leetcode.ui.LeetCodeKeywordQueryPresenter.QueryParams
 import com.wenjunhuang.codeepiphany.model.*

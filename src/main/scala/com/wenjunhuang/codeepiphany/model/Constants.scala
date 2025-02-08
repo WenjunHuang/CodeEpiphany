@@ -49,7 +49,12 @@ object Constants {
   final val CODEFORCES_SETTING = PROJECT_ID + ".codeforces.settings"
   @static
   final val CODEFORCES_SETTING_FILE = SETTINGS_FOLDER + "/codeforces.xml"
-  
+
+  @static
+  final val ATCODER_SETTING = PROJECT_ID + ".atcoder.settings"
+  @static
+  final val ATCODER_SETTING_FILE = SETTINGS_FOLDER + "/atcoder.xml"
+
   @static
   final val SUBMIT_CODE_REGION_BEGIN = "IMPORTANT!! Submit Code Region Begin(Do not remove this line)"
   @static

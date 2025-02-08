@@ -12,12 +12,14 @@ enum CodeDojo(val domain: CIString, val value: String) {
   case LeetCode   extends CodeDojo(CIString("leetcode.com"), "leetcode")
   case LeetCodeCN extends CodeDojo(CIString("leetcode.cn"), "leetcodecn")
   case CodeForces extends CodeDojo(CIString("codeforces.com"), "codeforces")
+  case AtCoder    extends CodeDojo(CIString("atcoder.jp"), "atcoder")
 
   def getIcon: Option[Icon] = this match {
     case HackerRank => Some(icons.CodeEpiphanyIcons.Dojos.HACKERRANK)
     case LeetCode   => Some(icons.CodeEpiphanyIcons.Dojos.LEETCODE)
     case LeetCodeCN => Some(icons.CodeEpiphanyIcons.Dojos.LEETCODE)
     case CodeForces => Some(icons.CodeEpiphanyIcons.Dojos.CODEFORCES)
+    case AtCoder    => Some(icons.CodeEpiphanyIcons.Dojos.ATCODER)
   }
 
   def getLoginURL: String = this match {
@@ -25,6 +27,7 @@ enum CodeDojo(val domain: CIString, val value: String) {
     case LeetCode   => "https://leetcode.com/accounts/login/"
     case LeetCodeCN => "https://leetcode.cn/accounts/login/"
     case CodeForces => "https://codeforces.com/enter"
+    case AtCoder    => "https://atcoder.jp/login"
   }
 
   def loginCandidateCookies(cookies: List[HttpCookie]): Boolean = this match {
@@ -32,6 +35,7 @@ enum CodeDojo(val domain: CIString, val value: String) {
     case LeetCode   => cookies.exists(cookie => cookie.getName == "LEETCODE_SESSION" && cookie.getValue.nonEmpty)
     case LeetCodeCN => cookies.exists(cookie => cookie.getName == "LEETCODE_SESSION" && cookie.getValue.nonEmpty)
     case CodeForces => cookies.exists(cookie => cookie.getName == "X-User" && cookie.getValue.nonEmpty)
+    case AtCoder    => cookies.exists(cookie => cookie.getName == "X-User" && cookie.getValue.nonEmpty)
   }
 
   def requiresCodeRegionEnclosure: Boolean = {
@@ -40,6 +44,7 @@ enum CodeDojo(val domain: CIString, val value: String) {
       case LeetCode   => true
       case LeetCodeCN => true
       case CodeForces => true
+      case AtCoder    => true
     }
   }
 }
@@ -50,6 +55,7 @@ object CodeDojo {
     case LeetCode   => "LeetCode"
     case LeetCodeCN => "LeetCodeCN"
     case CodeForces => "CodeForces"
+    case AtCoder    => "AtCoder"
   }
 
   @static
@@ -60,6 +66,7 @@ object CodeDojo {
     case _ if s.contains(LeetCode.domain)   => Some(CodeDojo.LeetCode)
     case _ if s.contains(LeetCodeCN.domain) => Some(CodeDojo.LeetCodeCN)
     case _ if s.contains(CodeForces.domain) => Some(CodeDojo.CodeForces)
+    case _ if s.contains(AtCoder.domain)    => Some(CodeDojo.AtCoder)
     case _                                  => None
   }
 

@@ -11,7 +11,7 @@ import com.intellij.openapi.util.text.StringUtil
 
 import com.wenjunhuang.codeepiphany.database.Tables.*
 import com.wenjunhuang.codeepiphany.database.tables.records.{ChallengeLanguageRecord, ChallengeRecord}
-import com.wenjunhuang.codeepiphany.hackerrank.model.{HackerRankChallengeCodeTemplate, HackerRankChallengeContent, HackerRankContest, HackerRankLanguageTemplate}
+import com.wenjunhuang.codeepiphany.hackerrank.models.{HackerRankChallengeCodeTemplate, HackerRankChallengeContent, HackerRankContest, HackerRankLanguageTemplate}
 import com.wenjunhuang.codeepiphany.hackerrank.settings.{HackerRankSettings, HackerRankSettingsConfigurable}
 import com.wenjunhuang.codeepiphany.model.*
 import com.wenjunhuang.codeepiphany.model.newtypes.*

@@ -17,9 +17,9 @@ import scala.io.{BufferedSource, Source}
 
 import com.intellij.util.LineSeparator
 
-import com.wenjunhuang.codeepiphany.leetcode.model.*
-import com.wenjunhuang.codeepiphany.leetcode.model.runCode.*
-import com.wenjunhuang.codeepiphany.leetcode.model.submitAnswer.{LeetCodeSubmitAnswerRequest, LeetCodeSubmitAnswerResponse, LeetCodeSubmitAnswerResult}
+import com.wenjunhuang.codeepiphany.leetcode.models.*
+import com.wenjunhuang.codeepiphany.leetcode.models.runCode.*
+import com.wenjunhuang.codeepiphany.leetcode.models.submitAnswer.{LeetCodeSubmitAnswerRequest, LeetCodeSubmitAnswerResponse, LeetCodeSubmitAnswerResult}
 import com.wenjunhuang.codeepiphany.model.*
 import com.wenjunhuang.codeepiphany.model.CodeDojo.{LeetCode, LeetCodeCN}
 import com.wenjunhuang.codeepiphany.services.http.HttpClientManager

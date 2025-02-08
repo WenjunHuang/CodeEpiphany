@@ -11,8 +11,8 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.text.StringUtil
 
 import com.wenjunhuang.codeepiphany.database.Tables.{CHALLENGE, CHALLENGE_LANGUAGE, LEETCODE_CHALLENGE}
-import com.wenjunhuang.codeepiphany.leetcode.model.*
-import com.wenjunhuang.codeepiphany.leetcode.model.runCode.LeetCodeRunResult
+import com.wenjunhuang.codeepiphany.leetcode.models.*
+import com.wenjunhuang.codeepiphany.leetcode.models.runCode.LeetCodeRunResult
 import com.wenjunhuang.codeepiphany.model.*
 import com.wenjunhuang.codeepiphany.model.SubmissionResult.Processing
 import com.wenjunhuang.codeepiphany.services.{console, BaseCodeEvaluationService, ChallengeRepository}

@@ -21,7 +21,7 @@ import com.wenjunhuang.codeepiphany.actions.TagsAction.{SingleTagGroupProvider, 
 import com.wenjunhuang.codeepiphany.hackerrank.actions.{CategoryParameterAction, SkillParameterAction}
 import com.wenjunhuang.codeepiphany.hackerrank.actions.CategoryParameterAction.{Category, CategoryProvider}
 import com.wenjunhuang.codeepiphany.hackerrank.actions.SkillParameterAction.SkillParameterProvider
-import com.wenjunhuang.codeepiphany.hackerrank.model.*
+import com.wenjunhuang.codeepiphany.hackerrank.models.*
 import com.wenjunhuang.codeepiphany.hackerrank.services.HackerRankApi
 import com.wenjunhuang.codeepiphany.hackerrank.ui.HackerRankQueryParametersPresenter.*
 import com.wenjunhuang.codeepiphany.model.*

@@ -12,7 +12,7 @@ import scala.jdk.OptionConverters.*
 import com.intellij.openapi.project.Project
 
 import com.wenjunhuang.codeepiphany.database.Tables.*
-import com.wenjunhuang.codeepiphany.hackerrank.model.{HackerRankContest, HackerRankSubmissionResponse}
+import com.wenjunhuang.codeepiphany.hackerrank.models.{HackerRankContest, HackerRankSubmissionResponse}
 import com.wenjunhuang.codeepiphany.model.*
 import com.wenjunhuang.codeepiphany.model.newtypes.SubmissionId
 import com.wenjunhuang.codeepiphany.model.CodeDojo.HackerRank

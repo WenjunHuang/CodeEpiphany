@@ -3,7 +3,7 @@
     <!-- Configure the database connection here -->
     <jdbc>
         <driver>org.sqlite.JDBC</driver>
-        <url>jdbc:sqlite:./database/designv2.sqlite</url>
+        <url>jdbc:sqlite:./database/designv3.sqlite</url>
     </jdbc>
     <generator>
 

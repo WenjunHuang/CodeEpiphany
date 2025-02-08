@@ -16,8 +16,8 @@ import org.http4s.implicits.uri
 import org.jsoup.Jsoup
 import scala.concurrent.duration.*
 
-import com.wenjunhuang.codeepiphany.hackerrank.model.*
-import com.wenjunhuang.codeepiphany.hackerrank.model.HackerRankContest.{Master, ProjectEuler}
+import com.wenjunhuang.codeepiphany.hackerrank.models.*
+import com.wenjunhuang.codeepiphany.hackerrank.models.HackerRankContest.{Master, ProjectEuler}
 import com.wenjunhuang.codeepiphany.model.*
 import com.wenjunhuang.codeepiphany.model.CodeDojo.HackerRank
 import com.wenjunhuang.codeepiphany.services.http.HttpClientManager

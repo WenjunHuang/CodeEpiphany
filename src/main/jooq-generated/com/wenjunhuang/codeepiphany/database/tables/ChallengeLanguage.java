@@ -5,7 +5,6 @@ package com.wenjunhuang.codeepiphany.database.tables;
 
 
 import com.wenjunhuang.codeepiphany.database.DefaultSchema;
-import com.wenjunhuang.codeepiphany.database.Indexes;
 import com.wenjunhuang.codeepiphany.database.Keys;
 import com.wenjunhuang.codeepiphany.database.tables.Challenge.ChallengePath;
 import com.wenjunhuang.codeepiphany.database.tables.HackerrankChallengeLanguage.HackerrankChallengeLanguagePath;
@@ -19,7 +18,6 @@ import java.util.List;
 import org.jooq.Condition;
 import org.jooq.Field;
 import org.jooq.ForeignKey;
-import org.jooq.Index;
 import org.jooq.InverseForeignKey;
 import org.jooq.Name;
 import org.jooq.Path;
@@ -150,11 +148,6 @@ public class ChallengeLanguage extends TableImpl<ChallengeLanguageRecord> {
     @Override
     public Schema getSchema() {
         return aliased() ? null : DefaultSchema.DEFAULT_SCHEMA;
-    }
-
-    @Override
-    public List<Index> getIndexes() {
-        return Arrays.asList(Indexes.CHALLENGE_LANGUAGE_CHALLENGEID_LANGUAGE_UINDEX);
     }
 
     @Override

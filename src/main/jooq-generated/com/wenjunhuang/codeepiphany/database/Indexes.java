@@ -5,7 +5,6 @@ package com.wenjunhuang.codeepiphany.database;
 
 
 import com.wenjunhuang.codeepiphany.database.tables.Challenge;
-import com.wenjunhuang.codeepiphany.database.tables.ChallengeLanguage;
 import com.wenjunhuang.codeepiphany.database.tables.CodeforcesProblemsets;
 
 import org.jooq.Index;
@@ -25,6 +24,5 @@ public class Indexes {
     // -------------------------------------------------------------------------
 
     public static final Index CHALLENGE_DOJOID_DOJO_UINDEX = Internal.createIndex(DSL.name("challenge_dojoId_dojo_uindex"), Challenge.CHALLENGE, new OrderField[] { Challenge.CHALLENGE.DOJOID, Challenge.CHALLENGE.DOJO }, true);
-    public static final Index CHALLENGE_LANGUAGE_CHALLENGEID_LANGUAGE_UINDEX = Internal.createIndex(DSL.name("challenge_language_challengeId_language_uindex"), ChallengeLanguage.CHALLENGE_LANGUAGE, new OrderField[] { ChallengeLanguage.CHALLENGE_LANGUAGE.CHALLENGEID, ChallengeLanguage.CHALLENGE_LANGUAGE.LANGUAGE }, true);
     public static final Index CODEFORCES_PROBLEMSETS_CONTESTID_INDEX_INDEX = Internal.createIndex(DSL.name("codeforces_problemsets_contestId_index_index"), CodeforcesProblemsets.CODEFORCES_PROBLEMSETS, new OrderField[] { CodeforcesProblemsets.CODEFORCES_PROBLEMSETS.CONTESTID, CodeforcesProblemsets.CODEFORCES_PROBLEMSETS.INDEX }, false);
 }

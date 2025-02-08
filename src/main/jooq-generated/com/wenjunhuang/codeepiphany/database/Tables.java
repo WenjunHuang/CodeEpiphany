@@ -4,6 +4,10 @@
 package com.wenjunhuang.codeepiphany.database;
 
 
+import com.wenjunhuang.codeepiphany.database.tables.AtcoderContests;
+import com.wenjunhuang.codeepiphany.database.tables.AtcoderContestsFts;
+import com.wenjunhuang.codeepiphany.database.tables.AtcoderProblems;
+import com.wenjunhuang.codeepiphany.database.tables.AtcoderProblemsFts;
 import com.wenjunhuang.codeepiphany.database.tables.Challenge;
 import com.wenjunhuang.codeepiphany.database.tables.ChallengeLanguage;
 import com.wenjunhuang.codeepiphany.database.tables.CodeforcesChallenge;
@@ -23,6 +27,26 @@ import com.wenjunhuang.codeepiphany.database.tables.SolutionSubmission;
  */
 @SuppressWarnings({ "all", "unchecked", "rawtypes", "this-escape" })
 public class Tables {
+
+    /**
+     * The table <code>atcoder_contests</code>.
+     */
+    public static final AtcoderContests ATCODER_CONTESTS = AtcoderContests.ATCODER_CONTESTS;
+
+    /**
+     * The table <code>atcoder_contests_fts</code>.
+     */
+    public static final AtcoderContestsFts ATCODER_CONTESTS_FTS = AtcoderContestsFts.ATCODER_CONTESTS_FTS;
+
+    /**
+     * The table <code>atcoder_problems</code>.
+     */
+    public static final AtcoderProblems ATCODER_PROBLEMS = AtcoderProblems.ATCODER_PROBLEMS;
+
+    /**
+     * The table <code>atcoder_problems_fts</code>.
+     */
+    public static final AtcoderProblemsFts ATCODER_PROBLEMS_FTS = AtcoderProblemsFts.ATCODER_PROBLEMS_FTS;
 
     /**
      * The table <code>challenge</code>.

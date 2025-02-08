@@ -6,8 +6,8 @@ import cats.syntax.all.*
 import com.intellij.testFramework.fixtures.BasePlatformTestCase
 import com.intellij.util.net.{ ProxyConfiguration, ProxySettings }
 
-import com.wenjunhuang.codeepiphany.hackerrank.model.HackerRankContest.{ Master, ProjectEuler }
-import com.wenjunhuang.codeepiphany.hackerrank.model.HackerRankContest
+import com.wenjunhuang.codeepiphany.hackerrank.models.HackerRankContest.{ Master, ProjectEuler }
+import com.wenjunhuang.codeepiphany.hackerrank.models.HackerRankContest
 import com.wenjunhuang.codeepiphany.hackerrank.services.HackerRankApi
 import com.wenjunhuang.codeepiphany.model.{ ApiError, CodeDojo, Language, LanguageVersion }
 import com.wenjunhuang.codeepiphany.services.http.{ HttpClientManager, HttpClientService }

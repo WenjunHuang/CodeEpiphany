@@ -8,7 +8,7 @@ import com.intellij.ui.SingleSelectionModel
 import com.intellij.util.ui.ListTableModel
 
 import com.wenjunhuang.codeepiphany.actions.OpenChallengeActionGroup.OpenChallengeProvider
-import com.wenjunhuang.codeepiphany.leetcode.model.LeetCodeChallengeListItem
+import com.wenjunhuang.codeepiphany.leetcode.models.LeetCodeChallengeListItem
 import com.wenjunhuang.codeepiphany.leetcode.services.{LeetCodeOpenChallengeRequest, LeetCodeOpenChallengeService}
 import com.wenjunhuang.codeepiphany.leetcode.settings.{LeetCodeCNSettings, LeetCodeSettings}
 import com.wenjunhuang.codeepiphany.model.{CodeDojo, Language, LanguageVersion}

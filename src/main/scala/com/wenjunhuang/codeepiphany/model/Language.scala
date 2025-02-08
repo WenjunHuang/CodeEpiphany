@@ -7,7 +7,7 @@ import scala.collection.mutable
 
 import com.intellij.openapi.util.text.StringUtil
 
-import com.wenjunhuang.codeepiphany.model.LanguageVersion.{AnyVersion, SpecificVersion}
+import com.wenjunhuang.codeepiphany.model.LanguageVersion.{ AnyVersion, SpecificVersion }
 
 enum LanguageVersion {
   case AnyVersion
@@ -35,6 +35,7 @@ object LanguageVersion {
 }
 
 enum Language(val value: String, val fileExt: String, val show: String, val icon: Icon) {
+  case Asm        extends Language("asm", "asm", "Assembly", CodeEpiphanyIcons.Languages.ASM)
   case C          extends Language("c", "c", "C", CodeEpiphanyIcons.Languages.C)
   case Clojure    extends Language("clojure", "clj", "Clojure", CodeEpiphanyIcons.Languages.CLOJURE)
   case Cpp        extends Language("cpp", "cc", "C++", CodeEpiphanyIcons.Languages.CPP)
@@ -46,6 +47,7 @@ enum Language(val value: String, val fileExt: String, val show: String, val icon
   case D          extends Language("d", "d", "D", CodeEpiphanyIcons.Languages.DLANG)
   case Erlang     extends Language("erlang", "erl", "Erlang", CodeEpiphanyIcons.Languages.ERLANG)
   case Elixir     extends Language("elixir", "ex", "Elixir", CodeEpiphanyIcons.Languages.ELIXIR)
+  case FSharp     extends Language("fsharp", "fs", "F#", CodeEpiphanyIcons.Languages.FSHARP)
   case GO         extends Language("go", "go", "Go", CodeEpiphanyIcons.Languages.GO)
   case Haskell    extends Language("haskell", "hs", "Haskell", CodeEpiphanyIcons.Languages.HASKELL)
   case Java       extends Language("java", "java", "Java", CodeEpiphanyIcons.Languages.JAVA)
@@ -65,18 +67,23 @@ enum Language(val value: String, val fileExt: String, val show: String, val icon
   case Scala      extends Language("scala", "scala", "Scala", CodeEpiphanyIcons.Languages.SCALA)
   case Swift      extends Language("swift", "swift", "Swift", CodeEpiphanyIcons.Languages.SWIFT)
   case Typescript extends Language("typescript", "ts", "Typescript", CodeEpiphanyIcons.Languages.TYPESCRIPT)
+  case Lua        extends Language("lua", "lua", "Lua", CodeEpiphanyIcons.Languages.LUA)
+  case LLVM       extends Language("llvm", "ll", "LLVM", CodeEpiphanyIcons.Languages.LLVM)
+  case Lisp       extends Language("lisp", "lisp", "Lisp", CodeEpiphanyIcons.Languages.LISP)
+  case ReasonML   extends Language("reasonml", "re", "ReasonML", CodeEpiphanyIcons.Languages.REASONML)
+  case Octave    extends Language("octave", "m", "Octave", CodeEpiphanyIcons.Languages.OCTAVE)
 
   def createComment(comment: String): String = this match {
     case C | Cpp | CSharp | D | GO | Java | Kotlin | ObjectiveC | PHP | Rust | Scala | Swift | Dart | Javascript |
-        Typescript | Cangjie | Delphi | Pascal =>
+        Typescript | Cangjie | Delphi | Pascal | FSharp | ReasonML =>
       s"//$comment"
-    case Clojure | Racket =>
+    case Clojure | Racket | Asm | LLVM | Lisp =>
       s";$comment"
     case Pypy | Python | Ruby | Julia | Perl | R | Elixir =>
       s"#$comment"
-    case Haskell =>
+    case Haskell | Lua =>
       s"--$comment"
-    case Erlang =>
+    case Erlang | Octave =>
       s"%$comment"
     case OCaml =>
       s"(*$comment*)"

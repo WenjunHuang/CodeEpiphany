@@ -13,7 +13,7 @@ object CodeEpiphanyIcons {
   val PLUGIN: Icon = IconLoader.getIcon("/icons/pluginIcon.svg", CodeEpiphanyIcons.getClass.getClassLoader)
 
   @static
-  val DOWNLOAD:Icon = IconLoader.getIcon("/icons/download.svg", CodeEpiphanyIcons.getClass.getClassLoader)
+  val DOWNLOAD: Icon = IconLoader.getIcon("/icons/download.svg", CodeEpiphanyIcons.getClass.getClassLoader)
 
   @static
   val LOGIN: Icon =
@@ -56,9 +56,12 @@ object CodeEpiphanyIcons {
     val LEETCODE: Icon   = IconLoader.getIcon("/icons/dojos/leetcode.svg", CodeEpiphanyIcons.getClass.getClassLoader)
     val HACKERRANK: Icon = IconLoader.getIcon("/icons/dojos/hackerrank.svg", CodeEpiphanyIcons.getClass.getClassLoader)
     val CODEFORCES: Icon = IconLoader.getIcon("/icons/dojos/codeforces.svg", CodeEpiphanyIcons.getClass.getClassLoader)
+    val ATCODER: Icon    = IconLoader.getIcon("/icons/dojos/atcoder.svg", CodeEpiphanyIcons.getClass.getClassLoader)
   }
 
   object Languages {
+    final val ASM: Icon =
+      IconLoader.getIcon("/icons/languages/asm.svg", CodeEpiphanyIcons.getClass.getClassLoader)
     final val C: Icon =
       IconLoader.getIcon("/icons/languages/c.svg", CodeEpiphanyIcons.getClass.getClassLoader)
     final val CLOJURE: Icon =
@@ -73,7 +76,7 @@ object CodeEpiphanyIcons {
     final val DLANG: Icon = IconLoader.getIcon("/icons/languages/dlang.svg", CodeEpiphanyIcons.getClass.getClassLoader)
 
     final val PASCAL: Icon =
-      IconLoader.getIcon("/icons/language/freepascal.svg", CodeEpiphanyIcons.getClass.getClassLoader)
+      IconLoader.getIcon("/icons/languages/freepascal.svg", CodeEpiphanyIcons.getClass.getClassLoader)
     final val DELPHI: Icon =
       IconLoader.getIcon("/icons/languages/delphi.svg", CodeEpiphanyIcons.getClass.getClassLoader)
 
@@ -83,6 +86,8 @@ object CodeEpiphanyIcons {
       IconLoader.getIcon("/icons/languages/erlang.svg", CodeEpiphanyIcons.getClass.getClassLoader)
     final val ELIXIR: Icon =
       IconLoader.getIcon("/icons/languages/elixir.svg", CodeEpiphanyIcons.getClass.getClassLoader)
+    final val FSHARP: Icon =
+      IconLoader.getIcon("/icons/languages/fsharp.svg", CodeEpiphanyIcons.getClass.getClassLoader)
     final val GO: Icon =
       IconLoader.getIcon("/icons/languages/go.svg", CodeEpiphanyIcons.getClass.getClassLoader)
     final val HASKELL: Icon =
@@ -119,5 +124,15 @@ object CodeEpiphanyIcons {
       IconLoader.getIcon("/icons/languages/swift.svg", CodeEpiphanyIcons.getClass.getClassLoader)
     final val TYPESCRIPT: Icon =
       IconLoader.getIcon("/icons/languages/typescript.svg", CodeEpiphanyIcons.getClass.getClassLoader)
+    final val LUA: Icon =
+      IconLoader.getIcon("/icons/languages/lua.svg", CodeEpiphanyIcons.getClass.getClassLoader)
+    final val LLVM: Icon =
+      IconLoader.getIcon("/icons/languages/llvm.svg", CodeEpiphanyIcons.getClass.getClassLoader)
+    final val LISP: Icon =
+      IconLoader.getIcon("/icons/languages/lisp.svg", CodeEpiphanyIcons.getClass.getClassLoader)
+    final val REASONML: Icon =
+      IconLoader.getIcon("/icons/languages/reasonml.svg", CodeEpiphanyIcons.getClass.getClassLoader)
+    final val OCTAVE: Icon =
+      IconLoader.getIcon("/icons/languages/octave.svg", CodeEpiphanyIcons.getClass.getClassLoader)
   }
 }

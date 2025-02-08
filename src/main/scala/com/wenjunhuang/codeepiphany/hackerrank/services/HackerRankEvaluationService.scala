@@ -11,7 +11,7 @@ import scala.jdk.OptionConverters.*
 import com.intellij.openapi.project.Project
 
 import com.wenjunhuang.codeepiphany.database.Tables.{ CHALLENGE, CHALLENGE_LANGUAGE, HACKERRANK_CHALLENGE }
-import com.wenjunhuang.codeepiphany.hackerrank.model.{ HackerRankContest, HackerRankRunCodeResponse }
+import com.wenjunhuang.codeepiphany.hackerrank.models.{ HackerRankContest, HackerRankRunCodeResponse }
 import com.wenjunhuang.codeepiphany.model.*
 import com.wenjunhuang.codeepiphany.model.CodeDojo.HackerRank
 import com.wenjunhuang.codeepiphany.services.{ console, BaseCodeEvaluationService, ChallengeRepository }

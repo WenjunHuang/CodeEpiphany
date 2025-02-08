@@ -3,7 +3,7 @@ package com.wenjunhuang.codeepiphany.leetcode.actions
 import com.intellij.openapi.actionSystem.DataKey
 
 import com.wenjunhuang.codeepiphany.leetcode.actions.FavoriteParameterAction.{FAVORITE_PROVIDER_KEY, FavoriteParameterProvider}
-import com.wenjunhuang.codeepiphany.leetcode.model.LeetCodeFavoriteItem
+import com.wenjunhuang.codeepiphany.leetcode.models.LeetCodeFavoriteItem
 import com.wenjunhuang.codeepiphany.utils.actions.{ParameterComboBoxAction, ParameterProvider}
 
 class FavoriteParameterAction
