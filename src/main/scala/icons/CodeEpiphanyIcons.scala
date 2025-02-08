@@ -132,6 +132,7 @@ object CodeEpiphanyIcons {
       IconLoader.getIcon("/icons/languages/lisp.svg", CodeEpiphanyIcons.getClass.getClassLoader)
     final val REASONML: Icon =
       IconLoader.getIcon("/icons/languages/reasonml.svg", CodeEpiphanyIcons.getClass.getClassLoader)
+
     final val OCTAVE: Icon =
       IconLoader.getIcon("/icons/languages/octave.svg", CodeEpiphanyIcons.getClass.getClassLoader)
   }

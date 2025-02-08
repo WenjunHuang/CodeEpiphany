@@ -1,6 +1,6 @@
 package com.wenjunhuang.codeepiphany.atcoder.services
 
-import cats.effect.{Async, Concurrent}
+import cats.effect.{ Async, Concurrent }
 import cats.syntax.all.*
 import org.jooq.DSLContext
 import org.typelevel.log4cats.LoggerFactory
@@ -8,10 +8,14 @@ import org.typelevel.log4cats.LoggerFactory
 import com.intellij.openapi.project.Project
 
 import com.wenjunhuang.codeepiphany.atcoder.models.AtCoderChallengeCodeTemplate
-import com.wenjunhuang.codeepiphany.atcoder.settings.{AtCoderSettings, AtCoderSettingsConfigurable}
-import com.wenjunhuang.codeepiphany.database.tables.records.{AtcoderProblemsRecord, ChallengeLanguageRecord, ChallengeRecord}
+import com.wenjunhuang.codeepiphany.atcoder.settings.{ AtCoderSettings, AtCoderSettingsConfigurable }
+import com.wenjunhuang.codeepiphany.database.tables.records.{
+  AtcoderProblemsRecord,
+  ChallengeLanguageRecord,
+  ChallengeRecord
+}
 import com.wenjunhuang.codeepiphany.database.Tables.*
-import com.wenjunhuang.codeepiphany.model.{ChallengeDifficulty, CodeDojo, Language, LanguageVersion}
+import com.wenjunhuang.codeepiphany.model.{ ChallengeDifficulty, CodeDojo, Language, LanguageVersion }
 import com.wenjunhuang.codeepiphany.model.newtypes.CodeDojoChallengeId
 import com.wenjunhuang.codeepiphany.services.http.HttpClientManager
 import com.wenjunhuang.codeepiphany.services.BaseOpenChallengeService
@@ -21,7 +25,7 @@ import com.wenjunhuang.codeepiphany.utils.template.VelocityTool
 class AtCoderOpenChallengeService[F[_]: Async: Concurrent: HttpClientManager: LoggerFactory](project: Project)
     extends BaseOpenChallengeService[F, AtcoderProblemsRecord, AtCoderChallengeCodeTemplate](
       project,
-      CodeDojo.CodeForces,
+      CodeDojo.AtCoder,
       classOf[AtCoderSettingsConfigurable]
     ) {
   override protected def findLanguageSetting(
@@ -32,8 +36,12 @@ class AtCoderOpenChallengeService[F[_]: Async: Concurrent: HttpClientManager: Lo
 
   override protected def fillChallengeRecord(record: ChallengeRecord, state: ServiceState): Unit = {
     record.setDescription(state.template.description)
-    record.setDifficulty(ChallengeDifficulty.CodeDojoDefined(CodeDojo.AtCoder, state.req.getDifficulty.toString).value)
-    record.setDojo(CodeDojo.CodeForces.value)
+    record.setDifficulty(
+      ChallengeDifficulty
+        .CodeDojoDefined(CodeDojo.AtCoder, Option(state.req.getDifficulty).map(_.toString).getOrElse(""))
+        .value
+    )
+    record.setDojo(CodeDojo.AtCoder.value)
     record.setDojoid(state.req.getProblemid)
     record.setSlug(VelocityTool.slugify(state.req.getName))
     record.setTitle(state.req.getName)

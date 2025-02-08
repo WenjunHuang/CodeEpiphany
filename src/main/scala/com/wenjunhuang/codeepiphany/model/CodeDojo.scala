@@ -7,6 +7,10 @@ import javax.swing.Icon
 import org.typelevel.ci.CIString
 import scala.annotation.static
 
+import com.intellij.openapi.util.text.StringUtil
+
+import com.wenjunhuang.codeepiphany.atcoder.models.AtCoderDifficulty
+
 enum CodeDojo(val domain: CIString, val value: String) {
   case HackerRank extends CodeDojo(CIString("hackerrank.com"), "hackerrank")
   case LeetCode   extends CodeDojo(CIString("leetcode.com"), "leetcode")
@@ -48,6 +52,29 @@ enum CodeDojo(val domain: CIString, val value: String) {
       case LeetCodeCN => true
       case CodeForces => true
       case AtCoder    => true
+    }
+  }
+
+  def difficultyShow(difficulty: String): String = {
+    this match {
+      case HackerRank => difficulty
+      case LeetCode   => difficulty
+      case LeetCodeCN => difficulty
+      case CodeForces => difficulty
+      case AtCoder    => difficulty
+    }
+  }
+
+  def difficultyShowAsHtml(difficulty: String): String = {
+    this match {
+      case AtCoder =>
+        if StringUtil.isEmpty(difficulty) then ""
+        else
+          difficulty.toIntOption match {
+            case Some(difficulty) => AtCoderDifficulty.fromInt(difficulty).showAsHtml
+            case _                => ""
+          }
+      case _ => ""
     }
   }
 }

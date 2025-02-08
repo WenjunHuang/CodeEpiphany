@@ -10,7 +10,7 @@ import com.intellij.openapi.vfs.VirtualFile
 import com.wenjunhuang.codeepiphany.editor.actions.SubmitCodeAction.*
 import com.wenjunhuang.codeepiphany.editor.services.{ runCode, submitCode }
 import com.wenjunhuang.codeepiphany.model.CodeDojo
-import com.wenjunhuang.codeepiphany.model.CodeDojo.CodeForces
+import com.wenjunhuang.codeepiphany.model.CodeDojo.{ AtCoder, CodeForces }
 import com.wenjunhuang.codeepiphany.services.http.{ HttpClientManager, HttpClientService }
 import com.wenjunhuang.codeepiphany.services.AuthService
 import com.wenjunhuang.codeepiphany.services.file.saveEditedFile
@@ -88,6 +88,7 @@ object SubmitCodeAction {
         override def enabledRun: Boolean =
           codeDojo match
             case CodeForces => false
+            case AtCoder    => false
             case _          => true
 
   }

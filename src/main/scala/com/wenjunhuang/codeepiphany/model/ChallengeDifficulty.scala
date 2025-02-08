@@ -38,7 +38,8 @@ enum ChallengeDifficulty(val value: String) {
         s"<html><font color='${DIFFICULTY_ADVANCED_COLOR}'>${Advanced.show}</font></html>"
       case Expert =>
         s"<html><font color='${DIFFICULTY_EXPERT_COLOR}'>${Expert.show}</font></html>"
-      case _ => ""
+      case CodeDojoDefined(codeDojo, codeDojoValue) =>
+        codeDojo.difficultyShowAsHtml(codeDojoValue)
 }
 
 object ChallengeDifficulty {
@@ -50,7 +51,8 @@ object ChallengeDifficulty {
       case Advanced => PluginBundle.message("challenge.difficulty.advanced")
       case Expert   => PluginBundle.message("challenge.difficulty.expert")
       case CodeDojoDefined(codeDojo, codeDojoValue) =>
-        PluginBundle.messageOfBuildKey(s"challenge.difficulty.${codeDojo.value}.${codeDojoValue}")
+        Option(PluginBundle.messageOfBuildKey(s"challenge.difficulty.${codeDojo.value}.${codeDojoValue}"))
+        .getOrElse(codeDojo.difficultyShow(codeDojoValue))
     }
 
   def fromCIString(str: CIString): Option[ChallengeDifficulty] =

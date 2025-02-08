@@ -112,7 +112,7 @@ public class CodeDojoSettingsForm extends SettingsUi<BaseCodeDojoSettings.CodeDo
         private final LanguageVersion myLanguageVersion;
 
         LanguageAction(Language language, LanguageVersion languageVersion) {
-            super(language.show() + languageVersion.version(), null, language.icon());
+            super(language.show() + " " + languageVersion.version(), null, language.icon());
             myLanguage = language;
             myLanguageVersion = languageVersion;
         }

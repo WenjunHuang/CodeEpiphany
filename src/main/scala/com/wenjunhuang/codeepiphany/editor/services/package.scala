@@ -7,6 +7,7 @@ import org.typelevel.log4cats.{Logger, LoggerFactory}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
 
+import com.wenjunhuang.codeepiphany.atcoder.services.AtCoderSubmissionService
 import com.wenjunhuang.codeepiphany.codeforces.services.CodeForcesSubmissionService
 import com.wenjunhuang.codeepiphany.hackerrank.services.{HackerRankEvaluationService, HackerRankSubmissionService}
 import com.wenjunhuang.codeepiphany.leetcode.services.{LeetCodeEvaluationService, LeetCodeSubmissionService}
@@ -55,6 +56,7 @@ package object services {
               case CodeDojo.LeetCodeCN => LeetCodeSubmissionService[F](project, CodeDojo.LeetCodeCN).submitCode(vf)
               case CodeDojo.LeetCode   => LeetCodeSubmissionService[F](project, CodeDojo.LeetCode).submitCode(vf)
               case CodeDojo.CodeForces => CodeForcesSubmissionService[F](project).submitCode(vf)
+              case CodeDojo.AtCoder    => AtCoderSubmissionService[F](project).submitCode(vf)
           )
       case None => Async[F].unit
     ).handleErrorWith { e =>
