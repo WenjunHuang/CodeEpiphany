@@ -32,5 +32,5 @@ class ChallengeEditorIconProvider extends FileIconPatcher {
 
 object ChallengeEditorIconProvider {
   case class FileIcon(icon: Option[Icon])
-  val FILE_ICON_KEY = Key.create[FileIcon]("FILE_ICON_KEY")
+  val FILE_ICON_KEY: Key[FileIcon] = Key.create[FileIcon]("FILE_ICON_KEY")
 }

@@ -3,7 +3,8 @@ package com.wenjunhuang.codeepiphany.atcoder.settings
 import com.intellij.openapi.project.Project
 
 import com.wenjunhuang.codeepiphany.PluginBundle
-import com.wenjunhuang.codeepiphany.atcoder.settings.AtCoderSettingsConfigurable.ATCODER_LANGUAGES
+import com.wenjunhuang.codeepiphany.atcoder.models.AtCoderChallengeCodeTemplate
+import com.wenjunhuang.codeepiphany.atcoder.settings.AtCoderSettingsConfigurable.{ ATCODER_LANGUAGES, DEMO_TEMPLATE }
 import com.wenjunhuang.codeepiphany.model.{ CodeDojo, Language, LanguageVersion }
 import com.wenjunhuang.codeepiphany.model.Language.*
 import com.wenjunhuang.codeepiphany.model.LanguageVersion.*
@@ -19,9 +20,12 @@ class AtCoderSettingsConfigurable(project: Project)
     ) {
   override def supportedLanguages: List[(Language, LanguageVersion)] = ATCODER_LANGUAGES.keys.toList.sorted
 
-  override def createDemoTemplate(language: Language, languageVersion: LanguageVersion): Option[Any] = ???
+  override def createDemoTemplate(language: Language, languageVersion: LanguageVersion): Option[Any] =
+    ATCODER_LANGUAGES.get((language, languageVersion)).map { _ =>
+      DEMO_TEMPLATE.copy(language = language, languageVersion = languageVersion)
+    }
 
-  override def getSettings: BaseCodeDojoSettings.CodeDojoSettingsState = AtCodeSettings.getInstance(myProject).getState
+  override def getSettings: BaseCodeDojoSettings.CodeDojoSettingsState = AtCoderSettings.getInstance(myProject).getState
 }
 
 object AtCoderSettingsConfigurable {
@@ -77,4 +81,19 @@ object AtCoderSettingsConfigurable {
   )
 
   val ATCODER_LANGUAGES_REVERSE: Map[String, (Language, LanguageVersion)] = ATCODER_LANGUAGES.map(_.swap)
+  val DEMO_TEMPLATE = AtCoderChallengeCodeTemplate(
+    contestId = "abc390",
+    contestTitle = "AtCoder Beginner Contest 390",
+    id = "abc390_g",
+    problemIndex = "G",
+    name = "Permutation Concatenation",
+    title = "G. Permutation Concatenation",
+    codeDojo = CodeDojo.AtCoder,
+    language = Cpp,
+    languageVersion = AnyVersion,
+    description = "",
+    record = null,
+    content = null
+  )
+
 }

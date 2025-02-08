@@ -5,6 +5,10 @@ import org.typelevel.ci.CIString
 
 import com.wenjunhuang.codeepiphany.PluginBundle
 import com.wenjunhuang.codeepiphany.model.ChallengeDifficulty.*
+import io.circe.JsonObject
+import io.circe.Json
+import io.circe.parser.*
+import io.circe.optics.*
 
 enum ChallengeDifficulty(val value: String) {
   case Easy     extends ChallengeDifficulty("easy")
@@ -12,6 +16,15 @@ enum ChallengeDifficulty(val value: String) {
   case Hard     extends ChallengeDifficulty("hard")
   case Advanced extends ChallengeDifficulty("advanced")
   case Expert   extends ChallengeDifficulty("expert")
+  case CodeDojoDefined(codeDojo: CodeDojo, codeDojoValue: String)
+      extends ChallengeDifficulty(
+        JsonObject
+          .fromMap(
+            Map("codeDojo" -> Json.fromString(codeDojo.value), "codeDojoValue" -> Json.fromString(codeDojoValue))
+          )
+          .toJson
+          .noSpaces
+      )
 
   def showAsHtml: String =
     this match
@@ -25,6 +38,7 @@ enum ChallengeDifficulty(val value: String) {
         s"<html><font color='${DIFFICULTY_ADVANCED_COLOR}'>${Advanced.show}</font></html>"
       case Expert =>
         s"<html><font color='${DIFFICULTY_EXPERT_COLOR}'>${Expert.show}</font></html>"
+      case _ => ""
 }
 
 object ChallengeDifficulty {
@@ -35,6 +49,8 @@ object ChallengeDifficulty {
       case Hard     => PluginBundle.message("challenge.difficulty.hard")
       case Advanced => PluginBundle.message("challenge.difficulty.advanced")
       case Expert   => PluginBundle.message("challenge.difficulty.expert")
+      case CodeDojoDefined(codeDojo, codeDojoValue) =>
+        PluginBundle.messageOfBuildKey(s"challenge.difficulty.${codeDojo.value}.${codeDojoValue}")
     }
 
   def fromCIString(str: CIString): Option[ChallengeDifficulty] =
@@ -43,7 +59,16 @@ object ChallengeDifficulty {
     else if str == CIString(Hard.value) then Some(Hard)
     else if str == CIString(Advanced.value) then Some(Advanced)
     else if str == CIString(Expert.value) then Some(Expert)
-    else None
+    else
+      parse(str.toString).toOption.flatMap { json =>
+        JsonPath.root.codeDojo.string.getOption(json).flatMap { codeDojo =>
+          JsonPath.root.codeDojoValue.string.getOption(json).flatMap { codeDojoValue =>
+            CodeDojo.fromCIString(CIString(codeDojo)).map { codeDojo =>
+              CodeDojoDefined(codeDojo, codeDojoValue)
+            }
+          }
+        }
+      }
 
   // language=CSS
   val DIFFICULTY_EASY_COLOR     = "#4CAF50"

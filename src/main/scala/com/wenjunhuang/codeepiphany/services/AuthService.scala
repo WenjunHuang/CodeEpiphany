@@ -10,10 +10,11 @@ import com.intellij.openapi.components.Service
 import com.intellij.openapi.components.Service.Level
 import com.intellij.openapi.project.Project
 
+import com.wenjunhuang.codeepiphany.atcoder.services.AtCoderApi
 import com.wenjunhuang.codeepiphany.codeforces.services.CodeForcesApi
 import com.wenjunhuang.codeepiphany.hackerrank.services.HackerRankApi
 import com.wenjunhuang.codeepiphany.leetcode.services.LeetCodeApi
-import com.wenjunhuang.codeepiphany.model.{CodeDojo}
+import com.wenjunhuang.codeepiphany.model.CodeDojo
 import com.wenjunhuang.codeepiphany.model.CodeDojo.*
 import com.wenjunhuang.codeepiphany.services.http.HttpClientManager
 import com.wenjunhuang.codeepiphany.services.login.LoginDialog
@@ -90,6 +91,7 @@ final class AuthService(private val myProject: Project) {
       case CodeDojo.LeetCode   => LeetCodeApi[F](LeetCode).checkLogin()
       case CodeDojo.LeetCodeCN => LeetCodeApi[F](LeetCodeCN).checkLogin()
       case CodeDojo.CodeForces => CodeForcesApi[F]().checkLogin()
+      case CodeDojo.AtCoder    => AtCoderApi[F]().checkLogin()
 }
 
 object AuthService {

@@ -3,16 +3,17 @@ package com.wenjunhuang.codeepiphany.toolwindows.dojo
 import cats.syntax.all.*
 import scala.jdk.CollectionConverters.*
 
-import com.intellij.openapi.actionSystem.{ActionManager, AnAction}
+import com.intellij.openapi.actionSystem.{ ActionManager, AnAction }
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.wm.{ToolWindow, ToolWindowContentUiType}
+import com.intellij.openapi.wm.{ ToolWindow, ToolWindowContentUiType }
 import com.intellij.openapi.wm.impl.content.ToolWindowContentUi
-import com.intellij.ui.content.{ContentManagerEvent, ContentManagerListener}
+import com.intellij.ui.content.{ ContentManagerEvent, ContentManagerListener }
 
+import com.wenjunhuang.codeepiphany.atcoder.ui.AtCoderChallengesView
 import com.wenjunhuang.codeepiphany.codeforces.ui.CodeForcesChallengesView
 import com.wenjunhuang.codeepiphany.hackerrank.ui.HackerRankChallengesView
 import com.wenjunhuang.codeepiphany.leetcode.ui.LeetCodeChallengesView
-import com.wenjunhuang.codeepiphany.model.{Actions, CodeDojo}
+import com.wenjunhuang.codeepiphany.model.{ Actions, CodeDojo }
 import com.wenjunhuang.codeepiphany.model.Actions.TITLE_TOOLBAR_GROUP
 import com.wenjunhuang.codeepiphany.utils.ToolWindowFactoryBridge
 
@@ -28,11 +29,18 @@ class CodeDojoToolWindowFactory extends ToolWindowFactoryBridge {
       override def selectionChanged(event: ContentManagerEvent): Unit = {
         Option(event.getContent.getActions) match
           case Some(actions) =>
-            toolWindow.setTitleActions((actions.getChildren(null,ActionManager.getInstance()).toList ++ createTitleActions()).asJava)
+            toolWindow.setTitleActions(
+              (actions.getChildren(null, ActionManager.getInstance()).toList ++ createTitleActions()).asJava
+            )
           case None =>
             toolWindow.setTitleActions(createTitleActions().asJava)
       }
     })
+
+    val atCoderView    = AtCoderChallengesView(project)
+    val atCoderContent = contentFactory.createContent(atCoderView, CodeDojo.AtCoder.show, false)
+    atCoderContent.setActions(atCoderView.getActions, Actions.ATCODER_TITLE_TOOLBAR_PLACE, atCoderView)
+    contentManager.addContent(atCoderContent)
 
     val codeForcesView    = CodeForcesChallengesView(project)
     val codeForcesContent = contentFactory.createContent(codeForcesView, CodeDojo.CodeForces.show, false)

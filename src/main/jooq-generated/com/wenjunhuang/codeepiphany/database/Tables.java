@@ -4,6 +4,7 @@
 package com.wenjunhuang.codeepiphany.database;
 
 
+import com.wenjunhuang.codeepiphany.database.tables.AtcoderChallenge;
 import com.wenjunhuang.codeepiphany.database.tables.AtcoderContests;
 import com.wenjunhuang.codeepiphany.database.tables.AtcoderContestsFts;
 import com.wenjunhuang.codeepiphany.database.tables.AtcoderProblems;
@@ -27,6 +28,11 @@ import com.wenjunhuang.codeepiphany.database.tables.SolutionSubmission;
  */
 @SuppressWarnings({ "all", "unchecked", "rawtypes", "this-escape" })
 public class Tables {
+
+    /**
+     * The table <code>atcoder_challenge</code>.
+     */
+    public static final AtcoderChallenge ATCODER_CHALLENGE = AtcoderChallenge.ATCODER_CHALLENGE;
 
     /**
      * The table <code>atcoder_contests</code>.

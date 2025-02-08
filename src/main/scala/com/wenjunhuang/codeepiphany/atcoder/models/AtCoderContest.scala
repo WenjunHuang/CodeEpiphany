@@ -1,7 +1,11 @@
 package com.wenjunhuang.codeepiphany.atcoder.models
 
-import io.circe.{ Decoder, HCursor, Json }
 import io.circe.derivation.ConfiguredDecoder
 
-case class AtCoderContest(id: String, startEpochSecond: Long, durationSecond: Long, title: String, rateChange: String)
-    derives ConfiguredDecoder
+case class AtCoderContest(
+  id: String,
+  startEpochSecond: Option[Long] = None,
+  durationSecond: Option[Long] = None,
+  title: String,
+  rateChange: Option[String] = None
+) derives ConfiguredDecoder

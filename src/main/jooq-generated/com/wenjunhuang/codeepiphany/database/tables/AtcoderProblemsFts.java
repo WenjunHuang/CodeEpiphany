@@ -66,6 +66,17 @@ public class AtcoderProblemsFts extends TableImpl<AtcoderProblemsFtsRecord> {
      * configuration.
      */
     @Deprecated
+    public final TableField<AtcoderProblemsFtsRecord, Object> DIFFICULTY = createField(DSL.name("difficulty"), org.jooq.impl.SQLDataType.OTHER, this, "");
+
+    /**
+     * @deprecated Unknown data type. If this is a qualified, user-defined type,
+     * it may have been excluded from code generation. If this is a built-in
+     * type, you can define an explicit {@link org.jooq.Binding} to specify how
+     * this type should be handled. Deprecation can be turned off using
+     * {@literal <deprecationOnUnknownTypes/>} in your code generator
+     * configuration.
+     */
+    @Deprecated
     public final TableField<AtcoderProblemsFtsRecord, Object> PROBLEMID = createField(DSL.name("problemId"), org.jooq.impl.SQLDataType.OTHER, this, "");
 
     /**
@@ -78,6 +89,17 @@ public class AtcoderProblemsFts extends TableImpl<AtcoderProblemsFtsRecord> {
      */
     @Deprecated
     public final TableField<AtcoderProblemsFtsRecord, Object> CONTESTID = createField(DSL.name("contestId"), org.jooq.impl.SQLDataType.OTHER, this, "");
+
+    /**
+     * @deprecated Unknown data type. If this is a qualified, user-defined type,
+     * it may have been excluded from code generation. If this is a built-in
+     * type, you can define an explicit {@link org.jooq.Binding} to specify how
+     * this type should be handled. Deprecation can be turned off using
+     * {@literal <deprecationOnUnknownTypes/>} in your code generator
+     * configuration.
+     */
+    @Deprecated
+    public final TableField<AtcoderProblemsFtsRecord, Object> CONTESTTITLE = createField(DSL.name("contestTitle"), org.jooq.impl.SQLDataType.OTHER, this, "");
 
     /**
      * @deprecated Unknown data type. If this is a qualified, user-defined type,

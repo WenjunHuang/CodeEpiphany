@@ -76,7 +76,15 @@
                     class="com.wenjunhuang.codeepiphany.codeforces.actions.CodeForcesUpdateProblemSetsAction"
                     icon="CodeEpiphanyIcons.DOWNLOAD"/>
         </group>
-
+        <group id="CodeEpiphany.AtCoder.Group">
+            <action class="com.wenjunhuang.codeepiphany.atcoder.actions.AtCoderChangeUIAction"
+                    id="CodeEpiphany.Actions.AtCoder.ChangeUI"/>
+            <action id="CodeEpiphany.Actions.AtCoder.UpdateProblemSets"
+                    class="com.wenjunhuang.codeepiphany.atcoder.actions.AtCoderUpdateProblemSetsAction"
+                    icon="CodeEpiphanyIcons.DOWNLOAD"/>
+            <action id="CodeEpiphany.Actions.AtCoder.Difficulty"
+                    class="com.wenjunhuang.codeepiphany.atcoder.actions.AtCoderDifficultyParameterAction"/>
+        </group>
 
         <group id="CodeEpiphany.Editor.Group">
             <reference ref="CodeEpiphany.Actions.RunCode"/>
@@ -131,6 +139,10 @@
             <reference ref="CodeEpiphany.Actions.Tags"/>
             <reference ref="CodeEpiphany.Actions.Refresh"/>
         </group>
+        <group id="CodeEpiphany.Dojos.AtCoder.Toolbar">
+            <reference ref="CodeEpiphany.Actions.AtCoder.Difficulty"/>
+            <reference ref="CodeEpiphany.Actions.Refresh"/>
+        </group>
 
         <group id="CodeEpiphany.Dojos.TitleToolbar">
             <reference ref="CodeEpiphany.Actions.Login"/>
@@ -145,6 +157,10 @@
         <group id="CodeEpiphany.Dojos.TitleToolbar.CodeForces">
             <reference ref="CodeEpiphany.Actions.CodeForces.ChangeUI"/>
             <reference ref="CodeEpiphany.Actions.CodeForces.UpdateProblemSets"/>
+        </group>
+        <group id="CodeEpiphany.Dojos.TitleToolbar.AtCoder">
+            <reference ref="CodeEpiphany.Actions.AtCoder.ChangeUI"/>
+            <reference ref="CodeEpiphany.Actions.AtCoder.UpdateProblemSets"/>
         </group>
 
         <group id="CodeEpiphany.Dojos.ChallengesTable.Popupmenu">
@@ -209,12 +225,10 @@
                              displayName="Code Epiphany"
                              id="CodeEpiphany.Settings"
                              instance="com.wenjunhuang.codeepiphany.settings.CodeEpiphanySettingsConfigurable">
-            <configurable id="CodeEpiphany.Settings.LeetCodeCN"
-                          instance="com.wenjunhuang.codeepiphany.leetcode.settings.LeetCodeCNSettingsConfigurable"
-                          key="leetcodecn.settings.displayName"/>
-            <configurable id="CodeEpiphany.Settings.LeetCode"
-                          instance="com.wenjunhuang.codeepiphany.leetcode.settings.LeetCodeSettingsConfigurable"
-                          key="leetcode.settings.displayName"/>
+
+            <configurable id="CodeEpiphany.Settings.AtCoder"
+                          instance="com.wenjunhuang.codeepiphany.atcoder.settings.AtCoderSettingsConfigurable"
+                          key="atcoder.settings.displayName"/>
             <configurable id="CodeEpiphany.Settings.CodeForces"
                           instance="com.wenjunhuang.codeepiphany.codeforces.settings.CodeForcesSettingsConfigurable"
                           key="codeforces.settings.displayName"/>
@@ -222,6 +236,12 @@
                     id="CodeEpiphany.Settings.HackerRank"
                     instance="com.wenjunhuang.codeepiphany.hackerrank.settings.HackerRankSettingsConfigurable"
                     key="hackerrank.settings.displayName"/>
+            <configurable id="CodeEpiphany.Settings.LeetCodeCN"
+                          instance="com.wenjunhuang.codeepiphany.leetcode.settings.LeetCodeCNSettingsConfigurable"
+                          key="leetcodecn.settings.displayName"/>
+            <configurable id="CodeEpiphany.Settings.LeetCode"
+                          instance="com.wenjunhuang.codeepiphany.leetcode.settings.LeetCodeSettingsConfigurable"
+                          key="leetcode.settings.displayName"/>
         </projectConfigurable>
 
         <lang.foldingBuilder language="JAVA"

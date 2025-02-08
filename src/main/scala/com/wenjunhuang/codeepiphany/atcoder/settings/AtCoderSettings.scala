@@ -9,8 +9,8 @@ import com.wenjunhuang.codeepiphany.settings.dojo.BaseCodeDojoSettings
 
 @Service(Array(Level.PROJECT))
 @State(name = Constants.ATCODER_SETTING, storages = Array(new Storage(Constants.ATCODER_SETTING_FILE)))
-final class AtCodeSettings(project: Project) extends BaseCodeDojoSettings(project) {}
+final class AtCoderSettings(project: Project) extends BaseCodeDojoSettings(project) {}
 
-object AtCodeSettings {
-  def getInstance(project: Project): AtCodeSettings = project.getService(classOf[AtCodeSettings])
+object AtCoderSettings {
+  def getInstance(project: Project): AtCoderSettings = project.getService(classOf[AtCoderSettings])
 }

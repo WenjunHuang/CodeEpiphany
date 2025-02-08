@@ -24,6 +24,16 @@
                     <includeExpression>id</includeExpression>
                     <types>INTEGER</types>
                 </forcedType>
+                <forcedType>
+                    <name>BIGINT</name>
+                    <includeExpression>atcoder_contests*.startEpochSecond</includeExpression>
+                    <types>INTEGER</types>
+                </forcedType>
+                <forcedType>
+                    <name>BIGINT</name>
+                    <includeExpression>atcoder_contests*.durationSecond</includeExpression>
+                    <types>INTEGER</types>
+                </forcedType>
             </forcedTypes>
         </database>
 

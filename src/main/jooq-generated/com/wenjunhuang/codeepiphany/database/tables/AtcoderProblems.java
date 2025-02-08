@@ -50,6 +50,16 @@ public class AtcoderProblems extends TableImpl<AtcoderProblemsRecord> {
     }
 
     /**
+     * The column <code>atcoder_problems.id</code>.
+     */
+    public final TableField<AtcoderProblemsRecord, Long> ID = createField(DSL.name("id"), SQLDataType.BIGINT.nullable(false), this, "");
+
+    /**
+     * The column <code>atcoder_problems.difficulty</code>.
+     */
+    public final TableField<AtcoderProblemsRecord, Integer> DIFFICULTY = createField(DSL.name("difficulty"), SQLDataType.INTEGER, this, "");
+
+    /**
      * The column <code>atcoder_problems.problemId</code>.
      */
     public final TableField<AtcoderProblemsRecord, String> PROBLEMID = createField(DSL.name("problemId"), SQLDataType.CLOB.nullable(false), this, "");
@@ -58,6 +68,11 @@ public class AtcoderProblems extends TableImpl<AtcoderProblemsRecord> {
      * The column <code>atcoder_problems.contestId</code>.
      */
     public final TableField<AtcoderProblemsRecord, String> CONTESTID = createField(DSL.name("contestId"), SQLDataType.CLOB.nullable(false), this, "");
+
+    /**
+     * The column <code>atcoder_problems.contestTitle</code>.
+     */
+    public final TableField<AtcoderProblemsRecord, String> CONTESTTITLE = createField(DSL.name("contestTitle"), SQLDataType.CLOB, this, "");
 
     /**
      * The column <code>atcoder_problems.problemIndex</code>.
@@ -123,11 +138,6 @@ public class AtcoderProblems extends TableImpl<AtcoderProblemsRecord> {
      * The column <code>atcoder_problems.solverCount</code>.
      */
     public final TableField<AtcoderProblemsRecord, Integer> SOLVERCOUNT = createField(DSL.name("solverCount"), SQLDataType.INTEGER, this, "");
-
-    /**
-     * The column <code>atcoder_problems.id</code>.
-     */
-    public final TableField<AtcoderProblemsRecord, Long> ID = createField(DSL.name("id"), SQLDataType.BIGINT.nullable(false), this, "");
 
     private AtcoderProblems(Name alias, Table<AtcoderProblemsRecord> aliased) {
         this(alias, aliased, (Field<?>[]) null, null);

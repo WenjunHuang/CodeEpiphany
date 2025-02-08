@@ -7,6 +7,7 @@ import fs2.Stream
 import fs2.concurrent.SignallingRef
 import java.util
 import javax.swing.{JComponent, ListSelectionModel}
+import org.typelevel.log4cats.{Logger, LoggerFactory}
 import scala.concurrent.duration.*
 import scala.jdk.CollectionConverters.*
 
@@ -52,7 +53,8 @@ abstract class BaseQueryPresenter[UIBoostrapParameters, T, ResultItem](
   protected val myProject: Project,
   protected val myBoostrapParameters: UIBoostrapParameters
 ) extends Disposable {
-  protected val myQueryStateManager = QueryStateManager(createInitialQueryParameters(myBoostrapParameters))
+  protected val myLogger: Logger[IO] = LoggerFactory.getLogger[IO]
+  protected val myQueryStateManager  = QueryStateManager(createInitialQueryParameters(myBoostrapParameters))
   protected val myQueryResultTableModel: ListTableModel[ResultItem] = ListTableModel[ResultItem]()
   myQueryResultTableModel.setColumnInfos(getQueryResultColumns.asInstanceOf[Array[ColumnInfo[?, ?]]])
   protected val myQueryResultSelectionModel: SingleSelectionModel = SingleSelectionModel()
@@ -118,7 +120,10 @@ abstract class BaseQueryPresenter[UIBoostrapParameters, T, ResultItem](
                   .interruptWhen(signal)
                   .compile
                   .drain
-                  .attempt
+                  .recoverWith { e =>
+                    myLogger.warn(e)("Failed to execute query") *>
+                      console.error[IO](myProject, s"Failed to execute query because of \"${e.getMessage}\"")
+                  }
                   .evalAsBackgroundProgress(myProject, "Querying challenges...")
               }
           }

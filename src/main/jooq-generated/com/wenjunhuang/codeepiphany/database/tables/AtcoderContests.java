@@ -57,12 +57,12 @@ public class AtcoderContests extends TableImpl<AtcoderContestsRecord> {
     /**
      * The column <code>atcoder_contests.startEpochSecond</code>.
      */
-    public final TableField<AtcoderContestsRecord, Integer> STARTEPOCHSECOND = createField(DSL.name("startEpochSecond"), SQLDataType.INTEGER, this, "");
+    public final TableField<AtcoderContestsRecord, Long> STARTEPOCHSECOND = createField(DSL.name("startEpochSecond"), SQLDataType.BIGINT, this, "");
 
     /**
      * The column <code>atcoder_contests.durationSecond</code>.
      */
-    public final TableField<AtcoderContestsRecord, Integer> DURATIONSECOND = createField(DSL.name("durationSecond"), SQLDataType.INTEGER, this, "");
+    public final TableField<AtcoderContestsRecord, Long> DURATIONSECOND = createField(DSL.name("durationSecond"), SQLDataType.BIGINT, this, "");
 
     /**
      * The column <code>atcoder_contests.title</code>.

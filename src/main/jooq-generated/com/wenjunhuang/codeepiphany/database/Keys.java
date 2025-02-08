@@ -4,6 +4,7 @@
 package com.wenjunhuang.codeepiphany.database;
 
 
+import com.wenjunhuang.codeepiphany.database.tables.AtcoderChallenge;
 import com.wenjunhuang.codeepiphany.database.tables.AtcoderContests;
 import com.wenjunhuang.codeepiphany.database.tables.AtcoderProblems;
 import com.wenjunhuang.codeepiphany.database.tables.Challenge;
@@ -17,6 +18,7 @@ import com.wenjunhuang.codeepiphany.database.tables.LeetcodeChallenge;
 import com.wenjunhuang.codeepiphany.database.tables.LeetcodeSubmission;
 import com.wenjunhuang.codeepiphany.database.tables.Solution;
 import com.wenjunhuang.codeepiphany.database.tables.SolutionSubmission;
+import com.wenjunhuang.codeepiphany.database.tables.records.AtcoderChallengeRecord;
 import com.wenjunhuang.codeepiphany.database.tables.records.AtcoderContestsRecord;
 import com.wenjunhuang.codeepiphany.database.tables.records.AtcoderProblemsRecord;
 import com.wenjunhuang.codeepiphany.database.tables.records.ChallengeLanguageRecord;
@@ -49,6 +51,7 @@ public class Keys {
     // UNIQUE and PRIMARY KEY definitions
     // -------------------------------------------------------------------------
 
+    public static final UniqueKey<AtcoderChallengeRecord> ATCODER_CHALLENGE__PK_ATCODER_CHALLENGE = Internal.createUniqueKey(AtcoderChallenge.ATCODER_CHALLENGE, DSL.name("pk_atcoder_challenge"), new TableField[] { AtcoderChallenge.ATCODER_CHALLENGE.ID }, true);
     public static final UniqueKey<AtcoderContestsRecord> ATCODER_CONTESTS__PK_ATCODER_CONTESTS = Internal.createUniqueKey(AtcoderContests.ATCODER_CONTESTS, DSL.name("pk_atcoder_contests"), new TableField[] { AtcoderContests.ATCODER_CONTESTS.ID }, true);
     public static final UniqueKey<AtcoderProblemsRecord> ATCODER_PROBLEMS__PK_ATCODER_PROBLEMS = Internal.createUniqueKey(AtcoderProblems.ATCODER_PROBLEMS, DSL.name("pk_atcoder_problems"), new TableField[] { AtcoderProblems.ATCODER_PROBLEMS.ID }, true);
     public static final UniqueKey<ChallengeRecord> CHALLENGE__PK_CHALLENGE = Internal.createUniqueKey(Challenge.CHALLENGE, DSL.name("pk_challenge"), new TableField[] { Challenge.CHALLENGE.ID }, true);
@@ -67,6 +70,7 @@ public class Keys {
     // FOREIGN KEY definitions
     // -------------------------------------------------------------------------
 
+    public static final ForeignKey<AtcoderChallengeRecord, ChallengeRecord> ATCODER_CHALLENGE__FK_ATCODER_CHALLENGE_PK_CHALLENGE = Internal.createForeignKey(AtcoderChallenge.ATCODER_CHALLENGE, DSL.name("fk_atcoder_challenge_pk_challenge"), new TableField[] { AtcoderChallenge.ATCODER_CHALLENGE.ID }, Keys.CHALLENGE__PK_CHALLENGE, new TableField[] { Challenge.CHALLENGE.ID }, true);
     public static final ForeignKey<ChallengeLanguageRecord, ChallengeRecord> CHALLENGE_LANGUAGE__FK_CHALLENGE_LANGUAGE_PK_CHALLENGE = Internal.createForeignKey(ChallengeLanguage.CHALLENGE_LANGUAGE, DSL.name("fk_challenge_language_pk_challenge"), new TableField[] { ChallengeLanguage.CHALLENGE_LANGUAGE.CHALLENGEID }, Keys.CHALLENGE__PK_CHALLENGE, new TableField[] { Challenge.CHALLENGE.ID }, true);
     public static final ForeignKey<CodeforcesChallengeRecord, ChallengeRecord> CODEFORCES_CHALLENGE__FK_CODEFORCES_CHALLENGE_PK_CHALLENGE = Internal.createForeignKey(CodeforcesChallenge.CODEFORCES_CHALLENGE, DSL.name("fk_codeforces_challenge_pk_challenge"), new TableField[] { CodeforcesChallenge.CODEFORCES_CHALLENGE.ID }, Keys.CHALLENGE__PK_CHALLENGE, new TableField[] { Challenge.CHALLENGE.ID }, true);
     public static final ForeignKey<HackerrankChallengeRecord, ChallengeRecord> HACKERRANK_CHALLENGE__FK_HACKERRANK_CHALLENGE_PK_CHALLENGE = Internal.createForeignKey(HackerrankChallenge.HACKERRANK_CHALLENGE, DSL.name("fk_hackerrank_challenge_pk_challenge"), new TableField[] { HackerrankChallenge.HACKERRANK_CHALLENGE.ID }, Keys.CHALLENGE__PK_CHALLENGE, new TableField[] { Challenge.CHALLENGE.ID }, true);

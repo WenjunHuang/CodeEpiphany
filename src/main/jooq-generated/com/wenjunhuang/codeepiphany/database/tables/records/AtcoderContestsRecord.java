@@ -36,7 +36,7 @@ public class AtcoderContestsRecord extends UpdatableRecordImpl<AtcoderContestsRe
     /**
      * Setter for <code>atcoder_contests.startEpochSecond</code>.
      */
-    public AtcoderContestsRecord setStartepochsecond(Integer value) {
+    public AtcoderContestsRecord setStartepochsecond(Long value) {
         set(1, value);
         return this;
     }
@@ -44,14 +44,14 @@ public class AtcoderContestsRecord extends UpdatableRecordImpl<AtcoderContestsRe
     /**
      * Getter for <code>atcoder_contests.startEpochSecond</code>.
      */
-    public Integer getStartepochsecond() {
-        return (Integer) get(1);
+    public Long getStartepochsecond() {
+        return (Long) get(1);
     }
 
     /**
      * Setter for <code>atcoder_contests.durationSecond</code>.
      */
-    public AtcoderContestsRecord setDurationsecond(Integer value) {
+    public AtcoderContestsRecord setDurationsecond(Long value) {
         set(2, value);
         return this;
     }
@@ -59,8 +59,8 @@ public class AtcoderContestsRecord extends UpdatableRecordImpl<AtcoderContestsRe
     /**
      * Getter for <code>atcoder_contests.durationSecond</code>.
      */
-    public Integer getDurationsecond() {
-        return (Integer) get(2);
+    public Long getDurationsecond() {
+        return (Long) get(2);
     }
 
     /**
@@ -131,7 +131,7 @@ public class AtcoderContestsRecord extends UpdatableRecordImpl<AtcoderContestsRe
     /**
      * Create a detached, initialised AtcoderContestsRecord
      */
-    public AtcoderContestsRecord(String contestid, Integer startepochsecond, Integer durationsecond, String title, String ratechange, Long id) {
+    public AtcoderContestsRecord(String contestid, Long startepochsecond, Long durationsecond, String title, String ratechange, Long id) {
         super(AtcoderContests.ATCODER_CONTESTS);
 
         setContestid(contestid);

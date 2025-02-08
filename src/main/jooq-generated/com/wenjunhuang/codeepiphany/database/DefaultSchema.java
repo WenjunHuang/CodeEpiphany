@@ -4,6 +4,7 @@
 package com.wenjunhuang.codeepiphany.database;
 
 
+import com.wenjunhuang.codeepiphany.database.tables.AtcoderChallenge;
 import com.wenjunhuang.codeepiphany.database.tables.AtcoderContests;
 import com.wenjunhuang.codeepiphany.database.tables.AtcoderContestsFts;
 import com.wenjunhuang.codeepiphany.database.tables.AtcoderProblems;
@@ -41,6 +42,11 @@ public class DefaultSchema extends SchemaImpl {
      * The reference instance of <code>DEFAULT_SCHEMA</code>
      */
     public static final DefaultSchema DEFAULT_SCHEMA = new DefaultSchema();
+
+    /**
+     * The table <code>atcoder_challenge</code>.
+     */
+    public final AtcoderChallenge ATCODER_CHALLENGE = AtcoderChallenge.ATCODER_CHALLENGE;
 
     /**
      * The table <code>atcoder_contests</code>.
@@ -138,6 +144,7 @@ public class DefaultSchema extends SchemaImpl {
     @Override
     public final List<Table<?>> getTables() {
         return Arrays.asList(
+            AtcoderChallenge.ATCODER_CHALLENGE,
             AtcoderContests.ATCODER_CONTESTS,
             AtcoderContestsFts.ATCODER_CONTESTS_FTS,
             AtcoderProblems.ATCODER_PROBLEMS,

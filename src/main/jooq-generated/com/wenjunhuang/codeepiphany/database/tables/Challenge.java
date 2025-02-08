@@ -7,6 +7,7 @@ package com.wenjunhuang.codeepiphany.database.tables;
 import com.wenjunhuang.codeepiphany.database.DefaultSchema;
 import com.wenjunhuang.codeepiphany.database.Indexes;
 import com.wenjunhuang.codeepiphany.database.Keys;
+import com.wenjunhuang.codeepiphany.database.tables.AtcoderChallenge.AtcoderChallengePath;
 import com.wenjunhuang.codeepiphany.database.tables.ChallengeLanguage.ChallengeLanguagePath;
 import com.wenjunhuang.codeepiphany.database.tables.CodeforcesChallenge.CodeforcesChallengePath;
 import com.wenjunhuang.codeepiphany.database.tables.HackerrankChallenge.HackerrankChallengePath;
@@ -182,6 +183,19 @@ public class Challenge extends TableImpl<ChallengeRecord> {
     @Override
     public UniqueKey<ChallengeRecord> getPrimaryKey() {
         return Keys.CHALLENGE__PK_CHALLENGE;
+    }
+
+    private transient AtcoderChallengePath _atcoderChallenge;
+
+    /**
+     * Get the implicit to-many join path to the <code>atcoder_challenge</code>
+     * table
+     */
+    public AtcoderChallengePath atcoderChallenge() {
+        if (_atcoderChallenge == null)
+            _atcoderChallenge = new AtcoderChallengePath(this, null, Keys.ATCODER_CHALLENGE__FK_ATCODER_CHALLENGE_PK_CHALLENGE.getInverseKey());
+
+        return _atcoderChallenge;
     }
 
     private transient ChallengeLanguagePath _challengeLanguage;

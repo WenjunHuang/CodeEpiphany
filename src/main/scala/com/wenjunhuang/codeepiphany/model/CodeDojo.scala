@@ -35,7 +35,10 @@ enum CodeDojo(val domain: CIString, val value: String) {
     case LeetCode   => cookies.exists(cookie => cookie.getName == "LEETCODE_SESSION" && cookie.getValue.nonEmpty)
     case LeetCodeCN => cookies.exists(cookie => cookie.getName == "LEETCODE_SESSION" && cookie.getValue.nonEmpty)
     case CodeForces => cookies.exists(cookie => cookie.getName == "X-User" && cookie.getValue.nonEmpty)
-    case AtCoder    => cookies.exists(cookie => cookie.getName == "X-User" && cookie.getValue.nonEmpty)
+    case AtCoder =>
+      cookies.exists(cookie =>
+        cookie.getName == "REVEL_SESSION" && cookie.getValue.nonEmpty && cookie.getValue.contains("SessionKey")
+      )
   }
 
   def requiresCodeRegionEnclosure: Boolean = {

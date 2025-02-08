@@ -53,7 +53,7 @@ public class AtcoderProblemsFtsRecord extends TableRecordImpl<AtcoderProblemsFts
      * configuration.
      */
     @Deprecated
-    public AtcoderProblemsFtsRecord setProblemid(Object value) {
+    public AtcoderProblemsFtsRecord setDifficulty(Object value) {
         set(1, value);
         return this;
     }
@@ -67,7 +67,7 @@ public class AtcoderProblemsFtsRecord extends TableRecordImpl<AtcoderProblemsFts
      * configuration.
      */
     @Deprecated
-    public Object getProblemid() {
+    public Object getDifficulty() {
         return get(1);
     }
 
@@ -80,7 +80,7 @@ public class AtcoderProblemsFtsRecord extends TableRecordImpl<AtcoderProblemsFts
      * configuration.
      */
     @Deprecated
-    public AtcoderProblemsFtsRecord setContestid(Object value) {
+    public AtcoderProblemsFtsRecord setProblemid(Object value) {
         set(2, value);
         return this;
     }
@@ -94,7 +94,7 @@ public class AtcoderProblemsFtsRecord extends TableRecordImpl<AtcoderProblemsFts
      * configuration.
      */
     @Deprecated
-    public Object getContestid() {
+    public Object getProblemid() {
         return get(2);
     }
 
@@ -107,7 +107,7 @@ public class AtcoderProblemsFtsRecord extends TableRecordImpl<AtcoderProblemsFts
      * configuration.
      */
     @Deprecated
-    public AtcoderProblemsFtsRecord setProblemindex(Object value) {
+    public AtcoderProblemsFtsRecord setContestid(Object value) {
         set(3, value);
         return this;
     }
@@ -121,7 +121,7 @@ public class AtcoderProblemsFtsRecord extends TableRecordImpl<AtcoderProblemsFts
      * configuration.
      */
     @Deprecated
-    public Object getProblemindex() {
+    public Object getContestid() {
         return get(3);
     }
 
@@ -134,7 +134,7 @@ public class AtcoderProblemsFtsRecord extends TableRecordImpl<AtcoderProblemsFts
      * configuration.
      */
     @Deprecated
-    public AtcoderProblemsFtsRecord setName(Object value) {
+    public AtcoderProblemsFtsRecord setContesttitle(Object value) {
         set(4, value);
         return this;
     }
@@ -148,7 +148,7 @@ public class AtcoderProblemsFtsRecord extends TableRecordImpl<AtcoderProblemsFts
      * configuration.
      */
     @Deprecated
-    public Object getName() {
+    public Object getContesttitle() {
         return get(4);
     }
 
@@ -161,7 +161,7 @@ public class AtcoderProblemsFtsRecord extends TableRecordImpl<AtcoderProblemsFts
      * configuration.
      */
     @Deprecated
-    public AtcoderProblemsFtsRecord setTitle(Object value) {
+    public AtcoderProblemsFtsRecord setProblemindex(Object value) {
         set(5, value);
         return this;
     }
@@ -175,7 +175,7 @@ public class AtcoderProblemsFtsRecord extends TableRecordImpl<AtcoderProblemsFts
      * configuration.
      */
     @Deprecated
-    public Object getTitle() {
+    public Object getProblemindex() {
         return get(5);
     }
 
@@ -188,7 +188,7 @@ public class AtcoderProblemsFtsRecord extends TableRecordImpl<AtcoderProblemsFts
      * configuration.
      */
     @Deprecated
-    public AtcoderProblemsFtsRecord setShortestsubmissionid(Object value) {
+    public AtcoderProblemsFtsRecord setName(Object value) {
         set(6, value);
         return this;
     }
@@ -202,7 +202,7 @@ public class AtcoderProblemsFtsRecord extends TableRecordImpl<AtcoderProblemsFts
      * configuration.
      */
     @Deprecated
-    public Object getShortestsubmissionid() {
+    public Object getName() {
         return get(6);
     }
 
@@ -215,7 +215,7 @@ public class AtcoderProblemsFtsRecord extends TableRecordImpl<AtcoderProblemsFts
      * configuration.
      */
     @Deprecated
-    public AtcoderProblemsFtsRecord setShortestcontestid(Object value) {
+    public AtcoderProblemsFtsRecord setTitle(Object value) {
         set(7, value);
         return this;
     }
@@ -229,7 +229,7 @@ public class AtcoderProblemsFtsRecord extends TableRecordImpl<AtcoderProblemsFts
      * configuration.
      */
     @Deprecated
-    public Object getShortestcontestid() {
+    public Object getTitle() {
         return get(7);
     }
 
@@ -242,7 +242,7 @@ public class AtcoderProblemsFtsRecord extends TableRecordImpl<AtcoderProblemsFts
      * configuration.
      */
     @Deprecated
-    public AtcoderProblemsFtsRecord setShortestuserid(Object value) {
+    public AtcoderProblemsFtsRecord setShortestsubmissionid(Object value) {
         set(8, value);
         return this;
     }
@@ -256,7 +256,7 @@ public class AtcoderProblemsFtsRecord extends TableRecordImpl<AtcoderProblemsFts
      * configuration.
      */
     @Deprecated
-    public Object getShortestuserid() {
+    public Object getShortestsubmissionid() {
         return get(8);
     }
 
@@ -269,7 +269,7 @@ public class AtcoderProblemsFtsRecord extends TableRecordImpl<AtcoderProblemsFts
      * configuration.
      */
     @Deprecated
-    public AtcoderProblemsFtsRecord setFastestsubmissionid(Object value) {
+    public AtcoderProblemsFtsRecord setShortestcontestid(Object value) {
         set(9, value);
         return this;
     }
@@ -283,7 +283,7 @@ public class AtcoderProblemsFtsRecord extends TableRecordImpl<AtcoderProblemsFts
      * configuration.
      */
     @Deprecated
-    public Object getFastestsubmissionid() {
+    public Object getShortestcontestid() {
         return get(9);
     }
 
@@ -296,7 +296,7 @@ public class AtcoderProblemsFtsRecord extends TableRecordImpl<AtcoderProblemsFts
      * configuration.
      */
     @Deprecated
-    public AtcoderProblemsFtsRecord setFastestcontestid(Object value) {
+    public AtcoderProblemsFtsRecord setShortestuserid(Object value) {
         set(10, value);
         return this;
     }
@@ -310,7 +310,7 @@ public class AtcoderProblemsFtsRecord extends TableRecordImpl<AtcoderProblemsFts
      * configuration.
      */
     @Deprecated
-    public Object getFastestcontestid() {
+    public Object getShortestuserid() {
         return get(10);
     }
 
@@ -323,7 +323,7 @@ public class AtcoderProblemsFtsRecord extends TableRecordImpl<AtcoderProblemsFts
      * configuration.
      */
     @Deprecated
-    public AtcoderProblemsFtsRecord setFastestuserid(Object value) {
+    public AtcoderProblemsFtsRecord setFastestsubmissionid(Object value) {
         set(11, value);
         return this;
     }
@@ -337,7 +337,7 @@ public class AtcoderProblemsFtsRecord extends TableRecordImpl<AtcoderProblemsFts
      * configuration.
      */
     @Deprecated
-    public Object getFastestuserid() {
+    public Object getFastestsubmissionid() {
         return get(11);
     }
 
@@ -350,7 +350,7 @@ public class AtcoderProblemsFtsRecord extends TableRecordImpl<AtcoderProblemsFts
      * configuration.
      */
     @Deprecated
-    public AtcoderProblemsFtsRecord setFirstsubmissionid(Object value) {
+    public AtcoderProblemsFtsRecord setFastestcontestid(Object value) {
         set(12, value);
         return this;
     }
@@ -364,7 +364,7 @@ public class AtcoderProblemsFtsRecord extends TableRecordImpl<AtcoderProblemsFts
      * configuration.
      */
     @Deprecated
-    public Object getFirstsubmissionid() {
+    public Object getFastestcontestid() {
         return get(12);
     }
 
@@ -377,7 +377,7 @@ public class AtcoderProblemsFtsRecord extends TableRecordImpl<AtcoderProblemsFts
      * configuration.
      */
     @Deprecated
-    public AtcoderProblemsFtsRecord setFirstcontestid(Object value) {
+    public AtcoderProblemsFtsRecord setFastestuserid(Object value) {
         set(13, value);
         return this;
     }
@@ -391,7 +391,7 @@ public class AtcoderProblemsFtsRecord extends TableRecordImpl<AtcoderProblemsFts
      * configuration.
      */
     @Deprecated
-    public Object getFirstcontestid() {
+    public Object getFastestuserid() {
         return get(13);
     }
 
@@ -404,7 +404,7 @@ public class AtcoderProblemsFtsRecord extends TableRecordImpl<AtcoderProblemsFts
      * configuration.
      */
     @Deprecated
-    public AtcoderProblemsFtsRecord setFirstuserid(Object value) {
+    public AtcoderProblemsFtsRecord setFirstsubmissionid(Object value) {
         set(14, value);
         return this;
     }
@@ -418,7 +418,7 @@ public class AtcoderProblemsFtsRecord extends TableRecordImpl<AtcoderProblemsFts
      * configuration.
      */
     @Deprecated
-    public Object getFirstuserid() {
+    public Object getFirstsubmissionid() {
         return get(14);
     }
 
@@ -431,7 +431,7 @@ public class AtcoderProblemsFtsRecord extends TableRecordImpl<AtcoderProblemsFts
      * configuration.
      */
     @Deprecated
-    public AtcoderProblemsFtsRecord setSolvercount(Object value) {
+    public AtcoderProblemsFtsRecord setFirstcontestid(Object value) {
         set(15, value);
         return this;
     }
@@ -445,8 +445,62 @@ public class AtcoderProblemsFtsRecord extends TableRecordImpl<AtcoderProblemsFts
      * configuration.
      */
     @Deprecated
-    public Object getSolvercount() {
+    public Object getFirstcontestid() {
         return get(15);
+    }
+
+    /**
+     * @deprecated Unknown data type. If this is a qualified, user-defined type,
+     * it may have been excluded from code generation. If this is a built-in
+     * type, you can define an explicit {@link org.jooq.Binding} to specify how
+     * this type should be handled. Deprecation can be turned off using
+     * {@literal <deprecationOnUnknownTypes/>} in your code generator
+     * configuration.
+     */
+    @Deprecated
+    public AtcoderProblemsFtsRecord setFirstuserid(Object value) {
+        set(16, value);
+        return this;
+    }
+
+    /**
+     * @deprecated Unknown data type. If this is a qualified, user-defined type,
+     * it may have been excluded from code generation. If this is a built-in
+     * type, you can define an explicit {@link org.jooq.Binding} to specify how
+     * this type should be handled. Deprecation can be turned off using
+     * {@literal <deprecationOnUnknownTypes/>} in your code generator
+     * configuration.
+     */
+    @Deprecated
+    public Object getFirstuserid() {
+        return get(16);
+    }
+
+    /**
+     * @deprecated Unknown data type. If this is a qualified, user-defined type,
+     * it may have been excluded from code generation. If this is a built-in
+     * type, you can define an explicit {@link org.jooq.Binding} to specify how
+     * this type should be handled. Deprecation can be turned off using
+     * {@literal <deprecationOnUnknownTypes/>} in your code generator
+     * configuration.
+     */
+    @Deprecated
+    public AtcoderProblemsFtsRecord setSolvercount(Object value) {
+        set(17, value);
+        return this;
+    }
+
+    /**
+     * @deprecated Unknown data type. If this is a qualified, user-defined type,
+     * it may have been excluded from code generation. If this is a built-in
+     * type, you can define an explicit {@link org.jooq.Binding} to specify how
+     * this type should be handled. Deprecation can be turned off using
+     * {@literal <deprecationOnUnknownTypes/>} in your code generator
+     * configuration.
+     */
+    @Deprecated
+    public Object getSolvercount() {
+        return get(17);
     }
 
     // -------------------------------------------------------------------------
@@ -463,12 +517,14 @@ public class AtcoderProblemsFtsRecord extends TableRecordImpl<AtcoderProblemsFts
     /**
      * Create a detached, initialised AtcoderProblemsFtsRecord
      */
-    public AtcoderProblemsFtsRecord(Object id, Object problemid, Object contestid, Object problemindex, Object name, Object title, Object shortestsubmissionid, Object shortestcontestid, Object shortestuserid, Object fastestsubmissionid, Object fastestcontestid, Object fastestuserid, Object firstsubmissionid, Object firstcontestid, Object firstuserid, Object solvercount) {
+    public AtcoderProblemsFtsRecord(Object id, Object difficulty, Object problemid, Object contestid, Object contesttitle, Object problemindex, Object name, Object title, Object shortestsubmissionid, Object shortestcontestid, Object shortestuserid, Object fastestsubmissionid, Object fastestcontestid, Object fastestuserid, Object firstsubmissionid, Object firstcontestid, Object firstuserid, Object solvercount) {
         super(AtcoderProblemsFts.ATCODER_PROBLEMS_FTS);
 
         setId(id);
+        setDifficulty(difficulty);
         setProblemid(problemid);
         setContestid(contestid);
+        setContesttitle(contesttitle);
         setProblemindex(problemindex);
         setName(name);
         setTitle(title);
