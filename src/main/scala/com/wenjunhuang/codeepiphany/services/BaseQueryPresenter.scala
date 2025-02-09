@@ -61,7 +61,7 @@ abstract class BaseQueryPresenter[UIBoostrapParameters, T, ResultItem](
   protected val myQueryStateManager  = QueryStateManager(createInitialQueryParameters(myBoostrapParameters))
   protected val myQueryResultTableModel: ListTableModel[ResultItem] = ListTableModel[ResultItem]()
   myQueryResultTableModel.setColumnInfos(getQueryResultColumns.asInstanceOf[Array[ColumnInfo[?, ?]]])
-  protected val myQueryResultSelectionModel: SingleSelectionModel = SingleSelectionModel()
+  protected val myQueryResultSelectionModel: ListSelectionModel = createQueryResultSelectionModel()
 
   @volatile
   private var myIsQuerying = false
@@ -79,6 +79,7 @@ abstract class BaseQueryPresenter[UIBoostrapParameters, T, ResultItem](
     dataSink.set(PAGINATION_PROVIDER_KEY, myPaginationProvider)
   }
 
+  protected def createQueryResultSelectionModel(): ListSelectionModel = SingleSelectionModel()
   protected def createInitialQueryParameters(boostrapParameters: UIBoostrapParameters): QueryContext[T]
   protected def executeQuery(context: QueryContext[T]): IO[(Pagination, List[ResultItem])]
   protected def refreshPagination(): Unit

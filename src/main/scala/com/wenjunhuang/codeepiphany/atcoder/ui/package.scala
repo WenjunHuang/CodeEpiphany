@@ -1,6 +1,7 @@
 package com.wenjunhuang.codeepiphany.atcoder
 
 import cats.effect.IO
+import javax.swing.ListSelectionModel
 import org.typelevel.log4cats.LoggerFactory
 
 import com.intellij.openapi.project.Project
@@ -21,7 +22,7 @@ package object ui {
 
   def createAtCoderChallengeProvider(
     project: Project,
-    selectionModel: SingleSelectionModel,
+    selectionModel: ListSelectionModel,
     tableModel: ListTableModel[AtCoderTableItem]
   ): OpenChallengeProvider = {
     implicit val httpClientManager: HttpClientManager[IO] = HttpClientService.getInstance(project).httpClientManager

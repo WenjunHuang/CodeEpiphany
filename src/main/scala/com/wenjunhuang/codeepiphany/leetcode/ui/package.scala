@@ -1,6 +1,7 @@
 package com.wenjunhuang.codeepiphany.leetcode
 
 import cats.effect.IO
+import javax.swing.ListSelectionModel
 import org.typelevel.log4cats.LoggerFactory
 
 import com.intellij.openapi.project.Project
@@ -21,7 +22,7 @@ import com.wenjunhuang.codeepiphany.utils.implicits.*
 package object ui {
   def createLeetCodeChallengeProvider(
     project: Project,
-    selectionModel: SingleSelectionModel,
+    selectionModel: ListSelectionModel,
     tableModel: ListTableModel[LeetCodeChallengeListItem],
     bootstrap: LeetCodeBootstrapParameters,
     leetCodeDojo: CodeDojo.LeetCode.type | CodeDojo.LeetCodeCN.type

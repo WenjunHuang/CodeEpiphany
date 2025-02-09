@@ -5,8 +5,10 @@ import javax.swing.JComponent
 import com.intellij.openapi.actionSystem.{ActionGroup, ActionManager, DataSink, DefaultActionGroup}
 import com.intellij.openapi.observable.properties.{AtomicProperty, ObservableProperty}
 import com.intellij.openapi.project.Project
+import com.intellij.ui.PopupHandler
 
 import com.wenjunhuang.codeepiphany.actions.RefreshAction.{REFRESH_PROVIDER_KEY, RefreshProvider}
+import com.wenjunhuang.codeepiphany.model.Actions.{CHALLENGES_TABLE_POPUP_GROUP, CHALLENGES_TABLE_POPUP_PLACE}
 import com.wenjunhuang.codeepiphany.utils.ui.TagPaneAction
 
 abstract class ParametersQueryPresenter[UIBoostrapParameters, T, ResultItem](
@@ -47,6 +49,9 @@ abstract class ParametersQueryPresenter[UIBoostrapParameters, T, ResultItem](
 
   def getParametersActionGroup: ActionGroup                       = myQueryParametersActionGroup
   def getTagsActionModel: ObservableProperty[List[TagPaneAction]] = myTagsActionModel
+  def getRowSelectionTablePopup:ActionGroup = {
+    ActionManager.getInstance().getAction(CHALLENGES_TABLE_POPUP_GROUP).asInstanceOf[ActionGroup]
+  }
 
   override protected def refreshPagination(): Unit = {
     myView.foreach(_.refreshPagination())

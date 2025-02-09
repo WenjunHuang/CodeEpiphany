@@ -3,12 +3,13 @@ package com.wenjunhuang.codeepiphany.toolwindows.sidebar
 import scala.annotation.static
 
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.wm.{ToolWindow, ToolWindowManager}
+import com.intellij.openapi.util.Disposer
+import com.intellij.openapi.wm.{ ToolWindow, ToolWindowManager }
 import com.intellij.openapi.wm.impl.content.ToolWindowContentUi
 
 import com.wenjunhuang.codeepiphany.toolwindows.sidebar.description.ChallengeDescriptionPresenter
 import com.wenjunhuang.codeepiphany.toolwindows.sidebar.solution.SolutionListPresenter
-import com.wenjunhuang.codeepiphany.toolwindows.sidebar.submissionlog.SubmissionLogPresenter
+import com.wenjunhuang.codeepiphany.toolwindows.sidebar.submissionlog.{ SubmissionLogPresenter, SubmissionPresenter }
 import com.wenjunhuang.codeepiphany.toolwindows.sidebar.SidebarWindowFactory.*
 import com.wenjunhuang.codeepiphany.utils.ToolWindowFactoryBridge
 
@@ -17,14 +18,18 @@ class SidebarWindowFactory extends ToolWindowFactoryBridge {
     val cm = toolWindow.getContentManager
     val cf = cm.getFactory
 
-    val descriptionPresenter   = ChallengeDescriptionPresenter(project)
-    val submissionLogPresenter = SubmissionLogPresenter(project)
-    val solutionPresenter      = SolutionListPresenter(project)
+    val descriptionPresenter = ChallengeDescriptionPresenter(project)
+    val submissionPresenter  = SubmissionPresenter(project)
+    val solutionPresenter    = SolutionListPresenter(project)
 
     cm.addContent(cf.createContent(LogConsoleView(project), CONSOLE, false))
     cm.addContent(cf.createContent(descriptionPresenter.getView, DESCRIPTION, false))
-    cm.addContent(cf.createContent(submissionLogPresenter.getView, SUBMISSIONS, false))
+    cm.addContent(cf.createContent(submissionPresenter.getView, SUBMISSIONS, false))
     cm.addContent(cf.createContent(solutionPresenter.getView, SOLUTIONS, false))
+    Disposer.register(project, descriptionPresenter)
+    Disposer.register(project, submissionPresenter)
+    Disposer.register(project, solutionPresenter)
+   
     toolWindow.getComponent.putClientProperty(ToolWindowContentUi.HIDE_ID_LABEL, "true")
   }
 }

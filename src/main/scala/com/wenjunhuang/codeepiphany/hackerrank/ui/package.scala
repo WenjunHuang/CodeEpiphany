@@ -1,6 +1,7 @@
 package com.wenjunhuang.codeepiphany.hackerrank
 
 import cats.effect.IO
+import javax.swing.ListSelectionModel
 import org.typelevel.ci.CIString
 import org.typelevel.log4cats.LoggerFactory
 
@@ -22,7 +23,7 @@ import com.wenjunhuang.codeepiphany.utils.implicits.*
 package object ui {
   def createHackerRankChallengeProvider(
     project: Project,
-    selectionModel: SingleSelectionModel,
+    selectionModel: ListSelectionModel,
     tableModel: ListTableModel[HackerRankChallengeDetail]
   ): OpenChallengeProvider = {
     implicit val httpClientManager: HttpClientManager[IO] = HttpClientService.getInstance(project).httpClientManager

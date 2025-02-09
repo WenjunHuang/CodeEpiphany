@@ -102,7 +102,7 @@ class ParametersQueryView[Item](private val myPresenter: ParametersQueryPresente
     })
     PopupHandler.installRowSelectionTablePopup(
       tableView,
-      ActionManager.getInstance().getAction(CHALLENGES_TABLE_POPUP_GROUP).asInstanceOf[ActionGroup],
+      myPresenter.getRowSelectionTablePopup,
       CHALLENGES_TABLE_POPUP_PLACE
     )
     tableView

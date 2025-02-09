@@ -1,30 +1,25 @@
 package com.wenjunhuang.codeepiphany.toolwindows.sidebar.submissionlog
 
 import cats.effect.IO
-import cats.effect.kernel.Resource.ExitCase
-import cats.effect.std.Queue
 import cats.syntax.all.*
-import fs2.Stream
-import fs2.concurrent.SignallingRef
 import java.time.format.DateTimeFormatter
-import javax.swing.JComponent
+import javax.swing.{ DefaultListSelectionModel, Icon, JTable, ListSelectionModel }
+import javax.swing.table.TableCellRenderer
+import monocle.syntax.all.*
 import org.jooq.{ Record, SelectOnConditionStep }
 import org.typelevel.ci.CIString
-import org.typelevel.log4cats.LoggerFactory
-import scala.concurrent.duration.*
 import scala.jdk.CollectionConverters.*
-import scala.jdk.OptionConverters.*
-import scala.util.Try
+import scala.util.{ Success, Try }
 
 import com.intellij.diff.requests.SimpleDiffRequest
-import com.intellij.diff.tools.util.DiffDataKeys
 import com.intellij.diff.DiffContentFactory
-import com.intellij.openapi.Disposable
-import com.intellij.openapi.actionSystem.{ DataSink, UiDataProvider }
+import com.intellij.diff.tools.util.DiffDataKeys
+import com.intellij.openapi.actionSystem.{ ActionGroup, ActionManager, DataSink }
 import com.intellij.openapi.fileEditor.FileEditorManager
-import com.intellij.openapi.observable.properties.{ AtomicProperty, ObservableProperty }
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.vfs.VirtualFile
+import com.intellij.util.ui.table.IconTableCellRenderer
 
 import com.wenjunhuang.codeepiphany.actions.CodeDojoParameterAction.{ CODEDOJO_PROVIDER_KEY, CodeDojoParameterProvider }
 import com.wenjunhuang.codeepiphany.actions.LanguageParameterAction.{ LANGUAGE_PROVIDER_KEY, LanguageParameterProvider }
@@ -32,208 +27,155 @@ import com.wenjunhuang.codeepiphany.actions.OpenSubmissionCodeAction.{
   OPEN_SUBMISSION_PROVIDER_KEY,
   OpenSubmissionCodeProvider
 }
-import com.wenjunhuang.codeepiphany.actions.RefreshAction.{ REFRESH_PROVIDER_KEY, RefreshProvider }
-import com.wenjunhuang.codeepiphany.database.Tables.*
 import com.wenjunhuang.codeepiphany.database.tables.records.{
   HackerrankSubmissionCaseRecord,
   LeetcodeSubmissionRecord,
   SolutionSubmissionRecord
 }
+import com.wenjunhuang.codeepiphany.database.Tables.*
 import com.wenjunhuang.codeepiphany.model.*
-import com.wenjunhuang.codeepiphany.model.newtypes.SubmissionId
-import com.wenjunhuang.codeepiphany.model.CodeDojo.{ CodeForces, HackerRank, LeetCode, LeetCodeCN }
-import com.wenjunhuang.codeepiphany.services.ChallengeRepository
+import com.wenjunhuang.codeepiphany.services.{ ChallengeRepository, ParametersQueryPresenter, QueryContext }
 import com.wenjunhuang.codeepiphany.toolwindows.sidebar.submissionlog.SubmissionLogPresenter.*
-import com.wenjunhuang.codeepiphany.utils.extensions.*
-import com.wenjunhuang.codeepiphany.utils.implicits.*
+import com.wenjunhuang.codeepiphany.utils.{ OrderByColumnInfo, Pagination }
 import com.wenjunhuang.codeepiphany.utils.ui.TagPaneAction
 import com.wenjunhuang.codeepiphany.vfs.SubmissionCodeFileSystem
 import com.wenjunhuang.codeepiphany.vfs.SubmissionCodeFileSystem.SubmissionCodeFilePath
+import com.wenjunhuang.codeepiphany.PluginBundle
+import com.wenjunhuang.codeepiphany.leetcode.services.LeetCodeSearchOrderBy
 
-class SubmissionLogPresenter(private val myProject: Project) extends UiDataProvider with Disposable {
-  private val myLogger          = LoggerFactory[IO].getLogger
-  private val myTagsActionModel = AtomicProperty[List[TagPaneAction]](Nil)
-  private var myQueryParams     = EMPTY_QUERY_PARAMS
+class SubmissionLogPresenter(project: Project)
+    extends ParametersQueryPresenter[Unit, QueryParams, SubmissionLogEntry](project, ()) {
 
-  private val myView = SubmissionLogView(this)
+  override def getRowSelectionTablePopup: ActionGroup = {
+    ActionManager.getInstance().getAction(Actions.SUBMISSIONS_TABLE_POPUP_GROUP).asInstanceOf[ActionGroup]
+  }
 
-  @volatile
-  private var myQueryQueue: Option[Queue[IO, Option[QueryParams]]] = None
+  override protected def prepareProviders(
+    getter: () => QueryContext[QueryParams],
+    updater: (QueryContext[QueryParams] => QueryContext[QueryParams]) => Unit,
+    dataSink: DataSink
+  ): ActionGroup = {
 
-  private val myQueryWorker = for {
-    q              <- Queue.unbounded[IO, Option[QueryParams]]
-    _              <- IO.delay { myQueryQueue = Some(q) }
-    notInterrupted <- SignallingRef.of[IO, Boolean](false)
-    _ <- Stream
-      .fromQueueNoneTerminated(q)
-      // when a new query is received, we need to cancel the ongoing query to dump the old results
-      .evalMapAccumulate(notInterrupted) { case (signal, state) =>
-        for {
-          _         <- signal.set(true)
-          newSignal <- SignallingRef.of[IO, Boolean](false)
-        } yield (newSignal, state)
-      }
-      .debounce(200.millis)
-      .evalTap { _ =>
-        IO.delay { refreshTags() }.evalOnEDTDefault()
-      }
-      .evalTap { case (signal, queryParams) =>
-        Stream
-          .eval(querySubmissionLogs(queryParams))
-          .evalTap { result =>
-            IO.delay { myView.getTableModel.setItems(result.asJava) }.evalOnEDTAny()
+    val myCodeDojoProvider = new CodeDojoParameterProvider {
+      override def getAllItems: List[CodeDojo] = CodeDojo.values.toList
+
+      override def isMultipleSelection: Boolean = true
+
+      override def isSelected(item: CodeDojo): Boolean = getter().criteria.dojos.contains(item)
+
+      override def getSelectedItems: List[CodeDojo] = getter().criteria.dojos
+
+      override def addSelectedItems(items: List[CodeDojo]): Unit = {
+        updater { old =>
+          old.focus(_.criteria.dojos).modify { dojos =>
+            (dojos ++ items).distinct
           }
-          .interruptWhen(signal)
-          .attempt
-          .onFinalizeCase {
-            case ExitCase.Succeeded =>
-              myLogger.info("Querying challenges is completed")
-            case ExitCase.Canceled =>
-              myLogger.info("Querying challenges is canceled")
-            case ExitCase.Errored(e) =>
-              myLogger.warn(e)("Error while querying challenges")
-          }
-          .compile
-          .drain
-          .evalAsBackgroundProgress(myProject, "Querying submission logs")
-      }
-      .onFinalize(myLogger.info("Query worker is finalized"))
-      .compile
-      .drain
-  } yield ()
-
-  myQueryWorker.unsafeRunAndForget()
-
-  @volatile
-  private var mySelectedSubmissionQueue: Option[Queue[IO, Option[SubmissionLogEntry]]] = None
-
-  private val mySelectedSubmissionCanceller = (for {
-    q              <- Queue.unbounded[IO, Option[SubmissionLogEntry]]
-    _              <- IO.delay { mySelectedSubmissionQueue = Some(q) }
-    notInterrupted <- SignallingRef.of[IO, Boolean](false)
-    _ <- Stream
-      .fromQueueUnterminated(q)
-      // when a new query is received, we need to cancel the ongoing query to dump the old results
-      .evalMapAccumulate(notInterrupted) { case (signal, state) =>
-        for {
-          _         <- signal.set(true)
-          newSignal <- SignallingRef.of[IO, Boolean](false)
-        } yield (newSignal, state)
-      }
-      .debounce(200.millis)
-      .evalTap { (signal, state) =>
-        state match
-          case Some(selected) =>
-            Stream
-              .eval(fetchSubmission(SubmissionId(selected.id)))
-              .evalTap {
-                case Some(submission) =>
-                  IO.delay { myView.setDetail(submission) }.evalOnEDTAny()
-                case None =>
-                  IO.delay { myView.setDetailEmpty() }.evalOnEDTAny()
-              }
-              .interruptWhen(signal)
-              .attempt
-              .compile
-              .drain
-          case None =>
-            IO.delay { myView.setDetailEmpty() }.evalOnEDTAny()
-      }
-      .compile()
-      .drain
-  } yield ()).unsafeRunCancelable()
-
-  myView.getTable.getSelectionModel.addListSelectionListener { event =>
-    if !event.getValueIsAdjusting then
-      val selected = myView.getTable.getSelectedObject
-      if selected != null then mySelectedSubmissionQueue.foreach(_.offer(Some(selected)).unsafeRunAndForget())
-  }
-
-  private val myRefreshProvider = new RefreshProvider {
-    override def refresh(): Unit = {
-      requery()
-    }
-
-    override def isRefreshing: Boolean = false
-  }
-
-  private val myCodeDojoProvider = new CodeDojoParameterProvider {
-    override def getAllItems: List[CodeDojo] = CodeDojo.values.toList
-
-    override def isMultipleSelection: Boolean = true
-
-    override def isSelected(item: CodeDojo): Boolean = myQueryParams.dojos.contains(item)
-
-    override def getSelectedItems: List[CodeDojo] = myQueryParams.dojos
-
-    override def addSelectedItems(items: List[CodeDojo]): Unit = {
-      myQueryParams = myQueryParams.copy(dojos = (myQueryParams.dojos ++ items).distinct)
-      requery()
-    }
-
-    override def toggleSelection(item: CodeDojo): Unit = {
-      if myQueryParams.dojos.contains(item) then
-        myQueryParams = myQueryParams.copy(dojos = myQueryParams.dojos.filterNot(_ == item))
-      else myQueryParams = myQueryParams.copy(dojos = myQueryParams.dojos :+ item)
-      requery()
-    }
-
-    override def removeSelectedItems(items: List[CodeDojo]): Unit = {
-      myQueryParams = myQueryParams.copy(dojos = myQueryParams.dojos.filterNot(items.contains))
-      requery()
-    }
-  }
-
-  private val myLanguageProvider = new LanguageParameterProvider {
-    override def getAllItems: List[(Language, LanguageVersion)] = {
-      ChallengeRepository
-        .getInstance(myProject)
-        .getDSLContext
-        .selectDistinct(CHALLENGE_LANGUAGE.LANGUAGE, CHALLENGE_LANGUAGE.LANGUAGEVERSION)
-        .from(CHALLENGE_LANGUAGE)
-        .orderBy(CHALLENGE_LANGUAGE.LANGUAGE.asc(), CHALLENGE_LANGUAGE.LANGUAGEVERSION.asc())
-        .fetch()
-        .asScala
-        .map { record =>
-          (
-            Language.fromCIString(CIString(record.get(CHALLENGE_LANGUAGE.LANGUAGE))).get,
-            LanguageVersion.fromString(record.get(CHALLENGE_LANGUAGE.LANGUAGEVERSION))
-          )
         }
-        .toList
+      }
+
+      override def toggleSelection(item: CodeDojo): Unit = {
+        updater { old =>
+          old.focus(_.criteria.dojos).modify { dojos =>
+            if dojos.contains(item) then dojos.filterNot(_ == item)
+            else dojos :+ item
+          }
+        }
+      }
+
+      override def removeSelectedItems(items: List[CodeDojo]): Unit = {
+        updater { old =>
+          old.focus(_.criteria.dojos).modify { dojos =>
+            dojos.filterNot(items.contains)
+          }
+        }
+      }
     }
 
-    override def isMultipleSelection: Boolean = true
+    val myLanguageProvider = new LanguageParameterProvider {
+      override def getAllItems: List[Language] = {
+        ChallengeRepository
+          .getInstance(myProject)
+          .getDSLContext
+          .selectDistinct(CHALLENGE_LANGUAGE.LANGUAGE)
+          .from(CHALLENGE_LANGUAGE)
+          .orderBy(CHALLENGE_LANGUAGE.LANGUAGE.asc())
+          .fetch()
+          .asScala
+          .map { record => Language.fromCIString(CIString(record.get(CHALLENGE_LANGUAGE.LANGUAGE))) }
+          .collect { case Some(l) => l }
+          .toList
+      }
 
-    override def isSelected(item: (Language, LanguageVersion)): Boolean =
-      myQueryParams.languages.contains(item)
+      override def isMultipleSelection: Boolean = true
 
-    override def getSelectedItems: List[(Language, LanguageVersion)] = myQueryParams.languages
+      override def isSelected(item: Language): Boolean =
+        getter().criteria.languages.contains(item)
 
-    override def addSelectedItems(items: List[(Language, LanguageVersion)]): Unit = {
-      myQueryParams = myQueryParams.copy(languages = (myQueryParams.languages ++ items).distinct)
-      requery()
+      override def getSelectedItems: List[Language] = getter().criteria.languages
+
+      override def addSelectedItems(items: List[Language]): Unit = {
+        updater { old =>
+          old.focus(_.criteria.languages).modify { languages =>
+            (languages ++ items).distinct
+          }
+        }
+      }
+
+      override def toggleSelection(item: Language): Unit = {
+        updater { old =>
+          old.focus(_.criteria.languages).modify { languages =>
+            if languages.contains(item) then languages.filterNot(_ == item)
+            else languages :+ item
+          }
+        }
+      }
+
+      override def removeSelectedItems(items: List[Language]): Unit = {
+        updater { old =>
+          old.focus(_.criteria.languages).modify { languages =>
+            languages.filterNot(items.contains)
+          }
+        }
+      }
     }
 
-    override def toggleSelection(item: (Language, LanguageVersion)): Unit = {
-      if myQueryParams.languages.contains(item) then
-        myQueryParams = myQueryParams.copy(languages = myQueryParams.languages.filterNot(_ == item))
-      else myQueryParams = myQueryParams.copy(languages = myQueryParams.languages :+ item)
-      requery()
+    val myOpenSubmissionCodeProvider = new OpenSubmissionCodeProvider {
+      override def openSubmissionCode(): Unit = {
+        myQueryResultSelectionModel.getSelectedIndices.headOption match {
+          case Some(index) =>
+            val id   = myQueryResultTableModel.getItem(index).id
+            val file = getSubmissionCodeFile(id)
+            if file != null then FileEditorManager.getInstance(myProject).openFile(file)
+          case None =>
+        }
+      }
     }
 
-    override def removeSelectedItems(items: List[(Language, LanguageVersion)]): Unit = {
-      myQueryParams = myQueryParams.copy(languages = myQueryParams.languages.filterNot(items.contains))
-      requery()
-    }
+    dataSink.set(CODEDOJO_PROVIDER_KEY, myCodeDojoProvider)
+    dataSink.set(LANGUAGE_PROVIDER_KEY, myLanguageProvider)
+    dataSink.set(OPEN_SUBMISSION_PROVIDER_KEY, myOpenSubmissionCodeProvider)
+    dataSink.`lazy`(
+      DiffDataKeys.DIFF_REQUEST_TO_COMPARE,
+      { () =>
+        myQueryResultSelectionModel.getSelectedIndices.toList match
+          case f :: s :: Nil =>
+            val first  = myQueryResultTableModel.getItem(f)
+            val second = myQueryResultTableModel.getItem(s)
+            SimpleDiffRequest(
+              "Submission Log Diff",
+              DiffContentFactory.getInstance().create(myProject, getSubmissionCodeFile(first.id)),
+              DiffContentFactory.getInstance().create(myProject, getSubmissionCodeFile(second.id)),
+              createDiffTitle(first),
+              createDiffTitle(second)
+            )
+          case _ => null
+      }
+    )
+    ActionManager.getInstance().getAction(Actions.SUBMISSIONS_TOOLBAR_GROUP).asInstanceOf[ActionGroup]
   }
 
-  private val myOpenSubmissionCodeProvider = new OpenSubmissionCodeProvider {
-    override def openSubmissionCode(): Unit = {
-      val id   = myView.getTable.getSelectedObject.id
-      val file = getSubmissionCodeFile(id)
-      if file != null then FileEditorManager.getInstance(myProject).openFile(file)
-    }
+  private def createDiffTitle(logEntry: SubmissionLogEntry): String = {
+    s"${logEntry.solution}-${logEntry.challengeTitle}-${logEntry.submissionDateTime.map(_.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))).getOrElse("")}"
   }
 
   private def getSubmissionCodeFile(submissionId: Long): VirtualFile = {
@@ -244,82 +186,58 @@ class SubmissionLogPresenter(private val myProject: Project) extends UiDataProvi
         SubmissionCodeFilePath(submissionId, myProject, SubmissionCodeFileSystem.CodeType.Submission)
       )
   }
+  override protected def createQueryResultSelectionModel(): ListSelectionModel =
+    DefaultListSelectionModel()
 
-  def getTagsActionModel: ObservableProperty[List[TagPaneAction]] = myTagsActionModel
-  def getView: JComponent                                         = myView
-
-  def requery(): Unit = {
-    myQueryQueue.foreach(_.offer(Some(myQueryParams)).unsafeRunAndForget())
-  }
-
-  private def fetchSubmission(submissionId: SubmissionId): IO[Option[SubmissionType]] = {
-    ChallengeRepository
-      .getInstance(myProject)
-      .getDSLContextResource[IO]
-      .use { dsl =>
-        IO.delay {
-          dsl
-            .select((SOLUTION_SUBMISSION.fields() ++ CHALLENGE_LANGUAGE.fields() ++ CHALLENGE.fields())*)
-            .from(SOLUTION_SUBMISSION)
-            .innerJoin(CHALLENGE_LANGUAGE)
-            .on(SOLUTION_SUBMISSION.CHALLENGELANGUAGEID.eq(CHALLENGE_LANGUAGE.ID))
-            .innerJoin(CHALLENGE)
-            .on(CHALLENGE_LANGUAGE.CHALLENGEID.eq(CHALLENGE.ID))
-            .where(SOLUTION_SUBMISSION.ID.eq(submissionId.value))
-            .fetchOptional()
-            .toScala
-            .flatMap { record =>
-              val language = Language.fromCIString(CIString(record.get(CHALLENGE_LANGUAGE.LANGUAGE)))
-              val codeDojo = CodeDojo.fromCIString(CIString(record.get(CHALLENGE.DOJO)))
-              (language, codeDojo).mapN { (lang, dojo) =>
-                val submissionRecord = record.into(SOLUTION_SUBMISSION)
-                dojo match {
-                  case dojo @ (LeetCode | LeetCodeCN) =>
-                    dsl
-                      .selectFrom(LEETCODE_SUBMISSION)
-                      .where(LEETCODE_SUBMISSION.ID.eq(submissionId.value))
-                      .fetchOptional()
-                      .toScala
-                      .map { leetcodeSubmission =>
-                        dojo match {
-                          case LeetCode => SubmissionType.LeetCodeSubmission(lang, submissionRecord, leetcodeSubmission)
-                          case LeetCodeCN =>
-                            SubmissionType.LeetCodeCNSubmission(lang, submissionRecord, leetcodeSubmission)
-                        }
-                      }
-                  case HackerRank =>
-                    val hackerCases = dsl
-                      .selectFrom(HACKERRANK_SUBMISSION_CASE)
-                      .where(HACKERRANK_SUBMISSION_CASE.SUBMISSIONID.eq(submissionId.value))
-                      .fetch()
-                      .asScala
-                      .toList
-                    Some(SubmissionType.HackerRankSubmission(lang, submissionRecord, hackerCases))
-                  case CodeForces =>
-                    dsl
-                      .selectFrom(CODEFORCES_CHALLENGE)
-                      .where(CODEFORCES_CHALLENGE.ID.eq(record.get(CHALLENGE.ID)))
-                      .fetchOptional()
-                      .toScala
-                      .map { codeForcesChallenge =>
-                        SubmissionType.CodeForcesSubmission(
-                          lang,
-                          submissionRecord,
-                          codeForcesChallenge.getContestid,
-                          Option(codeForcesChallenge.getProblemsetname)
-                        )
-                      }
-                }
-              }.flatten
-            }
-        }
+  override protected def createQueryParametersTags(
+    context: QueryContext[QueryParams],
+    onCloseUpdater: (QueryContext[QueryParams] => QueryContext[QueryParams]) => Unit
+  ): List[TagPaneAction] = {
+    context.criteria.dojos.map { dojo =>
+      TagPaneAction(
+        dojo.value,
+        dojo.show,
+        dojo.getIcon,
+        CODEDOJO_TAG_RADIUS,
+        None,
+        Some(() => onCloseUpdater(_.focus(_.criteria.dojos).modify(_ filterNot (_ == dojo))))
+      )
+    } ++
+      context.criteria.languages.map { language =>
+        TagPaneAction(
+          s"${language.show}",
+          s"${language.show}",
+          Option(language.icon),
+          LANGUAGE_TAG_RADIUS,
+          None,
+          Some(() => onCloseUpdater(_.focus(_.criteria.languages).modify(_ filterNot (_ == language))))
+        )
       }
   }
 
-  private def querySubmissionLogs(queryParams: QueryParams): IO[List[SubmissionLogEntry]] = {
-    val repository = ChallengeRepository.getInstance(myProject)
-    repository.getDSLContextResource[IO].use { dsl =>
+  override protected def createInitialQueryParameters(boostrapParameters: Unit): QueryContext[QueryParams] = {
+    QueryContext[QueryParams](QueryParams(dojos = List.empty, languages = List.empty, orderBy = None), Pagination())
+  }
+
+  override protected def executeQuery(
+    context: QueryContext[QueryParams]
+  ): IO[(Pagination, List[SubmissionLogEntry])] = {
+    ChallengeRepository.getInstance(myProject).getDSLContextResource[IO].use { dsl =>
       IO.delay {
+        val total = context.criteria
+          .fillQueryConditions(
+            dsl
+              .selectCount()
+              .from(SOLUTION_SUBMISSION)
+              .innerJoin(SOLUTION)
+              .on(SOLUTION_SUBMISSION.SOLUTIONID.eq(SOLUTION.ID))
+              .innerJoin(CHALLENGE_LANGUAGE)
+              .on(SOLUTION_SUBMISSION.CHALLENGELANGUAGEID.eq(CHALLENGE_LANGUAGE.ID))
+              .innerJoin(CHALLENGE)
+              .on(CHALLENGE_LANGUAGE.CHALLENGEID.eq(CHALLENGE.ID))
+          )
+          .fetchOne(0, classOf[Int])
+
         val base = dsl
           .select(
             (SOLUTION_SUBMISSION.fields() ++
@@ -335,8 +253,12 @@ class SubmissionLogPresenter(private val myProject: Project) extends UiDataProvi
           .innerJoin(CHALLENGE)
           .on(CHALLENGE_LANGUAGE.CHALLENGEID.eq(CHALLENGE.ID))
 
-        queryParams
+        val items = context.criteria
           .fillQueryConditions(base)
+          .limit(
+            (context.pagination.currentPage - 1) * context.pagination.pageSize.value,
+            context.pagination.pageSize.value
+          )
           .fetch()
           .asScala
           .map { record =>
@@ -356,135 +278,126 @@ class SubmissionLogPresenter(private val myProject: Project) extends UiDataProvi
               )
             }
           }
-          .filter { it =>
-            it.isSuccess
+          .collect { case Success(r) =>
+            r
           }
-          .map(_.get)
           .toList
+        (context.pagination.copy(totalSize = total), items)
       }
     }
   }
 
-  private def refreshTags(): Unit = {
+  private def getDirectionOf(field: SubmissionLogOrderBy): Option[OrderDirection] =
+    myQueryStateManager.get.criteria.orderBy.collect {
+      case (f, d) if f == field => d
+    }
 
-    val tagsActions = myQueryParams.dojos.map { dojo =>
-      TagPaneAction(
-        dojo.value,
-        dojo.show,
-        dojo.getIcon,
-        CODEDOJO_TAG_RADIUS,
-        None,
-        Some(() => myCodeDojoProvider.removeSelectedItems(List(dojo)))
-      )
-    } ++
-      myQueryParams.languages.map { case (language, version) =>
-        TagPaneAction(
-          s"${language.show} ${version.version}",
-          s"${language.show} ${version.version}",
-          Option(language.icon),
-          LANGUAGE_TAG_RADIUS,
-          None,
-          Some(() => myLanguageProvider.removeSelectedItems(List(language -> version)))
-        )
-      }
-    myTagsActionModel.set(tagsActions)
+  private def setDirectionOf(field: SubmissionLogOrderBy, direction: Option[OrderDirection]): Unit = {
+    myQueryStateManager.update { old =>
+      direction match
+        case None => old.focus(_.criteria.orderBy).replace(None)
+        case Some(direction) =>
+          old.focus(_.criteria.orderBy).replace(Some((field, direction)))
+    }
+    requery(true)
   }
 
-  def clearOrderFilter(): Unit = {
-    myQueryParams = myQueryParams.copy(orderBy = None)
-    requery()
-  }
+  override def getQueryResultColumns: Array[OrderByColumnInfo[SubmissionLogEntry, ?]] = Array(
+    new OrderByColumnInfo[SubmissionLogEntry, CodeDojo](PluginBundle.message("submissionLog.ui.dojo.title")) {
+      override def valueOf(item: SubmissionLogEntry): CodeDojo = item.dojo
 
-  def getCodeDojoOrderFilter: Option[OrderDirection] = myQueryParams.orderBy.collectFirst {
-    case (OrderByField.CodeDojoField, direction) => direction
-  }
+      override def getPreferredStringValue: String = PluginBundle.message("submissionLog.ui.dojo.title")
 
-  def setCodeDojoOrderFilter(orderFilter: OrderDirection): Unit = {
-    myQueryParams = myQueryParams.copy(orderBy = Some((OrderByField.CodeDojoField, orderFilter)))
-    requery()
-  }
+      override def getRenderer(item: SubmissionLogEntry): TableCellRenderer =
+        new IconTableCellRenderer[CodeDojo]() {
+          setToolTipText(item.dojo.show)
+          override def getIcon(value: CodeDojo, table: JTable, row: Int): Icon =
+            value.getIcon.orNull
 
-  def getLanguageOrderFilter: Option[OrderDirection] = myQueryParams.orderBy.collectFirst {
-    case (OrderByField.LanguageField, direction) => direction
-  }
-  def setLanguageOrderFilter(orderFilter: OrderDirection): Unit = {
-    myQueryParams = myQueryParams.copy(orderBy = Some((OrderByField.LanguageField, orderFilter)))
-    requery()
-  }
+          override def isCenterAlignment: Boolean = true
 
-  def getDifficultyOrderFilter: Option[OrderDirection] = myQueryParams.orderBy.collectFirst {
-    case (OrderByField.DifficultyField, direction) => direction
-  }
-  def setDifficultyOrderFilter(orderFilter: OrderDirection): Unit = {
-    myQueryParams = myQueryParams.copy(orderBy = Some((OrderByField.DifficultyField, orderFilter)))
-    requery()
-  }
+          override def getText: String = null
 
-  def getSubmissionResultOrderFilter: Option[OrderDirection] = myQueryParams.orderBy.collectFirst {
-    case (OrderByField.SubmissionResultField, direction) => direction
-  }
-  def setSubmissionResultOrderFilter(orderFilter: OrderDirection): Unit = {
-    myQueryParams = myQueryParams.copy(orderBy = Some((OrderByField.SubmissionResultField, orderFilter)))
-    requery()
-  }
+        }
 
-  def getSubmissionDateTimeOrderFilter: Option[OrderDirection] = myQueryParams.orderBy.collectFirst {
-    case (OrderByField.SubmissionDateTimeField, direction) => direction
-  }
-  def setSubmissionDateTimeOrderFilter(orderFilter: OrderDirection): Unit = {
-    myQueryParams = myQueryParams.copy(orderBy = Some((OrderByField.SubmissionDateTimeField, orderFilter)))
-    requery()
-  }
+      override def enableOrderBy: Boolean = true
 
-  def getResultDateTimeOrderFilter: Option[OrderDirection] = myQueryParams.orderBy.collectFirst {
-    case (OrderByField.ResultDateTimeField, direction) => direction
-  }
-  def setResultDateTimeOrderFilter(orderFilter: OrderDirection): Unit = {
-    myQueryParams = myQueryParams.copy(orderBy = Some((OrderByField.ResultDateTimeField, orderFilter)))
-    requery()
-  }
+      override def getOrderFilter: Option[OrderDirection] = getDirectionOf(SubmissionLogOrderBy.CodeDojoField)
 
-  override def dispose(): Unit = {
-    myQueryQueue.foreach(_.offer(None).unsafeRunSync())
-    mySelectedSubmissionCanceller()
-  }
+      override def setOrderFilter(filter: Option[OrderDirection]): Unit =
+        setDirectionOf(SubmissionLogOrderBy.CodeDojoField, filter)
+    },
+    new OrderByColumnInfo[SubmissionLogEntry, String](PluginBundle.message("submissionLog.ui.challenge.title")) {
+      override def valueOf(item: SubmissionLogEntry): String = item.challengeTitle
 
-  override def uiDataSnapshot(dataSink: DataSink): Unit = {
-    dataSink.set(REFRESH_PROVIDER_KEY, myRefreshProvider)
-    dataSink.set(CODEDOJO_PROVIDER_KEY, myCodeDojoProvider)
-    dataSink.set(LANGUAGE_PROVIDER_KEY, myLanguageProvider)
-    dataSink.set(OPEN_SUBMISSION_PROVIDER_KEY, myOpenSubmissionCodeProvider)
-    dataSink.`lazy`(
-      DiffDataKeys.DIFF_REQUEST_TO_COMPARE,
-      { () =>
-        val table = myView.getTable
-        table.getSelectedObjects.asScala.toList match
-          case f :: (s :: Nil) =>
-            SimpleDiffRequest(
-              "Submission Log Diff",
-              DiffContentFactory.getInstance().create(myProject, getSubmissionCodeFile(f.id)),
-              DiffContentFactory.getInstance().create(myProject, getSubmissionCodeFile(s.id)),
-              createDiffTitle(f),
-              createDiffTitle(s)
-            )
-          case _ => null
-      }
-    )
-  }
+      override def getPreferredStringValue: String = StringUtil.repeat("W", 30)
 
-  private def createDiffTitle(logEntry: SubmissionLogEntry): String = {
-    s"${logEntry.solution}-${logEntry.challengeTitle}-${logEntry.submissionDateTime.map(_.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))).getOrElse("")}"
-  }
+    },
+    new OrderByColumnInfo[SubmissionLogEntry, String](PluginBundle.message("submissionLog.ui.solution.title")) {
+      override def valueOf(item: SubmissionLogEntry): String = item.solution
+      override def getPreferredStringValue: String           = StringUtil.repeat("W", 15)
+    },
+    new OrderByColumnInfo[SubmissionLogEntry, String](PluginBundle.message("submissionLog.ui.difficulty.title")) {
+      override def valueOf(item: SubmissionLogEntry): String = s"${item.difficulty.showAsHtml}"
+      override def getPreferredStringValue: String           = StringUtil.repeat("W", 15)
+
+      override def enableOrderBy: Boolean = true
+
+      override def getOrderFilter: Option[OrderDirection] =
+        getDirectionOf(SubmissionLogOrderBy.DifficultyField)
+
+      override def setOrderFilter(filter: Option[OrderDirection]): Unit =
+        setDirectionOf(SubmissionLogOrderBy.DifficultyField, filter)
+    },
+    new OrderByColumnInfo[SubmissionLogEntry, String](PluginBundle.message("submissionLog.ui.language.title")) {
+      override def valueOf(item: SubmissionLogEntry): String = s"${item.language.show}${item.languageVersion.version}"
+      override def getPreferredStringValue: String           = StringUtil.repeat("W", 15)
+
+      override def enableOrderBy: Boolean = true
+
+      override def getOrderFilter: Option[OrderDirection] =
+        getDirectionOf(SubmissionLogOrderBy.LanguageField)
+
+      override def setOrderFilter(filter: Option[OrderDirection]): Unit =
+        setDirectionOf(SubmissionLogOrderBy.LanguageField, filter)
+    },
+    new OrderByColumnInfo[SubmissionLogEntry, String](PluginBundle.message("submissionLog.ui.result.title")) {
+      override def valueOf(item: SubmissionLogEntry): String = s"${item.result.showAsHtml}"
+      override def getPreferredStringValue: String           = StringUtil.repeat("W", 15)
+
+      override def enableOrderBy: Boolean = true
+
+      override def getOrderFilter: Option[OrderDirection] =
+        getDirectionOf(SubmissionLogOrderBy.SubmissionResultField)
+
+      override def setOrderFilter(filter: Option[OrderDirection]): Unit =
+        setDirectionOf(SubmissionLogOrderBy.SubmissionResultField, filter)
+    },
+    new OrderByColumnInfo[SubmissionLogEntry, String](
+      PluginBundle.message("submissionLog.ui.submissionDateTime.title")
+    ) {
+      override def valueOf(item: SubmissionLogEntry): String =
+        s"${item.submissionDateTime.map(_.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))).getOrElse("")}"
+      override def getPreferredStringValue: String = StringUtil.repeat("W", 20)
+
+      override def enableOrderBy: Boolean = true
+
+      override def getOrderFilter: Option[OrderDirection] =
+        getDirectionOf(SubmissionLogOrderBy.SubmissionDateTimeField)
+
+      override def setOrderFilter(filter: Option[OrderDirection]): Unit =
+        setDirectionOf(SubmissionLogOrderBy.SubmissionDateTimeField, filter)
+    }
+  )
 }
 
 object SubmissionLogPresenter {
-  enum OrderByField {
+  enum SubmissionLogOrderBy {
     case CodeDojoField
     case LanguageField
     case DifficultyField
     case SubmissionResultField
     case SubmissionDateTimeField
-    case ResultDateTimeField
   }
 
   enum SubmissionType {
@@ -509,53 +422,36 @@ object SubmissionLogPresenter {
       contestId: Long,
       problemsetName: Option[String]
     )
+    case AtCodeSubmission(language: Language, record: SolutionSubmissionRecord, contestId: String, problemId: String)
   }
 
-  private val EMPTY_QUERY_PARAMS = QueryParams(
-    dojos = List.empty,
-    languages = List.empty,
-    difficulties = List.empty,
-    submitResults = List.empty,
-    titleKeyword = None,
-    orderBy = None
-  )
+  private val EMPTY_QUERY_PARAMS = QueryParams(dojos = List.empty, languages = List.empty, orderBy = None)
 
-  private case class QueryParams(
+  case class QueryParams(
     dojos: List[CodeDojo],
-    languages: List[(Language, LanguageVersion)],
-    difficulties: List[ChallengeDifficulty],
-    submitResults: List[SubmissionResult],
-    titleKeyword: Option[String],
-    orderBy: Option[(OrderByField, OrderDirection)]
+    languages: List[Language],
+    orderBy: Option[(SubmissionLogOrderBy, OrderDirection)]
   ) {
-    def fillQueryConditions(base: SelectOnConditionStep[Record]) = {
+    def fillQueryConditions(base: SelectOnConditionStep[?]) = {
       var query = base
       if dojos.nonEmpty then query = query.and(CHALLENGE.DOJO.in(dojos.map(_.value).asJava))
-      if languages.nonEmpty then
-        query = query.and(
-          CHALLENGE_LANGUAGE.LANGUAGE
-            .in(languages.map(_._1.value).asJava)
-            .and(CHALLENGE_LANGUAGE.LANGUAGEVERSION.in(languages.map(_._2.version).asJava))
-        )
-      if difficulties.nonEmpty then query = query.and(CHALLENGE.DIFFICULTY.in(difficulties.map(_.value).asJava))
-      if submitResults.nonEmpty then query = query.and(SOLUTION_SUBMISSION.RESULT.in(submitResults.map(_.value).asJava))
-      if titleKeyword.nonEmpty then query = query.and(CHALLENGE.TITLE.likeIgnoreCase(s"%${titleKeyword.get}%"))
+      if languages.nonEmpty then query = query.and(CHALLENGE_LANGUAGE.LANGUAGE.in(languages.map(_.value).asJava))
 
       orderBy match
         case None => query
         case Some((field, direction)) =>
           field match
-            case OrderByField.CodeDojoField   => query.orderBy(direction.toJooqSortField(CHALLENGE.DOJO))
-            case OrderByField.LanguageField   => query.orderBy(direction.toJooqSortField(CHALLENGE_LANGUAGE.LANGUAGE))
-            case OrderByField.DifficultyField => query.orderBy(direction.toJooqSortField(CHALLENGE.DIFFICULTY))
-            case OrderByField.SubmissionResultField =>
+            case SubmissionLogOrderBy.CodeDojoField => query.orderBy(direction.toJooqSortField(CHALLENGE.DOJO))
+            case SubmissionLogOrderBy.LanguageField =>
+              query.orderBy(direction.toJooqSortField(CHALLENGE_LANGUAGE.LANGUAGE))
+            case SubmissionLogOrderBy.DifficultyField => query.orderBy(direction.toJooqSortField(CHALLENGE.DIFFICULTY))
+            case SubmissionLogOrderBy.SubmissionResultField =>
               query.orderBy(direction.toJooqSortField(SOLUTION_SUBMISSION.RESULT))
-            case OrderByField.SubmissionDateTimeField =>
+            case SubmissionLogOrderBy.SubmissionDateTimeField =>
               query.orderBy(direction.toJooqSortField(SOLUTION_SUBMISSION.SUBMITDATETIME))
-            case OrderByField.ResultDateTimeField =>
-              query.orderBy(direction.toJooqSortField(SOLUTION_SUBMISSION.RESULTDATETIME))
     }
   }
+
   private val LANGUAGE_TAG_RADIUS = 0.3f
   private val CODEDOJO_TAG_RADIUS = 0.5f
 }
