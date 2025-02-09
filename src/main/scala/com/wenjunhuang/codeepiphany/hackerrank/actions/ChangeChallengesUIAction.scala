@@ -7,16 +7,20 @@ import com.intellij.openapi.project.DumbAwareAction
 
 import com.wenjunhuang.codeepiphany.hackerrank.actions.ChangeChallengesUIAction.*
 import com.wenjunhuang.codeepiphany.hackerrank.actions.ChangeChallengesUIAction.ChallengesUI.*
+import com.wenjunhuang.codeepiphany.model.CodeDojo.HackerRank
+import com.wenjunhuang.codeepiphany.utils.actions.{ DataKeyNotNull, UserLoggedIn }
 
-class ChangeChallengesUIAction extends DumbAwareAction {
-  override def actionPerformed(e: AnActionEvent): Unit =
-    Option(CHANGE_CHALLENGES_UI_PROVIDER_KEY.getData(e.getDataContext)) match
-      case Some(provider) =>
-        provider.getCurrentUI match
-          case QueryParameters => provider.switchTo(SearchByKeyword)
-          case SearchByKeyword => provider.switchTo(QueryParameters)
-          case _               => ()
-      case None => ()
+class ChangeChallengesUIAction
+    extends AnAction
+    with DataKeyNotNull(CHANGE_CHALLENGES_UI_PROVIDER_KEY)
+    with UserLoggedIn(HackerRank) {
+  override def actionPerformed(e: AnActionEvent): Unit = {
+    val provider = getValue(e)
+    provider.getCurrentUI match
+      case QueryParameters => provider.switchTo(SearchByKeyword)
+      case SearchByKeyword => provider.switchTo(QueryParameters)
+      case _               => ()
+  }
 
   private def updateIconAndName(ui: ChallengesUI, present: Presentation): Unit =
     ui match
@@ -29,13 +33,13 @@ class ChangeChallengesUIAction extends DumbAwareAction {
         present.setText("Query Parameters")
 
   override def update(e: AnActionEvent): Unit =
-    Option(CHANGE_CHALLENGES_UI_PROVIDER_KEY.getData(e.getDataContext)) match
-      case None => e.getPresentation.setEnabledAndVisible(false)
-      case Some(provider) =>
-        if provider.getCurrentUI == Unauthenticated then e.getPresentation.setEnabledAndVisible(false)
-        else
-          e.getPresentation.setEnabledAndVisible(true)
-          updateIconAndName(provider.getCurrentUI, e.getPresentation)
+    if isSatisfied(e) then
+      val provider = getValue(e)
+      if provider.getCurrentUI == Unauthenticated then e.getPresentation.setEnabledAndVisible(false)
+      else
+        e.getPresentation.setEnabledAndVisible(true)
+        updateIconAndName(provider.getCurrentUI, e.getPresentation)
+    else e.getPresentation.setEnabledAndVisible(false)
 
   override def getActionUpdateThread: ActionUpdateThread = ActionUpdateThread.BGT
 }

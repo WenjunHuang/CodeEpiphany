@@ -7,22 +7,29 @@ import javax.swing.JComponent
 import org.typelevel.log4cats.LoggerFactory
 
 import com.intellij.openapi.Disposable
-import com.intellij.openapi.actionSystem.{ActionGroup, ActionManager, DataSink, UiDataProvider}
+import com.intellij.openapi.actionSystem.{ ActionGroup, ActionManager, DataSink, UiDataProvider }
 import com.intellij.openapi.project.Project
 import com.intellij.ui.CardLayoutPanel
 
-import com.wenjunhuang.codeepiphany.actions.LoginAction.{LOGIN_LOGOUT_KEY, LoginLogoutProvider}
+import com.wenjunhuang.codeepiphany.actions.LoginAction.{ LOGIN_LOGOUT_KEY, LoginLogoutProvider }
 import com.wenjunhuang.codeepiphany.model.Actions.ATCODER_TITLE_TOOLBAR_GROUP
 import com.wenjunhuang.codeepiphany.model.CodeDojo
 import com.wenjunhuang.codeepiphany.model.CodeDojo.AtCoder
-import com.wenjunhuang.codeepiphany.services.{console, AskForLoginResult, AuthService}
-import com.wenjunhuang.codeepiphany.services.http.{HttpClientManager, HttpClientService}
+import com.wenjunhuang.codeepiphany.services.{ console, AskForLoginResult, AuthService }
+import com.wenjunhuang.codeepiphany.services.http.{ HttpClientManager, HttpClientService }
 import com.wenjunhuang.codeepiphany.utils.extensions.*
 import com.wenjunhuang.codeepiphany.utils.implicits.*
 import com.wenjunhuang.codeepiphany.utils.ui.UnauthenticatedView
 import com.wenjunhuang.codeepiphany.PluginBundle
-import com.wenjunhuang.codeepiphany.atcoder.actions.AtCoderChangeUIAction.{ATCODER_CHANGE_UI_PROVIDER_KEY, AtCoderChangeUIProvider, AtCoderUI}
-import com.wenjunhuang.codeepiphany.atcoder.actions.AtCoderUpdateProblemSetsAction.{ATCODER_UPDATE_PROBLEM_SETS_PROVIDER_KEY, AtCoderUpdateProblemSetsProvider}
+import com.wenjunhuang.codeepiphany.atcoder.actions.AtCoderChangeUIAction.{
+  ATCODER_CHANGE_UI_PROVIDER_KEY,
+  AtCoderChangeUIProvider,
+  AtCoderUI
+}
+import com.wenjunhuang.codeepiphany.atcoder.actions.AtCoderUpdateProblemSetsAction.{
+  ATCODER_UPDATE_PROBLEM_SETS_PROVIDER_KEY,
+  AtCoderUpdateProblemSetsProvider
+}
 import com.wenjunhuang.codeepiphany.atcoder.services.AtCoderApi
 import com.wenjunhuang.codeepiphany.atcoder.services.problemsets.fetchAndUpdateProblemSets
 
@@ -35,7 +42,7 @@ class AtCoderChallengesView(private val myProject: Project)
     HttpClientService.getInstance(myProject).httpClientManager
 
   private val myUnauthenticatedView =
-    UnauthenticatedView(AtCoder, Some(PluginBundle.message("codeforces.unauthenticatedView.tips")))
+    UnauthenticatedView(AtCoder, Some(PluginBundle.message("needFetchQuestions.tips", AtCoder.show)))
 
   @volatile
   private var myQueryParamPresenter: Option[AtCoderParametersQueryPresenter] = None

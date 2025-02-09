@@ -17,6 +17,6 @@ class SkillParameterAction
     ) {}
 
 object SkillParameterAction {
-  val SKILL_PROVIDER_KEY = DataKey.create[SkillParameterProvider]("SKILL_PROVIDER_KEY")
+  val SKILL_PROVIDER_KEY: DataKey[SkillParameterProvider] = DataKey.create[SkillParameterProvider]("SKILL_PROVIDER_KEY")
   trait SkillParameterProvider extends ParameterProvider[HackerRankChallengeSkill] {}
 }

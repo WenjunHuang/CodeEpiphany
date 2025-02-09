@@ -7,19 +7,26 @@ import javax.swing.JComponent
 import org.typelevel.log4cats.LoggerFactory
 
 import com.intellij.openapi.Disposable
-import com.intellij.openapi.actionSystem.{ActionGroup, ActionManager, DataSink, UiDataProvider}
+import com.intellij.openapi.actionSystem.{ ActionGroup, ActionManager, DataSink, UiDataProvider }
 import com.intellij.openapi.project.Project
 import com.intellij.ui.CardLayoutPanel
 
-import com.wenjunhuang.codeepiphany.actions.LoginAction.{LOGIN_LOGOUT_KEY, LoginLogoutProvider}
-import com.wenjunhuang.codeepiphany.codeforces.actions.CodeForcesChangeUIAction.{CODEFORCES_CHANGE_UI_PROVIDER_KEY, CodeForcesChangeUIProvider, CodeForcesUI}
-import com.wenjunhuang.codeepiphany.codeforces.actions.CodeForcesUpdateProblemSetsAction.{CODEFORCES_UPDATE_PROBLEM_SETS_PROVIDER_KEY, CodeForcesUpdateProblemSetsProvider}
+import com.wenjunhuang.codeepiphany.actions.LoginAction.{ LOGIN_LOGOUT_KEY, LoginLogoutProvider }
+import com.wenjunhuang.codeepiphany.codeforces.actions.CodeForcesChangeUIAction.{
+  CODEFORCES_CHANGE_UI_PROVIDER_KEY,
+  CodeForcesChangeUIProvider,
+  CodeForcesUI
+}
+import com.wenjunhuang.codeepiphany.codeforces.actions.CodeForcesUpdateProblemSetsAction.{
+  CODEFORCES_UPDATE_PROBLEM_SETS_PROVIDER_KEY,
+  CodeForcesUpdateProblemSetsProvider
+}
 import com.wenjunhuang.codeepiphany.codeforces.services.problemsets.fetchAndUpdateProblemSets
 import com.wenjunhuang.codeepiphany.model.Actions.CODEFORCES_TITLE_TOOLBAR_GROUP
 import com.wenjunhuang.codeepiphany.model.CodeDojo
 import com.wenjunhuang.codeepiphany.model.CodeDojo.CodeForces
-import com.wenjunhuang.codeepiphany.services.{console, AskForLoginResult, AuthService}
-import com.wenjunhuang.codeepiphany.services.http.{HttpClientManager, HttpClientService}
+import com.wenjunhuang.codeepiphany.services.{ console, AskForLoginResult, AuthService }
+import com.wenjunhuang.codeepiphany.services.http.{ HttpClientManager, HttpClientService }
 import com.wenjunhuang.codeepiphany.utils.extensions.*
 import com.wenjunhuang.codeepiphany.utils.implicits.*
 import com.wenjunhuang.codeepiphany.utils.ui.UnauthenticatedView
@@ -35,7 +42,7 @@ class CodeForcesChallengesView(private val myProject: Project)
     HttpClientService.getInstance(myProject).httpClientManager
 
   private val myUnauthenticatedView =
-    UnauthenticatedView(CodeForces, Some(PluginBundle.message("codeforces.unauthenticatedView.tips")))
+    UnauthenticatedView(CodeForces, Some(PluginBundle.message("needFetchQuestions.tips", CodeForces.show)))
 
   @volatile
   private var myQueryParamPresenter: Option[CodeForcesParametersQueryPresenter] = None

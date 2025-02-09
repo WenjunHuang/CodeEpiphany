@@ -7,16 +7,16 @@ import com.intellij.openapi.project.DumbAwareAction
 
 import com.wenjunhuang.codeepiphany.codeforces.actions.CodeForcesChangeUIAction.*
 import com.wenjunhuang.codeepiphany.codeforces.actions.CodeForcesChangeUIAction.CodeForcesUI.*
+import com.wenjunhuang.codeepiphany.utils.actions.DataKeyNotNull
 
-class CodeForcesChangeUIAction extends DumbAwareAction {
-  override def actionPerformed(e: AnActionEvent): Unit =
-    Option(CODEFORCES_CHANGE_UI_PROVIDER_KEY.getData(e.getDataContext)) match
-      case Some(provider) =>
-        provider.getCurrentUI match
-          case QueryParameters => provider.switchTo(SearchByKeyword)
-          case SearchByKeyword => provider.switchTo(QueryParameters)
-          case _               => ()
-      case None => ()
+class CodeForcesChangeUIAction extends AnAction with DataKeyNotNull(CODEFORCES_CHANGE_UI_PROVIDER_KEY) {
+  override def actionPerformed(e: AnActionEvent): Unit = {
+    val provider = getValue(e)
+    provider.getCurrentUI match
+      case QueryParameters => provider.switchTo(SearchByKeyword)
+      case SearchByKeyword => provider.switchTo(QueryParameters)
+      case _               => ()
+  }
 
   private def updateIconAndName(ui: CodeForcesUI, present: Presentation): Unit =
     ui match
@@ -29,13 +29,13 @@ class CodeForcesChangeUIAction extends DumbAwareAction {
         present.setText("Query Parameters")
 
   override def update(e: AnActionEvent): Unit =
-    Option(CODEFORCES_CHANGE_UI_PROVIDER_KEY.getData(e.getDataContext)) match
-      case None => e.getPresentation.setEnabledAndVisible(false)
-      case Some(provider) =>
-        if provider.getCurrentUI == Unauthenticated then e.getPresentation.setEnabledAndVisible(false)
-        else
-          e.getPresentation.setEnabledAndVisible(true)
-          updateIconAndName(provider.getCurrentUI, e.getPresentation)
+    if isSatisfied(e) then
+      val provider = getValue(e)
+      if provider.getCurrentUI == Unauthenticated then e.getPresentation.setEnabledAndVisible(false)
+      else
+        e.getPresentation.setEnabledAndVisible(true)
+        updateIconAndName(provider.getCurrentUI, e.getPresentation)
+    else e.getPresentation.setEnabledAndVisible(false)
 
   override def getActionUpdateThread: ActionUpdateThread = ActionUpdateThread.BGT
 }
