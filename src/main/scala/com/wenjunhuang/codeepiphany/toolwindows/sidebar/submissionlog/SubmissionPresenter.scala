@@ -1,11 +1,11 @@
 package com.wenjunhuang.codeepiphany.toolwindows.sidebar.submissionlog
 
-import cats.effect.{IO, Resource}
+import cats.effect.{ IO, Resource }
 import cats.effect.std.Queue
 import cats.syntax.all.*
 import fs2.concurrent.SignallingRef
 import fs2.Stream
-import javax.swing.event.{ListSelectionEvent, ListSelectionListener}
+import javax.swing.event.{ ListSelectionEvent, ListSelectionListener }
 import javax.swing.JComponent
 import org.typelevel.ci.CIString
 import scala.concurrent.duration.*
@@ -17,7 +17,7 @@ import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.project.Project
 
 import com.wenjunhuang.codeepiphany.database.Tables.*
-import com.wenjunhuang.codeepiphany.model.{CodeDojo, Language}
+import com.wenjunhuang.codeepiphany.model.{ CodeDojo, Language, LanguageVersion }
 import com.wenjunhuang.codeepiphany.model.newtypes.SubmissionId
 import com.wenjunhuang.codeepiphany.model.CodeDojo.*
 import com.wenjunhuang.codeepiphany.services.ChallengeRepository
@@ -109,8 +109,9 @@ class SubmissionPresenter(private val myProject: Project) extends Disposable {
             .fetchOptional()
             .toScala
             .flatMap { record =>
-              val language = Language.fromCIString(CIString(record.get(CHALLENGE_LANGUAGE.LANGUAGE)))
-              val codeDojo = CodeDojo.fromCIString(CIString(record.get(CHALLENGE.DOJO)))
+              val language        = Language.fromCIString(CIString(record.get(CHALLENGE_LANGUAGE.LANGUAGE)))
+              val languageVersion = LanguageVersion.fromString(record.get(CHALLENGE_LANGUAGE.LANGUAGEVERSION))
+              val codeDojo        = CodeDojo.fromCIString(CIString(record.get(CHALLENGE.DOJO)))
               (language, codeDojo).mapN { (lang, dojo) =>
                 val submissionRecord = record.into(SOLUTION_SUBMISSION)
                 dojo match {
@@ -122,9 +123,20 @@ class SubmissionPresenter(private val myProject: Project) extends Disposable {
                       .toScala
                       .map { leetcodeSubmission =>
                         dojo match {
-                          case LeetCode => SubmissionType.LeetCodeSubmission(lang, submissionRecord, leetcodeSubmission)
+                          case LeetCode =>
+                            SubmissionType.LeetCodeSubmission(
+                              lang,
+                              languageVersion,
+                              submissionRecord,
+                              leetcodeSubmission
+                            )
                           case LeetCodeCN =>
-                            SubmissionType.LeetCodeCNSubmission(lang, submissionRecord, leetcodeSubmission)
+                            SubmissionType.LeetCodeCNSubmission(
+                              lang,
+                              languageVersion,
+                              submissionRecord,
+                              leetcodeSubmission
+                            )
                         }
                       }
                   case HackerRank =>
@@ -134,7 +146,7 @@ class SubmissionPresenter(private val myProject: Project) extends Disposable {
                       .fetch()
                       .asScala
                       .toList
-                    Some(SubmissionType.HackerRankSubmission(lang, submissionRecord, hackerCases))
+                    Some(SubmissionType.HackerRankSubmission(lang, languageVersion, submissionRecord, hackerCases))
                   case CodeForces =>
                     dsl
                       .selectFrom(CODEFORCES_CHALLENGE)
@@ -144,9 +156,25 @@ class SubmissionPresenter(private val myProject: Project) extends Disposable {
                       .map { codeForcesChallenge =>
                         SubmissionType.CodeForcesSubmission(
                           lang,
+                          languageVersion,
                           submissionRecord,
                           codeForcesChallenge.getContestid,
                           Option(codeForcesChallenge.getProblemsetname)
+                        )
+                      }
+                  case AtCoder =>
+                    dsl
+                      .selectFrom(ATCODER_CHALLENGE)
+                      .where(ATCODER_CHALLENGE.ID.eq(record.get(CHALLENGE.ID)))
+                      .fetchOptional()
+                      .toScala
+                      .map { atCoderChallenge =>
+                        SubmissionType.AtCoderSubmission(
+                          lang,
+                          languageVersion,
+                          submissionRecord,
+                          atCoderChallenge.getContestid,
+                          record.get(CHALLENGE.DOJOID)
                         )
                       }
                 }

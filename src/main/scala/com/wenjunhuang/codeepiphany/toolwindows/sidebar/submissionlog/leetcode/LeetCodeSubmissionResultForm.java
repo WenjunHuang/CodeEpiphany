@@ -15,6 +15,7 @@ import com.wenjunhuang.codeepiphany.PluginBundle;
 import com.wenjunhuang.codeepiphany.database.tables.records.LeetcodeSubmissionRecord;
 import com.wenjunhuang.codeepiphany.database.tables.records.SolutionSubmissionRecord;
 import com.wenjunhuang.codeepiphany.model.Language;
+import com.wenjunhuang.codeepiphany.model.LanguageVersion;
 import com.wenjunhuang.codeepiphany.model.SubmissionResult;
 import com.wenjunhuang.codeepiphany.model.template.ChallengeFileTemplateHighlighter;
 import com.wenjunhuang.codeepiphany.utils.JavaUtils;
@@ -34,6 +35,7 @@ public class LeetCodeSubmissionResultForm {
     private JLabel myTestcases;
     private JLabel mySubmitDateTime;
     private JLabel myLanguage;
+    private JLabel myLanguageVersion;
     private EditorTextField mySubmitCode;
     private JPanel myPanel;
     private JComponent myResultComponent;
@@ -41,6 +43,7 @@ public class LeetCodeSubmissionResultForm {
 
     public LeetCodeSubmissionResultForm(
             Language language,
+            LanguageVersion languageVersion,
             SolutionSubmissionRecord submissionRecord,
             LeetcodeSubmissionRecord leetcodeSubmissionRecord
     ) {
@@ -77,7 +80,7 @@ public class LeetCodeSubmissionResultForm {
             myTestcases.setText(PluginBundle.message("leetcode.submissionResult.testcases.text", passed, testcases));
 
         myCodeLabel.setBorder(JBUI.Borders.emptyRight(2));
-        myLanguage.setText(language.show());
+        myLanguage.setText(Language.prettyPrint(language, languageVersion));
         myLanguage.setBorder(
                 JBUI.Borders.compound(
                         JBUI.Borders.customLine(JBUI.CurrentTheme.CustomFrameDecorations.separatorForeground(), 0, 1, 0, 0),

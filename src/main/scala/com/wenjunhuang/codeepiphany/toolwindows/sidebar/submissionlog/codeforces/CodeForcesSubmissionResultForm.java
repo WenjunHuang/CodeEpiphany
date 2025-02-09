@@ -16,6 +16,7 @@ import com.intellij.util.ui.JBUI;
 import com.wenjunhuang.codeepiphany.PluginBundle;
 import com.wenjunhuang.codeepiphany.database.tables.records.SolutionSubmissionRecord;
 import com.wenjunhuang.codeepiphany.model.Language;
+import com.wenjunhuang.codeepiphany.model.LanguageVersion;
 import com.wenjunhuang.codeepiphany.model.SubmissionResult;
 import com.wenjunhuang.codeepiphany.model.template.ChallengeFileTemplateHighlighter;
 import com.wenjunhuang.codeepiphany.utils.JavaUtils;
@@ -44,6 +45,7 @@ public class CodeForcesSubmissionResultForm {
 
     public CodeForcesSubmissionResultForm(
             Language language,
+            LanguageVersion languageVersion,
             SolutionSubmissionRecord submissionRecord,
             Long contestId,
             Optional<String> problemsetName
@@ -88,7 +90,7 @@ public class CodeForcesSubmissionResultForm {
         mySubmitDateTime.setText(PluginBundle.message("codeforces.submissionResult.submitDateTime.text", submissionRecord.getSubmitdatetime().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))));
 
         myCodeLabel.setBorder(JBUI.Borders.emptyRight(2));
-        myLanguage.setText(language.show());
+        myLanguage.setText(Language.prettyPrint(language, languageVersion));
         myLanguage.setBorder(
                 JBUI.Borders.compound(
                         JBUI.Borders.customLine(JBUI.CurrentTheme.CustomFrameDecorations.separatorForeground(), 0, 1, 0, 0),

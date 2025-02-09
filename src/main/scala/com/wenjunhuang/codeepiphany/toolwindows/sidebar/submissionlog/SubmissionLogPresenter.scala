@@ -312,12 +312,10 @@ class SubmissionLogPresenter(project: Project)
         new IconTableCellRenderer[CodeDojo]() {
           setToolTipText(item.dojo.show)
           override def getIcon(value: CodeDojo, table: JTable, row: Int): Icon =
+            setText(value.show)
             value.getIcon.orNull
 
           override def isCenterAlignment: Boolean = true
-
-          override def getText: String = null
-
         }
 
       override def enableOrderBy: Boolean = true
@@ -349,9 +347,12 @@ class SubmissionLogPresenter(project: Project)
       override def setOrderFilter(filter: Option[OrderDirection]): Unit =
         setDirectionOf(SubmissionLogOrderBy.DifficultyField, filter)
     },
-    new OrderByColumnInfo[SubmissionLogEntry, String](PluginBundle.message("submissionLog.ui.language.title")) {
-      override def valueOf(item: SubmissionLogEntry): String = s"${item.language.show}${item.languageVersion.version}"
-      override def getPreferredStringValue: String           = StringUtil.repeat("W", 15)
+    new OrderByColumnInfo[SubmissionLogEntry, (Language, LanguageVersion)](
+      PluginBundle.message("submissionLog.ui.language.title")
+    ) {
+      override def valueOf(item: SubmissionLogEntry): (Language, LanguageVersion) =
+        (item.language, item.languageVersion)
+      override def getPreferredStringValue: String = StringUtil.repeat("W", 15)
 
       override def enableOrderBy: Boolean = true
 
@@ -360,6 +361,13 @@ class SubmissionLogPresenter(project: Project)
 
       override def setOrderFilter(filter: Option[OrderDirection]): Unit =
         setDirectionOf(SubmissionLogOrderBy.LanguageField, filter)
+
+      override def getRenderer(item: SubmissionLogEntry): TableCellRenderer =
+        new IconTableCellRenderer[(Language, LanguageVersion)]() {
+          override def getIcon(value: (Language, LanguageVersion), table: JTable, row: Int): Icon =
+            setText(Language.prettyPrint(value._1, value._2))
+            value._1.icon
+        }
     },
     new OrderByColumnInfo[SubmissionLogEntry, String](PluginBundle.message("submissionLog.ui.result.title")) {
       override def valueOf(item: SubmissionLogEntry): String = s"${item.result.showAsHtml}"
@@ -403,26 +411,36 @@ object SubmissionLogPresenter {
   enum SubmissionType {
     case LeetCodeSubmission(
       language: Language,
+      languageVersion: LanguageVersion,
       record: SolutionSubmissionRecord,
       leetCodeSubmission: LeetcodeSubmissionRecord
     )
     case LeetCodeCNSubmission(
       language: Language,
+      languageVersion: LanguageVersion,
       record: SolutionSubmissionRecord,
       leetCodeSubmission: LeetcodeSubmissionRecord
     )
     case HackerRankSubmission(
       language: Language,
+      languageVersion: LanguageVersion,
       record: SolutionSubmissionRecord,
       hackerCases: List[HackerrankSubmissionCaseRecord]
     )
     case CodeForcesSubmission(
       language: Language,
+      languageVersion: LanguageVersion,
       record: SolutionSubmissionRecord,
       contestId: Long,
       problemsetName: Option[String]
     )
-    case AtCodeSubmission(language: Language, record: SolutionSubmissionRecord, contestId: String, problemId: String)
+    case AtCoderSubmission(
+      language: Language,
+      languageVersion: LanguageVersion,
+      record: SolutionSubmissionRecord,
+      contestId: String,
+      problemId: String
+    )
   }
 
   private val EMPTY_QUERY_PARAMS = QueryParams(dojos = List.empty, languages = List.empty, orderBy = None)

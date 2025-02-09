@@ -1,15 +1,16 @@
 package com.wenjunhuang.codeepiphany.atcoder.services
 
-import cats.effect.{Concurrent, Temporal}
+import cats.effect.{ Concurrent, Temporal }
 import cats.effect.kernel.Async
 import cats.syntax.all.*
 import fs2.Stream
 import io.circe.JsonObject
-import org.http4s.{Method, UrlForm}
-import org.http4s.client.{Client, UnexpectedStatus}
+import org.http4s.{ Method, UrlForm }
+import org.http4s.client.{ Client, UnexpectedStatus }
 import org.http4s.client.dsl.Http4sClientDsl
 import org.http4s.implicits.uri
 import org.jsoup.Jsoup
+import org.typelevel.ci.CIString
 import scala.concurrent.duration.*
 import scala.jdk.CollectionConverters.*
 
@@ -17,7 +18,7 @@ import com.intellij.openapi.util.text.StringUtil
 
 import com.wenjunhuang.codeepiphany.atcoder.models.*
 import com.wenjunhuang.codeepiphany.atcoder.settings.AtCoderSettingsConfigurable.ATCODER_LANGUAGES_REVERSE
-import com.wenjunhuang.codeepiphany.model.{ApiError, CodeDojo, SubmissionResult}
+import com.wenjunhuang.codeepiphany.model.{ ApiError, CodeDojo, SubmissionResult }
 import com.wenjunhuang.codeepiphany.services.http.HttpClientManager
 
 trait AtCoderApi[F[_]] {
@@ -202,7 +203,9 @@ object AtCoderApi {
               .select("td#judge-status > span")
               .asScala
               .headOption
-              .map(it => judgeStatusToSubmissionResult(it.text()))
+              .map(it =>
+                judgeStatusToSubmissionResult(StringUtil.notNullize(it.attr("title")), StringUtil.notNullize(it.text()))
+              )
               .getOrElse(throw ApiError.NotFound(CodeDojo.AtCoder, "Submission result not found"))
             val msg =
               if result == SubmissionResult.CompilationError then
@@ -224,21 +227,22 @@ object AtCoderApi {
     }
     private def useClient[A](f: Client[F] => F[A]): F[A] = HttpClientManager[F].getClient.use(f)
 
-    private def judgeStatusToSubmissionResult(judgeStatus: String): SubmissionResult = {
-      judgeStatus match
-        case "AC"      => SubmissionResult.Success
-        case "WA"      => SubmissionResult.Failure
-        case "TLE"     => SubmissionResult.Timeout
-        case "MLE"     => SubmissionResult.MemoryLimitExceeded
-        case "RE"      => SubmissionResult.RuntimeError
-        case "CE"      => SubmissionResult.CompilationError
-        case "QLE"     => SubmissionResult.Failure
-        case "OLE"     => SubmissionResult.OutputLimitExceeded
-        case "IE"      => SubmissionResult.InternalError
-        case "WJ"      => SubmissionResult.Processing
-        case "WR"      => SubmissionResult.Processing
-        case "Judging" => SubmissionResult.Processing
-        case _         => SubmissionResult.Failure
+    private def judgeStatusToSubmissionResult(title: String, text: String): SubmissionResult = {
+      if CIString(title) == CIString("Judging") then SubmissionResult.Processing
+      else
+        val ciText = CIString(text)
+        if ciText.contains(CIString("AC")) then SubmissionResult.Success
+        else if ciText.contains(CIString("WA")) then SubmissionResult.Failure
+        else if ciText.contains(CIString("TLE")) then SubmissionResult.Timeout
+        else if ciText.contains(CIString("MLE")) then SubmissionResult.MemoryLimitExceeded
+        else if ciText.contains(CIString("RE")) then SubmissionResult.RuntimeError
+        else if ciText.contains(CIString("CE")) then SubmissionResult.CompilationError
+        else if ciText.contains(CIString("QLE")) then SubmissionResult.Failure
+        else if ciText.contains(CIString("OLE")) then SubmissionResult.OutputLimitExceeded
+        else if ciText.contains(CIString("IE")) then SubmissionResult.InternalError
+        else if ciText.contains(CIString("WJ")) then SubmissionResult.Processing
+        else if ciText.contains(CIString("WR")) then SubmissionResult.Processing
+        else SubmissionResult.Failure
     }
   }
 }

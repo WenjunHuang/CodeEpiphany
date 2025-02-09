@@ -1,18 +1,19 @@
-package com.wenjunhuang.codeepiphany.toolwindows.sidebar.submissionlog.hackerrank;
+package com.wenjunhuang.codeepiphany.toolwindows.sidebar.submissionlog.atcoder;
 
 import com.intellij.codeInsight.hint.EditorFragmentComponent;
 import com.intellij.ide.ui.laf.darcula.ui.DarculaEditorTextFieldBorder;
 import com.intellij.openapi.editor.EditorFactory;
 import com.intellij.openapi.editor.colors.EditorFontType;
 import com.intellij.openapi.fileTypes.FileTypeManager;
+import com.intellij.ui.BrowserHyperlinkListener;
 import com.intellij.ui.EditorTextField;
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.uiDesigner.core.Spacer;
+import com.intellij.util.ui.HTMLEditorKitBuilder;
 import com.intellij.util.ui.JBFont;
 import com.intellij.util.ui.JBUI;
 import com.wenjunhuang.codeepiphany.PluginBundle;
-import com.wenjunhuang.codeepiphany.database.tables.records.HackerrankSubmissionCaseRecord;
 import com.wenjunhuang.codeepiphany.database.tables.records.SolutionSubmissionRecord;
 import com.wenjunhuang.codeepiphany.model.Language;
 import com.wenjunhuang.codeepiphany.model.LanguageVersion;
@@ -28,25 +29,25 @@ import javax.swing.border.TitledBorder;
 import java.awt.*;
 import java.lang.reflect.Method;
 import java.time.format.DateTimeFormatter;
-import java.util.Collection;
 import java.util.ResourceBundle;
 
-public class HackerRankSubmissionResultForm {
+public class AtCoderSubmissionResultForm {
 
     private JLabel myResult;
-    private JLabel myTestcases;
     private JLabel mySubmitDateTime;
     private JLabel myLanguage;
     private EditorTextField mySubmitCode;
     private JPanel myPanel;
     private JLabel myCodeLabel;
     private BackgroundRoundedPanel myMessagePane;
+    private JEditorPane myViewInBrowser;
 
-    public HackerRankSubmissionResultForm(
+    public AtCoderSubmissionResultForm(
             Language language,
             LanguageVersion languageVersion,
             SolutionSubmissionRecord submissionRecord,
-            Collection<HackerrankSubmissionCaseRecord> hackerrankCases
+            String contestId,
+            String problemId
     ) {
         mySubmitCode = new EditorTextField(
                 EditorFactory.getInstance().createDocument(submissionRecord.getSubmitcode()), null, FileTypeManager.getInstance().getFileTypeByExtension(language.fileExt()), true, false);
@@ -63,23 +64,28 @@ public class HackerRankSubmissionResultForm {
         var result = SubmissionResult.fromCIString(CIString.apply(submissionRecord.getResult()));
 
         myMessagePane = new BackgroundRoundedPanel(12, new BorderLayout());
-        HackerRankResultHelper.setupMessagePane(myMessagePane,
+        AtCoderResultHelper.setupMessagePane(myMessagePane,
                 result,
                 submissionRecord);
 
         $$$setupUI$$$();
+
+        var submissionId = submissionRecord.getDojosubmissionid();
+        if (submissionId != null) {
+            var link = "https://atcoder.jp/contests/" + contestId + "/submissions/" + submissionId;
+
+            myViewInBrowser.setEditorKit(HTMLEditorKitBuilder.simple());
+            myViewInBrowser.setEditable(false);
+            myViewInBrowser.addHyperlinkListener(new BrowserHyperlinkListener());
+            myViewInBrowser.setText("<html><body><a href='" + link + "'>View In Browser</a></body></html>");
+        } else {
+            myViewInBrowser.setVisible(false);
+        }
+
         myResult.setText(JavaUtils.toOptional(result).map(SubmissionResult::showAsHtml).orElse("Unknown"));
         myResult.setFont(JBFont.create(myResult.getFont()).biggerOn(1.5f));
-        mySubmitDateTime.setText(PluginBundle.message("hackerrank.submissionResult.submitDateTime.text", submissionRecord.getSubmitdatetime().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))));
+        mySubmitDateTime.setText(PluginBundle.message("codeforces.submissionResult.submitDateTime.text", submissionRecord.getSubmitdatetime().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))));
 
-        var passed = hackerrankCases.stream().filter((c) -> c.getTestcasestatus() == 1).count();
-        var testcases = hackerrankCases.size();
-        if (testcases > 0) {
-            myTestcases.setText(PluginBundle.message("hackerrank.submissionResult.testcases.text", passed, testcases));
-            myTestcases.setVisible(true);
-        } else {
-            myTestcases.setVisible(false);
-        }
         myCodeLabel.setBorder(JBUI.Borders.emptyRight(2));
         myLanguage.setText(Language.prettyPrint(language,languageVersion));
         myLanguage.setBorder(
@@ -87,6 +93,7 @@ public class HackerRankSubmissionResultForm {
                         JBUI.Borders.customLine(JBUI.CurrentTheme.CustomFrameDecorations.separatorForeground(), 0, 1, 0, 0),
                         JBUI.Borders.emptyLeft(2)
                 ));
+
     }
 
     public JComponent getComponent() {
@@ -108,9 +115,6 @@ public class HackerRankSubmissionResultForm {
         myPanel = new JPanel();
         myPanel.setLayout(new GridLayoutManager(5, 3, new Insets(0, 0, 0, 0), 2, 5));
         myPanel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEmptyBorder(0, 5, 0, 5), null, TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION, null, null));
-        myTestcases = new JLabel();
-        myTestcases.setText("Testcase");
-        myPanel.add(myTestcases, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         myResult = new JLabel();
         myResult.setText("Label");
         myPanel.add(myResult, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
@@ -133,6 +137,10 @@ public class HackerRankSubmissionResultForm {
         myLanguage.setText("Label");
         panel1.add(myLanguage, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         myPanel.add(myMessagePane, new GridConstraints(2, 0, 1, 3, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
+        myViewInBrowser = new JEditorPane();
+        myViewInBrowser.setContentType("text/html");
+        myViewInBrowser.setText("<html>\r\n  <head>\r\n\r\n  </head>\r\n  <body>\r\n    <p style=\"margin-top: 0\">\r\n      \r\n    </p>\r\n  </body>\r\n</html>\r\n");
+        myPanel.add(myViewInBrowser, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
     }
 
     private static Method $$$cachedGetBundleMethod$$$ = null;
