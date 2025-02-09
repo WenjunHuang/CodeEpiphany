@@ -112,7 +112,7 @@ public class CodeDojoSettingsForm extends SettingsUi<BaseCodeDojoSettings.CodeDo
         private final LanguageVersion myLanguageVersion;
 
         LanguageAction(Language language, LanguageVersion languageVersion) {
-            super(language.show() + " " + languageVersion.version(), null, language.icon());
+            super(Language.prettyPrint(language, languageVersion), null, language.icon());
             myLanguage = language;
             myLanguageVersion = languageVersion;
         }
@@ -148,7 +148,7 @@ public class CodeDojoSettingsForm extends SettingsUi<BaseCodeDojoSettings.CodeDo
         var tup = new Tuple2<>(language, languageVer);
         myLanguagesPanels.put(tup, languageSettings);
 
-        var text = language.show() + languageVer.version();
+        var text = Language.prettyPrint(language, languageVer);
         var newTabInfo = new TabInfo(languageSettings.getComponent())
                 .setObject(tup)
                 .setText(text)

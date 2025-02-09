@@ -1,13 +1,14 @@
 package com.wenjunhuang.codeepiphany.services
 
-import cats.effect.{IO, Resource}
+import cats.effect.{ Deferred, IO, Resource }
+import cats.effect.kernel.Sync.Type.Delay
 import cats.effect.std.Queue
 import cats.syntax.all.*
 import fs2.Stream
 import fs2.concurrent.SignallingRef
 import java.util
-import javax.swing.{JComponent, ListSelectionModel}
-import org.typelevel.log4cats.{Logger, LoggerFactory}
+import javax.swing.{ JComponent, ListSelectionModel }
+import org.typelevel.log4cats.{ Logger, LoggerFactory }
 import scala.concurrent.duration.*
 import scala.jdk.CollectionConverters.*
 
@@ -16,10 +17,13 @@ import com.intellij.openapi.actionSystem.DataSink
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
 import com.intellij.ui.SingleSelectionModel
-import com.intellij.util.ui.{ColumnInfo, ListTableModel}
+import com.intellij.util.ui.{ ColumnInfo, ListTableModel }
 
-import com.wenjunhuang.codeepiphany.actions.PaginationParameterActionGroup.{PAGINATION_PROVIDER_KEY, PaginationParameterProvider}
-import com.wenjunhuang.codeepiphany.utils.{OrderByColumnInfo, PageSize, Pagination}
+import com.wenjunhuang.codeepiphany.actions.PaginationParameterActionGroup.{
+  PAGINATION_PROVIDER_KEY,
+  PaginationParameterProvider
+}
+import com.wenjunhuang.codeepiphany.utils.{ OrderByColumnInfo, PageSize, Pagination }
 import com.wenjunhuang.codeepiphany.utils.extensions.*
 import com.wenjunhuang.codeepiphany.utils.implicits.*
 
@@ -60,6 +64,9 @@ abstract class BaseQueryPresenter[UIBoostrapParameters, T, ResultItem](
   protected val myQueryResultSelectionModel: SingleSelectionModel = SingleSelectionModel()
 
   @volatile
+  private var myIsQuerying = false
+
+  @volatile
   private var myQueryQueue: Option[Queue[IO, Option[QueryContext[T]]]] = None
   createQueryPipeline()
   Disposer.register(myProject, this)
@@ -86,6 +93,8 @@ abstract class BaseQueryPresenter[UIBoostrapParameters, T, ResultItem](
     }
   }
 
+  def isQuerying: Boolean = myIsQuerying
+
   override def dispose(): Unit = {
     myQueryQueue.foreach(_.offer(None).unsafeRunSync())
   }
@@ -109,7 +118,7 @@ abstract class BaseQueryPresenter[UIBoostrapParameters, T, ResultItem](
               .evalTap((_, context) => IO.delay { updateQueryUI(context) }.evalOnEDTAny())
               .evalTap { (signal, context) =>
                 Stream
-                  .eval(executeQuery(context))
+                  .eval(IO.delay { myIsQuerying = true } *> executeQuery(context))
                   .evalTap { case (pagination, items) =>
                     IO.delay {
                       myQueryStateManager.update(_.copy(pagination = pagination))
@@ -118,6 +127,7 @@ abstract class BaseQueryPresenter[UIBoostrapParameters, T, ResultItem](
                     }.evalOnEDTAny()
                   }
                   .interruptWhen(signal)
+                  .onFinalize(IO.delay { myIsQuerying = false })
                   .compile
                   .drain
                   .recoverWith { e =>

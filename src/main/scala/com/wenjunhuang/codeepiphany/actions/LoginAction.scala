@@ -3,27 +3,28 @@ package com.wenjunhuang.codeepiphany.actions
 import com.intellij.openapi.actionSystem.*
 
 import com.wenjunhuang.codeepiphany.actions.LoginAction.*
-import com.wenjunhuang.codeepiphany.utils.actions.AbstractLoadingAction
+import com.wenjunhuang.codeepiphany.utils.actions.{ AbstractLoadingAction, DataKeyNotNull }
 
-class LoginAction extends AbstractLoadingAction {
+class LoginAction extends AbstractLoadingAction with DataKeyNotNull(LOGIN_LOGOUT_KEY) {
 
   override def actionPerformed(e: AnActionEvent): Unit =
     Option(LOGIN_LOGOUT_KEY.getData(e.getDataContext)).foreach(_.login())
 
-  override def update(e: AnActionEvent): Unit =
-    LOGIN_LOGOUT_KEY.getData(e.getDataContext) match {
-      case null =>
-        e.getPresentation.setEnabledAndVisible(false)
-      case provider =>
-        e.getPresentation.setVisible(true)
-        if provider.hasLoggedIn then e.getPresentation.setEnabledAndVisible(false)
-        else if provider.isLoggingIn then
-          e.getPresentation.setEnabled(false)
-          setLoading(e.getPresentation, true)
-        else
-          e.getPresentation.setEnabled(true)
-          setLoading(e.getPresentation, false)
-    }
+  override def update(e: AnActionEvent): Unit = {
+    val presentation = e.getPresentation
+    if isSatisfied(e) then
+      val provider = getValue(e)
+
+      presentation.setVisible(true)
+      if provider.hasLoggedIn then presentation.setEnabledAndVisible(false)
+      else if provider.isLoggingIn then
+        presentation.setEnabled(false)
+        setLoading(presentation, true)
+      else
+        presentation.setEnabled(true)
+        setLoading(presentation, false)
+    else presentation.setEnabledAndVisible(false)
+  }
 
   override def getActionUpdateThread: ActionUpdateThread = ActionUpdateThread.BGT
 }

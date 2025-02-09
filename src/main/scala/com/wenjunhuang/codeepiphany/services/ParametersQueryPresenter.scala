@@ -76,6 +76,8 @@ abstract class ParametersQueryPresenter[UIBoostrapParameters, T, ResultItem](
   private val myRefreshProvider = new RefreshProvider {
     override def refresh(): Unit =
       requery()
+
+    override def isRefreshing: Boolean = isQuerying
   }
 
 }

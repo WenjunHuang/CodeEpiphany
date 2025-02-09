@@ -68,26 +68,26 @@ object SubmissionResult {
     else if ciString == CIString(Processing.value) then Some(Processing)
     else None
   }
+}
 
-  object SubmissionStatusColors {
+object SubmissionStatusColors {
 
-    // 处理中（动态状态）
-    val Processing = "#2196F3" // 蓝色 - 类似Azure Blue
-    // 成功状态
-    val Success = "#00C853" // Material Green 600
-    // 失败类错误
-    val Failure = "#FF5252" // Material Red A200
-    // 编译错误
-    val CompilationError = "#FF9800" // Material Orange 500
-    // 资源限制类
-    val Timeout             = "#9C27B0" // Material Purple 500
-    val MemoryLimitExceeded = "#E040FB" // Material Purple A200
-    val OutputLimitExceeded = "#D500F9" // Material Purple A400
-    // 运行时错误
-    val RuntimeError = "#D32F2F" // Material Red 700
-    // 系统级错误
-    val InternalError = "#B71C1C" // Material Red 900
-    // 未知状态
-    val Unknown = "#9E9E9E" // Material Grey 500
-  }
+  // 处理中（动态状态）
+  val Processing = "#2196F3" // 蓝色 - 类似Azure Blue
+  // 成功状态
+  val Success = "#00C853" // Material Green 600
+  // 失败类错误
+  val Failure = "#FF5252" // Material Red A200
+  // 编译错误
+  val CompilationError = "#FF9800" // Material Orange 500
+  // 资源限制类
+  val Timeout             = "#9C27B0" // Material Purple 500
+  val MemoryLimitExceeded = "#E040FB" // Material Purple A200
+  val OutputLimitExceeded = "#D500F9" // Material Purple A400
+  // 运行时错误
+  val RuntimeError = "#D32F2F" // Material Red 700
+  // 系统级错误
+  val InternalError = "#B71C1C" // Material Red 900
+  // 未知状态
+  val Unknown = "#9E9E9E" // Material Grey 500
 }

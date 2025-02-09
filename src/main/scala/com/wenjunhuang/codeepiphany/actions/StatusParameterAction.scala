@@ -17,7 +17,7 @@ class StatusParameterAction
     ) {}
 
 object StatusParameterAction {
-  val STATUS_PROVIDER_KEY = DataKey.create[StatusParameterProvider]("STATUS_PROVIDER_KEY")
+  val STATUS_PROVIDER_KEY: DataKey[StatusParameterProvider] = DataKey.create[StatusParameterProvider]("STATUS_PROVIDER_KEY")
 
   trait StatusParameterProvider extends ParameterProvider[ChallengeStatus] {}
 }

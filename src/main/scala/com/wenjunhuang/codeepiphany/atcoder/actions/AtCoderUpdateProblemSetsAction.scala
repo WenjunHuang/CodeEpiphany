@@ -1,12 +1,15 @@
 package com.wenjunhuang.codeepiphany.atcoder.actions
 
-import com.intellij.openapi.actionSystem.{ ActionUpdateThread, AnActionEvent, DataKey }
+import com.intellij.openapi.actionSystem.{ActionUpdateThread, AnActionEvent, DataKey}
 
+import com.wenjunhuang.codeepiphany.atcoder.actions.AtCoderUpdateProblemSetsAction.ATCODER_UPDATE_PROBLEM_SETS_PROVIDER_KEY
 import com.wenjunhuang.codeepiphany.model.CodeDojo.AtCoder
-import com.wenjunhuang.codeepiphany.services.AuthService
-import com.wenjunhuang.codeepiphany.utils.actions.AbstractLoadingAction
+import com.wenjunhuang.codeepiphany.utils.actions.{AbstractLoadingAction, DataKeyNotNull, UserLoggedIn}
 
-class AtCoderUpdateProblemSetsAction extends AbstractLoadingAction {
+class AtCoderUpdateProblemSetsAction
+    extends AbstractLoadingAction
+    with DataKeyNotNull(ATCODER_UPDATE_PROBLEM_SETS_PROVIDER_KEY)
+    with UserLoggedIn(AtCoder) {
   override def actionPerformed(e: AnActionEvent): Unit = {
     Option(AtCoderUpdateProblemSetsAction.ATCODER_UPDATE_PROBLEM_SETS_PROVIDER_KEY.getData(e.getDataContext)) match {
       case Some(provider) =>
@@ -16,19 +19,15 @@ class AtCoderUpdateProblemSetsAction extends AbstractLoadingAction {
   }
 
   override def update(e: AnActionEvent): Unit = {
-    if e.getProject == null then e.getPresentation.setEnabledAndVisible(false)
-    else if !AuthService.getInstance(e.getProject).isLoggedIn(AtCoder) then
-      e.getPresentation.setEnabledAndVisible(false)
-    else
-      Option(AtCoderUpdateProblemSetsAction.ATCODER_UPDATE_PROBLEM_SETS_PROVIDER_KEY.getData(e.getDataContext)) match
-        case None => e.getPresentation.setEnabled(false)
-        case Some(provider) =>
-          if provider.isUpdatingProblemSets then
-            e.getPresentation.setEnabled(false)
-            setLoading(e.getPresentation, true)
-          else
-            e.getPresentation.setEnabled(true)
-            setLoading(e.getPresentation, false)
+    if isSatisfied(e) then
+      val provider = getValue(e)
+      if provider.isUpdatingProblemSets then
+        e.getPresentation.setEnabled(false)
+        setLoading(e.getPresentation, true)
+      else
+        e.getPresentation.setEnabled(true)
+        setLoading(e.getPresentation, false)
+    else e.getPresentation.setEnabledAndVisible(false)
   }
 
   override def getActionUpdateThread: ActionUpdateThread = ActionUpdateThread.BGT

@@ -1,9 +1,9 @@
 package com.wenjunhuang.codeepiphany.utils.actions
 
-import javax.swing.{Icon, JComponent}
+import javax.swing.{ Icon, JComponent }
 
 import com.intellij.openapi.actionSystem.*
-import com.intellij.openapi.actionSystem.ex.{CheckboxAction, ComboBoxAction}
+import com.intellij.openapi.actionSystem.ex.{ CheckboxAction, ComboBoxAction }
 
 import com.wenjunhuang.codeepiphany.utils.actions.ParameterComboBoxAction.QueryParamSubAction
 
@@ -12,12 +12,11 @@ abstract class ParameterComboBoxAction[P, T <: ParameterProvider[P]](
   private val name: P => String,
   private val description: P => Option[String],
   private val icon: P => Option[Icon]
-) extends ComboBoxAction {
+) extends ComboBoxAction
+    with DataKeyNotNull[T](key) {
   override def update(e: AnActionEvent): Unit = {
-    Option(key.getData(e.getDataContext)) match {
-      case None => e.getPresentation.setEnabled(false)
-      case _    => e.getPresentation.setEnabled(true)
-    }
+    if isSatisfied(e) then e.getPresentation.setEnabled(true)
+    else e.getPresentation.setEnabled(false)
   }
 
   override def createPopupActionGroup(button: JComponent, dataContext: DataContext): DefaultActionGroup = {
@@ -42,9 +41,7 @@ object ParameterComboBoxAction {
     val icon: Option[Icon]
   ) extends CheckboxAction(name, description.orNull, icon.orNull) {
     override def isSelected(e: AnActionEvent): Boolean =
-      Option(key.getData(e.getDataContext))
-        .map(_.isSelected(myData))
-        .getOrElse(false)
+      Option(key.getData(e.getDataContext)).exists(_.isSelected(myData))
 
     override def setSelected(e: AnActionEvent, state: Boolean): Unit =
       Option(key.getData(e.getDataContext)).foreach { provider =>

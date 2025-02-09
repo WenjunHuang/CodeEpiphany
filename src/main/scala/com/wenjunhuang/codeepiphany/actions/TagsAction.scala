@@ -1,37 +1,35 @@
 package com.wenjunhuang.codeepiphany.actions
 
-import java.awt.{Dimension, GridBagConstraints, GridBagLayout}
+import java.awt.{ Dimension, GridBagConstraints, GridBagLayout }
 import javax.swing.*
 
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.actionSystem.*
-import com.intellij.openapi.actionSystem.ex.{CheckboxAction, ComboBoxAction}
+import com.intellij.openapi.actionSystem.ex.{ CheckboxAction, ComboBoxAction }
 import com.intellij.openapi.observable.properties.AtomicProperty
-import com.intellij.openapi.ui.popup.{JBPopup, JBPopupFactory}
+import com.intellij.openapi.ui.popup.{ JBPopup, JBPopupFactory }
 import com.intellij.openapi.util.Disposer
-import com.intellij.ui.components.{JBScrollPane, JBTabbedPane}
+import com.intellij.ui.components.{ JBScrollPane, JBTabbedPane }
 import com.intellij.uiDesigner.core.Spacer
 import com.intellij.util.ui.components.BorderLayoutPanel
 import com.intellij.util.ui.JBUI
 
 import com.wenjunhuang.codeepiphany.actions.TagsAction.*
-import com.wenjunhuang.codeepiphany.utils.actions.ParameterProvider
+import com.wenjunhuang.codeepiphany.utils.actions.{ DataKeyNotNull, ParameterProvider }
 import com.wenjunhuang.codeepiphany.utils.implicits.*
-import com.wenjunhuang.codeepiphany.utils.ui.{CollapsibleTitledSeparator, TagPane, TagPaneAction}
+import com.wenjunhuang.codeepiphany.utils.ui.{ CollapsibleTitledSeparator, TagPane, TagPaneAction }
 
-class TagsAction extends ComboBoxAction {
+class TagsAction extends ComboBoxAction with DataKeyNotNull(TAG_PROVIDER_KEY) {
   override def update(e: AnActionEvent): Unit =
-    Option(TAG_PROVIDER_KEY.getData(e.getDataContext)) match {
-      case None => e.getPresentation.setEnabled(false)
-      case _    => e.getPresentation.setEnabled(true)
-    }
+    if isSatisfied(e) then e.getPresentation.setEnabled(true)
+    else e.getPresentation.setEnabled(false)
 
-  override def createActionPopup(context: DataContext, component: JComponent, disposeCallback: Runnable): JBPopup =
-    Option(TAG_PROVIDER_KEY.getData(context)) match {
-      case Some(provider) if provider.isInstanceOf[MultiTagGroupProvider] =>
-        multiTagGroupPopup(provider.asInstanceOf[MultiTagGroupProvider], disposeCallback)
-      case _ => super.createActionPopup(context, component, disposeCallback)
-    }
+  override def createActionPopup(context: DataContext, component: JComponent, disposeCallback: Runnable): JBPopup = {
+    val provider = getValue(context)
+    provider match
+      case groupProvider: MultiTagGroupProvider => multiTagGroupPopup(groupProvider, disposeCallback)
+      case _                                    => super.createActionPopup(context, component, disposeCallback)
+  }
 
   private def multiTagGroupPopup(provider: MultiTagGroupProvider, disposeCallback: Runnable): JBPopup = {
     val tabs       = provider.getTabs
@@ -54,7 +52,6 @@ class TagsAction extends ComboBoxAction {
 
   private def createTagGroupTab(provider: MultiTagGroupProvider, tab: TagGroupTab): JComponent = {
     val panel = new JPanel()
-
     panel.setLayout(new GridBagLayout())
 
     val gbc = new GridBagConstraints()
@@ -119,18 +116,17 @@ class TagsAction extends ComboBoxAction {
   override def actionPerformed(e: AnActionEvent): Unit = {}
 }
 
-class TagSubAction(private val myTag: Tag) extends CheckboxAction(myTag.name) {
+class TagSubAction(private val myTag: Tag) extends CheckboxAction(myTag.name) with DataKeyNotNull(TAG_PROVIDER_KEY) {
 
   override def isSelected(e: AnActionEvent): Boolean =
-    Option(TAG_PROVIDER_KEY.getData(e.getDataContext))
-      .map(_.isSelected(myTag))
-      .getOrElse(false)
+    getValue(e).isSelected(myTag)
 
-  override def setSelected(e: AnActionEvent, state: Boolean): Unit =
-    Option(TAG_PROVIDER_KEY.getData(e.getDataContext)).foreach { provider =>
-      if state then provider.addSelectedItems(List(myTag))
-      else provider.removeSelectedItems(List(myTag))
-    }
+  override def setSelected(e: AnActionEvent, state: Boolean): Unit = {
+    val provider = getValue(e)
+    if state then provider.addSelectedItems(List(myTag))
+    else provider.removeSelectedItems(List(myTag))
+  }
+
   override def getActionUpdateThread: ActionUpdateThread = ActionUpdateThread.BGT
 }
 

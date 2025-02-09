@@ -1,19 +1,19 @@
 package com.wenjunhuang.codeepiphany.actions
 
-import com.intellij.openapi.actionSystem.{ActionUpdateThread, AnActionEvent, DataKey}
-import com.intellij.openapi.project.DumbAwareAction
+import com.intellij.openapi.actionSystem.{ActionUpdateThread, AnAction, AnActionEvent, DataKey}
 
 import com.wenjunhuang.codeepiphany.actions.OpenSubmissionCodeAction.*
+import com.wenjunhuang.codeepiphany.utils.actions.DataKeyNotNull
 
-class OpenSubmissionCodeAction extends DumbAwareAction {
+class OpenSubmissionCodeAction extends AnAction with DataKeyNotNull(OPEN_SUBMISSION_PROVIDER_KEY) {
   override def actionPerformed(e: AnActionEvent): Unit =
-    Option(OPEN_SUBMISSION_PROVIDER_KEY.getData(e.getDataContext)).foreach(_.openSubmissionCode())
+    getValue(e).openSubmissionCode()
 
   override def update(e: AnActionEvent): Unit = {
-    Option(OPEN_SUBMISSION_PROVIDER_KEY.getData(e.getDataContext)) match
-      case Some(provider) => e.getPresentation.setEnabledAndVisible(true)
-      case None           => e.getPresentation.setEnabled(false)
-
+    if isSatisfied(e) then
+      e.getPresentation.setEnabledAndVisible(true)
+    else
+      e.getPresentation.setEnabled(false)
   }
 
   override def getActionUpdateThread: ActionUpdateThread = ActionUpdateThread.BGT

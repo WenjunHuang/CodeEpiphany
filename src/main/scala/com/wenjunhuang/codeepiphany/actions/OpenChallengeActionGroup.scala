@@ -4,9 +4,10 @@ import com.intellij.openapi.actionSystem.*
 
 import com.wenjunhuang.codeepiphany.PluginBundle
 import com.wenjunhuang.codeepiphany.actions.OpenChallengeActionGroup.*
-import com.wenjunhuang.codeepiphany.model.{Language, LanguageVersion}
+import com.wenjunhuang.codeepiphany.model.{ Language, LanguageVersion }
+import com.wenjunhuang.codeepiphany.utils.actions.DataKeyNotNull
 
-class OpenChallengeActionGroup extends ActionGroup {
+class OpenChallengeActionGroup extends ActionGroup with DataKeyNotNull(CHALLENGE_PROVIDER_KEY) {
   override def getChildren(e: AnActionEvent): Array[AnAction] = {
     Option(CHALLENGE_PROVIDER_KEY.getData(e.getDataContext)) match
       case None => Array.empty
@@ -16,14 +17,13 @@ class OpenChallengeActionGroup extends ActionGroup {
 
   override def update(e: AnActionEvent): Unit = {
     val presentation = e.getPresentation
-    presentation.setEnabled(true)
+    if isSatisfied(e) then
+      presentation.setEnabled(true)
+      val provider = getValue(e)
 
-    for
-      challengeProvider <- Option(CHALLENGE_PROVIDER_KEY.getData(e.getDataContext))
-    yield
-      if !challengeProvider.currentSelectedCanBeOpened then presentation.setEnabled(false)
+      if !provider.currentSelectedCanBeOpened then presentation.setEnabled(false)
       else
-        challengeProvider.getLanguages match
+        provider.getLanguages match
           case Nil => presentation.setEnabled(false)
           case _ :: Nil =>
             presentation.setPopupGroup(false)
@@ -38,30 +38,29 @@ object OpenChallengeActionGroup {
   final val CHALLENGE_PROVIDER_KEY = DataKey.create[OpenChallengeProvider]("CHALLENGE_PROVIDER_KEY")
 
   private class LanguageAction(private val myLanguage: Language, private val myLanguageVersion: LanguageVersion)
-      extends AnAction(s"${myLanguage.show}${myLanguageVersion.version}", null, myLanguage.icon) {
+      extends AnAction(Language.prettyPrint(myLanguage, myLanguageVersion), null, myLanguage.icon)
+      with DataKeyNotNull(CHALLENGE_PROVIDER_KEY) {
     override def actionPerformed(e: AnActionEvent): Unit = {
-      Option(CHALLENGE_PROVIDER_KEY.getData(e.getDataContext)) match
-        case None           =>
-        case Some(provider) => provider.openCurrentSelectedChallenge(myLanguage, myLanguageVersion)
+      getValue(e).openCurrentSelectedChallenge(myLanguage, myLanguageVersion)
     }
 
     override def update(e: AnActionEvent): Unit = {
-      Option(CHALLENGE_PROVIDER_KEY.getData(e.getDataContext)) match
-        case None => e.getPresentation.setEnabledAndVisible(false)
-        case Some(provider) =>
-          val presentation = e.getPresentation
-          if !provider.currentSelectedCanBeOpened then presentation.setEnabled(false)
-          else
-            presentation.setEnabledAndVisible(true)
-            provider.getLanguages match
-              case one :: Nil if one == myLanguage =>
-                presentation.setText(PluginBundle.message("group.CodeEpiphany.Dojos.Actions.OpenChallengeGroup.text"))
-                presentation.setDescription(
-                  PluginBundle.message("group.CodeEpiphany.Dojos.Actions.OpenChallengeGroup.description")
-                )
-              case _ =>
-                presentation.setText(myLanguage.show)
-                presentation.setDescription(myLanguage.show)
+      val presentation = e.getPresentation
+      if isSatisfied(e) then
+        val provider = getValue(e)
+        if !provider.currentSelectedCanBeOpened then presentation.setEnabled(false)
+        else
+          presentation.setEnabledAndVisible(true)
+          provider.getLanguages match
+            case one :: Nil if one == myLanguage =>
+              presentation.setText(PluginBundle.message("group.CodeEpiphany.Dojos.Actions.OpenChallengeGroup.text"))
+              presentation.setDescription(
+                PluginBundle.message("group.CodeEpiphany.Dojos.Actions.OpenChallengeGroup.description")
+              )
+            case _ =>
+              presentation.setText(Language.prettyPrint(myLanguage, myLanguageVersion))
+              presentation.setDescription(Language.prettyPrint(myLanguage, myLanguageVersion))
+      else presentation.setEnabledAndVisible(false)
     }
 
     override def getActionUpdateThread: ActionUpdateThread = ActionUpdateThread.BGT

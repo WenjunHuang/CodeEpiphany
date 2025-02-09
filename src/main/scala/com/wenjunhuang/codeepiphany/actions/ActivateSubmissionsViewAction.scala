@@ -1,18 +1,19 @@
 package com.wenjunhuang.codeepiphany.actions
 
-import com.intellij.openapi.actionSystem.{ActionUpdateThread, AnAction, AnActionEvent}
+import com.intellij.openapi.actionSystem.{ ActionUpdateThread, AnAction, AnActionEvent }
 
 import com.wenjunhuang.codeepiphany.toolwindows.sidebar.SidebarWindowFactory
+import com.wenjunhuang.codeepiphany.utils.actions.ProjectNonNull
 
-class ActivateSubmissionsViewAction extends AnAction {
+class ActivateSubmissionsViewAction extends AnAction with ProjectNonNull {
   override def actionPerformed(e: AnActionEvent): Unit = {
-    if e.getProject != null then SidebarWindowFactory.activate(e.getProject, SidebarWindowFactory.SUBMISSIONS)
+    SidebarWindowFactory.activate(e.getProject, SidebarWindowFactory.SUBMISSIONS)
   }
 
   override def getActionUpdateThread: ActionUpdateThread = ActionUpdateThread.BGT
 
   override def update(e: AnActionEvent): Unit = {
-    if e.getProject != null then e.getPresentation.setEnabled(true)
+    if isSatisfied(e) then e.getPresentation.setEnabled(true)
     else e.getPresentation.setEnabled(false)
   }
 }

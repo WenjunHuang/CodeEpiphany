@@ -2,21 +2,23 @@ package com.wenjunhuang.codeepiphany.atcoder.models
 
 import java.awt.Color
 
+import com.intellij.openapi.util.text.StringUtil
+
 import com.wenjunhuang.codeepiphany.atcoder.models.AtCoderDifficulty.*
 import com.wenjunhuang.codeepiphany.utils.ColorUtils
 
-enum AtCoderDifficulty {
-  case Grey
-  case Brown
-  case Green
-  case Cyan
-  case Blue
-  case Yellow
-  case Orange
-  case Red
-  case Bronze
-  case Silver
-  case Gold
+enum AtCoderDifficulty(val lowerBound: Int, val upperBound: Int) {
+  case Grey   extends AtCoderDifficulty(Int.MinValue, 399)
+  case Brown  extends AtCoderDifficulty(400, 799)
+  case Green  extends AtCoderDifficulty(800, 1199)
+  case Cyan   extends AtCoderDifficulty(1200, 1599)
+  case Blue   extends AtCoderDifficulty(1600, 1999)
+  case Yellow extends AtCoderDifficulty(2000, 2399)
+  case Orange extends AtCoderDifficulty(2400, 2799)
+  case Red    extends AtCoderDifficulty(2800, 3199)
+  case Bronze extends AtCoderDifficulty(3200, 3599)
+  case Silver extends AtCoderDifficulty(3600, 3999)
+  case Gold   extends AtCoderDifficulty(4000, Int.MaxValue)
 
   def showAsHtml: String =
     this match
@@ -99,52 +101,33 @@ object AtCoderDifficulty {
   val GOLD_COLOR   = "#FFD700" // 黄金 - 金牌题（高饱和度）
 
   def fromInt(difficulty: Int): AtCoderDifficulty = {
-    if difficulty < 400 then Grey
-    else if difficulty < 800 then Brown
-    else if difficulty < 1200 then Green
-    else if difficulty < 1600 then Cyan
-    else if difficulty < 2000 then Blue
-    else if difficulty < 2400 then Yellow
-    else if difficulty < 2800 then Orange
-    else if difficulty < 3200 then Red
-    else if difficulty < 3600 then Bronze
-    else if difficulty < 4000 then Silver
+    if difficulty <= Grey.upperBound then Grey
+    else if difficulty <= Brown.upperBound then Brown
+    else if difficulty <= Green.upperBound then Green
+    else if difficulty <= Cyan.upperBound then Cyan
+    else if difficulty <= Blue.upperBound then Blue
+    else if difficulty <= Yellow.upperBound then Yellow
+    else if difficulty <= Orange.upperBound then Orange
+    else if difficulty <= Red.upperBound then Red
+    else if difficulty <= Bronze.upperBound then Bronze
+    else if difficulty <= Silver.upperBound then Silver
     else Gold
   }
 
   def atCoderDifficultyRange(difficulty: AtCoderDifficulty): (Int, Int) = {
-    difficulty match {
-      case Grey   => (0, 399)
-      case Brown  => (400, 799)
-      case Green  => (800, 1199)
-      case Cyan   => (1200, 1599)
-      case Blue   => (1600, 1999)
-      case Yellow => (2000, 2399)
-      case Orange => (2400, 2799)
-      case Red    => (2800, 3199)
-      case Bronze => (3200, 3599)
-      case Silver => (3600, 3999)
-      case Gold   => (4000, Int.MaxValue)
-    }
+    (difficulty.lowerBound, difficulty.upperBound)
   }
 
   def prettyPrint(difficulty: AtCoderDifficulty): String = {
     difficulty match {
-      case Grey   => "[0, 399]"
-      case Brown  => "[400, 799]"
-      case Green  => "[800, 1199]"
-      case Cyan   => "[1200, 1599]"
-      case Blue   => "[1600, 1999]"
-      case Yellow => "[2000, 2399]"
-      case Orange => "[2400, 2799]"
-      case Red    => "[2800, 3199]"
-      case Bronze => "[3200, 3599]"
-      case Silver => "[3600, 3999]"
-      case Gold   => "[>=4000]"
+      case Grey => s"[~-${Grey.upperBound}]"
+      case Gold => s"[${Gold.lowerBound}-~]"
+      case _    => s"[${difficulty.lowerBound}-${difficulty.upperBound}]"
     }
-
   }
 
+  /** Calculate the display difficulty based on the IRT difficulty(from kenkoooo's source code)
+    */
   def calculateDisplayDifficulty(irtDifficulty: Int): Int =
     if irtDifficulty >= 400.0 then irtDifficulty
     else (400.0 / math.exp(1.0 - irtDifficulty / 400.0)).toInt

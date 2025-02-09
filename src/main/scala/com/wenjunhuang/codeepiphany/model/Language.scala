@@ -4,6 +4,7 @@ import icons.CodeEpiphanyIcons
 import javax.swing.Icon
 import org.typelevel.ci.CIString
 import scala.collection.mutable
+import scala.util.matching.Regex
 
 import com.intellij.openapi.util.text.StringUtil
 
@@ -71,7 +72,7 @@ enum Language(val value: String, val fileExt: String, val show: String, val icon
   case LLVM       extends Language("llvm", "ll", "LLVM", CodeEpiphanyIcons.Languages.LLVM)
   case Lisp       extends Language("lisp", "lisp", "Lisp", CodeEpiphanyIcons.Languages.LISP)
   case ReasonML   extends Language("reasonml", "re", "ReasonML", CodeEpiphanyIcons.Languages.REASONML)
-  case Octave    extends Language("octave", "m", "Octave", CodeEpiphanyIcons.Languages.OCTAVE)
+  case Octave     extends Language("octave", "m", "Octave", CodeEpiphanyIcons.Languages.OCTAVE)
 
   def createComment(comment: String): String = this match {
     case C | Cpp | CSharp | D | GO | Java | Kotlin | ObjectiveC | PHP | Rust | Scala | Swift | Dart | Javascript |
@@ -121,4 +122,17 @@ object Language {
     Language.values.map(v => CIString(v.value) -> v).toMap
 
   def fromCIString(str: CIString): Option[Language] = ALL_LANGUAGES.get(str)
+
+  def prettyPrint(lang: Language, langVer: LanguageVersion): String = {
+    langVer.version match
+      case numVersionWithNote(version, note) => s"${lang.show}$version $note"
+      case numVersion(version)               => s"${lang.show}$version"
+      case onlyNote(note)                    => s"${lang.show} $note"
+      case v                                 => s"${lang.show} $v"
+
+  }
+
+  private val numVersionWithNote: Regex = """^([\d\.]+)\((.*)\)$""".r
+  private val numVersion: Regex         = """^([\d\.]+)$""".r
+  private val onlyNote: Regex           = """^\((.+)\)$""".r
 }

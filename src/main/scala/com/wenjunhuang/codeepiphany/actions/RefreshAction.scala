@@ -1,25 +1,31 @@
 package com.wenjunhuang.codeepiphany.actions
 
-import com.intellij.openapi.actionSystem.{ActionUpdateThread, AnAction, AnActionEvent, DataKey}
+import com.intellij.openapi.actionSystem.{ ActionUpdateThread, AnActionEvent, DataKey }
 
-class RefreshAction extends AnAction {
+import com.wenjunhuang.codeepiphany.utils.actions.{ AbstractLoadingAction, DataKeyNotNull }
+
+class RefreshAction extends AbstractLoadingAction with DataKeyNotNull(RefreshAction.REFRESH_PROVIDER_KEY) {
   override def actionPerformed(e: AnActionEvent): Unit = {
-    Option(RefreshAction.REFRESH_PROVIDER_KEY.getData(e.getDataContext)).foreach(_.refresh())
+    getValue(e).refresh()
   }
 
   override def update(e: AnActionEvent): Unit = {
-    Option(RefreshAction.REFRESH_PROVIDER_KEY.getData(e.getDataContext)) match {
-      case None => e.getPresentation.setEnabled(false)
-      case _    => e.getPresentation.setEnabled(true)
-    }
+    if isSatisfied(e) then
+      val provider = getValue(e)
+      if provider.isRefreshing then
+        e.getPresentation.setEnabled(false)
+        setLoading(e.getPresentation, true)
+      else setLoading(e.getPresentation, false)
+    else e.getPresentation.setEnabled(false)
   }
 
   override def getActionUpdateThread: ActionUpdateThread = ActionUpdateThread.BGT
 }
 
 object RefreshAction {
-  val REFRESH_PROVIDER_KEY = DataKey.create[RefreshProvider]("REFRESH_PROVIDER_KEY")
+  val REFRESH_PROVIDER_KEY: DataKey[RefreshProvider] = DataKey.create[RefreshProvider]("REFRESH_PROVIDER_KEY")
   trait RefreshProvider {
     def refresh(): Unit
+    def isRefreshing: Boolean
   }
 }

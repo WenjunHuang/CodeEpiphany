@@ -153,6 +153,8 @@ class SubmissionLogPresenter(private val myProject: Project) extends UiDataProvi
     override def refresh(): Unit = {
       requery()
     }
+
+    override def isRefreshing: Boolean = false
   }
 
   private val myCodeDojoProvider = new CodeDojoParameterProvider {
