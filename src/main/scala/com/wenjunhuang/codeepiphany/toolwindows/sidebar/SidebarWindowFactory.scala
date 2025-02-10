@@ -4,12 +4,12 @@ import scala.annotation.static
 
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
-import com.intellij.openapi.wm.{ ToolWindow, ToolWindowManager }
+import com.intellij.openapi.wm.{ToolWindow, ToolWindowManager}
 import com.intellij.openapi.wm.impl.content.ToolWindowContentUi
 
 import com.wenjunhuang.codeepiphany.toolwindows.sidebar.description.ChallengeDescriptionPresenter
 import com.wenjunhuang.codeepiphany.toolwindows.sidebar.solution.SolutionListPresenter
-import com.wenjunhuang.codeepiphany.toolwindows.sidebar.submissionlog.{ SubmissionLogPresenter, SubmissionPresenter }
+import com.wenjunhuang.codeepiphany.toolwindows.sidebar.submissionlog.SubmissionPresenter
 import com.wenjunhuang.codeepiphany.toolwindows.sidebar.SidebarWindowFactory.*
 import com.wenjunhuang.codeepiphany.utils.ToolWindowFactoryBridge
 

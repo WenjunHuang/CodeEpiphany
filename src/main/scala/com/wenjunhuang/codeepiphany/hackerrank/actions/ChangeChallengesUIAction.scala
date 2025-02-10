@@ -11,7 +11,7 @@ import com.wenjunhuang.codeepiphany.model.CodeDojo.HackerRank
 import com.wenjunhuang.codeepiphany.utils.actions.{ DataKeyNotNull, UserLoggedIn }
 
 class ChangeChallengesUIAction
-    extends AnAction
+    extends DumbAwareAction
     with DataKeyNotNull(CHANGE_CHALLENGES_UI_PROVIDER_KEY)
     with UserLoggedIn(HackerRank) {
   override def actionPerformed(e: AnActionEvent): Unit = {

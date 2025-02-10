@@ -12,7 +12,7 @@ import com.wenjunhuang.codeepiphany.leetcode.actions.LeetCodeChangeUIAction.{
 import com.wenjunhuang.codeepiphany.leetcode.actions.LeetCodeChangeUIAction.LeetCodeUI.*
 import com.wenjunhuang.codeepiphany.utils.actions.DataKeyNotNull
 
-class LeetCodeChangeUIAction extends AnAction with DataKeyNotNull(LEETCODE_CHANGE_UI_PROVIDER_KEY) {
+class LeetCodeChangeUIAction extends DumbAwareAction with DataKeyNotNull(LEETCODE_CHANGE_UI_PROVIDER_KEY) {
   override def actionPerformed(e: AnActionEvent): Unit = {
     val provider = getValue(e)
     provider.getCurrentUI match

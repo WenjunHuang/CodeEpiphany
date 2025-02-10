@@ -1,12 +1,12 @@
 package com.wenjunhuang.codeepiphany.actions
 
 import com.intellij.openapi.actionSystem.{ ActionUpdateThread, AnAction, AnActionEvent }
-import com.intellij.openapi.project.DumbAware
+import com.intellij.openapi.project.DumbAwareAction
 
 import com.wenjunhuang.codeepiphany.actions.LoginAction.*
 import com.wenjunhuang.codeepiphany.utils.actions.DataKeyNotNull
 
-class LogoutAction extends AnAction with DataKeyNotNull(LOGIN_LOGOUT_KEY) {
+class LogoutAction extends DumbAwareAction with DataKeyNotNull(LOGIN_LOGOUT_KEY) {
   override def actionPerformed(e: AnActionEvent): Unit =
     getValue(e).logout()
 

@@ -1,15 +1,12 @@
 package com.wenjunhuang.codeepiphany.utils.ui
 
 import cats.syntax.all.*
-import javax.swing.{ JEditorPane, JLayeredPane, SwingConstants }
+import javax.swing.JEditorPane
 
 import com.intellij.openapi.project.DumbAware
 import com.intellij.openapi.ui.SimpleToolWindowPanel
-import com.intellij.ui.components.{ JBLabel, JBLayeredPane }
 import com.intellij.ui.BrowserHyperlinkListener
-import com.intellij.util.ui.{ HTMLEditorKitBuilder, JBUI }
-import com.intellij.util.ui.components.BorderLayoutPanel
-import com.intellij.xml.util.HtmlUtil
+import com.intellij.util.ui.{HTMLEditorKitBuilder, JBUI}
 
 import com.wenjunhuang.codeepiphany.model.CodeDojo
 import com.wenjunhuang.codeepiphany.PluginBundle

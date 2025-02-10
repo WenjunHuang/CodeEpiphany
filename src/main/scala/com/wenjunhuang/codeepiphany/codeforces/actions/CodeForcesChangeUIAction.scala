@@ -9,7 +9,7 @@ import com.wenjunhuang.codeepiphany.codeforces.actions.CodeForcesChangeUIAction.
 import com.wenjunhuang.codeepiphany.codeforces.actions.CodeForcesChangeUIAction.CodeForcesUI.*
 import com.wenjunhuang.codeepiphany.utils.actions.DataKeyNotNull
 
-class CodeForcesChangeUIAction extends AnAction with DataKeyNotNull(CODEFORCES_CHANGE_UI_PROVIDER_KEY) {
+class CodeForcesChangeUIAction extends DumbAwareAction with DataKeyNotNull(CODEFORCES_CHANGE_UI_PROVIDER_KEY) {
   override def actionPerformed(e: AnActionEvent): Unit = {
     val provider = getValue(e)
     provider.getCurrentUI match

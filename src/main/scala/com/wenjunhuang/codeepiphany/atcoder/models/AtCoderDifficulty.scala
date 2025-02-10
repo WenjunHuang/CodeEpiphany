@@ -2,8 +2,6 @@ package com.wenjunhuang.codeepiphany.atcoder.models
 
 import java.awt.Color
 
-import com.intellij.openapi.util.text.StringUtil
-
 import com.wenjunhuang.codeepiphany.atcoder.models.AtCoderDifficulty.*
 import com.wenjunhuang.codeepiphany.utils.ColorUtils
 

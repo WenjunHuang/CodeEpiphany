@@ -6,7 +6,6 @@ import org.typelevel.ci.CIString
 import org.typelevel.log4cats.LoggerFactory
 
 import com.intellij.openapi.project.Project
-import com.intellij.ui.SingleSelectionModel
 import com.intellij.util.ui.ListTableModel
 
 import com.wenjunhuang.codeepiphany.actions.OpenChallengeActionGroup.OpenChallengeProvider
