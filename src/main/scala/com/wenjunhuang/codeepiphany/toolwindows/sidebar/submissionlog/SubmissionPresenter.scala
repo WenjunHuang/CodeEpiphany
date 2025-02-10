@@ -17,6 +17,7 @@ import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.project.Project
 
 import com.wenjunhuang.codeepiphany.database.Tables.*
+import com.wenjunhuang.codeepiphany.hackerrank.models.HackerRankContest
 import com.wenjunhuang.codeepiphany.model.{ CodeDojo, Language, LanguageVersion }
 import com.wenjunhuang.codeepiphany.model.newtypes.SubmissionId
 import com.wenjunhuang.codeepiphany.model.CodeDojo.*
@@ -127,6 +128,7 @@ class SubmissionPresenter(private val myProject: Project) extends Disposable {
                             SubmissionType.LeetCodeSubmission(
                               lang,
                               languageVersion,
+                              record.get(CHALLENGE.SLUG),
                               submissionRecord,
                               leetcodeSubmission
                             )
@@ -134,6 +136,7 @@ class SubmissionPresenter(private val myProject: Project) extends Disposable {
                             SubmissionType.LeetCodeCNSubmission(
                               lang,
                               languageVersion,
+                              record.get(CHALLENGE.SLUG),
                               submissionRecord,
                               leetcodeSubmission
                             )
@@ -146,7 +149,27 @@ class SubmissionPresenter(private val myProject: Project) extends Disposable {
                       .fetch()
                       .asScala
                       .toList
-                    Some(SubmissionType.HackerRankSubmission(lang, languageVersion, submissionRecord, hackerCases))
+                    val contest = dsl
+                      .select(HACKERRANK_CHALLENGE.CONTEST)
+                      .from(HACKERRANK_CHALLENGE)
+                      .where(HACKERRANK_CHALLENGE.ID.eq(record.get(CHALLENGE.ID)))
+                      .fetchOne()
+                      .component1()
+                    val contestSlug = HackerRankContest.fromCIString(CIString(contest)).flatMap {
+                      case HackerRankContest.Master           => None
+                      case p @ HackerRankContest.ProjectEuler => Some(p.slug)
+                    }
+
+                    Some(
+                      SubmissionType.HackerRankSubmission(
+                        lang,
+                        languageVersion,
+                        record.get(CHALLENGE.SLUG),
+                        contestSlug,
+                        submissionRecord,
+                        hackerCases
+                      )
+                    )
                   case CodeForces =>
                     dsl
                       .selectFrom(CODEFORCES_CHALLENGE)

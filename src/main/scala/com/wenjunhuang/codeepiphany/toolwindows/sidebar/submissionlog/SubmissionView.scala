@@ -8,6 +8,7 @@ import com.intellij.openapi.ui.{ SimpleToolWindowPanel, Splitter }
 import com.intellij.ui.components.{ JBLabel, JBScrollPane }
 import com.intellij.util.ui.components.BorderLayoutPanel
 
+import com.wenjunhuang.codeepiphany.model.CodeDojo
 import com.wenjunhuang.codeepiphany.toolwindows.sidebar.submissionlog.SubmissionLogPresenter.SubmissionType
 import com.wenjunhuang.codeepiphany.toolwindows.sidebar.submissionlog.SubmissionLogPresenter.SubmissionType.*
 import com.wenjunhuang.codeepiphany.toolwindows.sidebar.submissionlog.SubmissionView.EMPTY_FORM
@@ -35,12 +36,33 @@ class SubmissionView(submissionLogComponent: JComponent) extends SimpleToolWindo
 
   def setDetail(submissionType: SubmissionType): Unit = {
     val comp = submissionType match {
-      case LeetCodeSubmission(language, languageVersion, submission, leetCodeSubmission) =>
-        LeetCodeSubmissionResultForm(language, languageVersion, submission, leetCodeSubmission).getComponent
-      case LeetCodeCNSubmission(language, languageVersion, submission, leetCodeSubmission) =>
-        LeetCodeSubmissionResultForm(language, languageVersion, submission, leetCodeSubmission).getComponent
-      case HackerRankSubmission(language, languageVersion, submission, hackerCases) =>
-        HackerRankSubmissionResultForm(language, languageVersion, submission, hackerCases.asJavaCollection).getComponent
+      case LeetCodeSubmission(language, languageVersion, challengeSlug, submission, leetCodeSubmission) =>
+        LeetCodeSubmissionResultForm(
+          language,
+          languageVersion,
+          challengeSlug,
+          CodeDojo.LeetCode,
+          submission,
+          leetCodeSubmission
+        ).getComponent
+      case LeetCodeCNSubmission(language, languageVersion, challengeSlug, submission, leetCodeSubmission) =>
+        LeetCodeSubmissionResultForm(
+          language,
+          languageVersion,
+          challengeSlug,
+          CodeDojo.LeetCodeCN,
+          submission,
+          leetCodeSubmission
+        ).getComponent
+      case HackerRankSubmission(language, languageVersion, challengeSlug,contestSlug, submission, hackerCases) =>
+        HackerRankSubmissionResultForm(
+          language,
+          languageVersion,
+          challengeSlug,
+          contestSlug.toJava,
+          submission,
+          hackerCases.asJavaCollection
+        ).getComponent
       case CodeForcesSubmission(language, languageVersion, submission, contestId, problemsetName) =>
         CodeForcesSubmissionResultForm(
           language,

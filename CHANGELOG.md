@@ -5,7 +5,10 @@
 - Add [AtCoder](https://atcoder.jp) support
 
 ### Changed
+
 - Fix [#10](https://github.com/WenjunHuang/CodeEpiphany/issues/10)
+- Refine codeforces's language version
+- Add 'view in browser' link for LeetCode, LeetCodeCN and HackerRank submissions
 - Repair some UI problems
 
 ## 0.6.6

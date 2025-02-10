@@ -71,6 +71,7 @@ lazy val codeEpiphany = (project in file("."))
       "com.softwaremill.common" %% "id-generator"         % "1.4.0",
       "io.monix"                %% "newtypes-core"        % "0.3.0",
       "io.monix"                %% "newtypes-circe-v0-14" % "0.3.0",
+      "com.github.cb372"        %% "cats-retry"           % "4.0.0",
       // add jooq and sqlite,
       "org.jooq"            % "jooq"             % "3.19.18",
       "org.reactivestreams" % "reactive-streams" % "1.0.4",

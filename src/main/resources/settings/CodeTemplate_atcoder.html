@@ -2,7 +2,7 @@
 <body>
 <table width="100%" border="0" cellpadding="5" cellspacing="0" style="border-collapse: collapse;table-layout: auto;">
     <tr>
-        <td colspan="3"><font face="verdana" size="-1"><strong>List of Predefined Variables for CodeForces</strong></font></td>
+        <td colspan="3"><font face="verdana" size="-1"><strong>List of Predefined Variables for AtCoder</strong></font></td>
     </tr>
     <tr>
         <td valign="top" width="100">
@@ -20,17 +20,38 @@
     </tr>
     <tr>
         <td valign="top" width="100">
-            <nobr><font face="verdana" size="-2"><strong>${challenge.contestIdIndex}</strong></font></nobr>
+            <nobr><font face="verdana" size="-2"><strong>${challenge.id}</strong></font></nobr>
         </td>
         <td width="10">&nbsp;</td>
         <td width="100%" valign="top"><font face="verdana" size="-1">A unique identifier for the challenge.</font></td>
     </tr>
     <tr>
         <td valign="top" width="100">
+            <nobr><font face="verdana" size="-2"><strong>${challenge.problemIndex}</strong></font></nobr>
+        </td>
+        <td width="10">&nbsp;</td>
+        <td width="100%" valign="top"><font face="verdana" size="-1">A unique identifier for the challenge in its contest, e.g. A,B,C...</font></td>
+    </tr>
+    <tr>
+        <td valign="top" width="100">
+            <nobr><font face="verdana" size="-2"><strong>${challenge.contestId}</strong></font></nobr>
+        </td>
+        <td width="10">&nbsp;</td>
+        <td width="100%" valign="top"><font face="verdana" size="-1">A unique identifier for the contest.</font></td>
+    </tr>
+    <tr>
+        <td valign="top" width="100">
+            <nobr><font face="verdana" size="-2"><strong>${challenge.contestTitle}</strong></font></nobr>
+        </td>
+        <td width="10">&nbsp;</td>
+        <td width="100%" valign="top"><font face="verdana" size="-1">Title of the contest.</font></td>
+    </tr>
+    <tr>
+        <td valign="top" width="100">
             <nobr><font face="verdana" size="-2"><strong>${challenge.codeDojo}</strong></font></nobr>
         </td>
         <td width="10">&nbsp;</td>
-        <td width="100%" valign="top"><font face="verdana" size="-1">The platform identifier, e.g., "codeforces".</font></td>
+        <td width="100%" valign="top"><font face="verdana" size="-1">The platform identifier, e.g., "atcoder".</font></td>
     </tr>
     <tr>
         <td valign="top">
@@ -38,6 +59,13 @@
         </td>
         <td width="10">&nbsp;</td>
         <td valign="top"><font face="verdana" size="-1">The name of the challenge, e.g., "Birthday Cake Candles".</font></td>
+    </tr>
+    <tr>
+        <td valign="top">
+            <nobr><font face="verdana" size="-2"><strong>${challenge.title}</strong></font></nobr>
+        </td>
+        <td width="10">&nbsp;</td>
+        <td valign="top"><font face="verdana" size="-1">The title of the challenge, e.g., "Birthday Cake Candles".</font></td>
     </tr>
     <tr>
         <td valign="top">
@@ -52,27 +80,6 @@
         </td>
         <td width="10">&nbsp;</td>
         <td valign="top"><font face="verdana" size="-1">The version of the programming language used.</font></td>
-    </tr>
-    <tr>
-        <td valign="top">
-            <nobr><font face="verdana" size="-2"><strong>${challenge.rating}</strong></font></nobr>
-        </td>
-        <td width="10">&nbsp;</td>
-        <td valign="top"><font face="verdana" size="-1">The difficulty level of the challenge.</font></td>
-    </tr>
-    <tr>
-        <td valign="top">
-            <nobr><font face="verdana" size="-2"><strong>${challenge.problemsetName}</strong></font></nobr>
-        </td>
-        <td width="10">&nbsp;</td>
-        <td valign="top"><font face="verdana" size="-1">The problemset name of the challenge, e.g. acmsguru</font></td>
-    </tr>
-    <tr>
-        <td valign="top">
-            <nobr><font face="verdana" size="-2"><strong>${challenge.tags}</strong></font></nobr>
-        </td>
-        <td width="10">&nbsp;</td>
-        <td valign="top"><font face="verdana" size="-1">The tags of the challenge, e.g. data structures, dfs and similar, dp, greedy, trees</font></td>
     </tr>
     <tr>
         <td valign="top">

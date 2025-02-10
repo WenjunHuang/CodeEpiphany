@@ -28,7 +28,6 @@ case class HackerRankSubmissionResponse(
   id: Long,
   challengeId: Long,
   status: String, // "Processing", "Wrong Answer","Accepted","Compilation error"
-  score: String,
   scoreProcessed: Int, // 3 means fully processed and no more query needed
   solved: Int,
   partial: Int,

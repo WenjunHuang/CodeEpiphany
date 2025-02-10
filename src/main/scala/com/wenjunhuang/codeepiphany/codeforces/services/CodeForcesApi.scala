@@ -18,6 +18,8 @@ import org.jsoup.Jsoup
 import org.typelevel.ci.CIString
 import scala.concurrent.duration.*
 import scala.jdk.CollectionConverters.*
+import retry.*
+import retry.ResultHandler.{ noop, retryOnAllErrors }
 
 import com.intellij.openapi.util.text.StringUtil
 
@@ -168,7 +170,7 @@ object CodeForcesApi {
           .asScala
           .headOption match
           case Some(element) =>
-            throw ApiError.BadRequest(CodeDojo.CodeForces, StringUtil.trim(element.ownText()))
+            throw ApiError.BadRequest(CodeDojo.CodeForces, StringUtil.trim(element.text()))
           case _ =>
             parsed.select("div.datatable table tr[data-submission-id]").asScala.toList.headOption match {
               case Some(element) =>
@@ -183,15 +185,15 @@ object CodeForcesApi {
                       case Array(name)     => ("", StringUtil.trim(name))
 
                     CodeForcesSubmissionResponse(
-                      submissionId = StringUtil.trim(num.ownText()).toLong,
-                      when = parseDateTime(when.ownText()),
-                      who = StringUtil.trim(who.ownText()),
+                      submissionId = StringUtil.trim(num.text()).toLong,
+                      when = parseDateTime(when.text()),
+                      who = StringUtil.trim(who.text()),
                       problemContestIdIndex = problemContestIdIndex,
                       problemName = problemName,
-                      lang = lang.ownText(),
-                      verdict = verdict.ownText(),
-                      time = time.ownText(),
-                      memory = memory.ownText(),
+                      lang = lang.text(),
+                      verdict = verdict.text(),
+                      time = time.text(),
+                      memory = memory.text(),
                       result = SubmissionResult.Processing,
                       message = ""
                     )
@@ -266,10 +268,6 @@ object CodeForcesApi {
               }
               .liftTo[F]
           }
-          .recoverWith {
-            case e: UnexpectedStatus if e.status.code == 503 =>
-              Temporal[F].sleep(2.second) >> getSubmitAnswerResult(oldResponse, csrfToken)
-          }
       }
     }
 
@@ -314,7 +312,12 @@ object CodeForcesApi {
         .flatMap { case (csrfToken, response) =>
           Stream
             .repeatEval(Temporal[F].sleep(2.second))
-            .evalScan(response) { (lastResponse, _) => getSubmitAnswerResult(lastResponse, csrfToken) }
+            .evalScan(response) { (lastResponse, _) =>
+              retryingOnErrors(getSubmitAnswerResult(lastResponse, csrfToken))(
+                RetryPolicies.exponentialBackoff(2.second),
+                retryOnAllErrors(noop)
+              )
+            }
             .flatMap { response =>
               response.result match
                 case SubmissionResult.Processing => Stream(Option(response).widen)

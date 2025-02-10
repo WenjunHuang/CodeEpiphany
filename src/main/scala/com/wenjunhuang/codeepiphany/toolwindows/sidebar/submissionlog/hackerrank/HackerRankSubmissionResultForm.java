@@ -5,10 +5,12 @@ import com.intellij.ide.ui.laf.darcula.ui.DarculaEditorTextFieldBorder;
 import com.intellij.openapi.editor.EditorFactory;
 import com.intellij.openapi.editor.colors.EditorFontType;
 import com.intellij.openapi.fileTypes.FileTypeManager;
+import com.intellij.ui.BrowserHyperlinkListener;
 import com.intellij.ui.EditorTextField;
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.uiDesigner.core.Spacer;
+import com.intellij.util.ui.HTMLEditorKitBuilder;
 import com.intellij.util.ui.JBFont;
 import com.intellij.util.ui.JBUI;
 import com.wenjunhuang.codeepiphany.PluginBundle;
@@ -30,6 +32,7 @@ import java.awt.*;
 import java.lang.reflect.Method;
 import java.time.format.DateTimeFormatter;
 import java.util.Collection;
+import java.util.Optional;
 import java.util.ResourceBundle;
 
 public class HackerRankSubmissionResultForm {
@@ -42,10 +45,13 @@ public class HackerRankSubmissionResultForm {
     private JPanel myPanel;
     private JLabel myCodeLabel;
     private BackgroundRoundedPanel myMessagePane;
+    private JEditorPane myViewInBrowser;
 
     public HackerRankSubmissionResultForm(
             Language language,
             LanguageVersion languageVersion,
+            String challengeSlug,
+            Optional<String> contestSlug,
             SolutionSubmissionRecord submissionRecord,
             Collection<HackerrankSubmissionCaseRecord> hackerrankCases
     ) {
@@ -88,6 +94,18 @@ public class HackerRankSubmissionResultForm {
                         JBUI.Borders.customLine(JBUI.CurrentTheme.CustomFrameDecorations.separatorForeground(), 0, 1, 0, 0),
                         JBUI.Borders.emptyLeft(2)
                 ));
+        var submissionId = submissionRecord.getDojosubmissionid();
+        if (submissionId != null) {
+            var link = contestSlug.map((c) -> "https://www.hackerrank.com/contests/" + c + "/challenges/" + challengeSlug + "/submissions/code/" + submissionId)
+                    .orElse("https://www.hackerrank.com/challenges/" + challengeSlug + "/submissions/code/" + submissionId);
+
+            myViewInBrowser.setEditorKit(HTMLEditorKitBuilder.simple());
+            myViewInBrowser.setEditable(false);
+            myViewInBrowser.addHyperlinkListener(new BrowserHyperlinkListener());
+            myViewInBrowser.setText("<html><body><a href='" + link + "'>View In Browser</a></body></html>");
+        } else {
+            myViewInBrowser.setVisible(false);
+        }
     }
 
     public JComponent getComponent() {
@@ -107,7 +125,7 @@ public class HackerRankSubmissionResultForm {
     private void $$$setupUI$$$() {
         createUIComponents();
         myPanel = new JPanel();
-        myPanel.setLayout(new GridLayoutManager(5, 3, new Insets(0, 0, 0, 0), 2, 5));
+        myPanel.setLayout(new GridLayoutManager(5, 4, new Insets(0, 0, 0, 0), 2, 5));
         myPanel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEmptyBorder(0, 5, 0, 5), null, TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION, null, null));
         myTestcases = new JLabel();
         myTestcases.setText("Testcase");
@@ -116,15 +134,15 @@ public class HackerRankSubmissionResultForm {
         myResult.setText("Label");
         myPanel.add(myResult, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         final Spacer spacer1 = new Spacer();
-        myPanel.add(spacer1, new GridConstraints(0, 2, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, 1, null, null, null, 0, false));
+        myPanel.add(spacer1, new GridConstraints(0, 3, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, 1, null, null, null, 0, false));
         mySubmitDateTime = new JLabel();
         mySubmitDateTime.setText("Label");
-        myPanel.add(mySubmitDateTime, new GridConstraints(1, 0, 1, 3, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        myPanel.add(mySubmitDateTime, new GridConstraints(1, 0, 1, 4, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         mySubmitCode.setViewer(false);
-        myPanel.add(mySubmitCode, new GridConstraints(4, 0, 1, 3, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
+        myPanel.add(mySubmitCode, new GridConstraints(4, 0, 1, 4, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
         final JPanel panel1 = new JPanel();
         panel1.setLayout(new GridLayoutManager(1, 3, new Insets(0, 0, 0, 0), -1, -1));
-        myPanel.add(panel1, new GridConstraints(3, 0, 1, 3, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
+        myPanel.add(panel1, new GridConstraints(3, 0, 1, 4, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
         myCodeLabel = new JLabel();
         this.$$$loadLabelText$$$(myCodeLabel, this.$$$getMessageFromBundle$$$("messages/PluginBundle", "leetcode.submissionResult.code.text"));
         panel1.add(myCodeLabel, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
@@ -133,7 +151,9 @@ public class HackerRankSubmissionResultForm {
         myLanguage = new JLabel();
         myLanguage.setText("Label");
         panel1.add(myLanguage, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        myPanel.add(myMessagePane, new GridConstraints(2, 0, 1, 3, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
+        myPanel.add(myMessagePane, new GridConstraints(2, 0, 1, 4, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
+        myViewInBrowser = new JEditorPane();
+        myPanel.add(myViewInBrowser, new GridConstraints(0, 2, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
     }
 
     private static Method $$$cachedGetBundleMethod$$$ = null;

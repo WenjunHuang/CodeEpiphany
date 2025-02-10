@@ -412,18 +412,22 @@ object SubmissionLogPresenter {
     case LeetCodeSubmission(
       language: Language,
       languageVersion: LanguageVersion,
+      challengeSlug:String,
       record: SolutionSubmissionRecord,
       leetCodeSubmission: LeetcodeSubmissionRecord
     )
     case LeetCodeCNSubmission(
       language: Language,
       languageVersion: LanguageVersion,
+      challengeSlug:String,
       record: SolutionSubmissionRecord,
       leetCodeSubmission: LeetcodeSubmissionRecord
     )
     case HackerRankSubmission(
       language: Language,
       languageVersion: LanguageVersion,
+      challengeSlug:String,
+      contestSlug:Option[String],
       record: SolutionSubmissionRecord,
       hackerCases: List[HackerrankSubmissionCaseRecord]
     )
