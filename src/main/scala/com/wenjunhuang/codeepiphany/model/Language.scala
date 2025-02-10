@@ -8,6 +8,7 @@ import scala.util.matching.Regex
 
 import com.intellij.openapi.util.text.StringUtil
 
+import com.wenjunhuang.codeepiphany.model.Language.escapeRegex
 import com.wenjunhuang.codeepiphany.model.LanguageVersion.{ AnyVersion, SpecificVersion }
 
 enum LanguageVersion {
@@ -74,36 +75,39 @@ enum Language(val value: String, val fileExt: String, val show: String, val icon
   case ReasonML   extends Language("reasonml", "re", "ReasonML", CodeEpiphanyIcons.Languages.REASONML)
   case Octave     extends Language("octave", "m", "Octave", CodeEpiphanyIcons.Languages.OCTAVE)
 
-  def createComment(comment: String): String = this match {
+  private def singleLineCommentPrefix(): String = this match
     case C | Cpp | CSharp | D | GO | Java | Kotlin | ObjectiveC | PHP | Rust | Scala | Swift | Dart | Javascript |
         Typescript | Cangjie | Delphi | Pascal | FSharp | ReasonML =>
-      s"//$comment"
+      "//"
     case Clojure | Racket | Asm | LLVM | Lisp =>
-      s";$comment"
+      ";"
     case Pypy | Python | Ruby | Julia | Perl | R | Elixir =>
-      s"#$comment"
+      "#"
     case Haskell | Lua =>
-      s"--$comment"
+      "--"
     case Erlang | Octave =>
-      s"%$comment"
+      "%"
     case OCaml =>
-      s"(*$comment*)"
-  }
+      s"(*"
+
+  private def singleLineCommentPostfix(): String = this match
+    case OCaml => "*)"
+    case _     => ""
+
+  def createComment(comment: String): String =
+    s"${singleLineCommentPrefix()}$comment${singleLineCommentPostfix()}"
 
   def encloseCodeInRegion(code: String): String =
     s"\n${createComment(Constants.SUBMIT_CODE_REGION_BEGIN)}\n$code\n${createComment(Constants.SUBMIT_CODE_REGION_END)}"
 
   def extractCodeFromRegion(code: String): String = {
-    val begin = createComment(Constants.SUBMIT_CODE_REGION_BEGIN)
-    val end   = createComment(Constants.SUBMIT_CODE_REGION_END)
-
     val result   = mutable.ListBuffer.empty[String]
     val accum    = mutable.ListBuffer.empty[String]
     var inRegion = false
     StringUtil.splitByLinesDontTrim(code).foreach { line =>
       val trimmed = line.trim
-      if StringUtil.equals(trimmed, begin) then inRegion = true
-      else if StringUtil.equals(trimmed, end) then
+      if matchRegion(trimmed, Constants.SUBMIT_CODE_REGION_BEGIN) then inRegion = true
+      else if matchRegion(trimmed, Constants.SUBMIT_CODE_REGION_END) then
         if inRegion then
           inRegion = false
           result.addAll(accum)
@@ -111,6 +115,13 @@ enum Language(val value: String, val fileExt: String, val show: String, val icon
       else if inRegion then accum += line
     }
     result.mkString("\n")
+  }
+
+  def matchRegion(comment: String, region: String): Boolean = {
+    val pattern = s"""^${escapeRegex(singleLineCommentPrefix())}\\s*${escapeRegex(region)}\\s*${escapeRegex(
+        singleLineCommentPostfix()
+      )}$$""".r
+    pattern.matches(comment)
   }
 }
 
@@ -129,7 +140,11 @@ object Language {
       case numVersion(version)               => s"${lang.show}$version"
       case onlyNote(note)                    => s"${lang.show} $note"
       case v                                 => s"${lang.show} $v"
+  }
 
+  def escapeRegex(input: String): String = {
+    val regexSpecialChars = """([\[\]\\\^\$\.\|\?\*\+\(\)\{\}])"""
+    input.replaceAll(regexSpecialChars, "\\\\$1")
   }
 
   private val numVersionWithNote: Regex = """^([\d\.]+)\((.*)\)$""".r

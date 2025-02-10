@@ -4,6 +4,10 @@
 
 - Add [AtCoder](https://atcoder.jp) support
 
+### Changed
+- Fix [#10](https://github.com/WenjunHuang/CodeEpiphany/issues/10)
+- Repair some UI problems
+
 ## 0.6.6
 
 ### Changed

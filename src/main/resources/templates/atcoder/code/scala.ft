@@ -1,0 +1,15 @@
+package atcoder
+
+${beginRegion}
+// add your imports here
+import java.util.Scanner
+
+object $!velocity.camelCaseName($challenge.name) {
+// add your code here
+}
+
+@main
+def $!velocity.smallCamelCaseName($challenge.name)():Unit = {
+}
+
+${endRegion}
