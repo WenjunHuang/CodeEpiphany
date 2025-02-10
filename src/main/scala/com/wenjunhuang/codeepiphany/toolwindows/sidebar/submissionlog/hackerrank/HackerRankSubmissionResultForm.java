@@ -18,6 +18,7 @@ import com.wenjunhuang.codeepiphany.model.Language;
 import com.wenjunhuang.codeepiphany.model.LanguageVersion;
 import com.wenjunhuang.codeepiphany.model.SubmissionResult;
 import com.wenjunhuang.codeepiphany.model.template.ChallengeFileTemplateHighlighter;
+import com.wenjunhuang.codeepiphany.toolwindows.sidebar.submissionlog.SubmissionResultHelper;
 import com.wenjunhuang.codeepiphany.utils.JavaUtils;
 import com.wenjunhuang.codeepiphany.utils.ui.BackgroundRoundedPanel;
 import org.typelevel.ci.CIString;
@@ -63,7 +64,7 @@ public class HackerRankSubmissionResultForm {
         var result = SubmissionResult.fromCIString(CIString.apply(submissionRecord.getResult()));
 
         myMessagePane = new BackgroundRoundedPanel(12, new BorderLayout());
-        HackerRankResultHelper.setupMessagePane(myMessagePane,
+        SubmissionResultHelper.setupMessagePane(myMessagePane,
                 result,
                 submissionRecord);
 
@@ -81,7 +82,7 @@ public class HackerRankSubmissionResultForm {
             myTestcases.setVisible(false);
         }
         myCodeLabel.setBorder(JBUI.Borders.emptyRight(2));
-        myLanguage.setText(Language.prettyPrint(language,languageVersion));
+        myLanguage.setText(Language.prettyPrint(language, languageVersion));
         myLanguage.setBorder(
                 JBUI.Borders.compound(
                         JBUI.Borders.customLine(JBUI.CurrentTheme.CustomFrameDecorations.separatorForeground(), 0, 1, 0, 0),

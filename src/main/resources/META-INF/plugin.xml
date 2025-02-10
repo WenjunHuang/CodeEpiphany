@@ -7,7 +7,7 @@
     <description>Your ultimate plugin for mastering coding challenges directly in Idea platforms!</description>
     <change-notes>Initial release</change-notes>
 
-    <idea-version since-build="231.0"/>
+    <idea-version since-build="242.0"/>
 
     <depends>com.intellij.modules.platform</depends>
 

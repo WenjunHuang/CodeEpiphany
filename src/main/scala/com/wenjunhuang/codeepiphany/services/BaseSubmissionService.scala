@@ -9,10 +9,10 @@ import org.jooq.impl.DSL
 import scala.jdk.OptionConverters.*
 
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.vfs.{VirtualFile, VirtualFileUtil}
+import com.intellij.openapi.vfs.{ VirtualFile, VirtualFileUtil }
 
 import com.wenjunhuang.codeepiphany.database.Tables.*
-import com.wenjunhuang.codeepiphany.model.{CodeDojo, Language, SubmissionResult}
+import com.wenjunhuang.codeepiphany.model.{ CodeDojo, Language, SubmissionResult }
 import com.wenjunhuang.codeepiphany.model.newtypes.SubmissionId
 import com.wenjunhuang.codeepiphany.settings.ChallengeSettings
 import com.wenjunhuang.codeepiphany.settings.ChallengeSettings.ChallengeSettingsStateItem
@@ -34,8 +34,28 @@ abstract class BaseSubmissionService[F[_]: Async](
       processedCode <- extractCode(localCode, item.language)
       request       <- prepareSubmissionRequest(item)
       submissionId  <- createSubmission(item, localCode, processedCode)
-      _             <- executeSubmission(request, submissionId, processedCode)
+      _ <- executeSubmission(request, submissionId, processedCode)
+        .handleErrorWith(e => handleSubmissionError(e, request, submissionId, localCode, processedCode))
     } yield ()
+  }
+
+  protected def handleSubmissionError(
+    error: Throwable,
+    req: SubmissionRequest,
+    submissionId: SubmissionId,
+    localCode: String,
+    processedCode: String
+  ): F[Unit] = {
+    ChallengeRepository.getInstance(myProject).getDSLContextResource.use { dsl =>
+      Async[F].delay {
+        dsl
+          .update(SOLUTION_SUBMISSION)
+          .set(SOLUTION_SUBMISSION.RESULT, SubmissionResult.Unknown.value)
+          .set(SOLUTION_SUBMISSION.MESSAGE, error.getMessage)
+          .where(SOLUTION_SUBMISSION.ID.eq(submissionId.value))
+          .execute()
+      }
+    } *> Async[F].raiseError(error)
   }
 
   protected def prepareSubmissionRequest(item: ChallengeSettingsStateItem): F[SubmissionRequest]

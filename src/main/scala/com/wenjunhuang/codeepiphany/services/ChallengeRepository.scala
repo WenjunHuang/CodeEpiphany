@@ -79,7 +79,7 @@ final class ChallengeRepository(private val myProject: Project) extends Disposab
   def getDSLContext: DSLContext = DSL.using(createDataSource(), SQLDialect.SQLITE)
 
   def getDSLContextResource[F[_]: Async]: Resource[F, DSLContext] =
-    Resource.make(Async[F].delay(getDSLContext))(dsl => Async[F].pure(()))
+    Resource.make(Async[F].delay(getDSLContext))(_ => Async[F].pure(()))
 
   override def dispose(): Unit = {
     closeDataSource(true)

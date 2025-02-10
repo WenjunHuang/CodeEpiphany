@@ -5,8 +5,10 @@ import java.awt.Color
 import com.intellij.ui.{ Gray, JBColor }
 
 object ColorUtils {
-  val ERROR_FOREGROUND = JBColor(0xeb353a, 0xee615e)
-  val ERROR_BACKGROUND = JBColor(0xfdeff0, 0x362b2a)
+  val ERROR_FOREGROUND   = JBColor(0xeb353a, 0xee615e)
+  val ERROR_BACKGROUND   = JBColor(0xfdeff0, 0x362b2a)
+  val SUCCESS_FOREGROUND = JBColor(0x388e3c, 0x66bb6a)
+  val SUCCESS_BACKGROUND = JBColor(0xe8f5e9, 0x1b5e20)
 
   val LABEL_GRAY_COLOR: JBColor = JBColor.namedColor("Label.infoForeground", new JBColor(Gray._120, Gray._135))
 

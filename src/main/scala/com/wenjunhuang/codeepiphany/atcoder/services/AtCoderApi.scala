@@ -164,14 +164,25 @@ object AtCoderApi {
                   )
               )
               .map { html =>
-                val submissionId = Jsoup
+                val doc = Jsoup
                   .parse(html)
-                  .select("td.submission-score[data-id]")
+                val maybeError = doc
+                  .select("div[role='alert']")
                   .asScala
                   .headOption
-                  .map(_.attr("data-id"))
-                  .getOrElse(throw ApiError.NotFound(CodeDojo.AtCoder, "Submission ID not found"))
-                (csrfToken, AtCoderSubmissionResponse(submissionId, contestId, 0, SubmissionResult.Processing, ""))
+                  .map(elem => StringUtil.trim(elem.ownText()))
+                maybeError match
+                  case Some(error) =>
+                    throw ApiError.BadRequest(CodeDojo.AtCoder, error)
+                  case None =>
+                    val submissionId =
+                      doc
+                        .select("td.submission-score[data-id]")
+                        .asScala
+                        .headOption
+                        .map(_.attr("data-id"))
+                        .getOrElse(throw ApiError.NotFound(CodeDojo.AtCoder, "Submission ID not found"))
+                    (csrfToken, AtCoderSubmissionResponse(submissionId, contestId, 0, SubmissionResult.Processing, ""))
               }
           }
         }

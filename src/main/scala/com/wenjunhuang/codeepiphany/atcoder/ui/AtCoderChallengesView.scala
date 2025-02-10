@@ -8,7 +8,7 @@ import org.typelevel.log4cats.LoggerFactory
 
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.actionSystem.{ ActionGroup, ActionManager, DataSink, UiDataProvider }
-import com.intellij.openapi.project.Project
+import com.intellij.openapi.project.{ DumbAware, Project }
 import com.intellij.ui.CardLayoutPanel
 
 import com.wenjunhuang.codeepiphany.actions.LoginAction.{ LOGIN_LOGOUT_KEY, LoginLogoutProvider }
@@ -36,6 +36,7 @@ import com.wenjunhuang.codeepiphany.atcoder.services.problemsets.fetchAndUpdateP
 class AtCoderChallengesView(private val myProject: Project)
     extends CardLayoutPanel[AtCoderUI, AtCoderUI, JComponent]
     with UiDataProvider
+    with DumbAware
     with Disposable {
 
   private implicit val httpClientManager: HttpClientManager[IO] =
