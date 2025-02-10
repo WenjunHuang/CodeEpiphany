@@ -1,4 +1,4 @@
-package atcoder;
+package codeforces;
 
 ${beginRegion}
 // add your imports here
@@ -8,11 +8,11 @@ ${endRegion}
 public class $!velocity.camelCaseName($challenge.name) {
 
 ${beginRegion}
-    class Main {
+   class Main {
         public static void main(String[] args) {
-        // add your code here
+            // add your code here
         }
-    }
+   }
 ${endRegion}
 
     public static void main(String[] args) {

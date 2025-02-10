@@ -1,0 +1,10 @@
+${beginRegion}
+\#include <bits/stdc++.h>
+using namespace std;
+
+int main() {
+    // add your test code
+    return 0;
+}
+
+${endRegion}
