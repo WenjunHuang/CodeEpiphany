@@ -11,6 +11,7 @@ import com.intellij.ui.components.JBLabel;
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.uiDesigner.core.Spacer;
+import com.intellij.util.ui.UIUtil;
 import com.wenjunhuang.codeepiphany.PluginBundle;
 import org.jetbrains.annotations.NotNull;
 
@@ -24,6 +25,7 @@ import java.util.ResourceBundle;
 public class CodeEpiphanySettingsPanel extends SettingsUi<CodeEpiphanySettings.CodeEpiphanySettingsState> {
     private TextFieldWithBrowseButton myDatabaseFolder;
     private JPanel myRootPanel;
+    private JBLabel myNote;
 
     public CodeEpiphanySettingsPanel(Project myProject) {
         super(myProject);
@@ -79,6 +81,9 @@ public class CodeEpiphanySettingsPanel extends SettingsUi<CodeEpiphanySettings.C
     }
 
     private void createUIComponents() {
+        myNote = new JBLabel();
+        myNote.setCopyable(true);
+        myNote.setAllowAutoWrapping(true);
     }
 
     /**
@@ -89,15 +94,18 @@ public class CodeEpiphanySettingsPanel extends SettingsUi<CodeEpiphanySettings.C
      * @noinspection ALL
      */
     private void $$$setupUI$$$() {
+        createUIComponents();
         myRootPanel = new JPanel();
-        myRootPanel.setLayout(new GridLayoutManager(2, 2, new Insets(0, 0, 0, 0), -1, -1));
+        myRootPanel.setLayout(new GridLayoutManager(3, 2, new Insets(0, 0, 0, 0), -1, -1));
         final JBLabel jBLabel1 = new JBLabel();
         this.$$$loadLabelText$$$(jBLabel1, this.$$$getMessageFromBundle$$$("messages/PluginBundle", "settings.databaseFolder.label"));
         myRootPanel.add(jBLabel1, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         final Spacer spacer1 = new Spacer();
-        myRootPanel.add(spacer1, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_VERTICAL, 1, GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
+        myRootPanel.add(spacer1, new GridConstraints(2, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_VERTICAL, 1, GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
         myDatabaseFolder = new TextFieldWithBrowseButton();
         myRootPanel.add(myDatabaseFolder, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
+        this.$$$loadLabelText$$$(myNote, this.$$$getMessageFromBundle$$$("messages/PluginBundle", "settings.databaseFolder.description"));
+        myRootPanel.add(myNote, new GridConstraints(1, 0, 1, 2, GridConstraints.ANCHOR_NORTH, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
     }
 
     private static Method $$$cachedGetBundleMethod$$$ = null;

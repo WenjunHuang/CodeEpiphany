@@ -78,6 +78,9 @@ object CodeDojoToolWindowFactory {
     val contentManager = toolWindow.getContentManager
     val contentFactory = contentManager.getFactory
 
+    Option(contentManager.findContent(PluginBundle.message("ui.setupView.title")))
+      .foreach(contentManager.removeContent(_, true))
+
     updateCodeDojoContent(
       project,
       contentManager,

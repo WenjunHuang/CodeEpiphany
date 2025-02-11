@@ -1,3 +1,7 @@
+## 0.7.1
+### Added
+- Implement [#5](https://github.com/WenjunHuang/CodeEpiphany/issues/5)
+ 
 ## 0.7.0
 
 ### Added
