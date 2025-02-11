@@ -4,9 +4,10 @@ import scala.annotation.static
 
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
-import com.intellij.openapi.wm.{ToolWindow, ToolWindowManager}
+import com.intellij.openapi.wm.{ ToolWindow, ToolWindowManager }
 import com.intellij.openapi.wm.impl.content.ToolWindowContentUi
 
+import com.wenjunhuang.codeepiphany.toolwindows.dojo.CodeDojoToolWindowFactory.TOOL_WINDOW_ID
 import com.wenjunhuang.codeepiphany.toolwindows.sidebar.description.ChallengeDescriptionPresenter
 import com.wenjunhuang.codeepiphany.toolwindows.sidebar.solution.SolutionListPresenter
 import com.wenjunhuang.codeepiphany.toolwindows.sidebar.submissionlog.SubmissionPresenter
@@ -29,13 +30,12 @@ class SidebarWindowFactory extends ToolWindowFactoryBridge {
     Disposer.register(project, descriptionPresenter)
     Disposer.register(project, submissionPresenter)
     Disposer.register(project, solutionPresenter)
-   
+
     toolWindow.getComponent.putClientProperty(ToolWindowContentUi.HIDE_ID_LABEL, "true")
   }
 }
 
 object SidebarWindowFactory {
-  @static
   final val TOOL_WINDOW_ID = "CodeEpiphany Sidebar"
 
   final val CONSOLE     = LogConsoleView.DISPLAY_NAME
@@ -43,15 +43,19 @@ object SidebarWindowFactory {
   final val SUBMISSIONS = "Submissions"
   final val SOLUTIONS   = "Solutions"
 
+  def getToolWindow(project: Project): ToolWindow = {
+    ToolWindowManager.getInstance(project).getToolWindow(SidebarWindowFactory.TOOL_WINDOW_ID) match
+      case null => throw IllegalStateException(s"Could not find tool window for id ${TOOL_WINDOW_ID}")
+      case tw   => tw
+  }
+
   def activate(project: Project, displayName: String): Unit = {
-    Option(ToolWindowManager.getInstance(project).getToolWindow(SidebarWindowFactory.TOOL_WINDOW_ID)) match
-      case Some(twm) =>
-        if !twm.isAvailable then twm.setAvailable(true)
-        if !twm.isActive then twm.activate(null)
-        twm.getContentManager.findContent(displayName) match
-          case null =>
-          case content =>
-            twm.getContentManager.setSelectedContent(content)
-      case None =>
+    val twm = getToolWindow(project)
+    if !twm.isAvailable then twm.setAvailable(true)
+    if !twm.isActive then twm.activate(null)
+    twm.getContentManager.findContent(displayName) match
+      case null =>
+      case content =>
+        twm.getContentManager.setSelectedContent(content)
   }
 }

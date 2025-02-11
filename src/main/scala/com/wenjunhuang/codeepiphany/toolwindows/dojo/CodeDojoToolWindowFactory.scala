@@ -3,19 +3,20 @@ package com.wenjunhuang.codeepiphany.toolwindows.dojo
 import cats.syntax.all.*
 import scala.jdk.CollectionConverters.*
 
-import com.intellij.openapi.actionSystem.{ActionManager, AnAction}
-import com.intellij.openapi.project.{DumbAware, Project}
-import com.intellij.openapi.wm.{ToolWindow, ToolWindowContentUiType}
+import com.intellij.openapi.actionSystem.{ ActionManager, AnAction }
+import com.intellij.openapi.project.{ DumbAware, Project }
+import com.intellij.openapi.wm.{ ToolWindow, ToolWindowContentUiType, ToolWindowManager }
 import com.intellij.openapi.wm.impl.content.ToolWindowContentUi
-import com.intellij.ui.content.{ContentManagerEvent, ContentManagerListener}
+import com.intellij.ui.content.{ ContentManagerEvent, ContentManagerListener }
 
 import com.wenjunhuang.codeepiphany.atcoder.ui.AtCoderChallengesView
 import com.wenjunhuang.codeepiphany.codeforces.ui.CodeForcesChallengesView
 import com.wenjunhuang.codeepiphany.hackerrank.ui.HackerRankChallengesView
 import com.wenjunhuang.codeepiphany.leetcode.ui.LeetCodeChallengesView
-import com.wenjunhuang.codeepiphany.model.{Actions, CodeDojo}
+import com.wenjunhuang.codeepiphany.model.{ Actions, CodeDojo }
 import com.wenjunhuang.codeepiphany.model.Actions.TITLE_TOOLBAR_GROUP
 import com.wenjunhuang.codeepiphany.utils.ToolWindowFactoryBridge
+import com.wenjunhuang.codeepiphany.PluginBundle
 
 class CodeDojoToolWindowFactory extends ToolWindowFactoryBridge with DumbAware {
   override def createToolWindowContent(project: Project, toolWindow: ToolWindow): Unit = {
@@ -36,6 +37,14 @@ class CodeDojoToolWindowFactory extends ToolWindowFactoryBridge with DumbAware {
             toolWindow.setTitleActions(createTitleActions().asJava)
       }
     })
+
+    val setupRequiredPromptView = SetupRequiredPromptView(project)
+    val setupContent = contentFactory.createContent(
+      setupRequiredPromptView.getComponent,
+      PluginBundle.message("ui.setupView.title"),
+      false
+    )
+    contentManager.addContent(setupContent)
 
     val atCoderView    = AtCoderChallengesView(project)
     val atCoderContent = contentFactory.createContent(atCoderView, CodeDojo.AtCoder.show, false)
@@ -65,4 +74,14 @@ class CodeDojoToolWindowFactory extends ToolWindowFactoryBridge with DumbAware {
   }
 
   private def createTitleActions(): List[AnAction] = List(ActionManager.getInstance().getAction(TITLE_TOOLBAR_GROUP))
+}
+
+object CodeDojoToolWindowFactory {
+  final val TOOL_WINDOW_ID = "CodeEpiphany CodeDojos"
+
+  def getToolWindow(project: Project): ToolWindow = {
+    ToolWindowManager.getInstance(project).getToolWindow(CodeDojoToolWindowFactory.TOOL_WINDOW_ID) match
+      case null => throw IllegalStateException(s"Could not find tool window for id ${TOOL_WINDOW_ID}")
+      case tw   => tw
+  }
 }
