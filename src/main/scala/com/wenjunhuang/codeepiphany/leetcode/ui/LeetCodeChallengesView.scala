@@ -6,18 +6,22 @@ import javax.swing.JComponent
 import org.typelevel.log4cats.LoggerFactory
 
 import com.intellij.openapi.Disposable
-import com.intellij.openapi.actionSystem.{ActionGroup, ActionManager, DataSink, UiDataProvider}
+import com.intellij.openapi.actionSystem.{ ActionGroup, ActionManager, DataSink, UiDataProvider }
 import com.intellij.openapi.project.Project
 import com.intellij.ui.CardLayoutPanel
 
-import com.wenjunhuang.codeepiphany.actions.LoginAction.{LOGIN_LOGOUT_KEY, LoginLogoutProvider}
-import com.wenjunhuang.codeepiphany.leetcode.actions.LeetCodeChangeUIAction.{LEETCODE_CHANGE_UI_PROVIDER_KEY, LeetCodeChangeUIProvider, LeetCodeUI}
+import com.wenjunhuang.codeepiphany.actions.LoginAction.{ LOGIN_LOGOUT_KEY, LoginLogoutProvider }
+import com.wenjunhuang.codeepiphany.leetcode.actions.LeetCodeChangeUIAction.{
+  LEETCODE_CHANGE_UI_PROVIDER_KEY,
+  LeetCodeChangeUIProvider,
+  LeetCodeUI
+}
 import com.wenjunhuang.codeepiphany.leetcode.actions.LeetCodeChangeUIAction.LeetCodeUI.*
 import com.wenjunhuang.codeepiphany.leetcode.services.LeetCodeApi
 import com.wenjunhuang.codeepiphany.model.Actions.LEETCODE_TITLE_TOOLBAR_GROUP
 import com.wenjunhuang.codeepiphany.model.CodeDojo
-import com.wenjunhuang.codeepiphany.services.{console, AskForLoginResult, AuthService}
-import com.wenjunhuang.codeepiphany.services.http.{HttpClientManager, HttpClientService}
+import com.wenjunhuang.codeepiphany.services.{ console, AskForLoginResult, AuthService, BaseChallengesView }
+import com.wenjunhuang.codeepiphany.services.http.{ HttpClientManager, HttpClientService }
 import com.wenjunhuang.codeepiphany.utils.extensions.*
 import com.wenjunhuang.codeepiphany.utils.implicits.*
 import com.wenjunhuang.codeepiphany.utils.ui.UnauthenticatedView
@@ -25,9 +29,7 @@ import com.wenjunhuang.codeepiphany.utils.ui.UnauthenticatedView
 class LeetCodeChallengesView(
   private val myProject: Project,
   private val myCodeDojo: CodeDojo.LeetCode.type | CodeDojo.LeetCodeCN.type
-) extends CardLayoutPanel[LeetCodeUI, LeetCodeUI, JComponent]
-    with UiDataProvider
-    with Disposable {
+) extends BaseChallengesView[LeetCodeUI] {
 
   private implicit val httpClientManager: HttpClientManager[IO] =
     HttpClientService.getInstance(myProject).httpClientManager
@@ -101,7 +103,7 @@ class LeetCodeChallengesView(
     override def getCurrentUI: LeetCodeUI = myCurrentUI
   }
 
-  def getActions: ActionGroup = {
+  override def getTitleActionGroup: ActionGroup = {
     val actionManager = ActionManager.getInstance()
     val actionGroup   = actionManager.getAction(LEETCODE_TITLE_TOOLBAR_GROUP).asInstanceOf[ActionGroup]
     actionGroup

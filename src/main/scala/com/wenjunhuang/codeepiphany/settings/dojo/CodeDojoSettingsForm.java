@@ -20,6 +20,7 @@ import com.wenjunhuang.codeepiphany.PluginBundle;
 import com.wenjunhuang.codeepiphany.model.CodeDojo;
 import com.wenjunhuang.codeepiphany.model.Language;
 import com.wenjunhuang.codeepiphany.model.LanguageVersion;
+import com.wenjunhuang.codeepiphany.settings.CodeEpiphanySettings;
 import com.wenjunhuang.codeepiphany.settings.SettingsUi;
 import com.wenjunhuang.codeepiphany.utils.JavaUtils;
 import org.apache.commons.collections.CollectionUtils;
@@ -203,6 +204,7 @@ public class CodeDojoSettingsForm extends SettingsUi<BaseCodeDojoSettings.CodeDo
         }
 
         settings.languageSettings_$eq(states);
+        myProject().getMessageBus().syncPublisher(CodeEpiphanySettings.TOPIC()).changed();
     }
 
     @Override

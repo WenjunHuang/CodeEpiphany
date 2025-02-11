@@ -35,6 +35,10 @@ class JCefDescriptionView(
 ) extends Disposable {
   private implicit val logger: Logger[SyncIO] = LoggerFactory[SyncIO].getLogger
 
+  private val myBusConnection = ApplicationManager.getApplication.getMessageBus.connect(this)
+  myBusConnection.subscribe(EditorColorsManager.TOPIC, _ => reloadStyles())
+  myBusConnection.subscribe(LafManagerListener.TOPIC, _ => reloadStyles())
+  
   @volatile
   private var myDescription: Option[(String, CodeDojo)] = None
 
@@ -158,9 +162,7 @@ class JCefDescriptionView(
 
   myBrowser.getJBCefClient.addLoadHandler(myLoadHandler, myBrowser.getCefBrowser)
 
-  private val busConnection = ApplicationManager.getApplication.getMessageBus.connect(this)
-  busConnection.subscribe(EditorColorsManager.TOPIC, _ => reloadStyles())
-  busConnection.subscribe(LafManagerListener.TOPIC, _ => reloadStyles())
+
 
   def reload(): Unit =
     myBrowser.loadURL(VIEWER_URL + s"?${System.currentTimeMillis()}")

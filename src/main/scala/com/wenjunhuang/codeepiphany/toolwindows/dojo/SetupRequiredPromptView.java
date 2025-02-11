@@ -42,7 +42,7 @@ public class SetupRequiredPromptView {
         StyleConstants.setFontSize(center, JBUI.Fonts.label().biggerOn(1.5f).getSize());
         doc.setParagraphAttributes(0, doc.getLength(), center, false);
 
-        myPluginIcon.setIcon(CodeEpiphanyIcons.PLUGIN());
+        myPluginIcon.setIcon(CodeEpiphanyIcons.PLUGIN);
     }
 
     public JComponent getComponent() {

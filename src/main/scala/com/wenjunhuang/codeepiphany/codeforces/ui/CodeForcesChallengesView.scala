@@ -7,30 +7,34 @@ import javax.swing.JComponent
 import org.typelevel.log4cats.LoggerFactory
 
 import com.intellij.openapi.Disposable
-import com.intellij.openapi.actionSystem.{ActionGroup, ActionManager, DataSink, UiDataProvider}
-import com.intellij.openapi.project.{DumbAware, Project}
+import com.intellij.openapi.actionSystem.{ ActionGroup, ActionManager, DataSink, UiDataProvider }
+import com.intellij.openapi.project.{ DumbAware, Project }
+import com.intellij.openapi.util.Disposer
 import com.intellij.ui.CardLayoutPanel
 
-import com.wenjunhuang.codeepiphany.actions.LoginAction.{LOGIN_LOGOUT_KEY, LoginLogoutProvider}
-import com.wenjunhuang.codeepiphany.codeforces.actions.CodeForcesChangeUIAction.{CODEFORCES_CHANGE_UI_PROVIDER_KEY, CodeForcesChangeUIProvider, CodeForcesUI}
-import com.wenjunhuang.codeepiphany.codeforces.actions.CodeForcesUpdateProblemSetsAction.{CODEFORCES_UPDATE_PROBLEM_SETS_PROVIDER_KEY, CodeForcesUpdateProblemSetsProvider}
+import com.wenjunhuang.codeepiphany.actions.LoginAction.{ LOGIN_LOGOUT_KEY, LoginLogoutProvider }
+import com.wenjunhuang.codeepiphany.codeforces.actions.CodeForcesChangeUIAction.{
+  CODEFORCES_CHANGE_UI_PROVIDER_KEY,
+  CodeForcesChangeUIProvider,
+  CodeForcesUI
+}
+import com.wenjunhuang.codeepiphany.codeforces.actions.CodeForcesUpdateProblemSetsAction.{
+  CODEFORCES_UPDATE_PROBLEM_SETS_PROVIDER_KEY,
+  CodeForcesUpdateProblemSetsProvider
+}
 import com.wenjunhuang.codeepiphany.codeforces.services.problemsets.fetchAndUpdateProblemSets
 import com.wenjunhuang.codeepiphany.model.Actions.CODEFORCES_TITLE_TOOLBAR_GROUP
 import com.wenjunhuang.codeepiphany.model.CodeDojo
 import com.wenjunhuang.codeepiphany.model.CodeDojo.CodeForces
-import com.wenjunhuang.codeepiphany.services.{console, AskForLoginResult, AuthService}
-import com.wenjunhuang.codeepiphany.services.http.{HttpClientManager, HttpClientService}
+import com.wenjunhuang.codeepiphany.services.{ console, AskForLoginResult, AuthService, BaseChallengesView }
+import com.wenjunhuang.codeepiphany.services.http.{ HttpClientManager, HttpClientService }
 import com.wenjunhuang.codeepiphany.utils.extensions.*
 import com.wenjunhuang.codeepiphany.utils.implicits.*
 import com.wenjunhuang.codeepiphany.utils.ui.UnauthenticatedView
 import com.wenjunhuang.codeepiphany.PluginBundle
 import com.wenjunhuang.codeepiphany.codeforces.services.CodeForcesApi
 
-class CodeForcesChallengesView(private val myProject: Project)
-    extends CardLayoutPanel[CodeForcesUI, CodeForcesUI, JComponent]
-    with UiDataProvider
-    with DumbAware
-    with Disposable {
+class CodeForcesChallengesView(private val myProject: Project) extends BaseChallengesView[CodeForcesUI] {
 
   private implicit val httpClientManager: HttpClientManager[IO] =
     HttpClientService.getInstance(myProject).httpClientManager
@@ -54,6 +58,7 @@ class CodeForcesChallengesView(private val myProject: Project)
       CodeForcesBootstrapParameters("*special" +: tags)
     }
   }
+
   private val myLoginLogoutProvider = new LoginLogoutProvider {
     override def login(): Unit = {
       myIsLoggingIn = true
@@ -114,13 +119,11 @@ class CodeForcesChallengesView(private val myProject: Project)
     override def isUpdatingProblemSets: Boolean = myUpdating.get()
   }
 
-  def getActions: ActionGroup = {
+  override def getTitleActionGroup: ActionGroup = {
     val actionManager = ActionManager.getInstance()
     val actionGroup   = actionManager.getAction(CODEFORCES_TITLE_TOOLBAR_GROUP).asInstanceOf[ActionGroup]
     actionGroup
   }
-
-  override def prepare(key: CodeForcesUI): CodeForcesUI = key
 
   override def create(ui: CodeForcesUI): JComponent = ui match {
     case CodeForcesUI.Unauthenticated => myUnauthenticatedView
@@ -133,4 +136,9 @@ class CodeForcesChallengesView(private val myProject: Project)
     dataSink.set(LOGIN_LOGOUT_KEY, myLoginLogoutProvider)
     dataSink.set(CODEFORCES_CHANGE_UI_PROVIDER_KEY, mySwitchUIProvider)
     dataSink.set(CODEFORCES_UPDATE_PROBLEM_SETS_PROVIDER_KEY, myUpdateProblemsProvider)
+
+  override def dispose(): Unit = {
+    myKeywordSearchPresenter.foreach(Disposer.dispose)
+    myQueryParamPresenter.foreach(Disposer.dispose)
+  }
 }

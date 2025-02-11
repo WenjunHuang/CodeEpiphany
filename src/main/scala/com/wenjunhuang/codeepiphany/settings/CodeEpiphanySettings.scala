@@ -26,6 +26,16 @@ final class CodeEpiphanySettings(private val myProject: Project)
 }
 
 object CodeEpiphanySettings {
+  val TOPIC =
+    new Topic[CodeEpiphanySettingsChangedListener](
+      classOf[CodeEpiphanySettingsChangedListener],
+      Topic.BroadcastDirection.TO_CHILDREN
+    )
+
+  trait CodeEpiphanySettingsChangedListener {
+    def changed(): Unit
+  }
+
   def getInstance(project: Project): CodeEpiphanySettings = project.getService(classOf[CodeEpiphanySettings])
 
   class CodeEpiphanySettingsState {

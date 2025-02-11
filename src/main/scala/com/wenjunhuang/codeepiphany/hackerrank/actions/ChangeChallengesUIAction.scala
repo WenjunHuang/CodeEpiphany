@@ -6,7 +6,7 @@ import com.intellij.openapi.actionSystem.*
 import com.intellij.openapi.project.DumbAwareAction
 
 import com.wenjunhuang.codeepiphany.hackerrank.actions.ChangeChallengesUIAction.*
-import com.wenjunhuang.codeepiphany.hackerrank.actions.ChangeChallengesUIAction.ChallengesUI.*
+import com.wenjunhuang.codeepiphany.hackerrank.actions.ChangeChallengesUIAction.HackerRankUI.*
 import com.wenjunhuang.codeepiphany.model.CodeDojo.HackerRank
 import com.wenjunhuang.codeepiphany.utils.actions.{ DataKeyNotNull, UserLoggedIn }
 
@@ -22,7 +22,7 @@ class ChangeChallengesUIAction
       case _               => ()
   }
 
-  private def updateIconAndName(ui: ChallengesUI, present: Presentation): Unit =
+  private def updateIconAndName(ui: HackerRankUI, present: Presentation): Unit =
     ui match
       case Unauthenticated => ()
       case QueryParameters =>
@@ -48,15 +48,15 @@ object ChangeChallengesUIAction {
   val CHANGE_CHALLENGES_UI_PROVIDER_KEY: DataKey[ChangeChallengesUIProvider] =
     DataKey.create[ChangeChallengesUIProvider]("CHANGE_CHALLENGES_UI_PROVIDER_KEY")
 
-  enum ChallengesUI {
+  enum HackerRankUI {
     case Unauthenticated
     case QueryParameters
     case SearchByKeyword
   }
 
   trait ChangeChallengesUIProvider {
-    def switchTo(ui: ChallengesUI): Unit
+    def switchTo(ui: HackerRankUI): Unit
 
-    def getCurrentUI: ChallengesUI
+    def getCurrentUI: HackerRankUI
   }
 }

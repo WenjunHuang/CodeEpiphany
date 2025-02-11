@@ -9,13 +9,14 @@ import org.typelevel.log4cats.LoggerFactory
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.actionSystem.{ ActionGroup, ActionManager, DataSink, UiDataProvider }
 import com.intellij.openapi.project.{ DumbAware, Project }
+import com.intellij.openapi.util.Disposer
 import com.intellij.ui.CardLayoutPanel
 
 import com.wenjunhuang.codeepiphany.actions.LoginAction.{ LOGIN_LOGOUT_KEY, LoginLogoutProvider }
 import com.wenjunhuang.codeepiphany.model.Actions.ATCODER_TITLE_TOOLBAR_GROUP
 import com.wenjunhuang.codeepiphany.model.CodeDojo
 import com.wenjunhuang.codeepiphany.model.CodeDojo.AtCoder
-import com.wenjunhuang.codeepiphany.services.{ console, AskForLoginResult, AuthService }
+import com.wenjunhuang.codeepiphany.services.{ console, AskForLoginResult, AuthService, BaseChallengesView }
 import com.wenjunhuang.codeepiphany.services.http.{ HttpClientManager, HttpClientService }
 import com.wenjunhuang.codeepiphany.utils.extensions.*
 import com.wenjunhuang.codeepiphany.utils.implicits.*
@@ -33,11 +34,7 @@ import com.wenjunhuang.codeepiphany.atcoder.actions.AtCoderUpdateProblemSetsActi
 import com.wenjunhuang.codeepiphany.atcoder.services.AtCoderApi
 import com.wenjunhuang.codeepiphany.atcoder.services.problemsets.fetchAndUpdateProblemSets
 
-class AtCoderChallengesView(private val myProject: Project)
-    extends CardLayoutPanel[AtCoderUI, AtCoderUI, JComponent]
-    with UiDataProvider
-    with DumbAware
-    with Disposable {
+class AtCoderChallengesView(private val myProject: Project) extends BaseChallengesView[AtCoderUI] {
 
   private implicit val httpClientManager: HttpClientManager[IO] =
     HttpClientService.getInstance(myProject).httpClientManager
@@ -122,13 +119,11 @@ class AtCoderChallengesView(private val myProject: Project)
     override def isUpdatingProblemSets: Boolean = myUpdating.get()
   }
 
-  def getActions: ActionGroup = {
+  override def getTitleActionGroup: ActionGroup = {
     val actionManager = ActionManager.getInstance()
     val actionGroup   = actionManager.getAction(ATCODER_TITLE_TOOLBAR_GROUP).asInstanceOf[ActionGroup]
     actionGroup
   }
-
-  override def prepare(key: AtCoderUI): AtCoderUI = key
 
   override def create(ui: AtCoderUI): JComponent = ui match {
     case AtCoderUI.Unauthenticated => myUnauthenticatedView
@@ -141,4 +136,9 @@ class AtCoderChallengesView(private val myProject: Project)
     dataSink.set(LOGIN_LOGOUT_KEY, myLoginLogoutProvider)
     dataSink.set(ATCODER_CHANGE_UI_PROVIDER_KEY, mySwitchUIProvider)
     dataSink.set(ATCODER_UPDATE_PROBLEM_SETS_PROVIDER_KEY, myUpdateProblemsProvider)
+
+  override def dispose(): Unit = {
+    myKeywordSearchPresenter.foreach(Disposer.dispose)
+    myQueryParamPresenter.foreach(Disposer.dispose)
+  }
 }

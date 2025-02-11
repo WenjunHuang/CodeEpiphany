@@ -9,6 +9,8 @@ import com.intellij.ui.AnimatedIcon
 trait CodeEpiphanyIcons {}
 
 object CodeEpiphanyIcons {
+  @static
+  val PLUGIN: Icon = IconLoader.getIcon("/icons/pluginIcon.svg", CodeEpiphanyIcons.getClass.getClassLoader)
 
   @static
   val DOWNLOAD: Icon = IconLoader.getIcon("/icons/download.svg", CodeEpiphanyIcons.getClass.getClassLoader)
@@ -134,5 +136,4 @@ object CodeEpiphanyIcons {
     final val OCTAVE: Icon =
       IconLoader.getIcon("/icons/languages/octave.svg", CodeEpiphanyIcons.getClass.getClassLoader)
   }
-  val PLUGIN: Icon = IconLoader.getIcon("/icons/pluginIcon.svg", CodeEpiphanyIcons.getClass.getClassLoader)
 }

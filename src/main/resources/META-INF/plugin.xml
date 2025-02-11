@@ -225,23 +225,22 @@
                              displayName="Code Epiphany"
                              id="CodeEpiphany.Settings"
                              instance="com.wenjunhuang.codeepiphany.settings.CodeEpiphanySettingsConfigurable">
-
             <configurable id="CodeEpiphany.Settings.AtCoder"
                           instance="com.wenjunhuang.codeepiphany.atcoder.settings.AtCoderSettingsConfigurable"
                           key="atcoder.settings.displayName"/>
             <configurable id="CodeEpiphany.Settings.CodeForces"
                           instance="com.wenjunhuang.codeepiphany.codeforces.settings.CodeForcesSettingsConfigurable"
                           key="codeforces.settings.displayName"/>
-            <configurable
-                    id="CodeEpiphany.Settings.HackerRank"
-                    instance="com.wenjunhuang.codeepiphany.hackerrank.settings.HackerRankSettingsConfigurable"
-                    key="hackerrank.settings.displayName"/>
             <configurable id="CodeEpiphany.Settings.LeetCodeCN"
                           instance="com.wenjunhuang.codeepiphany.leetcode.settings.LeetCodeCNSettingsConfigurable"
                           key="leetcodecn.settings.displayName"/>
             <configurable id="CodeEpiphany.Settings.LeetCode"
                           instance="com.wenjunhuang.codeepiphany.leetcode.settings.LeetCodeSettingsConfigurable"
                           key="leetcode.settings.displayName"/>
+            <configurable
+                    id="CodeEpiphany.Settings.HackerRank"
+                    instance="com.wenjunhuang.codeepiphany.hackerrank.settings.HackerRankSettingsConfigurable"
+                    key="hackerrank.settings.displayName"/>
         </projectConfigurable>
 
         <lang.foldingBuilder language="JAVA"
