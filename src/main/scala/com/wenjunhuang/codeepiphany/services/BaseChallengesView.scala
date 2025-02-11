@@ -3,11 +3,9 @@ package com.wenjunhuang.codeepiphany.services
 import javax.swing.JComponent
 
 import com.intellij.openapi.Disposable
-import com.intellij.openapi.actionSystem.{ ActionGroup, UiDataProvider }
+import com.intellij.openapi.actionSystem.{ActionGroup, UiDataProvider}
 import com.intellij.openapi.project.DumbAware
 import com.intellij.ui.CardLayoutPanel
-
-import com.wenjunhuang.codeepiphany.atcoder.actions.AtCoderChangeUIAction.AtCoderUI
 
 abstract class BaseChallengesView[UI]
     extends CardLayoutPanel[UI, UI, JComponent]

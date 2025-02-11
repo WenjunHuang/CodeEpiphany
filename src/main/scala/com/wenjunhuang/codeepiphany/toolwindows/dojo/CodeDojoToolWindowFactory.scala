@@ -3,26 +3,24 @@ package com.wenjunhuang.codeepiphany.toolwindows.dojo
 import cats.syntax.all.*
 import scala.jdk.CollectionConverters.*
 
-import com.intellij.openapi.actionSystem.{ ActionManager, AnAction }
-import com.intellij.openapi.project.{ DumbAware, Project }
-import com.intellij.openapi.wm.{ ToolWindow, ToolWindowContentUiType, ToolWindowManager }
+import com.intellij.openapi.actionSystem.{ActionManager, AnAction}
+import com.intellij.openapi.project.{DumbAware, Project}
+import com.intellij.openapi.wm.{ToolWindow, ToolWindowContentUiType, ToolWindowManager}
 import com.intellij.openapi.wm.impl.content.ToolWindowContentUi
-import com.intellij.ui.content.{ Content, ContentManager, ContentManagerEvent, ContentManagerListener }
+import com.intellij.ui.content.{ContentManager, ContentManagerEvent, ContentManagerListener}
 
 import com.wenjunhuang.codeepiphany.atcoder.ui.AtCoderChallengesView
 import com.wenjunhuang.codeepiphany.codeforces.ui.CodeForcesChallengesView
 import com.wenjunhuang.codeepiphany.hackerrank.ui.HackerRankChallengesView
 import com.wenjunhuang.codeepiphany.leetcode.ui.LeetCodeChallengesView
-import com.wenjunhuang.codeepiphany.model.{ Actions, CodeDojo }
+import com.wenjunhuang.codeepiphany.model.{Actions, CodeDojo}
 import com.wenjunhuang.codeepiphany.model.Actions.TITLE_TOOLBAR_GROUP
 import com.wenjunhuang.codeepiphany.utils.ToolWindowFactoryBridge
 import com.wenjunhuang.codeepiphany.PluginBundle
 import com.wenjunhuang.codeepiphany.atcoder.settings.AtCoderSettings
-import scala.collection.mutable
-
 import com.wenjunhuang.codeepiphany.codeforces.settings.CodeForcesSettings
 import com.wenjunhuang.codeepiphany.hackerrank.settings.HackerRankSettings
-import com.wenjunhuang.codeepiphany.leetcode.settings.{ LeetCodeCNSettings, LeetCodeSettings }
+import com.wenjunhuang.codeepiphany.leetcode.settings.{LeetCodeCNSettings, LeetCodeSettings}
 import com.wenjunhuang.codeepiphany.services.BaseChallengesView
 import com.wenjunhuang.codeepiphany.settings.dojo.BaseCodeDojoSettings
 import com.wenjunhuang.codeepiphany.settings.CodeEpiphanySettings

@@ -1,13 +1,10 @@
 package com.wenjunhuang.codeepiphany.toolwindows.sidebar
 
-import scala.annotation.static
-
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
-import com.intellij.openapi.wm.{ ToolWindow, ToolWindowManager }
+import com.intellij.openapi.wm.{ToolWindow, ToolWindowManager}
 import com.intellij.openapi.wm.impl.content.ToolWindowContentUi
 
-import com.wenjunhuang.codeepiphany.toolwindows.dojo.CodeDojoToolWindowFactory.TOOL_WINDOW_ID
 import com.wenjunhuang.codeepiphany.toolwindows.sidebar.description.ChallengeDescriptionPresenter
 import com.wenjunhuang.codeepiphany.toolwindows.sidebar.solution.SolutionListPresenter
 import com.wenjunhuang.codeepiphany.toolwindows.sidebar.submissionlog.SubmissionPresenter

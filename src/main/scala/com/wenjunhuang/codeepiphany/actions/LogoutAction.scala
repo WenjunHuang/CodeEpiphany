@@ -1,6 +1,6 @@
 package com.wenjunhuang.codeepiphany.actions
 
-import com.intellij.openapi.actionSystem.{ ActionUpdateThread, AnAction, AnActionEvent }
+import com.intellij.openapi.actionSystem.{ActionUpdateThread, AnActionEvent}
 import com.intellij.openapi.project.DumbAwareAction
 
 import com.wenjunhuang.codeepiphany.actions.LoginAction.*
