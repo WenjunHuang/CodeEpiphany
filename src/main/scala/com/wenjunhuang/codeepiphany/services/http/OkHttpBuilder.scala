@@ -1,15 +1,25 @@
 package com.wenjunhuang.codeepiphany.services.http
 
-import cats.effect.{Async, Resource}
+import cats.effect.{ Async, Resource }
 import cats.effect.std.Dispatcher
 import cats.syntax.all.*
 import fs2.io.readInputStream
 import java.io.IOException
 import java.net.HttpCookie
 import java.util.concurrent.atomic.AtomicBoolean
-import okhttp3.{Call, Callback, OkHttpClient, Protocol, RequestBody, Headers as OKHeaders, MediaType as OKMediaType, Request as OKRequest, Response as OKResponse}
+import okhttp3.{
+  Call,
+  Callback,
+  Headers as OKHeaders,
+  MediaType as OKMediaType,
+  OkHttpClient,
+  Protocol,
+  Request as OKRequest,
+  RequestBody,
+  Response as OKResponse
+}
 import okio.BufferedSink
-import org.http4s.{Headers, HttpVersion, Method, Request, Response, Status}
+import org.http4s.{ Headers, HttpVersion, Method, Request, Response, Status, Uri }
 import org.http4s.client.Client
 import org.http4s.headers.`Content-Type`
 import org.typelevel.ci.CIString
@@ -51,22 +61,35 @@ sealed abstract class OkHttpBuilder[F[_]] private (val okHttpClient: OkHttpClien
   def resource: Resource[F, Client[F]] =
     Dispatcher.parallel[F].flatMap(dispatcher => Resource.make(F.delay(create(dispatcher)))(client => F.unit))
 
-  private def run(dispatcher: Dispatcher[F])(req: Request[F]) = {
+  private def run(dispatcher: Dispatcher[F])(req: Request[F]): Resource[F, Response[F]] = {
     val addCookiesToRequest = req.uri.host
       .map(host => HttpClientKeeper.getCookiesForHost(CIString(host.value)))
       .getOrElse(List.empty[HttpCookie].pure[F])
       .map { cookies => cookies.foldLeft(req)((req, cookie) => req.addCookie(cookie.getName, cookie.getValue)) }
 
-    Resource.suspend(addCookiesToRequest.flatMap { req =>
-      F.async[Resource[F, Response[F]]] { cb =>
-        F.delay {
-          val cancelledSignal = AtomicBoolean(false)
-          okHttpClient.newCall(toOkHttpRequest(req, dispatcher)).enqueue(handler(cb, dispatcher, cancelledSignal))
+    Resource
+      .suspend(addCookiesToRequest.flatMap { req =>
+        F.async[Resource[F, Response[F]]] { cb =>
+          F.delay {
+            val cancelledSignal = AtomicBoolean(false)
+            okHttpClient.newCall(toOkHttpRequest(req, dispatcher)).enqueue(handler(cb, dispatcher, cancelledSignal))
 
-          Some(F.delay { cancelledSignal.set(true) }) // finalizer to cancel the request
+            Some(F.delay { cancelledSignal.set(true) }) // finalizer to cancel the request
+          }
         }
+      })
+      .flatMap { response =>
+        Resource.eval(updateCookies(req.uri, response))
       }
-    })
+  }
+
+  private def updateCookies(uri: Uri, response: Response[F]): F[Response[F]] = {
+    uri.host
+      .map(host =>
+        HttpClientKeeper
+          .updateCookiesForHost(CIString(host.value), response.cookies.map(c => HttpCookie(c.name, c.content)))
+      )
+      .traverse(identity) *> Async[F].pure(response)
   }
 
   private def handler(

@@ -8,7 +8,9 @@ object submitAnswer {
   // this api use snake_case for member names :}
   given Configuration = Configuration.default.withSnakeCaseMemberNames.withDefaults
 
-  case class LeetCodeSubmitAnswerRequest(lang: String, questionId: String, typedCode: String) derives ConfiguredEncoder
+  case class LeetCodeSubmitAnswerRequest(lang: String,
+                                         questionId: String,
+                                         typedCode: String) derives ConfiguredEncoder
 
   case class LeetCodeSubmitAnswerResponse(submissionId: Int) derives ConfiguredDecoder
 

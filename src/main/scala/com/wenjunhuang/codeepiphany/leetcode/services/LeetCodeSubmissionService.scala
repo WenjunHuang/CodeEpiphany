@@ -14,7 +14,11 @@ import com.intellij.openapi.util.text.StringUtil
 import com.wenjunhuang.codeepiphany.database.Tables.*
 import com.wenjunhuang.codeepiphany.leetcode.models.*
 import com.wenjunhuang.codeepiphany.leetcode.models.submitAnswer.LeetCodeSubmitAnswerResult
-import com.wenjunhuang.codeepiphany.leetcode.models.submitAnswer.LeetCodeSubmitAnswerResult.{ Pending, Started, Success }
+import com.wenjunhuang.codeepiphany.leetcode.models.submitAnswer.LeetCodeSubmitAnswerResult.{
+  Pending,
+  Started,
+  Success
+}
 import com.wenjunhuang.codeepiphany.model.*
 import com.wenjunhuang.codeepiphany.model.newtypes.SubmissionId
 import com.wenjunhuang.codeepiphany.model.SubmissionResult.Processing
@@ -103,8 +107,8 @@ class LeetCodeSubmissionService[F[_]: Async: Concurrent: HttpClientManager: Logg
   private def formatSuccessMetrics(response: LeetCodeSubmitAnswerResult.Success): String = {
     Tabulator.format(
       List("Metric", "Value"),
-      List("Runtime", f"${response.statusRuntime} (Top ${response.runtimePercentile.getOrElse(0.0f)}%.2f%%)"),
-      List("Memory", f"${response.statusMemory} (Top ${response.memoryPercentile.getOrElse(0.0f)}%.2f%%)")
+      List("Runtime", f"${response.statusRuntime} (Beats ${response.runtimePercentile.getOrElse(0.0f)}%.2f%%)"),
+      List("Memory", f"${response.statusMemory} (Beats ${response.memoryPercentile.getOrElse(0.0f)}%.2f%%)")
     )
   }
 

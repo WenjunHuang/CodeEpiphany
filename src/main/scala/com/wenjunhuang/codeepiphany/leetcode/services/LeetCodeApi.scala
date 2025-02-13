@@ -1,27 +1,31 @@
 package com.wenjunhuang.codeepiphany.leetcode.services
 
-import cats.effect.{Async, Concurrent, Resource, Temporal}
+import cats.effect.{ Async, Concurrent, Resource, Temporal }
 import cats.syntax.all.*
 import fs2.Stream
-import io.circe.{Json, JsonObject}
+import io.circe.{ Json, JsonObject }
 import io.circe.optics.JsonPath
 import io.circe.syntax.*
-import org.http4s.{Headers, Method, Uri}
+import org.http4s.{ Headers, Method, Uri }
 import org.http4s.circe.CirceEntityCodec.*
 import org.http4s.client.dsl.Http4sClientDsl
 import org.http4s.client.Client
 import org.http4s.headers.Referer
 import org.typelevel.ci.CIString
 import scala.concurrent.duration.*
-import scala.io.{BufferedSource, Source}
+import scala.io.{ BufferedSource, Source }
 
 import com.intellij.util.LineSeparator
 
 import com.wenjunhuang.codeepiphany.leetcode.models.*
 import com.wenjunhuang.codeepiphany.leetcode.models.runCode.*
-import com.wenjunhuang.codeepiphany.leetcode.models.submitAnswer.{LeetCodeSubmitAnswerRequest, LeetCodeSubmitAnswerResponse, LeetCodeSubmitAnswerResult}
+import com.wenjunhuang.codeepiphany.leetcode.models.submitAnswer.{
+  LeetCodeSubmitAnswerRequest,
+  LeetCodeSubmitAnswerResponse,
+  LeetCodeSubmitAnswerResult
+}
 import com.wenjunhuang.codeepiphany.model.*
-import com.wenjunhuang.codeepiphany.model.CodeDojo.{LeetCode, LeetCodeCN}
+import com.wenjunhuang.codeepiphany.model.CodeDojo.{ LeetCode, LeetCodeCN }
 import com.wenjunhuang.codeepiphany.services.http.HttpClientManager
 
 enum LeetCodeSearchOrderBy(val value: String) {
@@ -76,10 +80,19 @@ trait LeetCodeApi[F[_]] {
     languageVersion: LanguageVersion,
     code: String
   ): Stream[F, LeetCodeSubmitAnswerResult]
+
+  def submitContestAnswer(
+    id: String,
+    slug: String,
+    contestSlug: String,
+    language: Language,
+    languageVersion: LanguageVersion,
+    code: String
+  ): Stream[F, LeetCodeSubmitAnswerResult]
 }
 
 object LeetCodeApi {
-  type LeetCodeDojo = CodeDojo.LeetCode.type | CodeDojo.LeetCodeCN.type
+
   def apply[F[_]: Async: Concurrent: HttpClientManager](dojo: LeetCodeDojo): LeetCodeApi[F] = new LeetCodeApi[F]
     with Http4sClientDsl[F] {
 
@@ -108,30 +121,50 @@ object LeetCodeApi {
         }
       }
 
+    override def submitContestAnswer(
+      id: String,
+      slug: String,
+      contestSlug: String,
+      language: Language,
+      languageVersion: LanguageVersion,
+      code: String
+    ): Stream[F, LeetCodeSubmitAnswerResult] = {
+      submitAnswer(
+        Uri.unsafeFromString(s"https://${dojo.domain.toString}/contest/api/${contestSlug}/problems/$slug/submit/"),
+        LeetCodeSubmitAnswerRequest(
+          lang = dojo.leetCodeLanguage(language, languageVersion),
+          questionId = id,
+          typedCode = code
+        )
+      )
+    }
+
     override def submitAnswer(
       id: String,
       slug: String,
       language: Language,
       languageVersion: LanguageVersion,
       code: String
-    ): Stream[F, LeetCodeSubmitAnswerResult] =
+    ): Stream[F, LeetCodeSubmitAnswerResult] = {
+      submitAnswer(
+        Uri.unsafeFromString(s"https://${dojo.domain.toString}/problems/$slug/submit/"),
+        LeetCodeSubmitAnswerRequest(
+          lang = dojo.leetCodeLanguage(language, languageVersion),
+          questionId = id,
+          typedCode = code
+        )
+      )
+    }
+
+    private def submitAnswer(uri: Uri, request: LeetCodeSubmitAnswerRequest): Stream[F, LeetCodeSubmitAnswerResult] =
       Stream
         .eval(useClient { client =>
           getCSRFToken.flatMap { csrfToken =>
             client
               .expect[LeetCodeSubmitAnswerResponse](
                 Method
-                  .POST(
-                    Uri.unsafeFromString(s"https://${dojo.domain.toString}/problems/$slug/submit/"),
-                    headers = commonHeaders(csrfToken)
-                  )
-                  .withEntity(
-                    LeetCodeSubmitAnswerRequest(
-                      lang = dojo.leetCodeLanguage(language, languageVersion),
-                      questionId = id,
-                      typedCode = code
-                    )
-                  )
+                  .POST(uri, headers = commonHeaders(csrfToken))
+                  .withEntity(request)
               )
           }
         })
@@ -488,10 +521,18 @@ object LeetCodeApi {
     }
 
     private def getCSRFToken: F[String] =
-      HttpClientManager[F].findCookieForHost(CIString(dojo.domain.toString), CIString("csrftoken")).map {
-        case Some(cookie) => cookie.getValue
-        case None         => ""
+      useClient { client =>
+        client.get[String](Uri.unsafeFromString(s"https://${dojo.domain.toString}/api/home/")) { response =>
+          response.cookies.find(_.name == "csrftoken") match
+            case Some(cookie) => Async[F].delay(cookie.content)
+            case None =>
+              Async[F].delay("")
+        }
       }
+//      HttpClientManager[F].findCookieForHost(CIString(dojo.domain.toString), CIString("csrftoken")).map {
+//        case Some(cookie) => cookie.getValue
+//        case None         => ""
+//      }
 
     def openGraphQLFile(dojo: CodeDojo, fileName: String): F[String] = Resource
       .fromAutoCloseable[F, BufferedSource](
