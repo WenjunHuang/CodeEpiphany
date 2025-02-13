@@ -6,7 +6,9 @@ import com.intellij.openapi.fileEditor.impl.text.PsiAwareTextEditorProvider
 import com.intellij.openapi.project.{DumbAware, Project}
 import com.intellij.openapi.vfs.VirtualFile
 
-class SubmissionCodeEditorProvider extends AsyncFileEditorProvider with DumbAware {
+import com.wenjunhuang.codeepiphany.utils.walkaround.AsyncFileEditorProviderBridge
+
+class SubmissionCodeEditorProvider extends AsyncFileEditorProviderBridge with DumbAware {
   private val delegate = PsiAwareTextEditorProvider()
 
   override def accept(project: Project, file: VirtualFile): Boolean = file.isInstanceOf[SubmissionCodeFile]

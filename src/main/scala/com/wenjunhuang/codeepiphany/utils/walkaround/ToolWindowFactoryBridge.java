@@ -1,4 +1,4 @@
-package com.wenjunhuang.codeepiphany.utils;
+package com.wenjunhuang.codeepiphany.utils.walkaround;
 
 import com.intellij.openapi.wm.ToolWindowFactory;
 

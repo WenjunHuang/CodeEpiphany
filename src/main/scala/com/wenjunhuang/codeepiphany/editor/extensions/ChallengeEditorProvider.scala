@@ -6,16 +6,17 @@ import com.intellij.openapi.editor.ex.EditorEx
 import com.intellij.openapi.fileEditor.*
 import com.intellij.openapi.fileEditor.AsyncFileEditorProvider.Builder
 import com.intellij.openapi.fileEditor.impl.text.PsiAwareTextEditorProvider
-import com.intellij.openapi.project.{DumbAware, Project}
+import com.intellij.openapi.project.{ DumbAware, Project }
 import com.intellij.openapi.vfs.VirtualFile
 
-import com.wenjunhuang.codeepiphany.editor.actions.{SolutionSelectionAction, SurroundSubmissionRegionAction}
+import com.wenjunhuang.codeepiphany.editor.actions.{ SolutionSelectionAction, SurroundSubmissionRegionAction }
 import com.wenjunhuang.codeepiphany.editor.actions.SolutionSelectionAction.SOLUTION_PROVIDER_KEY
-import com.wenjunhuang.codeepiphany.editor.actions.SubmitCodeAction.{SUBMITCODE_PROVIDER_KEY, SubmitCodeProvider}
+import com.wenjunhuang.codeepiphany.editor.actions.SubmitCodeAction.{ SUBMITCODE_PROVIDER_KEY, SubmitCodeProvider }
 import com.wenjunhuang.codeepiphany.editor.actions.SurroundSubmissionRegionAction.SURROUND_PROVIDER_KEY
 import com.wenjunhuang.codeepiphany.settings.ChallengeSettings
+import com.wenjunhuang.codeepiphany.utils.walkaround.AsyncFileEditorProviderBridge
 
-class ChallengeEditorProvider extends AsyncFileEditorProvider with DumbAware {
+class ChallengeEditorProvider extends AsyncFileEditorProviderBridge with DumbAware {
   private val delegate = PsiAwareTextEditorProvider()
 
   override def accept(project: Project, file: VirtualFile): Boolean = {
@@ -24,7 +25,7 @@ class ChallengeEditorProvider extends AsyncFileEditorProvider with DumbAware {
       ChallengeSettings.getInstance(project).findChallengeId(file) match
         case None =>
           false
-        case Some(challenge) =>
+        case Some(_) =>
           true
   }
 

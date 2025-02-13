@@ -9,7 +9,7 @@ import com.wenjunhuang.codeepiphany.toolwindows.sidebar.description.ChallengeDes
 import com.wenjunhuang.codeepiphany.toolwindows.sidebar.solution.SolutionListPresenter
 import com.wenjunhuang.codeepiphany.toolwindows.sidebar.submissionlog.SubmissionPresenter
 import com.wenjunhuang.codeepiphany.toolwindows.sidebar.SidebarWindowFactory.*
-import com.wenjunhuang.codeepiphany.utils.ToolWindowFactoryBridge
+import com.wenjunhuang.codeepiphany.utils.walkaround.ToolWindowFactoryBridge
 
 class SidebarWindowFactory extends ToolWindowFactoryBridge {
   override def createToolWindowContent(project: Project, toolWindow: ToolWindow): Unit = {

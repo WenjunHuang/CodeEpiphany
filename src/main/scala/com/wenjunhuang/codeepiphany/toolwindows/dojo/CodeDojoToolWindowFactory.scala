@@ -15,7 +15,6 @@ import com.wenjunhuang.codeepiphany.hackerrank.ui.HackerRankChallengesView
 import com.wenjunhuang.codeepiphany.leetcode.ui.LeetCodeChallengesView
 import com.wenjunhuang.codeepiphany.model.{Actions, CodeDojo}
 import com.wenjunhuang.codeepiphany.model.Actions.TITLE_TOOLBAR_GROUP
-import com.wenjunhuang.codeepiphany.utils.ToolWindowFactoryBridge
 import com.wenjunhuang.codeepiphany.PluginBundle
 import com.wenjunhuang.codeepiphany.atcoder.settings.AtCoderSettings
 import com.wenjunhuang.codeepiphany.codeforces.settings.CodeForcesSettings
@@ -26,6 +25,7 @@ import com.wenjunhuang.codeepiphany.settings.dojo.BaseCodeDojoSettings
 import com.wenjunhuang.codeepiphany.settings.CodeEpiphanySettings
 import com.wenjunhuang.codeepiphany.settings.CodeEpiphanySettings.CodeEpiphanySettingsChangedListener
 import com.wenjunhuang.codeepiphany.toolwindows.dojo.CodeDojoToolWindowFactory.updateContents
+import com.wenjunhuang.codeepiphany.utils.walkaround.ToolWindowFactoryBridge
 
 class CodeDojoToolWindowFactory extends ToolWindowFactoryBridge with DumbAware {
   override def createToolWindowContent(project: Project, toolWindow: ToolWindow): Unit = {
