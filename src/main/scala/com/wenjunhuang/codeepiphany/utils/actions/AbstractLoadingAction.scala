@@ -3,11 +3,11 @@ package com.wenjunhuang.codeepiphany.utils.actions
 import icons.CodeEpiphanyIcons
 import javax.swing.JComponent
 
-import com.intellij.openapi.actionSystem.{ ActionToolbar, AnAction, Presentation }
+import com.intellij.openapi.actionSystem.{ActionToolbar, AnAction, Presentation}
 import com.intellij.openapi.actionSystem.ex.CustomComponentAction
 import com.intellij.openapi.actionSystem.impl.ActionButton
 import com.intellij.openapi.util.Key
-import com.intellij.ui.{ AnimatedIcon, CardLayoutPanel }
+import com.intellij.ui.{AnimatedIcon, CardLayoutPanel}
 import com.intellij.ui.components.JBLabel
 
 import com.wenjunhuang.codeepiphany.utils.actions.AbstractLoadingAction.*

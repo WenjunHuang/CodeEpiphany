@@ -1,9 +1,9 @@
 package com.wenjunhuang.codeepiphany.actions
 
-import com.intellij.openapi.actionSystem.{ ActionUpdateThread, AnAction, AnActionEvent, DataKey }
+import com.intellij.openapi.actionSystem.{AnAction, AnActionEvent, DataKey}
 
 import com.wenjunhuang.codeepiphany.actions.OpenSubmissionCodeAction.*
-import com.wenjunhuang.codeepiphany.utils.actions.{ ActionCompatible, DataKeyNotNull }
+import com.wenjunhuang.codeepiphany.utils.actions.{ActionCompatible, DataKeyNotNull}
 
 class OpenSubmissionCodeAction
     extends AnAction

@@ -1,6 +1,6 @@
 package com.wenjunhuang.codeepiphany.utils.actions
 
-import com.intellij.openapi.actionSystem.{ AnActionEvent, DataContext, DataKey }
+import com.intellij.openapi.actionSystem.{AnActionEvent, DataContext, DataKey}
 
 import com.wenjunhuang.codeepiphany.model.CodeDojo
 import com.wenjunhuang.codeepiphany.services.AuthService

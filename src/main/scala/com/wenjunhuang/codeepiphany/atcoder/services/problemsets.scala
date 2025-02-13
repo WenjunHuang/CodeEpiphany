@@ -1,7 +1,7 @@
 package com.wenjunhuang.codeepiphany.atcoder.services
 
 import cats.effect.implicits.*
-import cats.effect.kernel.{ Async, Concurrent }
+import cats.effect.kernel.{Async, Concurrent}
 import cats.syntax.all.*
 import org.jooq.impl.DSL
 import org.typelevel.log4cats.LoggerFactory
@@ -11,7 +11,7 @@ import com.intellij.openapi.project.Project
 
 import com.wenjunhuang.codeepiphany.atcoder.models.AtCoderDifficulty
 import com.wenjunhuang.codeepiphany.database.Tables.*
-import com.wenjunhuang.codeepiphany.services.{ console, ChallengeRepository }
+import com.wenjunhuang.codeepiphany.services.{console, ChallengeRepository}
 import com.wenjunhuang.codeepiphany.services.console.showConsole
 import com.wenjunhuang.codeepiphany.services.console.MessageSeg.Hyperlink
 import com.wenjunhuang.codeepiphany.services.http.HttpClientManager

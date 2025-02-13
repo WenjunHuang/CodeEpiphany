@@ -1,6 +1,6 @@
 package com.wenjunhuang.codeepiphany.atcoder.actions
 
-import com.intellij.openapi.actionSystem.{ActionUpdateThread, AnActionEvent, DataKey}
+import com.intellij.openapi.actionSystem.{AnActionEvent, DataKey}
 
 import com.wenjunhuang.codeepiphany.atcoder.actions.AtCoderUpdateProblemSetsAction.ATCODER_UPDATE_PROBLEM_SETS_PROVIDER_KEY
 import com.wenjunhuang.codeepiphany.model.CodeDojo.AtCoder

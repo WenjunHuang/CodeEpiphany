@@ -9,7 +9,7 @@ import scala.util.matching.Regex
 import com.intellij.openapi.util.text.StringUtil
 
 import com.wenjunhuang.codeepiphany.model.Language.escapeRegex
-import com.wenjunhuang.codeepiphany.model.LanguageVersion.{ AnyVersion, SpecificVersion }
+import com.wenjunhuang.codeepiphany.model.LanguageVersion.{AnyVersion, SpecificVersion}
 
 enum LanguageVersion {
   case AnyVersion

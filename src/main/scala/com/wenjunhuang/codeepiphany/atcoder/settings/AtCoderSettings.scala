@@ -1,6 +1,6 @@
 package com.wenjunhuang.codeepiphany.atcoder.settings
 
-import com.intellij.openapi.components.{ Service, State, Storage }
+import com.intellij.openapi.components.{Service, State, Storage}
 import com.intellij.openapi.components.Service.Level
 import com.intellij.openapi.project.Project
 

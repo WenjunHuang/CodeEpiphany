@@ -7,7 +7,7 @@ import com.intellij.openapi.project.DumbAwareAction
 
 import com.wenjunhuang.codeepiphany.codeforces.actions.CodeForcesChangeUIAction.*
 import com.wenjunhuang.codeepiphany.codeforces.actions.CodeForcesChangeUIAction.CodeForcesUI.*
-import com.wenjunhuang.codeepiphany.utils.actions.{ ActionCompatible, DataKeyNotNull }
+import com.wenjunhuang.codeepiphany.utils.actions.{ActionCompatible, DataKeyNotNull}
 
 class CodeForcesChangeUIAction
     extends DumbAwareAction

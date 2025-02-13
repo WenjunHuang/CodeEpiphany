@@ -5,12 +5,9 @@ import icons.CodeEpiphanyIcons
 import com.intellij.openapi.actionSystem.*
 import com.intellij.openapi.project.DumbAwareAction
 
-import com.wenjunhuang.codeepiphany.leetcode.actions.LeetCodeChangeUIAction.{
-  LEETCODE_CHANGE_UI_PROVIDER_KEY,
-  LeetCodeUI
-}
+import com.wenjunhuang.codeepiphany.leetcode.actions.LeetCodeChangeUIAction.{LEETCODE_CHANGE_UI_PROVIDER_KEY, LeetCodeUI}
 import com.wenjunhuang.codeepiphany.leetcode.actions.LeetCodeChangeUIAction.LeetCodeUI.*
-import com.wenjunhuang.codeepiphany.utils.actions.{ ActionCompatible, DataKeyNotNull }
+import com.wenjunhuang.codeepiphany.utils.actions.{ActionCompatible, DataKeyNotNull}
 
 class LeetCodeChangeUIAction
     extends DumbAwareAction

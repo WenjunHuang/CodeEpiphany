@@ -1,6 +1,6 @@
 package com.wenjunhuang.codeepiphany.utils.actions
 
-import com.intellij.openapi.actionSystem.{ DataKey, DataProvider }
+import com.intellij.openapi.actionSystem.{DataKey, DataProvider}
 
 /** A bridge between old DataProvider and new UiDataProvider */
 trait UiDataProvider extends DataProvider {

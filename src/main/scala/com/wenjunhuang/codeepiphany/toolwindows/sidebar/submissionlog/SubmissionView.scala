@@ -1,11 +1,11 @@
 package com.wenjunhuang.codeepiphany.toolwindows.sidebar.submissionlog
 
-import javax.swing.{ JComponent, ScrollPaneConstants, SwingConstants }
+import javax.swing.{JComponent, ScrollPaneConstants, SwingConstants}
 import scala.jdk.CollectionConverters.*
 import scala.jdk.OptionConverters.*
 
-import com.intellij.openapi.ui.{ SimpleToolWindowPanel, Splitter }
-import com.intellij.ui.components.{ JBLabel, JBScrollPane }
+import com.intellij.openapi.ui.{SimpleToolWindowPanel, Splitter}
+import com.intellij.ui.components.{JBLabel, JBScrollPane}
 import com.intellij.util.ui.components.BorderLayoutPanel
 
 import com.wenjunhuang.codeepiphany.model.CodeDojo

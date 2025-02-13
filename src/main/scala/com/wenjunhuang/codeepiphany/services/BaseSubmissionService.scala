@@ -9,10 +9,10 @@ import org.jooq.impl.DSL
 import scala.jdk.OptionConverters.*
 
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.vfs.{ VfsUtilCore, VirtualFile }
+import com.intellij.openapi.vfs.{VfsUtilCore, VirtualFile}
 
 import com.wenjunhuang.codeepiphany.database.Tables.*
-import com.wenjunhuang.codeepiphany.model.{ CodeDojo, Language, SubmissionResult }
+import com.wenjunhuang.codeepiphany.model.{CodeDojo, Language, SubmissionResult}
 import com.wenjunhuang.codeepiphany.model.newtypes.SubmissionId
 import com.wenjunhuang.codeepiphany.settings.ChallengeSettings
 import com.wenjunhuang.codeepiphany.settings.ChallengeSettings.ChallengeSettingsStateItem

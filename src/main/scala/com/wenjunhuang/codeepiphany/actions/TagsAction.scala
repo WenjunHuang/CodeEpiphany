@@ -7,7 +7,7 @@ import com.intellij.openapi.Disposable
 import com.intellij.openapi.actionSystem.*
 import com.intellij.openapi.actionSystem.ex.{CheckboxAction, ComboBoxAction}
 import com.intellij.openapi.observable.properties.AtomicProperty
-import com.intellij.openapi.ui.popup.{JBPopup, JBPopupFactory, ListPopup}
+import com.intellij.openapi.ui.popup.{JBPopup, JBPopupFactory}
 import com.intellij.openapi.util.Disposer
 import com.intellij.ui.components.{JBScrollPane, JBTabbedPane}
 import com.intellij.uiDesigner.core.Spacer
@@ -15,7 +15,7 @@ import com.intellij.util.ui.components.BorderLayoutPanel
 import com.intellij.util.ui.JBUI
 
 import com.wenjunhuang.codeepiphany.actions.TagsAction.*
-import com.wenjunhuang.codeepiphany.utils.actions.{ActionCompatible, DataKeyNotNull, MyComboBoxAction, ParameterProvider}
+import com.wenjunhuang.codeepiphany.utils.actions.{ActionCompatible, DataKeyNotNull, ParameterProvider}
 import com.wenjunhuang.codeepiphany.utils.implicits.*
 import com.wenjunhuang.codeepiphany.utils.ui.{CollapsibleTitledSeparator, TagPane, TagPaneAction}
 
@@ -114,7 +114,10 @@ class TagsAction extends ComboBoxAction with DataKeyNotNull(TAG_PROVIDER_KEY) wi
   override def actionPerformed(e: AnActionEvent): Unit = {}
 }
 
-class TagSubAction(private val myTag: Tag) extends CheckboxAction(myTag.name) with DataKeyNotNull(TAG_PROVIDER_KEY) with ActionCompatible {
+class TagSubAction(private val myTag: Tag)
+    extends CheckboxAction(myTag.name)
+    with DataKeyNotNull(TAG_PROVIDER_KEY)
+    with ActionCompatible {
 
   override def isSelected(e: AnActionEvent): Boolean =
     getValue(e).isSelected(myTag)

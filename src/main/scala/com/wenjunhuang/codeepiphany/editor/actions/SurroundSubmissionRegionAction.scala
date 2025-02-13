@@ -2,17 +2,16 @@ package com.wenjunhuang.codeepiphany.editor.actions
 
 import cats.effect.IO
 
-import com.intellij.openapi.actionSystem.{ActionUpdateThread, AnAction, AnActionEvent, PlatformCoreDataKeys}
+import com.intellij.openapi.actionSystem.{AnAction, AnActionEvent, PlatformCoreDataKeys}
 import com.intellij.openapi.command.WriteCommandAction
-import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.editor.ex.EditorEx
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.{Key, TextRange}
 
-import com.wenjunhuang.codeepiphany.utils.implicits.*
 import com.wenjunhuang.codeepiphany.editor.actions.SurroundSubmissionRegionAction.{SURROUND_PROVIDER_KEY, SurroundSubmissionRegionProvider}
 import com.wenjunhuang.codeepiphany.settings.ChallengeSettings
 import com.wenjunhuang.codeepiphany.utils.actions.ActionCompatible
+import com.wenjunhuang.codeepiphany.utils.implicits.*
 
 class SurroundSubmissionRegionAction extends AnAction with ActionCompatible{
   override def actionPerformed(e: AnActionEvent): Unit = {

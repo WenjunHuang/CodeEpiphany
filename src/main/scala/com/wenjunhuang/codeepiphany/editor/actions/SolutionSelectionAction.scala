@@ -5,7 +5,7 @@ import scala.jdk.CollectionConverters.*
 import scala.jdk.OptionConverters.*
 
 import com.intellij.openapi.actionSystem.*
-import com.intellij.openapi.actionSystem.ex.{ CheckboxAction, ComboBoxAction }
+import com.intellij.openapi.actionSystem.ex.{CheckboxAction, ComboBoxAction}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Key
 import com.intellij.openapi.vfs.VirtualFile
@@ -13,7 +13,7 @@ import com.intellij.openapi.vfs.VirtualFile
 import com.wenjunhuang.codeepiphany.database.Tables.*
 import com.wenjunhuang.codeepiphany.editor.actions.SolutionSelectionAction.*
 import com.wenjunhuang.codeepiphany.model.newtypes.SolutionId
-import com.wenjunhuang.codeepiphany.services.{ AuthService, ChallengeRepository }
+import com.wenjunhuang.codeepiphany.services.{AuthService, ChallengeRepository}
 import com.wenjunhuang.codeepiphany.settings.ChallengeSettings
 import com.wenjunhuang.codeepiphany.utils.actions.ActionCompatible
 

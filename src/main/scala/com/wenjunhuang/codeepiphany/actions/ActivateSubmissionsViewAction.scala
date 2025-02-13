@@ -1,6 +1,6 @@
 package com.wenjunhuang.codeepiphany.actions
 
-import com.intellij.openapi.actionSystem.{ActionUpdateThread, AnAction, AnActionEvent}
+import com.intellij.openapi.actionSystem.{AnAction, AnActionEvent}
 
 import com.wenjunhuang.codeepiphany.toolwindows.sidebar.SidebarWindowFactory
 import com.wenjunhuang.codeepiphany.utils.actions.{ActionCompatible, ProjectNonNull}

@@ -4,11 +4,11 @@ import com.intellij.openapi.project.Project
 
 import com.wenjunhuang.codeepiphany.PluginBundle
 import com.wenjunhuang.codeepiphany.atcoder.models.AtCoderChallengeCodeTemplate
-import com.wenjunhuang.codeepiphany.atcoder.settings.AtCoderSettingsConfigurable.{ ATCODER_LANGUAGES, DEMO_TEMPLATE }
-import com.wenjunhuang.codeepiphany.model.{ CodeDojo, Language, LanguageVersion }
+import com.wenjunhuang.codeepiphany.atcoder.settings.AtCoderSettingsConfigurable.{ATCODER_LANGUAGES, DEMO_TEMPLATE}
+import com.wenjunhuang.codeepiphany.model.{CodeDojo, Language, LanguageVersion}
 import com.wenjunhuang.codeepiphany.model.Language.*
 import com.wenjunhuang.codeepiphany.model.LanguageVersion.*
-import com.wenjunhuang.codeepiphany.settings.dojo.{ BaseCodeDojoSettings, BaseSettingsConfigurable }
+import com.wenjunhuang.codeepiphany.settings.dojo.{BaseCodeDojoSettings, BaseSettingsConfigurable}
 
 class AtCoderSettingsConfigurable(project: Project)
     extends BaseSettingsConfigurable(

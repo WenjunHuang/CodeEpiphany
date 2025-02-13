@@ -1,6 +1,6 @@
 package com.wenjunhuang.codeepiphany.services
 
-import cats.effect.{ Async, Concurrent }
+import cats.effect.{Async, Concurrent}
 import cats.syntax.all.*
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
@@ -11,7 +11,7 @@ import com.intellij.execution.ui.ConsoleViewContentType
 import com.intellij.openapi.project.Project
 
 import com.wenjunhuang.codeepiphany.services.http.HttpClientManager
-import com.wenjunhuang.codeepiphany.toolwindows.sidebar.{ LogConsoleView, SidebarWindowFactory }
+import com.wenjunhuang.codeepiphany.toolwindows.sidebar.{LogConsoleView, SidebarWindowFactory}
 import com.wenjunhuang.codeepiphany.utils.implicits.*
 
 object console {

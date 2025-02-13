@@ -1,6 +1,6 @@
 package com.wenjunhuang.codeepiphany.codeforces.actions
 
-import com.intellij.openapi.actionSystem.{ActionUpdateThread, AnActionEvent, DataKey}
+import com.intellij.openapi.actionSystem.{AnActionEvent, DataKey}
 
 import com.wenjunhuang.codeepiphany.codeforces.actions.CodeForcesUpdateProblemSetsAction.*
 import com.wenjunhuang.codeepiphany.model.CodeDojo.CodeForces

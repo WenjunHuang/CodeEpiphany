@@ -4,8 +4,8 @@ import cats.syntax.all.*
 import org.typelevel.ci.CIString
 
 import com.wenjunhuang.codeepiphany.PluginBundle
+import com.wenjunhuang.codeepiphany.model.ChallengeDifficulty.*
 import com.wenjunhuang.codeepiphany.model.DifficultyColors.*
-import ChallengeDifficulty.*
 
 enum ChallengeDifficulty(val value: String) {
   case Easy     extends ChallengeDifficulty("easy")

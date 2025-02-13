@@ -6,7 +6,7 @@ import cats.syntax.all.*
 import fs2.Stream
 
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.vfs.{VirtualFile, VfsUtilCore}
+import com.intellij.openapi.vfs.{VfsUtilCore, VirtualFile}
 
 import com.wenjunhuang.codeepiphany.model.{CodeDojo, Language, SubmissionResult}
 import com.wenjunhuang.codeepiphany.settings.ChallengeSettings

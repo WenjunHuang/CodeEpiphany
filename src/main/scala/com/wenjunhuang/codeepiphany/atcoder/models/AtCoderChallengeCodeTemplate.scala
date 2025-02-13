@@ -4,7 +4,7 @@ import cats.syntax.all.*
 import scala.beans.BeanProperty
 
 import com.wenjunhuang.codeepiphany.database.tables.records.AtcoderProblemsRecord
-import com.wenjunhuang.codeepiphany.model.{ CodeDojo, Language, LanguageVersion }
+import com.wenjunhuang.codeepiphany.model.{CodeDojo, Language, LanguageVersion}
 
 case class AtCoderChallengeCodeTemplate(
   @BeanProperty

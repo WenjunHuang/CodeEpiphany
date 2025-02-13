@@ -1,14 +1,14 @@
 package com.wenjunhuang.codeepiphany.actions
 
 import cats.syntax.all.*
-import javax.swing.{ Icon, JComponent }
+import javax.swing.{Icon, JComponent}
 
 import com.intellij.icons.AllIcons
 import com.intellij.openapi.actionSystem.*
 import com.intellij.openapi.actionSystem.ex.ComboBoxAction
 
 import com.wenjunhuang.codeepiphany.actions.PaginationParameterActionGroup.*
-import com.wenjunhuang.codeepiphany.utils.actions.{ ActionCompatible, ParameterProvider }
+import com.wenjunhuang.codeepiphany.utils.actions.{ActionCompatible, ParameterProvider}
 import com.wenjunhuang.codeepiphany.utils.PageSize
 
 class PaginationParameterActionGroup(private val myPageNum: Int = DEFAULT_PAGE_NUMBER)

@@ -5,8 +5,8 @@ import icons.CodeEpiphanyIcons
 import com.intellij.openapi.actionSystem.*
 import com.intellij.openapi.project.DumbAwareAction
 
-import AtCoderChangeUIAction.*
-import AtCoderUI.*
+import com.wenjunhuang.codeepiphany.atcoder.actions.AtCoderChangeUIAction.*
+import com.wenjunhuang.codeepiphany.atcoder.actions.AtCoderChangeUIAction.AtCoderUI.*
 import com.wenjunhuang.codeepiphany.utils.actions.{ActionCompatible, DataKeyNotNull}
 
 class AtCoderChangeUIAction extends DumbAwareAction with DataKeyNotNull(ATCODER_CHANGE_UI_PROVIDER_KEY) with ActionCompatible {

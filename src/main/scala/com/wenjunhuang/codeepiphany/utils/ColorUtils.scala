@@ -2,7 +2,7 @@ package com.wenjunhuang.codeepiphany.utils
 
 import java.awt.Color
 
-import com.intellij.ui.{ Gray, JBColor }
+import com.intellij.ui.{Gray, JBColor}
 
 object ColorUtils {
   val ERROR_FOREGROUND   = JBColor(0xeb353a, 0xee615e)

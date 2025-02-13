@@ -8,7 +8,7 @@ import com.intellij.openapi.project.DumbAwareAction
 import com.wenjunhuang.codeepiphany.hackerrank.actions.ChangeChallengesUIAction.*
 import com.wenjunhuang.codeepiphany.hackerrank.actions.ChangeChallengesUIAction.HackerRankUI.*
 import com.wenjunhuang.codeepiphany.model.CodeDojo.HackerRank
-import com.wenjunhuang.codeepiphany.utils.actions.{ ActionCompatible, DataKeyNotNull, UserLoggedIn }
+import com.wenjunhuang.codeepiphany.utils.actions.{ActionCompatible, DataKeyNotNull, UserLoggedIn}
 
 class ChangeChallengesUIAction
     extends DumbAwareAction

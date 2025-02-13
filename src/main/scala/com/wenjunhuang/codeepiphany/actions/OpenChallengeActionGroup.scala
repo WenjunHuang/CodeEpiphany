@@ -4,8 +4,8 @@ import com.intellij.openapi.actionSystem.*
 
 import com.wenjunhuang.codeepiphany.PluginBundle
 import com.wenjunhuang.codeepiphany.actions.OpenChallengeActionGroup.*
-import com.wenjunhuang.codeepiphany.model.{ Language, LanguageVersion }
-import com.wenjunhuang.codeepiphany.utils.actions.{ ActionCompatible, DataKeyNotNull }
+import com.wenjunhuang.codeepiphany.model.{Language, LanguageVersion}
+import com.wenjunhuang.codeepiphany.utils.actions.{ActionCompatible, DataKeyNotNull}
 
 class OpenChallengeActionGroup extends ActionGroup with DataKeyNotNull(CHALLENGE_PROVIDER_KEY) with ActionCompatible {
   override def getChildren(e: AnActionEvent): Array[AnAction] = {
