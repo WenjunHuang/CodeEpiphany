@@ -10,9 +10,12 @@ import com.wenjunhuang.codeepiphany.leetcode.actions.LeetCodeChangeUIAction.{
   LeetCodeUI
 }
 import com.wenjunhuang.codeepiphany.leetcode.actions.LeetCodeChangeUIAction.LeetCodeUI.*
-import com.wenjunhuang.codeepiphany.utils.actions.DataKeyNotNull
+import com.wenjunhuang.codeepiphany.utils.actions.{ ActionCompatible, DataKeyNotNull }
 
-class LeetCodeChangeUIAction extends DumbAwareAction with DataKeyNotNull(LEETCODE_CHANGE_UI_PROVIDER_KEY) {
+class LeetCodeChangeUIAction
+    extends DumbAwareAction
+    with DataKeyNotNull(LEETCODE_CHANGE_UI_PROVIDER_KEY)
+    with ActionCompatible {
   override def actionPerformed(e: AnActionEvent): Unit = {
     val provider = getValue(e)
     provider.getCurrentUI match
@@ -39,8 +42,6 @@ class LeetCodeChangeUIAction extends DumbAwareAction with DataKeyNotNull(LEETCOD
         e.getPresentation.setEnabledAndVisible(true)
         updateIconAndName(provider.getCurrentUI, e.getPresentation)
     else e.getPresentation.setEnabledAndVisible(false)
-
-  override def getActionUpdateThread: ActionUpdateThread = ActionUpdateThread.BGT
 }
 
 object LeetCodeChangeUIAction {

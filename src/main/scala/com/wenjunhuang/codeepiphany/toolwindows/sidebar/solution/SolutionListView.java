@@ -54,24 +54,26 @@ public class SolutionListView {
                             @Override
                             public void actionPerformed(@NotNull AnActionEvent e) {
                                 var selected = myTreeTable.getSelection();
-                                if (selected.getFirst() instanceof DefaultMutableTreeNode node && node.getUserObject() instanceof SolutionEntry.SolutionNode solution) {
-                                    if (!solution.isDefault()) {
-                                        var result = Messages.showInputDialog(myPresenter.myProject(), "Modify solution name", "Modify Solution Name", null, solution.title(), new InputValidator() {
-                                            @Override
-                                            public boolean checkInput(@NlsSafe String inputString) {
-                                                return myPresenter.isSolutionTitleAvailable(inputString);
-                                            }
+                                if (CollectionUtils.isNotEmpty(selected)) {
+                                    if (selected.get(0) instanceof DefaultMutableTreeNode node && node.getUserObject() instanceof SolutionEntry.SolutionNode solution) {
+                                        if (!solution.isDefault()) {
+                                            var result = Messages.showInputDialog(myPresenter.myProject(), "Modify solution name", "Modify Solution Name", null, solution.title(), new InputValidator() {
+                                                @Override
+                                                public boolean checkInput(@NlsSafe String inputString) {
+                                                    return myPresenter.isSolutionTitleAvailable(inputString);
+                                                }
 
-                                            @Override
-                                            public boolean canClose(@NlsSafe String inputString) {
-                                                return true;
+                                                @Override
+                                                public boolean canClose(@NlsSafe String inputString) {
+                                                    return true;
+                                                }
+                                            }, null);
+                                            if (result != null) {
+                                                myPresenter.modifySolutionTitle(solution.solutionId(), node, result);
                                             }
-                                        }, null);
-                                        if (result != null) {
-                                            myPresenter.modifySolutionTitle(solution.solutionId(), node, result);
                                         }
-                                    }
 
+                                    }
                                 }
                             }
 
@@ -79,7 +81,7 @@ public class SolutionListView {
                             public void update(@NotNull AnActionEvent e) {
                                 var selected = myTreeTable.getSelection();
                                 if (CollectionUtils.isNotEmpty(selected)) {
-                                    e.getPresentation().setEnabled(selected.getFirst() instanceof DefaultMutableTreeNode node && node.getUserObject() instanceof SolutionEntry.SolutionNode);
+                                    e.getPresentation().setEnabled(selected.get(0) instanceof DefaultMutableTreeNode node && node.getUserObject() instanceof SolutionEntry.SolutionNode);
                                 } else {
                                     e.getPresentation().setEnabled(false);
                                 }
@@ -94,8 +96,10 @@ public class SolutionListView {
                             @Override
                             public void actionPerformed(@NotNull AnActionEvent e) {
                                 var selected = myTreeTable.getSelection();
-                                if (selected.getFirst() instanceof DefaultMutableTreeNode node && node.getUserObject() instanceof SolutionEntry.SolutionNode solution) {
-                                    myPresenter.openSolutionRemarkEditor(solution.solutionId());
+                                if (CollectionUtils.isNotEmpty(selected)) {
+                                    if (selected.get(0) instanceof DefaultMutableTreeNode node && node.getUserObject() instanceof SolutionEntry.SolutionNode solution) {
+                                        myPresenter.openSolutionRemarkEditor(solution.solutionId());
+                                    }
                                 }
                             }
 
@@ -103,7 +107,7 @@ public class SolutionListView {
                             public void update(@NotNull AnActionEvent e) {
                                 var selected = myTreeTable.getSelection();
                                 if (CollectionUtils.isNotEmpty(selected)) {
-                                    e.getPresentation().setEnabled(selected.getFirst() instanceof DefaultMutableTreeNode node && node.getUserObject() instanceof SolutionEntry.SolutionNode);
+                                    e.getPresentation().setEnabled(selected.get(0) instanceof DefaultMutableTreeNode node && node.getUserObject() instanceof SolutionEntry.SolutionNode);
                                 } else {
                                     e.getPresentation().setEnabled(false);
                                 }
@@ -146,7 +150,7 @@ public class SolutionListView {
 
                             @Override
                             public @NotNull ActionUpdateThread getActionUpdateThread() {
-                                return ActionUpdateThread.BGT;
+                                return ActionUpdateThread.EDT;
                             }
                         })
                         .createPanel();

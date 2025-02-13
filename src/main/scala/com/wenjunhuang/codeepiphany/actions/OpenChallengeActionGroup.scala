@@ -5,9 +5,9 @@ import com.intellij.openapi.actionSystem.*
 import com.wenjunhuang.codeepiphany.PluginBundle
 import com.wenjunhuang.codeepiphany.actions.OpenChallengeActionGroup.*
 import com.wenjunhuang.codeepiphany.model.{ Language, LanguageVersion }
-import com.wenjunhuang.codeepiphany.utils.actions.DataKeyNotNull
+import com.wenjunhuang.codeepiphany.utils.actions.{ ActionCompatible, DataKeyNotNull }
 
-class OpenChallengeActionGroup extends ActionGroup with DataKeyNotNull(CHALLENGE_PROVIDER_KEY) {
+class OpenChallengeActionGroup extends ActionGroup with DataKeyNotNull(CHALLENGE_PROVIDER_KEY) with ActionCompatible {
   override def getChildren(e: AnActionEvent): Array[AnAction] = {
     Option(CHALLENGE_PROVIDER_KEY.getData(e.getDataContext)) match
       case None => Array.empty
@@ -30,8 +30,6 @@ class OpenChallengeActionGroup extends ActionGroup with DataKeyNotNull(CHALLENGE
           case _ =>
             presentation.setPopupGroup(true)
   }
-
-  override def getActionUpdateThread: ActionUpdateThread = ActionUpdateThread.BGT
 }
 
 object OpenChallengeActionGroup {
@@ -39,7 +37,8 @@ object OpenChallengeActionGroup {
 
   private class LanguageAction(private val myLanguage: Language, private val myLanguageVersion: LanguageVersion)
       extends AnAction(Language.prettyPrint(myLanguage, myLanguageVersion), null, myLanguage.icon)
-      with DataKeyNotNull(CHALLENGE_PROVIDER_KEY) {
+      with DataKeyNotNull(CHALLENGE_PROVIDER_KEY)
+      with ActionCompatible {
     override def actionPerformed(e: AnActionEvent): Unit = {
       getValue(e).openCurrentSelectedChallenge(myLanguage, myLanguageVersion)
     }
@@ -62,8 +61,6 @@ object OpenChallengeActionGroup {
               presentation.setDescription(Language.prettyPrint(myLanguage, myLanguageVersion))
       else presentation.setEnabledAndVisible(false)
     }
-
-    override def getActionUpdateThread: ActionUpdateThread = ActionUpdateThread.BGT
   }
 
   trait OpenChallengeProvider {

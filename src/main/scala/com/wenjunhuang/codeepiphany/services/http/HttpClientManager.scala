@@ -95,31 +95,29 @@ object HttpClientManager {
     val sslContext = SSLContext.getInstance("SSL")
     sslContext.init(null, Array[TrustManager](trustAllManager), new java.security.SecureRandom())
     val sslSocketFactory = sslContext.getSocketFactory
-    val proxySettings    = ProxySettings.getInstance()
     // get optional proxy credentials
     // reference: https://square.github.io/okhttp/3.x/okhttp/okhttp3/Authenticator.html
     val authenticator = new Authenticator {
       override def authenticate(route: Route, response: Response): Request = {
-        val credential = ProxyUtils.getStaticProxyCredentials(
-          proxySettings,
-          ProxyCredentialStoreKt.asProxyCredentialProvider(ProxyCredentialStore.getInstance())
-        )
-        if credential != null then
-          boundary:
-            for challenge <- response.challenges().asScala do
-              if challenge.scheme().equalsIgnoreCase("OkHttp-Preemptive") then
-                boundary.break(
-                  response
-                    .request()
-                    .newBuilder()
-                    .header(
-                      "Proxy-Authorization",
-                      Credentials.basic(credential.getUserName, credential.getPasswordAsString)
-                    )
-                    .build()
-                )
-            null
-        else null
+        val httpConfigurable = HttpConfigurable.getInstance()
+        val authenticator    = IdeaWideAuthenticator(httpConfigurable)
+        authenticator.getPasswordAuthentication match
+          case null => null
+          case authentication =>
+            boundary:
+              for challenge <- response.challenges().asScala do
+                if challenge.scheme().equalsIgnoreCase("OkHttp-Preemptive") then
+                  boundary.break(
+                    response
+                      .request()
+                      .newBuilder()
+                      .header(
+                        "Proxy-Authorization",
+                        Credentials.basic(authentication.getUserName, String(authentication.getPassword))
+                      )
+                      .build()
+                  )
+              null
       }
     }
     OkHttpClient
@@ -133,7 +131,7 @@ object HttpClientManager {
       .sslSocketFactory(sslSocketFactory, trustAllManager)
       .hostnameVerifier((_, _) => true)
       .proxySelector(
-        IdeProxySelector(ProxySettingsKt.asConfigurationProvider(proxySettings)) // IntelliJ proxy selector
+        IdeaWideProxySelector(HttpConfigurable.getInstance()) // IntelliJ proxy selector
       )
       .proxyAuthenticator(authenticator)
       .addInterceptor((chain: Interceptor.Chain) => {

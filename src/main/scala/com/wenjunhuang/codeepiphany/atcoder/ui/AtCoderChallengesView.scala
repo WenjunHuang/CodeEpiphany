@@ -7,7 +7,7 @@ import javax.swing.JComponent
 import org.typelevel.log4cats.LoggerFactory
 
 import com.intellij.openapi.Disposable
-import com.intellij.openapi.actionSystem.{ActionGroup, ActionManager, DataSink}
+import com.intellij.openapi.actionSystem.{ActionGroup, ActionManager}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
 
@@ -25,6 +25,7 @@ import com.wenjunhuang.codeepiphany.atcoder.actions.AtCoderChangeUIAction.{ATCOD
 import com.wenjunhuang.codeepiphany.atcoder.actions.AtCoderUpdateProblemSetsAction.{ATCODER_UPDATE_PROBLEM_SETS_PROVIDER_KEY, AtCoderUpdateProblemSetsProvider}
 import com.wenjunhuang.codeepiphany.atcoder.services.AtCoderApi
 import com.wenjunhuang.codeepiphany.atcoder.services.problemsets.fetchAndUpdateProblemSets
+import com.wenjunhuang.codeepiphany.utils.actions.DataSink
 
 class AtCoderChallengesView(private val myProject: Project) extends BaseChallengesView[AtCoderUI] {
 

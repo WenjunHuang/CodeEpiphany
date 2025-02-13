@@ -1,20 +1,20 @@
 package com.wenjunhuang.codeepiphany.actions
 
 import cats.syntax.all.*
-import javax.swing.{Icon, JComponent}
+import javax.swing.{ Icon, JComponent }
 
 import com.intellij.icons.AllIcons
 import com.intellij.openapi.actionSystem.*
 import com.intellij.openapi.actionSystem.ex.ComboBoxAction
 
 import com.wenjunhuang.codeepiphany.actions.PaginationParameterActionGroup.*
-import com.wenjunhuang.codeepiphany.utils.actions.ParameterProvider
+import com.wenjunhuang.codeepiphany.utils.actions.{ ActionCompatible, ParameterProvider }
 import com.wenjunhuang.codeepiphany.utils.PageSize
 
-class PaginationParameterActionGroup(private val myPageNum: Int = DEFAULT_PAGE_NUMBER) extends DefaultActionGroup {
+class PaginationParameterActionGroup(private val myPageNum: Int = DEFAULT_PAGE_NUMBER)
+    extends DefaultActionGroup
+    with ActionCompatible {
   private var cache = (0, 0, 0)
-
-  override def getActionUpdateThread: ActionUpdateThread = ActionUpdateThread.BGT
 
   override def update(e: AnActionEvent): Unit =
     Option(PAGINATION_PROVIDER_KEY.getData(e.getDataContext)) match {
@@ -84,14 +84,13 @@ class PaginationParameterActionGroup(private val myPageNum: Int = DEFAULT_PAGE_N
   }
 
   private def createIconAction(icon: Icon, action: Option[() => Unit]): AnAction =
-    new AnAction(icon) with RightAlignedToolbarAction {
-      override def actionPerformed(e: AnActionEvent): Unit   = action.foreach(_())
-      override def update(e: AnActionEvent): Unit            = e.getPresentation.setEnabled(action.nonEmpty)
-      override def getActionUpdateThread: ActionUpdateThread = ActionUpdateThread.BGT
+    new AnAction(icon) with RightAlignedToolbarAction with ActionCompatible {
+      override def actionPerformed(e: AnActionEvent): Unit = action.foreach(_())
+      override def update(e: AnActionEvent): Unit          = e.getPresentation.setEnabled(action.nonEmpty)
     }
 
   private def createPageIndexAction(text: String, selected: Boolean, action: Option[() => Unit]): AnAction =
-    new ToggleAction(text) with RightAlignedToolbarAction {
+    new ToggleAction(text) with RightAlignedToolbarAction with ActionCompatible {
       override def isSelected(e: AnActionEvent): Boolean               = selected
       override def setSelected(e: AnActionEvent, state: Boolean): Unit = if state then action.foreach(_())
       override def displayTextInToolbar(): Boolean                     = true
@@ -99,7 +98,6 @@ class PaginationParameterActionGroup(private val myPageNum: Int = DEFAULT_PAGE_N
         super.update(e)
         e.getPresentation.setEnabled(action.nonEmpty)
       }
-      override def getActionUpdateThread: ActionUpdateThread = ActionUpdateThread.BGT
     }
 }
 
@@ -117,14 +115,12 @@ object PaginationParameterActionGroup {
   }
 }
 
-class PageSizeAction extends ComboBoxAction {
+class PageSizeAction extends ComboBoxAction with ActionCompatible {
   override def createPopupActionGroup(button: JComponent, dataContext: DataContext): DefaultActionGroup =
     Option(PAGINATION_PROVIDER_KEY.getData(dataContext)) match {
       case None           => DefaultActionGroup()
       case Some(provider) => DefaultActionGroup(provider.getAllItems.map(item => new RangePageSizeItemAction(item))*)
     }
-
-  override def getActionUpdateThread: ActionUpdateThread = ActionUpdateThread.BGT
 
   override def update(e: AnActionEvent): Unit =
     Option(PAGINATION_PROVIDER_KEY.getData(e.getDataContext)) match {
@@ -139,7 +135,7 @@ class PageSizeAction extends ComboBoxAction {
     }
 }
 
-class RangePageSizeItemAction(private val myItem: PageSize) extends AnAction(myItem.show) {
+class RangePageSizeItemAction(private val myItem: PageSize) extends AnAction(myItem.show) with ActionCompatible {
   override def actionPerformed(e: AnActionEvent): Unit =
     Option(PAGINATION_PROVIDER_KEY.getData(e.getDataContext)).foreach(_.toggleSelection(myItem))
 
@@ -153,5 +149,4 @@ class RangePageSizeItemAction(private val myItem: PageSize) extends AnAction(myI
       }
   }
 
-  override def getActionUpdateThread: ActionUpdateThread = ActionUpdateThread.BGT
 }

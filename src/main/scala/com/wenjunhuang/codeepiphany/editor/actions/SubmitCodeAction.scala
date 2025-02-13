@@ -8,17 +8,18 @@ import com.intellij.openapi.util.Key
 import com.intellij.openapi.vfs.VirtualFile
 
 import com.wenjunhuang.codeepiphany.editor.actions.SubmitCodeAction.*
-import com.wenjunhuang.codeepiphany.editor.services.{ runCode, submitCode }
+import com.wenjunhuang.codeepiphany.editor.services.{runCode, submitCode}
 import com.wenjunhuang.codeepiphany.model.CodeDojo
-import com.wenjunhuang.codeepiphany.model.CodeDojo.{ AtCoder, CodeForces }
-import com.wenjunhuang.codeepiphany.services.http.{ HttpClientManager, HttpClientService }
+import com.wenjunhuang.codeepiphany.model.CodeDojo.{AtCoder, CodeForces}
+import com.wenjunhuang.codeepiphany.services.http.{HttpClientManager, HttpClientService}
 import com.wenjunhuang.codeepiphany.services.AuthService
 import com.wenjunhuang.codeepiphany.services.file.saveEditedFile
 import com.wenjunhuang.codeepiphany.settings.ChallengeSettings
+import com.wenjunhuang.codeepiphany.utils.actions.ActionCompatible
 import com.wenjunhuang.codeepiphany.utils.extensions.*
 import com.wenjunhuang.codeepiphany.utils.implicits.*
 
-class SubmitCodeAction extends AnAction {
+class SubmitCodeAction extends AnAction with ActionCompatible{
   override def actionPerformed(e: AnActionEvent): Unit = {
     getProvider(e) match
       case Some(provider) =>
@@ -30,8 +31,6 @@ class SubmitCodeAction extends AnAction {
     val enabled = getProvider(e).exists(_.canSubmit)
     e.getPresentation.setEnabled(enabled)
   }
-
-  override def getActionUpdateThread: ActionUpdateThread = ActionUpdateThread.BGT
 
   private def getProvider(e: AnActionEvent): Option[SubmitCodeProvider] = {
     Option(e.getData(PlatformCoreDataKeys.FILE_EDITOR)).flatMap { editor =>

@@ -1,11 +1,12 @@
 package com.wenjunhuang.codeepiphany.actions
 
 import com.intellij.openapi.actionSystem.*
+import com.intellij.openapi.application.ApplicationInfo
 
 import com.wenjunhuang.codeepiphany.actions.LoginAction.*
-import com.wenjunhuang.codeepiphany.utils.actions.{ AbstractLoadingAction, DataKeyNotNull }
+import com.wenjunhuang.codeepiphany.utils.actions.{AbstractLoadingAction, ActionCompatible, DataKeyNotNull}
 
-class LoginAction extends AbstractLoadingAction with DataKeyNotNull(LOGIN_LOGOUT_KEY) {
+class LoginAction extends AbstractLoadingAction with DataKeyNotNull(LOGIN_LOGOUT_KEY) with ActionCompatible {
 
   override def actionPerformed(e: AnActionEvent): Unit =
     Option(LOGIN_LOGOUT_KEY.getData(e.getDataContext)).foreach(_.login())
@@ -25,8 +26,6 @@ class LoginAction extends AbstractLoadingAction with DataKeyNotNull(LOGIN_LOGOUT
         setLoading(presentation, false)
     else presentation.setEnabledAndVisible(false)
   }
-
-  override def getActionUpdateThread: ActionUpdateThread = ActionUpdateThread.BGT
 }
 
 object LoginAction {

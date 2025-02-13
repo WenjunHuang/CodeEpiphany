@@ -2,15 +2,16 @@ package com.wenjunhuang.codeepiphany.editor.extensions
 
 import org.jdom.Element
 
+import com.intellij.openapi.editor.ex.EditorEx
 import com.intellij.openapi.fileEditor.*
 import com.intellij.openapi.fileEditor.AsyncFileEditorProvider.Builder
 import com.intellij.openapi.fileEditor.impl.text.PsiAwareTextEditorProvider
-import com.intellij.openapi.project.{ DumbAware, Project }
+import com.intellij.openapi.project.{DumbAware, Project}
 import com.intellij.openapi.vfs.VirtualFile
 
-import com.wenjunhuang.codeepiphany.editor.actions.{ SolutionSelectionAction, SurroundSubmissionRegionAction }
+import com.wenjunhuang.codeepiphany.editor.actions.{SolutionSelectionAction, SurroundSubmissionRegionAction}
 import com.wenjunhuang.codeepiphany.editor.actions.SolutionSelectionAction.SOLUTION_PROVIDER_KEY
-import com.wenjunhuang.codeepiphany.editor.actions.SubmitCodeAction.{ SUBMITCODE_PROVIDER_KEY, SubmitCodeProvider }
+import com.wenjunhuang.codeepiphany.editor.actions.SubmitCodeAction.{SUBMITCODE_PROVIDER_KEY, SubmitCodeProvider}
 import com.wenjunhuang.codeepiphany.editor.actions.SurroundSubmissionRegionAction.SURROUND_PROVIDER_KEY
 import com.wenjunhuang.codeepiphany.settings.ChallengeSettings
 
@@ -63,7 +64,7 @@ class ChallengeEditorProvider extends AsyncFileEditorProvider with DumbAware {
         )
         editorWrapper.putUserData(
           SURROUND_PROVIDER_KEY,
-          SurroundSubmissionRegionAction.createProvider(editorWrapper.getEditor, project)
+          SurroundSubmissionRegionAction.createProvider(editorWrapper.getEditor.asInstanceOf[EditorEx], project)
         )
         editorWrapper
       case None =>

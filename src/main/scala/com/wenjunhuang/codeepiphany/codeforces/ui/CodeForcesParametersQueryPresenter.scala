@@ -5,20 +5,21 @@ import monocle.syntax.all.*
 import org.jooq.impl.DSL
 import scala.jdk.CollectionConverters.*
 
-import com.intellij.openapi.actionSystem.{ ActionGroup, ActionManager, DataSink }
+import com.intellij.openapi.actionSystem.{ActionGroup, ActionManager}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.text.StringUtil
 
-import com.wenjunhuang.codeepiphany.actions.{ DifficultyParameterAction, OpenChallengeActionGroup, TagsAction }
+import com.wenjunhuang.codeepiphany.actions.{DifficultyParameterAction, OpenChallengeActionGroup, TagsAction}
 import com.wenjunhuang.codeepiphany.actions.DifficultyParameterAction.DifficultyParameterProvider
-import com.wenjunhuang.codeepiphany.actions.TagsAction.{ SingleTagGroupProvider, Tag }
-import com.wenjunhuang.codeepiphany.codeforces.models.{ codeForcesDifficultyToRatingRange, CodeForcesSearchOrderBy }
+import com.wenjunhuang.codeepiphany.actions.TagsAction.{SingleTagGroupProvider, Tag}
+import com.wenjunhuang.codeepiphany.codeforces.models.{codeForcesDifficultyToRatingRange, CodeForcesSearchOrderBy}
 import com.wenjunhuang.codeepiphany.codeforces.ui.CodeForcesParametersQueryPresenter.*
 import com.wenjunhuang.codeepiphany.database.tables.records.CodeforcesProblemsetsRecord
 import com.wenjunhuang.codeepiphany.database.Tables.CODEFORCES_PROBLEMSETS_FTS
-import com.wenjunhuang.codeepiphany.model.{ Actions, ChallengeDifficulty, OrderDirection }
-import com.wenjunhuang.codeepiphany.services.{ ChallengeRepository, ParametersQueryPresenter, QueryContext }
-import com.wenjunhuang.codeepiphany.utils.{ OrderByColumnInfo, Pagination }
+import com.wenjunhuang.codeepiphany.model.{Actions, ChallengeDifficulty, OrderDirection}
+import com.wenjunhuang.codeepiphany.services.{ChallengeRepository, ParametersQueryPresenter, QueryContext}
+import com.wenjunhuang.codeepiphany.utils.{OrderByColumnInfo, Pagination}
+import com.wenjunhuang.codeepiphany.utils.actions.DataSink
 import com.wenjunhuang.codeepiphany.utils.ui.TagPaneAction
 
 class CodeForcesParametersQueryPresenter(project: Project, bootstrap: CodeForcesBootstrapParameters)

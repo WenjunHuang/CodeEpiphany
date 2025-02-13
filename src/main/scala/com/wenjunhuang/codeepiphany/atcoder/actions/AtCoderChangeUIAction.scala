@@ -7,9 +7,9 @@ import com.intellij.openapi.project.DumbAwareAction
 
 import AtCoderChangeUIAction.*
 import AtCoderUI.*
-import com.wenjunhuang.codeepiphany.utils.actions.DataKeyNotNull
+import com.wenjunhuang.codeepiphany.utils.actions.{ActionCompatible, DataKeyNotNull}
 
-class AtCoderChangeUIAction extends DumbAwareAction with DataKeyNotNull(ATCODER_CHANGE_UI_PROVIDER_KEY) {
+class AtCoderChangeUIAction extends DumbAwareAction with DataKeyNotNull(ATCODER_CHANGE_UI_PROVIDER_KEY) with ActionCompatible {
   override def actionPerformed(e: AnActionEvent): Unit = {
     val provider = getValue(e)
     provider.getCurrentUI match
@@ -38,7 +38,6 @@ class AtCoderChangeUIAction extends DumbAwareAction with DataKeyNotNull(ATCODER_
         updateIconAndName(provider.getCurrentUI, e.getPresentation)
     else e.getPresentation.setEnabledAndVisible(false)
 
-  override def getActionUpdateThread: ActionUpdateThread = ActionUpdateThread.BGT
 }
 
 object AtCoderChangeUIAction {

@@ -9,7 +9,6 @@ import javax.swing.table.{DefaultTableCellRenderer, TableCellRenderer}
 import org.typelevel.ci.CIString
 
 import com.intellij.icons.AllIcons
-import com.intellij.openapi.actionSystem.DataSink
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.util.ui.table.IconTableCellRenderer
@@ -22,6 +21,7 @@ import com.wenjunhuang.codeepiphany.model.{ChallengeDifficulty, ChallengeStatus}
 import com.wenjunhuang.codeepiphany.services.{KeywordQueryPresenter, QueryContext}
 import com.wenjunhuang.codeepiphany.services.http.{HttpClientManager, HttpClientService}
 import com.wenjunhuang.codeepiphany.utils.{OrderByColumnInfo, Pagination}
+import com.wenjunhuang.codeepiphany.utils.actions.DataSink
 
 class HackerRankKeywordQueryPresenter(project: Project)
     extends KeywordQueryPresenter[Unit, QueryParams, HackerRankChallengeDetail](project, ()) {
@@ -85,7 +85,7 @@ class HackerRankKeywordQueryPresenter(project: Project)
           new IconTableCellRenderer[ChallengeStatus]() {
             override def getIcon(value: ChallengeStatus, table: JTable, row: Int): Icon =
               value match {
-                case ChallengeStatus.Solved => AllIcons.General.GreenCheckmark
+                case ChallengeStatus.Solved => AllIcons.General.InspectionsOK
                 case _ =>
                   if item.attempted.contains(true) then AllIcons.General.Modified
                   else null

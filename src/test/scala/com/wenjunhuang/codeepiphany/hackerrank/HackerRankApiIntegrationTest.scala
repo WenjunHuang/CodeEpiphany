@@ -4,13 +4,12 @@ import cats.effect.IO
 import cats.syntax.all.*
 
 import com.intellij.testFramework.fixtures.BasePlatformTestCase
-import com.intellij.util.net.{ ProxyConfiguration, ProxySettings }
 
-import com.wenjunhuang.codeepiphany.hackerrank.models.HackerRankContest.{ Master, ProjectEuler }
+import com.wenjunhuang.codeepiphany.hackerrank.models.HackerRankContest.{Master, ProjectEuler}
 import com.wenjunhuang.codeepiphany.hackerrank.models.HackerRankContest
 import com.wenjunhuang.codeepiphany.hackerrank.services.HackerRankApi
-import com.wenjunhuang.codeepiphany.model.{ ApiError, CodeDojo, Language, LanguageVersion }
-import com.wenjunhuang.codeepiphany.services.http.{ HttpClientManager, HttpClientService }
+import com.wenjunhuang.codeepiphany.model.{ApiError, CodeDojo, Language, LanguageVersion}
+import com.wenjunhuang.codeepiphany.services.http.{HttpClientManager, HttpClientService}
 import com.wenjunhuang.codeepiphany.utils.CookieUtil
 import com.wenjunhuang.codeepiphany.utils.implicits.*
 import org.hamcrest.CoreMatchers.*
@@ -18,6 +17,8 @@ import org.hamcrest.MatcherAssert.assertThat
 import java.io.FileInputStream
 import java.net.HttpCookie
 import scala.io.Source
+
+import com.intellij.util.net.HttpConfigurable
 
 class HackerRankApiIntegrationTest extends BasePlatformTestCase {
   private var cookies: List[HttpCookie] = Nil
@@ -28,8 +29,10 @@ class HackerRankApiIntegrationTest extends BasePlatformTestCase {
 
   override def setUp(): Unit = {
     super.setUp()
-    val proxy = ProxySettings.getInstance()
-    proxy.setProxyConfiguration(ProxyConfiguration.proxy(ProxyConfiguration.ProxyProtocol.HTTP, "127.0.0.1", 9999, ""))
+    val config = HttpConfigurable.getInstance()
+    config.USE_HTTP_PROXY = true
+    config.PROXY_HOST = "127.0.0.1"
+    config.PROXY_PORT = 9999
 
     val loginCookie = Source.fromInputStream(new FileInputStream(getBasePath + "/cookie")).getLines().mkString("\n")
     cookies = CookieUtil.parseCookies(loginCookie)

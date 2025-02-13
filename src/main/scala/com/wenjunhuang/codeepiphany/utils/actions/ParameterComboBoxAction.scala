@@ -13,7 +13,8 @@ abstract class ParameterComboBoxAction[P, T <: ParameterProvider[P]](
   private val description: P => Option[String],
   private val icon: P => Option[Icon]
 ) extends ComboBoxAction
-    with DataKeyNotNull[T](key) {
+    with DataKeyNotNull[T](key)
+    with ActionCompatible {
   override def update(e: AnActionEvent): Unit = {
     if isSatisfied(e) then e.getPresentation.setEnabled(true)
     else e.getPresentation.setEnabled(false)
@@ -28,8 +29,6 @@ abstract class ParameterComboBoxAction[P, T <: ParameterProvider[P]](
       .map(actions => new DefaultActionGroup(actions*))
       .getOrElse(new DefaultActionGroup())
   }
-
-  override def getActionUpdateThread: ActionUpdateThread = ActionUpdateThread.BGT
 }
 
 object ParameterComboBoxAction {
@@ -39,7 +38,8 @@ object ParameterComboBoxAction {
     val name: String,
     val description: Option[String],
     val icon: Option[Icon]
-  ) extends CheckboxAction(name, description.orNull, icon.orNull) {
+  ) extends CheckboxAction(name, description.orNull, icon.orNull)
+      with ActionCompatible {
     override def isSelected(e: AnActionEvent): Boolean =
       Option(key.getData(e.getDataContext)).exists(_.isSelected(myData))
 
@@ -48,7 +48,5 @@ object ParameterComboBoxAction {
         if state then provider.addSelectedItems(List(myData))
         else provider.removeSelectedItems(List(myData))
       }
-
-    override def getActionUpdateThread: ActionUpdateThread = ActionUpdateThread.BGT
   }
 }

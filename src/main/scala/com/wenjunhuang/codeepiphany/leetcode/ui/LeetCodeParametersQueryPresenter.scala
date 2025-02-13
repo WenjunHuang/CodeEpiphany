@@ -8,7 +8,7 @@ import monocle.syntax.all.*
 import org.typelevel.log4cats.LoggerFactory
 
 import com.intellij.icons.AllIcons
-import com.intellij.openapi.actionSystem.{ActionGroup, ActionManager, DataSink}
+import com.intellij.openapi.actionSystem.{ActionGroup, ActionManager}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.util.ui.table.IconTableCellRenderer
@@ -26,6 +26,7 @@ import com.wenjunhuang.codeepiphany.model.*
 import com.wenjunhuang.codeepiphany.services.{ParametersQueryPresenter, QueryContext}
 import com.wenjunhuang.codeepiphany.services.http.{HttpClientManager, HttpClientService}
 import com.wenjunhuang.codeepiphany.utils.{OrderByColumnInfo, Pagination}
+import com.wenjunhuang.codeepiphany.utils.actions.DataSink
 import com.wenjunhuang.codeepiphany.utils.implicits.*
 import com.wenjunhuang.codeepiphany.utils.ui.TagPaneAction
 
@@ -376,7 +377,7 @@ class LeetCodeParametersQueryPresenter(
             item.status
               .map(myLeetCodeDojo.fromLeetCodeStatus)
               .getOrElse(ChallengeStatus.Unsolved) match
-              case ChallengeStatus.Solved   => AllIcons.General.GreenCheckmark
+              case ChallengeStatus.Solved   => AllIcons.General.InspectionsOK
               case ChallengeStatus.Tried    => AllIcons.General.Modified
               case ChallengeStatus.Unsolved => null
 

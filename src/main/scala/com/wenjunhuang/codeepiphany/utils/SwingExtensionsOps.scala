@@ -2,6 +2,8 @@ package com.wenjunhuang.codeepiphany.utils
 
 import java.awt.Color
 
+import com.intellij.util.MathUtil
+
 trait SwingExtensionsOps {
   extension (color: Color) {
 
@@ -11,9 +13,9 @@ trait SwingExtensionsOps {
       */
     def contrast(coefficient: Double): Color =
       Color(
-        Math.clamp((coefficient * (color.getRed - 128) + 128).toLong, 0, 255),
-        Math.clamp((coefficient * (color.getGreen - 128) + 128).toInt, 0, 255),
-        Math.clamp((coefficient * (color.getBlue - 128) + 128).toInt, 0, 255),
+        MathUtil.clamp(coefficient * (color.getRed - 128) + 128, 0, 255).toInt,
+        MathUtil.clamp(coefficient * (color.getGreen - 128) + 128, 0, 255).toInt,
+        MathUtil.clamp(coefficient * (color.getBlue - 128) + 128, 0, 255).toInt,
         color.getAlpha
       )
 

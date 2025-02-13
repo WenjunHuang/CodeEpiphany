@@ -60,6 +60,7 @@ class SolutionListPresenter(val myProject: Project) extends Disposable {
             case SolutionEntry.LanguageNode(language, version, _) =>
               setIcon(language.icon)
               append(s"${language.show} ${version.version}")
+            case _ =>
           }
         case _ =>
     }

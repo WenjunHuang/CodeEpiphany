@@ -4,7 +4,6 @@ import com.intellij.codeInsight.hint.EditorFragmentComponent;
 import com.intellij.icons.AllIcons;
 import com.intellij.ide.IdeBundle;
 import com.intellij.ide.ui.laf.darcula.ui.DarculaEditorTextFieldBorder;
-import com.intellij.l10n.LocalizationUtil;
 import com.intellij.openapi.actionSystem.*;
 import com.intellij.openapi.actionSystem.ex.ActionManagerEx;
 import com.intellij.openapi.diagnostic.Logger;
@@ -52,10 +51,7 @@ import java.awt.*;
 import java.lang.reflect.Method;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.ResourceBundle;
+import java.util.*;
 import java.util.function.BiFunction;
 import java.util.stream.Stream;
 
@@ -126,16 +122,22 @@ public class LanguageSettingsPanel extends SettingsUi<BaseCodeDojoSettings.Langu
         myDescription.addHyperlinkListener(new BrowserHyperlinkListener());
 
         // get current ide locale
-        var locale = LocalizationUtil.INSTANCE.getLocaleOrNullForDefault();
-        var localString = locale != null ? "_" + locale.getLanguage() : "";
-        try {
-            var file = "/settings/CodeTemplate_" + myCodeDojo.value() + localString + ".html";
-            var description =
-                    StringUtil.join(IOUtils.readLines(Objects.requireNonNull(getClass().getResourceAsStream(file)), StandardCharsets.UTF_8), "");
-            description = XmlStringUtil.stripHtml(description);
-            description = IdeBundle.message("http.velocity", description);
-            myDescription.setText(description);
-            myDescription.setCaretPosition(0);
+        var localeString = Locale.getDefault().getLanguage();
+        var file = "/settings/CodeTemplate_" + myCodeDojo.value() + localeString + ".html";
+        var fallbackFile = "/settings/CodeTemplate_" + myCodeDojo.value() + ".html";
+        try (var fileStream = getClass().getResourceAsStream(file);
+             var fallbackStream = getClass().getResourceAsStream(fallbackFile)) {
+            var input = Optional.ofNullable(fileStream)
+                    .or(() -> Optional.ofNullable(fallbackStream))
+                    .orElse(null);
+            if (input != null) {
+                var description =
+                        StringUtil.join(IOUtils.readLines(Objects.requireNonNull(input), StandardCharsets.UTF_8), "");
+                description = XmlStringUtil.stripHtml(description);
+                description = IdeBundle.message("http.velocity", description);
+                myDescription.setText(description);
+                myDescription.setCaretPosition(0);
+            }
         } catch (Exception ignored) {
         }
     }
@@ -210,7 +212,7 @@ public class LanguageSettingsPanel extends SettingsUi<BaseCodeDojoSettings.Langu
 
             @Override
             public @NotNull ActionUpdateThread getActionUpdateThread() {
-                return ActionUpdateThread.BGT;
+                return ActionUpdateThread.EDT;
             }
         };
 
@@ -247,7 +249,7 @@ public class LanguageSettingsPanel extends SettingsUi<BaseCodeDojoSettings.Langu
                     @NotNull
                     @Override
                     public ActionUpdateThread getActionUpdateThread() {
-                        return ActionUpdateThread.BGT;
+                        return ActionUpdateThread.EDT;
                     }
                 };
 
@@ -280,36 +282,31 @@ public class LanguageSettingsPanel extends SettingsUi<BaseCodeDojoSettings.Langu
                 myDemoTemplateSupplier.apply(myLanguage, myLanguageVersion));
 
         ComponentValidator.getInstance(myCodeTemplateEditor).ifPresent(validator -> {
-            switch (result) {
-                case Left<Exception, String> left -> {
-                    validator.updateInfo(new ValidationInfo(left.value().getMessage(), myCodeTemplateEditor));
-                    myCodeTemplatePreview.setText(PluginBundle.message("ui.settings.codeTemplate.error.invalid"));
-                }
-                case Right<Exception, String> right -> {
-                    validator.updateInfo(null);
-                    myCodeTemplatePreview.setText(right.value());
-                }
-                default -> {
-                }
+            if (result.isLeft()) {
+                var left = (Left<Exception, String>) result;
+                validator.updateInfo(new ValidationInfo(left.value().getMessage(), myCodeTemplateEditor));
+                myCodeTemplatePreview.setText(PluginBundle.message("ui.settings.codeTemplate.error.invalid"));
+            } else {
+                var right = (Right<Exception, String>) result;
+                validator.updateInfo(null);
+                myCodeTemplatePreview.setText(right.value());
             }
         });
     }
 
     private void updateFileNamePreview() {
         var result = VelocityUtils.generateContent(myFileNameEditor.getText(), myLanguage, myDemoTemplateSupplier.apply(myLanguage, myLanguageVersion));
-        switch (result) {
-            case Left<Exception, String> left -> {
-                ComponentValidator.getInstance(myFileNameEditor).ifPresent(validator -> validator.updateInfo(new ValidationInfo(left.value().getMessage(), myFileNameEditor)));
+        if (result.isLeft()) {
+            var left = (Left<Exception, String>) result;
 
-                myFileNamePreview.setText(PluginBundle.message("ui.settings.fileName.error.invalid"));
-            }
-            case Right<Exception, String> right -> {
-                ComponentValidator.getInstance(myFileNameEditor).ifPresent(validator -> validator.updateInfo(null));
-                var content = right.value().trim();
-                myFileNamePreview.setText(content + "." + myLanguage.fileExt());
-            }
-            default -> {
-            }
+            ComponentValidator.getInstance(myFileNameEditor).ifPresent(validator -> validator.updateInfo(new ValidationInfo(left.value().getMessage(), myFileNameEditor)));
+
+            myFileNamePreview.setText(PluginBundle.message("ui.settings.fileName.error.invalid"));
+        } else {
+            var right = (Right<Exception, String>) result;
+            ComponentValidator.getInstance(myFileNameEditor).ifPresent(validator -> validator.updateInfo(null));
+            var content = right.value().trim();
+            myFileNamePreview.setText(content + "." + myLanguage.fileExt());
         }
     }
 

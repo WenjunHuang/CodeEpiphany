@@ -1,17 +1,18 @@
 package com.wenjunhuang.codeepiphany.leetcode
 
 import cats.effect.IO
+
 import com.intellij.testFramework.fixtures.BasePlatformTestCase
-import com.intellij.util.net.{ ProxyConfiguration, ProxySettings }
+import com.intellij.util.net.HttpConfigurable
+
 import com.wenjunhuang.codeepiphany.leetcode.services.LeetCodeApi
 import com.wenjunhuang.codeepiphany.model.CodeDojo
-import com.wenjunhuang.codeepiphany.model.CodeDojo.{ LeetCode, LeetCodeCN }
-import com.wenjunhuang.codeepiphany.services.http.{ HttpClientManager, HttpClientService }
+import com.wenjunhuang.codeepiphany.model.CodeDojo.{LeetCode, LeetCodeCN}
+import com.wenjunhuang.codeepiphany.services.http.{HttpClientManager, HttpClientService}
 import com.wenjunhuang.codeepiphany.utils.CookieUtil
 import com.wenjunhuang.codeepiphany.utils.implicits.*
 import org.hamcrest.CoreMatchers.*
 import org.hamcrest.MatcherAssert.assertThat
-
 import java.io.FileInputStream
 import java.net.HttpCookie
 import scala.io.Source
@@ -28,8 +29,10 @@ class LeetcodeApiIntegrationTest extends BasePlatformTestCase {
 
   override def setUp(): Unit = {
     super.setUp()
-    val proxy = ProxySettings.getInstance()
-    proxy.setProxyConfiguration(ProxyConfiguration.proxy(ProxyConfiguration.ProxyProtocol.HTTP, "127.0.0.1", 9999, ""))
+    val config = HttpConfigurable.getInstance()
+    config.USE_HTTP_PROXY = true
+    config.PROXY_HOST = "127.0.0.1"
+    config.PROXY_PORT = 9999
 
     val loginCookie = Source.fromInputStream(new FileInputStream(getBasePath + "/cookie")).getLines().mkString("\n")
     cookies = CookieUtil.parseCookies(loginCookie)

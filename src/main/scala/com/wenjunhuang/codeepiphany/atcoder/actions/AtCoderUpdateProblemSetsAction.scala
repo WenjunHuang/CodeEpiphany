@@ -4,12 +4,12 @@ import com.intellij.openapi.actionSystem.{ActionUpdateThread, AnActionEvent, Dat
 
 import com.wenjunhuang.codeepiphany.atcoder.actions.AtCoderUpdateProblemSetsAction.ATCODER_UPDATE_PROBLEM_SETS_PROVIDER_KEY
 import com.wenjunhuang.codeepiphany.model.CodeDojo.AtCoder
-import com.wenjunhuang.codeepiphany.utils.actions.{AbstractLoadingAction, DataKeyNotNull, UserLoggedIn}
+import com.wenjunhuang.codeepiphany.utils.actions.{AbstractLoadingAction, ActionCompatible, DataKeyNotNull, UserLoggedIn}
 
 class AtCoderUpdateProblemSetsAction
     extends AbstractLoadingAction
     with DataKeyNotNull(ATCODER_UPDATE_PROBLEM_SETS_PROVIDER_KEY)
-    with UserLoggedIn(AtCoder) {
+    with UserLoggedIn(AtCoder) with ActionCompatible{
   override def actionPerformed(e: AnActionEvent): Unit = {
     Option(AtCoderUpdateProblemSetsAction.ATCODER_UPDATE_PROBLEM_SETS_PROVIDER_KEY.getData(e.getDataContext)) match {
       case Some(provider) =>
@@ -29,10 +29,8 @@ class AtCoderUpdateProblemSetsAction
         setLoading(e.getPresentation, false)
     else e.getPresentation.setEnabledAndVisible(false)
   }
-
-  override def getActionUpdateThread: ActionUpdateThread = ActionUpdateThread.BGT
-
 }
+
 object AtCoderUpdateProblemSetsAction {
   val ATCODER_UPDATE_PROBLEM_SETS_PROVIDER_KEY: DataKey[AtCoderUpdateProblemSetsProvider] =
     DataKey.create[AtCoderUpdateProblemSetsProvider]("ATCODER_UPDATE_PROBLEM_SETS_PROVIDER_KEY")

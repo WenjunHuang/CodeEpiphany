@@ -4,10 +4,10 @@ import java.awt.Color
 
 import com.intellij.ide.ui.UISettings
 import com.intellij.openapi.editor.HighlighterColors
-import com.intellij.openapi.editor.colors.{EditorColorsManager, EditorColorsScheme}
+import com.intellij.openapi.editor.colors.{ EditorColorsManager, EditorColorsScheme }
 import com.intellij.openapi.editor.colors.impl.AppEditorFontOptions
 import com.intellij.ui.JBColor
-import com.intellij.util.ui.{JBUI, UIUtil}
+import com.intellij.util.ui.{ JBUI, UIUtil }
 
 import com.wenjunhuang.codeepiphany.utils.extensions.*
 
@@ -24,7 +24,11 @@ trait ChallengeDescriptionStyleProvider {
   def fontName: String                 = colorsScheme.getEditorFontName
   def fontSize: Int                    = AppEditorFontOptions.getInstance().getState.FONT_SIZE
   def lineHeight: Double               = AppEditorFontOptions.getInstance().getState.LINE_SPACING
-  def scale: Float                     = UISettings.getInstance().getCurrentIdeScale
+  def scale: Float = {
+    val settings = UISettings.getInstance()
+    if settings.getPresentationMode then settings.getPresentationModeIdeScale
+    else settings.getIdeScale
+  }
   def backgroundColor: Color           = colorsScheme.getDefaultBackground
   def foregroundColor: Color           = colorsScheme.getDefaultForeground
   def linkActiveForegroundColor: Color = JBUI.CurrentTheme.Link.Foreground.ENABLED

@@ -5,7 +5,7 @@ import scala.jdk.CollectionConverters.*
 import scala.jdk.OptionConverters.*
 
 import com.intellij.openapi.actionSystem.*
-import com.intellij.openapi.actionSystem.ex.{CheckboxAction, ComboBoxAction}
+import com.intellij.openapi.actionSystem.ex.{ CheckboxAction, ComboBoxAction }
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Key
 import com.intellij.openapi.vfs.VirtualFile
@@ -13,10 +13,11 @@ import com.intellij.openapi.vfs.VirtualFile
 import com.wenjunhuang.codeepiphany.database.Tables.*
 import com.wenjunhuang.codeepiphany.editor.actions.SolutionSelectionAction.*
 import com.wenjunhuang.codeepiphany.model.newtypes.SolutionId
-import com.wenjunhuang.codeepiphany.services.{AuthService, ChallengeRepository}
+import com.wenjunhuang.codeepiphany.services.{ AuthService, ChallengeRepository }
 import com.wenjunhuang.codeepiphany.settings.ChallengeSettings
+import com.wenjunhuang.codeepiphany.utils.actions.ActionCompatible
 
-class SolutionSelectionAction extends ComboBoxAction {
+class SolutionSelectionAction extends ComboBoxAction with ActionCompatible {
 
   override def createPopupActionGroup(button: JComponent, dataContext: DataContext): DefaultActionGroup = {
     getProvider(dataContext) match
@@ -24,15 +25,12 @@ class SolutionSelectionAction extends ComboBoxAction {
         DefaultActionGroup(
           provider.getSolutionItems
             .map(solution =>
-              new CheckboxAction(solution.title) {
-
+              new CheckboxAction(solution.title) with ActionCompatible {
                 override def isSelected(e: AnActionEvent): Boolean =
                   provider.getSelectedSolution.exists(_.solutionId == solution.solutionId)
 
                 override def setSelected(e: AnActionEvent, state: Boolean): Unit =
                   if state then provider.selectSolution(solution)
-
-                override def getActionUpdateThread: ActionUpdateThread = ActionUpdateThread.BGT
               }
             )
             .toArray*
@@ -51,8 +49,6 @@ class SolutionSelectionAction extends ComboBoxAction {
           presentation.setEnabled(true)
         else presentation.setEnabled(false)
   }
-
-  override def getActionUpdateThread: ActionUpdateThread = ActionUpdateThread.BGT
 
   private def getProvider(dataContext: DataContext): Option[SolutionSelectionProvider] = {
     Option(dataContext.getData(PlatformCoreDataKeys.FILE_EDITOR)).flatMap { editor =>
@@ -87,7 +83,9 @@ object SolutionSelectionAction {
           .getInstance(project)
           .findChallengeId(vf)
           .map { challengeItem =>
-            ChallengeRepository.getInstance(project).getDSLContext
+            ChallengeRepository
+              .getInstance(project)
+              .getDSLContext
               .selectFrom(SOLUTION)
               .where(SOLUTION.CHALLENGEID.eq(challengeItem.challengeId))
               .fetch()

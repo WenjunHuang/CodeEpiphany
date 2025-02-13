@@ -1,22 +1,21 @@
 package com.wenjunhuang.codeepiphany.actions
 
-import com.intellij.openapi.actionSystem.{ActionUpdateThread, AnAction, AnActionEvent, DataKey}
+import com.intellij.openapi.actionSystem.{ ActionUpdateThread, AnAction, AnActionEvent, DataKey }
 
 import com.wenjunhuang.codeepiphany.actions.OpenSubmissionCodeAction.*
-import com.wenjunhuang.codeepiphany.utils.actions.DataKeyNotNull
+import com.wenjunhuang.codeepiphany.utils.actions.{ ActionCompatible, DataKeyNotNull }
 
-class OpenSubmissionCodeAction extends AnAction with DataKeyNotNull(OPEN_SUBMISSION_PROVIDER_KEY) {
+class OpenSubmissionCodeAction
+    extends AnAction
+    with DataKeyNotNull(OPEN_SUBMISSION_PROVIDER_KEY)
+    with ActionCompatible {
   override def actionPerformed(e: AnActionEvent): Unit =
     getValue(e).openSubmissionCode()
 
   override def update(e: AnActionEvent): Unit = {
-    if isSatisfied(e) then
-      e.getPresentation.setEnabledAndVisible(true)
-    else
-      e.getPresentation.setEnabled(false)
+    if isSatisfied(e) then e.getPresentation.setEnabledAndVisible(true)
+    else e.getPresentation.setEnabled(false)
   }
-
-  override def getActionUpdateThread: ActionUpdateThread = ActionUpdateThread.BGT
 
 }
 

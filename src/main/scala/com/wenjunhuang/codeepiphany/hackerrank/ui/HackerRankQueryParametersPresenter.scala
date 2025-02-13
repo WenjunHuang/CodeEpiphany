@@ -9,7 +9,7 @@ import org.typelevel.ci.CIString
 import org.typelevel.log4cats.LoggerFactory
 
 import com.intellij.icons.AllIcons
-import com.intellij.openapi.actionSystem.{ActionGroup, ActionManager, DataSink}
+import com.intellij.openapi.actionSystem.{ActionGroup, ActionManager}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.util.ui.table.IconTableCellRenderer
@@ -28,6 +28,7 @@ import com.wenjunhuang.codeepiphany.model.*
 import com.wenjunhuang.codeepiphany.services.{ParametersQueryPresenter, QueryContext}
 import com.wenjunhuang.codeepiphany.services.http.{HttpClientManager, HttpClientService}
 import com.wenjunhuang.codeepiphany.utils.{OrderByColumnInfo, Pagination}
+import com.wenjunhuang.codeepiphany.utils.actions.DataSink
 import com.wenjunhuang.codeepiphany.utils.implicits.*
 import com.wenjunhuang.codeepiphany.utils.ui.TagPaneAction
 
@@ -303,7 +304,7 @@ class HackerRankQueryParametersPresenter(project: Project, bootstraps: HackerRan
           new IconTableCellRenderer[ChallengeStatus]() {
             override def getIcon(value: ChallengeStatus, table: JTable, row: Int): Icon =
               value match {
-                case ChallengeStatus.Solved => AllIcons.General.GreenCheckmark
+                case ChallengeStatus.Solved => AllIcons.General.InspectionsOK
                 case _ =>
                   if item.attempted.contains(true) then AllIcons.General.Modified
                   else null

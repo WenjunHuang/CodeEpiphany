@@ -9,7 +9,7 @@ import org.jooq.impl.DSL
 import scala.jdk.OptionConverters.*
 
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.vfs.{ VirtualFile, VirtualFileUtil }
+import com.intellij.openapi.vfs.{ VfsUtilCore, VirtualFile }
 
 import com.wenjunhuang.codeepiphany.database.Tables.*
 import com.wenjunhuang.codeepiphany.model.{ CodeDojo, Language, SubmissionResult }
@@ -119,7 +119,7 @@ abstract class BaseSubmissionService[F[_]: Async](
 
   private def readLocalCode(vf: VirtualFile): F[String] =
     Async[F].blocking {
-      VirtualFileUtil.readText(vf)
+      VfsUtilCore.loadText(vf)
     }
 
   private def extractCode(rawCode: String, language: Language): F[String] =

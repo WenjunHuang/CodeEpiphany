@@ -13,8 +13,9 @@ import scala.util.{Success, Try}
 
 import com.intellij.diff.requests.SimpleDiffRequest
 import com.intellij.diff.DiffContentFactory
+import com.intellij.diff.actions.CompareFilesAction
 import com.intellij.diff.tools.util.DiffDataKeys
-import com.intellij.openapi.actionSystem.{ActionGroup, ActionManager, DataSink}
+import com.intellij.openapi.actionSystem.{ActionGroup, ActionManager}
 import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.text.StringUtil
@@ -34,6 +35,7 @@ import com.wenjunhuang.codeepiphany.utils.ui.TagPaneAction
 import com.wenjunhuang.codeepiphany.vfs.SubmissionCodeFileSystem
 import com.wenjunhuang.codeepiphany.vfs.SubmissionCodeFileSystem.SubmissionCodeFilePath
 import com.wenjunhuang.codeepiphany.PluginBundle
+import com.wenjunhuang.codeepiphany.utils.actions.DataSink
 
 class SubmissionLogPresenter(project: Project)
     extends ParametersQueryPresenter[Unit, QueryParams, SubmissionLogEntry](project, ()) {
@@ -147,7 +149,7 @@ class SubmissionLogPresenter(project: Project)
     dataSink.set(LANGUAGE_PROVIDER_KEY, myLanguageProvider)
     dataSink.set(OPEN_SUBMISSION_PROVIDER_KEY, myOpenSubmissionCodeProvider)
     dataSink.`lazy`(
-      DiffDataKeys.DIFF_REQUEST_TO_COMPARE,
+      CompareFilesAction.DIFF_REQUEST,
       { () =>
         myQueryResultSelectionModel.getSelectedIndices.toList match
           case f :: s :: Nil =>

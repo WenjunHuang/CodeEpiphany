@@ -8,12 +8,13 @@ import com.intellij.openapi.project.DumbAwareAction
 import com.wenjunhuang.codeepiphany.hackerrank.actions.ChangeChallengesUIAction.*
 import com.wenjunhuang.codeepiphany.hackerrank.actions.ChangeChallengesUIAction.HackerRankUI.*
 import com.wenjunhuang.codeepiphany.model.CodeDojo.HackerRank
-import com.wenjunhuang.codeepiphany.utils.actions.{ DataKeyNotNull, UserLoggedIn }
+import com.wenjunhuang.codeepiphany.utils.actions.{ ActionCompatible, DataKeyNotNull, UserLoggedIn }
 
 class ChangeChallengesUIAction
     extends DumbAwareAction
     with DataKeyNotNull(CHANGE_CHALLENGES_UI_PROVIDER_KEY)
-    with UserLoggedIn(HackerRank) {
+    with UserLoggedIn(HackerRank)
+    with ActionCompatible {
   override def actionPerformed(e: AnActionEvent): Unit = {
     val provider = getValue(e)
     provider.getCurrentUI match
@@ -41,7 +42,6 @@ class ChangeChallengesUIAction
         updateIconAndName(provider.getCurrentUI, e.getPresentation)
     else e.getPresentation.setEnabledAndVisible(false)
 
-  override def getActionUpdateThread: ActionUpdateThread = ActionUpdateThread.BGT
 }
 
 object ChangeChallengesUIAction {

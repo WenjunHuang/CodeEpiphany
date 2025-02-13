@@ -1,10 +1,13 @@
 package com.wenjunhuang.codeepiphany.actions
 
-import com.intellij.openapi.actionSystem.{ ActionUpdateThread, AnActionEvent, DataKey }
+import com.intellij.openapi.actionSystem.{ActionUpdateThread, AnActionEvent, DataKey}
 
-import com.wenjunhuang.codeepiphany.utils.actions.{ AbstractLoadingAction, DataKeyNotNull }
+import com.wenjunhuang.codeepiphany.utils.actions.{AbstractLoadingAction, ActionCompatible, DataKeyNotNull}
 
-class RefreshAction extends AbstractLoadingAction with DataKeyNotNull(RefreshAction.REFRESH_PROVIDER_KEY) {
+class RefreshAction
+    extends AbstractLoadingAction
+    with DataKeyNotNull(RefreshAction.REFRESH_PROVIDER_KEY)
+    with ActionCompatible {
   override def actionPerformed(e: AnActionEvent): Unit = {
     getValue(e).refresh()
   }
@@ -19,7 +22,6 @@ class RefreshAction extends AbstractLoadingAction with DataKeyNotNull(RefreshAct
     else e.getPresentation.setEnabled(false)
   }
 
-  override def getActionUpdateThread: ActionUpdateThread = ActionUpdateThread.BGT
 }
 
 object RefreshAction {

@@ -1,27 +1,27 @@
 package com.wenjunhuang.codeepiphany.atcoder.ui
 
 import cats.effect.IO
-import javax.swing.{ Icon, JTable }
+import javax.swing.{Icon, JTable}
 import javax.swing.table.TableCellRenderer
 import monocle.syntax.all.*
 import org.jooq.impl.DSL
 import scala.jdk.CollectionConverters.*
 
-import com.intellij.openapi.actionSystem.DataSink
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.util.ui.ColorIcon
 import com.intellij.util.ui.table.IconTableCellRenderer
 
 import com.wenjunhuang.codeepiphany.actions.OpenChallengeActionGroup
-import com.wenjunhuang.codeepiphany.atcoder.models.{ AtCoderDifficulty, AtCoderSearchOrderBy }
+import com.wenjunhuang.codeepiphany.atcoder.models.{AtCoderDifficulty, AtCoderSearchOrderBy}
 import com.wenjunhuang.codeepiphany.atcoder.ui.AtCoderKeywordQueryPresenter.*
 import com.wenjunhuang.codeepiphany.database.tables.records.AtcoderProblemsRecord
 import com.wenjunhuang.codeepiphany.database.Tables.*
 import com.wenjunhuang.codeepiphany.model.OrderDirection
-import com.wenjunhuang.codeepiphany.services.{ ChallengeRepository, KeywordQueryPresenter, QueryContext }
+import com.wenjunhuang.codeepiphany.services.{ChallengeRepository, KeywordQueryPresenter, QueryContext}
 import com.wenjunhuang.codeepiphany.services.KeywordQueryPresenter.KeywordHolder
-import com.wenjunhuang.codeepiphany.utils.{ OrderByColumnInfo, Pagination }
+import com.wenjunhuang.codeepiphany.utils.{OrderByColumnInfo, Pagination}
+import com.wenjunhuang.codeepiphany.utils.actions.DataSink
 
 class AtCoderKeywordQueryPresenter(project: Project, bootstrap: AtCoderBootstrapParameters)
     extends KeywordQueryPresenter[AtCoderBootstrapParameters, QueryParams, AtCoderTableItem](project, bootstrap) {

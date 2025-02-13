@@ -23,6 +23,7 @@ import com.wenjunhuang.codeepiphany.model.LanguageVersion;
 import com.wenjunhuang.codeepiphany.settings.CodeEpiphanySettings;
 import com.wenjunhuang.codeepiphany.settings.SettingsUi;
 import com.wenjunhuang.codeepiphany.utils.JavaUtils;
+import com.wenjunhuang.codeepiphany.utils.actions.ActionCompatible;
 import org.apache.commons.collections.CollectionUtils;
 import org.jetbrains.annotations.NotNull;
 import scala.Tuple2;
@@ -77,7 +78,7 @@ public class CodeDojoSettingsForm extends SettingsUi<BaseCodeDojoSettings.CodeDo
         rootPanel = new BorderLayoutPanel().addToCenter(tabPanel);
     }
 
-    private class RemoveLanguageAction extends DumbAwareAction {
+    private class RemoveLanguageAction extends DumbAwareAction implements ActionCompatible {
         private final Language myLanguage;
         private final LanguageVersion myLanguageVersion;
 
@@ -102,13 +103,9 @@ public class CodeDojoSettingsForm extends SettingsUi<BaseCodeDojoSettings.CodeDo
             e.getPresentation().setText("Close");
         }
 
-        @Override
-        public @NotNull ActionUpdateThread getActionUpdateThread() {
-            return ActionUpdateThread.EDT;
-        }
     }
 
-    private class LanguageAction extends DumbAwareAction {
+    private class LanguageAction extends DumbAwareAction implements ActionCompatible {
         private final Language myLanguage;
         private final LanguageVersion myLanguageVersion;
 
@@ -130,11 +127,6 @@ public class CodeDojoSettingsForm extends SettingsUi<BaseCodeDojoSettings.CodeDo
         public void update(@NotNull AnActionEvent e) {
             var languages = myLanguagesPanels.keySet();
             e.getPresentation().setEnabledAndVisible(!languages.contains(new Tuple2<>(myLanguage, myLanguageVersion)));
-        }
-
-        @Override
-        public @NotNull ActionUpdateThread getActionUpdateThread() {
-            return ActionUpdateThread.BGT;
         }
     }
 

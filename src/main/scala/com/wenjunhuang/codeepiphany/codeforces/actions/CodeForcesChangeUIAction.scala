@@ -7,9 +7,12 @@ import com.intellij.openapi.project.DumbAwareAction
 
 import com.wenjunhuang.codeepiphany.codeforces.actions.CodeForcesChangeUIAction.*
 import com.wenjunhuang.codeepiphany.codeforces.actions.CodeForcesChangeUIAction.CodeForcesUI.*
-import com.wenjunhuang.codeepiphany.utils.actions.DataKeyNotNull
+import com.wenjunhuang.codeepiphany.utils.actions.{ ActionCompatible, DataKeyNotNull }
 
-class CodeForcesChangeUIAction extends DumbAwareAction with DataKeyNotNull(CODEFORCES_CHANGE_UI_PROVIDER_KEY) {
+class CodeForcesChangeUIAction
+    extends DumbAwareAction
+    with DataKeyNotNull(CODEFORCES_CHANGE_UI_PROVIDER_KEY)
+    with ActionCompatible {
   override def actionPerformed(e: AnActionEvent): Unit = {
     val provider = getValue(e)
     provider.getCurrentUI match
@@ -37,7 +40,6 @@ class CodeForcesChangeUIAction extends DumbAwareAction with DataKeyNotNull(CODEF
         updateIconAndName(provider.getCurrentUI, e.getPresentation)
     else e.getPresentation.setEnabledAndVisible(false)
 
-  override def getActionUpdateThread: ActionUpdateThread = ActionUpdateThread.BGT
 }
 
 object CodeForcesChangeUIAction {

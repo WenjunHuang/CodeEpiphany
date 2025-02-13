@@ -1,16 +1,14 @@
 package com.wenjunhuang.codeepiphany.actions
 
-import com.intellij.openapi.actionSystem.{ ActionUpdateThread, AnAction, AnActionEvent }
+import com.intellij.openapi.actionSystem.{ActionUpdateThread, AnAction, AnActionEvent}
 
 import com.wenjunhuang.codeepiphany.toolwindows.sidebar.SidebarWindowFactory
-import com.wenjunhuang.codeepiphany.utils.actions.ProjectNonNull
+import com.wenjunhuang.codeepiphany.utils.actions.{ActionCompatible, ProjectNonNull}
 
-class ActivateSolutionsViewAction extends AnAction with ProjectNonNull {
+class ActivateSolutionsViewAction extends AnAction with ProjectNonNull with ActionCompatible {
   override def actionPerformed(e: AnActionEvent): Unit = {
     SidebarWindowFactory.activate(e.getProject, SidebarWindowFactory.SOLUTIONS)
   }
-
-  override def getActionUpdateThread: ActionUpdateThread = ActionUpdateThread.BGT
 
   override def update(e: AnActionEvent): Unit = {
     if !isSatisfied(e) then e.getPresentation.setEnabled(false)

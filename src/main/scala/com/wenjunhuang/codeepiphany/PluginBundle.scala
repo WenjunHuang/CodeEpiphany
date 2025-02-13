@@ -12,7 +12,7 @@ object PluginBundle {
 
   def message(@PropertyKey(resourceBundle = BUNDLE) key: String): String = INSTANCE.getMessage(key)
 
-  def messageOfBuildKey(key: String): String = INSTANCE.getMessage(key)
+  def messageOfBuildKey(key: String): String = INSTANCE.messageOrNull(key)
   
   final private val BUNDLE = "messages.PluginBundle"
   private val INSTANCE     = DynamicBundle(getClass, BUNDLE)

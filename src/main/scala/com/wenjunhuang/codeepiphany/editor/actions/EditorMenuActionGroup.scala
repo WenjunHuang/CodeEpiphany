@@ -5,8 +5,9 @@ import com.intellij.openapi.actionSystem.{ActionUpdateThread, AnActionEvent, Com
 import com.wenjunhuang.codeepiphany.services.AuthService
 import com.wenjunhuang.codeepiphany.settings.ChallengeSettings
 import com.wenjunhuang.codeepiphany.PluginBundle
+import com.wenjunhuang.codeepiphany.utils.actions.ActionCompatible
 
-class EditorMenuActionGroup extends DefaultActionGroup {
+class EditorMenuActionGroup extends DefaultActionGroup with ActionCompatible {
   override def update(e: AnActionEvent): Unit = {
     val presentation = e.getPresentation
     presentation.setEnabledAndVisible(false)
@@ -25,6 +26,4 @@ class EditorMenuActionGroup extends DefaultActionGroup {
               presentation.setText(PluginBundle.message("group.CodeEpiphany.Editor.Menu.login"))
           case _ =>
   }
-
-  override def getActionUpdateThread: ActionUpdateThread = ActionUpdateThread.BGT
 }

@@ -6,7 +6,7 @@ import cats.syntax.all.*
 import fs2.Stream
 
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.vfs.{VirtualFile, VirtualFileUtil}
+import com.intellij.openapi.vfs.{VirtualFile, VfsUtilCore}
 
 import com.wenjunhuang.codeepiphany.model.{CodeDojo, Language, SubmissionResult}
 import com.wenjunhuang.codeepiphany.settings.ChallengeSettings
@@ -68,7 +68,7 @@ abstract class BaseCodeEvaluationService[F[_]: Async](
 
   private def readLocalCode(vf: VirtualFile): F[String] =
     Async[F].blocking {
-      VirtualFileUtil.readText(vf)
+      VfsUtilCore.loadText(vf)
     }
 
   private def extractCode(rawCode: String, language: Language): F[String] =

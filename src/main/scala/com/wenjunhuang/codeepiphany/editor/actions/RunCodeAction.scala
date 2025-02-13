@@ -3,8 +3,9 @@ package com.wenjunhuang.codeepiphany.editor.actions
 import com.intellij.openapi.actionSystem.*
 
 import com.wenjunhuang.codeepiphany.editor.actions.SubmitCodeAction.*
+import com.wenjunhuang.codeepiphany.utils.actions.ActionCompatible
 
-class RunCodeAction extends AnAction {
+class RunCodeAction extends AnAction with ActionCompatible {
   override def actionPerformed(e: AnActionEvent): Unit = {
     getProvider(e) match
       case Some(provider) =>
@@ -21,8 +22,6 @@ class RunCodeAction extends AnAction {
           e.getPresentation.setEnabled(provider.canRun)
         else e.getPresentation.setEnabledAndVisible(false)
   }
-
-  override def getActionUpdateThread: ActionUpdateThread = ActionUpdateThread.BGT
 
   private def getProvider(e: AnActionEvent): Option[SubmitCodeProvider] = {
     Option(e.getData(PlatformCoreDataKeys.FILE_EDITOR)).flatMap { editor =>

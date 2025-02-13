@@ -5,9 +5,9 @@ import javax.swing.*
 
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.actionSystem.*
-import com.intellij.openapi.actionSystem.ex.{ CheckboxAction, ComboBoxAction }
+import com.intellij.openapi.actionSystem.ex.CheckboxAction
 import com.intellij.openapi.observable.properties.AtomicProperty
-import com.intellij.openapi.ui.popup.{ JBPopup, JBPopupFactory }
+import com.intellij.openapi.ui.popup.{ JBPopup, JBPopupFactory, ListPopup }
 import com.intellij.openapi.util.Disposer
 import com.intellij.ui.components.{ JBScrollPane, JBTabbedPane }
 import com.intellij.uiDesigner.core.Spacer
@@ -15,11 +15,16 @@ import com.intellij.util.ui.components.BorderLayoutPanel
 import com.intellij.util.ui.JBUI
 
 import com.wenjunhuang.codeepiphany.actions.TagsAction.*
-import com.wenjunhuang.codeepiphany.utils.actions.{ DataKeyNotNull, ParameterProvider }
+import com.wenjunhuang.codeepiphany.utils.actions.{
+  ActionCompatible,
+  DataKeyNotNull,
+  MyComboBoxAction,
+  ParameterProvider
+}
 import com.wenjunhuang.codeepiphany.utils.implicits.*
 import com.wenjunhuang.codeepiphany.utils.ui.{ CollapsibleTitledSeparator, TagPane, TagPaneAction }
 
-class TagsAction extends ComboBoxAction with DataKeyNotNull(TAG_PROVIDER_KEY) {
+class TagsAction extends MyComboBoxAction with DataKeyNotNull(TAG_PROVIDER_KEY) with ActionCompatible {
   override def update(e: AnActionEvent): Unit =
     if isSatisfied(e) then e.getPresentation.setEnabled(true)
     else e.getPresentation.setEnabled(false)
@@ -111,12 +116,10 @@ class TagsAction extends ComboBoxAction with DataKeyNotNull(TAG_PROVIDER_KEY) {
       .map(actions => new DefaultActionGroup(actions*))
       .getOrElse(new DefaultActionGroup())
 
-  override def getActionUpdateThread: ActionUpdateThread = ActionUpdateThread.BGT
-
   override def actionPerformed(e: AnActionEvent): Unit = {}
 }
 
-class TagSubAction(private val myTag: Tag) extends CheckboxAction(myTag.name) with DataKeyNotNull(TAG_PROVIDER_KEY) {
+class TagSubAction(private val myTag: Tag) extends CheckboxAction(myTag.name) with DataKeyNotNull(TAG_PROVIDER_KEY) with ActionCompatible {
 
   override def isSelected(e: AnActionEvent): Boolean =
     getValue(e).isSelected(myTag)
@@ -127,7 +130,6 @@ class TagSubAction(private val myTag: Tag) extends CheckboxAction(myTag.name) wi
     else provider.removeSelectedItems(List(myTag))
   }
 
-  override def getActionUpdateThread: ActionUpdateThread = ActionUpdateThread.BGT
 }
 
 object TagsAction {

@@ -5,7 +5,6 @@ import monocle.syntax.all.*
 import org.jooq.impl.DSL
 import scala.jdk.CollectionConverters.*
 
-import com.intellij.openapi.actionSystem.DataSink
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.text.StringUtil
 
@@ -18,6 +17,7 @@ import com.wenjunhuang.codeepiphany.model.OrderDirection
 import com.wenjunhuang.codeepiphany.services.{ChallengeRepository, KeywordQueryPresenter, QueryContext}
 import com.wenjunhuang.codeepiphany.services.KeywordQueryPresenter.KeywordHolder
 import com.wenjunhuang.codeepiphany.utils.{OrderByColumnInfo, Pagination}
+import com.wenjunhuang.codeepiphany.utils.actions.DataSink
 
 class CodeForcesKeywordQueryPresenter(project: Project, bootstrap: CodeForcesBootstrapParameters)
     extends KeywordQueryPresenter[CodeForcesBootstrapParameters, QueryParams, CodeforcesProblemsetsRecord](

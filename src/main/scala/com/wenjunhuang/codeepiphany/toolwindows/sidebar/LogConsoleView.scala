@@ -10,26 +10,26 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.SimpleToolWindowPanel
 import com.intellij.openapi.util.Disposer
 import com.intellij.openapi.wm.ToolWindowManager
-import com.intellij.util.concurrency.ThreadingAssertions
 
 import com.wenjunhuang.codeepiphany.model.Constants
 import com.wenjunhuang.codeepiphany.utils.implicits.*
 import com.wenjunhuang.codeepiphany.PluginBundle
+import com.wenjunhuang.codeepiphany.utils.actions.{DataSink, UiDataProvider}
 
-class LogConsoleView(private val myProject: Project) extends SimpleToolWindowPanel(false, true) {
+class LogConsoleView(private val myProject: Project) extends SimpleToolWindowPanel(false, true) with UiDataProvider{
 
   private val myConsoleView: ConsoleView = TextConsoleBuilderFactory.getInstance().createBuilder(myProject).getConsole
 
   init()
 
   private def init(): Unit = {
+    setContent(myConsoleView.getComponent)
+
     val actionGroup = DefaultActionGroup(myConsoleView.createConsoleActions()*)
     val toolbar = ActionManager
       .getInstance()
       .createActionToolbar(Constants.ACTION_PREFIX + ".ConsoleView", actionGroup, true)
-
     toolbar.setTargetComponent(myConsoleView.getComponent)
-    setContent(myConsoleView.getComponent)
     setToolbar(toolbar.getComponent)
 
     Disposer.register(myProject, myConsoleView)
@@ -38,8 +38,7 @@ class LogConsoleView(private val myProject: Project) extends SimpleToolWindowPan
   }
 
   override def uiDataSnapshot(sink: DataSink): Unit = {
-    super.uiDataSnapshot(sink)
-    sink.set(LogConsoleView.CONSOLE_VIEW_KEY, myConsoleView)
+    sink.set(LogConsoleView.CONSOLE_VIEW_KEY,myConsoleView)
   }
 }
 
@@ -48,7 +47,6 @@ object LogConsoleView {
   final val CONSOLE_VIEW_KEY: DataKey[ConsoleView] = DataKey.create[ConsoleView]("ConsoleViewKey")
 
   def getConsoleView(project: Project): ConsoleView = {
-    ThreadingAssertions.assertEventDispatchThread()
     val logConsoleView = ToolWindowManager
       .getInstance(project)
       .getToolWindow(SidebarWindowFactory.TOOL_WINDOW_ID)

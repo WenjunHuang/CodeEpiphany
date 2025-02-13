@@ -25,6 +25,7 @@ lazy val codeEpiphany = (project in file("."))
     name         := "CodeEpiphany",
     version      := "0.7.1",
     compileOrder := CompileOrder.Mixed,
+    fork         := true,
     scalacOptions ++= Seq(
       "-Wunused:imports",
       "-language:implicitConversions",
@@ -51,6 +52,8 @@ lazy val codeEpiphany = (project in file("."))
       xml.pluginDescription = s"<![CDATA[${markdownToHtml(baseDirectory.value / "README_en.md")}]]>"
     },
     libraryDependencies ++= Seq(
+      // add scala reflect
+      "org.scala-lang"           % "scala-reflect"        % "2.13.16",
       "org.typelevel"           %% "cats-effect"          % "3.5.7",
       "org.typelevel"           %% "cats-core"            % "2.13.0",
       "org.typelevel"           %% "cats-mtl"             % "1.5.0",
