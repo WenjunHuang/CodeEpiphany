@@ -11,7 +11,6 @@ import org.http4s.circe.CirceEntityCodec.*
 import org.http4s.client.dsl.Http4sClientDsl
 import org.http4s.client.Client
 import org.http4s.headers.Referer
-import org.typelevel.ci.CIString
 import scala.concurrent.duration.*
 import scala.io.{BufferedSource, Source}
 

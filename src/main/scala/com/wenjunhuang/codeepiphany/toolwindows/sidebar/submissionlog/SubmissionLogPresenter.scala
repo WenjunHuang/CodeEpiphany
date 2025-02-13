@@ -14,7 +14,6 @@ import scala.util.{Success, Try}
 import com.intellij.diff.requests.SimpleDiffRequest
 import com.intellij.diff.DiffContentFactory
 import com.intellij.diff.actions.CompareFilesAction
-import com.intellij.diff.tools.util.DiffDataKeys
 import com.intellij.openapi.actionSystem.{ActionGroup, ActionManager}
 import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.project.Project
