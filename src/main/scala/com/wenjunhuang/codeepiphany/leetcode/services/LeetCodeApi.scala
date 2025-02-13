@@ -521,10 +521,18 @@ object LeetCodeApi {
     }
 
     private def getCSRFToken: F[String] =
-      HttpClientManager[F].findCookieForHost(CIString(dojo.domain.toString), CIString("csrftoken")).map {
-        case Some(cookie) => cookie.getValue
-        case None         => ""
+      useClient { client =>
+        client.get[String](Uri.unsafeFromString(s"https://${dojo.domain.toString}/api/home/")) { response =>
+          response.cookies.find(_.name == "csrftoken") match
+            case Some(cookie) => Async[F].delay(cookie.content)
+            case None =>
+              Async[F].delay("")
+        }
       }
+//      HttpClientManager[F].findCookieForHost(CIString(dojo.domain.toString), CIString("csrftoken")).map {
+//        case Some(cookie) => cookie.getValue
+//        case None         => ""
+//      }
 
     def openGraphQLFile(dojo: CodeDojo, fileName: String): F[String] = Resource
       .fromAutoCloseable[F, BufferedSource](
