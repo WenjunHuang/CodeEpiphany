@@ -13,6 +13,7 @@ import com.intellij.ui.dualView.TreeTableView;
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.uiDesigner.core.Spacer;
+import com.intellij.util.ui.JBUI;
 import com.wenjunhuang.codeepiphany.model.CodeDojo;
 import com.wenjunhuang.codeepiphany.utils.ui.TagUI;
 import org.apache.commons.collections.CollectionUtils;
@@ -153,6 +154,9 @@ public class SolutionListView {
                                 return ActionUpdateThread.EDT;
                             }
                         })
+                        .setScrollPaneBorder(JBUI.Borders.empty())
+                        .setPanelBorder(JBUI.Borders.empty())
+                        .setToolbarBorder(JBUI.Borders.empty())
                         .createPanel();
     }
 

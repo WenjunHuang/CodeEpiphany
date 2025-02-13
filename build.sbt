@@ -23,7 +23,7 @@ def markdownToHtml(file: File): String = {
 lazy val codeEpiphany = (project in file("."))
   .settings(
     name         := "CodeEpiphany",
-    version      := "0.7.1",
+    version      := "0.8.0",
     compileOrder := CompileOrder.Mixed,
     fork         := true,
     scalacOptions ++= Seq(
@@ -49,7 +49,7 @@ lazy val codeEpiphany = (project in file("."))
       xml.version = version.value
       xml.sinceBuild = intellijBuild.value
       xml.changeNotes = s"<![CDATA[${markdownToHtml(baseDirectory.value / "CHANGELOG.md")}]]>"
-      xml.pluginDescription = s"<![CDATA[${markdownToHtml(baseDirectory.value / "README_en.md")}]]>"
+      xml.pluginDescription = s"<![CDATA[${markdownToHtml(baseDirectory.value / "DESCRIPTION.md")}]]>"
     },
     libraryDependencies ++= Seq(
       // add scala reflect

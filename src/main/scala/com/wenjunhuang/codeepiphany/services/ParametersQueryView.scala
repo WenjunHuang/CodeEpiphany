@@ -58,8 +58,7 @@ class ParametersQueryView[Item](private val myPresenter: ParametersQueryPresente
   setContent(myContent)
 
   def refreshPagination(): Unit = {
-    if EDT.isCurrentThreadEdt then myQueryRangeToolbar.updateActionsImmediately()
-    else ApplicationManager.getApplication.invokeLater(() => myQueryRangeToolbar.updateActionsImmediately())
+    ApplicationManager.getApplication.invokeLater(() => myQueryRangeToolbar.updateActionsImmediately())
   }
 
   override def uiDataSnapshot(dataSink: DataSink): Unit =

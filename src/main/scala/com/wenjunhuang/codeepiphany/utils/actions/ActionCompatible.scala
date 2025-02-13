@@ -1,6 +1,6 @@
 package com.wenjunhuang.codeepiphany.utils.actions
 
-import com.intellij.openapi.actionSystem.{ ActionUpdateThread, AnAction }
+import com.intellij.openapi.actionSystem.{ActionUpdateThread, AnAction, UpdateInBackground}
 
 import com.wenjunhuang.codeepiphany.utils.IdeUtils
 

@@ -1,7 +1,15 @@
+## 0.8.0
+
+### Changed
+
+- Support Idea Platform from version 2023.3
+
 ## 0.7.1
+
 ### Added
+
 - Implement [#5](https://github.com/WenjunHuang/CodeEpiphany/issues/5)
- 
+
 ## 0.7.0
 
 ### Added

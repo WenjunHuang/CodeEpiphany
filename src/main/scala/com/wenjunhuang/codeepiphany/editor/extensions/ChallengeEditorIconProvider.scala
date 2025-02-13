@@ -24,9 +24,9 @@ class ChallengeEditorIconProvider extends FileIconPatcher {
               item.dojo.getIcon.orNull
             case None =>
               file.putUserData(FILE_ICON_KEY, FileIcon(None))
-              null
+              icon
           }
-        case FileIcon(icon) => icon.orNull
+        case FileIcon(patched) => patched.getOrElse(icon)
   }
 }
 

@@ -1,30 +1,25 @@
 package com.wenjunhuang.codeepiphany.actions
 
-import java.awt.{ Dimension, GridBagConstraints, GridBagLayout }
+import java.awt.{Dimension, GridBagConstraints, GridBagLayout}
 import javax.swing.*
 
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.actionSystem.*
-import com.intellij.openapi.actionSystem.ex.CheckboxAction
+import com.intellij.openapi.actionSystem.ex.{CheckboxAction, ComboBoxAction}
 import com.intellij.openapi.observable.properties.AtomicProperty
-import com.intellij.openapi.ui.popup.{ JBPopup, JBPopupFactory, ListPopup }
+import com.intellij.openapi.ui.popup.{JBPopup, JBPopupFactory, ListPopup}
 import com.intellij.openapi.util.Disposer
-import com.intellij.ui.components.{ JBScrollPane, JBTabbedPane }
+import com.intellij.ui.components.{JBScrollPane, JBTabbedPane}
 import com.intellij.uiDesigner.core.Spacer
 import com.intellij.util.ui.components.BorderLayoutPanel
 import com.intellij.util.ui.JBUI
 
 import com.wenjunhuang.codeepiphany.actions.TagsAction.*
-import com.wenjunhuang.codeepiphany.utils.actions.{
-  ActionCompatible,
-  DataKeyNotNull,
-  MyComboBoxAction,
-  ParameterProvider
-}
+import com.wenjunhuang.codeepiphany.utils.actions.{ActionCompatible, DataKeyNotNull, MyComboBoxAction, ParameterProvider}
 import com.wenjunhuang.codeepiphany.utils.implicits.*
-import com.wenjunhuang.codeepiphany.utils.ui.{ CollapsibleTitledSeparator, TagPane, TagPaneAction }
+import com.wenjunhuang.codeepiphany.utils.ui.{CollapsibleTitledSeparator, TagPane, TagPaneAction}
 
-class TagsAction extends MyComboBoxAction with DataKeyNotNull(TAG_PROVIDER_KEY) with ActionCompatible {
+class TagsAction extends ComboBoxAction with DataKeyNotNull(TAG_PROVIDER_KEY) with ActionCompatible {
   override def update(e: AnActionEvent): Unit =
     if isSatisfied(e) then e.getPresentation.setEnabled(true)
     else e.getPresentation.setEnabled(false)
