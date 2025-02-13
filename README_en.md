@@ -43,7 +43,10 @@ development environment.
 | - Participate in competition            | [ ]         | [ ]            | [ ]          | [ ]            | [ ]            |
 | - Submit competition answers            | [ ]         | [ ]            | [ ]          | [ ]            | [ ]            |
 | - View competition results and rankings | [ ]         | [ ]            | [ ]          | [ ]            | [ ]            |
-
+Explanation:
+- `[x]` indicates that the feature has been implemented.
+- `[ ]` indicates that the feature has not been implemented.
+- `[-]` indicates that the feature is not to be implemented.
 ---
 
 #### Key Features:
