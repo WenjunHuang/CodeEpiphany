@@ -62,8 +62,6 @@
                     class="com.wenjunhuang.codeepiphany.hackerrank.actions.SkillParameterAction"/>
         </group>
         <group id="CodeEpiphany.LeetCode.Group">
-            <action id="CodeEpiphany.Actions.LeetCode.ChangeUI"
-                    class="com.wenjunhuang.codeepiphany.leetcode.actions.LeetCodeChangeUIAction"/>
             <action id="CodeEpiphany.Actions.LeetCode.Favorite"
                     class="com.wenjunhuang.codeepiphany.leetcode.actions.FavoriteParameterAction"/>
             <action id="CodeEpiphany.Actions.LeetCode.Category"
@@ -75,6 +73,8 @@
             <action id="CodeEpiphany.Actions.LeetCode.InterviewPeriod"
                     class="com.wenjunhuang.codeepiphany.leetcode.actions.InterviewPeriodParameterAction"/>
         </group>
+        <group id="CodeEpiphany.Actions.LeetCode.ChangeUI"
+               class="com.wenjunhuang.codeepiphany.leetcode.actions.LeetCodeChangeUIAction"/>
         <group id="CodeEpiphany.CodeForces.Group">
             <action id="CodeEpiphany.Actions.CodeForces.ChangeUI"
                     class="com.wenjunhuang.codeepiphany.codeforces.actions.CodeForcesChangeUIAction"/>

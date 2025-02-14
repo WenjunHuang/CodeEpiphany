@@ -1,22 +1,24 @@
 package com.wenjunhuang.codeepiphany.utils.ui
 
-import java.awt.{Color, Dimension, Graphics, GridBagConstraints, GridBagLayout}
-import java.awt.event.{ActionEvent, MouseAdapter, MouseEvent}
-import javax.swing.{Icon, JLayeredPane, JPanel, SwingConstants}
+import java.awt.{ Color, Dimension, Graphics, GridBagConstraints, GridBagLayout }
+import java.awt.event.{ ActionEvent, MouseAdapter, MouseEvent }
+import javax.swing.{ Icon, JLayeredPane, JPanel, SwingConstants }
 
 import com.intellij.icons.AllIcons
-import com.intellij.openapi.actionSystem.{ActionManager, ActionToolbar, DefaultActionGroup}
+import com.intellij.openapi.actionSystem.{ ActionManager, ActionToolbar, DefaultActionGroup }
 import com.intellij.openapi.actionSystem.ex.DefaultCustomComponentAction
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.observable.properties.ObservableProperty
 import com.intellij.openapi.ui.popup.IconButton
-import com.intellij.ui.{Gray, InplaceButton, JBColor}
-import com.intellij.ui.components.{JBLabel, JBLayeredPane}
-import com.intellij.util.ui.{JBInsets, JBUI}
+import com.intellij.ui.{ Gray, InplaceButton, JBColor }
+import com.intellij.ui.components.{ JBLabel, JBLayeredPane }
+import com.intellij.util.text.VersionComparatorUtil
+import com.intellij.util.ui.{ JBInsets, JBUI }
 import com.intellij.util.ui.components.BorderLayoutPanel
 
 import com.wenjunhuang.codeepiphany.utils.extensions.*
 import com.wenjunhuang.codeepiphany.utils.implicits.*
+import com.wenjunhuang.codeepiphany.utils.IdeUtils
 
 class TagPane(val noBorderTop: Boolean = true, private val myTagsModel: ObservableProperty[List[TagPaneAction]])
     extends BorderLayoutPanel {
@@ -27,6 +29,10 @@ class TagPane(val noBorderTop: Boolean = true, private val myTagsModel: Observab
 
   myTagToolbar.setTargetComponent(this)
 //  myTagToolbar.setLayoutStrategy(ToolbarLayoutStrategy.WRAP_STRATEGY)
+
+//  if VersionComparatorUtil.compare(IdeUtils.shortVersion, "2024.1") >= 0 then
+//    myTagToolbar.setLayoutStrategy(com.intellij.openapi.actionSystem.toolbarLayout.ToolbarLayoutStrategy.WRAP_STRATEGY)
+//  else
   myTagToolbar.setLayoutPolicy(ActionToolbar.WRAP_LAYOUT_POLICY)
   myTagToolbar.setReservePlaceAutoPopupIcon(false)
 

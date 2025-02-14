@@ -2,6 +2,7 @@ package com.wenjunhuang.codeepiphany.settings.dojo;
 
 import com.intellij.icons.AllIcons;
 import com.intellij.openapi.Disposable;
+import com.intellij.openapi.actionSystem.ActionUpdateThread;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.DefaultActionGroup;
 import com.intellij.openapi.options.ConfigurationException;
@@ -13,6 +14,7 @@ import com.intellij.ui.tabs.JBTabsEx;
 import com.intellij.ui.tabs.JBTabsFactory;
 import com.intellij.ui.tabs.TabInfo;
 import com.intellij.uiDesigner.core.Spacer;
+import com.intellij.util.text.VersionComparatorUtil;
 import com.intellij.util.ui.JBUI;
 import com.intellij.util.ui.components.BorderLayoutPanel;
 import com.wenjunhuang.codeepiphany.PluginBundle;
@@ -21,6 +23,7 @@ import com.wenjunhuang.codeepiphany.model.Language;
 import com.wenjunhuang.codeepiphany.model.LanguageVersion;
 import com.wenjunhuang.codeepiphany.settings.CodeEpiphanySettings;
 import com.wenjunhuang.codeepiphany.settings.SettingsUi;
+import com.wenjunhuang.codeepiphany.utils.IdeUtils;
 import com.wenjunhuang.codeepiphany.utils.JavaUtils;
 import com.wenjunhuang.codeepiphany.utils.actions.ActionCompatible;
 import org.apache.commons.collections.CollectionUtils;
@@ -77,7 +80,7 @@ public class CodeDojoSettingsForm extends SettingsUi<BaseCodeDojoSettings.CodeDo
         rootPanel = new BorderLayoutPanel().addToCenter(tabPanel);
     }
 
-    private class RemoveLanguageAction extends DumbAwareAction implements ActionCompatible {
+    private class RemoveLanguageAction extends DumbAwareAction {
         private final Language myLanguage;
         private final LanguageVersion myLanguageVersion;
 
@@ -102,9 +105,13 @@ public class CodeDojoSettingsForm extends SettingsUi<BaseCodeDojoSettings.CodeDo
             e.getPresentation().setText("Close");
         }
 
+        @Override
+        public @NotNull ActionUpdateThread getActionUpdateThread() {
+            return ActionUpdateThread.EDT;
+        }
     }
 
-    private class LanguageAction extends DumbAwareAction implements ActionCompatible {
+    private class LanguageAction extends DumbAwareAction {
         private final Language myLanguage;
         private final LanguageVersion myLanguageVersion;
 
@@ -126,6 +133,11 @@ public class CodeDojoSettingsForm extends SettingsUi<BaseCodeDojoSettings.CodeDo
         public void update(@NotNull AnActionEvent e) {
             var languages = myLanguagesPanels.keySet();
             e.getPresentation().setEnabledAndVisible(!languages.contains(new Tuple2<>(myLanguage, myLanguageVersion)));
+        }
+
+        @Override
+        public @NotNull ActionUpdateThread getActionUpdateThread() {
+            return ActionUpdateThread.EDT;
         }
     }
 

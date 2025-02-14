@@ -2,6 +2,7 @@ package com.wenjunhuang.codeepiphany.editor.extensions
 
 import org.jdom.Element
 
+import com.intellij.openapi.application.ReadAction
 import com.intellij.openapi.editor.ex.EditorEx
 import com.intellij.openapi.fileEditor.*
 import com.intellij.openapi.fileEditor.AsyncFileEditorProvider.Builder
@@ -48,7 +49,9 @@ class ChallengeEditorProvider extends AsyncFileEditorProviderBridge with DumbAwa
 
   override def createEditorAsync(project: Project, file: VirtualFile): AsyncFileEditorProvider.Builder = new Builder() {
     override def build(): FileEditor =
-      setupEditor(delegate.createEditor(project, file).asInstanceOf[TextEditor], project, file)
+      ReadAction.compute { () =>
+        setupEditor(delegate.createEditor(project, file).asInstanceOf[TextEditor], project, file)
+      }
   }
 
   private def setupEditor(editor: TextEditor, project: Project, file: VirtualFile): TextEditor = {

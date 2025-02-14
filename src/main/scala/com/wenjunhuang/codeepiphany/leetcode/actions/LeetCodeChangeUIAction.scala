@@ -3,6 +3,7 @@ package com.wenjunhuang.codeepiphany.leetcode.actions
 import icons.CodeEpiphanyIcons
 import javax.swing.Icon
 
+import com.intellij.icons.AllIcons
 import com.intellij.openapi.actionSystem.*
 import com.intellij.openapi.project.DumbAwareAction
 
@@ -21,7 +22,6 @@ class LeetCodeChangeUIAction
 
   init()
 
-
   private def init(): Unit = {
     add(
       createSubAction(
@@ -36,14 +36,16 @@ class LeetCodeChangeUIAction
   }
 
   private def createSubAction(ui: LeetCodeUI, icon: Icon, text: String): AnAction = {
-    val action = new ToggleAction(text, text, icon)
+    val action = new AnAction(text, text, icon)
       with DataKeyNotNull(LEETCODE_CHANGE_UI_PROVIDER_KEY)
       with ActionCompatible {
-      override def isSelected(e: AnActionEvent): Boolean =
-        getValue(e).getCurrentUI == ui
-
-      override def setSelected(e: AnActionEvent, state: Boolean): Unit =
+      override def actionPerformed(e: AnActionEvent): Unit =
         getValue(e).switchTo(ui)
+
+      override def update(e: AnActionEvent): Unit = {
+        if getValue(e).getCurrentUI == ui then e.getPresentation.setIcon(AllIcons.General.InspectionsOK)
+        else e.getPresentation.setIcon(null)
+      }
     }
     action
   }
