@@ -3,16 +3,16 @@ package com.wenjunhuang.codeepiphany.editor.extensions
 import java.util
 import scala.jdk.CollectionConverters.*
 
-import com.intellij.openapi.project.{Project, ProjectLocator}
+import com.intellij.openapi.project.{ Project, ProjectLocator }
 import com.intellij.openapi.vfs.AsyncFileListener
-import com.intellij.openapi.vfs.newvfs.events.{VFileEvent, VFileMoveEvent, VFilePropertyChangeEvent}
+import com.intellij.openapi.vfs.newvfs.events.{ VFileEvent, VFileMoveEvent, VFilePropertyChangeEvent }
 
 import com.wenjunhuang.codeepiphany.settings.ChallengeSettings
 
 class ChallengeFileRenameListener extends AsyncFileListener {
   override def prepareChange(events: util.List[? <: VFileEvent]): AsyncFileListener.ChangeApplier = {
     val changes = events.asScala.collect {
-      case propertyChange: VFilePropertyChangeEvent if propertyChange.isRename =>
+      case propertyChange: VFilePropertyChangeEvent =>
         val oldName = propertyChange.getOldPath
         val newName = propertyChange.getNewPath
         val project = ProjectLocator.getInstance().guessProjectForFile(propertyChange.getFile)

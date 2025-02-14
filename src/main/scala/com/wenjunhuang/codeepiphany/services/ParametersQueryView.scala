@@ -1,8 +1,8 @@
 package com.wenjunhuang.codeepiphany.services
 
-import java.awt.{BorderLayout, Color}
-import java.awt.event.{MouseAdapter, MouseEvent}
-import javax.swing.{JTable, ScrollPaneConstants}
+import java.awt.{ BorderLayout, Color }
+import java.awt.event.{ MouseAdapter, MouseEvent }
+import javax.swing.{ JTable, ScrollPaneConstants }
 import javax.swing.table.DefaultTableCellRenderer
 
 import com.intellij.icons.AllIcons
@@ -22,7 +22,8 @@ import com.wenjunhuang.codeepiphany.model.Actions.*
 import com.wenjunhuang.codeepiphany.model.OrderDirection
 import com.wenjunhuang.codeepiphany.utils.ui.TagPane
 import com.wenjunhuang.codeepiphany.utils.OrderByColumnInfo.nextOrderFilter
-import com.wenjunhuang.codeepiphany.utils.actions.{DataSink, UiDataProvider}
+import com.wenjunhuang.codeepiphany.utils.actions.{ DataSink, UiDataProvider }
+import com.wenjunhuang.codeepiphany.utils.ActionToolbarCompatibleUtils
 
 class ParametersQueryView[Item](private val myPresenter: ParametersQueryPresenter[?, ?, Item])
     extends SimpleToolWindowPanel(true, true)
@@ -58,7 +59,7 @@ class ParametersQueryView[Item](private val myPresenter: ParametersQueryPresente
   setContent(myContent)
 
   def refreshPagination(): Unit = {
-    ApplicationManager.getApplication.invokeLater(() => myQueryRangeToolbar.updateActionsImmediately())
+    ApplicationManager.getApplication.invokeLater(() => ActionToolbarCompatibleUtils.updateActions(myQueryRangeToolbar))
   }
 
   override def uiDataSnapshot(dataSink: DataSink): Unit =

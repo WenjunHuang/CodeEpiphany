@@ -2,7 +2,10 @@ package com.wenjunhuang.codeepiphany.services
 
 import javax.swing.JComponent
 
+import cats.effect.IO
+import com.wenjunhuang.codeepiphany.utils.implicits.*
 import com.intellij.openapi.actionSystem.{ActionGroup, ActionManager, DefaultActionGroup}
+import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.observable.properties.{AtomicProperty, ObservableProperty}
 import com.intellij.openapi.project.Project
 

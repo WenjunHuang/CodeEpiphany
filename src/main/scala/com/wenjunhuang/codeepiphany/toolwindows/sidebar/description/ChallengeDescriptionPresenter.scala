@@ -1,6 +1,6 @@
 package com.wenjunhuang.codeepiphany.toolwindows.sidebar.description
 
-import cats.effect.{Async, IO}
+import cats.effect.{ Async, IO }
 import cats.effect.kernel.Resource.ExitCase
 import cats.effect.std.Queue
 import cats.syntax.all.*
@@ -14,7 +14,7 @@ import scala.jdk.OptionConverters.*
 import com.intellij.ide.BrowserUtil
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.diagnostic.Logger
-import com.intellij.openapi.fileEditor.{FileEditorManager, FileEditorManagerEvent, FileEditorManagerListener}
+import com.intellij.openapi.fileEditor.{ FileEditorManager, FileEditorManagerEvent, FileEditorManagerListener }
 import com.intellij.openapi.fileTypes.FileTypes
 import com.intellij.openapi.fileTypes.ex.FileTypeChooser
 import com.intellij.openapi.project.Project
@@ -28,6 +28,7 @@ import com.wenjunhuang.codeepiphany.model.newtypes.ChallengeId
 import com.wenjunhuang.codeepiphany.services.ChallengeRepository
 import com.wenjunhuang.codeepiphany.settings.ChallengeSettings
 import com.wenjunhuang.codeepiphany.utils.implicits.*
+import com.wenjunhuang.codeepiphany.utils.walkaround.FileEditorManagerListenerBridge
 
 class ChallengeDescriptionPresenter(private val myProject: Project) extends Disposable {
   private val logger            = Logger.getInstance(getClass)
@@ -38,7 +39,7 @@ class ChallengeDescriptionPresenter(private val myProject: Project) extends Disp
     .connect(this)
     .subscribe(
       FileEditorManagerListener.FILE_EDITOR_MANAGER,
-      new FileEditorManagerListener {
+      new FileEditorManagerListenerBridge {
         override def selectionChanged(event: FileEditorManagerEvent): Unit = {
           Option(event.getNewFile) match {
             case Some(vf) =>

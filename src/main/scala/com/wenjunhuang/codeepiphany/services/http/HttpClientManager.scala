@@ -1,12 +1,14 @@
 package com.wenjunhuang.codeepiphany.services.http
 
-import cats.effect.{Async, Ref, Resource}
+import cats.effect.{ Async, Ref, Resource }
 import cats.effect.kernel.Ref.Make
 import cats.effect.kernel.Sync
 import cats.syntax.all.*
-import java.net.HttpCookie
+import java.net.{ HttpCookie, ProxySelector, SocketAddress, URI }
+import java.{ net, util }
+import java.io.IOException
 import java.security.cert.X509Certificate
-import javax.net.ssl.{SSLContext, TrustManager, X509TrustManager}
+import javax.net.ssl.{ SSLContext, TrustManager, X509TrustManager }
 import okhttp3.*
 import org.http4s.client.Client
 import org.typelevel.ci.CIString
@@ -130,9 +132,14 @@ object HttpClientManager {
       .readTimeout(readTimeout.toMillis, java.util.concurrent.TimeUnit.MILLISECONDS)
       .sslSocketFactory(sslSocketFactory, trustAllManager)
       .hostnameVerifier((_, _) => true)
-      .proxySelector(
-        IdeaWideProxySelector(HttpConfigurable.getInstance()) // IntelliJ proxy selector
-      )
+      .proxySelector(new ProxySelector {
+        private def inner = IdeaWideProxySelector(HttpConfigurable.getInstance()) // IntelliJ proxy selector
+
+        override def select(uri: URI): util.List[net.Proxy] = inner.select(uri)
+
+        override def connectFailed(uri: URI, sa: SocketAddress, ioe: IOException): Unit =
+          inner.connectFailed(uri, sa, ioe)
+      })
       .proxyAuthenticator(authenticator)
       .addInterceptor((chain: Interceptor.Chain) => {
         val request = chain.request()

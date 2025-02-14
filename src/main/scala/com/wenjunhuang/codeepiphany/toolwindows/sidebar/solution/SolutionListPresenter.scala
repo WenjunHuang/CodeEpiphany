@@ -29,6 +29,7 @@ import com.wenjunhuang.codeepiphany.services.ChallengeRepository
 import com.wenjunhuang.codeepiphany.settings.ChallengeSettings
 import com.wenjunhuang.codeepiphany.utils.implicits.*
 import com.wenjunhuang.codeepiphany.utils.IdGenerator
+import com.wenjunhuang.codeepiphany.utils.walkaround.FileEditorManagerListenerBridge
 import com.wenjunhuang.codeepiphany.vfs.{SolutionRemarkFile, SolutionRemarkFileSystem}
 
 class SolutionListPresenter(val myProject: Project) extends Disposable {
@@ -70,7 +71,7 @@ class SolutionListPresenter(val myProject: Project) extends Disposable {
     .connect(this)
     .subscribe(
       FileEditorManagerListener.FILE_EDITOR_MANAGER,
-      new FileEditorManagerListener {
+      new FileEditorManagerListenerBridge {
         override def selectionChanged(event: FileEditorManagerEvent): Unit = {
           Option(event.getNewFile) match {
             case Some(vf: SolutionRemarkFile) if !mySelectedChallenge.exists(_._1 == vf.myPath.challengeId) =>
