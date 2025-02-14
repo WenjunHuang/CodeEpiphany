@@ -59,6 +59,7 @@ lazy val codeEpiphany = (project in file("."))
       "org.typelevel"           %% "cats-mtl"             % "1.5.0",
       "io.circe"                %% "circe-core"           % "0.14.10",
       "io.circe"                %% "circe-generic"        % "0.14.10",
+//      "io.circe"                %% "circe-generic-extras" % "0.14.4",
       "io.circe"                %% "circe-parser"         % "0.14.10",
       "io.circe"                %% "circe-optics"         % "0.15.0",
       "co.fs2"                  %% "fs2-core"             % "3.11.0",

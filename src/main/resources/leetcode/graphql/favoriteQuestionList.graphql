@@ -13,7 +13,8 @@ query favoriteQuestionList($favoriteSlug: String!, $filter: FavoriteQuestionFilt
       difficulty
       id
       paidOnly
-      frontendQuestionId: questionFrontendId
+      # can't be used as frontendQuestionId
+      questionFrontendId
       status
       title
       titleSlug
@@ -26,7 +27,6 @@ query favoriteQuestionList($favoriteSlug: String!, $filter: FavoriteQuestionFilt
         slug
       }
     }
-    totalLength
-    hasMore
+    total: totalLength
   }
 }

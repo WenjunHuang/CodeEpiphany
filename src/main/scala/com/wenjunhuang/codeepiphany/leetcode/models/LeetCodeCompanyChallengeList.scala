@@ -1,22 +1,23 @@
 package com.wenjunhuang.codeepiphany.leetcode.models
 
-import io.circe.*
-import io.circe.derivation.*
+import io.circe.derivation.{ ConfiguredDecoder, ConfiguredEncoder }
 
-case class LeetCodeChallengeList(questions: List[LeetCodeChallengeListItem], total: Int)
+case class LeetCodeCompanyChallengeList(questions: List[LeetCodeCompanyChallengeListItem], total: Int)
     derives ConfiguredDecoder,
       ConfiguredEncoder
 
-case class LeetCodeChallengeListItem(
+case class LeetCodeCompanyChallengeListItem(
   acRate: Double,
   difficulty: String,
   freqBar: Option[Double] = None,
   paidOnly: Boolean,
   solutionNum: Int = 0,
   status: Option[String] = None,
-  frontendQuestionId: String,
+  questionFrontendId: String,
   title: String,
   titleCn: Option[String] = None,
   titleSlug: String
 ) derives ConfiguredDecoder,
-      ConfiguredEncoder
+      ConfiguredEncoder {
+  def frontendQuestionId: String = questionFrontendId
+}

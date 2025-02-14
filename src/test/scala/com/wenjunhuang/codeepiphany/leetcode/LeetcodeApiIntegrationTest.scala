@@ -195,4 +195,20 @@ class LeetcodeApiIntegrationTest extends BasePlatformTestCase {
     val leetCodeApi = LeetCodeApi[IO](LeetCode)
     println(leetCodeApi.getPositionTags.unsafeRunSync())
   }
+
+  def testGetCompanyQUestions(): Unit = {
+    val httpClientService = HttpClientService.getInstance(getProject)
+    import httpClientService.*
+//    val leetCodeCNApi = LeetCodeApi[IO](LeetCodeCN)
+//    println(
+//      (setCookie(httpClientManager) *> leetCodeCNApi.searchCompanyChallenges(0, 20, List("bytedance"), Nil, None))
+//        .unsafeRunSync()
+//    )
+    val leetCodeApi = LeetCodeApi[IO](LeetCode)
+    println(
+      (setCookie(httpClientManager) *> leetCodeApi.searchCompanyChallenges(0, 20, List("facebook"), Nil, None))
+        .unsafeRunSync()
+    )
+
+  }
 }
