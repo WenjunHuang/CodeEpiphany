@@ -1,6 +1,7 @@
 package com.wenjunhuang.codeepiphany.leetcode.actions
 
 import icons.CodeEpiphanyIcons
+import javax.swing.Icon
 
 import com.intellij.openapi.actionSystem.*
 import com.intellij.openapi.project.DumbAwareAction
@@ -11,28 +12,51 @@ import com.wenjunhuang.codeepiphany.leetcode.actions.LeetCodeChangeUIAction.{
 }
 import com.wenjunhuang.codeepiphany.leetcode.actions.LeetCodeChangeUIAction.LeetCodeUI.*
 import com.wenjunhuang.codeepiphany.utils.actions.{ ActionCompatible, DataKeyNotNull }
+import com.wenjunhuang.codeepiphany.PluginBundle
 
 class LeetCodeChangeUIAction
-    extends DumbAwareAction
+    extends DefaultActionGroup
     with DataKeyNotNull(LEETCODE_CHANGE_UI_PROVIDER_KEY)
     with ActionCompatible {
-  override def actionPerformed(e: AnActionEvent): Unit = {
-    val provider = getValue(e)
-    provider.getCurrentUI match
-      case QueryParameters => provider.switchTo(SearchByKeyword)
-      case SearchByKeyword => provider.switchTo(QueryParameters)
-      case _               => ()
+
+  init()
+
+
+  private def init(): Unit = {
+    add(
+      createSubAction(
+        LeetCodeUI.QueryParameters,
+        CodeEpiphanyIcons.QUERY_PARAM,
+        PluginBundle.message("ui.query.parameters")
+      )
+    )
+    add(createSubAction(LeetCodeUI.SearchByKeyword, CodeEpiphanyIcons.SEARCH, PluginBundle.message("ui.query.keyword")))
+    add(createSubAction(LeetCodeUI.CompanyQuery, CodeEpiphanyIcons.BUILDING, PluginBundle.message("ui.query.company")))
+    setPopup(true)
+  }
+
+  private def createSubAction(ui: LeetCodeUI, icon: Icon, text: String): AnAction = {
+    val action = new ToggleAction(text, text, icon)
+      with DataKeyNotNull(LEETCODE_CHANGE_UI_PROVIDER_KEY)
+      with ActionCompatible {
+      override def isSelected(e: AnActionEvent): Boolean =
+        getValue(e).getCurrentUI == ui
+
+      override def setSelected(e: AnActionEvent, state: Boolean): Unit =
+        getValue(e).switchTo(ui)
+    }
+    action
   }
 
   private def updateIconAndName(ui: LeetCodeUI, present: Presentation): Unit =
     ui match
       case Unauthenticated => ()
       case QueryParameters =>
-        present.setIcon(CodeEpiphanyIcons.SEARCH)
-        present.setText("Search by Keyword")
-      case SearchByKeyword =>
         present.setIcon(CodeEpiphanyIcons.QUERY_PARAM)
-        present.setText("Query Parameters")
+      case SearchByKeyword =>
+        present.setIcon(CodeEpiphanyIcons.SEARCH)
+      case CompanyQuery =>
+        present.setIcon(CodeEpiphanyIcons.BUILDING)
 
   override def update(e: AnActionEvent): Unit =
     if isSatisfied(e) then
@@ -42,6 +66,7 @@ class LeetCodeChangeUIAction
         e.getPresentation.setEnabledAndVisible(true)
         updateIconAndName(provider.getCurrentUI, e.getPresentation)
     else e.getPresentation.setEnabledAndVisible(false)
+
 }
 
 object LeetCodeChangeUIAction {

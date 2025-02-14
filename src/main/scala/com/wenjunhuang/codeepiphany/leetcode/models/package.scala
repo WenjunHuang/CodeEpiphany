@@ -29,12 +29,16 @@ package object models {
       case ChallengeStatus.Solved   => "AC"
       case ChallengeStatus.Tried    => "TRIED"
 
+    def leetCodeStatusForCompanySearch(status:ChallengeStatus):String = status match
+      case ChallengeStatus.Unsolved => "TO_DO"
+      case ChallengeStatus.Solved   => "SOLVED"
+      case ChallengeStatus.Tried    => "ATTEMPTED"
+
     def fromLeetCodeStatus(status: String): ChallengeStatus = CIString(status) match
-      case ns if ns == CIString("NOT_STARTED") => ChallengeStatus.Unsolved
-      case ac if ac == CIString("AC")          => ChallengeStatus.Solved
-      case t if t == CIString("TRIED")         => ChallengeStatus.Tried
-      case nac if nac == CIString("NOTAC")     => ChallengeStatus.Tried
-      case _                                   => ChallengeStatus.Unsolved
+      case ns if ns == CIString("NOT_STARTED") || ns == CIString("TO_DO") => ChallengeStatus.Unsolved
+      case ac if ac == CIString("AC") || ac == CIString("SOLVED")         => ChallengeStatus.Solved
+      case t if t == CIString("TRIED") || t == CIString("NOTAC") || t == CIString("ATTEMPTED") => ChallengeStatus.Tried
+      case _ => ChallengeStatus.Unsolved
 
     def leetCodeOrderDirection(direction: OrderDirection): String = direction match
       case OrderDirection.Ascending  => "ASCENDING"

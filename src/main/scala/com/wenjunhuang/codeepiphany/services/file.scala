@@ -67,7 +67,7 @@ object file {
     Async[F].delay {
       val descriptor = OpenFileDescriptor(project, vf)
       FileEditorManager.getInstance(project).openTextEditor(descriptor, false)
-    }.evalOnEDTAny()
+    }.evalOnEDTWithWrite()
 
   def saveEditedFile[F[_]: Async: LoggerFactory](file: VirtualFile): F[Either[Throwable, Unit]] =
     Async[F]

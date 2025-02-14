@@ -1,3 +1,7 @@
+## 0.8.1
+### Added
+- Implement company question search for LeetCodeCN and LeetCode
+ 
 ## 0.8.0
 
 ### Changed

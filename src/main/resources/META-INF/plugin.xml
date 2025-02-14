@@ -7,7 +7,7 @@
     <description>Your ultimate plugin for mastering coding challenges directly in Idea platforms!</description>
     <change-notes>Initial release</change-notes>
 
-    <idea-version since-build="242.0"/>
+    <idea-version since-build="233.3"/>
 
     <depends>com.intellij.modules.platform</depends>
 
@@ -68,6 +68,12 @@
                     class="com.wenjunhuang.codeepiphany.leetcode.actions.FavoriteParameterAction"/>
             <action id="CodeEpiphany.Actions.LeetCode.Category"
                     class="com.wenjunhuang.codeepiphany.leetcode.actions.LeetCodeCategoryParameterAction"/>
+            <action id="CodeEpiphany.Actions.LeetCode.Company"
+                    class="com.wenjunhuang.codeepiphany.leetcode.actions.CompanyParameterAction"/>
+            <action id="CodeEpiphany.Actions.LeetCode.Position"
+                    class="com.wenjunhuang.codeepiphany.leetcode.actions.PositionParameterAction"/>
+            <action id="CodeEpiphany.Actions.LeetCode.InterviewPeriod"
+                    class="com.wenjunhuang.codeepiphany.leetcode.actions.InterviewPeriodParameterAction"/>
         </group>
         <group id="CodeEpiphany.CodeForces.Group">
             <action id="CodeEpiphany.Actions.CodeForces.ChangeUI"
@@ -129,11 +135,15 @@
         <group id="CodeEpiphany.Dojos.LeetCode.Toolbar">
             <reference ref="CodeEpiphany.Actions.LeetCode.Category"/>
             <reference ref="CodeEpiphany.Actions.LeetCode.Favorite"/>
+            <reference ref="CodeEpiphany.Actions.LeetCode.Company"/>
+            <reference ref="CodeEpiphany.Actions.LeetCode.Position"/>
             <reference ref="CodeEpiphany.Actions.Difficulty"/>
             <reference ref="CodeEpiphany.Actions.Status"/>
             <reference ref="CodeEpiphany.Actions.Tags"/>
+            <reference ref="CodeEpiphany.Actions.LeetCode.InterviewPeriod"/>
             <reference ref="CodeEpiphany.Actions.Refresh"/>
         </group>
+
         <group id="CodeEpiphany.Dojos.CodeForces.Toolbar">
             <reference ref="CodeEpiphany.Actions.Difficulty"/>
             <reference ref="CodeEpiphany.Actions.Tags"/>

@@ -1,13 +1,16 @@
 package com.wenjunhuang.codeepiphany.utils
 
 import cats.effect.kernel.Async
-import cats.effect.unsafe.{IORuntime, IORuntimeConfig, Scheduler}
-import java.util.concurrent.{Executor, Executors}
-import scala.concurrent.{ExecutionContext, ExecutionContextExecutorService}
+import cats.effect.unsafe.{ IORuntime, IORuntimeConfig, Scheduler }
+import java.util.concurrent.{ Executor, Executors }
+import retry.*
+import retry.ResultHandler.{ noop, retryOnAllErrors }
+import scala.concurrent.{ ExecutionContext, ExecutionContextExecutorService }
+import scala.concurrent.duration.*
 
-import com.intellij.openapi.application.{ApplicationManager, ModalityState}
+import com.intellij.openapi.application.{ ApplicationManager, ModalityState }
 import com.intellij.openapi.application.ex.ApplicationManagerEx
-import com.intellij.openapi.progress.{ProgressIndicator, ProgressManager, Task}
+import com.intellij.openapi.progress.{ ProgressIndicator, ProgressManager, Task }
 import com.intellij.openapi.project.Project
 
 private trait IOOps {
@@ -82,5 +85,10 @@ private trait IOOps {
     def evalOnEDTWithWrite(): F[A] = Async[F].evalOn(fa, intellijEDTWriteContext)
     def evalOnEDTWithRead(): F[A]  = Async[F].evalOn(fa, intellijEDTReadContext)
     def evalWithRead(): F[A]       = Async[F].evalOn(fa, intellijReadContext)
+    def retryLimitsWithBackoff(times: Int = 3, baseDelay: FiniteDuration = 1.second): F[A] =
+      retry.retryingOnErrors(fa)(
+        RetryPolicies.limitRetries(times).join(RetryPolicies.exponentialBackoff(baseDelay)),
+        errorHandler = retryOnAllErrors(noop)
+      )
   }
 }

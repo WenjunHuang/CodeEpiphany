@@ -63,8 +63,12 @@ trait LeetCodeApi[F[_]] {
   def searchCompanyChallenges(
     offset: Int,
     limit: Int,
+    interviewPeriodSlug: String,
     companySlugs: List[String],
     positionSlugs: List[String],
+    difficulty: Option[ChallengeDifficulty],
+    status: Option[ChallengeStatus],
+    tags: List[LeetCodeTag],
     orderBy: Option[(LeetCodeSearchOrderBy, OrderDirection)]
   ): F[LeetCodeCompanyChallengeList]
 
@@ -534,6 +538,14 @@ object LeetCodeApi {
         JsonObject("orderBy" -> order.value.asJson, "sortOrder" -> dojo.leetCodeOrderDirection(direction).asJson)
       }.getOrElse(orElse)
     }
+    private def createSortField(
+      orderBy: Option[(LeetCodeSearchOrderBy, OrderDirection)],
+      orElse: JsonObject = JsonObject.empty
+    ): JsonObject = {
+      orderBy.map { case (order, direction) =>
+        JsonObject("sortField" -> order.value.asJson, "sortOrder" -> dojo.leetCodeOrderDirection(direction).asJson)
+      }.getOrElse(orElse)
+    }
     private def createSearchKeywordFilterJson(
       keyWord: String,
       orderBy: Option[(LeetCodeSearchOrderBy, OrderDirection)]
@@ -546,11 +558,17 @@ object LeetCodeApi {
     override def searchCompanyChallenges(
       offset: Int,
       limit: Int,
+      interviewPeriodSlug: String,
       companySlugs: List[String],
       positionSlugs: List[String],
+      difficulty: Option[ChallengeDifficulty],
+      status: Option[ChallengeStatus],
+      tags: List[LeetCodeTag],
       orderBy: Option[(LeetCodeSearchOrderBy, OrderDirection)]
     ): F[LeetCodeCompanyChallengeList] = useClient { client =>
       openGraphQLFile(dojo, "favoriteQuestionList").flatMap { file =>
+        val favorite = companySlugs.head
+        val rest     = companySlugs.tail
         getCSRFToken.flatMap { csrfToken =>
           client
             .expect[Json](
@@ -563,9 +581,9 @@ object LeetCodeApi {
                     variables = Map(
                       "skip"         -> offset.asJson,
                       "limit"        -> limit.asJson,
-                      "favoriteSlug" -> "amazon-thirty-days".asJson,
+                      "favoriteSlug" -> s"$favorite-${interviewPeriodSlug}".asJson,
                       "filtersV2" -> Map(
-                        "companyFilter" -> Map("companySlugs" -> companySlugs.asJson, "operator" -> "IS".asJson).asJson,
+                        "companyFilter" -> Map("companySlugs" -> rest.asJson, "operator" -> "IS".asJson).asJson,
                         "positionFilter" -> Map(
                           "positionSlugs" -> positionSlugs.asJson,
                           "operator"      -> "IS".asJson
@@ -577,7 +595,7 @@ object LeetCodeApi {
                           "operator"      -> "IS".asJson
                         ).asJson,
                         "difficultyFilter" -> Map(
-                          "difficulties" -> List.empty[String].asJson,
+                          "difficulties" -> difficulty.map(dojo.leetCodeDifficulty).toList.asJson,
                           "operator"     -> "IS".asJson
                         ).asJson,
                         "premiumFilter" -> Map(
@@ -585,16 +603,16 @@ object LeetCodeApi {
                           "operator"      -> "IS".asJson
                         ).asJson,
                         "statusFilter" -> Map(
-                          "questionStatuses" -> List.empty[String].asJson,
+                          "questionStatuses" -> status.map(dojo.leetCodeStatusForCompanySearch).toList.asJson,
                           "operator"         -> "IS".asJson
                         ).asJson,
                         "topicFilter" -> Map(
-                          "topicSlugs" -> List.empty[String].asJson,
+                          "topicSlugs" -> tags.map(_.slug).asJson,
                           "operator"   -> "IS".asJson
                         ).asJson,
                         "filterCombineType" -> "ALL".asJson
                       ).asJson,
-                      "sortBy" -> createOrderBy(
+                      "sortBy" -> createSortField(
                         orderBy,
                         Map("sortField" -> "CUSTOM".asJson, "sortOrder" -> "ASCENDING".asJson).asJsonObject
                       ).asJson,

@@ -11,13 +11,13 @@ case class LeetCodeCompanyChallengeListItem(
   difficulty: String,
   freqBar: Option[Double] = None,
   paidOnly: Boolean,
-  solutionNum: Int = 0,
   status: Option[String] = None,
   questionFrontendId: String,
   title: String,
-  titleCn: Option[String] = None,
+  translatedTitle: Option[String] = None,
   titleSlug: String
 ) derives ConfiguredDecoder,
       ConfiguredEncoder {
   def frontendQuestionId: String = questionFrontendId
+  def titleCn:Option[String] = translatedTitle
 }

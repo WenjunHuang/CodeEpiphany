@@ -1,9 +1,9 @@
 package com.wenjunhuang.codeepiphany.utils.actions
 
-import javax.swing.{Icon, JComponent}
+import javax.swing.{ Icon, JComponent }
 
 import com.intellij.openapi.actionSystem.*
-import com.intellij.openapi.actionSystem.ex.{CheckboxAction, ComboBoxAction}
+import com.intellij.openapi.actionSystem.ex.{ CheckboxAction, ComboBoxAction }
 
 import com.wenjunhuang.codeepiphany.utils.actions.ParameterComboBoxAction.QueryParamSubAction
 
@@ -16,8 +16,8 @@ abstract class ParameterComboBoxAction[P, T <: ParameterProvider[P]](
     with DataKeyNotNull[T](key)
     with ActionCompatible {
   override def update(e: AnActionEvent): Unit = {
-    if isSatisfied(e) then e.getPresentation.setEnabled(true)
-    else e.getPresentation.setEnabled(false)
+    if isSatisfied(e) then e.getPresentation.setEnabledAndVisible(true)
+    else e.getPresentation.setEnabledAndVisible(false)
   }
 
   override def createPopupActionGroup(button: JComponent, dataContext: DataContext): DefaultActionGroup = {

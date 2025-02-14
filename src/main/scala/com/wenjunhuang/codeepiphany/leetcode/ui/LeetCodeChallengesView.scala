@@ -5,17 +5,21 @@ import cats.syntax.all.*
 import javax.swing.JComponent
 import org.typelevel.log4cats.LoggerFactory
 
-import com.intellij.openapi.actionSystem.{ActionGroup, ActionManager}
+import com.intellij.openapi.actionSystem.{ ActionGroup, ActionManager }
 import com.intellij.openapi.project.Project
 
-import com.wenjunhuang.codeepiphany.actions.LoginAction.{LOGIN_LOGOUT_KEY, LoginLogoutProvider}
-import com.wenjunhuang.codeepiphany.leetcode.actions.LeetCodeChangeUIAction.{LEETCODE_CHANGE_UI_PROVIDER_KEY, LeetCodeChangeUIProvider, LeetCodeUI}
+import com.wenjunhuang.codeepiphany.actions.LoginAction.{ LOGIN_LOGOUT_KEY, LoginLogoutProvider }
+import com.wenjunhuang.codeepiphany.leetcode.actions.LeetCodeChangeUIAction.{
+  LEETCODE_CHANGE_UI_PROVIDER_KEY,
+  LeetCodeChangeUIProvider,
+  LeetCodeUI
+}
 import com.wenjunhuang.codeepiphany.leetcode.actions.LeetCodeChangeUIAction.LeetCodeUI.*
 import com.wenjunhuang.codeepiphany.leetcode.services.LeetCodeApi
 import com.wenjunhuang.codeepiphany.model.Actions.LEETCODE_TITLE_TOOLBAR_GROUP
 import com.wenjunhuang.codeepiphany.model.CodeDojo
-import com.wenjunhuang.codeepiphany.services.{console, AskForLoginResult, AuthService, BaseChallengesView}
-import com.wenjunhuang.codeepiphany.services.http.{HttpClientManager, HttpClientService}
+import com.wenjunhuang.codeepiphany.services.{ console, AskForLoginResult, AuthService, BaseChallengesView }
+import com.wenjunhuang.codeepiphany.services.http.{ HttpClientManager, HttpClientService }
 import com.wenjunhuang.codeepiphany.utils.actions.DataSink
 import com.wenjunhuang.codeepiphany.utils.extensions.*
 import com.wenjunhuang.codeepiphany.utils.implicits.*
@@ -31,9 +35,15 @@ class LeetCodeChallengesView(
 
   private def initialize(): IO[LeetCodeBootstrapParameters] = {
     val myApi = LeetCodeApi[IO](myCodeDojo)
-    (myApi.getUserInfo, myApi.getCategoryList, myApi.getFavoriteList, myApi.getTagTypeWithTags).parMapN {
-      (userInfo, categories, favorites, tagTypeWithTags) =>
-        LeetCodeBootstrapParameters(userInfo, categories, favorites, tagTypeWithTags)
+    (
+      myApi.getUserInfo.retryLimitsWithBackoff(),
+      myApi.getCategoryList.retryLimitsWithBackoff(),
+      myApi.getFavoriteList.retryLimitsWithBackoff(),
+      myApi.getTagTypeWithTags.retryLimitsWithBackoff(),
+      myApi.getQuestionCompanyTags.retryLimitsWithBackoff(),
+      myApi.getPositionTags.retryLimitsWithBackoff()
+    ).parMapN { (userInfo, categories, favorites, tagTypeWithTags, companyTags, positionTags) =>
+      LeetCodeBootstrapParameters(userInfo, categories, favorites, tagTypeWithTags, companyTags, positionTags)
     }
   }
 
@@ -42,8 +52,10 @@ class LeetCodeChallengesView(
   private var myQueryParamPresenter: Option[LeetCodeParametersQueryPresenter] = None
   @volatile
   private var myKeywordSearchPresenter: Option[LeetCodeKeywordQueryPresenter] = None
-  private var myCurrentUI                                                     = LeetCodeUI.Unauthenticated
-  private val myLogger                                                        = LoggerFactory.getLogger[IO]
+  @volatile
+  private var myCompanyQueryPresenter: Option[LeetCodeCompanyQueryPresenter] = None
+  private var myCurrentUI                                                    = LeetCodeUI.Unauthenticated
+  private val myLogger                                                       = LoggerFactory.getLogger[IO]
 
   @volatile
   private var myIsLoggingIn = false
@@ -62,6 +74,7 @@ class LeetCodeChallengesView(
               initialize().map { bootstrap =>
                 myQueryParamPresenter = Some(LeetCodeParametersQueryPresenter(myProject, bootstrap, myCodeDojo))
                 myKeywordSearchPresenter = Some(LeetCodeKeywordQueryPresenter(myProject, bootstrap, myCodeDojo))
+                myCompanyQueryPresenter = Some(LeetCodeCompanyQueryPresenter(myProject, bootstrap, myCodeDojo))
               } *> IO.delay {
                 AuthService.getInstance(myProject).setLogin(myCodeDojo)
                 mySwitchUIProvider.switchTo(QueryParameters)
@@ -110,6 +123,7 @@ class LeetCodeChallengesView(
     case LeetCodeUI.Unauthenticated => myUnauthenticatedView
     case LeetCodeUI.QueryParameters => myQueryParamPresenter.map(_.getViewComponent).getOrElse(myUnauthenticatedView)
     case LeetCodeUI.SearchByKeyword => myKeywordSearchPresenter.map(_.getViewComponent).getOrElse(myUnauthenticatedView)
+    case LeetCodeUI.CompanyQuery    => myCompanyQueryPresenter.map(_.getViewComponent).getOrElse(myUnauthenticatedView)
   }
 
   override def uiDataSnapshot(dataSink: DataSink): Unit =
