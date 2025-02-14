@@ -7,8 +7,8 @@ import com.intellij.util.net.HttpConfigurable
 
 import com.wenjunhuang.codeepiphany.leetcode.services.LeetCodeApi
 import com.wenjunhuang.codeepiphany.model.CodeDojo
-import com.wenjunhuang.codeepiphany.model.CodeDojo.{LeetCode, LeetCodeCN}
-import com.wenjunhuang.codeepiphany.services.http.{HttpClientManager, HttpClientService}
+import com.wenjunhuang.codeepiphany.model.CodeDojo.{ LeetCode, LeetCodeCN }
+import com.wenjunhuang.codeepiphany.services.http.{ HttpClientManager, HttpClientService }
 import com.wenjunhuang.codeepiphany.utils.CookieUtil
 import com.wenjunhuang.codeepiphany.utils.implicits.*
 import org.hamcrest.CoreMatchers.*
@@ -84,7 +84,7 @@ class LeetcodeApiIntegrationTest extends BasePlatformTestCase {
     import httpClientService.*
     val leetCodeCNApi = LeetCodeApi[IO](CodeDojo.LeetCodeCN)
     leetCodeCNApi
-      .searchChallenges(0, 50,None,None,None,None,Nil,None)
+      .searchChallenges(0, 50, None, None, None, None, Nil, None)
       .map { result =>
         assertThat(result.total, not(0))
       }
@@ -93,7 +93,7 @@ class LeetcodeApiIntegrationTest extends BasePlatformTestCase {
     (setCookie(httpClientManager)
       *>
         leetCodeApi
-          .searchChallenges(0, 50,None,None,None,None,Nil,None)
+          .searchChallenges(0, 50, None, None, None, None, Nil, None)
           .map { result =>
             assertThat(result.total, not(0))
           })
@@ -104,7 +104,7 @@ class LeetcodeApiIntegrationTest extends BasePlatformTestCase {
     val httpClientService = HttpClientService.getInstance(getProject)
     import httpClientService.*
     val leetCodeCNApi = LeetCodeApi[IO](LeetCodeCN)
-    val leetCodeApi = LeetCodeApi[IO](LeetCode)
+    val leetCodeApi   = LeetCodeApi[IO](LeetCode)
 
     leetCodeCNApi
       .checkLogin()
@@ -140,7 +140,7 @@ class LeetcodeApiIntegrationTest extends BasePlatformTestCase {
     val httpClientService = HttpClientService.getInstance(getProject)
     import httpClientService.*
     val leetCodeCNApi = LeetCodeApi[IO](LeetCodeCN)
-    val leetCodeApi = LeetCodeApi[IO](LeetCode)
+    val leetCodeApi   = LeetCodeApi[IO](LeetCode)
 
     leetCodeCNApi.getUserInfo.map { userInfo =>
       assertThat(userInfo.userSlug, is(None))
@@ -158,13 +158,41 @@ class LeetcodeApiIntegrationTest extends BasePlatformTestCase {
     }.unsafeRunSync()
   }
 
-  def testGetQuestion():Unit = {
+  def testGetQuestion(): Unit = {
     val httpClientService = HttpClientService.getInstance(getProject)
     import httpClientService.*
     val leetCodeCNApi = LeetCodeApi[IO](LeetCodeCN)
-    val leetCodeApi = LeetCodeApi[IO](LeetCode)
+    val leetCodeApi   = LeetCodeApi[IO](LeetCode)
 
     println(leetCodeCNApi.getQuestionData("median-of-two-sorted-arrays").unsafeRunSync())
+  }
 
+  def testGetCompanyTags(): Unit = {
+    val httpClientService = HttpClientService.getInstance(getProject)
+    import httpClientService.*
+//    val leetCodeCNApi = LeetCodeApi[IO](LeetCodeCN)
+//    println(leetCodeCNApi.getCompanyTags.unsafeRunSync())
+
+    val leetCodeApi = LeetCodeApi[IO](LeetCode)
+    println(leetCodeApi.getCompanyTags.unsafeRunSync())
+  }
+
+  def testGetQuestionCompanyTags(): Unit = {
+    val httpClientService = HttpClientService.getInstance(getProject)
+    import httpClientService.*
+//        val leetCodeCNApi = LeetCodeApi[IO](LeetCodeCN)
+//        println(leetCodeCNApi.getQuestionCompanyTags.unsafeRunSync())
+
+    val leetCodeApi = LeetCodeApi[IO](LeetCode)
+    println(leetCodeApi.getQuestionCompanyTags.unsafeRunSync())
+  }
+  def testGetPositionTags(): Unit = {
+    val httpClientService = HttpClientService.getInstance(getProject)
+    import httpClientService.*
+//    val leetCodeCNApi = LeetCodeApi[IO](LeetCodeCN)
+//    println(leetCodeCNApi.getPositionTags.unsafeRunSync())
+
+    val leetCodeApi = LeetCodeApi[IO](LeetCode)
+    println(leetCodeApi.getPositionTags.unsafeRunSync())
   }
 }

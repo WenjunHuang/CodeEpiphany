@@ -1,0 +1,7 @@
+query problemsetPositionTags {
+  problemsetPositionTags {
+    name
+    nameTranslated
+    slug
+  }
+}

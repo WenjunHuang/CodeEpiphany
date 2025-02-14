@@ -1,5 +1,5 @@
-query questionCompanyTagsV2($offset: Int) {
-  companyTagsV2(limit: 15, offset: $offset) {
+query questionCompanyTagsV2 {
+  companyTagsV2 {
     companyTagInfoNodes {
       name
       slug

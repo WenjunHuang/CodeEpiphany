@@ -1,0 +1,6 @@
+query problemsetCompanyTags {
+  problemsetCompanyTags {
+    name
+    slug
+  }
+}

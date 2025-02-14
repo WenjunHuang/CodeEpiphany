@@ -1,26 +1,30 @@
 package com.wenjunhuang.codeepiphany.leetcode.services
 
-import cats.effect.{Async, Concurrent, Resource, Temporal}
+import cats.effect.{ Async, Concurrent, Resource, Temporal }
 import cats.syntax.all.*
 import fs2.Stream
-import io.circe.{Json, JsonObject}
+import io.circe.{ Json, JsonObject }
 import io.circe.optics.JsonPath
 import io.circe.syntax.*
-import org.http4s.{Headers, Method, Uri}
+import org.http4s.{ Headers, Method, Uri }
 import org.http4s.circe.CirceEntityCodec.*
 import org.http4s.client.dsl.Http4sClientDsl
 import org.http4s.client.Client
 import org.http4s.headers.Referer
 import scala.concurrent.duration.*
-import scala.io.{BufferedSource, Source}
+import scala.io.{ BufferedSource, Source }
 
 import com.intellij.util.LineSeparator
 
 import com.wenjunhuang.codeepiphany.leetcode.models.*
 import com.wenjunhuang.codeepiphany.leetcode.models.runCode.*
-import com.wenjunhuang.codeepiphany.leetcode.models.submitAnswer.{LeetCodeSubmitAnswerRequest, LeetCodeSubmitAnswerResponse, LeetCodeSubmitAnswerResult}
+import com.wenjunhuang.codeepiphany.leetcode.models.submitAnswer.{
+  LeetCodeSubmitAnswerRequest,
+  LeetCodeSubmitAnswerResponse,
+  LeetCodeSubmitAnswerResult
+}
 import com.wenjunhuang.codeepiphany.model.*
-import com.wenjunhuang.codeepiphany.model.CodeDojo.{LeetCode, LeetCodeCN}
+import com.wenjunhuang.codeepiphany.model.CodeDojo.{ LeetCode, LeetCodeCN }
 import com.wenjunhuang.codeepiphany.services.http.HttpClientManager
 
 enum LeetCodeSearchOrderBy(val value: String) {
@@ -35,6 +39,9 @@ trait LeetCodeApi[F[_]] {
   def getFavoriteList: F[List[LeetCodeFavoriteItem]]
   def getCategoryList: F[List[LeetCodeCategoryListItem]]
   def getTagTypeWithTags: F[List[LeetCodeTagTypeWithTags]]
+  def getCompanyTags: F[List[LeetCodeProblemsetCompanyTag]]
+  def getQuestionCompanyTags: F[List[LeetCodeQuestionCompanyTag]]
+  def getPositionTags: F[List[LeetCodeProblemsetPositionTag]]
   def searchChallenges(
     offset: Int,
     limit: Int,
@@ -113,6 +120,80 @@ object LeetCodeApi {
               case r: LeetCodeSubmitAnswerResult.Pending => r.copy(leetCodeSubmissionId = submissionId.toString)
               case r                                     => r
             }
+        }
+      }
+
+    override def getPositionTags: F[List[LeetCodeProblemsetPositionTag]] = useClient { client =>
+      openGraphQLFile(dojo, "problemsetPositionTags").flatMap { file =>
+        getCSRFToken.flatMap { csrfToken =>
+          client.expect[Json](
+            Method
+              .POST(graphqlUrl, headers = commonHeaders(csrfToken))
+              .withEntity(
+                LeetCodeGraphQLRequest(
+                  operationName = "problemsetPositionTags",
+                  query = file,
+                  variables = Map.empty[String, String].asJsonObject
+                )
+              )
+          )
+        }.flatMap { json =>
+          JsonPath.root.data.problemsetPositionTags.json
+            .getOption(json)
+            .toRight(ApiError.InvalidContent(dojo, "can not find 'data.problemsetPositionTags' in json"))
+            .flatMap(it => it.as[List[LeetCodeProblemsetPositionTag]])
+            .liftTo[F]
+        }
+      }
+    }
+
+    override def getCompanyTags: F[List[LeetCodeProblemsetCompanyTag]] = useClient { client =>
+      openGraphQLFile(dojo, "problemsetCompanyTags").flatMap { file =>
+        getCSRFToken.flatMap { csrfToken =>
+          client.expect[Json](
+            Method
+              .POST(graphqlUrl, headers = commonHeaders(csrfToken))
+              .withEntity(
+                LeetCodeGraphQLRequest(
+                  operationName = "problemsetCompanyTags",
+                  query = file,
+                  variables = Map.empty[String, String].asJsonObject
+                )
+              )
+          )
+        }.flatMap { json =>
+          JsonPath.root.data.problemsetCompanyTags.json
+            .getOption(json)
+            .toRight(ApiError.InvalidContent(dojo, "can not find 'data.problemsetCompanyTags' in json"))
+            .flatMap(it => it.as[List[LeetCodeProblemsetCompanyTag]])
+            .liftTo[F]
+        }
+      }
+    }
+
+    override def getQuestionCompanyTags: F[List[LeetCodeQuestionCompanyTag]] =
+      useClient { client =>
+        openGraphQLFile(dojo, "questionCompanyTagsV2").flatMap { file =>
+          getCSRFToken.flatMap { csrfToken =>
+            client.expect[Json](
+              Method
+                .POST(graphqlUrl, headers = commonHeaders(csrfToken))
+                .withEntity(
+                  LeetCodeGraphQLRequest(
+                    operationName = "questionCompanyTagsV2",
+                    query = file,
+                    variables = Map.empty[String, String].asJsonObject
+                  )
+                )
+            )
+          }.flatMap { json =>
+            JsonPath.root.data.companyTagsV2.companyTagInfoNodes.json
+              .orElse(JsonPath.root.data.companyTags.json)
+              .getOption(json)
+              .toRight(ApiError.InvalidContent(dojo, "can not find 'data.problemsetCompanyTags' in json"))
+              .flatMap(it => it.as[List[LeetCodeQuestionCompanyTag]])
+              .liftTo[F]
+          }
         }
       }
 
