@@ -41,9 +41,9 @@ class LuoGuApiIntegrationTest extends BasePlatformTestCase {
     val luoGuApi                  = LuoGuApi[IO]()
     println(
       (setCookie(httpClientKeeper) *>
-        luoGuApi.searchChallenges(List.empty, None, List.empty, 1))
+        luoGuApi.searchChallenges(None, None, List.empty, None,1))
         .unsafeRunSync()
     )
-    println(luoGuApi.searchChallenges(List.empty, None, List.empty, 1).unsafeRunSync())
+    println(luoGuApi.searchChallenges(None, None, List.empty,None, 1).unsafeRunSync())
   }
 }

@@ -18,19 +18,21 @@ import com.wenjunhuang.codeepiphany.luogu.models.{
   LuoGuChallengeItem,
   LuoGuDifficulty,
   LuoGuQuestionBank,
+  LuoGuSearchOrderBy,
   LuoGuTag,
   LuoGuUserInfo
 }
-import com.wenjunhuang.codeepiphany.model.CodeDojo
+import com.wenjunhuang.codeepiphany.model.{ CodeDojo, OrderDirection }
 import com.wenjunhuang.codeepiphany.services.http.HttpClientManager
 
 trait LuoGuApi[F[_]] {
   def checkLogin(): F[Boolean]
   def getUserInfo: F[LuoGuUserInfo]
   def searchChallenges(
-    difficulties: List[LuoGuDifficulty],
+    difficulties: Option[LuoGuDifficulty],
     luoguType: Option[LuoGuQuestionBank],
     tags: List[LuoGuTag],
+    orderBy: Option[(LuoGuSearchOrderBy, OrderDirection)],
     page: Int
   ): F[(Int, List[LuoGuChallengeItem])]
 
@@ -87,20 +89,24 @@ object LuoGuApi {
       }
 
     override def searchChallenges(
-      difficulties: List[LuoGuDifficulty],
+      difficulties: Option[LuoGuDifficulty],
       luoguType: Option[LuoGuQuestionBank],
       tags: List[LuoGuTag],
+      orderBy: Option[(LuoGuSearchOrderBy, OrderDirection)],
       page: Int
     ): F[(Int, List[LuoGuChallengeItem])] = useClient { client =>
       getCSRFTokenAndPassAntiCrawler.flatMap { csrfToken =>
         client
           .expect[String](
             Method.GET(
-              uri"https://www.luogu.com.cn/problem/list"
-                .withQueryParam("page", page)
-                .withQueryParam("difficulty", difficulties.map(_.value).mkString(","))
-                .withQueryParam("type", luoguType.map(_.value).getOrElse(""))
-                .withQueryParam("_contentOnly", "1"),
+              orderBy.foldLeft(
+                uri"https://www.luogu.com.cn/problem/list"
+                  .withQueryParam("page", page)
+                  .withQueryParam("difficulty", difficulties.map(_.value.toString).getOrElse(""))
+                  .withQueryParam("type", luoguType.map(_.value).getOrElse(""))
+                  .withQueryParam("tag", tags.map(_.id).mkString(","))
+                  .withQueryParam("_contentOnly", "1")
+              ) { case (uri, (orderBy, direction)) => orderBy.createOrderBy(uri, direction) },
               commonHeaders(csrfToken)
             )
           )

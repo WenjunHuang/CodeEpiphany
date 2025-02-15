@@ -1,27 +1,19 @@
 package com.wenjunhuang.codeepiphany.luogu.ui
 
 import cats.effect.IO
-import javax.swing.{ Icon, JTable }
-import javax.swing.table.TableCellRenderer
 import monocle.syntax.all.*
-import org.jooq.impl.DSL
-import scala.jdk.CollectionConverters.*
 
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.text.StringUtil
-import com.intellij.util.ui.ColorIcon
-import com.intellij.util.ui.table.IconTableCellRenderer
 
 import com.wenjunhuang.codeepiphany.actions.OpenChallengeActionGroup
-import com.wenjunhuang.codeepiphany.database.Tables.*
-import com.wenjunhuang.codeepiphany.luogu.models.{ LuoGuChallengeItem, LuoGuDifficulty, LuoGuSearchOrderBy }
+import com.wenjunhuang.codeepiphany.luogu.models.{LuoGuChallengeItem, LuoGuSearchOrderBy}
+import com.wenjunhuang.codeepiphany.luogu.ui.LuoGuKeywordQueryPresenter.*
 import com.wenjunhuang.codeepiphany.model.OrderDirection
-import com.wenjunhuang.codeepiphany.services.{ ChallengeRepository, KeywordQueryPresenter, QueryContext }
+import com.wenjunhuang.codeepiphany.services.{KeywordQueryPresenter, QueryContext}
 import com.wenjunhuang.codeepiphany.services.KeywordQueryPresenter.KeywordHolder
-import com.wenjunhuang.codeepiphany.utils.{ OrderByColumnInfo, Pagination }
+import com.wenjunhuang.codeepiphany.utils.{OrderByColumnInfo, Pagination}
 import com.wenjunhuang.codeepiphany.utils.actions.DataSink
-
-import LuoGuKeywordQueryPresenter.*
 
 class LuoGuKeywordQueryPresenter(project: Project, bootstrap: LuoGuBootstrapParameters)
     extends KeywordQueryPresenter[LuoGuBootstrapParameters, QueryParams, LuoGuChallengeItem](project, bootstrap) {

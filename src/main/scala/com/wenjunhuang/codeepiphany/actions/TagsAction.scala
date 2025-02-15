@@ -45,6 +45,7 @@ class TagsAction extends ComboBoxAction with DataKeyNotNull(TAG_PROVIDER_KEY) wi
       .setResizable(true)
       .createPopup()
     Disposer.register(popup, () => disposeCallback.run())
+//    popup.getContent.setSize(JBUI.size(400,400))
     popup.setSize(new Dimension(400, 400))
     popup
   }
@@ -97,14 +98,13 @@ class TagsAction extends ComboBoxAction with DataKeyNotNull(TAG_PROVIDER_KEY) wi
 
     gbc.weighty = 1.0
     gbc.fill = GridBagConstraints.BOTH
-    panel.add(Spacer(), gbc)
+    panel.add(JPanel(), gbc)
 
-    val scrollPane = JBScrollPane(
+    JBScrollPane(
       panel,
       ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
       ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER
     )
-    scrollPane
   }
 
   override def createPopupActionGroup(button: JComponent, dataContext: DataContext): DefaultActionGroup =

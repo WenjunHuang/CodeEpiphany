@@ -1,14 +1,14 @@
 package com.wenjunhuang.codeepiphany.actions
 
 import cats.syntax.all.*
-import javax.swing.{Icon, JComponent}
+import javax.swing.{ Icon, JComponent }
 
 import com.intellij.icons.AllIcons
 import com.intellij.openapi.actionSystem.*
 import com.intellij.openapi.actionSystem.ex.ComboBoxAction
 
 import com.wenjunhuang.codeepiphany.actions.PaginationParameterActionGroup.*
-import com.wenjunhuang.codeepiphany.utils.actions.{ActionCompatible, ParameterProvider}
+import com.wenjunhuang.codeepiphany.utils.actions.{ ActionCompatible, DataKeyNotNull, ParameterProvider }
 import com.wenjunhuang.codeepiphany.utils.PageSize
 
 class PaginationParameterActionGroup(private val myPageNum: Int = DEFAULT_PAGE_NUMBER)
@@ -115,38 +115,41 @@ object PaginationParameterActionGroup {
   }
 }
 
-class PageSizeAction extends ComboBoxAction with ActionCompatible {
-  override def createPopupActionGroup(button: JComponent, dataContext: DataContext): DefaultActionGroup =
-    Option(PAGINATION_PROVIDER_KEY.getData(dataContext)) match {
-      case None           => DefaultActionGroup()
-      case Some(provider) => DefaultActionGroup(provider.getAllItems.map(item => new RangePageSizeItemAction(item))*)
-    }
+class PageSizeAction extends ComboBoxAction with ActionCompatible with DataKeyNotNull(PAGINATION_PROVIDER_KEY) {
+  override def createPopupActionGroup(button: JComponent, dataContext: DataContext): DefaultActionGroup = {
+    val provider = getValue(dataContext)
+    DefaultActionGroup(provider.getAllItems.map(item => new RangePageSizeItemAction(item))*)
+  }
 
   override def update(e: AnActionEvent): Unit =
-    Option(PAGINATION_PROVIDER_KEY.getData(e.getDataContext)) match {
-      case None => e.getPresentation.setEnabled(false)
-      case Some(provider) =>
-        val presentation = e.getPresentation
-        presentation.setEnabled(true)
-        provider.getSelectedItems.headOption match {
-          case None       => presentation.setText("")
-          case Some(item) => presentation.setText(item.show)
-        }
-    }
+    if isSatisfied(e) then
+      val presentation = e.getPresentation
+      presentation.setEnabled(true)
+      val provider = getValue(e)
+      provider.getSelectedItems.headOption match {
+        case None       => presentation.setText("")
+        case Some(item) => presentation.setText(item.show)
+      }
+    else e.getPresentation.setEnabled(false)
 }
 
-class RangePageSizeItemAction(private val myItem: PageSize) extends AnAction(myItem.show) with ActionCompatible {
+class RangePageSizeItemAction(private val myItem: PageSize)
+    extends AnAction(myItem.show)
+    with ActionCompatible
+    with DataKeyNotNull(PAGINATION_PROVIDER_KEY) {
   override def actionPerformed(e: AnActionEvent): Unit =
-    Option(PAGINATION_PROVIDER_KEY.getData(e.getDataContext)).foreach(_.toggleSelection(myItem))
+    getValue(e).toggleSelection(myItem)
 
   override def update(e: AnActionEvent): Unit = {
     val presentation = e.getPresentation
-    Option(PAGINATION_PROVIDER_KEY.getData(e.getDataContext))
-      .map(_.isSelected(myItem))
-      .foreach {
-        case true  => presentation.setIcon(AllIcons.Actions.Checked)
-        case false => presentation.setIcon(null)
-      }
+    if isSatisfied(e) then
+      presentation.setEnabled(true)
+      val provider = getValue(e)
+      if provider.isSelected(myItem) then presentation.setIcon(AllIcons.General.InspectionsOK)
+      else presentation.setIcon(null)
+    else
+      presentation.setEnabled(false)
+      presentation.setIcon(null)
   }
 
 }

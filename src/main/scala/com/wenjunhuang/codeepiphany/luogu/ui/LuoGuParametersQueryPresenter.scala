@@ -1,5 +1,6 @@
 package com.wenjunhuang.codeepiphany.luogu.ui
 
+import cats.syntax.all.*
 import cats.effect.IO
 import javax.swing.SwingConstants
 import javax.swing.table.{ DefaultTableCellRenderer, TableCellRenderer }
@@ -15,12 +16,19 @@ import com.wenjunhuang.codeepiphany.luogu.actions.{ LuoGuDifficultyParameterActi
 import com.wenjunhuang.codeepiphany.luogu.actions.LuoGuDifficultyParameterAction.LuoGuDifficultyParameterProvider
 import com.wenjunhuang.codeepiphany.luogu.actions.LuoGuQuestionBankParameterAction.LuoGuQuestionBankParameterProvider
 import com.wenjunhuang.codeepiphany.luogu.models.*
-import com.wenjunhuang.codeepiphany.luogu.ui.LuoGuParametersQueryPresenter.DIFFICULTY_TAG_RADIUS
+import com.wenjunhuang.codeepiphany.luogu.services.LuoGuApi
+import com.wenjunhuang.codeepiphany.luogu.ui.LuoGuParametersQueryPresenter.{
+  DIFFICULTY_TAG_RADIUS,
+  QUESTION_BANK_RADIUS,
+  TAG_TAG_RADIUS
+}
 import com.wenjunhuang.codeepiphany.model.{ Actions, OrderDirection }
 import com.wenjunhuang.codeepiphany.services.{ ParametersQueryPresenter, QueryContext }
-import com.wenjunhuang.codeepiphany.utils.{ OrderByColumnInfo, Pagination }
+import com.wenjunhuang.codeepiphany.services.http.{ HttpClientManager, HttpClientService }
+import com.wenjunhuang.codeepiphany.utils.{ OrderByColumnInfo, PageSize, Pagination }
 import com.wenjunhuang.codeepiphany.utils.actions.DataSink
 import com.wenjunhuang.codeepiphany.utils.ui.TagPaneAction
+import com.wenjunhuang.codeepiphany.utils.PageSize.Fifty
 
 class LuoGuParametersQueryPresenter(project: Project, bootstrap: LuoGuBootstrapParameters)
     extends ParametersQueryPresenter[
@@ -137,16 +145,36 @@ class LuoGuParametersQueryPresenter(project: Project, bootstrap: LuoGuBootstrapP
       QueryContext[LuoGuParametersQueryPresenter.QueryParams] => QueryContext[LuoGuParametersQueryPresenter.QueryParams]
     ) => Unit
   ): List[TagPaneAction] = {
-    context.criteria.selectedDifficulty.map { difficulty =>
+    context.criteria.selectedQuestionBank.map { bank =>
       TagPaneAction(
-        difficulty.toString,
-        difficulty.showAsHtml,
+        bank.value,
+        bank.show,
         None,
-        DIFFICULTY_TAG_RADIUS,
+        QUESTION_BANK_RADIUS,
         None,
-        Some(() => onCloseUpdater(_.focus(_.criteria.selectedDifficulty).modify(_ => None)))
+        Some(() => onCloseUpdater(_.focus(_.criteria.selectedQuestionBank).modify(_ => None)))
       )
-    }.toList
+    }.toList ++
+      context.criteria.selectedDifficulty.map { difficulty =>
+        TagPaneAction(
+          difficulty.toString,
+          difficulty.showAsHtml,
+          None,
+          DIFFICULTY_TAG_RADIUS,
+          None,
+          Some(() => onCloseUpdater(_.focus(_.criteria.selectedDifficulty).modify(_ => None)))
+        )
+      }.toList
+      ++ context.criteria.selectedTags.map { tag =>
+        TagPaneAction(
+          tag.value,
+          tag.name,
+          None,
+          TAG_TAG_RADIUS,
+          None,
+          Some(() => onCloseUpdater(_.focus(_.criteria.selectedTags).modify(_.filterNot(_ == tag))))
+        )
+      }
   }
 
   override protected def createInitialQueryParameters(
@@ -154,12 +182,27 @@ class LuoGuParametersQueryPresenter(project: Project, bootstrap: LuoGuBootstrapP
   ): QueryContext[LuoGuParametersQueryPresenter.QueryParams] =
     QueryContext[LuoGuParametersQueryPresenter.QueryParams](
       LuoGuParametersQueryPresenter.QueryParams(None, None, Nil, None),
-      Pagination()
+      Pagination(pageSize = PageSize.Fifty)
     )
+
+  override protected def pageSizes: List[PageSize] = List(Fifty)
 
   override protected def executeQuery(
     context: QueryContext[LuoGuParametersQueryPresenter.QueryParams]
-  ): IO[(Pagination, List[LuoGuChallengeItem])] = ???
+  ): IO[(Pagination, List[LuoGuChallengeItem])] = {
+    implicit val httpClient: HttpClientManager[IO] = HttpClientService.getInstance(myProject).httpClientManager
+    LuoGuApi[IO]()
+      .searchChallenges(
+        context.criteria.selectedDifficulty,
+        context.criteria.selectedQuestionBank,
+        context.criteria.selectedTags.map(_.userObj.asInstanceOf[LuoGuTag]),
+        context.criteria.orderBy,
+        context.pagination.currentPage
+      )
+      .map { case (total, items) =>
+        (context.pagination.copy(totalSize = total), items)
+      }
+  }
 
   def getDirectionOf(field: LuoGuSearchOrderBy): Option[OrderDirection] =
     myQueryStateManager.get.criteria.orderBy.collect {
@@ -178,15 +221,26 @@ class LuoGuParametersQueryPresenter(project: Project, bootstrap: LuoGuBootstrapP
       override def valueOf(item: LuoGuChallengeItem): String =
         item.pid
 
-      override def getPreferredStringValue: String = StringUtil.repeat("W", 10)
-      override def enableOrderBy: Boolean          = false
+      override def getPreferredStringValue: String = StringUtil.repeat("W", 5)
+      override def enableOrderBy: Boolean          = true
+
+      override def getOrderFilter: Option[OrderDirection] =
+        getDirectionOf(LuoGuSearchOrderBy.PID)
+
+      override def setOrderFilter(filter: Option[OrderDirection]): Unit =
+        setDirectionOf(LuoGuSearchOrderBy.PID, filter)
     },
     new OrderByColumnInfo[LuoGuChallengeItem, String]("Title") {
       override def valueOf(item: LuoGuChallengeItem): String = item.title
 
       override def getPreferredStringValue: String = StringUtil.repeat("W", 20)
 
-      override def enableOrderBy: Boolean = false
+      override def enableOrderBy: Boolean = true
+      override def getOrderFilter: Option[OrderDirection] =
+        getDirectionOf(LuoGuSearchOrderBy.Title)
+
+      override def setOrderFilter(filter: Option[OrderDirection]): Unit =
+        setDirectionOf(LuoGuSearchOrderBy.Title, filter)
     },
     new OrderByColumnInfo[LuoGuChallengeItem, String]("Difficulty") {
       override def valueOf(item: LuoGuChallengeItem): String =
@@ -202,20 +256,13 @@ class LuoGuParametersQueryPresenter(project: Project, bootstrap: LuoGuBootstrapP
     },
     new OrderByColumnInfo[LuoGuChallengeItem, String]("Acceptance") {
       override def valueOf(item: LuoGuChallengeItem): String =
-        f"${(item.totalAccepted.toDouble / item.totalSubmit.toDouble) * 10}%.2f%%"
+        if item.totalSubmit <= 0 then ""
+        else f"${(item.totalAccepted.toDouble / item.totalSubmit.toDouble) * 100}%.2f%%"
 
       override def getRenderer(item: LuoGuChallengeItem): TableCellRenderer =
         new DefaultTableCellRenderer() {
           setHorizontalAlignment(SwingConstants.RIGHT)
         }
-
-      override def enableOrderBy: Boolean = true
-
-      override def getOrderFilter: Option[OrderDirection] =
-        getDirectionOf(LuoGuSearchOrderBy.ACRate)
-
-      override def setOrderFilter(filter: Option[OrderDirection]): Unit =
-        setDirectionOf(LuoGuSearchOrderBy.ACRate, filter)
     }
   )
 
