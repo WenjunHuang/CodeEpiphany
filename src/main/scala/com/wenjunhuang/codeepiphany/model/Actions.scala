@@ -6,6 +6,7 @@ object Actions {
   final val LEETCODE_TOOLBAR_GROUP   = "CodeEpiphany.Dojos.LeetCode.Toolbar"
   final val CODEFORCES_TOOLBAR_GROUP = "CodeEpiphany.Dojos.CodeForces.Toolbar"
   final val ATCODER_TOOLBAR_GROUP    = "CodeEpiphany.Dojos.AtCoder.Toolbar"
+  final val LUOGU_TOOLBAR_GROUP    = "CodeEpiphany.Dojos.LuoGu.Toolbar"
   final val TOOLBAR_PLACE            = "CodeEpiphany.Dojos.Toolbar.Place"
 
   // title toolbar is located at the top of CodeEpiphany Dojo toolwindow
@@ -23,6 +24,9 @@ object Actions {
 
   final val ATCODER_TITLE_TOOLBAR_GROUP = "CodeEpiphany.Dojos.TitleToolbar.AtCoder"
   final val ATCODER_TITLE_TOOLBAR_PLACE = "CodeEpiphany.Dojos.TitleToolbar.AtCoder.Place"
+
+  final val LUOGU_TITLE_TOOLBAR_GROUP = "CodeEpiphany.Dojos.TitleToolbar.LuoGu"
+  final val LUOGU_TITLE_TOOLBAR_PLACE = "CodeEpiphany.Dojos.TitleToolbar.LuoGu.Place"
 
   // popup menu of challenges table
   final val CHALLENGES_TABLE_POPUP_GROUP = "CodeEpiphany.Dojos.ChallengesTable.Popupmenu"

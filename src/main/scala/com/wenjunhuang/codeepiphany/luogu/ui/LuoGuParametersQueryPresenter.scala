@@ -1,25 +1,24 @@
 package com.wenjunhuang.codeepiphany.luogu.ui
 
 import cats.effect.IO
-import javax.swing.{Icon, JTable, SwingConstants}
-import javax.swing.table.{DefaultTableCellRenderer, TableCellRenderer}
+import javax.swing.SwingConstants
+import javax.swing.table.{ DefaultTableCellRenderer, TableCellRenderer }
 import monocle.syntax.all.*
-import org.jooq.impl.DSL
-import scala.jdk.CollectionConverters.*
 
-import com.intellij.openapi.actionSystem.{ActionGroup, ActionManager}
+import com.intellij.openapi.actionSystem.{ ActionGroup, ActionManager }
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.text.StringUtil
-import com.intellij.util.ui.table.IconTableCellRenderer
-import com.intellij.util.ui.ColorIcon
 
-import com.wenjunhuang.codeepiphany.actions.OpenChallengeActionGroup
-import com.wenjunhuang.codeepiphany.database.Tables.*
-import com.wenjunhuang.codeepiphany.luogu.models.{LuoGuChallengeItem, LuoGuDifficulty, LuoGuSearchOrderBy, LuoGuTag}
+import com.wenjunhuang.codeepiphany.actions.{ OpenChallengeActionGroup, TagsAction }
+import com.wenjunhuang.codeepiphany.actions.TagsAction.MultiTagGroupProvider
+import com.wenjunhuang.codeepiphany.luogu.actions.{ LuoGuDifficultyParameterAction, LuoGuQuestionBankParameterAction }
+import com.wenjunhuang.codeepiphany.luogu.actions.LuoGuDifficultyParameterAction.LuoGuDifficultyParameterProvider
+import com.wenjunhuang.codeepiphany.luogu.actions.LuoGuQuestionBankParameterAction.LuoGuQuestionBankParameterProvider
+import com.wenjunhuang.codeepiphany.luogu.models.*
 import com.wenjunhuang.codeepiphany.luogu.ui.LuoGuParametersQueryPresenter.DIFFICULTY_TAG_RADIUS
-import com.wenjunhuang.codeepiphany.model.{Actions, OrderDirection}
-import com.wenjunhuang.codeepiphany.services.{ChallengeRepository, ParametersQueryPresenter, QueryContext}
-import com.wenjunhuang.codeepiphany.utils.{OrderByColumnInfo, Pagination}
+import com.wenjunhuang.codeepiphany.model.{ Actions, OrderDirection }
+import com.wenjunhuang.codeepiphany.services.{ ParametersQueryPresenter, QueryContext }
+import com.wenjunhuang.codeepiphany.utils.{ OrderByColumnInfo, Pagination }
 import com.wenjunhuang.codeepiphany.utils.actions.DataSink
 import com.wenjunhuang.codeepiphany.utils.ui.TagPaneAction
 
@@ -37,12 +36,99 @@ class LuoGuParametersQueryPresenter(project: Project, bootstrap: LuoGuBootstrapP
     ) => Unit,
     dataSink: DataSink
   ): ActionGroup = {
+    val questionBankProvider = new LuoGuQuestionBankParameterProvider {
+      override def getAllItems: List[LuoGuQuestionBank] = LuoGuQuestionBank.values.toList
 
+      override def isMultipleSelection: Boolean = false
+
+      override def isSelected(item: LuoGuQuestionBank): Boolean = getter().criteria.selectedQuestionBank.contains(item)
+
+      override def getSelectedItems: List[LuoGuQuestionBank] = getter().criteria.selectedQuestionBank.toList
+
+      override def addSelectedItems(items: List[LuoGuQuestionBank]): Unit = updater { old =>
+        old.focus(_.criteria.selectedQuestionBank).replace(items.headOption)
+      }
+
+      override def toggleSelection(item: LuoGuQuestionBank): Unit = updater { old =>
+        if old.criteria.selectedQuestionBank.contains(item) then
+          old.focus(_.criteria.selectedQuestionBank).replace(None)
+        else old.focus(_.criteria.selectedQuestionBank).replace(Some(item))
+      }
+
+      override def removeSelectedItems(items: List[LuoGuQuestionBank]): Unit = updater { old =>
+        old.focus(_.criteria.selectedQuestionBank).replace(None)
+      }
+    }
+    val difficultyProvider = new LuoGuDifficultyParameterProvider {
+      override def getAllItems: List[LuoGuDifficulty] = LuoGuDifficulty.values.toList
+
+      override def isMultipleSelection: Boolean = false
+
+      override def isSelected(item: LuoGuDifficulty): Boolean = getter().criteria.selectedDifficulty.contains(item)
+
+      override def getSelectedItems: List[LuoGuDifficulty] = getter().criteria.selectedDifficulty.toList
+
+      override def addSelectedItems(items: List[LuoGuDifficulty]): Unit = updater { old =>
+        old.focus(_.criteria.selectedDifficulty).replace(items.headOption)
+      }
+
+      override def toggleSelection(item: LuoGuDifficulty): Unit = updater { old =>
+        if old.criteria.selectedDifficulty.contains(item) then old.focus(_.criteria.selectedDifficulty).replace(None)
+        else old.focus(_.criteria.selectedDifficulty).replace(Some(item))
+      }
+
+      override def removeSelectedItems(items: List[LuoGuDifficulty]): Unit = updater { old =>
+        old.focus(_.criteria.selectedDifficulty).replace(None)
+      }
+    }
+    val tagProvider = new MultiTagGroupProvider {
+      private lazy val myTabs = LuoGuTagTypeWithTags.ALL_TAG_TYPES.map { tagType =>
+        val groups = tagType.tagGroups.map { tg =>
+          val tags = tg.tags.map { tag =>
+            TagsAction.Tag(tag.name, tag.id.toString, tg.id.toString, tag)
+          }
+          TagsAction.TagGroup(tg.name, tg.id.toString, tags, tg)
+        }
+        TagsAction.TagGroupTab(tagType.value, tagType.id, groups, tagType)
+      }
+      override def isSearchEnabled: Boolean = true
+
+      override def searchTags(query: String): List[TagsAction.Tag] = Nil
+
+      override def getTabs: List[TagsAction.TagGroupTab] = myTabs
+
+      override def getAllItems: List[TagsAction.Tag] =
+        myTabs.flatMap(_.tagGroups.flatMap(_.tags))
+
+      override def isMultipleSelection: Boolean = true
+
+      override def isSelected(item: TagsAction.Tag): Boolean = getter().criteria.selectedTags.contains(item)
+
+      override def getSelectedItems: List[TagsAction.Tag] = getter().criteria.selectedTags
+
+      override def addSelectedItems(items: List[TagsAction.Tag]): Unit = updater { old =>
+        old.focus(_.criteria.selectedTags).modify(it => (it ++ items).distinct)
+      }
+
+      override def toggleSelection(item: TagsAction.Tag): Unit = updater { old =>
+        if old.criteria.selectedTags.contains(item) then
+          old.focus(_.criteria.selectedTags).modify(_.filterNot(_ == item))
+        else old.focus(_.criteria.selectedTags).modify(item +: _)
+      }
+
+      override def removeSelectedItems(items: List[TagsAction.Tag]): Unit = updater { old =>
+        old.focus(_.criteria.selectedTags).modify(_.filterNot(items.contains))
+      }
+    }
+
+    dataSink.set(LuoGuDifficultyParameterAction.LUOGU_DIFFICULTY_PROVIDER_KEY, difficultyProvider)
+    dataSink.set(LuoGuQuestionBankParameterAction.LUOGU_QUESTION_BANK_PROVIDER_KEY, questionBankProvider)
+    dataSink.set(TagsAction.TAG_PROVIDER_KEY, tagProvider)
     dataSink.set(
       OpenChallengeActionGroup.CHALLENGE_PROVIDER_KEY,
       createLuoGuChallengeProvider(myProject, myQueryResultSelectionModel, myQueryResultTableModel)
     )
-    ActionManager.getInstance().getAction(Actions.ATCODER_TOOLBAR_GROUP).asInstanceOf[ActionGroup]
+    ActionManager.getInstance().getAction(Actions.LUOGU_TOOLBAR_GROUP).asInstanceOf[ActionGroup]
   }
 
   override protected def createQueryParametersTags(
@@ -67,7 +153,7 @@ class LuoGuParametersQueryPresenter(project: Project, bootstrap: LuoGuBootstrapP
     boostrapParameters: LuoGuBootstrapParameters
   ): QueryContext[LuoGuParametersQueryPresenter.QueryParams] =
     QueryContext[LuoGuParametersQueryPresenter.QueryParams](
-      LuoGuParametersQueryPresenter.QueryParams(None, Nil, None),
+      LuoGuParametersQueryPresenter.QueryParams(None, None, Nil, None),
       Pagination()
     )
 
@@ -137,10 +223,13 @@ class LuoGuParametersQueryPresenter(project: Project, bootstrap: LuoGuBootstrapP
 
 object LuoGuParametersQueryPresenter {
   case class QueryParams(
+    selectedQuestionBank: Option[LuoGuQuestionBank],
     selectedDifficulty: Option[LuoGuDifficulty],
-    selectedTags: List[LuoGuTag],
+    selectedTags: List[TagsAction.Tag],
     orderBy: Option[(LuoGuSearchOrderBy, OrderDirection)]
   )
 
+  private val QUESTION_BANK_RADIUS  = 0.1f
   private val DIFFICULTY_TAG_RADIUS = 0.3f
+  private val TAG_TAG_RADIUS        = 1.0f
 }

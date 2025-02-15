@@ -11,8 +11,8 @@ import com.intellij.util.ui.{IndentedIcon, UIUtil}
 
 import com.wenjunhuang.codeepiphany.utils.implicits.*
 
-class CollapsibleTitledSeparator(title: String) extends TitledSeparator(title) {
-  private val myExpanded = AtomicBooleanProperty(true)
+class CollapsibleTitledSeparator(title: String,expanded:Boolean = true) extends TitledSeparator(title) {
+  private val myExpanded = AtomicBooleanProperty(expanded)
 
   updateIcon()
   myExpanded.afterChange(p1 => updateIcon())

@@ -26,6 +26,7 @@ enum CodeDojo(val domain: CIString, val value: String) {
     case LeetCodeCN => Some(icons.CodeEpiphanyIcons.Dojos.LEETCODE)
     case CodeForces => Some(icons.CodeEpiphanyIcons.Dojos.CODEFORCES)
     case AtCoder    => Some(icons.CodeEpiphanyIcons.Dojos.ATCODER)
+    case LuoGu      => Some(icons.CodeEpiphanyIcons.Dojos.LUOGU)
   }
 
   def getLoginURL: String = this match {

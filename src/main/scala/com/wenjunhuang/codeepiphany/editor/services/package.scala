@@ -1,16 +1,17 @@
 package com.wenjunhuang.codeepiphany.editor
 
-import cats.effect.{Async, Concurrent}
+import cats.effect.{ Async, Concurrent }
 import cats.syntax.all.*
-import org.typelevel.log4cats.{Logger, LoggerFactory}
+import org.typelevel.log4cats.{ Logger, LoggerFactory }
 
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
 
 import com.wenjunhuang.codeepiphany.atcoder.services.AtCoderSubmissionService
 import com.wenjunhuang.codeepiphany.codeforces.services.CodeForcesSubmissionService
-import com.wenjunhuang.codeepiphany.hackerrank.services.{HackerRankEvaluationService, HackerRankSubmissionService}
-import com.wenjunhuang.codeepiphany.leetcode.services.{LeetCodeEvaluationService, LeetCodeSubmissionService}
+import com.wenjunhuang.codeepiphany.hackerrank.services.{ HackerRankEvaluationService, HackerRankSubmissionService }
+import com.wenjunhuang.codeepiphany.leetcode.services.{ LeetCodeEvaluationService, LeetCodeSubmissionService }
+import com.wenjunhuang.codeepiphany.luogu.services.LuoGuSubmissionService
 import com.wenjunhuang.codeepiphany.model.CodeDojo
 import com.wenjunhuang.codeepiphany.services.console
 import com.wenjunhuang.codeepiphany.services.console.showConsole
@@ -33,7 +34,7 @@ package object services {
               LeetCodeEvaluationService[F](project, CodeDojo.LeetCodeCN).evaluateCode(vf, None)
             case CodeDojo.LeetCode =>
               LeetCodeEvaluationService[F](project, CodeDojo.LeetCode).evaluateCode(vf, None)
-            case CodeDojo.CodeForces | CodeDojo.AtCoder =>
+            case CodeDojo.CodeForces | CodeDojo.AtCoder | CodeDojo.LuoGu =>
               Async[F].unit
         case None => Async[F].unit
       }.handleErrorWith { e =>
@@ -57,6 +58,7 @@ package object services {
               case CodeDojo.LeetCode   => LeetCodeSubmissionService[F](project, CodeDojo.LeetCode).submitCode(vf)
               case CodeDojo.CodeForces => CodeForcesSubmissionService[F](project).submitCode(vf)
               case CodeDojo.AtCoder    => AtCoderSubmissionService[F](project).submitCode(vf)
+              case CodeDojo.LuoGu      => LuoGuSubmissionService[F](project).submitCode(vf)
           )
       case None => Async[F].unit
     ).handleErrorWith { e =>

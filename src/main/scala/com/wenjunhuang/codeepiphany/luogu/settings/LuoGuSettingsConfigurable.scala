@@ -3,7 +3,8 @@ package com.wenjunhuang.codeepiphany.luogu.settings
 import com.intellij.openapi.project.Project
 
 import com.wenjunhuang.codeepiphany.PluginBundle
-import com.wenjunhuang.codeepiphany.luogu.settings.LuoGuSettingsConfigurable.LUOGU_LANGUAGES
+import com.wenjunhuang.codeepiphany.luogu.models.LuoGuChallengeCodeTemplate
+import com.wenjunhuang.codeepiphany.luogu.settings.LuoGuSettingsConfigurable.{ DEMO_TEMPLATE, LUOGU_LANGUAGES }
 import com.wenjunhuang.codeepiphany.model.*
 import com.wenjunhuang.codeepiphany.model.Language.*
 import com.wenjunhuang.codeepiphany.model.LanguageVersion.*
@@ -23,7 +24,9 @@ class LuoGuSettingsConfigurable(project: Project)
 
   override def supportedLanguages: List[(Language, LanguageVersion)] = LUOGU_LANGUAGES.keys.toList.sorted
 
-  override def createDemoTemplate(language: Language, languageVersion: LanguageVersion): Option[Any] = None
+  override def createDemoTemplate(language: Language, languageVersion: LanguageVersion): Option[Any] = Some(
+    DEMO_TEMPLATE.copy(language = language, languageVersion = languageVersion)
+  )
 }
 
 object LuoGuSettingsConfigurable {
@@ -57,4 +60,12 @@ object LuoGuSettingsConfigurable {
     )
   private val LUOGU_LANGUAGES_REVERSE: Map[String, (Language, LanguageVersion)] =
     LUOGU_LANGUAGES.map { case ((lang, version), id) => (id, (lang, version)) }
+
+  val DEMO_TEMPLATE = LuoGuChallengeCodeTemplate(
+    id = "P11531",
+    title = "[THUPC 2025 初赛] 检查站",
+    language = Language.Cpp,
+    languageVersion = LanguageVersion.SpecificVersion("17"),
+    description = ""
+  )
 }

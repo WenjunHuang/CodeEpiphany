@@ -91,6 +91,14 @@
             <action id="CodeEpiphany.Actions.AtCoder.Difficulty"
                     class="com.wenjunhuang.codeepiphany.atcoder.actions.AtCoderDifficultyParameterAction"/>
         </group>
+        <group id="CodeEpiphany.LuoGu.Group">
+            <action id="CodeEpiphany.Actions.LuoGu.ChangeUI"
+                    class="com.wenjunhuang.codeepiphany.luogu.actions.LuoGuChangeUIAction"/>
+            <action id="CodeEpiphany.Actions.LuoGu.Difficulty"
+                    class="com.wenjunhuang.codeepiphany.luogu.actions.LuoGuDifficultyParameterAction"/>
+            <action id="CodeEpiphany.Actions.LuoGu.QuestionBank"
+                    class="com.wenjunhuang.codeepiphany.luogu.actions.LuoGuQuestionBankParameterAction"/>
+        </group>
 
         <group id="CodeEpiphany.Editor.Group">
             <reference ref="CodeEpiphany.Actions.RunCode"/>
@@ -153,6 +161,12 @@
             <reference ref="CodeEpiphany.Actions.AtCoder.Difficulty"/>
             <reference ref="CodeEpiphany.Actions.Refresh"/>
         </group>
+        <group id="CodeEpiphany.Dojos.LuoGu.Toolbar">
+            <reference ref="CodeEpiphany.Actions.LuoGu.QuestionBank"/>
+            <reference ref="CodeEpiphany.Actions.LuoGu.Difficulty"/>
+            <reference ref="CodeEpiphany.Actions.Tags"/>
+            <reference ref="CodeEpiphany.Actions.Refresh"/>
+        </group>
 
         <group id="CodeEpiphany.Dojos.TitleToolbar">
             <reference ref="CodeEpiphany.Actions.Login"/>
@@ -171,6 +185,9 @@
         <group id="CodeEpiphany.Dojos.TitleToolbar.AtCoder">
             <reference ref="CodeEpiphany.Actions.AtCoder.ChangeUI"/>
             <reference ref="CodeEpiphany.Actions.AtCoder.UpdateProblemSets"/>
+        </group>
+        <group id="CodeEpiphany.Dojos.TitleToolbar.LuoGu">
+            <reference ref="CodeEpiphany.Actions.LuoGu.ChangeUI"/>
         </group>
 
         <group id="CodeEpiphany.Dojos.ChallengesTable.Popupmenu">
@@ -251,6 +268,10 @@
                     id="CodeEpiphany.Settings.HackerRank"
                     instance="com.wenjunhuang.codeepiphany.hackerrank.settings.HackerRankSettingsConfigurable"
                     key="hackerrank.settings.displayName"/>
+            <configurable
+                    id="CodeEpiphany.Settings.LuoGu"
+                    instance="com.wenjunhuang.codeepiphany.luogu.settings.LuoGuSettingsConfigurable"
+                    key="luogu.settings.displayName"/>
         </projectConfigurable>
 
         <lang.foldingBuilder language="JAVA"

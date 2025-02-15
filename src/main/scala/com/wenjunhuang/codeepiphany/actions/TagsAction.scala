@@ -35,7 +35,6 @@ class TagsAction extends ComboBoxAction with DataKeyNotNull(TAG_PROVIDER_KEY) wi
     val tabs       = provider.getTabs
     val tabbedPane = JBTabbedPane(SwingConstants.TOP)
     tabbedPane.setTabComponentInsets(JBUI.emptyInsets())
-    tabbedPane.setMaximumSize(new Dimension(300, 300))
     tabs.foreach { tab =>
       tabbedPane.add(tab.name, createTagGroupTab(provider, tab))
     }
@@ -43,10 +42,10 @@ class TagsAction extends ComboBoxAction with DataKeyNotNull(TAG_PROVIDER_KEY) wi
       .getInstance()
       .createComponentPopupBuilder(tabbedPane, tabbedPane)
       .setCancelOnClickOutside(true)
-      .setMinSize(new Dimension(300, 300))
       .setResizable(true)
       .createPopup()
     Disposer.register(popup, () => disposeCallback.run())
+    popup.setSize(new Dimension(400, 400))
     popup
   }
 
@@ -58,6 +57,7 @@ class TagsAction extends ComboBoxAction with DataKeyNotNull(TAG_PROVIDER_KEY) wi
     gbc.fill = GridBagConstraints.HORIZONTAL
     gbc.weightx = 1.0
     gbc.gridx = 0
+    gbc.anchor = GridBagConstraints.NORTHWEST
     tab.tagGroups.zipWithIndex.foreach { (tagGroup, index) =>
       val actionTags =
         AtomicProperty(tagGroup.tags.map { tag =>
@@ -77,12 +77,15 @@ class TagsAction extends ComboBoxAction with DataKeyNotNull(TAG_PROVIDER_KEY) wi
           )
         })
       val tagGroupPane = TagPane(true, actionTags)
-      val titled       = CollapsibleTitledSeparator(tagGroup.name)
+
+      val expanded = index <= 8 // 如果标签组数量大于8个，都展开的话会导致界面过长(暂时无法修复)
+      val titled   = CollapsibleTitledSeparator(tagGroup.name, expanded)
+      tagGroupPane.setVisible(expanded)
+
       titled.onAction { isExpanded =>
         if isExpanded then tagGroupPane.setVisible(true)
         else tagGroupPane.setVisible(false)
       }
-      titled.setExpanded(true)
 
       panel.add(
         BorderLayoutPanel()
@@ -92,16 +95,16 @@ class TagsAction extends ComboBoxAction with DataKeyNotNull(TAG_PROVIDER_KEY) wi
       )
     }
 
-    gbc.fill = GridBagConstraints.BOTH
     gbc.weighty = 1.0
+    gbc.fill = GridBagConstraints.BOTH
     panel.add(Spacer(), gbc)
 
-    JBScrollPane(
+    val scrollPane = JBScrollPane(
       panel,
       ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
       ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER
     )
-
+    scrollPane
   }
 
   override def createPopupActionGroup(button: JComponent, dataContext: DataContext): DefaultActionGroup =

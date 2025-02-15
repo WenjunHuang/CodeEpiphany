@@ -14,6 +14,7 @@ import com.wenjunhuang.codeepiphany.atcoder.services.AtCoderApi
 import com.wenjunhuang.codeepiphany.codeforces.services.CodeForcesApi
 import com.wenjunhuang.codeepiphany.hackerrank.services.HackerRankApi
 import com.wenjunhuang.codeepiphany.leetcode.services.LeetCodeApi
+import com.wenjunhuang.codeepiphany.luogu.services.LuoGuApi
 import com.wenjunhuang.codeepiphany.model.CodeDojo
 import com.wenjunhuang.codeepiphany.model.CodeDojo.*
 import com.wenjunhuang.codeepiphany.services.http.HttpClientManager
@@ -92,6 +93,7 @@ final class AuthService(private val myProject: Project) {
       case CodeDojo.LeetCodeCN => LeetCodeApi[F](LeetCodeCN).checkLogin()
       case CodeDojo.CodeForces => CodeForcesApi[F]().checkLogin()
       case CodeDojo.AtCoder    => AtCoderApi[F]().checkLogin()
+      case CodeDojo.LuoGu      => LuoGuApi[F]().checkLogin()
 }
 
 object AuthService {

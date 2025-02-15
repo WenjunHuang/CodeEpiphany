@@ -1,3646 +1,3669 @@
 {
-    "Algorithm": [
-        {
-            "id": 1,
-            "name": "模拟",
-            "type": "Algorithm",
-            "parent": 110,
-            "color": "lapis-3",
-            "hasChildren": false
-        },
-        {
-            "id": 2,
-            "name": "字符串",
-            "type": "Algorithm",
-            "parent": null,
-            "color": "lapis-3",
-            "hasChildren": true
-        },
-        {
-            "id": 3,
-            "name": "动态规划 DP",
-            "type": "Algorithm",
-            "parent": null,
-            "color": "lapis-3",
-            "hasChildren": true
-        },
-        {
-            "id": 4,
-            "name": "搜索",
-            "type": "Algorithm",
-            "parent": null,
-            "color": "lapis-3",
-            "hasChildren": true
-        },
-        {
-            "id": 5,
-            "name": "数学",
-            "type": "Algorithm",
-            "parent": null,
-            "color": "lapis-3",
-            "hasChildren": true
-        },
-        {
-            "id": 6,
-            "name": "图论",
-            "type": "Algorithm",
-            "parent": null,
-            "color": "lapis-3",
-            "hasChildren": true
-        },
-        {
-            "id": 7,
-            "name": "贪心",
-            "type": "Algorithm",
-            "parent": 110,
-            "color": "lapis-3",
-            "hasChildren": false
-        },
-        {
-            "id": 8,
-            "name": "计算几何",
-            "type": "Algorithm",
-            "parent": null,
-            "color": "lapis-3",
-            "hasChildren": true
-        },
-        {
-            "id": 9,
-            "name": "暴力数据结构",
-            "type": "Algorithm",
-            "parent": 308,
-            "color": "lapis-3",
-            "hasChildren": false
-        },
-        {
-            "id": 10,
-            "name": "高精度",
-            "type": "Algorithm",
-            "parent": 308,
-            "color": "lapis-3",
-            "hasChildren": false
-        },
-        {
-            "id": 11,
-            "name": "树形数据结构",
-            "type": "Algorithm",
-            "parent": null,
-            "color": "lapis-3",
-            "hasChildren": true
-        },
-        {
-            "id": 12,
-            "name": "递推",
-            "type": "Algorithm",
-            "parent": 110,
-            "color": "lapis-3",
-            "hasChildren": false
-        },
-        {
-            "id": 13,
-            "name": "博弈论",
-            "type": "Algorithm",
-            "parent": null,
-            "color": "lapis-3",
-            "hasChildren": true
-        },
-        {
-            "id": 41,
-            "name": "莫队",
-            "type": "Algorithm",
-            "parent": 308,
-            "color": "lapis-3",
-            "hasChildren": false
-        },
-        {
-            "id": 42,
-            "name": "线段树",
-            "type": "Algorithm",
-            "parent": 11,
-            "color": "lapis-3",
-            "hasChildren": false
-        },
-        {
-            "id": 43,
-            "name": "倍增",
-            "type": "Algorithm",
-            "parent": 110,
-            "color": "lapis-3",
-            "hasChildren": false
-        },
-        {
-            "id": 44,
-            "name": "线性数据结构",
-            "type": "Algorithm",
-            "parent": null,
-            "color": "lapis-3",
-            "hasChildren": true
-        },
-        {
-            "id": 45,
-            "name": "二分",
-            "type": "Algorithm",
-            "parent": 110,
-            "color": "lapis-3",
-            "hasChildren": false
-        },
-        {
-            "id": 47,
-            "name": "并查集",
-            "type": "Algorithm",
-            "parent": 11,
-            "color": "lapis-3",
-            "hasChildren": false
-        },
-        {
-            "id": 49,
-            "name": "点分治",
-            "type": "Algorithm",
-            "parent": 230,
-            "color": "lapis-3",
-            "hasChildren": false
-        },
-        {
-            "id": 50,
-            "name": "平衡树",
-            "type": "Algorithm",
-            "parent": 11,
-            "color": "lapis-3",
-            "hasChildren": false
-        },
-        {
-            "id": 51,
-            "name": "堆",
-            "type": "Algorithm",
-            "parent": 11,
-            "color": "lapis-3",
-            "hasChildren": false
-        },
-        {
-            "id": 53,
-            "name": "树状数组",
-            "type": "Algorithm",
-            "parent": 11,
-            "color": "lapis-3",
-            "hasChildren": false
-        },
-        {
-            "id": 54,
-            "name": "递归",
-            "type": "Algorithm",
-            "parent": 110,
-            "color": "lapis-3",
-            "hasChildren": false
-        },
-        {
-            "id": 55,
-            "name": "树上启发式合并",
-            "type": "Algorithm",
-            "parent": 230,
-            "color": "lapis-3",
-            "hasChildren": false
-        },
-        {
-            "id": 56,
-            "name": "单调队列",
-            "type": "Algorithm",
-            "parent": 44,
-            "color": "lapis-3",
-            "hasChildren": false
-        },
-        {
-            "id": 63,
-            "name": "LGV 引理",
-            "type": "Algorithm",
-            "parent": 271,
-            "color": "lapis-3",
-            "hasChildren": false
-        },
-        {
-            "id": 64,
-            "name": "矩阵树定理",
-            "type": "Algorithm",
-            "parent": 271,
-            "color": "lapis-3",
-            "hasChildren": false
-        },
-        {
-            "id": 65,
-            "name": "颜色段均摊（珂朵莉树 ODT）",
-            "type": "Algorithm",
-            "parent": 44,
-            "color": "lapis-3",
-            "hasChildren": false
-        },
-        {
-            "id": 66,
-            "name": "原根",
-            "type": "Algorithm",
-            "parent": 72,
-            "color": "lapis-3",
-            "hasChildren": false
-        },
-        {
-            "id": 67,
-            "name": "三分",
-            "type": "Algorithm",
-            "parent": 308,
-            "color": "lapis-3",
-            "hasChildren": false
-        },
-        {
-            "id": 68,
-            "name": "Kruskal 重构树",
-            "type": "Algorithm",
-            "parent": 6,
-            "color": "lapis-3",
-            "hasChildren": false
-        },
-        {
-            "id": 69,
-            "name": "多项式",
-            "type": "Algorithm",
-            "parent": null,
-            "color": "lapis-3",
-            "hasChildren": true
-        },
-        {
-            "id": 71,
-            "name": "矩阵运算",
-            "type": "Algorithm",
-            "parent": 271,
-            "color": "lapis-3",
-            "hasChildren": false
-        },
-        {
-            "id": 72,
-            "name": "数论",
-            "type": "Algorithm",
-            "parent": null,
-            "color": "lapis-3",
-            "hasChildren": true
-        },
-        {
-            "id": 78,
-            "name": "离散化",
-            "type": "Algorithm",
-            "parent": 308,
-            "color": "lapis-3",
-            "hasChildren": false
-        },
-        {
-            "id": 79,
-            "name": "网络流",
-            "type": "Algorithm",
-            "parent": 6,
-            "color": "lapis-3",
-            "hasChildren": false
-        },
-        {
-            "id": 100,
-            "name": "cdq 分治",
-            "type": "Algorithm",
-            "parent": 11,
-            "color": "lapis-3",
-            "hasChildren": false
-        },
-        {
-            "id": 101,
-            "name": "后缀自动机 SAM",
-            "type": "Algorithm",
-            "parent": 2,
-            "color": "lapis-3",
-            "hasChildren": false
-        },
-        {
-            "id": 110,
-            "name": "﻿基础算法",
-            "type": "Algorithm",
-            "parent": null,
-            "color": "lapis-3",
-            "hasChildren": true
-        },
-        {
-            "id": 111,
-            "name": "枚举",
-            "type": "Algorithm",
-            "parent": 110,
-            "color": "lapis-3",
-            "hasChildren": false
-        },
-        {
-            "id": 112,
-            "name": "分治",
-            "type": "Algorithm",
-            "parent": 110,
-            "color": "lapis-3",
-            "hasChildren": false
-        },
-        {
-            "id": 113,
-            "name": "排序",
-            "type": "Algorithm",
-            "parent": 110,
-            "color": "lapis-3",
-            "hasChildren": false
-        },
-        {
-            "id": 122,
-            "name": "信息论",
-            "type": "Algorithm",
-            "parent": 5,
-            "color": "lapis-3",
-            "hasChildren": false
-        },
-        {
-            "id": 126,
-            "name": "广度优先搜索 BFS",
-            "type": "Algorithm",
-            "parent": 4,
-            "color": "lapis-3",
-            "hasChildren": false
-        },
-        {
-            "id": 127,
-            "name": "深度优先搜索 DFS",
-            "type": "Algorithm",
-            "parent": 4,
-            "color": "lapis-3",
-            "hasChildren": false
-        },
-        {
-            "id": 128,
-            "name": "剪枝",
-            "type": "Algorithm",
-            "parent": 4,
-            "color": "lapis-3",
-            "hasChildren": false
-        },
-        {
-            "id": 129,
-            "name": "记忆化搜索",
-            "type": "Algorithm",
-            "parent": 4,
-            "color": "lapis-3",
-            "hasChildren": false
-        },
-        {
-            "id": 130,
-            "name": "启发式搜索",
-            "type": "Algorithm",
-            "parent": 4,
-            "color": "lapis-3",
-            "hasChildren": false
-        },
-        {
-            "id": 131,
-            "name": "迭代加深搜索",
-            "type": "Algorithm",
-            "parent": 4,
-            "color": "lapis-3",
-            "hasChildren": false
-        },
-        {
-            "id": 132,
-            "name": "启发式迭代加深搜索 IDA*",
-            "type": "Algorithm",
-            "parent": 4,
-            "color": "lapis-3",
-            "hasChildren": false
-        },
-        {
-            "id": 133,
-            "name": "Dancing Links",
-            "type": "Algorithm",
-            "parent": 4,
-            "color": "lapis-3",
-            "hasChildren": false
-        },
-        {
-            "id": 134,
-            "name": "爬山算法 Local search",
-            "type": "Algorithm",
-            "parent": 4,
-            "color": "lapis-3",
-            "hasChildren": false
-        },
-        {
-            "id": 135,
-            "name": "模拟退火",
-            "type": "Algorithm",
-            "parent": 4,
-            "color": "lapis-3",
-            "hasChildren": false
-        },
-        {
-            "id": 136,
-            "name": "随机调整",
-            "type": "Algorithm",
-            "parent": 4,
-            "color": "lapis-3",
-            "hasChildren": false
-        },
-        {
-            "id": 137,
-            "name": "遗传算法",
-            "type": "Algorithm",
-            "parent": 4,
-            "color": "lapis-3",
-            "hasChildren": false
-        },
-        {
-            "id": 139,
-            "name": "背包 DP",
-            "type": "Algorithm",
-            "parent": 3,
-            "color": "lapis-3",
-            "hasChildren": false
-        },
-        {
-            "id": 141,
-            "name": "数位 DP",
-            "type": "Algorithm",
-            "parent": 3,
-            "color": "lapis-3",
-            "hasChildren": false
-        },
-        {
-            "id": 144,
-            "name": "区间 DP",
-            "type": "Algorithm",
-            "parent": 3,
-            "color": "lapis-3",
-            "hasChildren": false
-        },
-        {
-            "id": 146,
-            "name": "动态规划优化",
-            "type": "Algorithm",
-            "parent": null,
-            "color": "lapis-3",
-            "hasChildren": true
-        },
-        {
-            "id": 148,
-            "name": "优先队列",
-            "type": "Algorithm",
-            "parent": 146,
-            "color": "lapis-3",
-            "hasChildren": false
-        },
-        {
-            "id": 149,
-            "name": "矩阵加速",
-            "type": "Algorithm",
-            "parent": 146,
-            "color": "lapis-3",
-            "hasChildren": false
-        },
-        {
-            "id": 150,
-            "name": "斜率优化",
-            "type": "Algorithm",
-            "parent": 146,
-            "color": "lapis-3",
-            "hasChildren": false
-        },
-        {
-            "id": 151,
-            "name": "状态合并",
-            "type": "Algorithm",
-            "parent": 146,
-            "color": "lapis-3",
-            "hasChildren": false
-        },
-        {
-            "id": 152,
-            "name": "树形 DP",
-            "type": "Algorithm",
-            "parent": 3,
-            "color": "lapis-3",
-            "hasChildren": false
-        },
-        {
-            "id": 153,
-            "name": "凸完全单调性（wqs 二分）",
-            "type": "Algorithm",
-            "parent": 146,
-            "color": "lapis-3",
-            "hasChildren": false
-        },
-        {
-            "id": 154,
-            "name": "四边形不等式",
-            "type": "Algorithm",
-            "parent": 146,
-            "color": "lapis-3",
-            "hasChildren": false
-        },
-        {
-            "id": 155,
-            "name": "图论建模",
-            "type": "Algorithm",
-            "parent": 6,
-            "color": "lapis-3",
-            "hasChildren": false
-        },
-        {
-            "id": 158,
-            "name": "图遍历",
-            "type": "Algorithm",
-            "parent": 6,
-            "color": "lapis-3",
-            "hasChildren": false
-        },
-        {
-            "id": 159,
-            "name": "拓扑排序",
-            "type": "Algorithm",
-            "parent": 6,
-            "color": "lapis-3",
-            "hasChildren": false
-        },
-        {
-            "id": 160,
-            "name": "最短路",
-            "type": "Algorithm",
-            "parent": 6,
-            "color": "lapis-3",
-            "hasChildren": false
-        },
-        {
-            "id": 166,
-            "name": "生成树",
-            "type": "Algorithm",
-            "parent": 6,
-            "color": "lapis-3",
-            "hasChildren": false
-        },
-        {
-            "id": 172,
-            "name": "平面图",
-            "type": "Algorithm",
-            "parent": 6,
-            "color": "lapis-3",
-            "hasChildren": false
-        },
-        {
-            "id": 173,
-            "name": "最小环",
-            "type": "Algorithm",
-            "parent": 6,
-            "color": "lapis-3",
-            "hasChildren": false
-        },
-        {
-            "id": 174,
-            "name": "负权环",
-            "type": "Algorithm",
-            "parent": 6,
-            "color": "lapis-3",
-            "hasChildren": false
-        },
-        {
-            "id": 175,
-            "name": "连通块",
-            "type": "Algorithm",
-            "parent": 6,
-            "color": "lapis-3",
-            "hasChildren": false
-        },
-        {
-            "id": 176,
-            "name": "2-SAT",
-            "type": "Algorithm",
-            "parent": 6,
-            "color": "lapis-3",
-            "hasChildren": false
-        },
-        {
-            "id": 177,
-            "name": "平面图欧拉公式",
-            "type": "Algorithm",
-            "parent": 6,
-            "color": "lapis-3",
-            "hasChildren": false
-        },
-        {
-            "id": 179,
-            "name": "强连通分量",
-            "type": "Algorithm",
-            "parent": 6,
-            "color": "lapis-3",
-            "hasChildren": false
-        },
-        {
-            "id": 180,
-            "name": "Tarjan",
-            "type": "Algorithm",
-            "parent": 6,
-            "color": "lapis-3",
-            "hasChildren": false
-        },
-        {
-            "id": 181,
-            "name": "双连通分量",
-            "type": "Algorithm",
-            "parent": 6,
-            "color": "lapis-3",
-            "hasChildren": false
-        },
-        {
-            "id": 182,
-            "name": "欧拉回路",
-            "type": "Algorithm",
-            "parent": 6,
-            "color": "lapis-3",
-            "hasChildren": false
-        },
-        {
-            "id": 185,
-            "name": "差分约束",
-            "type": "Algorithm",
-            "parent": 6,
-            "color": "lapis-3",
-            "hasChildren": false
-        },
-        {
-            "id": 186,
-            "name": "仙人掌",
-            "type": "Algorithm",
-            "parent": 6,
-            "color": "lapis-3",
-            "hasChildren": false
-        },
-        {
-            "id": 187,
-            "name": "二分图",
-            "type": "Algorithm",
-            "parent": 6,
-            "color": "lapis-3",
-            "hasChildren": false
-        },
-        {
-            "id": 189,
-            "name": "一般图的最大匹配",
-            "type": "Algorithm",
-            "parent": 6,
-            "color": "lapis-3",
-            "hasChildren": false
-        },
-        {
-            "id": 197,
-            "name": "上下界网络流",
-            "type": "Algorithm",
-            "parent": 6,
-            "color": "lapis-3",
-            "hasChildren": false
-        },
-        {
-            "id": 198,
-            "name": "最小割",
-            "type": "Algorithm",
-            "parent": 6,
-            "color": "lapis-3",
-            "hasChildren": false
-        },
-        {
-            "id": 202,
-            "name": "分数规划",
-            "type": "Algorithm",
-            "parent": 467,
-            "color": "lapis-3",
-            "hasChildren": false
-        },
-        {
-            "id": 204,
-            "name": "费用流",
-            "type": "Algorithm",
-            "parent": 6,
-            "color": "lapis-3",
-            "hasChildren": false
-        },
-        {
-            "id": 208,
-            "name": "树的遍历",
-            "type": "Algorithm",
-            "parent": 230,
-            "color": "lapis-3",
-            "hasChildren": false
-        },
-        {
-            "id": 211,
-            "name": "最近公共祖先 LCA",
-            "type": "Algorithm",
-            "parent": 230,
-            "color": "lapis-3",
-            "hasChildren": false
-        },
-        {
-            "id": 213,
-            "name": "树的直径",
-            "type": "Algorithm",
-            "parent": 230,
-            "color": "lapis-3",
-            "hasChildren": false
-        },
-        {
-            "id": 214,
-            "name": "霍夫曼树",
-            "type": "Algorithm",
-            "parent": 308,
-            "color": "lapis-3",
-            "hasChildren": false
-        },
-        {
-            "id": 215,
-            "name": "可并堆",
-            "type": "Algorithm",
-            "parent": 11,
-            "color": "lapis-3",
-            "hasChildren": false
-        },
-        {
-            "id": 228,
-            "name": "树链剖分",
-            "type": "Algorithm",
-            "parent": 230,
-            "color": "lapis-3",
-            "hasChildren": false
-        },
-        {
-            "id": 229,
-            "name": "动态树 LCT",
-            "type": "Algorithm",
-            "parent": 11,
-            "color": "lapis-3",
-            "hasChildren": false
-        },
-        {
-            "id": 230,
-            "name": "树论",
-            "type": "Algorithm",
-            "parent": null,
-            "color": "lapis-3",
-            "hasChildren": true
-        },
-        {
-            "id": 232,
-            "name": "树套树",
-            "type": "Algorithm",
-            "parent": 11,
-            "color": "lapis-3",
-            "hasChildren": false
-        },
-        {
-            "id": 233,
-            "name": "可持久化线段树",
-            "type": "Algorithm",
-            "parent": 11,
-            "color": "lapis-3",
-            "hasChildren": false
-        },
-        {
-            "id": 234,
-            "name": "可持久化",
-            "type": "Algorithm",
-            "parent": 11,
-            "color": "lapis-3",
-            "hasChildren": false
-        },
-        {
-            "id": 235,
-            "name": "哈希 hashing",
-            "type": "Algorithm",
-            "parent": 308,
-            "color": "lapis-3",
-            "hasChildren": false
-        },
-        {
-            "id": 239,
-            "name": "素数判断,质数,筛法",
-            "type": "Algorithm",
-            "parent": 72,
-            "color": "lapis-3",
-            "hasChildren": false
-        },
-        {
-            "id": 241,
-            "name": "最大公约数 gcd",
-            "type": "Algorithm",
-            "parent": 72,
-            "color": "lapis-3",
-            "hasChildren": false
-        },
-        {
-            "id": 242,
-            "name": "扩展欧几里德算法",
-            "type": "Algorithm",
-            "parent": 72,
-            "color": "lapis-3",
-            "hasChildren": false
-        },
-        {
-            "id": 243,
-            "name": "不定方程",
-            "type": "Algorithm",
-            "parent": 72,
-            "color": "lapis-3",
-            "hasChildren": false
-        },
-        {
-            "id": 244,
-            "name": "进制",
-            "type": "Algorithm",
-            "parent": 72,
-            "color": "lapis-3",
-            "hasChildren": false
-        },
-        {
-            "id": 246,
-            "name": "群论",
-            "type": "Algorithm",
-            "parent": null,
-            "color": "lapis-3",
-            "hasChildren": true
-        },
-        {
-            "id": 247,
-            "name": "置换",
-            "type": "Algorithm",
-            "parent": 246,
-            "color": "lapis-3",
-            "hasChildren": false
-        },
-        {
-            "id": 248,
-            "name": "Pólya 定理",
-            "type": "Algorithm",
-            "parent": 246,
-            "color": "lapis-3",
-            "hasChildren": false
-        },
-        {
-            "id": 249,
-            "name": "虚树",
-            "type": "Algorithm",
-            "parent": 230,
-            "color": "lapis-3",
-            "hasChildren": false
-        },
-        {
-            "id": 250,
-            "name": "中国剩余定理 CRT",
-            "type": "Algorithm",
-            "parent": 72,
-            "color": "lapis-3",
-            "hasChildren": false
-        },
-        {
-            "id": 251,
-            "name": "莫比乌斯反演",
-            "type": "Algorithm",
-            "parent": 72,
-            "color": "lapis-3",
-            "hasChildren": false
-        },
-        {
-            "id": 252,
-            "name": "组合数学",
-            "type": "Algorithm",
-            "parent": null,
-            "color": "lapis-3",
-            "hasChildren": true
-        },
-        {
-            "id": 253,
-            "name": "排列组合",
-            "type": "Algorithm",
-            "parent": 252,
-            "color": "lapis-3",
-            "hasChildren": false
-        },
-        {
-            "id": 254,
-            "name": "前缀和",
-            "type": "Algorithm",
-            "parent": 44,
-            "color": "lapis-3",
-            "hasChildren": false
-        },
-        {
-            "id": 255,
-            "name": "二项式定理",
-            "type": "Algorithm",
-            "parent": 252,
-            "color": "lapis-3",
-            "hasChildren": false
-        },
-        {
-            "id": 256,
-            "name": "康托展开",
-            "type": "Algorithm",
-            "parent": 252,
-            "color": "lapis-3",
-            "hasChildren": false
-        },
-        {
-            "id": 258,
-            "name": "鸽笼原理",
-            "type": "Algorithm",
-            "parent": 252,
-            "color": "lapis-3",
-            "hasChildren": false
-        },
-        {
-            "id": 259,
-            "name": "容斥原理",
-            "type": "Algorithm",
-            "parent": 252,
-            "color": "lapis-3",
-            "hasChildren": false
-        },
-        {
-            "id": 260,
-            "name": "斐波那契数列",
-            "type": "Algorithm",
-            "parent": 252,
-            "color": "lapis-3",
-            "hasChildren": false
-        },
-        {
-            "id": 261,
-            "name": "Catalan 数",
-            "type": "Algorithm",
-            "parent": 252,
-            "color": "lapis-3",
-            "hasChildren": false
-        },
-        {
-            "id": 262,
-            "name": "Stirling 数",
-            "type": "Algorithm",
-            "parent": 252,
-            "color": "lapis-3",
-            "hasChildren": false
-        },
-        {
-            "id": 263,
-            "name": "A*  算法",
-            "type": "Algorithm",
-            "parent": 4,
-            "color": "lapis-3",
-            "hasChildren": false
-        },
-        {
-            "id": 264,
-            "name": "生成函数",
-            "type": "Algorithm",
-            "parent": 252,
-            "color": "lapis-3",
-            "hasChildren": false
-        },
-        {
-            "id": 265,
-            "name": "线性规划",
-            "type": "Algorithm",
-            "parent": 467,
-            "color": "lapis-3",
-            "hasChildren": false
-        },
-        {
-            "id": 266,
-            "name": "概率论",
-            "type": "Algorithm",
-            "parent": null,
-            "color": "lapis-3",
-            "hasChildren": true
-        },
-        {
-            "id": 268,
-            "name": "条件概率",
-            "type": "Algorithm",
-            "parent": 266,
-            "color": "lapis-3",
-            "hasChildren": false
-        },
-        {
-            "id": 270,
-            "name": "期望",
-            "type": "Algorithm",
-            "parent": 266,
-            "color": "lapis-3",
-            "hasChildren": false
-        },
-        {
-            "id": 271,
-            "name": "线性代数",
-            "type": "Algorithm",
-            "parent": null,
-            "color": "lapis-3",
-            "hasChildren": true
-        },
-        {
-            "id": 272,
-            "name": "矩阵乘法",
-            "type": "Algorithm",
-            "parent": 271,
-            "color": "lapis-3",
-            "hasChildren": false
-        },
-        {
-            "id": 273,
-            "name": "线性递推",
-            "type": "Algorithm",
-            "parent": 271,
-            "color": "lapis-3",
-            "hasChildren": false
-        },
-        {
-            "id": 274,
-            "name": "高斯消元",
-            "type": "Algorithm",
-            "parent": 271,
-            "color": "lapis-3",
-            "hasChildren": false
-        },
-        {
-            "id": 276,
-            "name": "逆元",
-            "type": "Algorithm",
-            "parent": 72,
-            "color": "lapis-3",
-            "hasChildren": false
-        },
-        {
-            "id": 277,
-            "name": "线性基",
-            "type": "Algorithm",
-            "parent": 271,
-            "color": "lapis-3",
-            "hasChildren": false
-        },
-        {
-            "id": 278,
-            "name": "微积分",
-            "type": "Algorithm",
-            "parent": null,
-            "color": "lapis-3",
-            "hasChildren": true
-        },
-        {
-            "id": 280,
-            "name": "导数",
-            "type": "Algorithm",
-            "parent": 278,
-            "color": "lapis-3",
-            "hasChildren": false
-        },
-        {
-            "id": 281,
-            "name": "积分",
-            "type": "Algorithm",
-            "parent": 278,
-            "color": "lapis-3",
-            "hasChildren": false
-        },
-        {
-            "id": 282,
-            "name": "定积分",
-            "type": "Algorithm",
-            "parent": 278,
-            "color": "lapis-3",
-            "hasChildren": false
-        },
-        {
-            "id": 283,
-            "name": "三维计算几何",
-            "type": "Algorithm",
-            "parent": 8,
-            "color": "lapis-3",
-            "hasChildren": false
-        },
-        {
-            "id": 284,
-            "name": "级数",
-            "type": "Algorithm",
-            "parent": 278,
-            "color": "lapis-3",
-            "hasChildren": false
-        },
-        {
-            "id": 286,
-            "name": "向量",
-            "type": "Algorithm",
-            "parent": 8,
-            "color": "lapis-3",
-            "hasChildren": false
-        },
-        {
-            "id": 287,
-            "name": "栈",
-            "type": "Algorithm",
-            "parent": 44,
-            "color": "lapis-3",
-            "hasChildren": false
-        },
-        {
-            "id": 288,
-            "name": "队列",
-            "type": "Algorithm",
-            "parent": 44,
-            "color": "lapis-3",
-            "hasChildren": false
-        },
-        {
-            "id": 289,
-            "name": "分块",
-            "type": "Algorithm",
-            "parent": 44,
-            "color": "lapis-3",
-            "hasChildren": false
-        },
-        {
-            "id": 290,
-            "name": "ST 表",
-            "type": "Algorithm",
-            "parent": 44,
-            "color": "lapis-3",
-            "hasChildren": false
-        },
-        {
-            "id": 291,
-            "name": "凸包",
-            "type": "Algorithm",
-            "parent": 8,
-            "color": "lapis-3",
-            "hasChildren": false
-        },
-        {
-            "id": 292,
-            "name": "叉积",
-            "type": "Algorithm",
-            "parent": 8,
-            "color": "lapis-3",
-            "hasChildren": false
-        },
-        {
-            "id": 293,
-            "name": "线段相交",
-            "type": "Algorithm",
-            "parent": 8,
-            "color": "lapis-3",
-            "hasChildren": false
-        },
-        {
-            "id": 295,
-            "name": "半平面交",
-            "type": "Algorithm",
-            "parent": 8,
-            "color": "lapis-3",
-            "hasChildren": false
-        },
-        {
-            "id": 298,
-            "name": "扫描线",
-            "type": "Algorithm",
-            "parent": 8,
-            "color": "lapis-3",
-            "hasChildren": false
-        },
-        {
-            "id": 299,
-            "name": "旋转卡壳",
-            "type": "Algorithm",
-            "parent": 8,
-            "color": "lapis-3",
-            "hasChildren": false
-        },
-        {
-            "id": 300,
-            "name": "字典树 Trie",
-            "type": "Algorithm",
-            "parent": 2,
-            "color": "lapis-3",
-            "hasChildren": false
-        },
-        {
-            "id": 301,
-            "name": "AC 自动机",
-            "type": "Algorithm",
-            "parent": 2,
-            "color": "lapis-3",
-            "hasChildren": false
-        },
-        {
-            "id": 302,
-            "name": "KMP 算法",
-            "type": "Algorithm",
-            "parent": 2,
-            "color": "lapis-3",
-            "hasChildren": false
-        },
-        {
-            "id": 303,
-            "name": "后缀数组 SA",
-            "type": "Algorithm",
-            "parent": 2,
-            "color": "lapis-3",
-            "hasChildren": false
-        },
-        {
-            "id": 304,
-            "name": "后缀树",
-            "type": "Algorithm",
-            "parent": 2,
-            "color": "lapis-3",
-            "hasChildren": false
-        },
-        {
-            "id": 305,
-            "name": "有限状态自动机",
-            "type": "Algorithm",
-            "parent": 2,
-            "color": "lapis-3",
-            "hasChildren": false
-        },
-        {
-            "id": 308,
-            "name": "其它技巧",
-            "type": "Algorithm",
-            "parent": null,
-            "color": "lapis-3",
-            "hasChildren": true
-        },
-        {
-            "id": 309,
-            "name": "随机化",
-            "type": "Algorithm",
-            "parent": 308,
-            "color": "lapis-3",
-            "hasChildren": false
-        },
-        {
-            "id": 311,
-            "name": "博弈树",
-            "type": "Algorithm",
-            "parent": 13,
-            "color": "lapis-3",
-            "hasChildren": false
-        },
-        {
-            "id": 313,
-            "name": "快速傅里叶变换 FFT",
-            "type": "Algorithm",
-            "parent": 69,
-            "color": "lapis-3",
-            "hasChildren": false
-        },
-        {
-            "id": 314,
-            "name": "位运算",
-            "type": "Algorithm",
-            "parent": 308,
-            "color": "lapis-3",
-            "hasChildren": false
-        },
-        {
-            "id": 316,
-            "name": "整体二分",
-            "type": "Algorithm",
-            "parent": 11,
-            "color": "lapis-3",
-            "hasChildren": false
-        },
-        {
-            "id": 318,
-            "name": "构造",
-            "type": "Algorithm",
-            "parent": 308,
-            "color": "lapis-3",
-            "hasChildren": false
-        },
-        {
-            "id": 320,
-            "name": "基环树",
-            "type": "Algorithm",
-            "parent": 230,
-            "color": "lapis-3",
-            "hasChildren": false
-        },
-        {
-            "id": 321,
-            "name": "K-D Tree",
-            "type": "Algorithm",
-            "parent": 11,
-            "color": "lapis-3",
-            "hasChildren": false
-        },
-        {
-            "id": 322,
-            "name": "Lucas 定理",
-            "type": "Algorithm",
-            "parent": 72,
-            "color": "lapis-3",
-            "hasChildren": false
-        },
-        {
-            "id": 323,
-            "name": "插头 DP",
-            "type": "Algorithm",
-            "parent": 3,
-            "color": "lapis-3",
-            "hasChildren": false
-        },
-        {
-            "id": 324,
-            "name": "快速数论变换 NTT",
-            "type": "Algorithm",
-            "parent": 69,
-            "color": "lapis-3",
-            "hasChildren": false
-        },
-        {
-            "id": 325,
-            "name": "回文自动机 PAM",
-            "type": "Algorithm",
-            "parent": 2,
-            "color": "lapis-3",
-            "hasChildren": false
-        },
-        {
-            "id": 326,
-            "name": "快速沃尔什变换 FWT",
-            "type": "Algorithm",
-            "parent": 69,
-            "color": "lapis-3",
-            "hasChildren": false
-        },
-        {
-            "id": 327,
-            "name": "快速莫比乌斯变换 FMT",
-            "type": "Algorithm",
-            "parent": 69,
-            "color": "lapis-3",
-            "hasChildren": false
-        },
-        {
-            "id": 329,
-            "name": "Manacher 算法",
-            "type": "Algorithm",
-            "parent": 2,
-            "color": "lapis-3",
-            "hasChildren": false
-        },
-        {
-            "id": 330,
-            "name": "差分",
-            "type": "Algorithm",
-            "parent": 44,
-            "color": "lapis-3",
-            "hasChildren": false
-        },
-        {
-            "id": 345,
-            "name": "双指针 two-pointer",
-            "type": "Algorithm",
-            "parent": 308,
-            "color": "lapis-3",
-            "hasChildren": false
-        },
-        {
-            "id": 350,
-            "name": "圆方树",
-            "type": "Algorithm",
-            "parent": 6,
-            "color": "lapis-3",
-            "hasChildren": false
-        },
-        {
-            "id": 353,
-            "name": "顺序结构",
-            "type": "Algorithm",
-            "parent": -2,
-            "color": "lapis-3",
-            "hasChildren": false
-        },
-        {
-            "id": 354,
-            "name": "分支结构",
-            "type": "Algorithm",
-            "parent": -2,
-            "color": "lapis-3",
-            "hasChildren": false
-        },
-        {
-            "id": 355,
-            "name": "循环结构",
-            "type": "Algorithm",
-            "parent": -2,
-            "color": "lapis-3",
-            "hasChildren": false
-        },
-        {
-            "id": 356,
-            "name": "数组",
-            "type": "Algorithm",
-            "parent": -2,
-            "color": "lapis-3",
-            "hasChildren": false
-        },
-        {
-            "id": 357,
-            "name": "字符串（入门）",
-            "type": "Algorithm",
-            "parent": -2,
-            "color": "lapis-3",
-            "hasChildren": false
-        },
-        {
-            "id": 358,
-            "name": "结构体",
-            "type": "Algorithm",
-            "parent": -2,
-            "color": "lapis-3",
-            "hasChildren": false
-        },
-        {
-            "id": 359,
-            "name": "函数与递归",
-            "type": "Algorithm",
-            "parent": -2,
-            "color": "lapis-3",
-            "hasChildren": false
-        },
-        {
-            "id": 360,
-            "name": "链表",
-            "type": "Algorithm",
-            "parent": 44,
-            "color": "lapis-3",
-            "hasChildren": false
-        },
-        {
-            "id": 364,
-            "name": "Dilworth 定理",
-            "type": "Algorithm",
-            "parent": 6,
-            "color": "lapis-3",
-            "hasChildren": false
-        },
-        {
-            "id": 365,
-            "name": "Ad-hoc",
-            "type": "Algorithm",
-            "parent": 308,
-            "color": "lapis-3",
-            "hasChildren": false
-        },
-        {
-            "id": 368,
-            "name": "笛卡尔树",
-            "type": "Algorithm",
-            "parent": 308,
-            "color": "lapis-3",
-            "hasChildren": false
-        },
-        {
-            "id": 369,
-            "name": "拟阵",
-            "type": "Algorithm",
-            "parent": 467,
-            "color": "lapis-3",
-            "hasChildren": false
-        },
-        {
-            "id": 370,
-            "name": "Nim 积",
-            "type": "Algorithm",
-            "parent": 13,
-            "color": "lapis-3",
-            "hasChildren": false
-        },
-        {
-            "id": 371,
-            "name": "根号分治",
-            "type": "Algorithm",
-            "parent": 308,
-            "color": "lapis-3",
-            "hasChildren": false
-        },
-        {
-            "id": 372,
-            "name": "拉格朗日反演",
-            "type": "Algorithm",
-            "parent": 252,
-            "color": "lapis-3",
-            "hasChildren": false
-        },
-        {
-            "id": 373,
-            "name": "模拟费用流",
-            "type": "Algorithm",
-            "parent": 308,
-            "color": "lapis-3",
-            "hasChildren": false
-        },
-        {
-            "id": 374,
-            "name": "分散层叠",
-            "type": "Algorithm",
-            "parent": 308,
-            "color": "lapis-3",
-            "hasChildren": false
-        },
-        {
-            "id": 375,
-            "name": "均摊分析",
-            "type": "Algorithm",
-            "parent": 308,
-            "color": "lapis-3",
-            "hasChildren": false
-        },
-        {
-            "id": 376,
-            "name": "分类讨论",
-            "type": "Algorithm",
-            "parent": 308,
-            "color": "lapis-3",
-            "hasChildren": false
-        },
-        {
-            "id": 377,
-            "name": "李超线段树",
-            "type": "Algorithm",
-            "parent": 11,
-            "color": "lapis-3",
-            "hasChildren": false
-        },
-        {
-            "id": 378,
-            "name": "吉司机线段树 segment tree beats",
-            "type": "Algorithm",
-            "parent": 11,
-            "color": "lapis-3",
-            "hasChildren": false
-        },
-        {
-            "id": 379,
-            "name": "线段树合并",
-            "type": "Algorithm",
-            "parent": 11,
-            "color": "lapis-3",
-            "hasChildren": false
-        },
-        {
-            "id": 380,
-            "name": "折半搜索 meet in the middle",
-            "type": "Algorithm",
-            "parent": 4,
-            "color": "lapis-3",
-            "hasChildren": false
-        },
-        {
-            "id": 382,
-            "name": "动态树分治",
-            "type": "Algorithm",
-            "parent": 230,
-            "color": "lapis-3",
-            "hasChildren": false
-        },
-        {
-            "id": 385,
-            "name": "单调栈",
-            "type": "Algorithm",
-            "parent": 44,
-            "color": "lapis-3",
-            "hasChildren": false
-        },
-        {
-            "id": 387,
-            "name": "杨表",
-            "type": "Algorithm",
-            "parent": 252,
-            "color": "lapis-3",
-            "hasChildren": false
-        },
-        {
-            "id": 388,
-            "name": "类欧几里得算法",
-            "type": "Algorithm",
-            "parent": 72,
-            "color": "lapis-3",
-            "hasChildren": false
-        },
-        {
-            "id": 391,
-            "name": "Berlekamp-Massey(BM) 算法",
-            "type": "Algorithm",
-            "parent": 69,
-            "color": "lapis-3",
-            "hasChildren": false
-        },
-        {
-            "id": 396,
-            "name": "梯度下降法",
-            "type": "Algorithm",
-            "parent": 4,
-            "color": "lapis-3",
-            "hasChildren": false
-        },
-        {
-            "id": 410,
-            "name": "Prüfer 序列",
-            "type": "Algorithm",
-            "parent": 230,
-            "color": "lapis-3",
-            "hasChildren": false
-        },
-        {
-            "id": 411,
-            "name": "调和级数",
-            "type": "Algorithm",
-            "parent": 72,
-            "color": "lapis-3",
-            "hasChildren": false
-        },
-        {
-            "id": 412,
-            "name": "拉格朗日乘数法",
-            "type": "Algorithm",
-            "parent": 5,
-            "color": "lapis-3",
-            "hasChildren": false
-        },
-        {
-            "id": 413,
-            "name": "近似算法",
-            "type": "Algorithm",
-            "parent": 308,
-            "color": "lapis-3",
-            "hasChildren": false
-        },
-        {
-            "id": 415,
-            "name": "欧拉降幂",
-            "type": "Algorithm",
-            "parent": 72,
-            "color": "lapis-3",
-            "hasChildren": false
-        },
-        {
-            "id": 416,
-            "name": "集合幂级数，子集卷积",
-            "type": "Algorithm",
-            "parent": 69,
-            "color": "lapis-3",
-            "hasChildren": false
-        },
-        {
-            "id": 417,
-            "name": "拉格朗日插值法",
-            "type": "Algorithm",
-            "parent": 5,
-            "color": "lapis-3",
-            "hasChildren": false
-        },
-        {
-            "id": 419,
-            "name": "Lyndon 分解",
-            "type": "Algorithm",
-            "parent": 2,
-            "color": "lapis-3",
-            "hasChildren": false
-        },
-        {
-            "id": 423,
-            "name": "Stern-Brocot 树",
-            "type": "Algorithm",
-            "parent": 72,
-            "color": "lapis-3",
-            "hasChildren": false
-        },
-        {
-            "id": 435,
-            "name": "DP 套 DP",
-            "type": "Algorithm",
-            "parent": 146,
-            "color": "lapis-3",
-            "hasChildren": false
-        },
-        {
-            "id": 443,
-            "name": "动态 DP",
-            "type": "Algorithm",
-            "parent": 146,
-            "color": "lapis-3",
-            "hasChildren": false
-        },
-        {
-            "id": 444,
-            "name": "线性 DP",
-            "type": "Algorithm",
-            "parent": 3,
-            "color": "lapis-3",
-            "hasChildren": false
-        },
-        {
-            "id": 445,
-            "name": "SG 函数",
-            "type": "Algorithm",
-            "parent": 13,
-            "color": "lapis-3",
-            "hasChildren": false
-        },
-        {
-            "id": 446,
-            "name": "线段树分治",
-            "type": "Algorithm",
-            "parent": 308,
-            "color": "lapis-3",
-            "hasChildren": false
-        },
-        {
-            "id": 447,
-            "name": "离线处理",
-            "type": "Algorithm",
-            "parent": 308,
-            "color": "lapis-3",
-            "hasChildren": false
-        },
-        {
-            "id": 448,
-            "name": "整除分块",
-            "type": "Algorithm",
-            "parent": 72,
-            "color": "lapis-3",
-            "hasChildren": false
-        },
-        {
-            "id": 449,
-            "name": "极角排序",
-            "type": "Algorithm",
-            "parent": 8,
-            "color": "lapis-3",
-            "hasChildren": false
-        },
-        {
-            "id": 450,
-            "name": "弦图",
-            "type": "Algorithm",
-            "parent": 6,
-            "color": "lapis-3",
-            "hasChildren": false
-        },
-        {
-            "id": 451,
-            "name": "Dirichlet 卷积",
-            "type": "Algorithm",
-            "parent": 72,
-            "color": "lapis-3",
-            "hasChildren": false
-        },
-        {
-            "id": 452,
-            "name": "大步小步算法 BSGS",
-            "type": "Algorithm",
-            "parent": 72,
-            "color": "lapis-3",
-            "hasChildren": false
-        },
-        {
-            "id": 453,
-            "name": "二次剩余",
-            "type": "Algorithm",
-            "parent": 72,
-            "color": "lapis-3",
-            "hasChildren": false
-        },
-        {
-            "id": 454,
-            "name": "行列式",
-            "type": "Algorithm",
-            "parent": 271,
-            "color": "lapis-3",
-            "hasChildren": false
-        },
-        {
-            "id": 455,
-            "name": "Bézout 定理",
-            "type": "Algorithm",
-            "parent": 72,
-            "color": "lapis-3",
-            "hasChildren": false
-        },
-        {
-            "id": 456,
-            "name": "概率生成函数",
-            "type": "Algorithm",
-            "parent": 266,
-            "color": "lapis-3",
-            "hasChildren": false
-        },
-        {
-            "id": 457,
-            "name": "随机游走 Markov Chain",
-            "type": "Algorithm",
-            "parent": 266,
-            "color": "lapis-3",
-            "hasChildren": false
-        },
-        {
-            "id": 458,
-            "name": "鞅的停时定理",
-            "type": "Algorithm",
-            "parent": 266,
-            "color": "lapis-3",
-            "hasChildren": false
-        },
-        {
-            "id": 461,
-            "name": "杜教筛",
-            "type": "Algorithm",
-            "parent": 72,
-            "color": "lapis-3",
-            "hasChildren": false
-        },
-        {
-            "id": 462,
-            "name": "欧拉函数",
-            "type": "Algorithm",
-            "parent": 72,
-            "color": "lapis-3",
-            "hasChildren": false
-        },
-        {
-            "id": 463,
-            "name": "决策单调性",
-            "type": "Algorithm",
-            "parent": 146,
-            "color": "lapis-3",
-            "hasChildren": false
-        },
-        {
-            "id": 464,
-            "name": "状压 DP",
-            "type": "Algorithm",
-            "parent": 3,
-            "color": "lapis-3",
-            "hasChildren": false
-        },
-        {
-            "id": 465,
-            "name": "bitset",
-            "type": "Algorithm",
-            "parent": 308,
-            "color": "lapis-3",
-            "hasChildren": false
-        },
-        {
-            "id": 466,
-            "name": "特征值",
-            "type": "Algorithm",
-            "parent": 271,
-            "color": "lapis-3",
-            "hasChildren": false
-        },
-        {
-            "id": 467,
-            "name": "组合优化",
-            "type": "Algorithm",
-            "parent": null,
-            "color": "lapis-3",
-            "hasChildren": true
-        },
-        {
-            "id": 468,
-            "name": "整数规划",
-            "type": "Algorithm",
-            "parent": 467,
-            "color": "lapis-3",
-            "hasChildren": false
-        },
-        {
-            "id": 469,
-            "name": "半正定规划",
-            "type": "Algorithm",
-            "parent": 467,
-            "color": "lapis-3",
-            "hasChildren": false
-        },
-        {
-            "id": 470,
-            "name": "原始对偶",
-            "type": "Algorithm",
-            "parent": 467,
-            "color": "lapis-3",
-            "hasChildren": false
-        },
-        {
-            "id": 471,
-            "name": "最大流最小割定理",
-            "type": "Algorithm",
-            "parent": 467,
-            "color": "lapis-3",
-            "hasChildren": false
-        },
-        {
-            "id": 472,
-            "name": "全局平衡二叉树",
-            "type": "Algorithm",
-            "parent": 230,
-            "color": "lapis-3",
-            "hasChildren": false
-        },
-        {
-            "id": 473,
-            "name": "哈希表",
-            "type": "Algorithm",
-            "parent": 44,
-            "color": "lapis-3",
-            "hasChildren": false
-        },
-        {
-            "id": 474,
-            "name": "Z 函数",
-            "type": "Algorithm",
-            "parent": 2,
-            "color": "lapis-3",
-            "hasChildren": false
-        },
-        {
-            "id": 475,
-            "name": "筛法",
-            "type": "Algorithm",
-            "parent": 72,
-            "color": "lapis-3",
-            "hasChildren": false
-        },
-        {
-            "id": 476,
-            "name": "Floyd 算法",
-            "type": "Algorithm",
-            "parent": 6,
-            "color": "lapis-3",
-            "hasChildren": false
-        },
-        {
-            "id": 477,
-            "name": "启发式合并",
-            "type": "Algorithm",
-            "parent": 308,
-            "color": "lapis-3",
-            "hasChildren": false
-        },
-        {
-            "id": 480,
-            "name": "单位根反演",
-            "type": "Algorithm",
-            "parent": 5,
-            "color": "lapis-3",
-            "hasChildren": false
-        },
-        {
-            "id": 482,
-            "name": "平面几何",
-            "type": "Algorithm",
-            "parent": 8,
-            "color": "lapis-3",
-            "hasChildren": false
-        },
-        {
-            "id": 483,
-            "name": "树的重心",
-            "type": "Algorithm",
-            "parent": 230,
-            "color": "lapis-3",
-            "hasChildren": false
-        },
-        {
-            "id": 484,
-            "name": "保序回归",
-            "type": "Algorithm",
-            "parent": 467,
-            "color": "lapis-3",
-            "hasChildren": false
-        },
-        {
-            "id": -2,
-            "name": "语言入门（请选择[入门与面试]题库）",
-            "type": "Algorithm",
-            "parent": null,
-            "color": "lapis-3",
-            "hasChildren": true
-        }
-    ],
-    "Time": [
-        {
-            "id": 14,
-            "name": "1997",
-            "type": "Time",
-            "parent": null,
-            "color": "blue-3",
-            "hasChildren": false
-        },
-        {
-            "id": 15,
-            "name": "1998",
-            "type": "Time",
-            "parent": null,
-            "color": "blue-3",
-            "hasChildren": false
-        },
-        {
-            "id": 16,
-            "name": "1999",
-            "type": "Time",
-            "parent": null,
-            "color": "blue-3",
-            "hasChildren": false
-        },
-        {
-            "id": 17,
-            "name": "2000",
-            "type": "Time",
-            "parent": null,
-            "color": "blue-3",
-            "hasChildren": false
-        },
-        {
-            "id": 18,
-            "name": "2001",
-            "type": "Time",
-            "parent": null,
-            "color": "blue-3",
-            "hasChildren": false
-        },
-        {
-            "id": 19,
-            "name": "2002",
-            "type": "Time",
-            "parent": null,
-            "color": "blue-3",
-            "hasChildren": false
-        },
-        {
-            "id": 20,
-            "name": "2003",
-            "type": "Time",
-            "parent": null,
-            "color": "blue-3",
-            "hasChildren": false
-        },
-        {
-            "id": 21,
-            "name": "2004",
-            "type": "Time",
-            "parent": null,
-            "color": "blue-3",
-            "hasChildren": false
-        },
-        {
-            "id": 22,
-            "name": "2005",
-            "type": "Time",
-            "parent": null,
-            "color": "blue-3",
-            "hasChildren": false
-        },
-        {
-            "id": 23,
-            "name": "2006",
-            "type": "Time",
-            "parent": null,
-            "color": "blue-3",
-            "hasChildren": false
-        },
-        {
-            "id": 24,
-            "name": "2007",
-            "type": "Time",
-            "parent": null,
-            "color": "blue-3",
-            "hasChildren": false
-        },
-        {
-            "id": 25,
-            "name": "2008",
-            "type": "Time",
-            "parent": null,
-            "color": "blue-3",
-            "hasChildren": false
-        },
-        {
-            "id": 26,
-            "name": "2009",
-            "type": "Time",
-            "parent": null,
-            "color": "blue-3",
-            "hasChildren": false
-        },
-        {
-            "id": 27,
-            "name": "2010",
-            "type": "Time",
-            "parent": null,
-            "color": "blue-3",
-            "hasChildren": false
-        },
-        {
-            "id": 28,
-            "name": "2011",
-            "type": "Time",
-            "parent": null,
-            "color": "blue-3",
-            "hasChildren": false
-        },
-        {
-            "id": 29,
-            "name": "2012",
-            "type": "Time",
-            "parent": null,
-            "color": "blue-3",
-            "hasChildren": false
-        },
-        {
-            "id": 30,
-            "name": "2013",
-            "type": "Time",
-            "parent": null,
-            "color": "blue-3",
-            "hasChildren": false
-        },
-        {
-            "id": 31,
-            "name": "2014",
-            "type": "Time",
-            "parent": null,
-            "color": "blue-3",
-            "hasChildren": false
-        },
-        {
-            "id": 32,
-            "name": "2015",
-            "type": "Time",
-            "parent": null,
-            "color": "blue-3",
-            "hasChildren": false
-        },
-        {
-            "id": 33,
-            "name": "2016",
-            "type": "Time",
-            "parent": null,
-            "color": "blue-3",
-            "hasChildren": false
-        },
-        {
-            "id": 34,
-            "name": "2017",
-            "type": "Time",
-            "parent": null,
-            "color": "blue-3",
-            "hasChildren": false
-        },
-        {
-            "id": 35,
-            "name": "2018",
-            "type": "Time",
-            "parent": null,
-            "color": "blue-3",
-            "hasChildren": false
-        },
-        {
-            "id": 36,
-            "name": "2019",
-            "type": "Time",
-            "parent": null,
-            "color": "blue-3",
-            "hasChildren": false
-        },
-        {
-            "id": 37,
-            "name": "2020",
-            "type": "Time",
-            "parent": null,
-            "color": "blue-3",
-            "hasChildren": false
-        },
-        {
-            "id": 58,
-            "name": "2021",
-            "type": "Time",
-            "parent": null,
-            "color": "blue-3",
-            "hasChildren": false
-        },
-        {
-            "id": 59,
-            "name": "2022",
-            "type": "Time",
-            "parent": null,
-            "color": "blue-3",
-            "hasChildren": false
-        },
-        {
-            "id": 60,
-            "name": "2023",
-            "type": "Time",
-            "parent": null,
-            "color": "blue-3",
-            "hasChildren": false
-        },
-        {
-            "id": 61,
-            "name": "2024",
-            "type": "Time",
-            "parent": null,
-            "color": "blue-3",
-            "hasChildren": false
-        },
-        {
-            "id": 62,
-            "name": "2025",
-            "type": "Time",
-            "parent": null,
-            "color": "blue-3",
-            "hasChildren": false
-        },
-        {
-            "id": 338,
-            "name": "2026",
-            "type": "Time",
-            "parent": null,
-            "color": "blue-3",
-            "hasChildren": false
-        },
-        {
-            "id": 339,
-            "name": "2027",
-            "type": "Time",
-            "parent": null,
-            "color": "blue-3",
-            "hasChildren": false
-        },
-        {
-            "id": 340,
-            "name": "2028",
-            "type": "Time",
-            "parent": null,
-            "color": "blue-3",
-            "hasChildren": false
-        },
-        {
-            "id": 341,
-            "name": "2077",
-            "type": "Time",
-            "parent": null,
-            "color": "blue-3",
-            "hasChildren": false
-        },
-        {
-            "id": 344,
-            "name": "1996",
-            "type": "Time",
-            "parent": null,
-            "color": "blue-3",
-            "hasChildren": false
-        },
-        {
-            "id": 362,
-            "name": "2078",
-            "type": "Time",
-            "parent": null,
-            "color": "blue-3",
-            "hasChildren": false
-        },
-        {
-            "id": 367,
-            "name": "2029",
-            "type": "Time",
-            "parent": null,
-            "color": "blue-3",
-            "hasChildren": false
-        },
-        {
-            "id": 424,
-            "name": "2079",
-            "type": "Time",
-            "parent": null,
-            "color": "blue-3",
-            "hasChildren": false
-        }
-    ],
-    "Region": [
-        {
-            "id": 38,
-            "name": "重庆",
-            "type": "Region",
-            "parent": null,
-            "color": "green-3",
-            "hasChildren": false
-        },
-        {
-            "id": 39,
-            "name": "四川",
-            "type": "Region",
-            "parent": null,
-            "color": "green-3",
-            "hasChildren": false
-        },
-        {
-            "id": 40,
-            "name": "河南",
-            "type": "Region",
-            "parent": null,
-            "color": "green-3",
-            "hasChildren": false
-        },
-        {
-            "id": 88,
-            "name": "浙江",
-            "type": "Region",
-            "parent": null,
-            "color": "green-3",
-            "hasChildren": false
-        },
-        {
-            "id": 89,
-            "name": "上海",
-            "type": "Region",
-            "parent": null,
-            "color": "green-3",
-            "hasChildren": false
-        },
-        {
-            "id": 90,
-            "name": "福建",
-            "type": "Region",
-            "parent": null,
-            "color": "green-3",
-            "hasChildren": false
-        },
-        {
-            "id": 91,
-            "name": "江苏",
-            "type": "Region",
-            "parent": null,
-            "color": "green-3",
-            "hasChildren": false
-        },
-        {
-            "id": 92,
-            "name": "安徽",
-            "type": "Region",
-            "parent": null,
-            "color": "green-3",
-            "hasChildren": false
-        },
-        {
-            "id": 93,
-            "name": "湖南",
-            "type": "Region",
-            "parent": null,
-            "color": "green-3",
-            "hasChildren": false
-        },
-        {
-            "id": 94,
-            "name": "北京",
-            "type": "Region",
-            "parent": null,
-            "color": "green-3",
-            "hasChildren": false
-        },
-        {
-            "id": 95,
-            "name": "河北",
-            "type": "Region",
-            "parent": null,
-            "color": "green-3",
-            "hasChildren": false
-        },
-        {
-            "id": 96,
-            "name": "广东",
-            "type": "Region",
-            "parent": null,
-            "color": "green-3",
-            "hasChildren": false
-        },
-        {
-            "id": 97,
-            "name": "山东",
-            "type": "Region",
-            "parent": null,
-            "color": "green-3",
-            "hasChildren": false
-        },
-        {
-            "id": 98,
-            "name": "吉林",
-            "type": "Region",
-            "parent": null,
-            "color": "green-3",
-            "hasChildren": false
-        },
-        {
-            "id": 114,
-            "name": "山西",
-            "type": "Region",
-            "parent": null,
-            "color": "green-3",
-            "hasChildren": false
-        },
-        {
-            "id": 161,
-            "name": "江西",
-            "type": "Region",
-            "parent": null,
-            "color": "green-3",
-            "hasChildren": false
-        },
-        {
-            "id": 162,
-            "name": "贵州",
-            "type": "Region",
-            "parent": null,
-            "color": "green-3",
-            "hasChildren": false
-        },
-        {
-            "id": 163,
-            "name": "广西",
-            "type": "Region",
-            "parent": null,
-            "color": "green-3",
-            "hasChildren": false
-        },
-        {
-            "id": 164,
-            "name": "陕西",
-            "type": "Region",
-            "parent": null,
-            "color": "green-3",
-            "hasChildren": false
-        },
-        {
-            "id": 167,
-            "name": "辽宁",
-            "type": "Region",
-            "parent": null,
-            "color": "green-3",
-            "hasChildren": false
-        },
-        {
-            "id": 168,
-            "name": "云南",
-            "type": "Region",
-            "parent": null,
-            "color": "green-3",
-            "hasChildren": false
-        },
-        {
-            "id": 328,
-            "name": "天津",
-            "type": "Region",
-            "parent": null,
-            "color": "green-3",
-            "hasChildren": false
-        },
-        {
-            "id": 397,
-            "name": "湖北",
-            "type": "Region",
-            "parent": null,
-            "color": "green-3",
-            "hasChildren": false
-        },
-        {
-            "id": 398,
-            "name": "黑龙江",
-            "type": "Region",
-            "parent": null,
-            "color": "green-3",
-            "hasChildren": false
-        },
-        {
-            "id": 399,
-            "name": "海南",
-            "type": "Region",
-            "parent": null,
-            "color": "green-3",
-            "hasChildren": false
-        },
-        {
-            "id": 400,
-            "name": "甘肃",
-            "type": "Region",
-            "parent": null,
-            "color": "green-3",
-            "hasChildren": false
-        },
-        {
-            "id": 401,
-            "name": "青海",
-            "type": "Region",
-            "parent": null,
-            "color": "green-3",
-            "hasChildren": false
-        },
-        {
-            "id": 402,
-            "name": "台湾",
-            "type": "Region",
-            "parent": null,
-            "color": "green-3",
-            "hasChildren": false
-        },
-        {
-            "id": 403,
-            "name": "内蒙古",
-            "type": "Region",
-            "parent": null,
-            "color": "green-3",
-            "hasChildren": false
-        },
-        {
-            "id": 404,
-            "name": "西藏",
-            "type": "Region",
-            "parent": null,
-            "color": "green-3",
-            "hasChildren": false
-        },
-        {
-            "id": 405,
-            "name": "宁夏",
-            "type": "Region",
-            "parent": null,
-            "color": "green-3",
-            "hasChildren": false
-        },
-        {
-            "id": 406,
-            "name": "新疆",
-            "type": "Region",
-            "parent": null,
-            "color": "green-3",
-            "hasChildren": false
-        },
-        {
-            "id": 407,
-            "name": "香港",
-            "type": "Region",
-            "parent": null,
-            "color": "green-3",
-            "hasChildren": false
-        },
-        {
-            "id": 408,
-            "name": "澳门",
-            "type": "Region",
-            "parent": null,
-            "color": "green-3",
-            "hasChildren": false
-        },
-        {
-            "id": 420,
-            "name": "济南",
-            "type": "Region",
-            "parent": null,
-            "color": "green-3",
-            "hasChildren": false
-        },
-        {
-            "id": 421,
-            "name": "南京",
-            "type": "Region",
-            "parent": null,
-            "color": "green-3",
-            "hasChildren": false
-        },
-        {
-            "id": 422,
-            "name": "青岛",
-            "type": "Region",
-            "parent": null,
-            "color": "green-3",
-            "hasChildren": false
-        }
-    ],
-    "Origin": [
-        {
-            "id": 46,
-            "name": "USACO",
-            "type": "Origin",
-            "parent": 428,
-            "color": "cyan-3",
-            "hasChildren": false
-        },
-        {
-            "id": 48,
-            "name": "各省省选",
-            "type": "Origin",
-            "parent": 426,
-            "color": "cyan-3",
-            "hasChildren": false
-        },
-        {
-            "id": 52,
-            "name": "集训队互测",
-            "type": "Origin",
-            "parent": 426,
-            "color": "cyan-3",
-            "hasChildren": false
-        },
-        {
-            "id": 57,
-            "name": "POI（波兰）",
-            "type": "Origin",
-            "parent": 428,
-            "color": "cyan-3",
-            "hasChildren": false
-        },
-        {
-            "id": 70,
-            "name": "福建省历届夏令营",
-            "type": "Origin",
-            "parent": 427,
-            "color": "cyan-3",
-            "hasChildren": false
-        },
-        {
-            "id": 77,
-            "name": "NOI",
-            "type": "Origin",
-            "parent": 426,
-            "color": "cyan-3",
-            "hasChildren": false
-        },
-        {
-            "id": 81,
-            "name": "洛谷原创",
-            "type": "Origin",
-            "parent": 429,
-            "color": "cyan-3",
-            "hasChildren": false
-        },
-        {
-            "id": 82,
-            "name": "NOIP 普及组",
-            "type": "Origin",
-            "parent": 426,
-            "color": "cyan-3",
-            "hasChildren": false
-        },
-        {
-            "id": 83,
-            "name": "NOIP 提高组",
-            "type": "Origin",
-            "parent": 426,
-            "color": "cyan-3",
-            "hasChildren": false
-        },
-        {
-            "id": 85,
-            "name": "APIO",
-            "type": "Origin",
-            "parent": 426,
-            "color": "cyan-3",
-            "hasChildren": false
-        },
-        {
-            "id": 99,
-            "name": "NOI 导刊",
-            "type": "Origin",
-            "parent": 427,
-            "color": "cyan-3",
-            "hasChildren": false
-        },
-        {
-            "id": 102,
-            "name": "IOI",
-            "type": "Origin",
-            "parent": 428,
-            "color": "cyan-3",
-            "hasChildren": false
-        },
-        {
-            "id": 115,
-            "name": "CCO（加拿大）",
-            "type": "Origin",
-            "parent": 428,
-            "color": "cyan-3",
-            "hasChildren": false
-        },
-        {
-            "id": 116,
-            "name": "CCC（加拿大）",
-            "type": "Origin",
-            "parent": 428,
-            "color": "cyan-3",
-            "hasChildren": false
-        },
-        {
-            "id": 117,
-            "name": "CEOI（中欧）",
-            "type": "Origin",
-            "parent": 428,
-            "color": "cyan-3",
-            "hasChildren": false
-        },
-        {
-            "id": 118,
-            "name": "eJOI（欧洲）",
-            "type": "Origin",
-            "parent": 428,
-            "color": "cyan-3",
-            "hasChildren": false
-        },
-        {
-            "id": 331,
-            "name": "CTT（清华集训/北大集训）",
-            "type": "Origin",
-            "parent": 426,
-            "color": "cyan-3",
-            "hasChildren": false
-        },
-        {
-            "id": 332,
-            "name": "网络流与线性规划 24 题",
-            "type": "Origin",
-            "parent": 427,
-            "color": "cyan-3",
-            "hasChildren": false
-        },
-        {
-            "id": 333,
-            "name": "COCI（克罗地亚）",
-            "type": "Origin",
-            "parent": 428,
-            "color": "cyan-3",
-            "hasChildren": false
-        },
-        {
-            "id": 334,
-            "name": "BalticOI（波罗的海）",
-            "type": "Origin",
-            "parent": 428,
-            "color": "cyan-3",
-            "hasChildren": false
-        },
-        {
-            "id": 335,
-            "name": "ICPC",
-            "type": "Origin",
-            "parent": 430,
-            "color": "cyan-3",
-            "hasChildren": false
-        },
-        {
-            "id": 336,
-            "name": "JOI（日本）",
-            "type": "Origin",
-            "parent": 428,
-            "color": "cyan-3",
-            "hasChildren": false
-        },
-        {
-            "id": 337,
-            "name": "洛谷月赛",
-            "type": "Origin",
-            "parent": 429,
-            "color": "cyan-3",
-            "hasChildren": false
-        },
-        {
-            "id": 342,
-            "name": "CSP-S 提高级",
-            "type": "Origin",
-            "parent": 426,
-            "color": "cyan-3",
-            "hasChildren": false
-        },
-        {
-            "id": 343,
-            "name": "CSP-J 入门级",
-            "type": "Origin",
-            "parent": 426,
-            "color": "cyan-3",
-            "hasChildren": false
-        },
-        {
-            "id": 346,
-            "name": "AGM",
-            "type": "Origin",
-            "parent": 428,
-            "color": "cyan-3",
-            "hasChildren": false
-        },
-        {
-            "id": 347,
-            "name": "NOI Online",
-            "type": "Origin",
-            "parent": 426,
-            "color": "cyan-3",
-            "hasChildren": false
-        },
-        {
-            "id": 348,
-            "name": "Ynoi",
-            "type": "Origin",
-            "parent": 427,
-            "color": "cyan-3",
-            "hasChildren": false
-        },
-        {
-            "id": 361,
-            "name": "蓝桥杯国赛",
-            "type": "Origin",
-            "parent": 430,
-            "color": "cyan-3",
-            "hasChildren": false
-        },
-        {
-            "id": 363,
-            "name": "蓝桥杯省赛",
-            "type": "Origin",
-            "parent": 430,
-            "color": "cyan-3",
-            "hasChildren": false
-        },
-        {
-            "id": 381,
-            "name": "XCPC",
-            "type": "Origin",
-            "parent": 430,
-            "color": "cyan-3",
-            "hasChildren": false
-        },
-        {
-            "id": 383,
-            "name": "传智杯",
-            "type": "Origin",
-            "parent": 430,
-            "color": "cyan-3",
-            "hasChildren": false
-        },
-        {
-            "id": 386,
-            "name": "语言月赛",
-            "type": "Origin",
-            "parent": 429,
-            "color": "cyan-3",
-            "hasChildren": false
-        },
-        {
-            "id": 389,
-            "name": "PA（波兰）",
-            "type": "Origin",
-            "parent": 428,
-            "color": "cyan-3",
-            "hasChildren": false
-        },
-        {
-            "id": 390,
-            "name": "THUPC",
-            "type": "Origin",
-            "parent": 430,
-            "color": "cyan-3",
-            "hasChildren": false
-        },
-        {
-            "id": 393,
-            "name": "ROI（俄罗斯）",
-            "type": "Origin",
-            "parent": 428,
-            "color": "cyan-3",
-            "hasChildren": false
-        },
-        {
-            "id": 394,
-            "name": "EGOI（欧洲/女生）",
-            "type": "Origin",
-            "parent": 428,
-            "color": "cyan-3",
-            "hasChildren": false
-        },
-        {
-            "id": 409,
-            "name": "GESP",
-            "type": "Origin",
-            "parent": 431,
-            "color": "cyan-3",
-            "hasChildren": false
-        },
-        {
-            "id": 426,
-            "name": "NOI 系列赛事",
-            "type": "Origin",
-            "parent": null,
-            "color": "cyan-3",
-            "hasChildren": true
-        },
-        {
-            "id": 427,
-            "name": "经典套题",
-            "type": "Origin",
-            "parent": null,
-            "color": "cyan-3",
-            "hasChildren": true
-        },
-        {
-            "id": 428,
-            "name": "国际知名赛事",
-            "type": "Origin",
-            "parent": null,
-            "color": "cyan-3",
-            "hasChildren": true
-        },
-        {
-            "id": 429,
-            "name": "洛谷比赛",
-            "type": "Origin",
-            "parent": null,
-            "color": "cyan-3",
-            "hasChildren": true
-        },
-        {
-            "id": 430,
-            "name": "大学竞赛",
-            "type": "Origin",
-            "parent": null,
-            "color": "cyan-3",
-            "hasChildren": true
-        },
-        {
-            "id": 431,
-            "name": "其他竞赛",
-            "type": "Origin",
-            "parent": null,
-            "color": "cyan-3",
-            "hasChildren": true
-        },
-        {
-            "id": 432,
-            "name": "THUSC",
-            "type": "Origin",
-            "parent": 431,
-            "color": "cyan-3",
-            "hasChildren": false
-        },
-        {
-            "id": 434,
-            "name": "高校校赛",
-            "type": "Origin",
-            "parent": 430,
-            "color": "cyan-3",
-            "hasChildren": false
-        },
-        {
-            "id": 436,
-            "name": "NOISG（新加坡）",
-            "type": "Origin",
-            "parent": 428,
-            "color": "cyan-3",
-            "hasChildren": false
-        },
-        {
-            "id": 437,
-            "name": "NordicOI（北欧）",
-            "type": "Origin",
-            "parent": 428,
-            "color": "cyan-3",
-            "hasChildren": false
-        },
-        {
-            "id": 438,
-            "name": "THUWC",
-            "type": "Origin",
-            "parent": 431,
-            "color": "cyan-3",
-            "hasChildren": false
-        },
-        {
-            "id": 439,
-            "name": "BalkanOI（巴尔干半岛）",
-            "type": "Origin",
-            "parent": 428,
-            "color": "cyan-3",
-            "hasChildren": false
-        },
-        {
-            "id": 440,
-            "name": "KOI（韩国）",
-            "type": "Origin",
-            "parent": 428,
-            "color": "cyan-3",
-            "hasChildren": false
-        },
-        {
-            "id": 441,
-            "name": "RMI（罗马尼亚）",
-            "type": "Origin",
-            "parent": 428,
-            "color": "cyan-3",
-            "hasChildren": false
-        },
-        {
-            "id": 442,
-            "name": "CSP-X 小学组",
-            "type": "Origin",
-            "parent": 426,
-            "color": "cyan-3",
-            "hasChildren": false
-        },
-        {
-            "id": 459,
-            "name": "WC",
-            "type": "Origin",
-            "parent": 426,
-            "color": "cyan-3",
-            "hasChildren": false
-        },
-        {
-            "id": 460,
-            "name": "CTSC/CTS",
-            "type": "Origin",
-            "parent": 426,
-            "color": "cyan-3",
-            "hasChildren": false
-        },
-        {
-            "id": 478,
-            "name": "COI（克罗地亚）",
-            "type": "Origin",
-            "parent": 428,
-            "color": "cyan-3",
-            "hasChildren": false
-        },
-        {
-            "id": 479,
-            "name": "ROIR（俄罗斯）",
-            "type": "Origin",
-            "parent": 428,
-            "color": "cyan-3",
-            "hasChildren": false
-        },
-        {
-            "id": 485,
-            "name": "Code+",
-            "type": "Origin",
-            "parent": 431,
-            "color": "cyan-3",
-            "hasChildren": false
-        },
-        {
-            "id": 486,
-            "name": "梦熊比赛",
-            "type": "Origin",
-            "parent": 431,
-            "color": "cyan-3",
-            "hasChildren": false
-        },
-        {
-            "id": 487,
-            "name": "信息与未来",
-            "type": "Origin",
-            "parent": 431,
-            "color": "cyan-3",
-            "hasChildren": false
-        }
-    ],
-    "Others": [
-        {
-            "id": 73,
-            "name": "算法",
-            "type": "Others",
-            "parent": null,
-            "color": "grey-5",
-            "hasChildren": false
-        },
-        {
-            "id": 74,
-            "name": "数据结构",
-            "type": "Others",
-            "parent": null,
-            "color": "grey-5",
-            "hasChildren": false
-        },
-        {
-            "id": 75,
-            "name": "来源",
-            "type": "Others",
-            "parent": null,
-            "color": "grey-5",
-            "hasChildren": false
-        },
-        {
-            "id": 76,
-            "name": "时间",
-            "type": "Others",
-            "parent": null,
-            "color": "grey-5",
-            "hasChildren": false
-        },
-        {
-            "id": 80,
-            "name": "高级数据结构",
-            "type": "Others",
-            "parent": null,
-            "color": "grey-5",
-            "hasChildren": false
-        },
-        {
-            "id": 87,
-            "name": "地区",
-            "type": "Others",
-            "parent": null,
-            "color": "grey-5",
-            "hasChildren": false
-        },
-        {
-            "id": 105,
-            "name": "特殊题目",
-            "type": "Others",
-            "parent": null,
-            "color": "grey-5",
-            "hasChildren": false
-        },
-        {
-            "id": 119,
-            "name": "快速排序",
-            "type": "Others",
-            "parent": null,
-            "color": "grey-5",
-            "hasChildren": false
-        },
-        {
-            "id": 120,
-            "name": "堆排序",
-            "type": "Others",
-            "parent": null,
-            "color": "grey-5",
-            "hasChildren": false
-        },
-        {
-            "id": 121,
-            "name": "希尔排序",
-            "type": "Others",
-            "parent": null,
-            "color": "grey-5",
-            "hasChildren": false
-        },
-        {
-            "id": 123,
-            "name": "查找算法",
-            "type": "Others",
-            "parent": null,
-            "color": "grey-5",
-            "hasChildren": false
-        },
-        {
-            "id": 124,
-            "name": "顺序查找",
-            "type": "Others",
-            "parent": null,
-            "color": "grey-5",
-            "hasChildren": false
-        },
-        {
-            "id": 140,
-            "name": "环形 dp",
-            "type": "Others",
-            "parent": null,
-            "color": "grey-5",
-            "hasChildren": false
-        },
-        {
-            "id": 143,
-            "name": "多维状态",
-            "type": "Others",
-            "parent": null,
-            "color": "grey-5",
-            "hasChildren": false
-        },
-        {
-            "id": 156,
-            "name": "邻接矩阵",
-            "type": "Others",
-            "parent": null,
-            "color": "grey-5",
-            "hasChildren": false
-        },
-        {
-            "id": 157,
-            "name": "邻接表",
-            "type": "Others",
-            "parent": null,
-            "color": "grey-5",
-            "hasChildren": false
-        },
-        {
-            "id": 169,
-            "name": "生成树的另类算法",
-            "type": "Others",
-            "parent": null,
-            "color": "grey-5",
-            "hasChildren": false
-        },
-        {
-            "id": 170,
-            "name": "次小生成树",
-            "type": "Others",
-            "parent": null,
-            "color": "grey-5",
-            "hasChildren": false
-        },
-        {
-            "id": 171,
-            "name": "特殊生成树",
-            "type": "Others",
-            "parent": null,
-            "color": "grey-5",
-            "hasChildren": false
-        },
-        {
-            "id": 183,
-            "name": "AOV",
-            "type": "Others",
-            "parent": null,
-            "color": "grey-5",
-            "hasChildren": false
-        },
-        {
-            "id": 184,
-            "name": "AOE",
-            "type": "Others",
-            "parent": null,
-            "color": "grey-5",
-            "hasChildren": false
-        },
-        {
-            "id": 188,
-            "name": "匈牙利算法",
-            "type": "Others",
-            "parent": null,
-            "color": "grey-5",
-            "hasChildren": false
-        },
-        {
-            "id": 190,
-            "name": "Konig定理",
-            "type": "Others",
-            "parent": null,
-            "color": "grey-5",
-            "hasChildren": false
-        },
-        {
-            "id": 191,
-            "name": "带权二分图匹配",
-            "type": "Others",
-            "parent": null,
-            "color": "grey-5",
-            "hasChildren": false
-        },
-        {
-            "id": 192,
-            "name": "KM算法",
-            "type": "Others",
-            "parent": null,
-            "color": "grey-5",
-            "hasChildren": false
-        },
-        {
-            "id": 193,
-            "name": "稳定婚姻系统",
-            "type": "Others",
-            "parent": null,
-            "color": "grey-5",
-            "hasChildren": false
-        },
-        {
-            "id": 195,
-            "name": "Dinic",
-            "type": "Others",
-            "parent": null,
-            "color": "grey-5",
-            "hasChildren": false
-        },
-        {
-            "id": 196,
-            "name": "Sap",
-            "type": "Others",
-            "parent": null,
-            "color": "grey-5",
-            "hasChildren": false
-        },
-        {
-            "id": 199,
-            "name": "闭合图",
-            "type": "Others",
-            "parent": null,
-            "color": "grey-5",
-            "hasChildren": false
-        },
-        {
-            "id": 200,
-            "name": "最小点权覆盖集",
-            "type": "Others",
-            "parent": null,
-            "color": "grey-5",
-            "hasChildren": false
-        },
-        {
-            "id": 201,
-            "name": "最大点权独立集",
-            "type": "Others",
-            "parent": null,
-            "color": "grey-5",
-            "hasChildren": false
-        },
-        {
-            "id": 203,
-            "name": "最大密度子图",
-            "type": "Others",
-            "parent": null,
-            "color": "grey-5",
-            "hasChildren": false
-        },
-        {
-            "id": 205,
-            "name": "最短路增广费用流",
-            "type": "Others",
-            "parent": null,
-            "color": "grey-5",
-            "hasChildren": false
-        },
-        {
-            "id": 207,
-            "name": "最小费用可行流",
-            "type": "Others",
-            "parent": null,
-            "color": "grey-5",
-            "hasChildren": false
-        },
-        {
-            "id": 209,
-            "name": "树上距离",
-            "type": "Others",
-            "parent": null,
-            "color": "grey-5",
-            "hasChildren": false
-        },
-        {
-            "id": 210,
-            "name": "节点到根的距离",
-            "type": "Others",
-            "parent": null,
-            "color": "grey-5",
-            "hasChildren": false
-        },
-        {
-            "id": 212,
-            "name": "节点间的距离",
-            "type": "Others",
-            "parent": null,
-            "color": "grey-5",
-            "hasChildren": false
-        },
-        {
-            "id": 216,
-            "name": "斜堆",
-            "type": "Others",
-            "parent": null,
-            "color": "grey-5",
-            "hasChildren": false
-        },
-        {
-            "id": 217,
-            "name": "二项堆",
-            "type": "Others",
-            "parent": null,
-            "color": "grey-5",
-            "hasChildren": false
-        },
-        {
-            "id": 218,
-            "name": "AVL",
-            "type": "Others",
-            "parent": null,
-            "color": "grey-5",
-            "hasChildren": false
-        },
-        {
-            "id": 219,
-            "name": "Treap",
-            "type": "Others",
-            "parent": null,
-            "color": "grey-5",
-            "hasChildren": false
-        },
-        {
-            "id": 220,
-            "name": "SBT",
-            "type": "Others",
-            "parent": null,
-            "color": "grey-5",
-            "hasChildren": false
-        },
-        {
-            "id": 221,
-            "name": "Splay",
-            "type": "Others",
-            "parent": null,
-            "color": "grey-5",
-            "hasChildren": false
-        },
-        {
-            "id": 222,
-            "name": "静态排序树",
-            "type": "Others",
-            "parent": null,
-            "color": "grey-5",
-            "hasChildren": false
-        },
-        {
-            "id": 223,
-            "name": "替罪羊树",
-            "type": "Others",
-            "parent": null,
-            "color": "grey-5",
-            "hasChildren": false
-        },
-        {
-            "id": 224,
-            "name": "二维线段树",
-            "type": "Others",
-            "parent": null,
-            "color": "grey-5",
-            "hasChildren": false
-        },
-        {
-            "id": 225,
-            "name": "矩形树",
-            "type": "Others",
-            "parent": null,
-            "color": "grey-5",
-            "hasChildren": false
-        },
-        {
-            "id": 227,
-            "name": "动态树",
-            "type": "Others",
-            "parent": null,
-            "color": "grey-5",
-            "hasChildren": false
-        },
-        {
-            "id": 231,
-            "name": "RMQ",
-            "type": "Others",
-            "parent": null,
-            "color": "grey-5",
-            "hasChildren": false
-        },
-        {
-            "id": 236,
-            "name": "ELFhash",
-            "type": "Others",
-            "parent": null,
-            "color": "grey-5",
-            "hasChildren": false
-        },
-        {
-            "id": 237,
-            "name": "SDBM",
-            "type": "Others",
-            "parent": null,
-            "color": "grey-5",
-            "hasChildren": false
-        },
-        {
-            "id": 238,
-            "name": "BKDR",
-            "type": "Others",
-            "parent": null,
-            "color": "grey-5",
-            "hasChildren": false
-        },
-        {
-            "id": 257,
-            "name": "袋与球问题",
-            "type": "Others",
-            "parent": null,
-            "color": "grey-5",
-            "hasChildren": false
-        },
-        {
-            "id": 267,
-            "name": "简单概率",
-            "type": "Others",
-            "parent": null,
-            "color": "grey-5",
-            "hasChildren": false
-        },
-        {
-            "id": 269,
-            "name": "Bayes",
-            "type": "Others",
-            "parent": null,
-            "color": "grey-5",
-            "hasChildren": false
-        },
-        {
-            "id": 275,
-            "name": "异或方程组",
-            "type": "Others",
-            "parent": null,
-            "color": "grey-5",
-            "hasChildren": false
-        },
-        {
-            "id": 285,
-            "name": "基本数组",
-            "type": "Others",
-            "parent": null,
-            "color": "grey-5",
-            "hasChildren": false
-        },
-        {
-            "id": 296,
-            "name": "最近点对",
-            "type": "Others",
-            "parent": null,
-            "color": "grey-5",
-            "hasChildren": false
-        },
-        {
-            "id": 307,
-            "name": "简单密码学",
-            "type": "Others",
-            "parent": null,
-            "color": "grey-5",
-            "hasChildren": false
-        },
-        {
-            "id": 312,
-            "name": "Shannon 开关游戏",
-            "type": "Others",
-            "parent": null,
-            "color": "grey-5",
-            "hasChildren": false
-        },
-        {
-            "id": 414,
-            "name": "随机算法",
-            "type": "Others",
-            "parent": null,
-            "color": "grey-5",
-            "hasChildren": false
-        }
-    ],
-    "SpecialProblem": [
-        {
-            "id": 103,
-            "name": "交互题",
-            "type": "SpecialProblem",
-            "parent": null,
-            "color": "orange-3",
-            "hasChildren": false
-        },
-        {
-            "id": 104,
-            "name": "提交答案",
-            "type": "SpecialProblem",
-            "parent": null,
-            "color": "orange-3",
-            "hasChildren": false
-        },
-        {
-            "id": 107,
-            "name": "Special Judge",
-            "type": "SpecialProblem",
-            "parent": null,
-            "color": "orange-3",
-            "hasChildren": false
-        },
-        {
-            "id": 108,
-            "name": "O2优化",
-            "type": "SpecialProblem",
-            "parent": null,
-            "color": "orange-3",
-            "hasChildren": false
-        },
-        {
-            "id": 351,
-            "name": "通信题",
-            "type": "SpecialProblem",
-            "parent": null,
-            "color": "orange-3",
-            "hasChildren": false
-        }
-    ]
+  "Algorithm": [
+    {
+      "id": 1,
+      "name": "模拟",
+      "type": "Algorithm",
+      "parent": 110,
+      "color": "lapis-3",
+      "hasChildren": false
+    },
+    {
+      "id": 2,
+      "name": "字符串",
+      "type": "Algorithm",
+      "parent": null,
+      "color": "lapis-3",
+      "hasChildren": true
+    },
+    {
+      "id": 3,
+      "name": "动态规划 DP",
+      "type": "Algorithm",
+      "parent": null,
+      "color": "lapis-3",
+      "hasChildren": true
+    },
+    {
+      "id": 4,
+      "name": "搜索",
+      "type": "Algorithm",
+      "parent": null,
+      "color": "lapis-3",
+      "hasChildren": true
+    },
+    {
+      "id": 5,
+      "name": "数学",
+      "type": "Algorithm",
+      "parent": null,
+      "color": "lapis-3",
+      "hasChildren": true
+    },
+    {
+      "id": 6,
+      "name": "图论",
+      "type": "Algorithm",
+      "parent": null,
+      "color": "lapis-3",
+      "hasChildren": true
+    },
+    {
+      "id": 7,
+      "name": "贪心",
+      "type": "Algorithm",
+      "parent": 110,
+      "color": "lapis-3",
+      "hasChildren": false
+    },
+    {
+      "id": 8,
+      "name": "计算几何",
+      "type": "Algorithm",
+      "parent": null,
+      "color": "lapis-3",
+      "hasChildren": true
+    },
+    {
+      "id": 9,
+      "name": "暴力数据结构",
+      "type": "Algorithm",
+      "parent": 308,
+      "color": "lapis-3",
+      "hasChildren": false
+    },
+    {
+      "id": 10,
+      "name": "高精度",
+      "type": "Algorithm",
+      "parent": 308,
+      "color": "lapis-3",
+      "hasChildren": false
+    },
+    {
+      "id": 11,
+      "name": "树形数据结构",
+      "type": "Algorithm",
+      "parent": null,
+      "color": "lapis-3",
+      "hasChildren": true
+    },
+    {
+      "id": 12,
+      "name": "递推",
+      "type": "Algorithm",
+      "parent": 110,
+      "color": "lapis-3",
+      "hasChildren": false
+    },
+    {
+      "id": 13,
+      "name": "博弈论",
+      "type": "Algorithm",
+      "parent": null,
+      "color": "lapis-3",
+      "hasChildren": true
+    },
+    {
+      "id": 41,
+      "name": "莫队",
+      "type": "Algorithm",
+      "parent": 308,
+      "color": "lapis-3",
+      "hasChildren": false
+    },
+    {
+      "id": 42,
+      "name": "线段树",
+      "type": "Algorithm",
+      "parent": 11,
+      "color": "lapis-3",
+      "hasChildren": false
+    },
+    {
+      "id": 43,
+      "name": "倍增",
+      "type": "Algorithm",
+      "parent": 110,
+      "color": "lapis-3",
+      "hasChildren": false
+    },
+    {
+      "id": 44,
+      "name": "线性数据结构",
+      "type": "Algorithm",
+      "parent": null,
+      "color": "lapis-3",
+      "hasChildren": true
+    },
+    {
+      "id": 45,
+      "name": "二分",
+      "type": "Algorithm",
+      "parent": 110,
+      "color": "lapis-3",
+      "hasChildren": false
+    },
+    {
+      "id": 47,
+      "name": "并查集",
+      "type": "Algorithm",
+      "parent": 11,
+      "color": "lapis-3",
+      "hasChildren": false
+    },
+    {
+      "id": 49,
+      "name": "点分治",
+      "type": "Algorithm",
+      "parent": 230,
+      "color": "lapis-3",
+      "hasChildren": false
+    },
+    {
+      "id": 50,
+      "name": "平衡树",
+      "type": "Algorithm",
+      "parent": 11,
+      "color": "lapis-3",
+      "hasChildren": false
+    },
+    {
+      "id": 51,
+      "name": "堆",
+      "type": "Algorithm",
+      "parent": 11,
+      "color": "lapis-3",
+      "hasChildren": false
+    },
+    {
+      "id": 53,
+      "name": "树状数组",
+      "type": "Algorithm",
+      "parent": 11,
+      "color": "lapis-3",
+      "hasChildren": false
+    },
+    {
+      "id": 54,
+      "name": "递归",
+      "type": "Algorithm",
+      "parent": 110,
+      "color": "lapis-3",
+      "hasChildren": false
+    },
+    {
+      "id": 55,
+      "name": "树上启发式合并",
+      "type": "Algorithm",
+      "parent": 230,
+      "color": "lapis-3",
+      "hasChildren": false
+    },
+    {
+      "id": 56,
+      "name": "单调队列",
+      "type": "Algorithm",
+      "parent": 44,
+      "color": "lapis-3",
+      "hasChildren": false
+    },
+    {
+      "id": 63,
+      "name": "LGV 引理",
+      "type": "Algorithm",
+      "parent": 271,
+      "color": "lapis-3",
+      "hasChildren": false
+    },
+    {
+      "id": 64,
+      "name": "矩阵树定理",
+      "type": "Algorithm",
+      "parent": 271,
+      "color": "lapis-3",
+      "hasChildren": false
+    },
+    {
+      "id": 65,
+      "name": "颜色段均摊（珂朵莉树 ODT）",
+      "type": "Algorithm",
+      "parent": 44,
+      "color": "lapis-3",
+      "hasChildren": false
+    },
+    {
+      "id": 66,
+      "name": "原根",
+      "type": "Algorithm",
+      "parent": 72,
+      "color": "lapis-3",
+      "hasChildren": false
+    },
+    {
+      "id": 67,
+      "name": "三分",
+      "type": "Algorithm",
+      "parent": 308,
+      "color": "lapis-3",
+      "hasChildren": false
+    },
+    {
+      "id": 68,
+      "name": "Kruskal 重构树",
+      "type": "Algorithm",
+      "parent": 6,
+      "color": "lapis-3",
+      "hasChildren": false
+    },
+    {
+      "id": 69,
+      "name": "多项式",
+      "type": "Algorithm",
+      "parent": null,
+      "color": "lapis-3",
+      "hasChildren": true
+    },
+    {
+      "id": 71,
+      "name": "矩阵运算",
+      "type": "Algorithm",
+      "parent": 271,
+      "color": "lapis-3",
+      "hasChildren": false
+    },
+    {
+      "id": 72,
+      "name": "数论",
+      "type": "Algorithm",
+      "parent": null,
+      "color": "lapis-3",
+      "hasChildren": true
+    },
+    {
+      "id": 78,
+      "name": "离散化",
+      "type": "Algorithm",
+      "parent": 308,
+      "color": "lapis-3",
+      "hasChildren": false
+    },
+    {
+      "id": 79,
+      "name": "网络流",
+      "type": "Algorithm",
+      "parent": 6,
+      "color": "lapis-3",
+      "hasChildren": false
+    },
+    {
+      "id": 100,
+      "name": "cdq 分治",
+      "type": "Algorithm",
+      "parent": 11,
+      "color": "lapis-3",
+      "hasChildren": false
+    },
+    {
+      "id": 101,
+      "name": "后缀自动机 SAM",
+      "type": "Algorithm",
+      "parent": 2,
+      "color": "lapis-3",
+      "hasChildren": false
+    },
+    {
+      "id": 110,
+      "name": "﻿基础算法",
+      "type": "Algorithm",
+      "parent": null,
+      "color": "lapis-3",
+      "hasChildren": true
+    },
+    {
+      "id": 111,
+      "name": "枚举",
+      "type": "Algorithm",
+      "parent": 110,
+      "color": "lapis-3",
+      "hasChildren": false
+    },
+    {
+      "id": 112,
+      "name": "分治",
+      "type": "Algorithm",
+      "parent": 110,
+      "color": "lapis-3",
+      "hasChildren": false
+    },
+    {
+      "id": 113,
+      "name": "排序",
+      "type": "Algorithm",
+      "parent": 110,
+      "color": "lapis-3",
+      "hasChildren": false
+    },
+    {
+      "id": 122,
+      "name": "信息论",
+      "type": "Algorithm",
+      "parent": 5,
+      "color": "lapis-3",
+      "hasChildren": false
+    },
+    {
+      "id": 126,
+      "name": "广度优先搜索 BFS",
+      "type": "Algorithm",
+      "parent": 4,
+      "color": "lapis-3",
+      "hasChildren": false
+    },
+    {
+      "id": 127,
+      "name": "深度优先搜索 DFS",
+      "type": "Algorithm",
+      "parent": 4,
+      "color": "lapis-3",
+      "hasChildren": false
+    },
+    {
+      "id": 128,
+      "name": "剪枝",
+      "type": "Algorithm",
+      "parent": 4,
+      "color": "lapis-3",
+      "hasChildren": false
+    },
+    {
+      "id": 129,
+      "name": "记忆化搜索",
+      "type": "Algorithm",
+      "parent": 4,
+      "color": "lapis-3",
+      "hasChildren": false
+    },
+    {
+      "id": 130,
+      "name": "启发式搜索",
+      "type": "Algorithm",
+      "parent": 4,
+      "color": "lapis-3",
+      "hasChildren": false
+    },
+    {
+      "id": 131,
+      "name": "迭代加深搜索",
+      "type": "Algorithm",
+      "parent": 4,
+      "color": "lapis-3",
+      "hasChildren": false
+    },
+    {
+      "id": 132,
+      "name": "启发式迭代加深搜索 IDA*",
+      "type": "Algorithm",
+      "parent": 4,
+      "color": "lapis-3",
+      "hasChildren": false
+    },
+    {
+      "id": 133,
+      "name": "Dancing Links",
+      "type": "Algorithm",
+      "parent": 4,
+      "color": "lapis-3",
+      "hasChildren": false
+    },
+    {
+      "id": 134,
+      "name": "爬山算法 Local search",
+      "type": "Algorithm",
+      "parent": 4,
+      "color": "lapis-3",
+      "hasChildren": false
+    },
+    {
+      "id": 135,
+      "name": "模拟退火",
+      "type": "Algorithm",
+      "parent": 4,
+      "color": "lapis-3",
+      "hasChildren": false
+    },
+    {
+      "id": 136,
+      "name": "随机调整",
+      "type": "Algorithm",
+      "parent": 4,
+      "color": "lapis-3",
+      "hasChildren": false
+    },
+    {
+      "id": 137,
+      "name": "遗传算法",
+      "type": "Algorithm",
+      "parent": 4,
+      "color": "lapis-3",
+      "hasChildren": false
+    },
+    {
+      "id": 139,
+      "name": "背包 DP",
+      "type": "Algorithm",
+      "parent": 3,
+      "color": "lapis-3",
+      "hasChildren": false
+    },
+    {
+      "id": 141,
+      "name": "数位 DP",
+      "type": "Algorithm",
+      "parent": 3,
+      "color": "lapis-3",
+      "hasChildren": false
+    },
+    {
+      "id": 144,
+      "name": "区间 DP",
+      "type": "Algorithm",
+      "parent": 3,
+      "color": "lapis-3",
+      "hasChildren": false
+    },
+    {
+      "id": 146,
+      "name": "动态规划优化",
+      "type": "Algorithm",
+      "parent": null,
+      "color": "lapis-3",
+      "hasChildren": true
+    },
+    {
+      "id": 148,
+      "name": "优先队列",
+      "type": "Algorithm",
+      "parent": 146,
+      "color": "lapis-3",
+      "hasChildren": false
+    },
+    {
+      "id": 149,
+      "name": "矩阵加速",
+      "type": "Algorithm",
+      "parent": 146,
+      "color": "lapis-3",
+      "hasChildren": false
+    },
+    {
+      "id": 150,
+      "name": "斜率优化",
+      "type": "Algorithm",
+      "parent": 146,
+      "color": "lapis-3",
+      "hasChildren": false
+    },
+    {
+      "id": 151,
+      "name": "状态合并",
+      "type": "Algorithm",
+      "parent": 146,
+      "color": "lapis-3",
+      "hasChildren": false
+    },
+    {
+      "id": 152,
+      "name": "树形 DP",
+      "type": "Algorithm",
+      "parent": 3,
+      "color": "lapis-3",
+      "hasChildren": false
+    },
+    {
+      "id": 153,
+      "name": "凸完全单调性（wqs 二分）",
+      "type": "Algorithm",
+      "parent": 146,
+      "color": "lapis-3",
+      "hasChildren": false
+    },
+    {
+      "id": 154,
+      "name": "四边形不等式",
+      "type": "Algorithm",
+      "parent": 146,
+      "color": "lapis-3",
+      "hasChildren": false
+    },
+    {
+      "id": 155,
+      "name": "图论建模",
+      "type": "Algorithm",
+      "parent": 6,
+      "color": "lapis-3",
+      "hasChildren": false
+    },
+    {
+      "id": 158,
+      "name": "图遍历",
+      "type": "Algorithm",
+      "parent": 6,
+      "color": "lapis-3",
+      "hasChildren": false
+    },
+    {
+      "id": 159,
+      "name": "拓扑排序",
+      "type": "Algorithm",
+      "parent": 6,
+      "color": "lapis-3",
+      "hasChildren": false
+    },
+    {
+      "id": 160,
+      "name": "最短路",
+      "type": "Algorithm",
+      "parent": 6,
+      "color": "lapis-3",
+      "hasChildren": false
+    },
+    {
+      "id": 166,
+      "name": "生成树",
+      "type": "Algorithm",
+      "parent": 6,
+      "color": "lapis-3",
+      "hasChildren": false
+    },
+    {
+      "id": 172,
+      "name": "平面图",
+      "type": "Algorithm",
+      "parent": 6,
+      "color": "lapis-3",
+      "hasChildren": false
+    },
+    {
+      "id": 173,
+      "name": "最小环",
+      "type": "Algorithm",
+      "parent": 6,
+      "color": "lapis-3",
+      "hasChildren": false
+    },
+    {
+      "id": 174,
+      "name": "负权环",
+      "type": "Algorithm",
+      "parent": 6,
+      "color": "lapis-3",
+      "hasChildren": false
+    },
+    {
+      "id": 175,
+      "name": "连通块",
+      "type": "Algorithm",
+      "parent": 6,
+      "color": "lapis-3",
+      "hasChildren": false
+    },
+    {
+      "id": 176,
+      "name": "2-SAT",
+      "type": "Algorithm",
+      "parent": 6,
+      "color": "lapis-3",
+      "hasChildren": false
+    },
+    {
+      "id": 177,
+      "name": "平面图欧拉公式",
+      "type": "Algorithm",
+      "parent": 6,
+      "color": "lapis-3",
+      "hasChildren": false
+    },
+    {
+      "id": 179,
+      "name": "强连通分量",
+      "type": "Algorithm",
+      "parent": 6,
+      "color": "lapis-3",
+      "hasChildren": false
+    },
+    {
+      "id": 180,
+      "name": "Tarjan",
+      "type": "Algorithm",
+      "parent": 6,
+      "color": "lapis-3",
+      "hasChildren": false
+    },
+    {
+      "id": 181,
+      "name": "双连通分量",
+      "type": "Algorithm",
+      "parent": 6,
+      "color": "lapis-3",
+      "hasChildren": false
+    },
+    {
+      "id": 182,
+      "name": "欧拉回路",
+      "type": "Algorithm",
+      "parent": 6,
+      "color": "lapis-3",
+      "hasChildren": false
+    },
+    {
+      "id": 185,
+      "name": "差分约束",
+      "type": "Algorithm",
+      "parent": 6,
+      "color": "lapis-3",
+      "hasChildren": false
+    },
+    {
+      "id": 186,
+      "name": "仙人掌",
+      "type": "Algorithm",
+      "parent": 6,
+      "color": "lapis-3",
+      "hasChildren": false
+    },
+    {
+      "id": 187,
+      "name": "二分图",
+      "type": "Algorithm",
+      "parent": 6,
+      "color": "lapis-3",
+      "hasChildren": false
+    },
+    {
+      "id": 189,
+      "name": "一般图的最大匹配",
+      "type": "Algorithm",
+      "parent": 6,
+      "color": "lapis-3",
+      "hasChildren": false
+    },
+    {
+      "id": 197,
+      "name": "上下界网络流",
+      "type": "Algorithm",
+      "parent": 6,
+      "color": "lapis-3",
+      "hasChildren": false
+    },
+    {
+      "id": 198,
+      "name": "最小割",
+      "type": "Algorithm",
+      "parent": 6,
+      "color": "lapis-3",
+      "hasChildren": false
+    },
+    {
+      "id": 202,
+      "name": "分数规划",
+      "type": "Algorithm",
+      "parent": 467,
+      "color": "lapis-3",
+      "hasChildren": false
+    },
+    {
+      "id": 204,
+      "name": "费用流",
+      "type": "Algorithm",
+      "parent": 6,
+      "color": "lapis-3",
+      "hasChildren": false
+    },
+    {
+      "id": 208,
+      "name": "树的遍历",
+      "type": "Algorithm",
+      "parent": 230,
+      "color": "lapis-3",
+      "hasChildren": false
+    },
+    {
+      "id": 211,
+      "name": "最近公共祖先 LCA",
+      "type": "Algorithm",
+      "parent": 230,
+      "color": "lapis-3",
+      "hasChildren": false
+    },
+    {
+      "id": 213,
+      "name": "树的直径",
+      "type": "Algorithm",
+      "parent": 230,
+      "color": "lapis-3",
+      "hasChildren": false
+    },
+    {
+      "id": 214,
+      "name": "霍夫曼树",
+      "type": "Algorithm",
+      "parent": 308,
+      "color": "lapis-3",
+      "hasChildren": false
+    },
+    {
+      "id": 215,
+      "name": "可并堆",
+      "type": "Algorithm",
+      "parent": 11,
+      "color": "lapis-3",
+      "hasChildren": false
+    },
+    {
+      "id": 228,
+      "name": "树链剖分",
+      "type": "Algorithm",
+      "parent": 230,
+      "color": "lapis-3",
+      "hasChildren": false
+    },
+    {
+      "id": 229,
+      "name": "动态树 LCT",
+      "type": "Algorithm",
+      "parent": 11,
+      "color": "lapis-3",
+      "hasChildren": false
+    },
+    {
+      "id": 230,
+      "name": "树论",
+      "type": "Algorithm",
+      "parent": null,
+      "color": "lapis-3",
+      "hasChildren": true
+    },
+    {
+      "id": 232,
+      "name": "树套树",
+      "type": "Algorithm",
+      "parent": 11,
+      "color": "lapis-3",
+      "hasChildren": false
+    },
+    {
+      "id": 233,
+      "name": "可持久化线段树",
+      "type": "Algorithm",
+      "parent": 11,
+      "color": "lapis-3",
+      "hasChildren": false
+    },
+    {
+      "id": 234,
+      "name": "可持久化",
+      "type": "Algorithm",
+      "parent": 11,
+      "color": "lapis-3",
+      "hasChildren": false
+    },
+    {
+      "id": 235,
+      "name": "哈希 hashing",
+      "type": "Algorithm",
+      "parent": 308,
+      "color": "lapis-3",
+      "hasChildren": false
+    },
+    {
+      "id": 239,
+      "name": "素数判断,质数,筛法",
+      "type": "Algorithm",
+      "parent": 72,
+      "color": "lapis-3",
+      "hasChildren": false
+    },
+    {
+      "id": 241,
+      "name": "最大公约数 gcd",
+      "type": "Algorithm",
+      "parent": 72,
+      "color": "lapis-3",
+      "hasChildren": false
+    },
+    {
+      "id": 242,
+      "name": "扩展欧几里德算法",
+      "type": "Algorithm",
+      "parent": 72,
+      "color": "lapis-3",
+      "hasChildren": false
+    },
+    {
+      "id": 243,
+      "name": "不定方程",
+      "type": "Algorithm",
+      "parent": 72,
+      "color": "lapis-3",
+      "hasChildren": false
+    },
+    {
+      "id": 244,
+      "name": "进制",
+      "type": "Algorithm",
+      "parent": 72,
+      "color": "lapis-3",
+      "hasChildren": false
+    },
+    {
+      "id": 246,
+      "name": "群论",
+      "type": "Algorithm",
+      "parent": null,
+      "color": "lapis-3",
+      "hasChildren": true
+    },
+    {
+      "id": 247,
+      "name": "置换",
+      "type": "Algorithm",
+      "parent": 246,
+      "color": "lapis-3",
+      "hasChildren": false
+    },
+    {
+      "id": 248,
+      "name": "Pólya 定理",
+      "type": "Algorithm",
+      "parent": 246,
+      "color": "lapis-3",
+      "hasChildren": false
+    },
+    {
+      "id": 249,
+      "name": "虚树",
+      "type": "Algorithm",
+      "parent": 230,
+      "color": "lapis-3",
+      "hasChildren": false
+    },
+    {
+      "id": 250,
+      "name": "中国剩余定理 CRT",
+      "type": "Algorithm",
+      "parent": 72,
+      "color": "lapis-3",
+      "hasChildren": false
+    },
+    {
+      "id": 251,
+      "name": "莫比乌斯反演",
+      "type": "Algorithm",
+      "parent": 72,
+      "color": "lapis-3",
+      "hasChildren": false
+    },
+    {
+      "id": 252,
+      "name": "组合数学",
+      "type": "Algorithm",
+      "parent": null,
+      "color": "lapis-3",
+      "hasChildren": true
+    },
+    {
+      "id": 253,
+      "name": "排列组合",
+      "type": "Algorithm",
+      "parent": 252,
+      "color": "lapis-3",
+      "hasChildren": false
+    },
+    {
+      "id": 254,
+      "name": "前缀和",
+      "type": "Algorithm",
+      "parent": 44,
+      "color": "lapis-3",
+      "hasChildren": false
+    },
+    {
+      "id": 255,
+      "name": "二项式定理",
+      "type": "Algorithm",
+      "parent": 252,
+      "color": "lapis-3",
+      "hasChildren": false
+    },
+    {
+      "id": 256,
+      "name": "康托展开",
+      "type": "Algorithm",
+      "parent": 252,
+      "color": "lapis-3",
+      "hasChildren": false
+    },
+    {
+      "id": 258,
+      "name": "鸽笼原理",
+      "type": "Algorithm",
+      "parent": 252,
+      "color": "lapis-3",
+      "hasChildren": false
+    },
+    {
+      "id": 259,
+      "name": "容斥原理",
+      "type": "Algorithm",
+      "parent": 252,
+      "color": "lapis-3",
+      "hasChildren": false
+    },
+    {
+      "id": 260,
+      "name": "斐波那契数列",
+      "type": "Algorithm",
+      "parent": 252,
+      "color": "lapis-3",
+      "hasChildren": false
+    },
+    {
+      "id": 261,
+      "name": "Catalan 数",
+      "type": "Algorithm",
+      "parent": 252,
+      "color": "lapis-3",
+      "hasChildren": false
+    },
+    {
+      "id": 262,
+      "name": "Stirling 数",
+      "type": "Algorithm",
+      "parent": 252,
+      "color": "lapis-3",
+      "hasChildren": false
+    },
+    {
+      "id": 263,
+      "name": "A*  算法",
+      "type": "Algorithm",
+      "parent": 4,
+      "color": "lapis-3",
+      "hasChildren": false
+    },
+    {
+      "id": 264,
+      "name": "生成函数",
+      "type": "Algorithm",
+      "parent": 252,
+      "color": "lapis-3",
+      "hasChildren": false
+    },
+    {
+      "id": 265,
+      "name": "线性规划",
+      "type": "Algorithm",
+      "parent": 467,
+      "color": "lapis-3",
+      "hasChildren": false
+    },
+    {
+      "id": 266,
+      "name": "概率论",
+      "type": "Algorithm",
+      "parent": null,
+      "color": "lapis-3",
+      "hasChildren": true
+    },
+    {
+      "id": 268,
+      "name": "条件概率",
+      "type": "Algorithm",
+      "parent": 266,
+      "color": "lapis-3",
+      "hasChildren": false
+    },
+    {
+      "id": 270,
+      "name": "期望",
+      "type": "Algorithm",
+      "parent": 266,
+      "color": "lapis-3",
+      "hasChildren": false
+    },
+    {
+      "id": 271,
+      "name": "线性代数",
+      "type": "Algorithm",
+      "parent": null,
+      "color": "lapis-3",
+      "hasChildren": true
+    },
+    {
+      "id": 272,
+      "name": "矩阵乘法",
+      "type": "Algorithm",
+      "parent": 271,
+      "color": "lapis-3",
+      "hasChildren": false
+    },
+    {
+      "id": 273,
+      "name": "线性递推",
+      "type": "Algorithm",
+      "parent": 271,
+      "color": "lapis-3",
+      "hasChildren": false
+    },
+    {
+      "id": 274,
+      "name": "高斯消元",
+      "type": "Algorithm",
+      "parent": 271,
+      "color": "lapis-3",
+      "hasChildren": false
+    },
+    {
+      "id": 276,
+      "name": "逆元",
+      "type": "Algorithm",
+      "parent": 72,
+      "color": "lapis-3",
+      "hasChildren": false
+    },
+    {
+      "id": 277,
+      "name": "线性基",
+      "type": "Algorithm",
+      "parent": 271,
+      "color": "lapis-3",
+      "hasChildren": false
+    },
+    {
+      "id": 278,
+      "name": "微积分",
+      "type": "Algorithm",
+      "parent": null,
+      "color": "lapis-3",
+      "hasChildren": true
+    },
+    {
+      "id": 280,
+      "name": "导数",
+      "type": "Algorithm",
+      "parent": 278,
+      "color": "lapis-3",
+      "hasChildren": false
+    },
+    {
+      "id": 281,
+      "name": "积分",
+      "type": "Algorithm",
+      "parent": 278,
+      "color": "lapis-3",
+      "hasChildren": false
+    },
+    {
+      "id": 282,
+      "name": "定积分",
+      "type": "Algorithm",
+      "parent": 278,
+      "color": "lapis-3",
+      "hasChildren": false
+    },
+    {
+      "id": 283,
+      "name": "三维计算几何",
+      "type": "Algorithm",
+      "parent": 8,
+      "color": "lapis-3",
+      "hasChildren": false
+    },
+    {
+      "id": 284,
+      "name": "级数",
+      "type": "Algorithm",
+      "parent": 278,
+      "color": "lapis-3",
+      "hasChildren": false
+    },
+    {
+      "id": 286,
+      "name": "向量",
+      "type": "Algorithm",
+      "parent": 8,
+      "color": "lapis-3",
+      "hasChildren": false
+    },
+    {
+      "id": 287,
+      "name": "栈",
+      "type": "Algorithm",
+      "parent": 44,
+      "color": "lapis-3",
+      "hasChildren": false
+    },
+    {
+      "id": 288,
+      "name": "队列",
+      "type": "Algorithm",
+      "parent": 44,
+      "color": "lapis-3",
+      "hasChildren": false
+    },
+    {
+      "id": 289,
+      "name": "分块",
+      "type": "Algorithm",
+      "parent": 44,
+      "color": "lapis-3",
+      "hasChildren": false
+    },
+    {
+      "id": 290,
+      "name": "ST 表",
+      "type": "Algorithm",
+      "parent": 44,
+      "color": "lapis-3",
+      "hasChildren": false
+    },
+    {
+      "id": 291,
+      "name": "凸包",
+      "type": "Algorithm",
+      "parent": 8,
+      "color": "lapis-3",
+      "hasChildren": false
+    },
+    {
+      "id": 292,
+      "name": "叉积",
+      "type": "Algorithm",
+      "parent": 8,
+      "color": "lapis-3",
+      "hasChildren": false
+    },
+    {
+      "id": 293,
+      "name": "线段相交",
+      "type": "Algorithm",
+      "parent": 8,
+      "color": "lapis-3",
+      "hasChildren": false
+    },
+    {
+      "id": 295,
+      "name": "半平面交",
+      "type": "Algorithm",
+      "parent": 8,
+      "color": "lapis-3",
+      "hasChildren": false
+    },
+    {
+      "id": 298,
+      "name": "扫描线",
+      "type": "Algorithm",
+      "parent": 8,
+      "color": "lapis-3",
+      "hasChildren": false
+    },
+    {
+      "id": 299,
+      "name": "旋转卡壳",
+      "type": "Algorithm",
+      "parent": 8,
+      "color": "lapis-3",
+      "hasChildren": false
+    },
+    {
+      "id": 300,
+      "name": "字典树 Trie",
+      "type": "Algorithm",
+      "parent": 2,
+      "color": "lapis-3",
+      "hasChildren": false
+    },
+    {
+      "id": 301,
+      "name": "AC 自动机",
+      "type": "Algorithm",
+      "parent": 2,
+      "color": "lapis-3",
+      "hasChildren": false
+    },
+    {
+      "id": 302,
+      "name": "KMP 算法",
+      "type": "Algorithm",
+      "parent": 2,
+      "color": "lapis-3",
+      "hasChildren": false
+    },
+    {
+      "id": 303,
+      "name": "后缀数组 SA",
+      "type": "Algorithm",
+      "parent": 2,
+      "color": "lapis-3",
+      "hasChildren": false
+    },
+    {
+      "id": 304,
+      "name": "后缀树",
+      "type": "Algorithm",
+      "parent": 2,
+      "color": "lapis-3",
+      "hasChildren": false
+    },
+    {
+      "id": 305,
+      "name": "有限状态自动机",
+      "type": "Algorithm",
+      "parent": 2,
+      "color": "lapis-3",
+      "hasChildren": false
+    },
+    {
+      "id": 308,
+      "name": "其它技巧",
+      "type": "Algorithm",
+      "parent": null,
+      "color": "lapis-3",
+      "hasChildren": true
+    },
+    {
+      "id": 309,
+      "name": "随机化",
+      "type": "Algorithm",
+      "parent": 308,
+      "color": "lapis-3",
+      "hasChildren": false
+    },
+    {
+      "id": 311,
+      "name": "博弈树",
+      "type": "Algorithm",
+      "parent": 13,
+      "color": "lapis-3",
+      "hasChildren": false
+    },
+    {
+      "id": 313,
+      "name": "快速傅里叶变换 FFT",
+      "type": "Algorithm",
+      "parent": 69,
+      "color": "lapis-3",
+      "hasChildren": false
+    },
+    {
+      "id": 314,
+      "name": "位运算",
+      "type": "Algorithm",
+      "parent": 308,
+      "color": "lapis-3",
+      "hasChildren": false
+    },
+    {
+      "id": 316,
+      "name": "整体二分",
+      "type": "Algorithm",
+      "parent": 11,
+      "color": "lapis-3",
+      "hasChildren": false
+    },
+    {
+      "id": 318,
+      "name": "构造",
+      "type": "Algorithm",
+      "parent": 308,
+      "color": "lapis-3",
+      "hasChildren": false
+    },
+    {
+      "id": 320,
+      "name": "基环树",
+      "type": "Algorithm",
+      "parent": 230,
+      "color": "lapis-3",
+      "hasChildren": false
+    },
+    {
+      "id": 321,
+      "name": "K-D Tree",
+      "type": "Algorithm",
+      "parent": 11,
+      "color": "lapis-3",
+      "hasChildren": false
+    },
+    {
+      "id": 322,
+      "name": "Lucas 定理",
+      "type": "Algorithm",
+      "parent": 72,
+      "color": "lapis-3",
+      "hasChildren": false
+    },
+    {
+      "id": 323,
+      "name": "插头 DP",
+      "type": "Algorithm",
+      "parent": 3,
+      "color": "lapis-3",
+      "hasChildren": false
+    },
+    {
+      "id": 324,
+      "name": "快速数论变换 NTT",
+      "type": "Algorithm",
+      "parent": 69,
+      "color": "lapis-3",
+      "hasChildren": false
+    },
+    {
+      "id": 325,
+      "name": "回文自动机 PAM",
+      "type": "Algorithm",
+      "parent": 2,
+      "color": "lapis-3",
+      "hasChildren": false
+    },
+    {
+      "id": 326,
+      "name": "快速沃尔什变换 FWT",
+      "type": "Algorithm",
+      "parent": 69,
+      "color": "lapis-3",
+      "hasChildren": false
+    },
+    {
+      "id": 327,
+      "name": "快速莫比乌斯变换 FMT",
+      "type": "Algorithm",
+      "parent": 69,
+      "color": "lapis-3",
+      "hasChildren": false
+    },
+    {
+      "id": 329,
+      "name": "Manacher 算法",
+      "type": "Algorithm",
+      "parent": 2,
+      "color": "lapis-3",
+      "hasChildren": false
+    },
+    {
+      "id": 330,
+      "name": "差分",
+      "type": "Algorithm",
+      "parent": 44,
+      "color": "lapis-3",
+      "hasChildren": false
+    },
+    {
+      "id": 345,
+      "name": "双指针 two-pointer",
+      "type": "Algorithm",
+      "parent": 308,
+      "color": "lapis-3",
+      "hasChildren": false
+    },
+    {
+      "id": 350,
+      "name": "圆方树",
+      "type": "Algorithm",
+      "parent": 6,
+      "color": "lapis-3",
+      "hasChildren": false
+    },
+    {
+      "id": 353,
+      "name": "顺序结构",
+      "type": "Algorithm",
+      "parent": -2,
+      "color": "lapis-3",
+      "hasChildren": false
+    },
+    {
+      "id": 354,
+      "name": "分支结构",
+      "type": "Algorithm",
+      "parent": -2,
+      "color": "lapis-3",
+      "hasChildren": false
+    },
+    {
+      "id": 355,
+      "name": "循环结构",
+      "type": "Algorithm",
+      "parent": -2,
+      "color": "lapis-3",
+      "hasChildren": false
+    },
+    {
+      "id": 356,
+      "name": "数组",
+      "type": "Algorithm",
+      "parent": -2,
+      "color": "lapis-3",
+      "hasChildren": false
+    },
+    {
+      "id": 357,
+      "name": "字符串（入门）",
+      "type": "Algorithm",
+      "parent": -2,
+      "color": "lapis-3",
+      "hasChildren": false
+    },
+    {
+      "id": 358,
+      "name": "结构体",
+      "type": "Algorithm",
+      "parent": -2,
+      "color": "lapis-3",
+      "hasChildren": false
+    },
+    {
+      "id": 359,
+      "name": "函数与递归",
+      "type": "Algorithm",
+      "parent": -2,
+      "color": "lapis-3",
+      "hasChildren": false
+    },
+    {
+      "id": 360,
+      "name": "链表",
+      "type": "Algorithm",
+      "parent": 44,
+      "color": "lapis-3",
+      "hasChildren": false
+    },
+    {
+      "id": 364,
+      "name": "Dilworth 定理",
+      "type": "Algorithm",
+      "parent": 6,
+      "color": "lapis-3",
+      "hasChildren": false
+    },
+    {
+      "id": 365,
+      "name": "Ad-hoc",
+      "type": "Algorithm",
+      "parent": 308,
+      "color": "lapis-3",
+      "hasChildren": false
+    },
+    {
+      "id": 368,
+      "name": "笛卡尔树",
+      "type": "Algorithm",
+      "parent": 308,
+      "color": "lapis-3",
+      "hasChildren": false
+    },
+    {
+      "id": 369,
+      "name": "拟阵",
+      "type": "Algorithm",
+      "parent": 467,
+      "color": "lapis-3",
+      "hasChildren": false
+    },
+    {
+      "id": 370,
+      "name": "Nim 积",
+      "type": "Algorithm",
+      "parent": 13,
+      "color": "lapis-3",
+      "hasChildren": false
+    },
+    {
+      "id": 371,
+      "name": "根号分治",
+      "type": "Algorithm",
+      "parent": 308,
+      "color": "lapis-3",
+      "hasChildren": false
+    },
+    {
+      "id": 372,
+      "name": "拉格朗日反演",
+      "type": "Algorithm",
+      "parent": 252,
+      "color": "lapis-3",
+      "hasChildren": false
+    },
+    {
+      "id": 373,
+      "name": "模拟费用流",
+      "type": "Algorithm",
+      "parent": 308,
+      "color": "lapis-3",
+      "hasChildren": false
+    },
+    {
+      "id": 374,
+      "name": "分散层叠",
+      "type": "Algorithm",
+      "parent": 308,
+      "color": "lapis-3",
+      "hasChildren": false
+    },
+    {
+      "id": 375,
+      "name": "均摊分析",
+      "type": "Algorithm",
+      "parent": 308,
+      "color": "lapis-3",
+      "hasChildren": false
+    },
+    {
+      "id": 376,
+      "name": "分类讨论",
+      "type": "Algorithm",
+      "parent": 308,
+      "color": "lapis-3",
+      "hasChildren": false
+    },
+    {
+      "id": 377,
+      "name": "李超线段树",
+      "type": "Algorithm",
+      "parent": 11,
+      "color": "lapis-3",
+      "hasChildren": false
+    },
+    {
+      "id": 378,
+      "name": "吉司机线段树 segment tree beats",
+      "type": "Algorithm",
+      "parent": 11,
+      "color": "lapis-3",
+      "hasChildren": false
+    },
+    {
+      "id": 379,
+      "name": "线段树合并",
+      "type": "Algorithm",
+      "parent": 11,
+      "color": "lapis-3",
+      "hasChildren": false
+    },
+    {
+      "id": 380,
+      "name": "折半搜索 meet in the middle",
+      "type": "Algorithm",
+      "parent": 4,
+      "color": "lapis-3",
+      "hasChildren": false
+    },
+    {
+      "id": 382,
+      "name": "动态树分治",
+      "type": "Algorithm",
+      "parent": 230,
+      "color": "lapis-3",
+      "hasChildren": false
+    },
+    {
+      "id": 385,
+      "name": "单调栈",
+      "type": "Algorithm",
+      "parent": 44,
+      "color": "lapis-3",
+      "hasChildren": false
+    },
+    {
+      "id": 387,
+      "name": "杨表",
+      "type": "Algorithm",
+      "parent": 252,
+      "color": "lapis-3",
+      "hasChildren": false
+    },
+    {
+      "id": 388,
+      "name": "类欧几里得算法",
+      "type": "Algorithm",
+      "parent": 72,
+      "color": "lapis-3",
+      "hasChildren": false
+    },
+    {
+      "id": 391,
+      "name": "Berlekamp-Massey(BM) 算法",
+      "type": "Algorithm",
+      "parent": 69,
+      "color": "lapis-3",
+      "hasChildren": false
+    },
+    {
+      "id": 396,
+      "name": "梯度下降法",
+      "type": "Algorithm",
+      "parent": 4,
+      "color": "lapis-3",
+      "hasChildren": false
+    },
+    {
+      "id": 410,
+      "name": "Prüfer 序列",
+      "type": "Algorithm",
+      "parent": 230,
+      "color": "lapis-3",
+      "hasChildren": false
+    },
+    {
+      "id": 411,
+      "name": "调和级数",
+      "type": "Algorithm",
+      "parent": 72,
+      "color": "lapis-3",
+      "hasChildren": false
+    },
+    {
+      "id": 412,
+      "name": "拉格朗日乘数法",
+      "type": "Algorithm",
+      "parent": 5,
+      "color": "lapis-3",
+      "hasChildren": false
+    },
+    {
+      "id": 413,
+      "name": "近似算法",
+      "type": "Algorithm",
+      "parent": 308,
+      "color": "lapis-3",
+      "hasChildren": false
+    },
+    {
+      "id": 415,
+      "name": "欧拉降幂",
+      "type": "Algorithm",
+      "parent": 72,
+      "color": "lapis-3",
+      "hasChildren": false
+    },
+    {
+      "id": 416,
+      "name": "集合幂级数，子集卷积",
+      "type": "Algorithm",
+      "parent": 69,
+      "color": "lapis-3",
+      "hasChildren": false
+    },
+    {
+      "id": 417,
+      "name": "拉格朗日插值法",
+      "type": "Algorithm",
+      "parent": 5,
+      "color": "lapis-3",
+      "hasChildren": false
+    },
+    {
+      "id": 419,
+      "name": "Lyndon 分解",
+      "type": "Algorithm",
+      "parent": 2,
+      "color": "lapis-3",
+      "hasChildren": false
+    },
+    {
+      "id": 423,
+      "name": "Stern-Brocot 树",
+      "type": "Algorithm",
+      "parent": 72,
+      "color": "lapis-3",
+      "hasChildren": false
+    },
+    {
+      "id": 435,
+      "name": "DP 套 DP",
+      "type": "Algorithm",
+      "parent": 146,
+      "color": "lapis-3",
+      "hasChildren": false
+    },
+    {
+      "id": 443,
+      "name": "动态 DP",
+      "type": "Algorithm",
+      "parent": 146,
+      "color": "lapis-3",
+      "hasChildren": false
+    },
+    {
+      "id": 444,
+      "name": "线性 DP",
+      "type": "Algorithm",
+      "parent": 3,
+      "color": "lapis-3",
+      "hasChildren": false
+    },
+    {
+      "id": 445,
+      "name": "SG 函数",
+      "type": "Algorithm",
+      "parent": 13,
+      "color": "lapis-3",
+      "hasChildren": false
+    },
+    {
+      "id": 446,
+      "name": "线段树分治",
+      "type": "Algorithm",
+      "parent": 308,
+      "color": "lapis-3",
+      "hasChildren": false
+    },
+    {
+      "id": 447,
+      "name": "离线处理",
+      "type": "Algorithm",
+      "parent": 308,
+      "color": "lapis-3",
+      "hasChildren": false
+    },
+    {
+      "id": 448,
+      "name": "整除分块",
+      "type": "Algorithm",
+      "parent": 72,
+      "color": "lapis-3",
+      "hasChildren": false
+    },
+    {
+      "id": 449,
+      "name": "极角排序",
+      "type": "Algorithm",
+      "parent": 8,
+      "color": "lapis-3",
+      "hasChildren": false
+    },
+    {
+      "id": 450,
+      "name": "弦图",
+      "type": "Algorithm",
+      "parent": 6,
+      "color": "lapis-3",
+      "hasChildren": false
+    },
+    {
+      "id": 451,
+      "name": "Dirichlet 卷积",
+      "type": "Algorithm",
+      "parent": 72,
+      "color": "lapis-3",
+      "hasChildren": false
+    },
+    {
+      "id": 452,
+      "name": "大步小步算法 BSGS",
+      "type": "Algorithm",
+      "parent": 72,
+      "color": "lapis-3",
+      "hasChildren": false
+    },
+    {
+      "id": 453,
+      "name": "二次剩余",
+      "type": "Algorithm",
+      "parent": 72,
+      "color": "lapis-3",
+      "hasChildren": false
+    },
+    {
+      "id": 454,
+      "name": "行列式",
+      "type": "Algorithm",
+      "parent": 271,
+      "color": "lapis-3",
+      "hasChildren": false
+    },
+    {
+      "id": 455,
+      "name": "Bézout 定理",
+      "type": "Algorithm",
+      "parent": 72,
+      "color": "lapis-3",
+      "hasChildren": false
+    },
+    {
+      "id": 456,
+      "name": "概率生成函数",
+      "type": "Algorithm",
+      "parent": 266,
+      "color": "lapis-3",
+      "hasChildren": false
+    },
+    {
+      "id": 457,
+      "name": "随机游走 Markov Chain",
+      "type": "Algorithm",
+      "parent": 266,
+      "color": "lapis-3",
+      "hasChildren": false
+    },
+    {
+      "id": 458,
+      "name": "鞅的停时定理",
+      "type": "Algorithm",
+      "parent": 266,
+      "color": "lapis-3",
+      "hasChildren": false
+    },
+    {
+      "id": 461,
+      "name": "杜教筛",
+      "type": "Algorithm",
+      "parent": 72,
+      "color": "lapis-3",
+      "hasChildren": false
+    },
+    {
+      "id": 462,
+      "name": "欧拉函数",
+      "type": "Algorithm",
+      "parent": 72,
+      "color": "lapis-3",
+      "hasChildren": false
+    },
+    {
+      "id": 463,
+      "name": "决策单调性",
+      "type": "Algorithm",
+      "parent": 146,
+      "color": "lapis-3",
+      "hasChildren": false
+    },
+    {
+      "id": 464,
+      "name": "状压 DP",
+      "type": "Algorithm",
+      "parent": 3,
+      "color": "lapis-3",
+      "hasChildren": false
+    },
+    {
+      "id": 465,
+      "name": "bitset",
+      "type": "Algorithm",
+      "parent": 308,
+      "color": "lapis-3",
+      "hasChildren": false
+    },
+    {
+      "id": 466,
+      "name": "特征值",
+      "type": "Algorithm",
+      "parent": 271,
+      "color": "lapis-3",
+      "hasChildren": false
+    },
+    {
+      "id": 467,
+      "name": "组合优化",
+      "type": "Algorithm",
+      "parent": null,
+      "color": "lapis-3",
+      "hasChildren": true
+    },
+    {
+      "id": 468,
+      "name": "整数规划",
+      "type": "Algorithm",
+      "parent": 467,
+      "color": "lapis-3",
+      "hasChildren": false
+    },
+    {
+      "id": 469,
+      "name": "半正定规划",
+      "type": "Algorithm",
+      "parent": 467,
+      "color": "lapis-3",
+      "hasChildren": false
+    },
+    {
+      "id": 470,
+      "name": "原始对偶",
+      "type": "Algorithm",
+      "parent": 467,
+      "color": "lapis-3",
+      "hasChildren": false
+    },
+    {
+      "id": 471,
+      "name": "最大流最小割定理",
+      "type": "Algorithm",
+      "parent": 467,
+      "color": "lapis-3",
+      "hasChildren": false
+    },
+    {
+      "id": 472,
+      "name": "全局平衡二叉树",
+      "type": "Algorithm",
+      "parent": 230,
+      "color": "lapis-3",
+      "hasChildren": false
+    },
+    {
+      "id": 473,
+      "name": "哈希表",
+      "type": "Algorithm",
+      "parent": 44,
+      "color": "lapis-3",
+      "hasChildren": false
+    },
+    {
+      "id": 474,
+      "name": "Z 函数",
+      "type": "Algorithm",
+      "parent": 2,
+      "color": "lapis-3",
+      "hasChildren": false
+    },
+    {
+      "id": 475,
+      "name": "筛法",
+      "type": "Algorithm",
+      "parent": 72,
+      "color": "lapis-3",
+      "hasChildren": false
+    },
+    {
+      "id": 476,
+      "name": "Floyd 算法",
+      "type": "Algorithm",
+      "parent": 6,
+      "color": "lapis-3",
+      "hasChildren": false
+    },
+    {
+      "id": 477,
+      "name": "启发式合并",
+      "type": "Algorithm",
+      "parent": 308,
+      "color": "lapis-3",
+      "hasChildren": false
+    },
+    {
+      "id": 480,
+      "name": "单位根反演",
+      "type": "Algorithm",
+      "parent": 5,
+      "color": "lapis-3",
+      "hasChildren": false
+    },
+    {
+      "id": 482,
+      "name": "平面几何",
+      "type": "Algorithm",
+      "parent": 8,
+      "color": "lapis-3",
+      "hasChildren": false
+    },
+    {
+      "id": 483,
+      "name": "树的重心",
+      "type": "Algorithm",
+      "parent": 230,
+      "color": "lapis-3",
+      "hasChildren": false
+    },
+    {
+      "id": 484,
+      "name": "保序回归",
+      "type": "Algorithm",
+      "parent": 467,
+      "color": "lapis-3",
+      "hasChildren": false
+    },
+    {
+      "id": -2,
+      "name": "语言入门（请选择[入门与面试]题库）",
+      "type": "Algorithm",
+      "parent": null,
+      "color": "lapis-3",
+      "hasChildren": true
+    }
+  ],
+  "Time": [
+    {
+      "id": 996,
+      "name": "年度",
+      "type": "Time",
+      "parent": null,
+      "color": "blue-3",
+      "hasChildren": true
+    },
+    {
+      "id": 14,
+      "name": "1997",
+      "type": "Time",
+      "parent": 996,
+      "color": "blue-3",
+      "hasChildren": false
+    },
+    {
+      "id": 15,
+      "name": "1998",
+      "type": "Time",
+      "parent": 996,
+      "color": "blue-3",
+      "hasChildren": false
+    },
+    {
+      "id": 16,
+      "name": "1999",
+      "type": "Time",
+      "parent": 996,
+      "color": "blue-3",
+      "hasChildren": false
+    },
+    {
+      "id": 17,
+      "name": "2000",
+      "type": "Time",
+      "parent": 996,
+      "color": "blue-3",
+      "hasChildren": false
+    },
+    {
+      "id": 18,
+      "name": "2001",
+      "type": "Time",
+      "parent": 996,
+      "color": "blue-3",
+      "hasChildren": false
+    },
+    {
+      "id": 19,
+      "name": "2002",
+      "type": "Time",
+      "parent": 996,
+      "color": "blue-3",
+      "hasChildren": false
+    },
+    {
+      "id": 20,
+      "name": "2003",
+      "type": "Time",
+      "parent": 996,
+      "color": "blue-3",
+      "hasChildren": false
+    },
+    {
+      "id": 21,
+      "name": "2004",
+      "type": "Time",
+      "parent": 996,
+      "color": "blue-3",
+      "hasChildren": false
+    },
+    {
+      "id": 22,
+      "name": "2005",
+      "type": "Time",
+      "parent": 996,
+      "color": "blue-3",
+      "hasChildren": false
+    },
+    {
+      "id": 23,
+      "name": "2006",
+      "type": "Time",
+      "parent": 996,
+      "color": "blue-3",
+      "hasChildren": false
+    },
+    {
+      "id": 24,
+      "name": "2007",
+      "type": "Time",
+      "parent": 996,
+      "color": "blue-3",
+      "hasChildren": false
+    },
+    {
+      "id": 25,
+      "name": "2008",
+      "type": "Time",
+      "parent": 996,
+      "color": "blue-3",
+      "hasChildren": false
+    },
+    {
+      "id": 26,
+      "name": "2009",
+      "type": "Time",
+      "parent": 996,
+      "color": "blue-3",
+      "hasChildren": false
+    },
+    {
+      "id": 27,
+      "name": "2010",
+      "type": "Time",
+      "parent": 996,
+      "color": "blue-3",
+      "hasChildren": false
+    },
+    {
+      "id": 28,
+      "name": "2011",
+      "type": "Time",
+      "parent": 996,
+      "color": "blue-3",
+      "hasChildren": false
+    },
+    {
+      "id": 29,
+      "name": "2012",
+      "type": "Time",
+      "parent": 996,
+      "color": "blue-3",
+      "hasChildren": false
+    },
+    {
+      "id": 30,
+      "name": "2013",
+      "type": "Time",
+      "parent": 996,
+      "color": "blue-3",
+      "hasChildren": false
+    },
+    {
+      "id": 31,
+      "name": "2014",
+      "type": "Time",
+      "parent": 996,
+      "color": "blue-3",
+      "hasChildren": false
+    },
+    {
+      "id": 32,
+      "name": "2015",
+      "type": "Time",
+      "parent": 996,
+      "color": "blue-3",
+      "hasChildren": false
+    },
+    {
+      "id": 33,
+      "name": "2016",
+      "type": "Time",
+      "parent": 996,
+      "color": "blue-3",
+      "hasChildren": false
+    },
+    {
+      "id": 34,
+      "name": "2017",
+      "type": "Time",
+      "parent": 996,
+      "color": "blue-3",
+      "hasChildren": false
+    },
+    {
+      "id": 35,
+      "name": "2018",
+      "type": "Time",
+      "parent": 996,
+      "color": "blue-3",
+      "hasChildren": false
+    },
+    {
+      "id": 36,
+      "name": "2019",
+      "type": "Time",
+      "parent": 996,
+      "color": "blue-3",
+      "hasChildren": false
+    },
+    {
+      "id": 37,
+      "name": "2020",
+      "type": "Time",
+      "parent": 996,
+      "color": "blue-3",
+      "hasChildren": false
+    },
+    {
+      "id": 58,
+      "name": "2021",
+      "type": "Time",
+      "parent": 996,
+      "color": "blue-3",
+      "hasChildren": false
+    },
+    {
+      "id": 59,
+      "name": "2022",
+      "type": "Time",
+      "parent": 996,
+      "color": "blue-3",
+      "hasChildren": false
+    },
+    {
+      "id": 60,
+      "name": "2023",
+      "type": "Time",
+      "parent": 996,
+      "color": "blue-3",
+      "hasChildren": false
+    },
+    {
+      "id": 61,
+      "name": "2024",
+      "type": "Time",
+      "parent": 996,
+      "color": "blue-3",
+      "hasChildren": false
+    },
+    {
+      "id": 62,
+      "name": "2025",
+      "type": "Time",
+      "parent": 996,
+      "color": "blue-3",
+      "hasChildren": false
+    },
+    {
+      "id": 338,
+      "name": "2026",
+      "type": "Time",
+      "parent": 996,
+      "color": "blue-3",
+      "hasChildren": false
+    },
+    {
+      "id": 339,
+      "name": "2027",
+      "type": "Time",
+      "parent": 996,
+      "color": "blue-3",
+      "hasChildren": false
+    },
+    {
+      "id": 340,
+      "name": "2028",
+      "type": "Time",
+      "parent": 996,
+      "color": "blue-3",
+      "hasChildren": false
+    },
+    {
+      "id": 341,
+      "name": "2077",
+      "type": "Time",
+      "parent": 996,
+      "color": "blue-3",
+      "hasChildren": false
+    },
+    {
+      "id": 344,
+      "name": "1996",
+      "type": "Time",
+      "parent": 996,
+      "color": "blue-3",
+      "hasChildren": false
+    },
+    {
+      "id": 362,
+      "name": "2078",
+      "type": "Time",
+      "parent": 996,
+      "color": "blue-3",
+      "hasChildren": false
+    },
+    {
+      "id": 367,
+      "name": "2029",
+      "type": "Time",
+      "parent": 996,
+      "color": "blue-3",
+      "hasChildren": false
+    },
+    {
+      "id": 424,
+      "name": "2079",
+      "type": "Time",
+      "parent": 996,
+      "color": "blue-3",
+      "hasChildren": false
+    }
+  ],
+  "Region": [
+    {
+      "id": 997,
+      "name": "省份",
+      "type": "Region",
+      "parent": null,
+      "color": "green-3",
+      "hasChildren": true
+    },
+    {
+      "id": 38,
+      "name": "重庆",
+      "type": "Region",
+      "parent": 997,
+      "color": "green-3",
+      "hasChildren": false
+    },
+    {
+      "id": 39,
+      "name": "四川",
+      "type": "Region",
+      "parent": 997,
+      "color": "green-3",
+      "hasChildren": false
+    },
+    {
+      "id": 40,
+      "name": "河南",
+      "type": "Region",
+      "parent": 997,
+      "color": "green-3",
+      "hasChildren": false
+    },
+    {
+      "id": 88,
+      "name": "浙江",
+      "type": "Region",
+      "parent": 997,
+      "color": "green-3",
+      "hasChildren": false
+    },
+    {
+      "id": 89,
+      "name": "上海",
+      "type": "Region",
+      "parent": 997,
+      "color": "green-3",
+      "hasChildren": false
+    },
+    {
+      "id": 90,
+      "name": "福建",
+      "type": "Region",
+      "parent": 997,
+      "color": "green-3",
+      "hasChildren": false
+    },
+    {
+      "id": 91,
+      "name": "江苏",
+      "type": "Region",
+      "parent": 997,
+      "color": "green-3",
+      "hasChildren": false
+    },
+    {
+      "id": 92,
+      "name": "安徽",
+      "type": "Region",
+      "parent": 997,
+      "color": "green-3",
+      "hasChildren": false
+    },
+    {
+      "id": 93,
+      "name": "湖南",
+      "type": "Region",
+      "parent": 997,
+      "color": "green-3",
+      "hasChildren": false
+    },
+    {
+      "id": 94,
+      "name": "北京",
+      "type": "Region",
+      "parent": 997,
+      "color": "green-3",
+      "hasChildren": false
+    },
+    {
+      "id": 95,
+      "name": "河北",
+      "type": "Region",
+      "parent": 997,
+      "color": "green-3",
+      "hasChildren": false
+    },
+    {
+      "id": 96,
+      "name": "广东",
+      "type": "Region",
+      "parent": 997,
+      "color": "green-3",
+      "hasChildren": false
+    },
+    {
+      "id": 97,
+      "name": "山东",
+      "type": "Region",
+      "parent": 997,
+      "color": "green-3",
+      "hasChildren": false
+    },
+    {
+      "id": 98,
+      "name": "吉林",
+      "type": "Region",
+      "parent": 997,
+      "color": "green-3",
+      "hasChildren": false
+    },
+    {
+      "id": 114,
+      "name": "山西",
+      "type": "Region",
+      "parent": 997,
+      "color": "green-3",
+      "hasChildren": false
+    },
+    {
+      "id": 161,
+      "name": "江西",
+      "type": "Region",
+      "parent": 997,
+      "color": "green-3",
+      "hasChildren": false
+    },
+    {
+      "id": 162,
+      "name": "贵州",
+      "type": "Region",
+      "parent": 997,
+      "color": "green-3",
+      "hasChildren": false
+    },
+    {
+      "id": 163,
+      "name": "广西",
+      "type": "Region",
+      "parent": 997,
+      "color": "green-3",
+      "hasChildren": false
+    },
+    {
+      "id": 164,
+      "name": "陕西",
+      "type": "Region",
+      "parent": 997,
+      "color": "green-3",
+      "hasChildren": false
+    },
+    {
+      "id": 167,
+      "name": "辽宁",
+      "type": "Region",
+      "parent": 997,
+      "color": "green-3",
+      "hasChildren": false
+    },
+    {
+      "id": 168,
+      "name": "云南",
+      "type": "Region",
+      "parent": 997,
+      "color": "green-3",
+      "hasChildren": false
+    },
+    {
+      "id": 328,
+      "name": "天津",
+      "type": "Region",
+      "parent": 997,
+      "color": "green-3",
+      "hasChildren": false
+    },
+    {
+      "id": 397,
+      "name": "湖北",
+      "type": "Region",
+      "parent": 997,
+      "color": "green-3",
+      "hasChildren": false
+    },
+    {
+      "id": 398,
+      "name": "黑龙江",
+      "type": "Region",
+      "parent": 997,
+      "color": "green-3",
+      "hasChildren": false
+    },
+    {
+      "id": 399,
+      "name": "海南",
+      "type": "Region",
+      "parent": 997,
+      "color": "green-3",
+      "hasChildren": false
+    },
+    {
+      "id": 400,
+      "name": "甘肃",
+      "type": "Region",
+      "parent": 997,
+      "color": "green-3",
+      "hasChildren": false
+    },
+    {
+      "id": 401,
+      "name": "青海",
+      "type": "Region",
+      "parent": 997,
+      "color": "green-3",
+      "hasChildren": false
+    },
+    {
+      "id": 402,
+      "name": "台湾",
+      "type": "Region",
+      "parent": 997,
+      "color": "green-3",
+      "hasChildren": false
+    },
+    {
+      "id": 403,
+      "name": "内蒙古",
+      "type": "Region",
+      "parent": 997,
+      "color": "green-3",
+      "hasChildren": false
+    },
+    {
+      "id": 404,
+      "name": "西藏",
+      "type": "Region",
+      "parent": 997,
+      "color": "green-3",
+      "hasChildren": false
+    },
+    {
+      "id": 405,
+      "name": "宁夏",
+      "type": "Region",
+      "parent": 997,
+      "color": "green-3",
+      "hasChildren": false
+    },
+    {
+      "id": 406,
+      "name": "新疆",
+      "type": "Region",
+      "parent": 997,
+      "color": "green-3",
+      "hasChildren": false
+    },
+    {
+      "id": 407,
+      "name": "香港",
+      "type": "Region",
+      "parent": 997,
+      "color": "green-3",
+      "hasChildren": false
+    },
+    {
+      "id": 408,
+      "name": "澳门",
+      "type": "Region",
+      "parent": 997,
+      "color": "green-3",
+      "hasChildren": false
+    },
+    {
+      "id": 420,
+      "name": "济南",
+      "type": "Region",
+      "parent": 997,
+      "color": "green-3",
+      "hasChildren": false
+    },
+    {
+      "id": 421,
+      "name": "南京",
+      "type": "Region",
+      "parent": 997,
+      "color": "green-3",
+      "hasChildren": false
+    },
+    {
+      "id": 422,
+      "name": "青岛",
+      "type": "Region",
+      "parent": 997,
+      "color": "green-3",
+      "hasChildren": false
+    }
+  ],
+  "Origin": [
+    {
+      "id": 46,
+      "name": "USACO",
+      "type": "Origin",
+      "parent": 428,
+      "color": "cyan-3",
+      "hasChildren": false
+    },
+    {
+      "id": 48,
+      "name": "各省省选",
+      "type": "Origin",
+      "parent": 426,
+      "color": "cyan-3",
+      "hasChildren": false
+    },
+    {
+      "id": 52,
+      "name": "集训队互测",
+      "type": "Origin",
+      "parent": 426,
+      "color": "cyan-3",
+      "hasChildren": false
+    },
+    {
+      "id": 57,
+      "name": "POI（波兰）",
+      "type": "Origin",
+      "parent": 428,
+      "color": "cyan-3",
+      "hasChildren": false
+    },
+    {
+      "id": 70,
+      "name": "福建省历届夏令营",
+      "type": "Origin",
+      "parent": 427,
+      "color": "cyan-3",
+      "hasChildren": false
+    },
+    {
+      "id": 77,
+      "name": "NOI",
+      "type": "Origin",
+      "parent": 426,
+      "color": "cyan-3",
+      "hasChildren": false
+    },
+    {
+      "id": 81,
+      "name": "洛谷原创",
+      "type": "Origin",
+      "parent": 429,
+      "color": "cyan-3",
+      "hasChildren": false
+    },
+    {
+      "id": 82,
+      "name": "NOIP 普及组",
+      "type": "Origin",
+      "parent": 426,
+      "color": "cyan-3",
+      "hasChildren": false
+    },
+    {
+      "id": 83,
+      "name": "NOIP 提高组",
+      "type": "Origin",
+      "parent": 426,
+      "color": "cyan-3",
+      "hasChildren": false
+    },
+    {
+      "id": 85,
+      "name": "APIO",
+      "type": "Origin",
+      "parent": 426,
+      "color": "cyan-3",
+      "hasChildren": false
+    },
+    {
+      "id": 99,
+      "name": "NOI 导刊",
+      "type": "Origin",
+      "parent": 427,
+      "color": "cyan-3",
+      "hasChildren": false
+    },
+    {
+      "id": 102,
+      "name": "IOI",
+      "type": "Origin",
+      "parent": 428,
+      "color": "cyan-3",
+      "hasChildren": false
+    },
+    {
+      "id": 115,
+      "name": "CCO（加拿大）",
+      "type": "Origin",
+      "parent": 428,
+      "color": "cyan-3",
+      "hasChildren": false
+    },
+    {
+      "id": 116,
+      "name": "CCC（加拿大）",
+      "type": "Origin",
+      "parent": 428,
+      "color": "cyan-3",
+      "hasChildren": false
+    },
+    {
+      "id": 117,
+      "name": "CEOI（中欧）",
+      "type": "Origin",
+      "parent": 428,
+      "color": "cyan-3",
+      "hasChildren": false
+    },
+    {
+      "id": 118,
+      "name": "eJOI（欧洲）",
+      "type": "Origin",
+      "parent": 428,
+      "color": "cyan-3",
+      "hasChildren": false
+    },
+    {
+      "id": 331,
+      "name": "CTT（清华集训/北大集训）",
+      "type": "Origin",
+      "parent": 426,
+      "color": "cyan-3",
+      "hasChildren": false
+    },
+    {
+      "id": 332,
+      "name": "网络流与线性规划 24 题",
+      "type": "Origin",
+      "parent": 427,
+      "color": "cyan-3",
+      "hasChildren": false
+    },
+    {
+      "id": 333,
+      "name": "COCI（克罗地亚）",
+      "type": "Origin",
+      "parent": 428,
+      "color": "cyan-3",
+      "hasChildren": false
+    },
+    {
+      "id": 334,
+      "name": "BalticOI（波罗的海）",
+      "type": "Origin",
+      "parent": 428,
+      "color": "cyan-3",
+      "hasChildren": false
+    },
+    {
+      "id": 335,
+      "name": "ICPC",
+      "type": "Origin",
+      "parent": 430,
+      "color": "cyan-3",
+      "hasChildren": false
+    },
+    {
+      "id": 336,
+      "name": "JOI（日本）",
+      "type": "Origin",
+      "parent": 428,
+      "color": "cyan-3",
+      "hasChildren": false
+    },
+    {
+      "id": 337,
+      "name": "洛谷月赛",
+      "type": "Origin",
+      "parent": 429,
+      "color": "cyan-3",
+      "hasChildren": false
+    },
+    {
+      "id": 342,
+      "name": "CSP-S 提高级",
+      "type": "Origin",
+      "parent": 426,
+      "color": "cyan-3",
+      "hasChildren": false
+    },
+    {
+      "id": 343,
+      "name": "CSP-J 入门级",
+      "type": "Origin",
+      "parent": 426,
+      "color": "cyan-3",
+      "hasChildren": false
+    },
+    {
+      "id": 346,
+      "name": "AGM",
+      "type": "Origin",
+      "parent": 428,
+      "color": "cyan-3",
+      "hasChildren": false
+    },
+    {
+      "id": 347,
+      "name": "NOI Online",
+      "type": "Origin",
+      "parent": 426,
+      "color": "cyan-3",
+      "hasChildren": false
+    },
+    {
+      "id": 348,
+      "name": "Ynoi",
+      "type": "Origin",
+      "parent": 427,
+      "color": "cyan-3",
+      "hasChildren": false
+    },
+    {
+      "id": 361,
+      "name": "蓝桥杯国赛",
+      "type": "Origin",
+      "parent": 430,
+      "color": "cyan-3",
+      "hasChildren": false
+    },
+    {
+      "id": 363,
+      "name": "蓝桥杯省赛",
+      "type": "Origin",
+      "parent": 430,
+      "color": "cyan-3",
+      "hasChildren": false
+    },
+    {
+      "id": 381,
+      "name": "XCPC",
+      "type": "Origin",
+      "parent": 430,
+      "color": "cyan-3",
+      "hasChildren": false
+    },
+    {
+      "id": 383,
+      "name": "传智杯",
+      "type": "Origin",
+      "parent": 430,
+      "color": "cyan-3",
+      "hasChildren": false
+    },
+    {
+      "id": 386,
+      "name": "语言月赛",
+      "type": "Origin",
+      "parent": 429,
+      "color": "cyan-3",
+      "hasChildren": false
+    },
+    {
+      "id": 389,
+      "name": "PA（波兰）",
+      "type": "Origin",
+      "parent": 428,
+      "color": "cyan-3",
+      "hasChildren": false
+    },
+    {
+      "id": 390,
+      "name": "THUPC",
+      "type": "Origin",
+      "parent": 430,
+      "color": "cyan-3",
+      "hasChildren": false
+    },
+    {
+      "id": 393,
+      "name": "ROI（俄罗斯）",
+      "type": "Origin",
+      "parent": 428,
+      "color": "cyan-3",
+      "hasChildren": false
+    },
+    {
+      "id": 394,
+      "name": "EGOI（欧洲/女生）",
+      "type": "Origin",
+      "parent": 428,
+      "color": "cyan-3",
+      "hasChildren": false
+    },
+    {
+      "id": 409,
+      "name": "GESP",
+      "type": "Origin",
+      "parent": 431,
+      "color": "cyan-3",
+      "hasChildren": false
+    },
+    {
+      "id": 426,
+      "name": "NOI 系列赛事",
+      "type": "Origin",
+      "parent": null,
+      "color": "cyan-3",
+      "hasChildren": true
+    },
+    {
+      "id": 427,
+      "name": "经典套题",
+      "type": "Origin",
+      "parent": null,
+      "color": "cyan-3",
+      "hasChildren": true
+    },
+    {
+      "id": 428,
+      "name": "国际知名赛事",
+      "type": "Origin",
+      "parent": null,
+      "color": "cyan-3",
+      "hasChildren": true
+    },
+    {
+      "id": 429,
+      "name": "洛谷比赛",
+      "type": "Origin",
+      "parent": null,
+      "color": "cyan-3",
+      "hasChildren": true
+    },
+    {
+      "id": 430,
+      "name": "大学竞赛",
+      "type": "Origin",
+      "parent": null,
+      "color": "cyan-3",
+      "hasChildren": true
+    },
+    {
+      "id": 431,
+      "name": "其他竞赛",
+      "type": "Origin",
+      "parent": null,
+      "color": "cyan-3",
+      "hasChildren": true
+    },
+    {
+      "id": 432,
+      "name": "THUSC",
+      "type": "Origin",
+      "parent": 431,
+      "color": "cyan-3",
+      "hasChildren": false
+    },
+    {
+      "id": 434,
+      "name": "高校校赛",
+      "type": "Origin",
+      "parent": 430,
+      "color": "cyan-3",
+      "hasChildren": false
+    },
+    {
+      "id": 436,
+      "name": "NOISG（新加坡）",
+      "type": "Origin",
+      "parent": 428,
+      "color": "cyan-3",
+      "hasChildren": false
+    },
+    {
+      "id": 437,
+      "name": "NordicOI（北欧）",
+      "type": "Origin",
+      "parent": 428,
+      "color": "cyan-3",
+      "hasChildren": false
+    },
+    {
+      "id": 438,
+      "name": "THUWC",
+      "type": "Origin",
+      "parent": 431,
+      "color": "cyan-3",
+      "hasChildren": false
+    },
+    {
+      "id": 439,
+      "name": "BalkanOI（巴尔干半岛）",
+      "type": "Origin",
+      "parent": 428,
+      "color": "cyan-3",
+      "hasChildren": false
+    },
+    {
+      "id": 440,
+      "name": "KOI（韩国）",
+      "type": "Origin",
+      "parent": 428,
+      "color": "cyan-3",
+      "hasChildren": false
+    },
+    {
+      "id": 441,
+      "name": "RMI（罗马尼亚）",
+      "type": "Origin",
+      "parent": 428,
+      "color": "cyan-3",
+      "hasChildren": false
+    },
+    {
+      "id": 442,
+      "name": "CSP-X 小学组",
+      "type": "Origin",
+      "parent": 426,
+      "color": "cyan-3",
+      "hasChildren": false
+    },
+    {
+      "id": 459,
+      "name": "WC",
+      "type": "Origin",
+      "parent": 426,
+      "color": "cyan-3",
+      "hasChildren": false
+    },
+    {
+      "id": 460,
+      "name": "CTSC/CTS",
+      "type": "Origin",
+      "parent": 426,
+      "color": "cyan-3",
+      "hasChildren": false
+    },
+    {
+      "id": 478,
+      "name": "COI（克罗地亚）",
+      "type": "Origin",
+      "parent": 428,
+      "color": "cyan-3",
+      "hasChildren": false
+    },
+    {
+      "id": 479,
+      "name": "ROIR（俄罗斯）",
+      "type": "Origin",
+      "parent": 428,
+      "color": "cyan-3",
+      "hasChildren": false
+    },
+    {
+      "id": 485,
+      "name": "Code+",
+      "type": "Origin",
+      "parent": 431,
+      "color": "cyan-3",
+      "hasChildren": false
+    },
+    {
+      "id": 486,
+      "name": "梦熊比赛",
+      "type": "Origin",
+      "parent": 431,
+      "color": "cyan-3",
+      "hasChildren": false
+    },
+    {
+      "id": 487,
+      "name": "信息与未来",
+      "type": "Origin",
+      "parent": 431,
+      "color": "cyan-3",
+      "hasChildren": false
+    }
+  ],
+  "Others": [
+    {
+      "id": 73,
+      "name": "算法",
+      "type": "Others",
+      "parent": null,
+      "color": "grey-5",
+      "hasChildren": false
+    },
+    {
+      "id": 74,
+      "name": "数据结构",
+      "type": "Others",
+      "parent": null,
+      "color": "grey-5",
+      "hasChildren": false
+    },
+    {
+      "id": 75,
+      "name": "来源",
+      "type": "Others",
+      "parent": null,
+      "color": "grey-5",
+      "hasChildren": false
+    },
+    {
+      "id": 76,
+      "name": "时间",
+      "type": "Others",
+      "parent": null,
+      "color": "grey-5",
+      "hasChildren": false
+    },
+    {
+      "id": 80,
+      "name": "高级数据结构",
+      "type": "Others",
+      "parent": null,
+      "color": "grey-5",
+      "hasChildren": false
+    },
+    {
+      "id": 87,
+      "name": "地区",
+      "type": "Others",
+      "parent": null,
+      "color": "grey-5",
+      "hasChildren": false
+    },
+    {
+      "id": 105,
+      "name": "特殊题目",
+      "type": "Others",
+      "parent": null,
+      "color": "grey-5",
+      "hasChildren": false
+    },
+    {
+      "id": 119,
+      "name": "快速排序",
+      "type": "Others",
+      "parent": null,
+      "color": "grey-5",
+      "hasChildren": false
+    },
+    {
+      "id": 120,
+      "name": "堆排序",
+      "type": "Others",
+      "parent": null,
+      "color": "grey-5",
+      "hasChildren": false
+    },
+    {
+      "id": 121,
+      "name": "希尔排序",
+      "type": "Others",
+      "parent": null,
+      "color": "grey-5",
+      "hasChildren": false
+    },
+    {
+      "id": 123,
+      "name": "查找算法",
+      "type": "Others",
+      "parent": null,
+      "color": "grey-5",
+      "hasChildren": false
+    },
+    {
+      "id": 124,
+      "name": "顺序查找",
+      "type": "Others",
+      "parent": null,
+      "color": "grey-5",
+      "hasChildren": false
+    },
+    {
+      "id": 140,
+      "name": "环形 dp",
+      "type": "Others",
+      "parent": null,
+      "color": "grey-5",
+      "hasChildren": false
+    },
+    {
+      "id": 143,
+      "name": "多维状态",
+      "type": "Others",
+      "parent": null,
+      "color": "grey-5",
+      "hasChildren": false
+    },
+    {
+      "id": 156,
+      "name": "邻接矩阵",
+      "type": "Others",
+      "parent": null,
+      "color": "grey-5",
+      "hasChildren": false
+    },
+    {
+      "id": 157,
+      "name": "邻接表",
+      "type": "Others",
+      "parent": null,
+      "color": "grey-5",
+      "hasChildren": false
+    },
+    {
+      "id": 169,
+      "name": "生成树的另类算法",
+      "type": "Others",
+      "parent": null,
+      "color": "grey-5",
+      "hasChildren": false
+    },
+    {
+      "id": 170,
+      "name": "次小生成树",
+      "type": "Others",
+      "parent": null,
+      "color": "grey-5",
+      "hasChildren": false
+    },
+    {
+      "id": 171,
+      "name": "特殊生成树",
+      "type": "Others",
+      "parent": null,
+      "color": "grey-5",
+      "hasChildren": false
+    },
+    {
+      "id": 183,
+      "name": "AOV",
+      "type": "Others",
+      "parent": null,
+      "color": "grey-5",
+      "hasChildren": false
+    },
+    {
+      "id": 184,
+      "name": "AOE",
+      "type": "Others",
+      "parent": null,
+      "color": "grey-5",
+      "hasChildren": false
+    },
+    {
+      "id": 188,
+      "name": "匈牙利算法",
+      "type": "Others",
+      "parent": null,
+      "color": "grey-5",
+      "hasChildren": false
+    },
+    {
+      "id": 190,
+      "name": "Konig定理",
+      "type": "Others",
+      "parent": null,
+      "color": "grey-5",
+      "hasChildren": false
+    },
+    {
+      "id": 191,
+      "name": "带权二分图匹配",
+      "type": "Others",
+      "parent": null,
+      "color": "grey-5",
+      "hasChildren": false
+    },
+    {
+      "id": 192,
+      "name": "KM算法",
+      "type": "Others",
+      "parent": null,
+      "color": "grey-5",
+      "hasChildren": false
+    },
+    {
+      "id": 193,
+      "name": "稳定婚姻系统",
+      "type": "Others",
+      "parent": null,
+      "color": "grey-5",
+      "hasChildren": false
+    },
+    {
+      "id": 195,
+      "name": "Dinic",
+      "type": "Others",
+      "parent": null,
+      "color": "grey-5",
+      "hasChildren": false
+    },
+    {
+      "id": 196,
+      "name": "Sap",
+      "type": "Others",
+      "parent": null,
+      "color": "grey-5",
+      "hasChildren": false
+    },
+    {
+      "id": 199,
+      "name": "闭合图",
+      "type": "Others",
+      "parent": null,
+      "color": "grey-5",
+      "hasChildren": false
+    },
+    {
+      "id": 200,
+      "name": "最小点权覆盖集",
+      "type": "Others",
+      "parent": null,
+      "color": "grey-5",
+      "hasChildren": false
+    },
+    {
+      "id": 201,
+      "name": "最大点权独立集",
+      "type": "Others",
+      "parent": null,
+      "color": "grey-5",
+      "hasChildren": false
+    },
+    {
+      "id": 203,
+      "name": "最大密度子图",
+      "type": "Others",
+      "parent": null,
+      "color": "grey-5",
+      "hasChildren": false
+    },
+    {
+      "id": 205,
+      "name": "最短路增广费用流",
+      "type": "Others",
+      "parent": null,
+      "color": "grey-5",
+      "hasChildren": false
+    },
+    {
+      "id": 207,
+      "name": "最小费用可行流",
+      "type": "Others",
+      "parent": null,
+      "color": "grey-5",
+      "hasChildren": false
+    },
+    {
+      "id": 209,
+      "name": "树上距离",
+      "type": "Others",
+      "parent": null,
+      "color": "grey-5",
+      "hasChildren": false
+    },
+    {
+      "id": 210,
+      "name": "节点到根的距离",
+      "type": "Others",
+      "parent": null,
+      "color": "grey-5",
+      "hasChildren": false
+    },
+    {
+      "id": 212,
+      "name": "节点间的距离",
+      "type": "Others",
+      "parent": null,
+      "color": "grey-5",
+      "hasChildren": false
+    },
+    {
+      "id": 216,
+      "name": "斜堆",
+      "type": "Others",
+      "parent": null,
+      "color": "grey-5",
+      "hasChildren": false
+    },
+    {
+      "id": 217,
+      "name": "二项堆",
+      "type": "Others",
+      "parent": null,
+      "color": "grey-5",
+      "hasChildren": false
+    },
+    {
+      "id": 218,
+      "name": "AVL",
+      "type": "Others",
+      "parent": null,
+      "color": "grey-5",
+      "hasChildren": false
+    },
+    {
+      "id": 219,
+      "name": "Treap",
+      "type": "Others",
+      "parent": null,
+      "color": "grey-5",
+      "hasChildren": false
+    },
+    {
+      "id": 220,
+      "name": "SBT",
+      "type": "Others",
+      "parent": null,
+      "color": "grey-5",
+      "hasChildren": false
+    },
+    {
+      "id": 221,
+      "name": "Splay",
+      "type": "Others",
+      "parent": null,
+      "color": "grey-5",
+      "hasChildren": false
+    },
+    {
+      "id": 222,
+      "name": "静态排序树",
+      "type": "Others",
+      "parent": null,
+      "color": "grey-5",
+      "hasChildren": false
+    },
+    {
+      "id": 223,
+      "name": "替罪羊树",
+      "type": "Others",
+      "parent": null,
+      "color": "grey-5",
+      "hasChildren": false
+    },
+    {
+      "id": 224,
+      "name": "二维线段树",
+      "type": "Others",
+      "parent": null,
+      "color": "grey-5",
+      "hasChildren": false
+    },
+    {
+      "id": 225,
+      "name": "矩形树",
+      "type": "Others",
+      "parent": null,
+      "color": "grey-5",
+      "hasChildren": false
+    },
+    {
+      "id": 227,
+      "name": "动态树",
+      "type": "Others",
+      "parent": null,
+      "color": "grey-5",
+      "hasChildren": false
+    },
+    {
+      "id": 231,
+      "name": "RMQ",
+      "type": "Others",
+      "parent": null,
+      "color": "grey-5",
+      "hasChildren": false
+    },
+    {
+      "id": 236,
+      "name": "ELFhash",
+      "type": "Others",
+      "parent": null,
+      "color": "grey-5",
+      "hasChildren": false
+    },
+    {
+      "id": 237,
+      "name": "SDBM",
+      "type": "Others",
+      "parent": null,
+      "color": "grey-5",
+      "hasChildren": false
+    },
+    {
+      "id": 238,
+      "name": "BKDR",
+      "type": "Others",
+      "parent": null,
+      "color": "grey-5",
+      "hasChildren": false
+    },
+    {
+      "id": 257,
+      "name": "袋与球问题",
+      "type": "Others",
+      "parent": null,
+      "color": "grey-5",
+      "hasChildren": false
+    },
+    {
+      "id": 267,
+      "name": "简单概率",
+      "type": "Others",
+      "parent": null,
+      "color": "grey-5",
+      "hasChildren": false
+    },
+    {
+      "id": 269,
+      "name": "Bayes",
+      "type": "Others",
+      "parent": null,
+      "color": "grey-5",
+      "hasChildren": false
+    },
+    {
+      "id": 275,
+      "name": "异或方程组",
+      "type": "Others",
+      "parent": null,
+      "color": "grey-5",
+      "hasChildren": false
+    },
+    {
+      "id": 285,
+      "name": "基本数组",
+      "type": "Others",
+      "parent": null,
+      "color": "grey-5",
+      "hasChildren": false
+    },
+    {
+      "id": 296,
+      "name": "最近点对",
+      "type": "Others",
+      "parent": null,
+      "color": "grey-5",
+      "hasChildren": false
+    },
+    {
+      "id": 307,
+      "name": "简单密码学",
+      "type": "Others",
+      "parent": null,
+      "color": "grey-5",
+      "hasChildren": false
+    },
+    {
+      "id": 312,
+      "name": "Shannon 开关游戏",
+      "type": "Others",
+      "parent": null,
+      "color": "grey-5",
+      "hasChildren": false
+    },
+    {
+      "id": 414,
+      "name": "随机算法",
+      "type": "Others",
+      "parent": null,
+      "color": "grey-5",
+      "hasChildren": false
+    }
+  ],
+  "SpecialProblem": [
+    {
+      "id": 998,
+      "name": "特殊题目",
+      "type": "SpecialProblem",
+      "parent": null,
+      "hasChildren": false
+    },
+    {
+      "id": 103,
+      "name": "交互题",
+      "type": "SpecialProblem",
+      "parent": 998,
+      "color": "orange-3",
+      "hasChildren": false
+    },
+    {
+      "id": 104,
+      "name": "提交答案",
+      "type": "SpecialProblem",
+      "parent": 998,
+      "color": "orange-3",
+      "hasChildren": false
+    },
+    {
+      "id": 107,
+      "name": "Special Judge",
+      "type": "SpecialProblem",
+      "parent": 998,
+      "color": "orange-3",
+      "hasChildren": false
+    },
+    {
+      "id": 108,
+      "name": "O2优化",
+      "type": "SpecialProblem",
+      "parent": 998,
+      "color": "orange-3",
+      "hasChildren": false
+    },
+    {
+      "id": 351,
+      "name": "通信题",
+      "type": "SpecialProblem",
+      "parent": 998,
+      "color": "orange-3",
+      "hasChildren": false
+    }
+  ]
 }

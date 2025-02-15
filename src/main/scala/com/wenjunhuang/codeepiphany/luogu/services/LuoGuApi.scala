@@ -14,15 +14,22 @@ import org.jsoup.Jsoup
 import fs2.Stream
 import java.nio.ByteBuffer
 
-import com.wenjunhuang.codeepiphany.luogu.models.{ LuoGuChallengeItem, LuoGuChallengeType, LuoGuDifficulty, LuoGuTag }
+import com.wenjunhuang.codeepiphany.luogu.models.{
+  LuoGuChallengeItem,
+  LuoGuDifficulty,
+  LuoGuQuestionBank,
+  LuoGuTag,
+  LuoGuUserInfo
+}
 import com.wenjunhuang.codeepiphany.model.CodeDojo
 import com.wenjunhuang.codeepiphany.services.http.HttpClientManager
 
 trait LuoGuApi[F[_]] {
   def checkLogin(): F[Boolean]
+  def getUserInfo: F[LuoGuUserInfo]
   def searchChallenges(
     difficulties: List[LuoGuDifficulty],
-    luoguType: Option[LuoGuChallengeType],
+    luoguType: Option[LuoGuQuestionBank],
     tags: List[LuoGuTag],
     page: Int
   ): F[(Int, List[LuoGuChallengeItem])]
@@ -38,15 +45,15 @@ object LuoGuApi {
     private def commonHeaders(csrfToken: String) =
       Headers("x-csrf-token" -> csrfToken, "x-requested-with" -> "XMLHttpRequest")
 
-    private def getCSRFToken: F[String] =
+    private def getCSRFTokenAndPassAntiCrawler: F[String] =
       useClient { client =>
         client.expect[String](Uri.unsafeFromString(s"https://www.luogu.com.cn/")).flatMap { html =>
-          val regex = """\s*<script>.*C3VK=(\w+);.*</script>\s*""".r
+          val regex = """(?s:.*C3VK=(\w+);.*)""".r
           html match
             case regex(c3vk) =>
               // 防爬机制
               HttpClientManager[F].updateCookiesForHost(CodeDojo.LuoGu.domain, List(new HttpCookie("C3VK", c3vk)))
-                *> getCSRFToken
+                *> getCSRFTokenAndPassAntiCrawler
             case _ =>
               Async[F].delay {
                 val document = Jsoup.parse(html)
@@ -56,18 +63,36 @@ object LuoGuApi {
       }
 
     override def checkLogin(): F[Boolean] = useClient { client =>
-      client.expect[String](Uri.unsafeFromString("https://www.luogu.com.cn/user/setting")).map { html =>
-        Jsoup.parse(html).select("title").text() == "用户设置 - 洛谷"
+      getCSRFTokenAndPassAntiCrawler.flatMap { csrfToken =>
+        client.expect[String](Uri.unsafeFromString("https://www.luogu.com.cn/user/setting")).map { html =>
+          Jsoup.parse(html).select("title").text() == "用户设置 - 洛谷"
+        }
       }
     }
 
+    override def getUserInfo: F[LuoGuUserInfo] =
+      getCSRFTokenAndPassAntiCrawler.flatMap { csrfToken =>
+        useClient { client =>
+          client
+            .expect[String](Uri.unsafeFromString("https://www.luogu.com.cn/user/setting?_contentOnly=1"))
+            .flatMap { html =>
+              parse(html).flatMap { json =>
+                (
+                  JsonPath.root.currentData.user.name.string.getOption(json),
+                  JsonPath.root.currentData.user.avatar.string.getOption(json)
+                ).mapN((name, avatar) => LuoGuUserInfo(name, avatar)).toRight(new Exception("Failed to parse json"))
+              }.liftTo[F]
+            }
+        }
+      }
+
     override def searchChallenges(
       difficulties: List[LuoGuDifficulty],
-      luoguType: Option[LuoGuChallengeType],
+      luoguType: Option[LuoGuQuestionBank],
       tags: List[LuoGuTag],
       page: Int
     ): F[(Int, List[LuoGuChallengeItem])] = useClient { client =>
-      getCSRFToken.flatMap { csrfToken =>
+      getCSRFTokenAndPassAntiCrawler.flatMap { csrfToken =>
         client
           .expect[String](
             Method.GET(
@@ -92,6 +117,11 @@ object LuoGuApi {
       }
     }
 
-    override def submitAnswer(pid: String, langId: String, code: String, captchaNeeded: ByteBuffer => F[String]): Stream[F, Int] = ???
+    override def submitAnswer(
+      pid: String,
+      langId: String,
+      code: String,
+      captchaNeeded: ByteBuffer => F[String]
+    ): Stream[F, Int] = ???
   }
 }

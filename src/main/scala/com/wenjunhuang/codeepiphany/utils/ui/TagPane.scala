@@ -1,18 +1,18 @@
 package com.wenjunhuang.codeepiphany.utils.ui
 
-import java.awt.{Color, Dimension, Graphics, GridBagConstraints, GridBagLayout}
-import java.awt.event.{ActionEvent, MouseAdapter, MouseEvent}
-import javax.swing.{Icon, JLayeredPane, JPanel, SwingConstants}
+import java.awt.{ Color, Dimension, Graphics, GridBagConstraints, GridBagLayout }
+import java.awt.event.{ ActionEvent, MouseAdapter, MouseEvent }
+import javax.swing.{ Icon, JLayeredPane, JPanel, SwingConstants }
 
 import com.intellij.icons.AllIcons
-import com.intellij.openapi.actionSystem.{ActionManager, DefaultActionGroup}
+import com.intellij.openapi.actionSystem.{ ActionManager, DefaultActionGroup }
 import com.intellij.openapi.actionSystem.ex.DefaultCustomComponentAction
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.observable.properties.ObservableProperty
 import com.intellij.openapi.ui.popup.IconButton
-import com.intellij.ui.{Gray, InplaceButton, JBColor}
-import com.intellij.ui.components.{JBLabel, JBLayeredPane}
-import com.intellij.util.ui.{GraphicsUtil, JBInsets, JBUI}
+import com.intellij.ui.{ Gray, InplaceButton, JBColor }
+import com.intellij.ui.components.{ JBLabel, JBLayeredPane }
+import com.intellij.util.ui.{ GraphicsUtil, JBInsets, JBUI }
 import com.intellij.util.ui.components.BorderLayoutPanel
 
 import com.wenjunhuang.codeepiphany.utils.extensions.*
@@ -35,6 +35,8 @@ class TagPane(val noBorderTop: Boolean = true, private val myTagsModel: Observab
     val border      = toolbarComp.getBorder.getBorderInsets(toolbarComp)
     toolbarComp.setBorder(JBUI.Borders.empty(0, border.left, border.bottom, border.right))
 
+  add(myTagToolbar.getComponent, SwingConstants.CENTER)
+
   updateActions()
   myTagsModel.afterChange(tags => {
     myActionGroup.removeAll()
@@ -46,10 +48,19 @@ class TagPane(val noBorderTop: Boolean = true, private val myTagsModel: Observab
   })
 
   private def updateActions(): Unit = {
-    if myActionGroup.getChildrenCount == 0 then remove(myTagToolbar.getComponent)
-    else if (0 until getComponentCount).exists(i => getComponent(i) == myTagToolbar.getComponent) then
-      ActionToolbarCompatibleUtils.updateActions(myTagToolbar)
-    else add(myTagToolbar.getComponent, SwingConstants.CENTER)
+    if myActionGroup.getChildrenCount == 0 then setVisible(false)
+    else setVisible(true)
+    ActionToolbarCompatibleUtils.updateActions(myTagToolbar)
+//    if myActionGroup.getChildrenCount == 0 then remove(myTagToolbar.getComponent)
+//    else if (0 until getComponentCount).exists(i => getComponent(i) == myTagToolbar.getComponent) then
+//      ActionToolbarCompatibleUtils.updateActions(myTagToolbar)
+//    else
+//      add(myTagToolbar.getComponent, SwingConstants.CENTER)
+  }
+
+  override def getPreferredSize: Dimension = {
+    if myActionGroup.getChildrenCount == 0 then JBUI.emptySize()
+    else myTagToolbar.getComponent.getPreferredSize
   }
 }
 
@@ -149,7 +160,7 @@ class TagUI(
   }
 
   override def paint(g: Graphics): Unit = {
-    val size = getSize
+    val size   = getSize
     val config = GraphicsUtil.setupAAPainting(g)
     g.setColor(if mySelected then selectedBackgroundColor else backgroundColor)
     val radius = myRadius * math.min(size.width, size.height)

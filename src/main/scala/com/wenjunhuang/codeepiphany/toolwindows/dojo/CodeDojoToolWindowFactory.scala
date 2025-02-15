@@ -20,6 +20,8 @@ import com.wenjunhuang.codeepiphany.atcoder.settings.AtCoderSettings
 import com.wenjunhuang.codeepiphany.codeforces.settings.CodeForcesSettings
 import com.wenjunhuang.codeepiphany.hackerrank.settings.HackerRankSettings
 import com.wenjunhuang.codeepiphany.leetcode.settings.{LeetCodeCNSettings, LeetCodeSettings}
+import com.wenjunhuang.codeepiphany.luogu.settings.LuoGuSettings
+import com.wenjunhuang.codeepiphany.luogu.ui.LuoGuChallengesView
 import com.wenjunhuang.codeepiphany.services.BaseChallengesView
 import com.wenjunhuang.codeepiphany.settings.dojo.BaseCodeDojoSettings
 import com.wenjunhuang.codeepiphany.settings.CodeEpiphanySettings
@@ -114,6 +116,11 @@ object CodeDojoToolWindowFactory {
       classOf[HackerRankSettings],
       HackerRankChallengesView(project)
     )
+    updateCodeDojoContent(project,
+      contentManager,
+      CodeDojo.LuoGu,
+      classOf[LuoGuSettings],
+      LuoGuChallengesView(project))
 
     if contentManager.getContentCount == 0 then
       val setupRequiredPromptView = SetupRequiredPromptView(project)
