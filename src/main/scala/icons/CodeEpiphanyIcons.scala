@@ -23,8 +23,8 @@ object CodeEpiphanyIcons {
     IconLoader.getIcon("/icons/logout.svg", CodeEpiphanyIcons.getClass.getClassLoader)
 
   @static
-  val BUILDING:Icon =
-    IconLoader.getIcon("/icons/building.svg",CodeEpiphanyIcons.getClass.getClassLoader)
+  val BUILDING: Icon =
+    IconLoader.getIcon("/icons/building.svg", CodeEpiphanyIcons.getClass.getClassLoader)
 
   @static
   val RUN: Icon = IconLoader.getIcon("/icons/run.svg", CodeEpiphanyIcons.getClass.getClassLoader)
@@ -61,6 +61,7 @@ object CodeEpiphanyIcons {
     val HACKERRANK: Icon = IconLoader.getIcon("/icons/dojos/hackerrank.svg", CodeEpiphanyIcons.getClass.getClassLoader)
     val CODEFORCES: Icon = IconLoader.getIcon("/icons/dojos/codeforces.svg", CodeEpiphanyIcons.getClass.getClassLoader)
     val ATCODER: Icon    = IconLoader.getIcon("/icons/dojos/atcoder.svg", CodeEpiphanyIcons.getClass.getClassLoader)
+    val LUOGU: Icon      = IconLoader.getIcon("/icons/dojos/luogu.svg", CodeEpiphanyIcons.getClass.getClassLoader)
   }
 
   object Languages {

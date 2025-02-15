@@ -1,6 +1,9 @@
 package com.wenjunhuang.codeepiphany.atcoder.models
 
 import java.awt.Color
+import org.typelevel.ci.CIString
+
+import com.intellij.openapi.util.text.StringUtil
 
 import com.wenjunhuang.codeepiphany.atcoder.models.AtCoderDifficulty.*
 import com.wenjunhuang.codeepiphany.utils.ColorUtils
@@ -98,6 +101,10 @@ object AtCoderDifficulty {
   val SILVER_COLOR = "#C0C0C0" // 银灰 - 银牌题（带金属光泽）
   val GOLD_COLOR   = "#FFD700" // 黄金 - 金牌题（高饱和度）
 
+  def fromString(difficulty: String): Option[AtCoderDifficulty] = {
+    difficulty.toIntOption.map(fromInt)
+  }
+
   def fromInt(difficulty: Int): AtCoderDifficulty = {
     if difficulty <= Grey.upperBound then Grey
     else if difficulty <= Brown.upperBound then Brown
@@ -110,6 +117,10 @@ object AtCoderDifficulty {
     else if difficulty <= Bronze.upperBound then Bronze
     else if difficulty <= Silver.upperBound then Silver
     else Gold
+  }
+
+  def showAsHtmlFromStorage(difficulty: String): String = {
+    fromString(difficulty).map(_.showAsHtml).getOrElse("")
   }
 
   def atCoderDifficultyRange(difficulty: AtCoderDifficulty): (Int, Int) = {

@@ -1,0 +1,91 @@
+package com.wenjunhuang.codeepiphany.luogu.services
+
+import cats.effect.{ Async, Concurrent }
+import cats.implicits.*
+import cats.syntax.all.*
+import io.circe.optics.JsonPath
+import io.circe.parser.*
+import java.net.HttpCookie
+import org.http4s.{ Headers, Method, Uri }
+import org.http4s.client.dsl.Http4sClientDsl
+import org.http4s.client.Client
+import org.http4s.implicits.uri
+import org.jsoup.Jsoup
+
+import com.wenjunhuang.codeepiphany.luogu.models.{ LuoGuChallengeItem, LuoGuChallengeType, LuoGuDifficulty, LuoGuTag }
+import com.wenjunhuang.codeepiphany.model.CodeDojo
+import com.wenjunhuang.codeepiphany.services.http.HttpClientManager
+
+trait LuoGuApi[F[_]] {
+  def checkLogin(): F[Boolean]
+  def searchChallenges(
+    difficulties: List[LuoGuDifficulty],
+    luoguType: Option[LuoGuChallengeType],
+    tags: List[LuoGuTag],
+    page: Int
+  ): F[(Int, List[LuoGuChallengeItem])]
+}
+
+object LuoGuApi {
+  def apply[F[_]: Async: Concurrent: HttpClientManager](): LuoGuApi[F] = new LuoGuApi[F] with Http4sClientDsl[F] {
+
+    private def useClient[A](fun: Client[F] => F[A]): F[A] = HttpClientManager[F].getClient.use(fun)
+
+    private def commonHeaders(csrfToken: String) =
+      Headers("x-csrf-token" -> csrfToken, "x-requested-with" -> "XMLHttpRequest")
+
+    private def getCSRFToken: F[String] =
+      useClient { client =>
+        client.expect[String](Uri.unsafeFromString(s"https://www.luogu.com.cn/")).flatMap { html =>
+          val regex = """\s*<script>.*C3VK=(\w+);.*</script>\s*""".r
+          html match
+            case regex(c3vk) =>
+              // 防爬机制
+              HttpClientManager[F].updateCookiesForHost(CodeDojo.LuoGu.domain, List(new HttpCookie("C3VK", c3vk)))
+                *> getCSRFToken
+            case _ =>
+              Async[F].delay {
+                val document = Jsoup.parse(html)
+                document.select("meta[name=csrf-token]").attr("content")
+              }
+        }
+      }
+
+    override def checkLogin(): F[Boolean] = useClient { client =>
+      client.expect[String](Uri.unsafeFromString("https://www.luogu.com.cn/user/setting")).map { html =>
+        Jsoup.parse(html).select("title").text() == "用户设置 - 洛谷"
+      }
+    }
+
+    override def searchChallenges(
+      difficulties: List[LuoGuDifficulty],
+      luoguType: Option[LuoGuChallengeType],
+      tags: List[LuoGuTag],
+      page: Int
+    ): F[(Int, List[LuoGuChallengeItem])] = useClient { client =>
+      getCSRFToken.flatMap { csrfToken =>
+        client
+          .expect[String](
+            Method.GET(
+              uri"https://www.luogu.com.cn/problem/list"
+                .withQueryParam("page", page)
+                .withQueryParam("difficulty", difficulties.map(_.value).mkString(","))
+                .withQueryParam("type", luoguType.map(_.value).getOrElse(""))
+                .withQueryParam("_contentOnly", "1"),
+              commonHeaders(csrfToken)
+            )
+          )
+          .flatMap { content =>
+            parse(content).flatMap { json =>
+              (
+                JsonPath.root.currentData.problems.count.int.getOption(json),
+                JsonPath.root.currentData.problems.result.json.getOption(json)
+              ).flatMapN { (count, problems) =>
+                problems.as[List[LuoGuChallengeItem]].map((count, _)).toOption
+              }.toRight(new Exception("Failed to parse json"))
+            }.liftTo[F]
+          }
+      }
+    }
+  }
+}

@@ -706,10 +706,6 @@ object LeetCodeApi {
               Async[F].delay("")
         }
       }
-//      HttpClientManager[F].findCookieForHost(CIString(dojo.domain.toString), CIString("csrftoken")).map {
-//        case Some(cookie) => cookie.getValue
-//        case None         => ""
-//      }
 
     def openGraphQLFile(dojo: CodeDojo, fileName: String): F[String] = Resource
       .fromAutoCloseable[F, BufferedSource](

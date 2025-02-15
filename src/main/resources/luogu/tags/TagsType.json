@@ -1,0 +1,27 @@
+[
+  {
+    "id": "Algorithm",
+    "value": "算法",
+    "optionCount": 5
+  },
+  {
+    "id": "Origin",
+    "value": "来源",
+    "optionCount": 1
+  },
+  {
+    "id": "Time",
+    "value": "时间",
+    "optionCount": 1
+  },
+  {
+    "id": "Region",
+    "value": "区域",
+    "optionCount": 1
+  },
+  {
+    "id": "SpecialProblem",
+    "value": "特殊题目",
+    "optionCount": 1
+  }
+]

@@ -10,6 +10,7 @@ import scala.annotation.static
 import com.intellij.openapi.util.text.StringUtil
 
 import com.wenjunhuang.codeepiphany.atcoder.models.AtCoderDifficulty
+import com.wenjunhuang.codeepiphany.PluginBundle
 
 enum CodeDojo(val domain: CIString, val value: String) {
   case HackerRank extends CodeDojo(CIString("hackerrank.com"), "hackerrank")
@@ -17,6 +18,7 @@ enum CodeDojo(val domain: CIString, val value: String) {
   case LeetCodeCN extends CodeDojo(CIString("leetcode.cn"), "leetcodecn")
   case CodeForces extends CodeDojo(CIString("codeforces.com"), "codeforces")
   case AtCoder    extends CodeDojo(CIString("atcoder.jp"), "atcoder")
+  case LuoGu      extends CodeDojo(CIString("luogu.com.cn"), "luogu")
 
   def getIcon: Option[Icon] = this match {
     case HackerRank => Some(icons.CodeEpiphanyIcons.Dojos.HACKERRANK)
@@ -32,6 +34,7 @@ enum CodeDojo(val domain: CIString, val value: String) {
     case LeetCodeCN => "https://leetcode.cn/accounts/login/"
     case CodeForces => "https://codeforces.com/enter"
     case AtCoder    => "https://atcoder.jp/login"
+    case LuoGu      => "https://www.luogu.com.cn/auth/login"
   }
 
   def loginCandidateCookies(cookies: List[HttpCookie]): Boolean = this match {
@@ -43,6 +46,8 @@ enum CodeDojo(val domain: CIString, val value: String) {
       cookies.exists(cookie =>
         cookie.getName == "REVEL_SESSION" && cookie.getValue.nonEmpty && cookie.getValue.contains("SessionKey")
       )
+    case LuoGu =>
+      cookies.exists(cookie => cookie.getName == "_uid" && cookie.getValue.nonEmpty && (cookie.getValue != "0"))
   }
 
   def requiresCodeRegionEnclosure: Boolean = {
@@ -52,6 +57,7 @@ enum CodeDojo(val domain: CIString, val value: String) {
       case LeetCodeCN => true
       case CodeForces => true
       case AtCoder    => true
+      case LuoGu      => true
     }
   }
 
@@ -62,19 +68,14 @@ enum CodeDojo(val domain: CIString, val value: String) {
       case LeetCodeCN => difficulty
       case CodeForces => difficulty
       case AtCoder    => difficulty
+      case LuoGu      => difficulty
     }
   }
 
   def difficultyShowAsHtml(difficulty: String): String = {
     this match {
-      case AtCoder =>
-        if StringUtil.isEmpty(difficulty) then ""
-        else
-          difficulty.toIntOption match {
-            case Some(difficulty) => AtCoderDifficulty.fromInt(difficulty).showAsHtml
-            case _                => ""
-          }
-      case _ => ""
+      case AtCoder => AtCoderDifficulty.showAsHtmlFromStorage(difficulty)
+      case _       => ""
     }
   }
 }
@@ -86,6 +87,7 @@ object CodeDojo {
     case LeetCodeCN => "LeetCodeCN"
     case CodeForces => "CodeForces"
     case AtCoder    => "AtCoder"
+    case LuoGu      => PluginBundle.message("codedojo.luogu")
   }
 
   @static
@@ -97,7 +99,7 @@ object CodeDojo {
     case _ if s.contains(LeetCodeCN.domain) => Some(CodeDojo.LeetCodeCN)
     case _ if s.contains(CodeForces.domain) => Some(CodeDojo.CodeForces)
     case _ if s.contains(AtCoder.domain)    => Some(CodeDojo.AtCoder)
-    case _                                  => None
+    case _ if s.contains(LuoGu.domain)      => Some(CodeDojo.LuoGu)
   }
 
   private val ALL_DOJOS = CodeDojo.values.map { dojo => CIString(dojo.value) -> dojo }.toMap
