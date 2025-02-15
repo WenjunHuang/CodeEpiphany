@@ -173,7 +173,7 @@ class AtCoderParametersQueryPresenter(project: Project, bootstrap: AtCoderBootst
   }
 
   override def getQueryResultColumns: Array[OrderByColumnInfo[AtCoderTableItem, ?]] = Array(
-    new OrderByColumnInfo[AtCoderTableItem, String]("ProblemId") {
+    new OrderByColumnInfo[AtCoderTableItem, String]("Id") {
       override def valueOf(item: AtCoderTableItem): String =
         item.record.getProblemid
 

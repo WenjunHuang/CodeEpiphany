@@ -11,6 +11,8 @@ import org.http4s.client.dsl.Http4sClientDsl
 import org.http4s.client.Client
 import org.http4s.implicits.uri
 import org.jsoup.Jsoup
+import fs2.Stream
+import java.nio.ByteBuffer
 
 import com.wenjunhuang.codeepiphany.luogu.models.{ LuoGuChallengeItem, LuoGuChallengeType, LuoGuDifficulty, LuoGuTag }
 import com.wenjunhuang.codeepiphany.model.CodeDojo
@@ -24,6 +26,8 @@ trait LuoGuApi[F[_]] {
     tags: List[LuoGuTag],
     page: Int
   ): F[(Int, List[LuoGuChallengeItem])]
+
+  def submitAnswer(pid: String, langId: String, code: String, captchaNeeded: ByteBuffer => F[String]): Stream[F, Int]
 }
 
 object LuoGuApi {
@@ -87,5 +91,7 @@ object LuoGuApi {
           }
       }
     }
+
+    override def submitAnswer(pid: String, langId: String, code: String, captchaNeeded: ByteBuffer => F[String]): Stream[F, Int] = ???
   }
 }

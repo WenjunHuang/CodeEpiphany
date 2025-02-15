@@ -56,6 +56,11 @@ object Constants {
   final val ATCODER_SETTING_FILE = SETTINGS_FOLDER + "/atcoder.xml"
 
   @static
+  final val LUOGU_SETTING = PROJECT_ID + ".luogu.settings"
+  @static
+  final val LUOGU_SETTING_FILE = SETTINGS_FOLDER + "/luogu.xml"
+
+  @static
   final val SUBMIT_CODE_REGION_BEGIN = "IMPORTANT!! Submit Code Region Begin(Do not remove this line)"
   @static
   final val SUBMIT_CODE_REGION_END = "IMPORTANT!! Submit Code Region End(Do not remove this line)"

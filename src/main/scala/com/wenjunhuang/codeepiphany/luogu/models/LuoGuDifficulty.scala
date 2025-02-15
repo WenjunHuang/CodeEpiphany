@@ -11,6 +11,17 @@ enum LuoGuDifficulty(val value: Int) {
   case AdvancedMinus     extends LuoGuDifficulty(5)
   case ProvincialMinus   extends LuoGuDifficulty(6)
   case NOIPlus           extends LuoGuDifficulty(7)
+
+  def showAsHtml: String = this match {
+    case NonRated          => "Non-Rated"
+    case Beginner          => "Beginner"
+    case BasicMinus        => "Basic-"
+    case IntermediateMinus => "Intermediate-"
+    case IntermediatePlus  => "Intermediate+"
+    case AdvancedMinus     => "Advanced-"
+    case ProvincialMinus   => "Provincial-"
+    case NOIPlus           => "NOI+"
+  }
 }
 object LuoGuDifficulty {
   implicit val circeEncoder: Encoder[LuoGuDifficulty] = Encoder.encodeInt.contramap(_.value)
