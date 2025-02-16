@@ -1,13 +1,14 @@
 package com.wenjunhuang.codeepiphany.toolwindows.sidebar.description
 
 import com.wenjunhuang.codeepiphany.model.CodeDojo
-import com.wenjunhuang.codeepiphany.model.CodeDojo.{AtCoder, CodeForces}
+import com.wenjunhuang.codeepiphany.model.CodeDojo.{ AtCoder, CodeForces, LuoGu }
 
 object CodoDojoHeaders {
   def getHeader(codeDojo: CodeDojo): String =
     codeDojo match
       case CodeForces => getCodeForcesHeader
       case AtCoder    => getAtCoderHeader
+      case LuoGu      => getLuoGuHeader
       case _          => ""
 
   private def getCodeForcesHeader: String =
@@ -36,7 +37,6 @@ object CodoDojoHeaders {
       |			var katexOptions = {
       |				delimiters: [
       |					{left: "$$", right: "$$", display: true},
-      |					
       |					{left: "\\(", right: "\\)", display: false},
       |					{left: "\\[", right: "\\]", display: true}
       |				],
@@ -65,4 +65,28 @@ object CodoDojoHeaders {
       |}
       |</script>
       |""".stripMargin
+
+  private def getLuoGuHeader: String =
+    // language=html
+    """
+    |<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.css">
+    |<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.js"></script>
+    |<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/auto-render.min.js"></script>
+    |<script>
+    |    document.addEventListener("DOMContentLoaded", function() {
+    |        renderMathInElement(document.body, {
+    |          // customised options
+    |          // • auto-render specific keys, e.g.:
+    |          delimiters: [
+    |              {left: '$$', right: '$$', display: true},
+    |              {left: '$', right: '$', display: false},
+    |              {left: '\\(', right: '\\)', display: false},
+    |              {left: '\\[', right: '\\]', display: true}
+    |          ],
+    |          // • rendering keys, e.g.:
+    |          throwOnError : false
+    |        });
+    |    });
+    |</script>
+    |""".stripMargin
 }

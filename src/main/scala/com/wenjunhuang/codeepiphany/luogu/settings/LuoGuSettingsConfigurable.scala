@@ -30,7 +30,7 @@ class LuoGuSettingsConfigurable(project: Project)
 }
 
 object LuoGuSettingsConfigurable {
-  private val LUOGU_LANGUAGES: Map[(Language, LanguageVersion), String] =
+  val LUOGU_LANGUAGES: Map[(Language, LanguageVersion), String] =
     Map(
       (Pascal, AnyVersion)                       -> "1",
       (C, AnyVersion)                            -> "2",
@@ -58,7 +58,7 @@ object LuoGuSettingsConfigurable {
       (Ruby, AnyVersion)                         -> "13",
       (Perl, AnyVersion)                         -> "23"
     )
-  private val LUOGU_LANGUAGES_REVERSE: Map[String, (Language, LanguageVersion)] =
+  val LUOGU_LANGUAGES_REVERSE: Map[String, (Language, LanguageVersion)] =
     LUOGU_LANGUAGES.map { case ((lang, version), id) => (id, (lang, version)) }
 
   val DEMO_TEMPLATE = LuoGuChallengeCodeTemplate(

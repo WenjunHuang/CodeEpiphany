@@ -1,20 +1,13 @@
 package com.wenjunhuang.codeepiphany.luogu.services
 
-import cats.effect.{ Async, Concurrent }
 import cats.syntax.all.*
+import cats.effect.{ Async, Concurrent }
 import org.jooq.DSLContext
 import org.typelevel.log4cats.LoggerFactory
 
 import com.intellij.openapi.project.Project
 
-import com.wenjunhuang.codeepiphany.atcoder.models.AtCoderChallengeCodeTemplate
-import com.wenjunhuang.codeepiphany.atcoder.settings.{ AtCoderSettings, AtCoderSettingsConfigurable }
-import com.wenjunhuang.codeepiphany.database.tables.records.{
-  AtcoderProblemsRecord,
-  ChallengeLanguageRecord,
-  ChallengeRecord
-}
-import com.wenjunhuang.codeepiphany.database.Tables.*
+import com.wenjunhuang.codeepiphany.database.tables.records.{ ChallengeLanguageRecord, ChallengeRecord }
 import com.wenjunhuang.codeepiphany.luogu.models.{ LuoGuChallengeCodeTemplate, LuoGuChallengeItem }
 import com.wenjunhuang.codeepiphany.luogu.settings.{ LuoGuSettings, LuoGuSettingsConfigurable }
 import com.wenjunhuang.codeepiphany.model.{ ChallengeDifficulty, CodeDojo, Language, LanguageVersion }
@@ -61,5 +54,19 @@ class LuoGuOpenChallengeService[F[_]: Async: Concurrent: HttpClientManager: Logg
     req: LuoGuChallengeItem,
     language: Language,
     languageVersion: LanguageVersion
-  ): F[(CodeDojoChallengeId, LuoGuChallengeCodeTemplate)] = ???
+  ): F[(CodeDojoChallengeId, LuoGuChallengeCodeTemplate)] = {
+    LuoGuApi[F]()
+      .getChallengeData(req.pid)
+      .flatMap { content =>
+        if content.supportedLanguages.contains((language, languageVersion)) then
+          Async[F].pure(
+            CodeDojoChallengeId(req.pid),
+            LuoGuChallengeCodeTemplate(req.pid, content.title, language, languageVersion, content.description)
+          )
+        else
+          Async[F].raiseError(
+            new Exception(s"This challenge does not support ${language.show} ${languageVersion.version}")
+          )
+      }
+  }
 }

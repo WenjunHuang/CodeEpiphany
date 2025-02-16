@@ -101,6 +101,7 @@ object CodeDojo {
     case _ if s.contains(CodeForces.domain) => Some(CodeDojo.CodeForces)
     case _ if s.contains(AtCoder.domain)    => Some(CodeDojo.AtCoder)
     case _ if s.contains(LuoGu.domain)      => Some(CodeDojo.LuoGu)
+    case _ => None
   }
 
   private val ALL_DOJOS = CodeDojo.values.map { dojo => CIString(dojo.value) -> dojo }.toMap

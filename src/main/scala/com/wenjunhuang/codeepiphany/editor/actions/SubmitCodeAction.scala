@@ -8,10 +8,10 @@ import com.intellij.openapi.util.Key
 import com.intellij.openapi.vfs.VirtualFile
 
 import com.wenjunhuang.codeepiphany.editor.actions.SubmitCodeAction.*
-import com.wenjunhuang.codeepiphany.editor.services.{runCode, submitCode}
+import com.wenjunhuang.codeepiphany.editor.services.{ runCode, submitCode }
 import com.wenjunhuang.codeepiphany.model.CodeDojo
-import com.wenjunhuang.codeepiphany.model.CodeDojo.{AtCoder, CodeForces}
-import com.wenjunhuang.codeepiphany.services.http.{HttpClientManager, HttpClientService}
+import com.wenjunhuang.codeepiphany.model.CodeDojo.{ AtCoder, CodeForces, LuoGu }
+import com.wenjunhuang.codeepiphany.services.http.{ HttpClientManager, HttpClientService }
 import com.wenjunhuang.codeepiphany.services.AuthService
 import com.wenjunhuang.codeepiphany.services.file.saveEditedFile
 import com.wenjunhuang.codeepiphany.settings.ChallengeSettings
@@ -19,7 +19,7 @@ import com.wenjunhuang.codeepiphany.utils.actions.ActionCompatible
 import com.wenjunhuang.codeepiphany.utils.extensions.*
 import com.wenjunhuang.codeepiphany.utils.implicits.*
 
-class SubmitCodeAction extends AnAction with ActionCompatible{
+class SubmitCodeAction extends AnAction with ActionCompatible {
   override def actionPerformed(e: AnActionEvent): Unit = {
     getProvider(e) match
       case Some(provider) =>
@@ -88,6 +88,7 @@ object SubmitCodeAction {
           codeDojo match
             case CodeForces => false
             case AtCoder    => false
+            case LuoGu      => false
             case _          => true
 
   }
