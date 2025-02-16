@@ -2,7 +2,7 @@ package com.wenjunhuang.codeepiphany.luogu.models
 
 import io.circe.parser.*
 import io.circe.Json
-import io.circe.derivation.{ Configuration, ConfiguredDecoder }
+import io.circe.derivation.ConfiguredDecoder
 import scala.io.Source
 import scala.util.Using
 

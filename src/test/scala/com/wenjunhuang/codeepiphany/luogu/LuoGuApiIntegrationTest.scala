@@ -7,7 +7,7 @@ import com.vladsch.flexmark.util.data.MutableDataSet
 import io.circe.optics.*
 import io.circe.parser.*
 import java.io.FileInputStream
-import java.net.HttpCookie
+import java.net.{HttpCookie, URLDecoder}
 import org.jsoup.Jsoup
 import scala.io.Source
 
@@ -16,7 +16,7 @@ import com.intellij.util.net.HttpConfigurable
 
 import com.wenjunhuang.codeepiphany.luogu.services.LuoGuApi
 import com.wenjunhuang.codeepiphany.model.CodeDojo
-import com.wenjunhuang.codeepiphany.services.http.{ HttpClientManager, HttpClientService }
+import com.wenjunhuang.codeepiphany.services.http.{HttpClientManager, HttpClientService}
 import com.wenjunhuang.codeepiphany.utils.CookieUtil
 import com.wenjunhuang.codeepiphany.utils.implicits.*
 
@@ -109,5 +109,14 @@ class LuoGuApiIntegrationTest extends BasePlatformTestCase {
 
     }
 
+  }
+
+  def testParseACResponse(): Unit = {
+    val acHtml =
+      Source.fromInputStream(new FileInputStream(getBasePath + "/ACResponse.html")).getLines().mkString("\n")
+    val regex = """(?s:.*decodeURIComponent\("(.*)"\).*)""".r
+    acHtml match
+      case regex(encoded) =>
+        println(URLDecoder.decode(encoded, "UTF-8"))
   }
 }

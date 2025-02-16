@@ -32,3 +32,12 @@ trait DataKeyNotNull[T](key: DataKey[T]) extends ActionPrecondition {
     else false
   }
 }
+//trait KeyNotNull[T](key: Key[T]) extends ActionPrecondition {
+//  def getValue(event: AnActionEvent): T = getValue(event.getDataContext)
+//  def getValue(context: DataContext): T = key.getData(context)
+//
+//  override def isSatisfied(event: AnActionEvent): Boolean = {
+//    if super.isSatisfied(event) then key.getData(event.getDataContext) != null
+//    else false
+//  }
+//}

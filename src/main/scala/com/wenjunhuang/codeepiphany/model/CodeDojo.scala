@@ -7,8 +7,6 @@ import javax.swing.Icon
 import org.typelevel.ci.CIString
 import scala.annotation.static
 
-import com.intellij.openapi.util.text.StringUtil
-
 import com.wenjunhuang.codeepiphany.atcoder.models.AtCoderDifficulty
 import com.wenjunhuang.codeepiphany.PluginBundle
 

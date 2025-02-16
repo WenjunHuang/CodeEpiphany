@@ -236,6 +236,7 @@ object AtCoderApi {
           }
       }
     }
+    
     private def useClient[A](f: Client[F] => F[A]): F[A] = HttpClientManager[F].getClient.use(f)
 
     private def judgeStatusToSubmissionResult(title: String, text: String): SubmissionResult = {

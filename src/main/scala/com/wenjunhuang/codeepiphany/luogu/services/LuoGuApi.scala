@@ -1,34 +1,28 @@
 package com.wenjunhuang.codeepiphany.luogu.services
 
+import cats.effect.{Async, Concurrent, Temporal}
+import cats.implicits.*
+import cats.syntax.all.*
 import com.vladsch.flexmark.html.HtmlRenderer
 import com.vladsch.flexmark.parser.Parser
 import com.vladsch.flexmark.util.data.MutableDataSet
-import cats.effect.{ Async, Concurrent }
-import cats.implicits.*
-import cats.syntax.all.*
+import fs2.Stream
 import io.circe.optics.JsonPath
 import io.circe.parser.*
-import java.net.HttpCookie
-import org.http4s.{ Headers, Method, Uri }
+import io.circe.Json
+import io.circe.syntax.*
+import java.net.{HttpCookie, URLDecoder}
+import org.http4s.{Headers, Method, Uri}
+import org.http4s.client.{Client, UnexpectedStatus}
 import org.http4s.client.dsl.Http4sClientDsl
-import org.http4s.client.Client
 import org.http4s.implicits.uri
 import org.jsoup.Jsoup
-import fs2.Stream
-import io.circe.Json
-import java.nio.ByteBuffer
+import scala.concurrent.duration.*
+import scodec.bits.ByteVector
 
-import com.wenjunhuang.codeepiphany.luogu.models.{
-  LuoGuChallengeData,
-  LuoGuChallengeItem,
-  LuoGuDifficulty,
-  LuoGuQuestionBank,
-  LuoGuSearchOrderBy,
-  LuoGuTag,
-  LuoGuUserInfo
-}
+import com.wenjunhuang.codeepiphany.luogu.models.*
 import com.wenjunhuang.codeepiphany.luogu.settings.LuoGuSettingsConfigurable.LUOGU_LANGUAGES_REVERSE
-import com.wenjunhuang.codeepiphany.model.{ CodeDojo, OrderDirection }
+import com.wenjunhuang.codeepiphany.model.{CodeDojo, OrderDirection, SubmissionResult}
 import com.wenjunhuang.codeepiphany.services.http.HttpClientManager
 
 trait LuoGuApi[F[_]] {
@@ -43,7 +37,13 @@ trait LuoGuApi[F[_]] {
   ): F[(Int, List[LuoGuChallengeItem])]
 
   def getChallengeData(pid: String): F[LuoGuChallengeData]
-  def submitAnswer(pid: String, langId: String, code: String, captchaNeeded: ByteBuffer => F[String]): Stream[F, Int]
+
+  def submitAnswer(
+    pid: String,
+    langId: String,
+    code: String,
+    captchaNeeded: ByteVector => F[String]
+  ): Stream[F, LuoGuSubmissionResponse]
 }
 
 object LuoGuApi {
@@ -212,11 +212,122 @@ object LuoGuApi {
       }
     }
 
+    private def postAnswer(
+      pid: String,
+      langId: String,
+      code: String,
+      captcha: Option[String],
+      captchaNeeded: ByteVector => F[String]
+    ): F[String] = {
+      getCSRFTokenAndPassAntiCrawler.flatMap { csrfToken =>
+        useClient { client =>
+          import org.http4s.circe.CirceEntityEncoder.*
+          client
+            .run(
+              Method
+                .POST(uri"https://www.luogu.com.cn/fe/api/problem/submit" / pid, commonHeaders(csrfToken))
+                .withEntity(
+                  (Map("lang" -> langId.toInt.asJson, "enableO2" -> 1.asJson, "code" -> code.asJson) ++ captcha
+                    .map("captcha" -> _.asJson)
+                    .toMap).asJson
+                )
+            )
+            .use { response =>
+              response.status.code match
+                case 200 =>
+                  response.as[String].flatMap { body =>
+                    parse(body).flatMap { json =>
+                      JsonPath.root.rid.string
+                        .getOption(json)
+                        .toRight(new Exception("Failed to parse json"))
+                    }.liftTo[F]
+                  }
+                case 403 =>
+                  client
+                    .get[ByteVector](
+                      uri"https://www.luogu.com.cn/api/verify/captcha"
+                        .withQueryParam("_t", s"${System.currentTimeMillis()}")
+                    ) { response =>
+                      response.contentType match
+                        case Some(contentType) if contentType.mediaType.isImage =>
+                          response.body.compile.to(ByteVector)
+                        case _ => Async[F].raiseError(new Exception("Failed to get captcha"))
+                    }
+                    .flatMap { captchaImage =>
+                      captchaNeeded(captchaImage).flatMap { captcha =>
+                        postAnswer(pid, langId, code, Some(captcha), captchaNeeded)
+                      }
+                    }
+                case _ => Async[F].raiseError(new Exception(s"Failed to submit answer: ${response.status.code}"))
+            }
+        }
+      }
+    }
+
+    private def getSubmitAnswerResult(oldResponse: LuoGuSubmissionResponse): F[LuoGuSubmissionResponse] = {
+      useClient { client =>
+        client
+          .expect[String](uri"https://www.luogu.com.cn/record" / oldResponse.submissionId)
+          .flatMap { html =>
+            val regex = """(?s:.*decodeURIComponent\("(.*)"\).*)""".r
+            html match
+              case regex(encoded) =>
+                parse(URLDecoder.decode(encoded, "UTF-8")).map { json =>
+                  JsonPath.root.currentData.record.status.int
+                    .getOption(json)
+                    .map { status =>
+                      val submissionResult = luoguSubmissionStatus(status)
+                      val msg = submissionResult match
+                        case SubmissionResult.CompilationError =>
+                          JsonPath.root.currentData.record.detail.compileResult.message.string
+                            .getOption(json)
+                            .getOrElse("")
+                        case _ => ""
+                      LuoGuSubmissionResponse(oldResponse.submissionId, submissionResult, msg)
+                    }
+                    .getOrElse(oldResponse)
+                }.liftTo[F]
+              case _ => Async[F].raiseError(new Exception("Failed to parse submission result"))
+          }
+          .recoverWith {
+            case e: UnexpectedStatus if e.status.code == 503 =>
+              Temporal[F].sleep(2.second) >> getSubmitAnswerResult(oldResponse)
+          }
+      }
+    }
+
     override def submitAnswer(
       pid: String,
       langId: String,
       code: String,
-      captchaNeeded: ByteBuffer => F[String]
-    ): Stream[F, Int] = ???
+      captchaNeeded: ByteVector => F[String]
+    ): Stream[F, LuoGuSubmissionResponse] =
+      Stream
+        .eval(postAnswer(pid, langId, code, None, captchaNeeded))
+        .flatMap { submissionId =>
+          Stream
+            .repeatEval(Temporal[F].sleep(2.second))
+            .evalScan(LuoGuSubmissionResponse(submissionId, SubmissionResult.Processing, "")) { (lastResponse, _) =>
+              getSubmitAnswerResult(lastResponse)
+            }
+            .flatMap { response =>
+              response.result match
+                case SubmissionResult.Processing => Stream(Option(response).widen)
+                case _                           => Stream(Option(response).widen, None)
+            }
+            .unNoneTerminate
+        }
   }
+
+  private def luoguSubmissionStatus(status: Int): SubmissionResult = status match
+    case 0  => SubmissionResult.Processing
+    case 1  => SubmissionResult.Processing
+    case 2  => SubmissionResult.CompilationError
+    case 3  => SubmissionResult.OutputLimitExceeded
+    case 4  => SubmissionResult.MemoryLimitExceeded
+    case 5  => SubmissionResult.Timeout
+    case 6  => SubmissionResult.Failure
+    case 7  => SubmissionResult.RuntimeError
+    case 12 => SubmissionResult.Success
+    case _  => SubmissionResult.InternalError
 }

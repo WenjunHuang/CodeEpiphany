@@ -438,6 +438,12 @@ object SubmissionLogPresenter {
       contestId: String,
       problemId: String
     )
+    case LuoGuSubmission(
+                          language: Language,
+                          languageVersion: LanguageVersion,
+                          record: SolutionSubmissionRecord,
+                          pid:String
+                        )
   }
 
   private val EMPTY_QUERY_PARAMS = QueryParams(dojos = List.empty, languages = List.empty, orderBy = None)

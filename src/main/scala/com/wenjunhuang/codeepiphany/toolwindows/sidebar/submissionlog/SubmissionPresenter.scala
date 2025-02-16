@@ -1,11 +1,11 @@
 package com.wenjunhuang.codeepiphany.toolwindows.sidebar.submissionlog
 
-import cats.effect.{IO, Resource}
+import cats.effect.{ IO, Resource }
 import cats.effect.std.Queue
 import cats.syntax.all.*
 import fs2.concurrent.SignallingRef
 import fs2.Stream
-import javax.swing.event.{ListSelectionEvent, ListSelectionListener}
+import javax.swing.event.{ ListSelectionEvent, ListSelectionListener }
 import javax.swing.JComponent
 import org.typelevel.ci.CIString
 import scala.concurrent.duration.*
@@ -18,7 +18,7 @@ import com.intellij.openapi.project.Project
 
 import com.wenjunhuang.codeepiphany.database.Tables.*
 import com.wenjunhuang.codeepiphany.hackerrank.models.HackerRankContest
-import com.wenjunhuang.codeepiphany.model.{CodeDojo, Language, LanguageVersion}
+import com.wenjunhuang.codeepiphany.model.{ CodeDojo, Language, LanguageVersion }
 import com.wenjunhuang.codeepiphany.model.newtypes.SubmissionId
 import com.wenjunhuang.codeepiphany.model.CodeDojo.*
 import com.wenjunhuang.codeepiphany.services.ChallengeRepository
@@ -200,6 +200,13 @@ class SubmissionPresenter(private val myProject: Project) extends Disposable {
                           record.get(CHALLENGE.DOJOID)
                         )
                       }
+                  case LuoGu =>
+                    SubmissionType.LuoGuSubmission(
+                      lang,
+                      languageVersion,
+                      submissionRecord,
+                      record.get(CHALLENGE.DOJOID)
+                    ).some
                 }
               }.flatten
             }
