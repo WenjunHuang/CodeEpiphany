@@ -6,7 +6,9 @@ import cats.effect.syntax.all.*
 import cats.syntax.all.*
 import fs2.Stream
 import java.nio.ByteBuffer
+import java.util.concurrent.CancellationException
 import javax.imageio.ImageIO
+import javax.swing.event.DocumentEvent
 import org.jooq.{DSLContext, Record}
 import org.typelevel.ci.CIString
 import org.typelevel.log4cats.LoggerFactory
@@ -14,8 +16,12 @@ import scala.jdk.OptionConverters.*
 import scodec.bits.ByteVector
 
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.ui.{MessageDialogBuilder, Messages, MessageUtil}
-import com.intellij.util.ui.ImageUtil
+import com.intellij.openapi.ui.DialogBuilder
+import com.intellij.ui.components.{JBLabel, JBTextField}
+import com.intellij.ui.DocumentAdapter
+import com.intellij.util.ui.components.BorderLayoutPanel
+import com.intellij.util.ui.JBImageIcon
+import com.intellij.util.IconUtil
 
 import com.wenjunhuang.codeepiphany.utils.implicits.*
 import com.wenjunhuang.codeepiphany.database.Tables.{CHALLENGE, CHALLENGE_LANGUAGE}
@@ -88,14 +94,24 @@ class LuoGuSubmissionService[F[_]: Async: Concurrent: HttpClientManager: LoggerF
   private def showCaptcha(captcha: ByteVector): F[String] = {
     Async[F].delay {
       val captchaImage = ImageIO.read(captcha.toInputStream)
-      MessageDialogBuilder
-        .okCancel("Captcha", "Please solve the captcha")
-        .title("Captcha")
-        .icon(ImageUtil.toIcon(captchaImage))
-        .message("Please solve the captcha")
-        .input("Captcha", "")
-        .show()
-        .map(_.orNull)
+      val input        = JBTextField(6)
+      val dialog = DialogBuilder(myProject)
+        .centerPanel(
+          BorderLayoutPanel(0, 5)
+            .addToCenter(JBLabel(IconUtil.scale(JBImageIcon(captchaImage),null,2.0)))
+            .addToBottom(input)
+        )
+      dialog.setTitle("Captcha")
+      dialog.addOkAction()
+      dialog.addCancelAction()
+      input.getDocument.addDocumentListener(new DocumentAdapter {
+        override def textChanged(e: DocumentEvent): Unit =
+          if e.getDocument.getLength == 0 then dialog.okActionEnabled(false)
+          else dialog.okActionEnabled(true)
+      })
+
+      if !dialog.showAndGet() then throw new CancellationException()
+      else input.getText
     }.evalOnEDTDefault()
   }
 

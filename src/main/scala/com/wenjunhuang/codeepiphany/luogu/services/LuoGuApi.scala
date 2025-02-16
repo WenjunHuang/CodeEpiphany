@@ -1,6 +1,6 @@
 package com.wenjunhuang.codeepiphany.luogu.services
 
-import cats.effect.{Async, Concurrent, Temporal}
+import cats.effect.{ Async, Concurrent, Temporal }
 import cats.implicits.*
 import cats.syntax.all.*
 import com.vladsch.flexmark.html.HtmlRenderer
@@ -11,10 +11,11 @@ import io.circe.optics.JsonPath
 import io.circe.parser.*
 import io.circe.Json
 import io.circe.syntax.*
-import java.net.{HttpCookie, URLDecoder}
-import org.http4s.{Headers, Method, Uri}
-import org.http4s.client.{Client, UnexpectedStatus}
+import java.net.{ HttpCookie, URLDecoder }
+import org.http4s.{ Headers, Method, Uri }
+import org.http4s.client.{ Client, UnexpectedStatus }
 import org.http4s.client.dsl.Http4sClientDsl
+import org.http4s.headers.Referer
 import org.http4s.implicits.uri
 import org.jsoup.Jsoup
 import scala.concurrent.duration.*
@@ -22,8 +23,9 @@ import scodec.bits.ByteVector
 
 import com.wenjunhuang.codeepiphany.luogu.models.*
 import com.wenjunhuang.codeepiphany.luogu.settings.LuoGuSettingsConfigurable.LUOGU_LANGUAGES_REVERSE
-import com.wenjunhuang.codeepiphany.model.{CodeDojo, OrderDirection, SubmissionResult}
+import com.wenjunhuang.codeepiphany.model.{ CodeDojo, OrderDirection, SubmissionResult }
 import com.wenjunhuang.codeepiphany.services.http.HttpClientManager
+import com.wenjunhuang.codeepiphany.utils.implicits.*
 
 trait LuoGuApi[F[_]] {
   def checkLogin(): F[Boolean]
@@ -51,7 +53,7 @@ object LuoGuApi {
 
     private def useClient[A](fun: Client[F] => F[A]): F[A] = HttpClientManager[F].getClient.use(fun)
 
-    private def commonHeaders(csrfToken: String) =
+    private def commonHeaders(csrfToken: String): Headers =
       Headers("x-csrf-token" -> csrfToken, "x-requested-with" -> "XMLHttpRequest")
 
     private def getCSRFTokenAndPassAntiCrawler: F[String] =
@@ -225,7 +227,10 @@ object LuoGuApi {
           client
             .run(
               Method
-                .POST(uri"https://www.luogu.com.cn/fe/api/problem/submit" / pid, commonHeaders(csrfToken))
+                .POST(
+                  uri"https://www.luogu.com.cn/fe/api/problem/submit" / pid,
+                  commonHeaders(csrfToken).put(Referer(uri"https://www.luogu.com.cn/problem" / pid))
+                )
                 .withEntity(
                   (Map("lang" -> langId.toInt.asJson, "enableO2" -> 1.asJson, "code" -> code.asJson) ++ captcha
                     .map("captcha" -> _.asJson)
@@ -237,8 +242,9 @@ object LuoGuApi {
                 case 200 =>
                   response.as[String].flatMap { body =>
                     parse(body).flatMap { json =>
-                      JsonPath.root.rid.string
+                      JsonPath.root.rid.number
                         .getOption(json)
+                        .map(_.toString)
                         .toRight(new Exception("Failed to parse json"))
                     }.liftTo[F]
                   }
@@ -276,7 +282,18 @@ object LuoGuApi {
                   JsonPath.root.currentData.record.status.int
                     .getOption(json)
                     .map { status =>
-                      val submissionResult = luoguSubmissionStatus(status)
+                      val submissionResult = luoguSubmissionStatus(status) match
+                        case r @ SubmissionResult.Failure =>
+                          val statuses =
+                            JsonPath.root.currentData.record.detail.judgeResult.subtasks.each.testCases.each.status.int
+                              .getAll(json)
+                          statuses
+                            .map(luoguSubmissionStatus)
+                            .find(it =>
+                              it != SubmissionResult.Success && it != SubmissionResult.Processing && it != SubmissionResult.Failure && it != SubmissionResult.Unknown
+                            )
+                            .getOrElse(r)
+                        case r => r
                       val msg = submissionResult match
                         case SubmissionResult.CompilationError =>
                           JsonPath.root.currentData.record.detail.compileResult.message.string
@@ -308,7 +325,7 @@ object LuoGuApi {
           Stream
             .repeatEval(Temporal[F].sleep(2.second))
             .evalScan(LuoGuSubmissionResponse(submissionId, SubmissionResult.Processing, "")) { (lastResponse, _) =>
-              getSubmitAnswerResult(lastResponse)
+              getSubmitAnswerResult(lastResponse).retryLimitsWithBackoff(5, 2.seconds)
             }
             .flatMap { response =>
               response.result match
@@ -326,8 +343,7 @@ object LuoGuApi {
     case 3  => SubmissionResult.OutputLimitExceeded
     case 4  => SubmissionResult.MemoryLimitExceeded
     case 5  => SubmissionResult.Timeout
-    case 6  => SubmissionResult.Failure
     case 7  => SubmissionResult.RuntimeError
     case 12 => SubmissionResult.Success
-    case _  => SubmissionResult.InternalError
+    case _  => SubmissionResult.Failure
 }

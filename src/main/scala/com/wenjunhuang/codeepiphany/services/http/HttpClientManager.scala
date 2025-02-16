@@ -125,8 +125,8 @@ object HttpClientManager {
     OkHttpClient
       .Builder()
       .dispatcher(Dispatcher(intellijComputeContext))
-      .followRedirects(true)
-      .followSslRedirects(true)
+      .followRedirects(false)
+      .followSslRedirects(false)
       .connectTimeout(connectionTimeout.toMillis, java.util.concurrent.TimeUnit.MILLISECONDS)
       .writeTimeout(writeTimeout.toMillis, java.util.concurrent.TimeUnit.MILLISECONDS)
       .readTimeout(readTimeout.toMillis, java.util.concurrent.TimeUnit.MILLISECONDS)
@@ -151,7 +151,8 @@ object HttpClientManager {
               "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36 Edg/131.0.0.0"
             )
             .build()
-        chain.proceed(requestWithUserAgent)
+        val response = chain.proceed(requestWithUserAgent)
+        response
       })
       .build()
   }

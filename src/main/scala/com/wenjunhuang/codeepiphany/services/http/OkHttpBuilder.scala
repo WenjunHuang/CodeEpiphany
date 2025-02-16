@@ -1,17 +1,27 @@
 package com.wenjunhuang.codeepiphany.services.http
 
-import cats.effect.{Async, Resource}
+import cats.effect.{ Async, Resource }
 import cats.effect.std.Dispatcher
 import cats.syntax.all.*
 import fs2.io.readInputStream
 import java.io.IOException
 import java.net.HttpCookie
 import java.util.concurrent.atomic.AtomicBoolean
-import okhttp3.{Call, Callback, OkHttpClient, Protocol, RequestBody, Headers as OKHeaders, MediaType as OKMediaType, Request as OKRequest, Response as OKResponse}
+import okhttp3.{
+  Call,
+  Callback,
+  Headers as OKHeaders,
+  MediaType as OKMediaType,
+  OkHttpClient,
+  Protocol,
+  Request as OKRequest,
+  RequestBody,
+  Response as OKResponse
+}
 import okio.BufferedSink
-import org.http4s.{Headers, HttpVersion, Method, Request, Response, Status, Uri}
+import org.http4s.{ Headers, HttpVersion, Method, Request, Response, Status, Uri }
 import org.http4s.client.Client
-import org.http4s.headers.`Content-Type`
+import org.http4s.headers.{ `Content-Type`, Location }
 import org.typelevel.ci.CIString
 import org.typelevel.log4cats.LoggerFactory
 import scala.jdk.CollectionConverters.*
@@ -69,7 +79,17 @@ sealed abstract class OkHttpBuilder[F[_]] private (val okHttpClient: OkHttpClien
         }
       })
       .flatMap { response =>
-        Resource.eval(updateCookies(req.uri, response))
+        Resource.eval(updateCookies(req.uri, response)).flatMap { response =>
+          // 禁止了OkHttp自动处理redirect，原因是洛谷的防爬机制会定时更新一个标记，当这个标记cookie过期后会以302回复并返回新的标记cookie
+          // 所以如果让OkHttp自己处理，那么它不会更新cookie，会导致一直302下去直到OkHttp自己的重定向嵌套阈值触发异常，但这是不正确的
+          // 所以这里需要明确处理redirect，更新cookie以避免这个问题，也提高了问题提交的稳定性
+          response.status.responseClass match
+            case Status.Redirection =>
+              val newLocation = response.headers.get[Location].get
+              run(dispatcher)(req.withUri(newLocation.uri))
+            case _ =>
+              Resource.eval(Async[F].pure(response))
+        }
       }
   }
 
@@ -110,15 +130,17 @@ sealed abstract class OkHttpBuilder[F[_]] private (val okHttpClient: OkHttpClien
             .fromInt(response.code())
             .map { s =>
               val body = readInputStream(F.delay(response.body.byteStream()), 1024, false)
-              val dispose = F.delay {
+
+              val okhttpResponseDisposer = F.delay {
                 try response.close()
                 catch { case _: Throwable => }
               } *> myLogger.trace("Response was closed after resource use")
+
               Resource[F, Response[F]](
                 F.pure(
                   (
                     Response[F](status = s, headers = getHeaders(response), httpVersion = protocol, body = body),
-                    dispose
+                    okhttpResponseDisposer
                   )
                 )
               )
