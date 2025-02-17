@@ -2,6 +2,7 @@ package com.wenjunhuang.codeepiphany.codeforces.ui
 
 import cats.effect.IO
 import cats.syntax.all.*
+import icons.CodeEpiphanyIcons
 import java.util.concurrent.atomic.AtomicBoolean
 import javax.swing.JComponent
 import org.typelevel.log4cats.LoggerFactory
@@ -33,7 +34,8 @@ class CodeForcesChallengesView(private val myProject: Project) extends BaseChall
     HttpClientService.getInstance(myProject).httpClientManager
 
   private val myUnauthenticatedView =
-    UnauthenticatedView(CodeForces, Some(PluginBundle.message("needFetchQuestions.tips", CodeForces.show)))
+    UnauthenticatedView(CodeForces, Some(PluginBundle.message("needFetchQuestions.tips",
+      CodeForces.show)))
 
   @volatile
   private var myQueryParamPresenter: Option[CodeForcesParametersQueryPresenter] = None
