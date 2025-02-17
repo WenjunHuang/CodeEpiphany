@@ -1,0 +1,21 @@
+package luogu;
+
+${beginRegion}
+// add your imports here
+import java.util.Scanner;
+${endRegion}
+
+public class $!velocity.camelCaseName($challenge.id) {
+
+${beginRegion}
+    class Main {
+        public static void main(String[] args) {
+        // add your code here
+        }
+    }
+${endRegion}
+
+    public static void main(String[] args) {
+        Main.main(args);
+    }
+}

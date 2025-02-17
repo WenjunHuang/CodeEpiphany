@@ -1,6 +1,6 @@
 package com.wenjunhuang.codeepiphany.utils.ui
 
-import java.awt.{Graphics, Graphics2D, LayoutManager}
+import java.awt.{ Graphics, Graphics2D, LayoutManager }
 import javax.swing.JComponent
 import scala.util.Using
 
@@ -16,9 +16,10 @@ class BackgroundRoundedPanel(private val radius: Int, private val layoutManager:
   override def paintComponent(g: Graphics): Unit = {
     super.paintComponent(g)
     Using.resource(g.create().asInstanceOf[Graphics2D]) { g2 =>
-      GraphicsUtil.setupAAPainting(g2)
+      val config = GraphicsUtil.setupAAPainting(g2)
       g2.setColor(getBackground)
       g2.fillRoundRect(0, 0, getWidth, getHeight, radius, radius)
+      config.restore()
     }
   }
 }

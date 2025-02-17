@@ -1,1 +1,1 @@
-$!velocity.camelCaseName($challenge.name)
+$!velocity.camelCaseName($challenge.id)

@@ -1,0 +1,22 @@
+${beginRegion}
+using System;
+using System.Linq;
+using System.Collections.Generic;
+using static System.Console;
+using System.Text;
+using System.IO;
+using static System.Math;
+using System.Numerics;
+
+namespace $!velocity.camelCaseName($challenge.title)
+{
+    class Program
+    {
+        static void Main(string[] args)
+        { // your code
+        }
+    }
+}
+
+
+${endRegion}

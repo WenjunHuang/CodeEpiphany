@@ -7,7 +7,7 @@ object versions {
   val intellijBuild233                   = "233.11799.241"
   val intellijBuild243                   = "243.24978.46"
 //  val intellijPlatform: IntelliJPlatform = CLion
-  val intellijBuild: String = intellijBuild241
+  val intellijBuild: String = intellijBuild233
 
 //  val intellijPlatform: IntelliJPlatform = IntelliJPlatform.IdeaUltimate
 }

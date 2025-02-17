@@ -1,0 +1,7 @@
+${beginRegion}
+use proconio::input;
+
+fn main() {
+    // add your code
+}
+${endRegion}
