@@ -1,22 +1,22 @@
 package com.wenjunhuang.codeepiphany.actions
 
-import java.awt.{Dimension, GridBagConstraints, GridBagLayout}
+import java.awt.{ Dimension, GridBagConstraints, GridBagLayout }
 import javax.swing.*
 
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.actionSystem.*
-import com.intellij.openapi.actionSystem.ex.{CheckboxAction, ComboBoxAction}
+import com.intellij.openapi.actionSystem.ex.{ CheckboxAction, ComboBoxAction }
 import com.intellij.openapi.observable.properties.AtomicProperty
-import com.intellij.openapi.ui.popup.{JBPopup, JBPopupFactory}
+import com.intellij.openapi.ui.popup.{ JBPopup, JBPopupFactory }
 import com.intellij.openapi.util.Disposer
-import com.intellij.ui.components.{JBScrollPane, JBTabbedPane}
+import com.intellij.ui.components.{ JBScrollPane, JBTabbedPane }
 import com.intellij.util.ui.components.BorderLayoutPanel
 import com.intellij.util.ui.JBUI
 
 import com.wenjunhuang.codeepiphany.actions.TagsAction.*
-import com.wenjunhuang.codeepiphany.utils.actions.{ActionCompatible, DataKeyNotNull, ParameterProvider}
+import com.wenjunhuang.codeepiphany.utils.actions.{ ActionCompatible, DataKeyNotNull, ParameterProvider }
 import com.wenjunhuang.codeepiphany.utils.implicits.*
-import com.wenjunhuang.codeepiphany.utils.ui.{CollapsibleTitledSeparator, TagPane, TagPaneAction}
+import com.wenjunhuang.codeepiphany.utils.ui.{ CollapsibleTitledSeparator, TagPane, TagPaneAction }
 
 class TagsAction extends ComboBoxAction with DataKeyNotNull(TAG_PROVIDER_KEY) with ActionCompatible {
   override def update(e: AnActionEvent): Unit =
@@ -44,7 +44,6 @@ class TagsAction extends ComboBoxAction with DataKeyNotNull(TAG_PROVIDER_KEY) wi
       .setResizable(true)
       .createPopup()
     Disposer.register(popup, () => disposeCallback.run())
-//    popup.getContent.setSize(JBUI.size(400,400))
     popup.setSize(new Dimension(400, 400))
     popup
   }
@@ -77,10 +76,8 @@ class TagsAction extends ComboBoxAction with DataKeyNotNull(TAG_PROVIDER_KEY) wi
           )
         })
       val tagGroupPane = TagPane(true, actionTags)
-
-      val expanded = index <= 8 // 如果标签组数量大于8个，都展开的话会导致界面过长(暂时无法修复)
-      val titled   = CollapsibleTitledSeparator(tagGroup.name, expanded)
-      tagGroupPane.setVisible(expanded)
+      val titled       = CollapsibleTitledSeparator(tagGroup.name, false)
+      tagGroupPane.setVisible(false)
 
       titled.onAction { isExpanded =>
         if isExpanded then tagGroupPane.setVisible(true)

@@ -34,6 +34,7 @@ trait LuoGuApi[F[_]] {
     difficulties: Option[LuoGuDifficulty],
     luoguType: Option[LuoGuQuestionBank],
     tags: List[LuoGuTag],
+    keyword: Option[String],
     orderBy: Option[(LuoGuSearchOrderBy, OrderDirection)],
     page: Int
   ): F[(Int, List[LuoGuChallengeItem])]
@@ -183,6 +184,7 @@ object LuoGuApi {
       difficulties: Option[LuoGuDifficulty],
       luoguType: Option[LuoGuQuestionBank],
       tags: List[LuoGuTag],
+      keyword: Option[String],
       orderBy: Option[(LuoGuSearchOrderBy, OrderDirection)],
       page: Int
     ): F[(Int, List[LuoGuChallengeItem])] = useClient { client =>
@@ -196,6 +198,7 @@ object LuoGuApi {
                   .withQueryParam("difficulty", difficulties.map(_.value.toString).getOrElse(""))
                   .withQueryParam("type", luoguType.map(_.value).getOrElse(""))
                   .withQueryParam("tag", tags.map(_.id).mkString(","))
+                  .withQueryParam("keyword", keyword.getOrElse(""))
                   .withQueryParam("_contentOnly", "1")
               ) { case (uri, (orderBy, direction)) => orderBy.createOrderBy(uri, direction) },
               commonHeaders(csrfToken)

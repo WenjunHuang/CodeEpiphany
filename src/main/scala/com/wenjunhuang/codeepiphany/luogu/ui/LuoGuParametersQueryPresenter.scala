@@ -196,6 +196,7 @@ class LuoGuParametersQueryPresenter(project: Project, bootstrap: LuoGuBootstrapP
         context.criteria.selectedDifficulty,
         context.criteria.selectedQuestionBank,
         context.criteria.selectedTags.map(_.userObj.asInstanceOf[LuoGuTag]),
+        None,
         context.criteria.orderBy,
         context.pagination.currentPage
       )

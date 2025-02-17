@@ -7,12 +7,14 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.text.StringUtil
 
 import com.wenjunhuang.codeepiphany.actions.OpenChallengeActionGroup
-import com.wenjunhuang.codeepiphany.luogu.models.{LuoGuChallengeItem, LuoGuSearchOrderBy}
+import com.wenjunhuang.codeepiphany.luogu.models.{ LuoGuChallengeItem, LuoGuSearchOrderBy }
+import com.wenjunhuang.codeepiphany.luogu.services.LuoGuApi
 import com.wenjunhuang.codeepiphany.luogu.ui.LuoGuKeywordQueryPresenter.*
 import com.wenjunhuang.codeepiphany.model.OrderDirection
-import com.wenjunhuang.codeepiphany.services.{KeywordQueryPresenter, QueryContext}
+import com.wenjunhuang.codeepiphany.services.{ KeywordQueryPresenter, QueryContext }
 import com.wenjunhuang.codeepiphany.services.KeywordQueryPresenter.KeywordHolder
-import com.wenjunhuang.codeepiphany.utils.{OrderByColumnInfo, Pagination}
+import com.wenjunhuang.codeepiphany.services.http.{ HttpClientManager, HttpClientService }
+import com.wenjunhuang.codeepiphany.utils.{ OrderByColumnInfo, Pagination }
 import com.wenjunhuang.codeepiphany.utils.actions.DataSink
 
 class LuoGuKeywordQueryPresenter(project: Project, bootstrap: LuoGuBootstrapParameters)
@@ -22,7 +24,19 @@ class LuoGuKeywordQueryPresenter(project: Project, bootstrap: LuoGuBootstrapPara
   ): QueryContext[QueryParams] = QueryContext[QueryParams](criteria = QueryParams("", None), pagination = Pagination())
 
   override protected def executeQuery(context: QueryContext[QueryParams]): IO[(Pagination, List[LuoGuChallengeItem])] =
-    ???
+    implicit val httpClient: HttpClientManager[IO] = HttpClientService.getInstance(myProject).httpClientManager
+    LuoGuApi[IO]()
+      .searchChallenges(
+        None,
+        None,
+        Nil,
+        Some(context.criteria.keyword),
+        context.criteria.orderBy,
+        context.pagination.currentPage
+      )
+      .map { case (total, items) =>
+        (context.pagination.copy(totalSize = total), items)
+      }
 
   override protected def updateQueryUI(context: QueryContext[QueryParams]): Unit = {}
 

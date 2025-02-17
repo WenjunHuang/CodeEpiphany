@@ -7,7 +7,7 @@ import com.vladsch.flexmark.util.data.MutableDataSet
 import io.circe.optics.*
 import io.circe.parser.*
 import java.io.FileInputStream
-import java.net.{HttpCookie, URLDecoder}
+import java.net.{ HttpCookie, URLDecoder }
 import org.jsoup.Jsoup
 import scala.io.Source
 
@@ -16,7 +16,7 @@ import com.intellij.util.net.HttpConfigurable
 
 import com.wenjunhuang.codeepiphany.luogu.services.LuoGuApi
 import com.wenjunhuang.codeepiphany.model.CodeDojo
-import com.wenjunhuang.codeepiphany.services.http.{HttpClientManager, HttpClientService}
+import com.wenjunhuang.codeepiphany.services.http.{ HttpClientManager, HttpClientService }
 import com.wenjunhuang.codeepiphany.utils.CookieUtil
 import com.wenjunhuang.codeepiphany.utils.implicits.*
 
@@ -47,10 +47,10 @@ class LuoGuApiIntegrationTest extends BasePlatformTestCase {
     val luoGuApi                  = LuoGuApi[IO]()
     println(
       (setCookie(httpClientKeeper) *>
-        luoGuApi.searchChallenges(None, None, List.empty, None, 1))
+        luoGuApi.searchChallenges(None, None, List.empty, None, None, 1))
         .unsafeRunSync()
     )
-    println(luoGuApi.searchChallenges(None, None, List.empty, None, 1).unsafeRunSync())
+    println(luoGuApi.searchChallenges(None, None, List.empty, None, None, 1).unsafeRunSync())
   }
 
   def testTransformToHtml(): Unit = {
