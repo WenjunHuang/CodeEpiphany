@@ -2,7 +2,6 @@ package com.wenjunhuang.codeepiphany.model
 
 import cats.syntax.all.*
 import cats.Show
-import java.awt.Image
 import java.net.HttpCookie
 import javax.swing.Icon
 import org.typelevel.ci.CIString
