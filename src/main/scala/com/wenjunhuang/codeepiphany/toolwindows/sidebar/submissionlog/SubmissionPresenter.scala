@@ -204,8 +204,7 @@ class SubmissionPresenter(private val myProject: Project) extends Disposable {
                     SubmissionType.LuoGuSubmission(
                       lang,
                       languageVersion,
-                      submissionRecord,
-                      record.get(CHALLENGE.DOJOID)
+                      submissionRecord
                     ).some
                 }
               }.flatten

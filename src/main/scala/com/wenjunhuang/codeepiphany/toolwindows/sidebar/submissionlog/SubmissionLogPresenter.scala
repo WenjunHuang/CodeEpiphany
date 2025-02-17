@@ -3,33 +3,40 @@ package com.wenjunhuang.codeepiphany.toolwindows.sidebar.submissionlog
 import cats.effect.IO
 import cats.syntax.all.*
 import java.time.format.DateTimeFormatter
-import javax.swing.{DefaultListSelectionModel, Icon, JTable, ListSelectionModel}
+import javax.swing.{ DefaultListSelectionModel, Icon, JTable, ListSelectionModel }
 import javax.swing.table.TableCellRenderer
 import monocle.syntax.all.*
 import org.jooq.SelectOnConditionStep
 import org.typelevel.ci.CIString
 import scala.jdk.CollectionConverters.*
-import scala.util.{Success, Try}
+import scala.util.{ Success, Try }
 
 import com.intellij.diff.requests.SimpleDiffRequest
 import com.intellij.diff.DiffContentFactory
 import com.intellij.diff.actions.CompareFilesAction
-import com.intellij.openapi.actionSystem.{ActionGroup, ActionManager}
+import com.intellij.openapi.actionSystem.{ ActionGroup, ActionManager }
 import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.util.ui.table.IconTableCellRenderer
 
-import com.wenjunhuang.codeepiphany.actions.CodeDojoParameterAction.{CODEDOJO_PROVIDER_KEY, CodeDojoParameterProvider}
-import com.wenjunhuang.codeepiphany.actions.LanguageParameterAction.{LANGUAGE_PROVIDER_KEY, LanguageParameterProvider}
-import com.wenjunhuang.codeepiphany.actions.OpenSubmissionCodeAction.{OPEN_SUBMISSION_PROVIDER_KEY, OpenSubmissionCodeProvider}
-import com.wenjunhuang.codeepiphany.database.tables.records.{HackerrankSubmissionCaseRecord, LeetcodeSubmissionRecord, SolutionSubmissionRecord}
+import com.wenjunhuang.codeepiphany.actions.CodeDojoParameterAction.{ CODEDOJO_PROVIDER_KEY, CodeDojoParameterProvider }
+import com.wenjunhuang.codeepiphany.actions.LanguageParameterAction.{ LANGUAGE_PROVIDER_KEY, LanguageParameterProvider }
+import com.wenjunhuang.codeepiphany.actions.OpenSubmissionCodeAction.{
+  OPEN_SUBMISSION_PROVIDER_KEY,
+  OpenSubmissionCodeProvider
+}
+import com.wenjunhuang.codeepiphany.database.tables.records.{
+  HackerrankSubmissionCaseRecord,
+  LeetcodeSubmissionRecord,
+  SolutionSubmissionRecord
+}
 import com.wenjunhuang.codeepiphany.database.Tables.*
 import com.wenjunhuang.codeepiphany.model.*
-import com.wenjunhuang.codeepiphany.services.{ChallengeRepository, ParametersQueryPresenter, QueryContext}
+import com.wenjunhuang.codeepiphany.services.{ ChallengeRepository, ParametersQueryPresenter, QueryContext }
 import com.wenjunhuang.codeepiphany.toolwindows.sidebar.submissionlog.SubmissionLogPresenter.*
-import com.wenjunhuang.codeepiphany.utils.{OrderByColumnInfo, Pagination}
+import com.wenjunhuang.codeepiphany.utils.{ OrderByColumnInfo, Pagination }
 import com.wenjunhuang.codeepiphany.utils.ui.TagPaneAction
 import com.wenjunhuang.codeepiphany.vfs.SubmissionCodeFileSystem
 import com.wenjunhuang.codeepiphany.vfs.SubmissionCodeFileSystem.SubmissionCodeFilePath
@@ -405,22 +412,22 @@ object SubmissionLogPresenter {
     case LeetCodeSubmission(
       language: Language,
       languageVersion: LanguageVersion,
-      challengeSlug:String,
+      challengeSlug: String,
       record: SolutionSubmissionRecord,
       leetCodeSubmission: LeetcodeSubmissionRecord
     )
     case LeetCodeCNSubmission(
       language: Language,
       languageVersion: LanguageVersion,
-      challengeSlug:String,
+      challengeSlug: String,
       record: SolutionSubmissionRecord,
       leetCodeSubmission: LeetcodeSubmissionRecord
     )
     case HackerRankSubmission(
       language: Language,
       languageVersion: LanguageVersion,
-      challengeSlug:String,
-      contestSlug:Option[String],
+      challengeSlug: String,
+      contestSlug: Option[String],
       record: SolutionSubmissionRecord,
       hackerCases: List[HackerrankSubmissionCaseRecord]
     )
@@ -439,11 +446,10 @@ object SubmissionLogPresenter {
       problemId: String
     )
     case LuoGuSubmission(
-                          language: Language,
-                          languageVersion: LanguageVersion,
-                          record: SolutionSubmissionRecord,
-                          pid:String
-                        )
+      language: Language,
+      languageVersion: LanguageVersion,
+      record: SolutionSubmissionRecord
+    )
   }
 
   private val EMPTY_QUERY_PARAMS = QueryParams(dojos = List.empty, languages = List.empty, orderBy = None)
