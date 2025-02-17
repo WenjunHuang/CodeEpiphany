@@ -23,7 +23,7 @@ import com.wenjunhuang.codeepiphany.model.OrderDirection
 import com.wenjunhuang.codeepiphany.utils.ui.TagPane
 import com.wenjunhuang.codeepiphany.utils.OrderByColumnInfo.nextOrderFilter
 import com.wenjunhuang.codeepiphany.utils.actions.{ DataSink, UiDataProvider }
-import com.wenjunhuang.codeepiphany.utils.ActionToolbarCompatibleUtils
+import com.wenjunhuang.codeepiphany.utils.CompatibleUtils
 
 class ParametersQueryView[Item](private val myPresenter: ParametersQueryPresenter[?, ?, Item])
     extends SimpleToolWindowPanel(true, true)
@@ -59,7 +59,7 @@ class ParametersQueryView[Item](private val myPresenter: ParametersQueryPresente
   setContent(myContent)
 
   def refreshPagination(): Unit = {
-    ApplicationManager.getApplication.invokeLater(() => ActionToolbarCompatibleUtils.updateActions(myQueryRangeToolbar))
+    ApplicationManager.getApplication.invokeLater(() => CompatibleUtils.updateActions(myQueryRangeToolbar))
   }
 
   override def uiDataSnapshot(dataSink: DataSink): Unit =

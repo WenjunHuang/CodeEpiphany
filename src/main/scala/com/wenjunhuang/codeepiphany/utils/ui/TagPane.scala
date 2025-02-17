@@ -16,7 +16,7 @@ import com.intellij.util.ui.{ GraphicsUtil, JBInsets, JBUI }
 import com.intellij.util.ui.components.BorderLayoutPanel
 
 import com.wenjunhuang.codeepiphany.utils.extensions.*
-import com.wenjunhuang.codeepiphany.utils.ActionToolbarCompatibleUtils
+import com.wenjunhuang.codeepiphany.utils.CompatibleUtils
 import com.wenjunhuang.codeepiphany.utils.implicits.*
 
 class TagPane(val noBorderTop: Boolean = true, private val myTagsModel: ObservableProperty[List[TagPaneAction]])
@@ -27,7 +27,7 @@ class TagPane(val noBorderTop: Boolean = true, private val myTagsModel: Observab
     ActionManager.getInstance().createActionToolbar("TagPane", myActionGroup, true)
 
   myTagToolbar.setTargetComponent(this)
-  ActionToolbarCompatibleUtils.setToolBarWrapLayout(myTagToolbar)
+  CompatibleUtils.setToolBarWrapLayout(myTagToolbar)
   myTagToolbar.setReservePlaceAutoPopupIcon(false)
 
   if noBorderTop then
@@ -50,7 +50,7 @@ class TagPane(val noBorderTop: Boolean = true, private val myTagsModel: Observab
   private def updateActions(): Unit = {
     if myActionGroup.getChildrenCount == 0 then setVisible(false)
     else setVisible(true)
-    ActionToolbarCompatibleUtils.updateActions(myTagToolbar)
+    CompatibleUtils.updateActions(myTagToolbar)
 //    if myActionGroup.getChildrenCount == 0 then remove(myTagToolbar.getComponent)
 //    else if (0 until getComponentCount).exists(i => getComponent(i) == myTagToolbar.getComponent) then
 //      ActionToolbarCompatibleUtils.updateActions(myTagToolbar)

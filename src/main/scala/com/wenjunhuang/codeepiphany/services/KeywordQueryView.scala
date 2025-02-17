@@ -19,7 +19,7 @@ import com.wenjunhuang.codeepiphany.PluginBundle
 import com.wenjunhuang.codeepiphany.actions.PaginationParameterActionGroup
 import com.wenjunhuang.codeepiphany.model.Actions.{CHALLENGES_TABLE_POPUP_GROUP, CHALLENGES_TABLE_POPUP_PLACE, TOOLBAR_PLACE}
 import com.wenjunhuang.codeepiphany.model.OrderDirection
-import com.wenjunhuang.codeepiphany.utils.{ActionToolbarCompatibleUtils, ColorUtils}
+import com.wenjunhuang.codeepiphany.utils.{CompatibleUtils, ColorUtils}
 import com.wenjunhuang.codeepiphany.utils.OrderByColumnInfo.nextOrderFilter
 import com.wenjunhuang.codeepiphany.utils.actions.{DataSink, UiDataProvider}
 
@@ -59,7 +59,7 @@ class KeywordQueryView[Item](private val myPresenter: KeywordQueryPresenter[?, ?
   }
 
   def refreshPagination(): Unit = {
-    ApplicationManager.getApplication.invokeLater(() => ActionToolbarCompatibleUtils.updateActions(myQueryRangeToolbar))
+    ApplicationManager.getApplication.invokeLater(() => CompatibleUtils.updateActions(myQueryRangeToolbar))
   }
 
   private def createTableView(): TableView[Item] = {

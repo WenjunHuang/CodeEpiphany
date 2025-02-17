@@ -6,8 +6,9 @@ object versions {
   val intellijBuild242                   = "242.20224.300"
   val intellijBuild233                   = "233.11799.241"
   val intellijBuild243                   = "243.24978.46"
-  val intellijBuild: String = intellijBuild241
-  val sinceBuild: String    = intellijBuild241
+
+  val intellijBuild: String = intellijBuild233
+  val sinceBuild: String    = intellijBuild233
   val untilBuild: String    = null
   val pluginVersion:String = "0.9.1"
 

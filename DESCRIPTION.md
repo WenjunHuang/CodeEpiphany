@@ -12,9 +12,10 @@
 
 A plugin designed to help you to code competitive programming challenges in JetBrains IDEs.
 
-**Code Epiphany** integrates popular competitive programming platforms into
+Code Epiphany integrates popular competitive programming platforms into
 your JetBrains IDEs. Open, solve, debug, and optimize coding challenges seamlessly without ever leaving your favorite
 development environment.
+
 ---
 
 ### 当前支持的竞赛平台

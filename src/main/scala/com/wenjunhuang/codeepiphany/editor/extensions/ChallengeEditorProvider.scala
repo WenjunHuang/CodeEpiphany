@@ -2,22 +2,20 @@ package com.wenjunhuang.codeepiphany.editor.extensions
 
 import org.jdom.Element
 
-import com.intellij.openapi.application.ReadAction
 import com.intellij.openapi.editor.ex.EditorEx
 import com.intellij.openapi.fileEditor.*
-import com.intellij.openapi.fileEditor.AsyncFileEditorProvider.Builder
 import com.intellij.openapi.fileEditor.impl.text.PsiAwareTextEditorProvider
-import com.intellij.openapi.project.{ DumbAware, Project }
+import com.intellij.openapi.project.{DumbAware, Project}
 import com.intellij.openapi.vfs.VirtualFile
 
-import com.wenjunhuang.codeepiphany.editor.actions.{ SolutionSelectionAction, SurroundSubmissionRegionAction }
+import com.wenjunhuang.codeepiphany.editor.actions.{SolutionSelectionAction, SurroundSubmissionRegionAction}
 import com.wenjunhuang.codeepiphany.editor.actions.SolutionSelectionAction.SOLUTION_PROVIDER_KEY
-import com.wenjunhuang.codeepiphany.editor.actions.SubmitCodeAction.{ SUBMITCODE_PROVIDER_KEY, SubmitCodeProvider }
+import com.wenjunhuang.codeepiphany.editor.actions.SubmitCodeAction.{SUBMITCODE_PROVIDER_KEY, SubmitCodeProvider}
 import com.wenjunhuang.codeepiphany.editor.actions.SurroundSubmissionRegionAction.SURROUND_PROVIDER_KEY
 import com.wenjunhuang.codeepiphany.settings.ChallengeSettings
-import com.wenjunhuang.codeepiphany.utils.walkaround.AsyncFileEditorProviderBridge
+import com.wenjunhuang.codeepiphany.utils.walkaround.FileEditorProviderBridge
 
-class ChallengeEditorProvider extends AsyncFileEditorProviderBridge with DumbAware {
+class ChallengeEditorProvider extends FileEditorProviderBridge with DumbAware {
   private val delegate = PsiAwareTextEditorProvider()
 
   override def accept(project: Project, file: VirtualFile): Boolean = {
@@ -45,13 +43,6 @@ class ChallengeEditorProvider extends AsyncFileEditorProviderBridge with DumbAwa
 
   override def getEditorTypeId: String = {
     s"CodeEpiphany.${delegate.getEditorTypeId}"
-  }
-
-  override def createEditorAsync(project: Project, file: VirtualFile): AsyncFileEditorProvider.Builder = new Builder() {
-    override def build(): FileEditor =
-      ReadAction.compute { () =>
-        setupEditor(delegate.createEditor(project, file).asInstanceOf[TextEditor], project, file)
-      }
   }
 
   private def setupEditor(editor: TextEditor, project: Project, file: VirtualFile): TextEditor = {
