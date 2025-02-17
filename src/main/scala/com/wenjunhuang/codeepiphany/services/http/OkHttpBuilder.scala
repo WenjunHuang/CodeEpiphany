@@ -83,10 +83,14 @@ sealed abstract class OkHttpBuilder[F[_]] private (val okHttpClient: OkHttpClien
           // 禁止了OkHttp自动处理redirect，原因是洛谷的防爬机制会定时更新一个标记，当这个标记cookie过期后会以302回复并返回新的标记cookie
           // 所以如果让OkHttp自己处理，那么它不会更新cookie，会导致一直302下去直到OkHttp自己的重定向嵌套阈值触发异常，但这是不正确的
           // 所以这里需要明确处理redirect，更新cookie以避免这个问题，也提高了问题提交的稳定性
+          // TODO: 实现重定向阈值
           response.status.responseClass match
             case Status.Redirection =>
-              val newLocation = response.headers.get[Location].get
-              run(dispatcher)(req.withUri(newLocation.uri))
+              val newLocation = response.headers.get[Location].get.uri
+              // 重定向用get方法，符合浏览器行为
+              run(dispatcher)(
+                Request(Method.GET, req.uri.resolve(newLocation), headers = req.headers.removePayloadHeaders)
+              )
             case _ =>
               Resource.eval(Async[F].pure(response))
         }
@@ -162,6 +166,8 @@ sealed abstract class OkHttpBuilder[F[_]] private (val okHttpClient: OkHttpClien
 
   private def toOkHttpRequest(req: Request[F], dispatcher: Dispatcher[F])(implicit F: Async[F]): OKRequest = {
     val body = req match {
+      // if it's a GET or HEAD, okhttp wants us to pass null
+      case _ if req.method == Method.GET || req.method == Method.HEAD => null
       case _ if req.isChunked || req.contentLength.isDefined =>
         new RequestBody {
           override def contentType(): OKMediaType =
@@ -183,8 +189,6 @@ sealed abstract class OkHttpBuilder[F[_]] private (val okHttpClient: OkHttpClien
             dispatcher.unsafeRunSync(f)
           }
         }
-      // if it's a GET or HEAD, okhttp wants us to pass null
-      case _ if req.method == Method.GET || req.method == Method.HEAD => null
       // for anything else we can pass a body which produces no output
       case _ =>
         new RequestBody {

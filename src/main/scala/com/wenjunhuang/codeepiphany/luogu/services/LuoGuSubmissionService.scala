@@ -110,7 +110,7 @@ class LuoGuSubmissionService[F[_]: Async: Concurrent: HttpClientManager: LoggerF
           else dialog.okActionEnabled(true)
       })
 
-      if !dialog.showAndGet() then throw new CancellationException()
+      if !dialog.showAndGet() then throw new CancellationException("User canceled the captcha dialog")
       else input.getText
     }.evalOnEDTDefault()
   }
