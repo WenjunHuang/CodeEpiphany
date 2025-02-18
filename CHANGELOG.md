@@ -1,3 +1,9 @@
+## 0.9.2
+
+### Changed
+
+- Fix a few bugs
+ 
 ## 0.9.0
 
 ### Added
