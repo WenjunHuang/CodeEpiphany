@@ -1,20 +1,24 @@
 ## Code Epiphany 🌟
 
-一个方便的刷题插件，告别烦人的复制黏贴操作，让你的刷题之旅更加愉快。
+### 刷题神器：彻底告别手动复制粘贴的麻烦，让你的刷题体验更丝滑
 
-- 充分利用Intellij的功能(毕竟你已经投入时间使用或者花钱买了😁)
-- 支持多个竞赛平台(适合肝王)
-- 提供方便的一键提交，结果保存和结果对比。
-- 提供代码模板，方便快速写代码。不用每次都写一大堆不重要的重复代码。
-- 一个项目里面用多种语言刷题(给钱多的语言不刷一刷么？)，不用新建项目。或者用其它IDE(Clion、RustRover、PyCharm等JB全家桶)来刷不同语言的题目，刷题数据可以共享（具体看设置说明）。
-- 多种解法(例如DFS、BFS来解同一道题)，还可以为不同解法写markdown文档，方便后续查看。
-- 利用Intellij的功能进行代码调优，代码测试
+- 榨干IntelliJ潜力（毕竟这IDE不是白学/白买的嘛😉）
+- 多刷题平台无缝衔接（卷王必备）
+- 一键提交代码+自动保存运行结果，随时对比不同解法效率
+- 可自定义编程语言的代码模板，告别重复代码搬运工日常
+- 同一项目混用多语言刷题（高薪语言不得多练几套？），无需来回切项目。但是也可以用PyCharm写Python、CLion搞C++、RustRover玩Rust…刷题数据可以共享（详见设置）
+- 多解法同屏Battle（比如DFS/BFS花式秀操作），还能用Markdown写解题思路文档，复盘超方便
+- 直接调用IntelliJ的代码分析+性能测试工具，精准调优代码质量
 
-A plugin designed to help you to code competitive programming challenges in JetBrains IDEs.
+### Ultimate Coding Challenge Assistant: Ditch the copy-paste grind and code like a pro
 
-Code Epiphany integrates popular competitive programming platforms into
-your JetBrains IDEs. Open, solve, debug, and optimize coding challenges seamlessly without ever leaving your favorite
-development environment.
+- Maximize your IntelliJ muscle (You paid for the license, now milk it dry 💪)
+- One plugin to rule all platforms (For coding marathon warriors)
+- 1-click submission + auto-saved results with side-by-side performance comparison
+- Code templates that slap - never type boilerplate again
+- Mix languages in one project (Golang/Rust pays the bills, right?). Code Python in PyCharm, C++ in CLion... with shared database! (Check settings)
+- Multi-approach showdown (DFS vs BFS cage match!) + Markdown battle notes for post-game analysis
+- Leverage IntelliJ's built-in profiler/debugger to squeeze out every drop of performance
 
 ---
 
@@ -31,7 +35,14 @@ development environment.
 - More to come... (Please open an issue if you want to add a new platform)
 
 ---
+#### 核心功能:
 
+- 🌐 **平台直连**: 在IDE内直接获取各大编程平台的题目
+- ⚡ **一键提交**: 代码秒速提交并获取实时反馈，告别浏览器切换
+- 🔄 **多平台多语言支持**: 单一项目中兼容多个编程平台与多种编程语言。算法爱好者无需多开IDE或创建多个项目，即可轻松切换不同解题环境
+- ✍️ **多解法支持**: 同一题目支持编写多种解法。您可为每种方案编写代码、测试用例与解题说明，全方位探索不同思路
+- 📊 **持续更新**: 更多强大功能即将上线，全面提升您的编程竞赛体验！
+- 
 #### Key Features:
 
 - 🔄 **Multi-Platform and Multi-Language Support**: Work on problems from multiple platforms and in multiple programming
