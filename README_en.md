@@ -10,11 +10,14 @@ development environment.
 
 ### 🚀 Current Supported Platforms
 
-- **[AtCoder](https://atcoder.jp)**
 - **[LeetCode](https://www.leetcode.com)**
-- **[力扣(LeetCode Chinese)](https://www.leetcode.cn)**
+- **[LeetCode Chinese](https://www.leetcode.cn)**
+- **[LuoGu](https://www.luogu.com.cn/)**
+- **[AtCoder](https://atcoder.jp)**
 - **[CodeForces](https://codeforces.com/)**
 - **[HackerRank](https://www.hackerrank.com)**
+
+
 
 ---
 
