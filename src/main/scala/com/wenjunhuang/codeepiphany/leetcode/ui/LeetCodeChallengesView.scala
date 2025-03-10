@@ -40,7 +40,9 @@ class LeetCodeChallengesView(
       myApi.getCategoryList.retryLimitsWithBackoff(),
       myApi.getFavoriteList.retryLimitsWithBackoff(),
       myApi.getTagTypeWithTags.retryLimitsWithBackoff(),
-      myApi.getQuestionCompanyTags.retryLimitsWithBackoff(),
+      myApi.getQuestionCompanyTags
+        .map(it => it.sortBy(_.questionCount)(Ordering.Int.reverse))
+        .retryLimitsWithBackoff(),
       myApi.getPositionTags.retryLimitsWithBackoff()
     ).parMapN { (userInfo, categories, favorites, tagTypeWithTags, companyTags, positionTags) =>
       LeetCodeBootstrapParameters(userInfo, categories, favorites, tagTypeWithTags, companyTags, positionTags)

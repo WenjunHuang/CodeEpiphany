@@ -7,10 +7,10 @@ object versions {
   val intellijBuild242                   = "242.20224.300"
   val intellijBuild243                   = "243.24978.46"
 
-  val intellijBuild: String = intellijBuild241
-  val sinceBuild: String    = intellijBuild241
-  val untilBuild: String    = null
-  val pluginVersion: String = "0.9.3"
+  val intellijBuild: String = intellijBuild233
+  val sinceBuild: String    = intellijBuild233
+  val untilBuild: String    = intellijBuild241
+  val pluginVersion: String = "0.9.8"
 
   //  val intellijPlatform: IntelliJPlatform = CLion
 //  val intellijPlatform: IntelliJPlatform = IntelliJPlatform.IdeaUltimate

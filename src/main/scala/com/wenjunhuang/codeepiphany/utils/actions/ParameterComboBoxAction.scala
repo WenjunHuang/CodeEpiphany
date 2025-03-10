@@ -39,14 +39,20 @@ object ParameterComboBoxAction {
     val description: Option[String],
     val icon: Option[Icon]
   ) extends CheckboxAction(name, description.orNull, icon.orNull)
+      with DataKeyNotNull[T](key)
       with ActionCompatible {
     override def isSelected(e: AnActionEvent): Boolean =
-      Option(key.getData(e.getDataContext)).exists(_.isSelected(myData))
+      getValue(e).isSelected(myData)
 
     override def setSelected(e: AnActionEvent, state: Boolean): Unit =
-      Option(key.getData(e.getDataContext)).foreach { provider =>
-        if state then provider.addSelectedItems(List(myData))
-        else provider.removeSelectedItems(List(myData))
-      }
+      if state then getValue(e).addSelectedItems(List(myData))
+      else getValue(e).removeSelectedItems(List(myData))
+
+    override def update(e: AnActionEvent): Unit = {
+      if isSatisfied(e) then
+        e.getPresentation.setEnabledAndVisible(true)
+        super.update(e)
+      else e.getPresentation.setEnabledAndVisible(false)
+    }
   }
 }

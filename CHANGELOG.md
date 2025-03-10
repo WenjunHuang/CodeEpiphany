@@ -1,3 +1,11 @@
+## 0.9.8
+### Changed
+- Fix luogu login change
+- 
+## 0.9.3
+### Changed
+- Fix leetcode company combobox dropdown slow
+ 
 ## 0.9.2
 
 ### Changed

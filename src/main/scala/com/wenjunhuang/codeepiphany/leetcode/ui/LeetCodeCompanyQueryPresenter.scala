@@ -61,18 +61,18 @@ class LeetCodeCompanyQueryPresenter(
         getter().criteria.selectedCompanies.contains(item)
 
       override def getSelectedItems: List[LeetCodeQuestionCompanyTag] =
-        getter().criteria.selectedCompanies
+        getter().criteria.selectedCompanies.toList
 
       override def addSelectedItems(items: List[LeetCodeQuestionCompanyTag]): Unit = updater { old =>
         old.focus(_.criteria.selectedCompanies).modify { companies =>
-          (companies ++ items).distinct
+          (companies ++ items)
         }
       }
 
       override def toggleSelection(item: LeetCodeQuestionCompanyTag): Unit = updater { old =>
         old.focus(_.criteria.selectedCompanies).modify { companies =>
           if companies.contains(item) then companies.filter(_ != item)
-          else item +: companies
+          else companies + item
         }
       }
 
@@ -304,7 +304,7 @@ class LeetCodeCompanyQueryPresenter(
         None,
         Some(() => onCloseUpdater(_.focus(_.criteria.selectedCompanies).modify(_.filterNot(_ == company))))
       )
-    } ++
+    }.toList ++
       myState.selectedPositions.map { position =>
         TagPaneAction(
           position.slug,
@@ -376,7 +376,7 @@ class LeetCodeCompanyQueryPresenter(
     boostrapParameters: LeetCodeBootstrapParameters
   ): QueryContext[LeetCodeCompanyQueryCriteria] =
     QueryContext(
-      LeetCodeCompanyQueryCriteria(Nil, Nil, None, None, InterviewPeriod.ThirtyDays, Nil, None),
+      LeetCodeCompanyQueryCriteria(Set.empty, Nil, None, None, InterviewPeriod.ThirtyDays, Nil, None),
       Pagination()
     )
 
@@ -393,7 +393,7 @@ class LeetCodeCompanyQueryPresenter(
           pageSize.value * (currentPage - 1),
           pageSize.value,
           context.criteria.selectedInterviewPeriod.slug,
-          context.criteria.selectedCompanies.map(_.slug),
+          context.criteria.selectedCompanies.map(_.slug).toList,
           context.criteria.selectedPositions.map(_.slug),
           context.criteria.selectedDifficulty,
           context.criteria.selectedStatus,
@@ -512,7 +512,7 @@ object LeetCodeCompanyQueryPresenter {
   private val TAG_TAG_RADIUS              = 1.0f
 
   case class LeetCodeCompanyQueryCriteria(
-    selectedCompanies: List[LeetCodeQuestionCompanyTag],
+    selectedCompanies: Set[LeetCodeQuestionCompanyTag],
     selectedPositions: List[LeetCodeProblemsetPositionTag],
     selectedDifficulty: Option[ChallengeDifficulty],
     selectedStatus: Option[ChallengeStatus],

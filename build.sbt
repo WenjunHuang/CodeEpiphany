@@ -2,6 +2,7 @@ import sbtjooq.codegen.CodegenMode.Unmanaged
 import com.vladsch.flexmark.html.HtmlRenderer
 import com.vladsch.flexmark.parser.Parser
 import com.vladsch.flexmark.util.data.MutableDataSet
+import sbt.librarymanagement.VersionNumber.SemVer
 import scala.io.Source
 import scala.util.Using
 
@@ -23,7 +24,7 @@ def markdownToHtml(file: File): String = {
 lazy val codeEpiphany = (project in file("."))
   .settings(
     name         := "CodeEpiphany",
-    version      := versions.pluginVersion,
+    version      := s"${versions.pluginVersion}-${VersionNumber(versions.intellijBuild)._1.get}",
     compileOrder := CompileOrder.Mixed,
     fork         := true,
     scalacOptions ++= Seq(
@@ -112,7 +113,10 @@ lazy val codeEpiphany = (project in file("."))
     Compile / unmanagedSourceDirectories += baseDirectory.value / "gen",
     Compile / unmanagedSourceDirectories += baseDirectory.value / "src" / "main" / "jooq-generated",
     Compile / unmanagedSourceDirectories ++= {
-      if (VersionNumber((ThisBuild / intellijBuild).value).matchesSemVer(SemanticSelector(versions.intellijBuild241))) {
+      if (
+        VersionNumber((ThisBuild / intellijBuild).value)
+          .matchesSemVer(SemanticSelector(s">=${versions.intellijBuild241}"))
+      ) {
         Seq(baseDirectory.value / "src" / "main" / "241")
       } else {
         Seq(baseDirectory.value / "src" / "main" / "233")

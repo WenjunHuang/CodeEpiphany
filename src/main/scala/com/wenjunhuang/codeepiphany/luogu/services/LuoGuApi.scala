@@ -20,6 +20,7 @@ import org.http4s.implicits.uri
 import org.jsoup.Jsoup
 import scala.concurrent.duration.*
 import scodec.bits.ByteVector
+import scala.jdk.CollectionConverters.*
 
 import com.wenjunhuang.codeepiphany.luogu.models.*
 import com.wenjunhuang.codeepiphany.luogu.settings.LuoGuSettingsConfigurable.LUOGU_LANGUAGES_REVERSE
@@ -77,7 +78,10 @@ object LuoGuApi {
     override def checkLogin(): F[Boolean] = useClient { client =>
       getCSRFTokenAndPassAntiCrawler.flatMap { csrfToken =>
         client.expect[String](Uri.unsafeFromString("https://www.luogu.com.cn/user/setting")).map { html =>
-          Jsoup.parse(html).select("title").text() == "用户设置 - 洛谷"
+          val doc   = Jsoup.parse(html)
+          val title = doc.select("title").text()
+          if title == "用户设置 - 洛谷" || title == "Welcome - Luogu Spilopelia" then true
+          else !doc.select("#app > h1").asScala.headOption.exists(_.text().contains("401"))
         }
       }
     }
@@ -170,10 +174,12 @@ object LuoGuApi {
               )
             )
             .flatMap { html =>
-              parse(html).flatMap { json =>
+              val doc     = Jsoup.parse(html)
+              val jsonStr = doc.select("#lentille\\-context").html()
+              parse(jsonStr).flatMap { json =>
                 (
-                  JsonPath.root.currentData.user.name.string.getOption(json),
-                  JsonPath.root.currentData.user.avatar.string.getOption(json)
+                  JsonPath.root.user.name.string.getOption(json),
+                  JsonPath.root.user.avatar.string.getOption(json)
                 ).mapN((name, avatar) => LuoGuUserInfo(name, avatar)).toRight(new Exception("Failed to parse json"))
               }.liftTo[F]
             }

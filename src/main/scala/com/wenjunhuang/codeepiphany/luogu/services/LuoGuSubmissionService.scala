@@ -2,10 +2,8 @@ package com.wenjunhuang.codeepiphany.luogu.services
 
 import cats.effect.Concurrent
 import cats.effect.kernel.Async
-import cats.effect.syntax.all.*
 import cats.syntax.all.*
 import fs2.Stream
-import java.nio.ByteBuffer
 import java.util.concurrent.CancellationException
 import javax.imageio.ImageIO
 import javax.swing.event.DocumentEvent
@@ -23,7 +21,6 @@ import com.intellij.util.ui.components.BorderLayoutPanel
 import com.intellij.util.ui.JBImageIcon
 import com.intellij.util.IconUtil
 
-import com.wenjunhuang.codeepiphany.utils.implicits.*
 import com.wenjunhuang.codeepiphany.database.Tables.{CHALLENGE, CHALLENGE_LANGUAGE}
 import com.wenjunhuang.codeepiphany.luogu.models.LuoGuSubmissionResponse
 import com.wenjunhuang.codeepiphany.luogu.settings.LuoGuSettingsConfigurable
@@ -33,6 +30,7 @@ import com.wenjunhuang.codeepiphany.model.CodeDojo.LuoGu
 import com.wenjunhuang.codeepiphany.services.{console, BaseSubmissionService, ChallengeRepository}
 import com.wenjunhuang.codeepiphany.services.http.HttpClientManager
 import com.wenjunhuang.codeepiphany.settings.ChallengeSettings.ChallengeSettingsStateItem
+import com.wenjunhuang.codeepiphany.utils.implicits.*
 
 class LuoGuSubmissionService[F[_]: Async: Concurrent: HttpClientManager: LoggerFactory](project: Project)
     extends BaseSubmissionService[F](project, LuoGu) {
