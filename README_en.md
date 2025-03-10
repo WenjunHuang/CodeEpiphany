@@ -17,39 +17,40 @@ development environment.
 - **[CodeForces](https://codeforces.com/)**
 - **[HackerRank](https://www.hackerrank.com)**
 
-
-
 ---
 
 #### Features
 
-| **Feature**                             | **AtCoder** | **CodeForces** | **LeetCode** | **LeetCodeCN** | **HackerRank** |
-|-----------------------------------------|-------------|----------------|--------------|----------------|----------------|
-| **Problem Query**                       |             |                |              |                |                |
-| - Filter by query parameters            | [x]         | [x]            | [x]          | [x]            | [x]            |
-| - Search by keywords                    | [x]         | [x]            | [x]          | [x]            | [x]            |
-| **Answer Configuration**                |             |                |              |                |                |
-| - Set problem-solving templates         | [x]         | [x]            | [x]          | [x]            | [x]            |
-| **Problem Solving**                     |             |                |              |                |                |
-| - Open problems in IDE                  | [x]         | [x]            | [x]          | [x]            | [x]            |
-| - View problem description              | [x]         | [x]            | [x]          | [x]            | [x]            |
-| - Submit problem to code platform       | [x]         | [x]            | [x]          | [x]            | [x]            |
-| - Submit evaluation and tracking        | [x]         | [x]            | [x]          | [x]            | [x]            |
-| - Submit history records                | [x]         | [x]            | [x]          | [x]            | [x]            |
-| - Multiple solutions for a problem      | [x]         | [x]            | [x]          | [x]            | [x]            |
-| - Compare different solution codes      | [x]         | [x]            | [x]          | [x]            | [x]            |
-| **Problem Solutions**                   |             |                |              |                |                |
-| - Write multiple solutions              | [x]         | [x]            | [x]          | [x]            | [x]            |
-| **Competitions**                        |             |                |              |                |                |
-| - View competition list                 | [ ]         | [ ]            | [ ]          | [ ]            | [ ]            |
-| - View competition details              | [ ]         | [ ]            | [ ]          | [ ]            | [ ]            |
-| - Participate in competition            | [ ]         | [ ]            | [ ]          | [ ]            | [ ]            |
-| - Submit competition answers            | [ ]         | [ ]            | [ ]          | [ ]            | [ ]            |
-| - View competition results and rankings | [ ]         | [ ]            | [ ]          | [ ]            | [ ]            |
+| **Feature**                                    | **Implementation Status** |
+|------------------------------------------------|---------------------------|
+| **Problem Search**                             |                           |
+| - Filter problem list via query parameters     | [x]                       |
+| - Search problem list by keywords              | [x]                       |
+| **Solution Configuration**                     |                           |
+| - Set code templates for programming languages | [x]                       |
+| **Problem Solving**                            |                           |
+| - Open problem in IDE                          | [x]                       |
+| - View problem description                     | [x]                       |
+| - Submit problem to coding platform            | [x]                       |
+| - Track submission evaluations                 | [x]                       |
+| - View submission history                      | [x]                       |
+| - Multiple solutions for single problem        | [x]                       |
+| - Compare different solution codes             | [x]                       |
+| **Solution Strategies**                        |                           |
+| - Write multiple solutions for problems        | [x]                       |
+| **Contests**                                   |                           |
+| - View contest list                            | [ ]                       |
+| - View contest details                         | [ ]                       |
+| - Participate in contests                      | [ ]                       |
+| - Contest time reminders                       | [ ]                       |
+| - Submit contest solutions                     | [ ]                       |
+| - View contest rankings                        | [ ]                       |
+
 Explanation:
+
 - `[x]` indicates that the feature has been implemented.
 - `[ ]` indicates that the feature has not been implemented.
-- `[-]` indicates that the feature is not to be implemented.
+
 ---
 
 #### Key Features:
