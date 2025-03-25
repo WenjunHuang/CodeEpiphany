@@ -1,9 +1,7 @@
 package com.wenjunhuang.codeepiphany.leetcode.ui
-import io.circe.syntax.*
-import io.circe.*
-//import io.circe.generic.auto.*
 import cats.syntax.all.*
-import io.circe.parser.*
+import io.circe.*
+import io.circe.syntax.*
 
 import com.wenjunhuang.codeepiphany.actions.TagsAction.Tag
 import com.wenjunhuang.codeepiphany.leetcode.models.LeetCodeTag

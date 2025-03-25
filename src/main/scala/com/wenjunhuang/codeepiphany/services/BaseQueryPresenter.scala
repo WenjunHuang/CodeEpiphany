@@ -1,14 +1,13 @@
 package com.wenjunhuang.codeepiphany.services
 
-import cats.effect.{ IO, Resource, SyncIO }
+import cats.effect.{IO, Resource, SyncIO}
 import cats.effect.std.Queue
 import cats.syntax.all.*
 import fs2.Stream
 import fs2.concurrent.SignallingRef
-import io.circe.{ Decoder, Encoder }
 import java.util
-import javax.swing.{ JComponent, ListSelectionModel }
-import org.typelevel.log4cats.{ Logger, LoggerFactory }
+import javax.swing.{JComponent, ListSelectionModel}
+import org.typelevel.log4cats.{Logger, LoggerFactory}
 import scala.concurrent.duration.*
 import scala.jdk.CollectionConverters.*
 
@@ -16,19 +15,13 @@ import com.intellij.openapi.Disposable
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
 import com.intellij.ui.SingleSelectionModel
-import com.intellij.util.ui.{ ColumnInfo, ListTableModel }
+import com.intellij.util.ui.{ColumnInfo, ListTableModel}
 
-import com.wenjunhuang.codeepiphany.actions.PaginationParameterActionGroup.{
-  PAGINATION_PROVIDER_KEY,
-  PaginationParameterProvider
-}
-import com.wenjunhuang.codeepiphany.settings.dojo.BaseCodeDojoSettings
-import com.wenjunhuang.codeepiphany.utils.{ OrderByColumnInfo, PageSize, Pagination }
+import com.wenjunhuang.codeepiphany.actions.PaginationParameterActionGroup.{PAGINATION_PROVIDER_KEY, PaginationParameterProvider}
+import com.wenjunhuang.codeepiphany.utils.{OrderByColumnInfo, PageSize, Pagination}
 import com.wenjunhuang.codeepiphany.utils.actions.DataSink
 import com.wenjunhuang.codeepiphany.utils.extensions.*
 import com.wenjunhuang.codeepiphany.utils.implicits.*
-import io.circe.syntax.*
-import io.circe.parser.*
 
 case class QueryContext[T](criteria: T, pagination: Pagination) {
   def updateCriteria(f: T => T): QueryContext[T] =

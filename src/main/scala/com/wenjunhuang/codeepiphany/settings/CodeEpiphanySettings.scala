@@ -11,7 +11,7 @@ import com.intellij.util.xmlb.annotations.Attribute
 
 import com.wenjunhuang.codeepiphany.model.{CodeDojo, Constants}
 import com.wenjunhuang.codeepiphany.settings.CodeEpiphanySettings.CodeEpiphanySettingsState
-import com.wenjunhuang.codeepiphany.utils.XmlUtils.{CodeDojoConverter, CodeDojoOptionConverter, OptionConverter, StringOptionConverter}
+import com.wenjunhuang.codeepiphany.utils.XmlUtils.CodeDojoOptionConverter
 
 @Service(Array(Level.PROJECT))
 @State(name = Constants.SETTING, storages = Array(new Storage(Constants.SETTING_FILE)))
