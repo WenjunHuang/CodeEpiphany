@@ -1,3 +1,8 @@
+## 1.0.0
+### Added
+- Automatically save search queries
+- Save latest opened codedojo toolwindow and automatically open it when the IDE is restarted
+ 
 ## 0.9.8
 ### Changed
 - Fix luogu login change
