@@ -4,8 +4,8 @@ import cats.effect.IO
 import cats.effect.implicits.*
 import cats.syntax.all.*
 import fs2.Stream
-import javax.swing.{Icon, JTable, SwingConstants}
-import javax.swing.table.{DefaultTableCellRenderer, TableCellRenderer}
+import javax.swing.{ Icon, JTable, SwingConstants }
+import javax.swing.table.{ DefaultTableCellRenderer, TableCellRenderer }
 import org.typelevel.ci.CIString
 
 import com.intellij.icons.AllIcons
@@ -14,14 +14,19 @@ import com.intellij.openapi.util.text.StringUtil
 import com.intellij.util.ui.table.IconTableCellRenderer
 
 import com.wenjunhuang.codeepiphany.actions.OpenChallengeActionGroup.CHALLENGE_PROVIDER_KEY
-import com.wenjunhuang.codeepiphany.hackerrank.models.{HackerRankChallengeDetail, HackerRankContest}
+import com.wenjunhuang.codeepiphany.hackerrank.models.{ HackerRankChallengeDetail, HackerRankContest }
 import com.wenjunhuang.codeepiphany.hackerrank.services.HackerRankApi
 import com.wenjunhuang.codeepiphany.hackerrank.ui.HackerRankKeywordQueryPresenter.QueryParams
-import com.wenjunhuang.codeepiphany.model.{ChallengeDifficulty, ChallengeStatus}
-import com.wenjunhuang.codeepiphany.services.{KeywordQueryPresenter, QueryContext}
-import com.wenjunhuang.codeepiphany.services.http.{HttpClientManager, HttpClientService}
-import com.wenjunhuang.codeepiphany.utils.{OrderByColumnInfo, Pagination}
+import com.wenjunhuang.codeepiphany.model.{ ChallengeDifficulty, ChallengeStatus }
+import com.wenjunhuang.codeepiphany.services.{ KeywordQueryPresenter, QueryContext }
+import com.wenjunhuang.codeepiphany.services.http.{ HttpClientManager, HttpClientService }
+import com.wenjunhuang.codeepiphany.utils.{ OrderByColumnInfo, PageSize, Pagination }
 import com.wenjunhuang.codeepiphany.utils.actions.DataSink
+import io.circe.generic.auto.*
+import io.circe.syntax.*
+import io.circe.parser.*
+
+import com.wenjunhuang.codeepiphany.hackerrank.settings.HackerRankSettings
 
 class HackerRankKeywordQueryPresenter(project: Project)
     extends KeywordQueryPresenter[Unit, QueryParams, HackerRankChallengeDetail](project, ()) {
@@ -127,7 +132,21 @@ class HackerRankKeywordQueryPresenter(project: Project)
     )
   }
 
-  override protected def updateQueryUI(context: QueryContext[QueryParams]): Unit = {}
+  override protected def saveQueryCriteria(queryCriteria: QueryParams, pagination: Pagination): Unit =
+    val storage = HackerRankSettings.getInstance(myProject).getState.queryCriteria
+    storage.put(s"${getClass.getSimpleName}-criteria", queryCriteria.asJson.noSpaces)
+    storage.put(s"${getClass.getSimpleName}-pageSize", pagination.pageSize.value.toString)
+
+  override protected def loadQueryCriteria(): Option[(QueryParams, Pagination)] =
+    val storage = HackerRankSettings.getInstance(myProject).getState.queryCriteria
+    Option(storage.get(s"${getClass.getSimpleName}-criteria"))
+      .flatMap(value => decode[QueryParams](value).toOption)
+      .zip(
+        Option(storage.get(s"${getClass.getSimpleName}-pageSize"))
+          .flatMap(value => decode[PageSize](value).toOption)
+          .map(value => Pagination(pageSize = value))
+      )
+
 }
 object HackerRankKeywordQueryPresenter {
   case class QueryParams(keyword: String)

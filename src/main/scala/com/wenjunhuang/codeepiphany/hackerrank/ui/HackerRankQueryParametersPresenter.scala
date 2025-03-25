@@ -2,11 +2,13 @@ package com.wenjunhuang.codeepiphany.hackerrank.ui
 
 import cats.effect.IO
 import cats.syntax.all.*
+import io.circe.generic.auto.*
+import io.circe.parser.*
+import io.circe.syntax.*
 import javax.swing.{Icon, JTable, SwingConstants}
 import javax.swing.table.{DefaultTableCellRenderer, TableCellRenderer}
 import monocle.syntax.all.*
 import org.typelevel.ci.CIString
-import org.typelevel.log4cats.LoggerFactory
 
 import com.intellij.icons.AllIcons
 import com.intellij.openapi.actionSystem.{ActionGroup, ActionManager}
@@ -23,11 +25,12 @@ import com.wenjunhuang.codeepiphany.hackerrank.actions.CategoryParameterAction.{
 import com.wenjunhuang.codeepiphany.hackerrank.actions.SkillParameterAction.SkillParameterProvider
 import com.wenjunhuang.codeepiphany.hackerrank.models.*
 import com.wenjunhuang.codeepiphany.hackerrank.services.HackerRankApi
+import com.wenjunhuang.codeepiphany.hackerrank.settings.HackerRankSettings
 import com.wenjunhuang.codeepiphany.hackerrank.ui.HackerRankQueryParametersPresenter.*
 import com.wenjunhuang.codeepiphany.model.*
 import com.wenjunhuang.codeepiphany.services.{ParametersQueryPresenter, QueryContext}
 import com.wenjunhuang.codeepiphany.services.http.{HttpClientManager, HttpClientService}
-import com.wenjunhuang.codeepiphany.utils.{OrderByColumnInfo, Pagination}
+import com.wenjunhuang.codeepiphany.utils.{OrderByColumnInfo, PageSize, Pagination}
 import com.wenjunhuang.codeepiphany.utils.actions.DataSink
 import com.wenjunhuang.codeepiphany.utils.implicits.*
 import com.wenjunhuang.codeepiphany.utils.ui.TagPaneAction
@@ -39,7 +42,6 @@ class HackerRankQueryParametersPresenter(project: Project, bootstraps: HackerRan
     ) {
   private implicit val myHttpClientManager: HttpClientManager[IO] =
     HttpClientService.getInstance(project).httpClientManager
-
 
   override protected def createInitialQueryParameters(
     boostrapParameters: HackerRankBootstrapParameters
@@ -400,6 +402,21 @@ class HackerRankQueryParametersPresenter(project: Project, bootstraps: HackerRan
         )
       }
   }
+
+  override protected def saveQueryCriteria(queryCriteria: QueryParams, pagination: Pagination): Unit =
+    val storage = HackerRankSettings.getInstance(myProject).getState.queryCriteria
+    storage.put(s"${getClass.getSimpleName}-criteria", queryCriteria.asJson.noSpaces)
+    storage.put(s"${getClass.getSimpleName}-pageSize", pagination.pageSize.value.toString)
+
+  override protected def loadQueryCriteria(): Option[(QueryParams, Pagination)] =
+    val storage = HackerRankSettings.getInstance(myProject).getState.queryCriteria
+    Option(storage.get(s"${getClass.getSimpleName}-criteria"))
+      .flatMap(value => decode[QueryParams](value).toOption)
+      .zip(
+        Option(storage.get(s"${getClass.getSimpleName}-pageSize"))
+          .flatMap(value => decode[PageSize](value).toOption)
+          .map(value => Pagination(pageSize = value))
+      )
 }
 
 object HackerRankQueryParametersPresenter {

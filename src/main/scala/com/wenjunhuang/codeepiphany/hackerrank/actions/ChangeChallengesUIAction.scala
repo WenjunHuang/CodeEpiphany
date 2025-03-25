@@ -1,12 +1,14 @@
 package com.wenjunhuang.codeepiphany.hackerrank.actions
 
 import icons.CodeEpiphanyIcons
+import org.typelevel.ci.CIString
 
 import com.intellij.openapi.actionSystem.*
 import com.intellij.openapi.project.DumbAwareAction
 
 import com.wenjunhuang.codeepiphany.hackerrank.actions.ChangeChallengesUIAction.*
 import com.wenjunhuang.codeepiphany.hackerrank.actions.ChangeChallengesUIAction.HackerRankUI.*
+import com.wenjunhuang.codeepiphany.hackerrank.settings.HackerRankSettings
 import com.wenjunhuang.codeepiphany.model.CodeDojo.HackerRank
 import com.wenjunhuang.codeepiphany.utils.actions.{ActionCompatible, DataKeyNotNull, UserLoggedIn}
 
@@ -52,6 +54,13 @@ object ChangeChallengesUIAction {
     case Unauthenticated
     case QueryParameters
     case SearchByKeyword
+  }
+
+  object HackerRankUI {
+    def fromCIStringToAuthenticated(value: CIString): Option[HackerRankUI] =
+      if value == CIString(QueryParameters.toString) then Some(QueryParameters)
+      else if value == CIString(SearchByKeyword.toString) then Some(SearchByKeyword)
+      else None
   }
 
   trait ChangeChallengesUIProvider {

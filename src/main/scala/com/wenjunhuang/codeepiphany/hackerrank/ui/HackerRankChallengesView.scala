@@ -2,20 +2,26 @@ package com.wenjunhuang.codeepiphany.hackerrank.ui
 
 import cats.effect.IO
 import javax.swing.JComponent
+import org.typelevel.ci.CIString
 import org.typelevel.log4cats.LoggerFactory
 
-import com.intellij.openapi.actionSystem.{ActionGroup, ActionManager}
+import com.intellij.openapi.actionSystem.{ ActionGroup, ActionManager }
 import com.intellij.openapi.project.Project
 
-import com.wenjunhuang.codeepiphany.actions.LoginAction.{LOGIN_LOGOUT_KEY, LoginLogoutProvider}
-import com.wenjunhuang.codeepiphany.hackerrank.actions.ChangeChallengesUIAction.{CHANGE_CHALLENGES_UI_PROVIDER_KEY, ChangeChallengesUIProvider, HackerRankUI}
+import com.wenjunhuang.codeepiphany.actions.LoginAction.{ LOGIN_LOGOUT_KEY, LoginLogoutProvider }
+import com.wenjunhuang.codeepiphany.hackerrank.actions.ChangeChallengesUIAction.{
+  CHANGE_CHALLENGES_UI_PROVIDER_KEY,
+  ChangeChallengesUIProvider,
+  HackerRankUI
+}
 import com.wenjunhuang.codeepiphany.hackerrank.models.PROJECT_EULER_DOMAIN
 import com.wenjunhuang.codeepiphany.hackerrank.services.HackerRankApi
+import com.wenjunhuang.codeepiphany.hackerrank.settings.HackerRankSettings
 import com.wenjunhuang.codeepiphany.model.Actions.HACKERRANK_TITLE_TOOLBAR_GROUP
 import com.wenjunhuang.codeepiphany.model.CodeDojo
 import com.wenjunhuang.codeepiphany.model.CodeDojo.HackerRank
-import com.wenjunhuang.codeepiphany.services.{console, AskForLoginResult, AuthService, BaseChallengesView}
-import com.wenjunhuang.codeepiphany.services.http.{HttpClientManager, HttpClientService}
+import com.wenjunhuang.codeepiphany.services.{ console, AskForLoginResult, AuthService, BaseChallengesView }
+import com.wenjunhuang.codeepiphany.services.http.{ HttpClientManager, HttpClientService }
 import com.wenjunhuang.codeepiphany.utils.actions.DataSink
 import com.wenjunhuang.codeepiphany.utils.extensions.*
 import com.wenjunhuang.codeepiphany.utils.implicits.*
@@ -55,6 +61,7 @@ class HackerRankChallengesView(private val myProject: Project) extends BaseChall
     override def switchTo(ui: HackerRankUI): Unit = {
       myCurrentUI = ui
       select(ui, false)
+      saveLatestUI(ui)
     }
 
     override def getCurrentUI: HackerRankUI = myCurrentUI
@@ -91,7 +98,9 @@ class HackerRankChallengesView(private val myProject: Project) extends BaseChall
                 myQueryParamPresenter = Some(HackerRankQueryParametersPresenter(myProject, initialData))
                 myKeywordSearchPresenter = Some(HackerRankKeywordQueryPresenter(myProject))
                 AuthService.getInstance(myProject).setLogin(CodeDojo.HackerRank)
-                mySwitchUIProvider.switchTo(HackerRankUI.QueryParameters)
+
+                val gotoUI = loadLatestUI().getOrElse(HackerRankUI.QueryParameters)
+                mySwitchUIProvider.switchTo(gotoUI)
               }.evalOnEDTAny() *> console.info[IO](myProject, "Logged in to HackerRank.")
             }
           case _ => console.info[IO](myProject, "Login to HackerRank canceled.")
@@ -117,4 +126,15 @@ class HackerRankChallengesView(private val myProject: Project) extends BaseChall
       HackerRankBootstrapParameters(userInfo, challengeDomains.sortBy(_.id) :+ PROJECT_EULER_DOMAIN)
     }
   }
+
+  private def saveLatestUI(ui: HackerRankUI): Unit =
+    HackerRankSettings
+      .getInstance(myProject)
+      .getState
+      .queryCriteria
+      .put(s"${getClass.getSimpleName}-latestUI", ui.toString)
+
+  private def loadLatestUI(): Option[HackerRankUI] =
+    Option(HackerRankSettings.getInstance(myProject).getState.queryCriteria.get(s"${getClass.getSimpleName}-latestUI"))
+      .flatMap(value => HackerRankUI.fromCIStringToAuthenticated(CIString(value)))
 }
