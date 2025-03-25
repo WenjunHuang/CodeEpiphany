@@ -34,6 +34,9 @@ abstract class KeywordQueryPresenter[UIBoostrapParameters, T: KeywordHolder, Res
       myQueryStateManager.update(_.updateCriteria(it => summon[KeywordHolder[T]].updateKeyword(it, keyword)))
       requery(true)
   }
+
+  override protected def updateQueryUI(context: QueryContext[T]): Unit =
+    myView.foreach(_.setSearchText(summon[KeywordHolder[T]].keyword(context.criteria)))
 }
 
 object KeywordQueryPresenter {

@@ -3,6 +3,7 @@ package com.wenjunhuang.codeepiphany.leetcode.ui
 import cats.effect.IO
 import cats.syntax.all.*
 import javax.swing.JComponent
+import org.typelevel.ci.CIString
 import org.typelevel.log4cats.LoggerFactory
 
 import com.intellij.openapi.actionSystem.{ ActionGroup, ActionManager }
@@ -16,6 +17,7 @@ import com.wenjunhuang.codeepiphany.leetcode.actions.LeetCodeChangeUIAction.{
 }
 import com.wenjunhuang.codeepiphany.leetcode.actions.LeetCodeChangeUIAction.LeetCodeUI.*
 import com.wenjunhuang.codeepiphany.leetcode.services.LeetCodeApi
+import com.wenjunhuang.codeepiphany.leetcode.settings.{ LeetCodeCNSettings, LeetCodeSettings }
 import com.wenjunhuang.codeepiphany.model.Actions.LEETCODE_TITLE_TOOLBAR_GROUP
 import com.wenjunhuang.codeepiphany.model.CodeDojo
 import com.wenjunhuang.codeepiphany.services.{ console, AskForLoginResult, AuthService, BaseChallengesView }
@@ -79,7 +81,8 @@ class LeetCodeChallengesView(
                 myCompanyQueryPresenter = Some(LeetCodeCompanyQueryPresenter(myProject, bootstrap, myCodeDojo))
               } *> IO.delay {
                 AuthService.getInstance(myProject).setLogin(myCodeDojo)
-                mySwitchUIProvider.switchTo(QueryParameters)
+                val gotoUI = loadLastUI().getOrElse(QueryParameters)
+                mySwitchUIProvider.switchTo(gotoUI)
               }.evalOnEDTAny()
                 *> console.info[IO](myProject, s"Logged in to ${myCodeDojo.show}.")
             case _ => console.info[IO](myProject, s"Login to ${myCodeDojo.show} canceled.")
@@ -109,6 +112,7 @@ class LeetCodeChallengesView(
     override def switchTo(ui: LeetCodeUI): Unit =
       myCurrentUI = ui
       select(ui, false)
+      saveLastUI(ui)
 
     override def getCurrentUI: LeetCodeUI = myCurrentUI
   }
@@ -131,4 +135,20 @@ class LeetCodeChallengesView(
   override def uiDataSnapshot(dataSink: DataSink): Unit =
     dataSink.set(LOGIN_LOGOUT_KEY, myLoginLogoutProvider)
     dataSink.set(LEETCODE_CHANGE_UI_PROVIDER_KEY, mySwitchUIProvider)
+
+  private def saveLastUI(ui: LeetCodeUI): Unit = {
+    val queryCriteriaStorage = myCodeDojo match
+      case CodeDojo.LeetCodeCN => LeetCodeCNSettings.getInstance(myProject).getState.queryCriteria
+      case CodeDojo.LeetCode   => LeetCodeSettings.getInstance(myProject).getState.queryCriteria
+    queryCriteriaStorage.put(s"${getClass.getSimpleName}-lastUI", ui.toString)
+  }
+
+  private def loadLastUI(): Option[LeetCodeUI] = {
+    val queryCriteriaStorage = myCodeDojo match
+      case CodeDojo.LeetCodeCN => LeetCodeCNSettings.getInstance(myProject).getState.queryCriteria
+      case CodeDojo.LeetCode   => LeetCodeSettings.getInstance(myProject).getState.queryCriteria
+    Option(queryCriteriaStorage.get(s"${getClass.getSimpleName}-lastUI")).flatMap(value =>
+      LeetCodeUI.fromCIStringToAuthenticated(CIString(value))
+    )
+  }
 }

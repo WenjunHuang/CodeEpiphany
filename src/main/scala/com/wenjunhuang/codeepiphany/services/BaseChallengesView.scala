@@ -15,6 +15,7 @@ abstract class BaseChallengesView[UI]
     with DumbAware
     with Disposable {
 
+  
   def getTitleActionGroup: ActionGroup
   override def prepare(key: UI): UI = key
 }

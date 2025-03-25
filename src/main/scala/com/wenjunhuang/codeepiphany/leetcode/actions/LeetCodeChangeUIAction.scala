@@ -2,13 +2,17 @@ package com.wenjunhuang.codeepiphany.leetcode.actions
 
 import icons.CodeEpiphanyIcons
 import javax.swing.Icon
+import org.typelevel.ci.CIString
 
 import com.intellij.icons.AllIcons
 import com.intellij.openapi.actionSystem.*
 
-import com.wenjunhuang.codeepiphany.leetcode.actions.LeetCodeChangeUIAction.{LEETCODE_CHANGE_UI_PROVIDER_KEY, LeetCodeUI}
+import com.wenjunhuang.codeepiphany.leetcode.actions.LeetCodeChangeUIAction.{
+  LEETCODE_CHANGE_UI_PROVIDER_KEY,
+  LeetCodeUI
+}
 import com.wenjunhuang.codeepiphany.leetcode.actions.LeetCodeChangeUIAction.LeetCodeUI.*
-import com.wenjunhuang.codeepiphany.utils.actions.{ActionCompatible, DataKeyNotNull}
+import com.wenjunhuang.codeepiphany.utils.actions.{ ActionCompatible, DataKeyNotNull }
 import com.wenjunhuang.codeepiphany.PluginBundle
 
 class LeetCodeChangeUIAction
@@ -76,6 +80,14 @@ object LeetCodeChangeUIAction {
     case QueryParameters
     case SearchByKeyword
     case CompanyQuery
+  }
+
+  object LeetCodeUI {
+    def fromCIStringToAuthenticated(value: CIString): Option[LeetCodeUI] =
+      if value == CIString(QueryParameters.toString) then Some(QueryParameters)
+      else if value == CIString(SearchByKeyword.toString) then Some(SearchByKeyword)
+      else if value == CIString(CompanyQuery.toString) then Some(CompanyQuery)
+      else None
   }
 
   trait LeetCodeChangeUIProvider {
