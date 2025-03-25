@@ -1,6 +1,7 @@
 package com.wenjunhuang.codeepiphany.luogu.actions
 
 import icons.CodeEpiphanyIcons
+import org.typelevel.ci.CIString
 
 import com.intellij.openapi.actionSystem.*
 import com.intellij.openapi.project.DumbAwareAction
@@ -51,6 +52,13 @@ object LuoGuChangeUIAction {
     case Unauthenticated
     case QueryParameters
     case SearchByKeyword
+  }
+
+  object LuoGuUI {
+    def fromCIStringToAuthenticated(value: CIString): Option[LuoGuUI] =
+      if value == CIString(QueryParameters.toString) then Some(QueryParameters)
+      else if value == CIString(SearchByKeyword.toString) then Some(SearchByKeyword)
+      else None
   }
 
   trait LuoGuChangeUIProvider {

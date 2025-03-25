@@ -2,14 +2,13 @@ package com.wenjunhuang.codeepiphany.luogu.models
 
 import io.circe.parser.*
 import io.circe.Json
-import io.circe.derivation.ConfiguredDecoder
+import io.circe.derivation.{ConfiguredCodec, ConfiguredDecoder}
 import scala.io.Source
 import scala.util.Using
 
-
-case class LuoGuTag(id: Int, name: String, `type`: String, parent: Option[Int] = None) derives ConfiguredDecoder
-case class LuoGuTagGroup(id: Int, name: String, `type`: String, tags: List[LuoGuTag]) derives ConfiguredDecoder
-case class LuoGuTagTypeWithTags(id: String, value: String, tagGroups: List[LuoGuTagGroup] = Nil)derives ConfiguredDecoder
+case class LuoGuTag(id: Int, name: String, `type`: String, parent: Option[Int] = None) derives ConfiguredCodec
+case class LuoGuTagGroup(id: Int, name: String, `type`: String, tags: List[LuoGuTag]) derives ConfiguredCodec
+case class LuoGuTagTypeWithTags(id: String, value: String, tagGroups: List[LuoGuTagGroup] = Nil) derives ConfiguredCodec
 
 object LuoGuTagTypeWithTags {
   lazy val ALL_TAG_TYPES: List[LuoGuTagTypeWithTags] = load()

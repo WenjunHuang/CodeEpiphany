@@ -177,10 +177,9 @@ object LuoGuApi {
               val doc     = Jsoup.parse(html)
               val jsonStr = doc.select("#lentille\\-context").html()
               parse(jsonStr).flatMap { json =>
-                (
-                  JsonPath.root.user.name.string.getOption(json),
-                  JsonPath.root.user.avatar.string.getOption(json)
-                ).mapN((name, avatar) => LuoGuUserInfo(name, avatar)).toRight(new Exception("Failed to parse json"))
+                (JsonPath.root.user.name.string.getOption(json), JsonPath.root.user.avatar.string.getOption(json))
+                  .mapN((name, avatar) => LuoGuUserInfo(name, avatar))
+                  .toRight(new Exception("Failed to parse json"))
               }.liftTo[F]
             }
         }
@@ -273,7 +272,18 @@ object LuoGuApi {
                         postAnswer(pid, langId, code, Some(captcha), captchaNeeded)
                       }
                     }
-                case _ => Async[F].raiseError(new Exception(s"Failed to submit answer: ${response.status.code}"))
+                case _ =>
+                  response
+                    .as[String]
+                    .flatMap { body =>
+                      parse(body).flatMap { json =>
+                        JsonPath.root.errorMessage.string.getOption(json).toRight(new Exception("Failed to parse json"))
+                      }.liftTo[F]
+                    }
+                    .recoverWith(_ => Async[F].pure(response.status.code.toString))
+                    .flatMap { msg =>
+                      Async[F].raiseError(new Exception(s"Failed to submit answer: $msg"))
+                    }
             }
         }
       }

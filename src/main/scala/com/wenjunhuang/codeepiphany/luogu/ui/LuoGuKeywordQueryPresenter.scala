@@ -1,6 +1,9 @@
 package com.wenjunhuang.codeepiphany.luogu.ui
 
 import cats.effect.IO
+import io.circe.generic.auto.*
+import io.circe.parser.*
+import io.circe.syntax.*
 import monocle.syntax.all.*
 
 import com.intellij.openapi.project.Project
@@ -9,12 +12,13 @@ import com.intellij.openapi.util.text.StringUtil
 import com.wenjunhuang.codeepiphany.actions.OpenChallengeActionGroup
 import com.wenjunhuang.codeepiphany.luogu.models.{ LuoGuChallengeItem, LuoGuSearchOrderBy }
 import com.wenjunhuang.codeepiphany.luogu.services.LuoGuApi
+import com.wenjunhuang.codeepiphany.luogu.settings.LuoGuSettings
 import com.wenjunhuang.codeepiphany.luogu.ui.LuoGuKeywordQueryPresenter.*
 import com.wenjunhuang.codeepiphany.model.OrderDirection
 import com.wenjunhuang.codeepiphany.services.{ KeywordQueryPresenter, QueryContext }
 import com.wenjunhuang.codeepiphany.services.KeywordQueryPresenter.KeywordHolder
 import com.wenjunhuang.codeepiphany.services.http.{ HttpClientManager, HttpClientService }
-import com.wenjunhuang.codeepiphany.utils.{ OrderByColumnInfo, Pagination }
+import com.wenjunhuang.codeepiphany.utils.{ OrderByColumnInfo, PageSize, Pagination }
 import com.wenjunhuang.codeepiphany.utils.actions.DataSink
 
 class LuoGuKeywordQueryPresenter(project: Project, bootstrap: LuoGuBootstrapParameters)
@@ -38,7 +42,20 @@ class LuoGuKeywordQueryPresenter(project: Project, bootstrap: LuoGuBootstrapPara
         (context.pagination.copy(totalSize = total), items)
       }
 
-  override protected def updateQueryUI(context: QueryContext[QueryParams]): Unit = {}
+  override protected def saveQueryCriteria(queryCriteria: QueryParams, pagination: Pagination): Unit =
+    val storage = LuoGuSettings.getInstance(myProject).getState.queryCriteria
+    storage.put(s"${getClass.getSimpleName}-criteria", queryCriteria.asJson.noSpaces)
+    storage.put(s"${getClass.getSimpleName}-pageSize", pagination.pageSize.value.toString)
+
+  override protected def loadQueryCriteria(): Option[(QueryParams, Pagination)] =
+    val storage = LuoGuSettings.getInstance(myProject).getState.queryCriteria
+    Option(storage.get(s"${getClass.getSimpleName}-criteria"))
+      .flatMap(value => decode[QueryParams](value).toOption)
+      .zip(
+        Option(storage.get(s"${getClass.getSimpleName}-pageSize"))
+          .flatMap(value => decode[PageSize](value).toOption)
+          .map(value => Pagination(pageSize = value))
+      )
 
   override def uiDataSnapshot(dataSink: DataSink): Unit = {
     super.uiDataSnapshot(dataSink)

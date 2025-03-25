@@ -1,7 +1,10 @@
 package com.wenjunhuang.codeepiphany.luogu.ui
 
-import cats.syntax.all.*
 import cats.effect.IO
+import cats.syntax.all.*
+import io.circe.*
+import io.circe.parser.*
+import io.circe.syntax.*
 import javax.swing.SwingConstants
 import javax.swing.table.{ DefaultTableCellRenderer, TableCellRenderer }
 import monocle.syntax.all.*
@@ -17,9 +20,11 @@ import com.wenjunhuang.codeepiphany.luogu.actions.LuoGuDifficultyParameterAction
 import com.wenjunhuang.codeepiphany.luogu.actions.LuoGuQuestionBankParameterAction.LuoGuQuestionBankParameterProvider
 import com.wenjunhuang.codeepiphany.luogu.models.*
 import com.wenjunhuang.codeepiphany.luogu.services.LuoGuApi
+import com.wenjunhuang.codeepiphany.luogu.settings.LuoGuSettings
 import com.wenjunhuang.codeepiphany.luogu.ui.LuoGuParametersQueryPresenter.{
   DIFFICULTY_TAG_RADIUS,
   QUESTION_BANK_RADIUS,
+  QueryParams,
   TAG_TAG_RADIUS
 }
 import com.wenjunhuang.codeepiphany.model.{ Actions, OrderDirection }
@@ -267,6 +272,20 @@ class LuoGuParametersQueryPresenter(project: Project, bootstrap: LuoGuBootstrapP
     }
   )
 
+  override protected def saveQueryCriteria(queryCriteria: QueryParams, pagination: Pagination): Unit =
+    val storage = LuoGuSettings.getInstance(myProject).getState.queryCriteria
+    storage.put(s"${getClass.getSimpleName}-criteria", queryCriteria.asJson.noSpaces)
+    storage.put(s"${getClass.getSimpleName}-pageSize", pagination.pageSize.value.toString)
+
+  override protected def loadQueryCriteria(): Option[(QueryParams, Pagination)] =
+    val storage = LuoGuSettings.getInstance(myProject).getState.queryCriteria
+    Option(storage.get(s"${getClass.getSimpleName}-criteria"))
+      .flatMap(value => decode[QueryParams](value).toOption)
+      .zip(
+        Option(storage.get(s"${getClass.getSimpleName}-pageSize"))
+          .flatMap(value => decode[PageSize](value).toOption)
+          .map(value => Pagination(pageSize = value))
+      )
 }
 
 object LuoGuParametersQueryPresenter {
@@ -276,6 +295,25 @@ object LuoGuParametersQueryPresenter {
     selectedTags: List[TagsAction.Tag],
     orderBy: Option[(LuoGuSearchOrderBy, OrderDirection)]
   )
+
+  object QueryParams {
+    implicit val circeEncoder: Encoder[QueryParams] = Encoder.instance { params =>
+      Json.obj(
+        "selectedQuestionBank" := params.selectedQuestionBank,
+        "selectedDifficulty"   := params.selectedDifficulty,
+        "selectedTags"         -> luoguTagToJson(params.selectedTags),
+        "orderBy"              := params.orderBy
+      )
+    }
+    implicit val circeDecoder: Decoder[QueryParams] = Decoder.instance { cursor =>
+      for
+        selectedQuestionBank <- cursor.downField("selectedQuestionBank").as[Option[LuoGuQuestionBank]]
+        selectedDifficulty   <- cursor.downField("selectedDifficulty").as[Option[LuoGuDifficulty]]
+        selectedTags         <- cursor.downField("selectedTags").as[Json].flatMap(luoguTagFromJson)
+        orderBy              <- cursor.downField("orderBy").as[Option[(LuoGuSearchOrderBy, OrderDirection)]]
+      yield QueryParams(selectedQuestionBank, selectedDifficulty, selectedTags, orderBy)
+    }
+  }
 
   private val QUESTION_BANK_RADIUS  = 0.1f
   private val DIFFICULTY_TAG_RADIUS = 0.3f

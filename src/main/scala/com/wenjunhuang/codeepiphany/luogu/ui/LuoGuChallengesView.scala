@@ -3,6 +3,7 @@ package com.wenjunhuang.codeepiphany.luogu.ui
 import cats.effect.IO
 import cats.syntax.all.*
 import javax.swing.JComponent
+import org.typelevel.ci.CIString
 import org.typelevel.log4cats.LoggerFactory
 
 import com.intellij.openapi.Disposable
@@ -17,6 +18,7 @@ import com.wenjunhuang.codeepiphany.luogu.actions.LuoGuChangeUIAction.{
   LuoGuUI
 }
 import com.wenjunhuang.codeepiphany.luogu.services.LuoGuApi
+import com.wenjunhuang.codeepiphany.luogu.settings.LuoGuSettings
 import com.wenjunhuang.codeepiphany.model.Actions.LUOGU_TITLE_TOOLBAR_GROUP
 import com.wenjunhuang.codeepiphany.model.CodeDojo
 import com.wenjunhuang.codeepiphany.model.CodeDojo.LuoGu
@@ -65,7 +67,8 @@ class LuoGuChallengesView(private val myProject: Project) extends BaseChallenges
                 myKeywordSearchPresenter = Some(LuoGuKeywordQueryPresenter(myProject, bootstrap))
               } *> IO.delay {
                 AuthService.getInstance(myProject).setLogin(CodeDojo.LuoGu)
-                mySwitchUIProvider.switchTo(LuoGuUI.QueryParameters)
+                val gotoUI = loadLatestUI().getOrElse(LuoGuUI.QueryParameters)
+                mySwitchUIProvider.switchTo(gotoUI)
               }.evalOnEDTAny()
                 *> console.info[IO](myProject, s"Logged in to ${CodeDojo.LuoGu.show}.")
             case _ => console.info[IO](myProject, s"Login to ${CodeDojo.LuoGu.show} canceled.")
@@ -95,6 +98,7 @@ class LuoGuChallengesView(private val myProject: Project) extends BaseChallenges
     override def switchTo(ui: LuoGuUI): Unit =
       myCurrentUI = ui
       select(ui, false)
+      saveLatestUI(ui)
 
     override def getCurrentUI: LuoGuUI = myCurrentUI
   }
@@ -120,4 +124,16 @@ class LuoGuChallengesView(private val myProject: Project) extends BaseChallenges
     myKeywordSearchPresenter.foreach(Disposer.dispose)
     myQueryParamPresenter.foreach(Disposer.dispose)
   }
+
+  private def saveLatestUI(ui: LuoGuUI): Unit = {
+    LuoGuSettings.getInstance(myProject).getState.queryCriteria.put(s"${getClass.getSimpleName}-latestUI", ui.toString)
+  }
+
+  private def loadLatestUI(): Option[LuoGuUI] =
+    val queryCriteria = LuoGuSettings.getInstance(myProject).getState.queryCriteria
+    Option(
+      queryCriteria
+        .get(s"${getClass.getSimpleName}-latestUI")
+    ).flatMap(value => LuoGuUI.fromCIStringToAuthenticated(CIString(value)))
+
 }
