@@ -5,13 +5,13 @@ import org.typelevel.ci.CIString
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.util.xmlb.Converter
 
-import com.wenjunhuang.codeepiphany.model.{CodeDojo, Language, LanguageVersion}
+import com.wenjunhuang.codeepiphany.model.{ CodeDojo, Language, LanguageVersion }
 
 object XmlUtils {
 
   class LanguageConverter extends Converter[Language] {
     override def fromString(value: String): Language = Language.fromCIString(CIString(value)).orNull
-    override def toString(value: Language): String = value.value
+    override def toString(value: Language): String   = value.value
   }
 
   class LanguageVersionConverter extends Converter[LanguageVersion] {
@@ -34,9 +34,13 @@ object XmlUtils {
 
   class LanguageVersionOptionConverter extends OptionConverter[LanguageVersion]
 
-  class IntOptionConverter  extends OptionConverter[Int]
+  class CodeDojoOptionConverter extends OptionConverter[CodeDojo]
+
+  class IntOptionConverter extends OptionConverter[Int]
 
   class LongOptionConverter extends OptionConverter[Long]
+
+  implicit val codeDojoConverter: Converter[CodeDojo] = new CodeDojoConverter
 
   implicit val languageConverter: Converter[Language] = new LanguageConverter
 

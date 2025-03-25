@@ -107,8 +107,17 @@ object CodeDojo {
     case _ if s.contains(CodeForces.domain) => Some(CodeDojo.CodeForces)
     case _ if s.contains(AtCoder.domain)    => Some(CodeDojo.AtCoder)
     case _ if s.contains(LuoGu.domain)      => Some(CodeDojo.LuoGu)
-    case _ => None
+    case _                                  => None
   }
+
+  def fromCIShow(value: CIString): Option[CodeDojo] =
+    if value == CIString(show(HackerRank)) then Some(HackerRank)
+    else if value == CIString(show(LeetCode)) then Some(LeetCode)
+    else if value == CIString(show(LeetCodeCN)) then Some(LeetCodeCN)
+    else if value == CIString(show(CodeForces)) then Some(CodeForces)
+    else if value == CIString(show(AtCoder)) then Some(AtCoder)
+    else if value == CIString(show(LuoGu)) then Some(LuoGu)
+    else None
 
   private val ALL_DOJOS = CodeDojo.values.map { dojo => CIString(dojo.value) -> dojo }.toMap
 

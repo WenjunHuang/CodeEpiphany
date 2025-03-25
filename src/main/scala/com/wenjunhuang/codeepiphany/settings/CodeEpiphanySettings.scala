@@ -9,8 +9,9 @@ import com.intellij.openapi.project.Project
 import com.intellij.util.messages.Topic
 import com.intellij.util.xmlb.annotations.Attribute
 
-import com.wenjunhuang.codeepiphany.model.Constants
+import com.wenjunhuang.codeepiphany.model.{CodeDojo, Constants}
 import com.wenjunhuang.codeepiphany.settings.CodeEpiphanySettings.CodeEpiphanySettingsState
+import com.wenjunhuang.codeepiphany.utils.XmlUtils.{CodeDojoConverter, CodeDojoOptionConverter, OptionConverter, StringOptionConverter}
 
 @Service(Array(Level.PROJECT))
 @State(name = Constants.SETTING, storages = Array(new Storage(Constants.SETTING_FILE)))
@@ -41,6 +42,9 @@ object CodeEpiphanySettings {
   class CodeEpiphanySettingsState {
     @(Attribute @field)
     var databaseFolder: String = s"$$PROJECT_DIR$$/.idea/${Constants.PROJECT_NAME}"
+
+    @(Attribute @field)(converter = classOf[CodeDojoOptionConverter])
+    var latestCodeDojo: Option[CodeDojo] = None
 
     def getDatabaseFolder(project: Project): String = {
       PathMacroManager.getInstance(project).expandPath(databaseFolder)

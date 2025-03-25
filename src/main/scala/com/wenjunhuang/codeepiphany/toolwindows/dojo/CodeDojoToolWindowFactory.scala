@@ -1,25 +1,26 @@
 package com.wenjunhuang.codeepiphany.toolwindows.dojo
 
 import cats.syntax.all.*
+import org.typelevel.ci.CIString
 import scala.jdk.CollectionConverters.*
 
-import com.intellij.openapi.actionSystem.{ActionManager, AnAction}
-import com.intellij.openapi.project.{DumbAware, Project}
-import com.intellij.openapi.wm.{ToolWindow, ToolWindowContentUiType, ToolWindowManager}
+import com.intellij.openapi.actionSystem.{ ActionManager, AnAction }
+import com.intellij.openapi.project.{ DumbAware, Project }
+import com.intellij.openapi.wm.{ ToolWindow, ToolWindowContentUiType, ToolWindowManager }
 import com.intellij.openapi.wm.impl.content.ToolWindowContentUi
-import com.intellij.ui.content.{ContentManager, ContentManagerEvent, ContentManagerListener}
+import com.intellij.ui.content.{ Content, ContentManager, ContentManagerEvent, ContentManagerListener }
 
 import com.wenjunhuang.codeepiphany.atcoder.ui.AtCoderChallengesView
 import com.wenjunhuang.codeepiphany.codeforces.ui.CodeForcesChallengesView
 import com.wenjunhuang.codeepiphany.hackerrank.ui.HackerRankChallengesView
 import com.wenjunhuang.codeepiphany.leetcode.ui.LeetCodeChallengesView
-import com.wenjunhuang.codeepiphany.model.{Actions, CodeDojo}
+import com.wenjunhuang.codeepiphany.model.{ Actions, CodeDojo }
 import com.wenjunhuang.codeepiphany.model.Actions.TITLE_TOOLBAR_GROUP
 import com.wenjunhuang.codeepiphany.PluginBundle
 import com.wenjunhuang.codeepiphany.atcoder.settings.AtCoderSettings
 import com.wenjunhuang.codeepiphany.codeforces.settings.CodeForcesSettings
 import com.wenjunhuang.codeepiphany.hackerrank.settings.HackerRankSettings
-import com.wenjunhuang.codeepiphany.leetcode.settings.{LeetCodeCNSettings, LeetCodeSettings}
+import com.wenjunhuang.codeepiphany.leetcode.settings.{ LeetCodeCNSettings, LeetCodeSettings }
 import com.wenjunhuang.codeepiphany.luogu.settings.LuoGuSettings
 import com.wenjunhuang.codeepiphany.luogu.ui.LuoGuChallengesView
 import com.wenjunhuang.codeepiphany.services.BaseChallengesView
@@ -36,18 +37,6 @@ class CodeDojoToolWindowFactory extends ToolWindowFactoryBridge with DumbAware {
     toolWindow.setDefaultContentUiType(ToolWindowContentUiType.COMBO)
     toolWindow.getComponent.putClientProperty(ToolWindowContentUi.HIDE_ID_LABEL, "true")
 
-    contentManager.addContentManagerListener(new ContentManagerListener {
-      override def selectionChanged(event: ContentManagerEvent): Unit = {
-        Option(event.getContent.getActions) match
-          case Some(actions) =>
-            toolWindow.setTitleActions(
-              (actions.getChildren(null, ActionManager.getInstance()).toList ++ createTitleActions()).asJava
-            )
-          case None =>
-            toolWindow.setTitleActions(createTitleActions().asJava)
-      }
-    })
-
     project.getMessageBus
       .connect(project)
       .subscribe(
@@ -60,6 +49,40 @@ class CodeDojoToolWindowFactory extends ToolWindowFactoryBridge with DumbAware {
       )
 
     updateContents(project, toolWindow)
+
+    selectLatestCodeDojo(project, contentManager, toolWindow)
+
+    contentManager.addContentManagerListener(new ContentManagerListener {
+      override def selectionChanged(event: ContentManagerEvent): Unit = {
+        saveLatestCodeDojo(project, event)
+        setupContentActions(toolWindow, event.getContent)
+      }
+    })
+  }
+
+  private def setupContentActions(toolWindow: ToolWindow, content: Content): Unit = {
+    Option(content.getActions) match
+      case Some(actions) =>
+        toolWindow.setTitleActions(
+          (actions.getChildren(null, ActionManager.getInstance()).toList ++ createTitleActions()).asJava
+        )
+      case None =>
+        toolWindow.setTitleActions(createTitleActions().asJava)
+  }
+
+  private def saveLatestCodeDojo(project: Project, event: ContentManagerEvent): Unit = {
+    CodeEpiphanySettings.getInstance(project).getState.latestCodeDojo =
+      CodeDojo.fromCIShow(CIString(event.getContent.getDisplayName))
+  }
+
+  private def selectLatestCodeDojo(project: Project, contentManager: ContentManager, toolWindow: ToolWindow): Unit = {
+    CodeEpiphanySettings.getInstance(project).getState.latestCodeDojo.foreach { codeDojo =>
+      contentManager.findContent(codeDojo.show) match
+        case null =>
+        case content =>
+          contentManager.setSelectedContent(content)
+          setupContentActions(toolWindow, content)
+    }
   }
 
   private def createTitleActions(): List[AnAction] = List(ActionManager.getInstance().getAction(TITLE_TOOLBAR_GROUP))
@@ -116,11 +139,7 @@ object CodeDojoToolWindowFactory {
       classOf[HackerRankSettings],
       HackerRankChallengesView(project)
     )
-    updateCodeDojoContent(project,
-      contentManager,
-      CodeDojo.LuoGu,
-      classOf[LuoGuSettings],
-      LuoGuChallengesView(project))
+    updateCodeDojoContent(project, contentManager, CodeDojo.LuoGu, classOf[LuoGuSettings], LuoGuChallengesView(project))
 
     if contentManager.getContentCount == 0 then
       val setupRequiredPromptView = SetupRequiredPromptView(project)
