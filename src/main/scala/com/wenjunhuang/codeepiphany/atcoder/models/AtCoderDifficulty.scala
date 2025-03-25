@@ -1,6 +1,8 @@
 package com.wenjunhuang.codeepiphany.atcoder.models
 
+import io.circe.{ Decoder, Encoder }
 import java.awt.Color
+import org.typelevel.ci.CIString
 
 import com.wenjunhuang.codeepiphany.atcoder.models.AtCoderDifficulty.*
 import com.wenjunhuang.codeepiphany.utils.ColorUtils
@@ -98,6 +100,20 @@ object AtCoderDifficulty {
   val SILVER_COLOR = "#C0C0C0" // 银灰 - 银牌题（带金属光泽）
   val GOLD_COLOR   = "#FFD700" // 黄金 - 金牌题（高饱和度）
 
+  def fromCIString(value: CIString): Option[AtCoderDifficulty] =
+    if value == CIString(Grey.toString) then Some(Grey)
+    else if value == CIString(Brown.toString) then Some(Brown)
+    else if value == CIString(Green.toString) then Some(Green)
+    else if value == CIString(Cyan.toString) then Some(Cyan)
+    else if value == CIString(Blue.toString) then Some(Blue)
+    else if value == CIString(Yellow.toString) then Some(Yellow)
+    else if value == CIString(Orange.toString) then Some(Orange)
+    else if value == CIString(Red.toString) then Some(Red)
+    else if value == CIString(Bronze.toString) then Some(Bronze)
+    else if value == CIString(Silver.toString) then Some(Silver)
+    else if value == CIString(Gold.toString) then Some(Gold)
+    else None
+
   def fromString(difficulty: String): Option[AtCoderDifficulty] = {
     difficulty.toIntOption.map(fromInt)
   }
@@ -137,4 +153,8 @@ object AtCoderDifficulty {
   def calculateDisplayDifficulty(irtDifficulty: Int): Int =
     if irtDifficulty >= 400.0 then irtDifficulty
     else (400.0 / math.exp(1.0 - irtDifficulty / 400.0)).toInt
+
+  implicit val circeEncoder: Encoder[AtCoderDifficulty] = Encoder.encodeString.contramap[AtCoderDifficulty](_.toString)
+  implicit val circeDecoder: Decoder[AtCoderDifficulty] =
+    Decoder.decodeString.emap(v => fromCIString(CIString(v)).toRight("Unknown difficulty value"))
 }

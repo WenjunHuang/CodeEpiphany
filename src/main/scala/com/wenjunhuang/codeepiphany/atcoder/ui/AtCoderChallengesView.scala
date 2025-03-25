@@ -5,27 +5,36 @@ import cats.syntax.all.*
 import icons.CodeEpiphanyIcons
 import java.util.concurrent.atomic.AtomicBoolean
 import javax.swing.JComponent
+import org.typelevel.ci.CIString
 import org.typelevel.log4cats.LoggerFactory
 
 import com.intellij.openapi.Disposable
-import com.intellij.openapi.actionSystem.{ActionGroup, ActionManager}
+import com.intellij.openapi.actionSystem.{ ActionGroup, ActionManager }
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
 
-import com.wenjunhuang.codeepiphany.actions.LoginAction.{LOGIN_LOGOUT_KEY, LoginLogoutProvider}
+import com.wenjunhuang.codeepiphany.actions.LoginAction.{ LOGIN_LOGOUT_KEY, LoginLogoutProvider }
 import com.wenjunhuang.codeepiphany.model.Actions.ATCODER_TITLE_TOOLBAR_GROUP
 import com.wenjunhuang.codeepiphany.model.CodeDojo
 import com.wenjunhuang.codeepiphany.model.CodeDojo.AtCoder
-import com.wenjunhuang.codeepiphany.services.{console, AskForLoginResult, AuthService, BaseChallengesView}
-import com.wenjunhuang.codeepiphany.services.http.{HttpClientManager, HttpClientService}
+import com.wenjunhuang.codeepiphany.services.{ console, AskForLoginResult, AuthService, BaseChallengesView }
+import com.wenjunhuang.codeepiphany.services.http.{ HttpClientManager, HttpClientService }
 import com.wenjunhuang.codeepiphany.utils.extensions.*
 import com.wenjunhuang.codeepiphany.utils.implicits.*
 import com.wenjunhuang.codeepiphany.utils.ui.UnauthenticatedView
 import com.wenjunhuang.codeepiphany.PluginBundle
-import com.wenjunhuang.codeepiphany.atcoder.actions.AtCoderChangeUIAction.{ATCODER_CHANGE_UI_PROVIDER_KEY, AtCoderChangeUIProvider, AtCoderUI}
-import com.wenjunhuang.codeepiphany.atcoder.actions.AtCoderUpdateProblemSetsAction.{ATCODER_UPDATE_PROBLEM_SETS_PROVIDER_KEY, AtCoderUpdateProblemSetsProvider}
+import com.wenjunhuang.codeepiphany.atcoder.actions.AtCoderChangeUIAction.{
+  ATCODER_CHANGE_UI_PROVIDER_KEY,
+  AtCoderChangeUIProvider,
+  AtCoderUI
+}
+import com.wenjunhuang.codeepiphany.atcoder.actions.AtCoderUpdateProblemSetsAction.{
+  ATCODER_UPDATE_PROBLEM_SETS_PROVIDER_KEY,
+  AtCoderUpdateProblemSetsProvider
+}
 import com.wenjunhuang.codeepiphany.atcoder.services.AtCoderApi
 import com.wenjunhuang.codeepiphany.atcoder.services.problemsets.fetchAndUpdateProblemSets
+import com.wenjunhuang.codeepiphany.atcoder.settings.AtCoderSettings
 import com.wenjunhuang.codeepiphany.utils.actions.DataSink
 
 class AtCoderChallengesView(private val myProject: Project) extends BaseChallengesView[AtCoderUI] {
@@ -67,7 +76,8 @@ class AtCoderChallengesView(private val myProject: Project) extends BaseChalleng
                 myKeywordSearchPresenter = Some(AtCoderKeywordQueryPresenter(myProject, bootstrap))
               } *> IO.delay {
                 AuthService.getInstance(myProject).setLogin(CodeDojo.AtCoder)
-                mySwitchUIProvider.switchTo(AtCoderUI.QueryParameters)
+                val gotoUI = loadLastUI().getOrElse(AtCoderUI.QueryParameters)
+                mySwitchUIProvider.switchTo(gotoUI)
               }.evalOnEDTAny()
                 *> console.info[IO](myProject, s"Logged in to ${CodeDojo.AtCoder.show}.")
             case _ => console.info[IO](myProject, s"Login to ${CodeDojo.AtCoder.show} canceled.")
@@ -97,6 +107,7 @@ class AtCoderChallengesView(private val myProject: Project) extends BaseChalleng
     override def switchTo(ui: AtCoderUI): Unit =
       myCurrentUI = ui
       select(ui, false)
+      saveLastUI(ui)
 
     override def getCurrentUI: AtCoderUI = myCurrentUI
   }
@@ -134,5 +145,17 @@ class AtCoderChallengesView(private val myProject: Project) extends BaseChalleng
   override def dispose(): Unit = {
     myKeywordSearchPresenter.foreach(Disposer.dispose)
     myQueryParamPresenter.foreach(Disposer.dispose)
+  }
+
+  private def saveLastUI(ui: AtCoderUI): Unit = {
+    val queryCriteriaStorage = AtCoderSettings.getInstance(myProject).getState.queryCriteria
+    queryCriteriaStorage.put(s"${getClass.getSimpleName}-lastUI", ui.toString)
+  }
+
+  private def loadLastUI(): Option[AtCoderUI] = {
+    val queryCriteriaStorage = AtCoderSettings.getInstance(myProject).getState.queryCriteria
+    Option(queryCriteriaStorage.get(s"${getClass.getSimpleName}-lastUI")).flatMap(value =>
+      AtCoderUI.fromCIStringToAuthenticated(CIString(value))
+    )
   }
 }

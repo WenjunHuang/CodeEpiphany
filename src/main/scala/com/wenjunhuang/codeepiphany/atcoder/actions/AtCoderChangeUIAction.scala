@@ -1,15 +1,19 @@
 package com.wenjunhuang.codeepiphany.atcoder.actions
 
 import icons.CodeEpiphanyIcons
+import org.typelevel.ci.CIString
 
 import com.intellij.openapi.actionSystem.*
 import com.intellij.openapi.project.DumbAwareAction
 
 import com.wenjunhuang.codeepiphany.atcoder.actions.AtCoderChangeUIAction.*
 import com.wenjunhuang.codeepiphany.atcoder.actions.AtCoderChangeUIAction.AtCoderUI.*
-import com.wenjunhuang.codeepiphany.utils.actions.{ActionCompatible, DataKeyNotNull}
+import com.wenjunhuang.codeepiphany.utils.actions.{ ActionCompatible, DataKeyNotNull }
 
-class AtCoderChangeUIAction extends DumbAwareAction with DataKeyNotNull(ATCODER_CHANGE_UI_PROVIDER_KEY) with ActionCompatible {
+class AtCoderChangeUIAction
+    extends DumbAwareAction
+    with DataKeyNotNull(ATCODER_CHANGE_UI_PROVIDER_KEY)
+    with ActionCompatible {
   override def actionPerformed(e: AnActionEvent): Unit = {
     val provider = getValue(e)
     provider.getCurrentUI match
@@ -48,6 +52,13 @@ object AtCoderChangeUIAction {
     case Unauthenticated
     case QueryParameters
     case SearchByKeyword
+  }
+
+  object AtCoderUI {
+    def fromCIStringToAuthenticated(value: CIString): Option[AtCoderUI] =
+      if value == CIString("QueryParameters") then Some(QueryParameters)
+      else if value == CIString("SearchByKeyword") then Some(SearchByKeyword)
+      else None
   }
 
   trait AtCoderChangeUIProvider {

@@ -1,7 +1,11 @@
 package com.wenjunhuang.codeepiphany.atcoder.ui
 
 import cats.effect.IO
-import javax.swing.{Icon, JTable}
+import io.circe.*
+import io.circe.parser.*
+import io.circe.syntax.*
+import io.circe.generic.semiauto.*
+import javax.swing.{ Icon, JTable }
 import javax.swing.table.TableCellRenderer
 import monocle.syntax.all.*
 import org.jooq.impl.DSL
@@ -13,14 +17,15 @@ import com.intellij.util.ui.ColorIcon
 import com.intellij.util.ui.table.IconTableCellRenderer
 
 import com.wenjunhuang.codeepiphany.actions.OpenChallengeActionGroup
-import com.wenjunhuang.codeepiphany.atcoder.models.{AtCoderDifficulty, AtCoderSearchOrderBy}
+import com.wenjunhuang.codeepiphany.atcoder.models.{ AtCoderDifficulty, AtCoderSearchOrderBy }
+import com.wenjunhuang.codeepiphany.atcoder.settings.AtCoderSettings
 import com.wenjunhuang.codeepiphany.atcoder.ui.AtCoderKeywordQueryPresenter.*
 import com.wenjunhuang.codeepiphany.database.tables.records.AtcoderProblemsRecord
 import com.wenjunhuang.codeepiphany.database.Tables.*
 import com.wenjunhuang.codeepiphany.model.OrderDirection
-import com.wenjunhuang.codeepiphany.services.{ChallengeRepository, KeywordQueryPresenter, QueryContext}
+import com.wenjunhuang.codeepiphany.services.{ ChallengeRepository, KeywordQueryPresenter, QueryContext }
 import com.wenjunhuang.codeepiphany.services.KeywordQueryPresenter.KeywordHolder
-import com.wenjunhuang.codeepiphany.utils.{OrderByColumnInfo, Pagination}
+import com.wenjunhuang.codeepiphany.utils.{ OrderByColumnInfo, PageSize, Pagination }
 import com.wenjunhuang.codeepiphany.utils.actions.DataSink
 
 class AtCoderKeywordQueryPresenter(project: Project, bootstrap: AtCoderBootstrapParameters)
@@ -90,8 +95,6 @@ class AtCoderKeywordQueryPresenter(project: Project, bootstrap: AtCoderBootstrap
           }
         }
   }
-
-  override protected def updateQueryUI(context: QueryContext[QueryParams]): Unit = {}
 
   override def uiDataSnapshot(dataSink: DataSink): Unit = {
     super.uiDataSnapshot(dataSink)
@@ -176,10 +179,31 @@ class AtCoderKeywordQueryPresenter(project: Project, bootstrap: AtCoderBootstrap
       override def enableOrderBy: Boolean = false
     }
   )
+
+  override protected def saveQueryCriteria(queryCriteria: QueryParams, pagination: Pagination): Unit =
+    val queryCriteriaStorage = AtCoderSettings.getInstance(myProject).getState.queryCriteria
+    queryCriteriaStorage.put(s"${getClass.getSimpleName}-criteria", queryCriteria.asJson.noSpaces)
+    queryCriteriaStorage.put(s"${getClass.getSimpleName}-pageSize", pagination.pageSize.value.toString)
+
+  override protected def loadQueryCriteria(): Option[(QueryParams, Pagination)] =
+    val queryCriteriaStorage = AtCoderSettings.getInstance(myProject).getState.queryCriteria
+    Option(queryCriteriaStorage.get(s"${getClass.getSimpleName}-criteria"))
+      .flatMap(value => decode[QueryParams](value).toOption)
+      .zip(
+        Option(queryCriteriaStorage.get(s"${getClass.getSimpleName}-pageSize"))
+          .flatMap(value => decode[PageSize](value).toOption)
+          .map(v => Pagination(pageSize = v))
+      )
+      .map(identity)
 }
 
 object AtCoderKeywordQueryPresenter {
   case class QueryParams(keyword: String, orderBy: Option[(AtCoderSearchOrderBy, OrderDirection)])
+  object QueryParams {
+    implicit val circeEncoder: Encoder[QueryParams] = deriveEncoder
+    implicit val circeDecoder: Decoder[QueryParams] = deriveDecoder
+  }
+
   implicit val keywordHolder: KeywordHolder[QueryParams] = new KeywordHolder[QueryParams] {
     override def keyword(v: QueryParams): String = v.keyword
 

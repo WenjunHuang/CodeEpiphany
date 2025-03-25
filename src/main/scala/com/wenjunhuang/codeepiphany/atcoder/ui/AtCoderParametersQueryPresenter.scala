@@ -1,6 +1,10 @@
 package com.wenjunhuang.codeepiphany.atcoder.ui
 
 import cats.effect.IO
+import io.circe.{Decoder, Encoder}
+import io.circe.generic.semiauto.*
+import io.circe.parser.*
+import io.circe.syntax.*
 import javax.swing.{Icon, JTable}
 import javax.swing.table.TableCellRenderer
 import monocle.syntax.all.*
@@ -17,12 +21,13 @@ import com.wenjunhuang.codeepiphany.actions.OpenChallengeActionGroup
 import com.wenjunhuang.codeepiphany.atcoder.actions.AtCoderDifficultyParameterAction
 import com.wenjunhuang.codeepiphany.atcoder.actions.AtCoderDifficultyParameterAction.AtCoderDifficultyParameterProvider
 import com.wenjunhuang.codeepiphany.atcoder.models.{AtCoderDifficulty, AtCoderSearchOrderBy}
+import com.wenjunhuang.codeepiphany.atcoder.settings.AtCoderSettings
 import com.wenjunhuang.codeepiphany.atcoder.ui.AtCoderParametersQueryPresenter.*
 import com.wenjunhuang.codeepiphany.database.tables.records.AtcoderProblemsRecord
 import com.wenjunhuang.codeepiphany.database.Tables.*
 import com.wenjunhuang.codeepiphany.model.{Actions, OrderDirection}
 import com.wenjunhuang.codeepiphany.services.{ChallengeRepository, ParametersQueryPresenter, QueryContext}
-import com.wenjunhuang.codeepiphany.utils.{OrderByColumnInfo, Pagination}
+import com.wenjunhuang.codeepiphany.utils.{OrderByColumnInfo, PageSize, Pagination}
 import com.wenjunhuang.codeepiphany.utils.actions.DataSink
 import com.wenjunhuang.codeepiphany.utils.ui.TagPaneAction
 
@@ -235,6 +240,20 @@ class AtCoderParametersQueryPresenter(project: Project, bootstrap: AtCoderBootst
     }
   )
 
+  override protected def saveQueryCriteria(queryCriteria: QueryParams, pagination: Pagination): Unit =
+    val storage = AtCoderSettings.getInstance(myProject).getState.queryCriteria
+    storage.put(s"${getClass.getSimpleName}-criteria", queryCriteria.asJson.noSpaces)
+    storage.put(s"${getClass.getSimpleName}-pageSize", pagination.pageSize.value.toString)
+
+  override protected def loadQueryCriteria(): Option[(QueryParams, Pagination)] =
+    val storage = AtCoderSettings.getInstance(myProject).getState.queryCriteria
+    Option(storage.get(s"${getClass.getSimpleName}-criteria"))
+      .flatMap(v => decode[QueryParams](v).toOption)
+      .zip(
+        Option(storage.get(s"${getClass.getSimpleName}-pageSize"))
+          .flatMap(v => decode[PageSize](v).toOption)
+          .map(v => Pagination(pageSize = v))
+      )
 }
 
 object AtCoderParametersQueryPresenter {
@@ -242,6 +261,11 @@ object AtCoderParametersQueryPresenter {
     selectedDifficulty: Option[AtCoderDifficulty],
     orderBy: Option[(AtCoderSearchOrderBy, OrderDirection)]
   )
+
+  object QueryParams {
+    implicit val circeDecoder: Decoder[QueryParams] = deriveDecoder[QueryParams]
+    implicit val circeEncoder: Encoder[QueryParams] = deriveEncoder[QueryParams]
+  }
 
   private val DIFFICULTY_TAG_RADIUS = 0.3f
 }
