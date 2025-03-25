@@ -1,6 +1,6 @@
 package com.wenjunhuang.codeepiphany.leetcode.models
 
-import io.circe.derivation.ConfiguredDecoder
+import io.circe.derivation.ConfiguredCodec
 
 case class LeetCodeTag(
   id: Option[String] = None,
@@ -8,4 +8,4 @@ case class LeetCodeTag(
   nameTranslated: Option[String] = None,
   slug: String,
   questions: List[Int] = Nil
-) derives ConfiguredDecoder
+) derives ConfiguredCodec

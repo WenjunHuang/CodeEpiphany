@@ -40,7 +40,6 @@ class HackerRankQueryParametersPresenter(project: Project, bootstraps: HackerRan
   private implicit val myHttpClientManager: HttpClientManager[IO] =
     HttpClientService.getInstance(project).httpClientManager
 
-  private val myLogger = LoggerFactory.getLogger[IO]
 
   override protected def createInitialQueryParameters(
     boostrapParameters: HackerRankBootstrapParameters

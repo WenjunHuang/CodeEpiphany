@@ -2,6 +2,9 @@ package com.wenjunhuang.codeepiphany.leetcode.ui
 
 import cats.effect.IO
 import cats.syntax.all.*
+import io.circe.*
+import io.circe.syntax.*
+import io.circe.generic.auto.*
 import javax.swing.{Icon, JTable, SwingConstants}
 import javax.swing.table.{DefaultTableCellRenderer, TableCellRenderer}
 import monocle.syntax.all.*
@@ -43,7 +46,6 @@ class LeetCodeCompanyQueryPresenter(
     ](project, boostrap) {
   private implicit val httpClientManager: HttpClientManager[IO] =
     HttpClientService.getInstance(myProject).httpClientManager
-  private val myLogger = LoggerFactory.getLogger[IO]
 
   override protected def prepareProviders(
     getter: () => QueryContext[LeetCodeCompanyQueryCriteria],
@@ -520,4 +522,37 @@ object LeetCodeCompanyQueryPresenter {
     selectedTags: List[Tag],
     orderBy: Option[(LeetCodeSearchOrderBy, OrderDirection)]
   )
+
+  object LeetCodeCompanyQueryCriteria {
+    implicit val circeEncoder: Encoder[LeetCodeCompanyQueryCriteria] = Encoder.instance{ criteria =>
+      Json.obj(
+        "selectedCompanies" := criteria.selectedCompanies,
+        "selectedPositions" := criteria.selectedPositions,
+        "selectedDifficulty" := criteria.selectedDifficulty,
+        "selectedStatus" := criteria.selectedStatus,
+        "selectedTags" -> leetCodeTagToJson(criteria.selectedTags),
+        "selectedInterviewPeriod" := criteria.selectedInterviewPeriod,
+        "orderBy" := criteria.orderBy
+      )
+    }
+    implicit val circeDecoder: Decoder[LeetCodeCompanyQueryCriteria] = Decoder.instance{ cursor =>
+      for {
+        selectedCompanies <- cursor.downField("selectedCompanies").as[Set[LeetCodeQuestionCompanyTag]]
+        selectedPositions <- cursor.downField("selectedPositions").as[List[LeetCodeProblemsetPositionTag]]
+        selectedDifficulty <- cursor.downField("selectedDifficulty").as[Option[ChallengeDifficulty]]
+        selectedStatus <- cursor.downField("selectedStatus").as[Option[ChallengeStatus]]
+        selectedTags <- cursor.downField("selectedTags").as[Json].flatMap(leetCodeTagFromJson)
+        selectedInterviewPeriod <- cursor.downField("selectedInterviewPeriod").as[InterviewPeriod]
+        orderBy <- cursor.downField("orderBy").as[Option[(LeetCodeSearchOrderBy, OrderDirection)]]
+      } yield LeetCodeCompanyQueryCriteria(
+        selectedCompanies,
+        selectedPositions,
+        selectedDifficulty,
+        selectedStatus,
+        selectedInterviewPeriod,
+        selectedTags,
+        orderBy
+      )
+    }
+  }
 }

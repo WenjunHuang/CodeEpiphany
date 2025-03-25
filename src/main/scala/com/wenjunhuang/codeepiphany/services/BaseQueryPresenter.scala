@@ -1,10 +1,11 @@
 package com.wenjunhuang.codeepiphany.services
 
-import cats.effect.{ IO, Resource }
+import cats.effect.{ IO, Resource, SyncIO }
 import cats.effect.std.Queue
 import cats.syntax.all.*
 import fs2.Stream
 import fs2.concurrent.SignallingRef
+import io.circe.{ Decoder, Encoder }
 import java.util
 import javax.swing.{ JComponent, ListSelectionModel }
 import org.typelevel.log4cats.{ Logger, LoggerFactory }
@@ -21,10 +22,13 @@ import com.wenjunhuang.codeepiphany.actions.PaginationParameterActionGroup.{
   PAGINATION_PROVIDER_KEY,
   PaginationParameterProvider
 }
+import com.wenjunhuang.codeepiphany.settings.dojo.BaseCodeDojoSettings
 import com.wenjunhuang.codeepiphany.utils.{ OrderByColumnInfo, PageSize, Pagination }
 import com.wenjunhuang.codeepiphany.utils.actions.DataSink
 import com.wenjunhuang.codeepiphany.utils.extensions.*
 import com.wenjunhuang.codeepiphany.utils.implicits.*
+import io.circe.syntax.*
+import io.circe.parser.*
 
 case class QueryContext[T](criteria: T, pagination: Pagination) {
   def updateCriteria(f: T => T): QueryContext[T] =
@@ -56,8 +60,11 @@ abstract class BaseQueryPresenter[UIBoostrapParameters, T, ResultItem](
   protected val myProject: Project,
   protected val myBoostrapParameters: UIBoostrapParameters
 ) extends Disposable {
-  protected val myLogger: Logger[IO] = LoggerFactory.getLogger[IO]
-  protected val myQueryStateManager  = QueryStateManager(createInitialQueryParameters(myBoostrapParameters))
+  protected val myLoggerIO: Logger[IO]   = LoggerFactory.getLogger[IO]
+  protected val myLogger: Logger[SyncIO] = LoggerFactory.getLogger[SyncIO]
+  protected val myQueryStateManager = QueryStateManager(
+    loadSavedCriteriaOrCreateFromBootstrapParameters(myBoostrapParameters)
+  )
   protected val myQueryResultTableModel: ListTableModel[ResultItem] = ListTableModel[ResultItem]()
   myQueryResultTableModel.setColumnInfos(getQueryResultColumns.asInstanceOf[Array[ColumnInfo[?, ?]]])
   protected val myQueryResultSelectionModel: ListSelectionModel = createQueryResultSelectionModel()
@@ -78,12 +85,23 @@ abstract class BaseQueryPresenter[UIBoostrapParameters, T, ResultItem](
     dataSink.set(PAGINATION_PROVIDER_KEY, myPaginationProvider)
   }
 
+  protected def saveQueryCriteria(queryCriteria: T, pagination: Pagination): Unit = {}
+  protected def loadQueryCriteria(): Option[(T, Pagination)] = None
+
   protected def createQueryResultSelectionModel(): ListSelectionModel = SingleSelectionModel()
   protected def createInitialQueryParameters(boostrapParameters: UIBoostrapParameters): QueryContext[T]
   protected def executeQuery(context: QueryContext[T]): IO[(Pagination, List[ResultItem])]
   protected def refreshPagination(): Unit
   protected def updateQueryUI(context: QueryContext[T]): Unit
 
+  private def loadSavedCriteriaOrCreateFromBootstrapParameters(
+    boostrapParameters: UIBoostrapParameters
+  ): QueryContext[T] = {
+    loadQueryCriteria() match
+      case None                   => createInitialQueryParameters(boostrapParameters)
+      case Some((criteria, page)) => QueryContext[T](criteria, page)
+
+  }
   def getQueryResultColumns: Array[OrderByColumnInfo[ResultItem, ?]]
 
   def requery(resetToFirstPage: Boolean = false): Unit = {
@@ -121,9 +139,11 @@ abstract class BaseQueryPresenter[UIBoostrapParameters, T, ResultItem](
                   .eval(IO.delay { myIsQuerying = true } *> executeQuery(context))
                   .evalTap { case (pagination, items) =>
                     IO.delay {
-                      myQueryStateManager.update(_.copy(pagination = pagination))
+                      val updatedCriteria = myQueryStateManager.update(_.copy(pagination = pagination)).criteria
                       myQueryResultTableModel.setItems(util.ArrayList[ResultItem](items.asJavaCollection))
                       refreshPagination()
+
+                      saveQueryCriteria(updatedCriteria, pagination)
                     }.evalOnEDTAny()
                   }
                   .interruptWhen(signal)
@@ -131,7 +151,7 @@ abstract class BaseQueryPresenter[UIBoostrapParameters, T, ResultItem](
                   .compile
                   .drain
                   .recoverWith { e =>
-                    myLogger.warn(e)("Failed to execute query") *>
+                    myLoggerIO.warn(e)("Failed to execute query") *>
                       console.error[IO](myProject, s"Failed to execute query because of \"${e.getMessage}\"")
                   }
                   .evalAsBackgroundProgress(myProject, "Querying challenges...")

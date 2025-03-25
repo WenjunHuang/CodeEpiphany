@@ -2,30 +2,42 @@ package com.wenjunhuang.codeepiphany.leetcode.ui
 
 import cats.effect.IO
 import cats.syntax.all.*
-import javax.swing.{Icon, JTable, SwingConstants}
-import javax.swing.table.{DefaultTableCellRenderer, TableCellRenderer}
+import io.circe.*
+import io.circe.syntax.*
+import io.circe.parser.*
+import javax.swing.{ Icon, JTable, SwingConstants }
+import javax.swing.table.{ DefaultTableCellRenderer, TableCellRenderer }
 import monocle.syntax.all.*
-import org.typelevel.log4cats.LoggerFactory
 
 import com.intellij.icons.AllIcons
-import com.intellij.openapi.actionSystem.{ActionGroup, ActionManager}
+import com.intellij.openapi.actionSystem.{ ActionGroup, ActionManager }
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.util.ui.table.IconTableCellRenderer
 
-import com.wenjunhuang.codeepiphany.actions.{OpenChallengeActionGroup, TagsAction}
-import com.wenjunhuang.codeepiphany.actions.DifficultyParameterAction.{DIFFICULTIES_PROVIDER_KEY, DifficultyParameterProvider}
-import com.wenjunhuang.codeepiphany.actions.StatusParameterAction.{STATUS_PROVIDER_KEY, StatusParameterProvider}
+import com.wenjunhuang.codeepiphany.actions.{ OpenChallengeActionGroup, TagsAction }
+import com.wenjunhuang.codeepiphany.actions.DifficultyParameterAction.{
+  DIFFICULTIES_PROVIDER_KEY,
+  DifficultyParameterProvider
+}
+import com.wenjunhuang.codeepiphany.actions.StatusParameterAction.{ STATUS_PROVIDER_KEY, StatusParameterProvider }
 import com.wenjunhuang.codeepiphany.actions.TagsAction.*
-import com.wenjunhuang.codeepiphany.leetcode.actions.FavoriteParameterAction.{FAVORITE_PROVIDER_KEY, FavoriteParameterProvider}
-import com.wenjunhuang.codeepiphany.leetcode.actions.LeetCodeCategoryParameterAction.{LEETCODE_CATEGORY_PROVIDER_KEY, LeetCodeCategoryProvider}
+import com.wenjunhuang.codeepiphany.leetcode.actions.FavoriteParameterAction.{
+  FAVORITE_PROVIDER_KEY,
+  FavoriteParameterProvider
+}
+import com.wenjunhuang.codeepiphany.leetcode.actions.LeetCodeCategoryParameterAction.{
+  LEETCODE_CATEGORY_PROVIDER_KEY,
+  LeetCodeCategoryProvider
+}
 import com.wenjunhuang.codeepiphany.leetcode.models.*
-import com.wenjunhuang.codeepiphany.leetcode.services.{LeetCodeApi, LeetCodeSearchOrderBy}
+import com.wenjunhuang.codeepiphany.leetcode.services.{ LeetCodeApi, LeetCodeSearchOrderBy }
+import com.wenjunhuang.codeepiphany.leetcode.settings.{ LeetCodeCNSettings, LeetCodeSettings }
 import com.wenjunhuang.codeepiphany.leetcode.ui.LeetCodeParametersQueryPresenter.*
 import com.wenjunhuang.codeepiphany.model.*
-import com.wenjunhuang.codeepiphany.services.{ParametersQueryPresenter, QueryContext}
-import com.wenjunhuang.codeepiphany.services.http.{HttpClientManager, HttpClientService}
-import com.wenjunhuang.codeepiphany.utils.{OrderByColumnInfo, Pagination}
+import com.wenjunhuang.codeepiphany.services.{ ParametersQueryPresenter, QueryContext }
+import com.wenjunhuang.codeepiphany.services.http.{ HttpClientManager, HttpClientService }
+import com.wenjunhuang.codeepiphany.utils.{ OrderByColumnInfo, PageSize, Pagination }
 import com.wenjunhuang.codeepiphany.utils.actions.DataSink
 import com.wenjunhuang.codeepiphany.utils.implicits.*
 import com.wenjunhuang.codeepiphany.utils.ui.TagPaneAction
@@ -40,7 +52,6 @@ class LeetCodeParametersQueryPresenter(
     ) {
   private implicit val httpClientManager: HttpClientManager[IO] =
     HttpClientService.getInstance(myProject).httpClientManager
-  private val myLogger = LoggerFactory.getLogger[IO]
 
   override protected def prepareProviders(
     getter: () => QueryContext[LeetCodeQueryCriteria],
@@ -366,6 +377,42 @@ class LeetCodeParametersQueryPresenter(
       }
   }
 
+  override protected def saveQueryCriteria(queryCriteria: LeetCodeQueryCriteria, pagination: Pagination): Unit =
+    val queryCriteriaStore = myLeetCodeDojo match
+      case CodeDojo.LeetCodeCN =>
+        LeetCodeCNSettings
+          .getInstance(myProject)
+          .getState
+          .queryCriteria
+      case CodeDojo.LeetCode =>
+        LeetCodeSettings
+          .getInstance(myProject)
+          .getState
+          .queryCriteria
+    queryCriteriaStore.put(s"${getClass.getSimpleName}-criteria", queryCriteria.asJson.noSpaces)
+    queryCriteriaStore.put(s"${getClass.getSimpleName}-pageSize", pagination.pageSize.value.toString)
+
+  override protected def loadQueryCriteria(): Option[(LeetCodeQueryCriteria, Pagination)] =
+    val queryCriteriaStore = myLeetCodeDojo match
+      case CodeDojo.LeetCodeCN =>
+        LeetCodeCNSettings
+          .getInstance(myProject)
+          .getState
+          .queryCriteria
+      case CodeDojo.LeetCode =>
+        LeetCodeSettings
+          .getInstance(myProject)
+          .getState
+          .queryCriteria
+    Option(queryCriteriaStore.get(s"${getClass.getSimpleName}-criteria"))
+      .flatMap(value => decode[LeetCodeQueryCriteria](value).toOption)
+      .zip(
+        Option(queryCriteriaStore.get(s"${getClass.getSimpleName}-pageSize"))
+          .flatMap(value => decode[PageSize](value).toOption)
+          .map(v => Pagination(pageSize = v))
+      )
+      .map(identity)
+
   override def getQueryResultColumns: Array[OrderByColumnInfo[LeetCodeChallengeListItem, ?]] = {
     import LeetCodeTableColumnTitle.*
     val userIsPremium = myBoostrapParameters.userInfo.isPremium.getOrElse(false)
@@ -492,6 +539,7 @@ object LeetCodeParametersQueryPresenter {
   private val DIFFICULTY_TAG_RADIUS = 0.3f
   private val STATUS_TAG_RADIUS     = 0.4f
   private val TAG_TAG_RADIUS        = 1.0f
+
   case class LeetCodeQueryCriteria(
     selectedCategory: Option[LeetCodeCategoryListItem],
     selectedFavorite: Option[LeetCodeFavoriteItem],
@@ -500,4 +548,35 @@ object LeetCodeParametersQueryPresenter {
     selectedTags: List[Tag],
     orderBy: Option[(LeetCodeSearchOrderBy, OrderDirection)]
   )
+
+  object LeetCodeQueryCriteria {
+    implicit val circeEncoder: Encoder[LeetCodeQueryCriteria] = Encoder.instance { criteria =>
+      Json.obj(
+        "selectedCategory"   := criteria.selectedCategory,
+        "selectedFavorite"   := criteria.selectedFavorite,
+        "selectedDifficulty" := criteria.selectedDifficulty,
+        "selectedStatus"     := criteria.selectedStatus,
+        "tags"               -> leetCodeTagToJson(criteria.selectedTags),
+        "orderBy"            := criteria.orderBy
+      )
+    }
+
+    implicit val circeDecoder: Decoder[LeetCodeQueryCriteria] = Decoder.instance { cursor =>
+      for {
+        selectedCategory   <- cursor.downField("selectedCategory").as[Option[LeetCodeCategoryListItem]]
+        selectedFavorite   <- cursor.downField("selectedFavorite").as[Option[LeetCodeFavoriteItem]]
+        selectedDifficulty <- cursor.downField("selectedDifficulty").as[Option[ChallengeDifficulty]]
+        selectedStatus     <- cursor.downField("selectedStatus").as[Option[ChallengeStatus]]
+        tags               <- cursor.downField("tags").as[Json].flatMap(leetCodeTagFromJson)
+        orderBy            <- cursor.downField("orderBy").as[Option[(LeetCodeSearchOrderBy, OrderDirection)]]
+      } yield LeetCodeQueryCriteria(
+        selectedCategory,
+        selectedFavorite,
+        selectedDifficulty,
+        selectedStatus,
+        tags,
+        orderBy
+      )
+    }
+  }
 }

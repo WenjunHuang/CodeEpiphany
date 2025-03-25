@@ -13,19 +13,20 @@ import com.intellij.util.ui.table.IconTableCellRenderer
 import com.wenjunhuang.codeepiphany.actions.OpenChallengeActionGroup
 import com.wenjunhuang.codeepiphany.leetcode.models.*
 import com.wenjunhuang.codeepiphany.leetcode.services.{LeetCodeApi, LeetCodeSearchOrderBy}
-import com.wenjunhuang.codeepiphany.leetcode.ui.LeetCodeKeywordQueryPresenter.QueryParams
+import com.wenjunhuang.codeepiphany.leetcode.ui.LeetCodeKeywordQueryPresenter.LeetCodeKeywordQueryParams
 import com.wenjunhuang.codeepiphany.model.*
 import com.wenjunhuang.codeepiphany.services.{KeywordQueryPresenter, QueryContext}
 import com.wenjunhuang.codeepiphany.services.http.{HttpClientManager, HttpClientService}
 import com.wenjunhuang.codeepiphany.utils.{OrderByColumnInfo, Pagination}
 import com.wenjunhuang.codeepiphany.utils.actions.DataSink
 import com.wenjunhuang.codeepiphany.utils.implicits.*
+import io.circe.generic.auto.*
 
 class LeetCodeKeywordQueryPresenter(
   project: Project,
   bootstrap: LeetCodeBootstrapParameters,
   private val myLeetCodeDojo: CodeDojo.LeetCodeCN.type | CodeDojo.LeetCode.type
-) extends KeywordQueryPresenter[LeetCodeBootstrapParameters, QueryParams, LeetCodeChallengeListItem](
+) extends KeywordQueryPresenter[LeetCodeBootstrapParameters, LeetCodeKeywordQueryParams, LeetCodeChallengeListItem](
       project,
       bootstrap
     ) {
@@ -34,10 +35,10 @@ class LeetCodeKeywordQueryPresenter(
 
   override protected def createInitialQueryParameters(
     boostrapParameters: LeetCodeBootstrapParameters
-  ): QueryContext[QueryParams] = QueryContext[QueryParams](criteria = QueryParams("", None), pagination = Pagination())
+  ): QueryContext[LeetCodeKeywordQueryParams] = QueryContext[LeetCodeKeywordQueryParams](criteria = LeetCodeKeywordQueryParams("", None), pagination = Pagination())
 
   override protected def executeQuery(
-    context: QueryContext[QueryParams]
+    context: QueryContext[LeetCodeKeywordQueryParams]
   ): IO[(Pagination, List[LeetCodeChallengeListItem])] = {
     val pageSize    = context.pagination.pageSize
     val currentPage = context.pagination.currentPage
@@ -180,7 +181,7 @@ class LeetCodeKeywordQueryPresenter(
     )
   }
 
-  override protected def updateQueryUI(context: QueryContext[QueryParams]): Unit = {}
+  override protected def updateQueryUI(context: QueryContext[LeetCodeKeywordQueryParams]): Unit = {}
 
   private def getDirectionOf(field: LeetCodeSearchOrderBy): Option[OrderDirection] =
     myQueryStateManager.get.criteria.orderBy.collect {
@@ -198,11 +199,11 @@ class LeetCodeKeywordQueryPresenter(
   }
 }
 object LeetCodeKeywordQueryPresenter {
-  case class QueryParams(keyword: String, orderBy: Option[(LeetCodeSearchOrderBy, OrderDirection)])
-  implicit val keywordContext: KeywordQueryPresenter.KeywordHolder[QueryParams] =
-    new KeywordQueryPresenter.KeywordHolder[QueryParams] {
-      override def keyword(v: QueryParams): String = v.keyword
+  case class LeetCodeKeywordQueryParams(keyword: String, orderBy: Option[(LeetCodeSearchOrderBy, OrderDirection)])
+  implicit val keywordContext: KeywordQueryPresenter.KeywordHolder[LeetCodeKeywordQueryParams] =
+    new KeywordQueryPresenter.KeywordHolder[LeetCodeKeywordQueryParams] {
+      override def keyword(v: LeetCodeKeywordQueryParams): String = v.keyword
 
-      override def updateKeyword(v: QueryParams, keyword: String): QueryParams = v.copy(keyword = keyword)
+      override def updateKeyword(v: LeetCodeKeywordQueryParams, keyword: String): LeetCodeKeywordQueryParams = v.copy(keyword = keyword)
     }
 }

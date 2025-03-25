@@ -1,5 +1,6 @@
 package com.wenjunhuang.codeepiphany.utils
 import cats.Show
+import io.circe.{Decoder, Encoder}
 
 import com.wenjunhuang.codeepiphany.PluginBundle
 
@@ -19,6 +20,9 @@ enum PageSize(val value: Int) {
 }
 
 object PageSize {
+  implicit val circeEncoder: Encoder[PageSize] = Encoder.encodeInt.contramap[PageSize](_.value)
+  implicit val circeDecoder: Decoder[PageSize] = Decoder.decodeInt.emap(value => fromInt(value).toRight("Unknown page size value"))
+  
   implicit val showInstance: Show[PageSize] = Show.show[PageSize] {
     case Twenty     => PluginBundle.message("pagesize.20")
     case Fifty      => PluginBundle.message("pagesize.50")

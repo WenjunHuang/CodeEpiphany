@@ -1,6 +1,7 @@
 package com.wenjunhuang.codeepiphany.model
 
 import cats.syntax.all.*
+import io.circe.*
 import org.typelevel.ci.CIString
 
 import com.wenjunhuang.codeepiphany.PluginBundle
@@ -44,6 +45,11 @@ object ChallengeDifficulty {
         Option(PluginBundle.messageOfBuildKey(s"challenge.difficulty.${codeDojo.value}.${codeDojoValue}"))
           .getOrElse(codeDojo.difficultyShow(codeDojoValue))
     }
+
+  implicit val circeEncoder: Encoder[ChallengeDifficulty] =
+    Encoder.encodeString.contramap(_.value)
+  implicit val circeDecoder: Decoder[ChallengeDifficulty] =
+    Decoder.decodeString.emap(v => fromCIString(CIString(v)).toRight("Unknown difficulty value"))
 
   def fromCIString(str: CIString): Option[ChallengeDifficulty] =
     if str == CIString(Easy.value) then Some(Easy)

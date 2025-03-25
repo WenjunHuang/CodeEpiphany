@@ -7,8 +7,7 @@ import com.vladsch.flexmark.util.data.MutableDataSet
 import io.circe.optics.*
 import io.circe.parser.*
 import java.io.FileInputStream
-import java.net.{ HttpCookie, URLDecoder }
-import org.jsoup.Jsoup
+import java.net.{HttpCookie, URLDecoder}
 import scala.io.Source
 
 import com.intellij.testFramework.fixtures.BasePlatformTestCase
@@ -16,7 +15,7 @@ import com.intellij.util.net.HttpConfigurable
 
 import com.wenjunhuang.codeepiphany.luogu.services.LuoGuApi
 import com.wenjunhuang.codeepiphany.model.CodeDojo
-import com.wenjunhuang.codeepiphany.services.http.{ HttpClientManager, HttpClientService }
+import com.wenjunhuang.codeepiphany.services.http.{HttpClientManager, HttpClientService}
 import com.wenjunhuang.codeepiphany.utils.CookieUtil
 import com.wenjunhuang.codeepiphany.utils.implicits.*
 

@@ -57,7 +57,7 @@ final class AuthService(private val myProject: Project) {
 
   def clearLogin(codeDojo: CodeDojo): Unit = myLoginCache.updateAndGet(_ - codeDojo)
 
-  def isAuthenticated[F[_]: Async: HttpClientManager](codeDojo: CodeDojo): F[Boolean] =
+  private def isAuthenticated[F[_]: Async: HttpClientManager](codeDojo: CodeDojo): F[Boolean] =
     checkLoginStatus(codeDojo)
 
   private def loadAuthentication[F[_]: Async: HttpClientManager](codeDojo: CodeDojo): F[Unit] =

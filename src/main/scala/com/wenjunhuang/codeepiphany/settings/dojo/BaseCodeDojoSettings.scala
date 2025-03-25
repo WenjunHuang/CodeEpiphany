@@ -9,7 +9,7 @@ import com.intellij.openapi.components.PersistentStateComponent
 import com.intellij.openapi.project.Project
 import com.intellij.util.xmlb.annotations.Attribute
 
-import com.wenjunhuang.codeepiphany.model.{Language, LanguageVersion}
+import com.wenjunhuang.codeepiphany.model.{ Language, LanguageVersion }
 import com.wenjunhuang.codeepiphany.settings.dojo.BaseCodeDojoSettings.*
 import com.wenjunhuang.codeepiphany.utils.XmlUtils.*
 
@@ -40,6 +40,8 @@ object BaseCodeDojoSettings {
   class CodeDojoSettingsState {
     @BeanProperty
     var languageSettings: ju.List[LanguageSettingsState] = new ju.ArrayList[LanguageSettingsState]()
+    @BeanProperty
+    var queryCriteria: ju.Map[String, String] = new ju.HashMap[String, String]()
   }
 
   class LanguageSettingsState {

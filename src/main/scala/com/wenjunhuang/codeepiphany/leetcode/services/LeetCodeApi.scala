@@ -27,6 +27,8 @@ import com.wenjunhuang.codeepiphany.leetcode.models.submitAnswer.{
 import com.wenjunhuang.codeepiphany.model.*
 import com.wenjunhuang.codeepiphany.model.CodeDojo.{ LeetCode, LeetCodeCN }
 import com.wenjunhuang.codeepiphany.services.http.HttpClientManager
+import io.circe.*
+import org.typelevel.ci.CIString
 
 enum LeetCodeSearchOrderBy(val value: String) {
   case FontEndId   extends LeetCodeSearchOrderBy("FRONTEND_ID")
@@ -34,6 +36,20 @@ enum LeetCodeSearchOrderBy(val value: String) {
   case ACRate      extends LeetCodeSearchOrderBy("AC_RATE")
   case Difficulty  extends LeetCodeSearchOrderBy("DIFFICULTY")
   case Frequency   extends LeetCodeSearchOrderBy("FREQUENCY")
+}
+object LeetCodeSearchOrderBy {
+  def fromCIString(value: CIString): Option[LeetCodeSearchOrderBy] =
+    if value == CIString(FontEndId.value) then Some(FontEndId)
+    else if value == CIString(SolutionNum.value) then Some(SolutionNum)
+    else if value == CIString(ACRate.value) then Some(ACRate)
+    else if value == CIString(Difficulty.value) then Some(Difficulty)
+    else if value == CIString(Frequency.value) then Some(Frequency)
+    else None
+    
+  implicit val circeEncoder: Encoder[LeetCodeSearchOrderBy] =
+    Encoder.encodeString.contramap[LeetCodeSearchOrderBy](_.value)
+  implicit val circeDecoder: Decoder[LeetCodeSearchOrderBy] =
+    Decoder.decodeString.emap(v => fromCIString(CIString(v)).toRight("Unknown search order by value"))
 }
 
 trait LeetCodeApi[F[_]] {
@@ -408,7 +424,10 @@ object LeetCodeApi {
         client
           .expect[Json](
             Method
-              .GET(Uri.unsafeFromString("https://leetcode.com/problems/api/tags/"), headers = commonHeaders(csrfToken))
+              .GET(
+                Uri.unsafeFromString(s"https://${dojo.domain}/problems/api/tags/"),
+                headers = commonHeaders(csrfToken)
+              )
           )
           .flatMap { json =>
             JsonPath.root.topics.json
@@ -437,10 +456,7 @@ object LeetCodeApi {
           client
             .expect[Json](
               Method
-                .POST(
-                  Uri.unsafeFromString(s"https://${dojo.domain.toString}/graphql/"),
-                  headers = commonHeaders(csrfToken)
-                )
+                .POST(graphqlUrl, headers = commonHeaders(csrfToken))
                 .withEntity(
                   LeetCodeGraphQLRequest(
                     operationName = "questionTagTypeWithTags",
@@ -606,10 +622,7 @@ object LeetCodeApi {
                           "questionStatuses" -> status.map(dojo.leetCodeStatusForCompanySearch).toList.asJson,
                           "operator"         -> "IS".asJson
                         ).asJson,
-                        "topicFilter" -> Map(
-                          "topicSlugs" -> tags.map(_.slug).asJson,
-                          "operator"   -> "IS".asJson
-                        ).asJson,
+                        "topicFilter" -> Map("topicSlugs" -> tags.map(_.slug).asJson, "operator" -> "IS".asJson).asJson,
                         "filterCombineType" -> "ALL".asJson
                       ).asJson,
                       "sortBy" -> createSortField(
