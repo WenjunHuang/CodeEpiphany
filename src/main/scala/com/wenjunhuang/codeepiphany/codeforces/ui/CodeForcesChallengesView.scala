@@ -5,27 +5,36 @@ import cats.syntax.all.*
 import icons.CodeEpiphanyIcons
 import java.util.concurrent.atomic.AtomicBoolean
 import javax.swing.JComponent
+import org.typelevel.ci.CIString
 import org.typelevel.log4cats.LoggerFactory
 
 import com.intellij.openapi.Disposable
-import com.intellij.openapi.actionSystem.{ActionGroup, ActionManager}
+import com.intellij.openapi.actionSystem.{ ActionGroup, ActionManager }
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
 
-import com.wenjunhuang.codeepiphany.actions.LoginAction.{LOGIN_LOGOUT_KEY, LoginLogoutProvider}
-import com.wenjunhuang.codeepiphany.codeforces.actions.CodeForcesChangeUIAction.{CODEFORCES_CHANGE_UI_PROVIDER_KEY, CodeForcesChangeUIProvider, CodeForcesUI}
-import com.wenjunhuang.codeepiphany.codeforces.actions.CodeForcesUpdateProblemSetsAction.{CODEFORCES_UPDATE_PROBLEM_SETS_PROVIDER_KEY, CodeForcesUpdateProblemSetsProvider}
+import com.wenjunhuang.codeepiphany.actions.LoginAction.{ LOGIN_LOGOUT_KEY, LoginLogoutProvider }
+import com.wenjunhuang.codeepiphany.codeforces.actions.CodeForcesChangeUIAction.{
+  CODEFORCES_CHANGE_UI_PROVIDER_KEY,
+  CodeForcesChangeUIProvider,
+  CodeForcesUI
+}
+import com.wenjunhuang.codeepiphany.codeforces.actions.CodeForcesUpdateProblemSetsAction.{
+  CODEFORCES_UPDATE_PROBLEM_SETS_PROVIDER_KEY,
+  CodeForcesUpdateProblemSetsProvider
+}
 import com.wenjunhuang.codeepiphany.codeforces.services.problemsets.fetchAndUpdateProblemSets
 import com.wenjunhuang.codeepiphany.model.Actions.CODEFORCES_TITLE_TOOLBAR_GROUP
 import com.wenjunhuang.codeepiphany.model.CodeDojo
 import com.wenjunhuang.codeepiphany.model.CodeDojo.CodeForces
-import com.wenjunhuang.codeepiphany.services.{console, AskForLoginResult, AuthService, BaseChallengesView}
-import com.wenjunhuang.codeepiphany.services.http.{HttpClientManager, HttpClientService}
+import com.wenjunhuang.codeepiphany.services.{ console, AskForLoginResult, AuthService, BaseChallengesView }
+import com.wenjunhuang.codeepiphany.services.http.{ HttpClientManager, HttpClientService }
 import com.wenjunhuang.codeepiphany.utils.extensions.*
 import com.wenjunhuang.codeepiphany.utils.implicits.*
 import com.wenjunhuang.codeepiphany.utils.ui.UnauthenticatedView
 import com.wenjunhuang.codeepiphany.PluginBundle
 import com.wenjunhuang.codeepiphany.codeforces.services.CodeForcesApi
+import com.wenjunhuang.codeepiphany.codeforces.settings.CodeForcesSettings
 import com.wenjunhuang.codeepiphany.utils.actions.DataSink
 
 class CodeForcesChallengesView(private val myProject: Project) extends BaseChallengesView[CodeForcesUI] {
@@ -34,8 +43,7 @@ class CodeForcesChallengesView(private val myProject: Project) extends BaseChall
     HttpClientService.getInstance(myProject).httpClientManager
 
   private val myUnauthenticatedView =
-    UnauthenticatedView(CodeForces, Some(PluginBundle.message("needFetchQuestions.tips",
-      CodeForces.show)))
+    UnauthenticatedView(CodeForces, Some(PluginBundle.message("needFetchQuestions.tips", CodeForces.show)))
 
   @volatile
   private var myQueryParamPresenter: Option[CodeForcesParametersQueryPresenter] = None
@@ -68,7 +76,8 @@ class CodeForcesChallengesView(private val myProject: Project) extends BaseChall
                 myKeywordSearchPresenter = Some(CodeForcesKeywordQueryPresenter(myProject, bootstrap))
               } *> IO.delay {
                 AuthService.getInstance(myProject).setLogin(CodeDojo.CodeForces)
-                mySwitchUIProvider.switchTo(CodeForcesUI.QueryParameters)
+                val gotoUI = loadLastUI().getOrElse(CodeForcesUI.QueryParameters)
+                mySwitchUIProvider.switchTo(gotoUI)
               }.evalOnEDTAny()
                 *> console.info[IO](myProject, s"Logged in to ${CodeDojo.CodeForces.show}.")
             case _ => console.info[IO](myProject, s"Login to ${CodeDojo.CodeForces.show} canceled.")
@@ -98,6 +107,7 @@ class CodeForcesChallengesView(private val myProject: Project) extends BaseChall
     override def switchTo(ui: CodeForcesUI): Unit =
       myCurrentUI = ui
       select(ui, false)
+      saveLastUI(ui)
 
     override def getCurrentUI: CodeForcesUI = myCurrentUI
   }
@@ -136,4 +146,20 @@ class CodeForcesChallengesView(private val myProject: Project) extends BaseChall
     myKeywordSearchPresenter.foreach(Disposer.dispose)
     myQueryParamPresenter.foreach(Disposer.dispose)
   }
+
+  private def saveLastUI(ui: CodeForcesUI): Unit =
+    CodeForcesSettings
+      .getInstance(myProject)
+      .getState
+      .queryCriteria
+      .put(s"${getClass.getSimpleName}-lastUI", ui.toString)
+
+  private def loadLastUI(): Option[CodeForcesUI] =
+    Option(
+      CodeForcesSettings
+        .getInstance(myProject)
+        .getState
+        .queryCriteria
+        .get(s"${getClass.getSimpleName}-lastUI")
+    ).flatMap(value => CodeForcesUI.fromCIStringToAuthenticated(CIString(value)))
 }

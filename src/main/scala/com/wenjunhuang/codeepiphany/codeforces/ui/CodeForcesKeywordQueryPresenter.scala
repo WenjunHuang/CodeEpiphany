@@ -14,10 +14,16 @@ import com.wenjunhuang.codeepiphany.codeforces.ui.CodeForcesKeywordQueryPresente
 import com.wenjunhuang.codeepiphany.database.tables.records.CodeforcesProblemsetsRecord
 import com.wenjunhuang.codeepiphany.database.Tables.*
 import com.wenjunhuang.codeepiphany.model.OrderDirection
-import com.wenjunhuang.codeepiphany.services.{ChallengeRepository, KeywordQueryPresenter, QueryContext}
+import com.wenjunhuang.codeepiphany.services.{ ChallengeRepository, KeywordQueryPresenter, QueryContext }
 import com.wenjunhuang.codeepiphany.services.KeywordQueryPresenter.KeywordHolder
-import com.wenjunhuang.codeepiphany.utils.{OrderByColumnInfo, Pagination}
+import com.wenjunhuang.codeepiphany.utils.{ OrderByColumnInfo, PageSize, Pagination }
 import com.wenjunhuang.codeepiphany.utils.actions.DataSink
+import io.circe.generic.semiauto.*
+import io.circe.*
+import io.circe.parser.*
+import io.circe.syntax.*
+
+import com.wenjunhuang.codeepiphany.codeforces.settings.CodeForcesSettings
 
 class CodeForcesKeywordQueryPresenter(project: Project, bootstrap: CodeForcesBootstrapParameters)
     extends KeywordQueryPresenter[CodeForcesBootstrapParameters, QueryParams, CodeforcesProblemsetsRecord](
@@ -92,8 +98,6 @@ class CodeForcesKeywordQueryPresenter(project: Project, bootstrap: CodeForcesBoo
         }
   }
 
-  override protected def updateQueryUI(context: QueryContext[QueryParams]): Unit = {}
-
   private def getDirectionOf(field: CodeForcesSearchOrderBy): Option[OrderDirection] =
     myQueryStateManager.get.criteria.orderBy.collect {
       case (f, d) if f == field => d
@@ -149,10 +153,30 @@ class CodeForcesKeywordQueryPresenter(project: Project, bootstrap: CodeForcesBoo
         setDirectionOf(CodeForcesSearchOrderBy.Rating, filter)
     }
   )
+
+  override protected def saveQueryCriteria(queryCriteria: QueryParams, pagination: Pagination): Unit =
+    val storage = CodeForcesSettings.getInstance(myProject).getState.queryCriteria
+    storage.put(s"${getClass.getSimpleName}-criteria", queryCriteria.asJson.noSpaces)
+    storage.put(s"${getClass.getSimpleName}-pageSize", pagination.pageSize.value.toString)
+
+  override protected def loadQueryCriteria(): Option[(QueryParams, Pagination)] =
+    val storage = CodeForcesSettings.getInstance(myProject).getState.queryCriteria
+    Option(storage.get(s"${getClass.getSimpleName}-criteria"))
+      .flatMap(decode[QueryParams](_).toOption)
+      .zip(
+        Option(storage.get(s"${getClass.getSimpleName}-pageSize"))
+          .flatMap(s => decode[PageSize](s).toOption)
+          .map(v => Pagination(pageSize = v))
+      )
+
 }
 
 object CodeForcesKeywordQueryPresenter {
   case class QueryParams(keyword: String, orderBy: Option[(CodeForcesSearchOrderBy, OrderDirection)])
+  object QueryParams {
+    implicit val circeEncoder: Encoder[QueryParams] = deriveEncoder[QueryParams]
+    implicit val circeDecoder: Decoder[QueryParams] = deriveDecoder[QueryParams]
+  }
   implicit val keywordHolder: KeywordHolder[QueryParams] = new KeywordHolder[QueryParams] {
     override def keyword(v: QueryParams): String = v.keyword
 

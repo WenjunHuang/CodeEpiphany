@@ -1,24 +1,28 @@
 package com.wenjunhuang.codeepiphany.codeforces.ui
 
 import cats.effect.IO
+import io.circe.{ Decoder, Encoder, Json }
+import io.circe.parser.*
+import io.circe.syntax.*
 import monocle.syntax.all.*
 import org.jooq.impl.DSL
 import scala.jdk.CollectionConverters.*
 
-import com.intellij.openapi.actionSystem.{ActionGroup, ActionManager}
+import com.intellij.openapi.actionSystem.{ ActionGroup, ActionManager }
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.text.StringUtil
 
-import com.wenjunhuang.codeepiphany.actions.{DifficultyParameterAction, OpenChallengeActionGroup, TagsAction}
+import com.wenjunhuang.codeepiphany.actions.{ DifficultyParameterAction, OpenChallengeActionGroup, TagsAction }
 import com.wenjunhuang.codeepiphany.actions.DifficultyParameterAction.DifficultyParameterProvider
-import com.wenjunhuang.codeepiphany.actions.TagsAction.{SingleTagGroupProvider, Tag}
-import com.wenjunhuang.codeepiphany.codeforces.models.{codeForcesDifficultyToRatingRange, CodeForcesSearchOrderBy}
+import com.wenjunhuang.codeepiphany.actions.TagsAction.{ SingleTagGroupProvider, Tag }
+import com.wenjunhuang.codeepiphany.codeforces.models.{ codeForcesDifficultyToRatingRange, CodeForcesSearchOrderBy }
+import com.wenjunhuang.codeepiphany.codeforces.settings.CodeForcesSettings
 import com.wenjunhuang.codeepiphany.codeforces.ui.CodeForcesParametersQueryPresenter.*
 import com.wenjunhuang.codeepiphany.database.tables.records.CodeforcesProblemsetsRecord
 import com.wenjunhuang.codeepiphany.database.Tables.CODEFORCES_PROBLEMSETS_FTS
-import com.wenjunhuang.codeepiphany.model.{Actions, ChallengeDifficulty, OrderDirection}
-import com.wenjunhuang.codeepiphany.services.{ChallengeRepository, ParametersQueryPresenter, QueryContext}
-import com.wenjunhuang.codeepiphany.utils.{OrderByColumnInfo, Pagination}
+import com.wenjunhuang.codeepiphany.model.{ Actions, ChallengeDifficulty, OrderDirection }
+import com.wenjunhuang.codeepiphany.services.{ ChallengeRepository, ParametersQueryPresenter, QueryContext }
+import com.wenjunhuang.codeepiphany.utils.{ OrderByColumnInfo, PageSize, Pagination }
 import com.wenjunhuang.codeepiphany.utils.actions.DataSink
 import com.wenjunhuang.codeepiphany.utils.ui.TagPaneAction
 
@@ -247,6 +251,20 @@ class CodeForcesParametersQueryPresenter(project: Project, bootstrap: CodeForces
     }
   )
 
+  override protected def saveQueryCriteria(queryCriteria: QueryParams, pagination: Pagination): Unit =
+    val storage = CodeForcesSettings.getInstance(myProject).getState.queryCriteria
+    storage.put(s"${getClass.getSimpleName}-criteria", queryCriteria.asJson.noSpaces)
+    storage.put(s"${getClass.getSimpleName}-pageSize", pagination.pageSize.value.toString)
+
+  override protected def loadQueryCriteria(): Option[(QueryParams, Pagination)] =
+    val storage = CodeForcesSettings.getInstance(myProject).getState.queryCriteria
+    Option(storage.get(s"${getClass.getSimpleName}-criteria"))
+      .flatMap(v => decode[QueryParams](v).toOption)
+      .zip(
+        Option(storage.get(s"${getClass.getSimpleName}-pageSize"))
+          .flatMap(v => decode[PageSize](v).toOption)
+          .map(v => Pagination(pageSize = v))
+      )
 }
 
 object CodeForcesParametersQueryPresenter {
@@ -255,6 +273,24 @@ object CodeForcesParametersQueryPresenter {
     selectedTags: List[Tag],
     orderBy: Option[(CodeForcesSearchOrderBy, OrderDirection)]
   )
+
+  object QueryParams {
+    implicit val circeEncoder: Encoder[QueryParams] = Encoder.instance { criteria =>
+      Json.obj(
+        "selectedDifficulty" := criteria.selectedDifficulty,
+        "selectedTags"       -> codeForcesTagToJson(criteria.selectedTags),
+        "orderBy"            := criteria.orderBy
+      )
+    }
+
+    implicit val circeDecoder: Decoder[QueryParams] = Decoder.instance { cursor =>
+      for {
+        selectedDifficulty <- cursor.downField("selectedDifficulty").as[Option[ChallengeDifficulty]]
+        tags               <- cursor.downField("selectedTags").as[Json].flatMap(codeForcesTagFromJson)
+        orderBy            <- cursor.downField("orderBy").as[Option[(CodeForcesSearchOrderBy, OrderDirection)]]
+      } yield QueryParams(selectedDifficulty, tags, orderBy)
+    }
+  }
 
   private val DIFFICULTY_TAG_RADIUS = 0.3f
   private val TAG_TAG_RADIUS        = 1.0f
