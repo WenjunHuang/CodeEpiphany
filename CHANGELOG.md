@@ -1,3 +1,7 @@
+## 1.0.1
+### Changed
+- Change description
+ 
 ## 1.0.0
 ### Added
 - Automatically save search queries
@@ -6,7 +10,7 @@
 ## 0.9.8
 ### Changed
 - Fix luogu login change
-- 
+ 
 ## 0.9.3
 ### Changed
 - Fix leetcode company combobox dropdown slow
