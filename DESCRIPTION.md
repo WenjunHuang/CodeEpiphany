@@ -1,4 +1,4 @@
-## LeetCode Epiphany 🌟
+## LeetCode Epiphany (悟码时刻) 🌟
 
 ### Current Supported Platforms
 

@@ -1,27 +1,72 @@
-<svg xmlns="http://www.w3.org/2000/svg"
-     width="16" height="16"
-     preserveAspectRatio="xMidYMid meet">
-    <g transform="scale(0.086666)">
-        <g transform="translate(0.000000,150.000000) scale(0.100000,-0.100000)"
-           fill="#B4B2B1" stroke="none">
-            <path d="M658 736 c-33 -12 -48 -44 -48 -101 0 -37 5 -48 29 -66 28 -21 36
--21 362 -20 321 2 334 3 352 22 42 45 27 148 -23 164 -33 10 -643 11 -672 1z"/>
-        </g>
-        <g transform="translate(0.000000,150.000000) scale(0.100000,-0.100000)"
-           fill="#F89F1C" stroke="none">
-            <path d="M841 1202 c-18 -6 -194 -182 -188 -188 2 -2 21 2 43 9 83 27 117 12
-229 -99 53 -52 108 -97 122 -100 35 -9 95 23 107 57 16 47 -2 80 -102 180 -95
-95 -181 152 -211 141z"/>
-            <path d="M947 382 c-50 -49 -106 -97 -124 -106 -40 -20 -100 -21 -147 -1 -36
-15 -37 15 -27 -4 35 -64 -18 -140 -86 -126 l-28 6 23 -20 c75 -66 227 -79 336
--28 80 37 266 220 266 261 0 54 -31 92 -84 101 -35 7 -39 5 -129 -83z"/>
-        </g>
-        <g transform="translate(0.000000,150.000000) scale(0.100000,-0.100000)"
-           fill="#DDDDDD" stroke="none">
-            <path d="M559 1173 c-331 -331 -355 -360 -379 -468 -13 -58 -6 -117 22 -195
-18 -47 44 -78 177 -213 144 -145 159 -157 192 -157 67 0 111 57 88 117 -5 15
--68 86 -138 158 -71 72 -134 141 -140 153 -19 36 -17 127 3 157 22 33 224 243
-446 461 171 169 175 173 175 214 0 54 -38 90 -93 90 -35 0 -52 -16 -353 -317z"/>
-        </g>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   width="16"
+   height="16"
+   preserveAspectRatio="xMidYMid"
+   version="1.1"
+   id="svg5"
+   sodipodi:docname="leetcode_dark.svg"
+   inkscape:version="1.4 (86a8ad7, 2024-10-11)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview1"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:zoom="50.4375"
+     inkscape:cx="7.9900867"
+     inkscape:cy="8"
+     inkscape:window-width="1920"
+     inkscape:window-height="1009"
+     inkscape:window-x="-8"
+     inkscape:window-y="-8"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="g5" />
+  <defs
+     id="defs5" />
+  <g
+     transform="scale(0.086666)"
+     id="g5">
+    <g
+       id="g2"
+       transform="matrix(1.2984197,0,0,1.2984197,-8.3934275,-1.0619093)">
+      <g
+         transform="matrix(0.1,0,0,-0.1,0,150)"
+         fill="#b4b2b1"
+         stroke="none"
+         id="g1">
+        <path
+           d="m 658,736 c -33,-12 -48,-44 -48,-101 0,-37 5,-48 29,-66 28,-21 36,-21 362,-20 321,2 334,3 352,22 42,45 27,148 -23,164 -33,10 -643,11 -672,1 z"
+           id="path1" />
+      </g>
+      <g
+         transform="matrix(0.1,0,0,-0.1,0,150)"
+         fill="#f89f1c"
+         stroke="none"
+         id="g3">
+        <path
+           d="m 841,1202 c -18,-6 -194,-182 -188,-188 2,-2 21,2 43,9 83,27 117,12 229,-99 53,-52 108,-97 122,-100 35,-9 95,23 107,57 16,47 -2,80 -102,180 -95,95 -181,152 -211,141 z"
+           id="path2" />
+        <path
+           d="M 947,382 C 897,333 841,285 823,276 783,256 723,255 676,275 c -36,15 -37,15 -27,-4 35,-64 -18,-140 -86,-126 l -28,6 23,-20 c 75,-66 227,-79 336,-28 80,37 266,220 266,261 0,54 -31,92 -84,101 -35,7 -39,5 -129,-83 z"
+           id="path3" />
+      </g>
+      <g
+         transform="matrix(0.1,0,0,-0.1,0,150)"
+         fill="#dddddd"
+         stroke="none"
+         id="g4">
+        <path
+           d="M 559,1173 C 228,842 204,813 180,705 167,647 174,588 202,510 220,463 246,432 379,297 523,152 538,140 571,140 c 67,0 111,57 88,117 -5,15 -68,86 -138,158 -71,72 -134,141 -140,153 -19,36 -17,127 3,157 22,33 224,243 446,461 171,169 175,173 175,214 0,54 -38,90 -93,90 -35,0 -52,-16 -353,-317 z"
+           id="path4" />
+      </g>
     </g>
+  </g>
 </svg>
