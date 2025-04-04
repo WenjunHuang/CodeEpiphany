@@ -77,12 +77,17 @@ object LuoGuApi {
 
     override def checkLogin(): F[Boolean] = useClient { client =>
       getCSRFTokenAndPassAntiCrawler.flatMap { csrfToken =>
-        client.expect[String](Uri.unsafeFromString("https://www.luogu.com.cn/user/setting")).map { html =>
-          val doc   = Jsoup.parse(html)
-          val title = doc.select("title").text()
-          if title == "用户设置 - 洛谷" || title == "Welcome - Luogu Spilopelia" then true
-          else !doc.select("#app > h1").asScala.headOption.exists(_.text().contains("401"))
-        }
+        client
+          .expect[String](Uri.unsafeFromString("https://www.luogu.com.cn/user/setting"))
+          .map { html =>
+            val doc   = Jsoup.parse(html)
+            val title = doc.select("title").text()
+            if title == "用户设置 - 洛谷" || title == "Welcome - Luogu Spilopelia" then true
+            else !doc.select("#app > h1").asScala.headOption.exists(_.text().contains("401"))
+          }
+          .handleErrorWith { case status: UnexpectedStatus =>
+            Async[F].pure(false)
+          }
       }
     }
 

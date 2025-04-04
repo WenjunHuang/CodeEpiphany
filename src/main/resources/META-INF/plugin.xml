@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <idea-plugin>
     <id>com.wenjunhuang.codeepiphany</id>
-    <name>Code Epiphany</name>
+    <name>LeetCode Epiphany</name>
     <vendor>Wenjun Huang</vendor>
     <version>0.0.0</version>
     <description>Your ultimate plugin for mastering coding challenges directly in Idea platforms!</description>

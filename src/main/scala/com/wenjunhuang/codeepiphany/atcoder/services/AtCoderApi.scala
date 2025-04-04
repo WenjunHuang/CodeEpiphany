@@ -1,12 +1,12 @@
 package com.wenjunhuang.codeepiphany.atcoder.services
 
-import cats.effect.{Concurrent, Temporal}
+import cats.effect.{ Concurrent, Temporal }
 import cats.effect.kernel.Async
 import cats.syntax.all.*
 import fs2.Stream
 import io.circe.JsonObject
-import org.http4s.{Method, UrlForm}
-import org.http4s.client.{Client, UnexpectedStatus}
+import org.http4s.{ Method, UrlForm }
+import org.http4s.client.{ Client, UnexpectedStatus }
 import org.http4s.client.dsl.Http4sClientDsl
 import org.http4s.implicits.uri
 import org.jsoup.Jsoup
@@ -18,7 +18,7 @@ import com.intellij.openapi.util.text.StringUtil
 
 import com.wenjunhuang.codeepiphany.atcoder.models.*
 import com.wenjunhuang.codeepiphany.atcoder.settings.AtCoderSettingsConfigurable.ATCODER_LANGUAGES_REVERSE
-import com.wenjunhuang.codeepiphany.model.{ApiError, CodeDojo, SubmissionResult}
+import com.wenjunhuang.codeepiphany.model.{ ApiError, CodeDojo, SubmissionResult }
 import com.wenjunhuang.codeepiphany.services.http.HttpClientManager
 
 trait AtCoderApi[F[_]] {
@@ -39,9 +39,14 @@ trait AtCoderApi[F[_]] {
 object AtCoderApi {
   def apply[F[_]: Async: Concurrent: HttpClientManager](): AtCoderApi[F] = new AtCoderApi[F] with Http4sClientDsl[F] {
     override def checkLogin(): F[Boolean] = useClient { client =>
-      client.expect[String](uri"https://atcoder.jp/settings").map { content =>
-        !Jsoup.parse(content).select("#main-container #user-nav-tabs").isEmpty
-      }
+      client
+        .expect[String](uri"https://atcoder.jp/settings")
+        .map { content =>
+          !Jsoup.parse(content).select("#main-container #user-nav-tabs").isEmpty
+        }
+        .handleErrorWith { case status: UnexpectedStatus =>
+          Async[F].pure(false)
+        }
     }
 
     override def getUserInfo: F[AtCoderUserInfo] = useClient { client =>
@@ -236,7 +241,7 @@ object AtCoderApi {
           }
       }
     }
-    
+
     private def useClient[A](f: Client[F] => F[A]): F[A] = HttpClientManager[F].getClient.use(f)
 
     private def judgeStatusToSubmissionResult(title: String, text: String): SubmissionResult = {

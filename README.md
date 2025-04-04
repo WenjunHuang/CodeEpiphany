@@ -1,7 +1,7 @@
 🌐 语言:
 [中文](README.md) | [English](README_en.md)
 
-## Code Epiphany 🌟
+## LeetCode Epiphany 🌟
 
 **专为JetBrains IDE设计的全功能插件，助您高效应对编程挑战**
 

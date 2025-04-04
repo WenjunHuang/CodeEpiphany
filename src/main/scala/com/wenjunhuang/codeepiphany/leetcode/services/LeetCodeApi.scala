@@ -9,7 +9,7 @@ import io.circe.syntax.*
 import org.http4s.{Headers, Method, Uri}
 import org.http4s.circe.CirceEntityCodec.*
 import org.http4s.client.dsl.Http4sClientDsl
-import org.http4s.client.Client
+import org.http4s.client.{Client, UnexpectedStatus}
 import org.http4s.headers.Referer
 import org.typelevel.ci.CIString
 import scala.concurrent.duration.*
@@ -371,6 +371,9 @@ object LeetCodeApi {
                 .getOption(json)
                 .toRight(ApiError.InvalidContent(dojo, "can not find 'data.userStatus.isSignedIn' in json"))
                 .liftTo[F]
+            }
+            .handleErrorWith { case status: UnexpectedStatus =>
+              Async[F].pure(false)
             }
         }
       }

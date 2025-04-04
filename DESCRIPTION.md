@@ -1,4 +1,4 @@
-## Code Epiphany 🌟
+## LeetCode Epiphany 🌟
 
 ### Current Supported Platforms
 

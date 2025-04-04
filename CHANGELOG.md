@@ -1,4 +1,6 @@
 ## 1.0.1
+### Fixed
+- Fix luogu user cookie expiration causing login failure issue.[#17](https://github.com/WenjunHuang/CodeEpiphany/issues/17)
 ### Changed
 - Change description
  
