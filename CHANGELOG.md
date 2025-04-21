@@ -1,3 +1,8 @@
+## 1.0.2
+### Changed
+- Change leetcode icons
+
+
 ## 1.0.1
 ### Fixed
 - Fix luogu user cookie expiration causing login failure issue.[#17](https://github.com/WenjunHuang/CodeEpiphany/issues/17)

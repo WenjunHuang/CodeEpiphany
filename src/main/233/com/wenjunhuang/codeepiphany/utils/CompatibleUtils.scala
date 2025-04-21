@@ -1,6 +1,9 @@
 package com.wenjunhuang.codeepiphany.utils
 
 import com.intellij.openapi.actionSystem.ActionToolbar
+import com.intellij.util.net.*
+
+import java.net.{PasswordAuthentication, ProxySelector, URL}
 
 object CompatibleUtils {
   inline def setToolBarWrapLayout(toolBar: ActionToolbar): Unit = {
@@ -11,7 +14,7 @@ object CompatibleUtils {
     toolBar.updateActionsImmediately()
   }
 
-  inline def getIdeaProxyPasswordAuthentication(url: URL) = {
+  inline def getIdeaProxyPasswordAuthentication(url: URL): PasswordAuthentication = {
     val httpConfigurable = HttpConfigurable.getInstance()
     val ideaAuthenticator = IdeaWideAuthenticator(httpConfigurable)
     ideaAuthenticator.getPasswordAuthentication
@@ -19,7 +22,6 @@ object CompatibleUtils {
 
   inline def getIdeaProxySelector: ProxySelector = {
     val httpConfigurable = HttpConfigurable.getInstance()
-    val ideaAuthenticator = IdeaWideAuthenticator(httpConfigurable)
     val ideaProxySelector = IdeaWideProxySelector(httpConfigurable) // IntelliJ proxy selector
     ideaProxySelector
   }
