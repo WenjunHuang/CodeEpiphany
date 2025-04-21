@@ -5,7 +5,7 @@
 
 **专为JetBrains IDE设计的全功能插件，助您高效应对编程挑战**
 
-🚀 **Code Epiphany** 将主流编程竞赛平台深度集成至JetBrains IDE。无需切换界面，即可无缝完成题目解答、调试与优化。
+🚀 **LeetCode Epiphany** 将主流编程竞赛平台深度集成至JetBrains IDE。无需切换界面，即可无缝完成题目解答、调试与优化。
 
 ---
 
@@ -63,7 +63,7 @@
 ### 🛠️ 安装指南
 
 1. 打开JetBrains IDE，进入 **插件 > 市场**
-2. 搜索 **Code Epiphany** 并点击 **安装**
+2. 搜索 **LeetCode Epiphany** 并点击 **安装**
 3. 重启IDE激活插件
 
 ---
@@ -73,6 +73,6 @@
 - **[📖使用文档](https://github.com/WenjunHuang/CodeEpiphany/wiki)**
 - **[🐛 提交问题](https://github.com/WenjunHuang/CodeEpiphany/issues)**
 
-💡立即使用 **Code Epiphany**，开启您的算法征服之旅！
+💡立即使用 **LeetCode Epiphany**，开启您的算法征服之旅！
 
 ---

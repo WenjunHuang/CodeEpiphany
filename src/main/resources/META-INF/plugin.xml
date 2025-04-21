@@ -249,7 +249,7 @@
         <registryKey defaultValue="false" description="Enable debug" key="codeepiphany.debug"/>
 
         <projectConfigurable parentId="tools"
-                             displayName="Code Epiphany"
+                             displayName="LeetCode Epiphany"
                              id="CodeEpiphany.Settings"
                              instance="com.wenjunhuang.codeepiphany.settings.CodeEpiphanySettingsConfigurable">
             <configurable id="CodeEpiphany.Settings.AtCoder"

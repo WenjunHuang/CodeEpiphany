@@ -1,8 +1,8 @@
-## Code Epiphany 🌟
+## LeetCode Epiphany 🌟
 
 **A feature-rich plugin designed to streamline coding challenges in JetBrains IDEs.**
 
-🚀 **Code Epiphany** integrates popular competitive programming platforms into
+🚀 **LeetCode Epiphany** integrates popular competitive programming platforms into
 your JetBrains IDEs. Solve, debug, and optimize coding challenges seamlessly without ever leaving your favorite
 development environment.
 
@@ -71,7 +71,7 @@ Explanation:
 ### 🛠️ Installation
 
 1. Open one of your JetBrains IDE and navigate to **Plugins > Marketplace**.
-2. Search for **Code Epiphany** and click **Install**.
+2. Search for **LeetCode Epiphany** and click **Install**.
 3. Restart IDE to activate the plugin.
 
 ---
@@ -81,6 +81,6 @@ Explanation:
 - **[📖Documentation](https://github.com/WenjunHuang/CodeEpiphany/wiki)**
 - **[🐛 Report Issues](https://github.com/WenjunHuang/CodeEpiphany/issues)**
 
-💡Start your journey to mastering algorithms and coding challenges with **Code Epiphany** today!
+💡Start your journey to mastering algorithms and coding challenges with **LeetCode Epiphany** today!
 
 --- 
