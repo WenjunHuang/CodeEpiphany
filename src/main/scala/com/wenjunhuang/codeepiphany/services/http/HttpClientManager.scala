@@ -1,42 +1,47 @@
 package com.wenjunhuang.codeepiphany.services.http
 
-import cats.effect.{ Async, Ref, Resource }
+import cats.effect.{Async, Ref, Resource}
 import cats.effect.kernel.Ref.Make
 import cats.effect.kernel.Sync
 import cats.syntax.all.*
-import java.net.{ HttpCookie, ProxySelector, SocketAddress, URI }
-import java.{ net, util }
+
+import java.net.{HttpCookie, ProxySelector, SocketAddress, URI}
+import java.{net, util}
 import java.io.IOException
 import java.security.cert.X509Certificate
-import javax.net.ssl.{ SSLContext, TrustManager, X509TrustManager }
+import javax.net.ssl.{SSLContext, TrustManager, X509TrustManager}
 import okhttp3.*
 import org.http4s.client.Client
 import org.typelevel.ci.CIString
 import org.typelevel.log4cats.LoggerFactory
+
 import scala.annotation.static
 import scala.concurrent.duration.*
 import scala.jdk.CollectionConverters.*
 import scala.util.boundary
-
 import com.intellij.util.net.*
-
 import com.wenjunhuang.codeepiphany.model.CodeDojo
+import com.wenjunhuang.codeepiphany.utils.CompatibleUtils
 import com.wenjunhuang.codeepiphany.utils.implicits.*
 
 type CookieJar = Map[CodeDojo, Map[CIString, HttpCookie]]
 
 trait HttpClientManager[F[_]] {
   def getClient: Resource[F, Client[F]]
+
   def updateCookiesForHost(host: CIString, cookies: List[HttpCookie]): F[Unit]
+
   def getCookiesForHost(host: CIString): F[List[HttpCookie]]
+
   def findCookieForHost(host: CIString, cookieName: CIString): F[Option[HttpCookie]]
+
   def clearCookiesForHost(host: CIString): F[Unit]
 }
 
 object HttpClientManager {
-  def apply[F[_]: HttpClientManager]: HttpClientManager[F] = summon[HttpClientManager[F]]
+  def apply[F[_] : HttpClientManager]: HttpClientManager[F] = summon[HttpClientManager[F]]
 
-  def make[F[_]: Make: Async: LoggerFactory](): HttpClientManager[F] =
+  def make[F[_] : Make : Async : LoggerFactory](): HttpClientManager[F] =
     new HttpClientManager[F] {
       private val cookieManager: Ref[F, CookieJar] =
         Ref.unsafe[F, CookieJar](Map.empty[CodeDojo, Map[CIString, HttpCookie]])
@@ -89,39 +94,17 @@ object HttpClientManager {
   }
 
   private def makeDefaultHttpClient(
-    connectionTimeout: FiniteDuration,
-    writeTimeout: FiniteDuration,
-    readTimeout: FiniteDuration
-  ): OkHttpClient = {
+                                     connectionTimeout: FiniteDuration,
+                                     writeTimeout: FiniteDuration,
+                                     readTimeout: FiniteDuration
+                                   ): OkHttpClient = {
     java.util.logging.Logger.getLogger(classOf[OkHttpClient].getName).setLevel(java.util.logging.Level.FINE)
     val sslContext = SSLContext.getInstance("SSL")
     sslContext.init(null, Array[TrustManager](trustAllManager), new java.security.SecureRandom())
     val sslSocketFactory = sslContext.getSocketFactory
     // get optional proxy credentials
     // reference: https://square.github.io/okhttp/3.x/okhttp/okhttp3/Authenticator.html
-    val authenticator = new Authenticator {
-      override def authenticate(route: Route, response: Response): Request = {
-        val httpConfigurable = HttpConfigurable.getInstance()
-        val authenticator    = IdeaWideAuthenticator(httpConfigurable)
-        authenticator.getPasswordAuthentication match
-          case null => null
-          case authentication =>
-            boundary:
-              for challenge <- response.challenges().asScala do
-                if challenge.scheme().equalsIgnoreCase("OkHttp-Preemptive") then
-                  boundary.break(
-                    response
-                      .request()
-                      .newBuilder()
-                      .header(
-                        "Proxy-Authorization",
-                        Credentials.basic(authentication.getUserName, String(authentication.getPassword))
-                      )
-                      .build()
-                  )
-              null
-      }
-    }
+
     OkHttpClient
       .Builder()
       .dispatcher(Dispatcher(intellijComputeContext))
@@ -133,14 +116,38 @@ object HttpClientManager {
       .sslSocketFactory(sslSocketFactory, trustAllManager)
       .hostnameVerifier((_, _) => true)
       .proxySelector(new ProxySelector {
-        private def inner = IdeaWideProxySelector(HttpConfigurable.getInstance()) // IntelliJ proxy selector
+        override def select(uri: URI): util.List[net.Proxy] = {
+          val ideaProxySelector = CompatibleUtils.getIdeaProxySelector
+          val proxies = ideaProxySelector.select(uri)
+          proxies
+        }
 
-        override def select(uri: URI): util.List[net.Proxy] = inner.select(uri)
-
-        override def connectFailed(uri: URI, sa: SocketAddress, ioe: IOException): Unit =
-          inner.connectFailed(uri, sa, ioe)
+        override def connectFailed(uri: URI, sa: SocketAddress, ioe: IOException): Unit = {
+          val ideaProxySelector = CompatibleUtils.getIdeaProxySelector
+          ideaProxySelector.connectFailed(uri, sa, ioe)
+        }
       })
-      .proxyAuthenticator(authenticator)
+      .proxyAuthenticator(new Authenticator {
+        override def authenticate(route: Route, response: Response): Request = {
+          CompatibleUtils.getIdeaProxyPasswordAuthentication(response.request().url().url()) match
+            case null => null
+            case authentication =>
+              boundary:
+                for challenge <- response.challenges().asScala do
+                  if challenge.scheme().equalsIgnoreCase("OkHttp-Preemptive") then
+                    boundary.break(
+                      response
+                        .request()
+                        .newBuilder()
+                        .header(
+                          "Proxy-Authorization",
+                          Credentials.basic(authentication.getUserName, String(authentication.getPassword))
+                        )
+                        .build()
+                    )
+                null
+        }
+      })
       .addInterceptor((chain: Interceptor.Chain) => {
         val request = chain.request()
         val requestWithUserAgent =

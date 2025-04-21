@@ -10,4 +10,17 @@ object CompatibleUtils {
   inline def updateActions(toolBar: ActionToolbar): Unit = {
     toolBar.updateActionsImmediately()
   }
+
+  inline def getIdeaProxyPasswordAuthentication(url: URL) = {
+    val httpConfigurable = HttpConfigurable.getInstance()
+    val ideaAuthenticator = IdeaWideAuthenticator(httpConfigurable)
+    ideaAuthenticator.getPasswordAuthentication
+  }
+
+  inline def getIdeaProxySelector: ProxySelector = {
+    val httpConfigurable = HttpConfigurable.getInstance()
+    val ideaAuthenticator = IdeaWideAuthenticator(httpConfigurable)
+    val ideaProxySelector = IdeaWideProxySelector(httpConfigurable) // IntelliJ proxy selector
+    ideaProxySelector
+  }
 }

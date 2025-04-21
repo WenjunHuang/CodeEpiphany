@@ -25,7 +25,7 @@ class SVGImagePanel extends JBPanel[SVGImagePanel](true) {
     super.paintComponent(g)
     if mySvgDocument != null then
       val config = GraphicsUtil.setupAAPainting(g)
-      mySvgDocument.render(this,g.asInstanceOf[Graphics2D], ViewBox(0, 0, getWidth.toFloat, getHeight.toFloat))
+      mySvgDocument.render(this, g.asInstanceOf[Graphics2D], ViewBox(0, 0, getWidth.toFloat, getHeight.toFloat))
       config.restore()
   }
 }

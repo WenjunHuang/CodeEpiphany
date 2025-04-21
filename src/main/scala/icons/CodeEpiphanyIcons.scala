@@ -57,16 +57,18 @@ object CodeEpiphanyIcons {
   val LOADING: AnimatedIcon = AnimatedIcon.Default.INSTANCE
 
   object Dojos {
-    val CODEFORCES_PATH  = "/icons/dojos/codeforces.svg"
-    val ATCODER_PATH     = "/icons/dojos/atcoder.svg"
-    val HACKERRANK_PATH  = "/icons/dojos/hackerrank.svg"
-    val LUOGU_PATH       = "/icons/dojos/luogu.svg"
-    val LEETCODE_PATH    = "/icons/dojos/leetcode.svg"
-    val LEETCODE: Icon   = IconLoader.getIcon(LEETCODE_PATH, CodeEpiphanyIcons.getClass.getClassLoader)
+    val CODEFORCES_PATH = "/icons/dojos/codeforces.svg"
+    val ATCODER_PATH = "/icons/dojos/atcoder.svg"
+    val HACKERRANK_PATH = "/icons/dojos/hackerrank.svg"
+    val LUOGU_PATH = "/icons/dojos/luogu.svg"
+    val LEETCODECN_PATH = "/icons/dojos/leetcodecn.svg"
+    val LEETCODE_PATH = "/icons/dojos/leetcode.svg"
+    val LEETCODE: Icon = IconLoader.getIcon(LEETCODE_PATH, CodeEpiphanyIcons.getClass.getClassLoader)
+    val LEETCODECN: Icon = IconLoader.getIcon(LEETCODECN_PATH, CodeEpiphanyIcons.getClass.getClassLoader)
     val HACKERRANK: Icon = IconLoader.getIcon(HACKERRANK_PATH, CodeEpiphanyIcons.getClass.getClassLoader)
     val CODEFORCES: Icon = IconLoader.getIcon(CODEFORCES_PATH, CodeEpiphanyIcons.getClass.getClassLoader)
-    val ATCODER: Icon    = IconLoader.getIcon(ATCODER_PATH, CodeEpiphanyIcons.getClass.getClassLoader)
-    val LUOGU: Icon      = IconLoader.getIcon(LUOGU_PATH, CodeEpiphanyIcons.getClass.getClassLoader)
+    val ATCODER: Icon = IconLoader.getIcon(ATCODER_PATH, CodeEpiphanyIcons.getClass.getClassLoader)
+    val LUOGU: Icon = IconLoader.getIcon(LUOGU_PATH, CodeEpiphanyIcons.getClass.getClassLoader)
   }
 
   object Languages {

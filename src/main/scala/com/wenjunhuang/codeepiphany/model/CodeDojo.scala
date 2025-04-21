@@ -21,15 +21,16 @@ enum CodeDojo(val domain: CIString, val value: String) {
   def getIcon: Option[Icon] = this match {
     case HackerRank => Some(icons.CodeEpiphanyIcons.Dojos.HACKERRANK)
     case LeetCode   => Some(icons.CodeEpiphanyIcons.Dojos.LEETCODE)
-    case LeetCodeCN => Some(icons.CodeEpiphanyIcons.Dojos.LEETCODE)
+    case LeetCodeCN => Some(icons.CodeEpiphanyIcons.Dojos.LEETCODECN)
     case CodeForces => Some(icons.CodeEpiphanyIcons.Dojos.CODEFORCES)
     case AtCoder    => Some(icons.CodeEpiphanyIcons.Dojos.ATCODER)
     case LuoGu      => Some(icons.CodeEpiphanyIcons.Dojos.LUOGU)
   }
+
   def getIconPath: Option[String] = this match {
     case HackerRank => Some(icons.CodeEpiphanyIcons.Dojos.HACKERRANK_PATH)
     case LeetCode   => Some(icons.CodeEpiphanyIcons.Dojos.LEETCODE_PATH)
-    case LeetCodeCN => Some(icons.CodeEpiphanyIcons.Dojos.LEETCODE_PATH)
+    case LeetCodeCN => Some(icons.CodeEpiphanyIcons.Dojos.LEETCODECN_PATH)
     case CodeForces => Some(icons.CodeEpiphanyIcons.Dojos.CODEFORCES_PATH)
     case AtCoder    => Some(icons.CodeEpiphanyIcons.Dojos.ATCODER_PATH)
     case LuoGu      => Some(icons.CodeEpiphanyIcons.Dojos.LUOGU_PATH)
