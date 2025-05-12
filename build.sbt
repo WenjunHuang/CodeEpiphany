@@ -44,7 +44,9 @@ lazy val codeEpiphany = (project in file("."))
       xmx = 2048,
       xms = 256,
       defaultOptions =
-        intellijVMOptions.value.defaultOptions ++ Seq("--add-opens=java.management/sun.management=ALL-UNNAMED")
+        intellijVMOptions.value.defaultOptions ++ Seq("--add-opens=java.management/sun.management=ALL-UNNAMED",
+          "--add-opens=java.desktop/javax.swing.text=ALL-UNNAMED" // apple m4 need this parameter
+        )
     ),
     patchPluginXml := pluginXmlOptions { xml =>
       xml.version = version.value
