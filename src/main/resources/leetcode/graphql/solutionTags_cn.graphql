@@ -1,0 +1,20 @@
+query solutionTags($questionSlug: String!) {
+  solutionTags(questionSlug: $questionSlug) {
+    allTags {
+      name
+      nameTranslated
+      slug
+    }
+    languageTags {
+      name
+      nameTranslated
+      slug
+    }
+    knowledgeTags: otherTags {
+      name
+      nameTranslated
+      slug
+    }
+    myTag
+  }
+}

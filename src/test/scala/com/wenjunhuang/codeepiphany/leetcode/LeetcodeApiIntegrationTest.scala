@@ -213,4 +213,21 @@ class LeetcodeApiIntegrationTest extends BasePlatformTestCase {
 //    )
 
   }
+
+  def testGetSolutionTags(): Unit = {
+    val httpClientService = HttpClientService.getInstance(getProject)
+    import httpClientService.*
+    val leetCodeCNApi = LeetCodeApi[IO](LeetCodeCN)
+    println(
+      (setCookie(httpClientManager) *> leetCodeCNApi
+        .getSolutionTags("two-sum"))
+        .unsafeRunSync()
+    )
+    //    val leetCodeApi = LeetCodeApi[IO](LeetCode)
+    //    println(
+    //      (setCookie(httpClientManager) *> leetCodeApi
+    //        .searchCompanyChallenges(0, 20, List("facebook"), Nil, None, None, None))
+    //        .unsafeRunSync()
+    //    )
+  }
 }

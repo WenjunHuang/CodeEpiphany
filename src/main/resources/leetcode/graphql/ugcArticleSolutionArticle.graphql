@@ -1,0 +1,72 @@
+query ugcArticleSolutionArticle($articleId: ID, $topicId: ID, $slug: String) {
+  ugcArticleSolutionArticle(articleId: $articleId, topicId: $topicId, slug: $slug) {
+    ...ugcSolutionArticleFragment
+    content
+    isSerialized
+    isAuthorArticleReviewer
+    scoreInfo {
+      scoreCoefficient
+    }
+    prev {
+      uuid
+      slug
+      topicId
+      title
+    }
+    next {
+      uuid
+      slug
+      topicId
+      title
+    }
+  }
+}
+
+    fragment ugcSolutionArticleFragment on SolutionArticleNode {
+  uuid
+  title
+  slug
+  summary
+  author {
+    realName
+    userAvatar
+    userSlug
+    username: userName
+    nameColor
+    certificationLevel
+    activeBadge {
+      icon
+      displayName
+    }
+  }
+  articleType
+  thumbnail
+  summary
+  createdAt
+  updatedAt
+  status
+  isLeetcode
+  canSee
+  canEdit
+  isMyFavorite
+  chargeType
+  myReactionType
+  topicId
+  hitCount
+  hasVideoArticle
+  reactions {
+    count
+    reactionType
+  }
+  title
+  slug
+  tags {
+    name
+    slug
+    tagType
+  }
+  topic {
+    id
+    commentCount: topLevelCommentCount
+  }
+}
