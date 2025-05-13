@@ -20,6 +20,7 @@ import retry.*
 import retry.ResultHandler.{ noop, retryOnAllErrors }
 import scala.concurrent.duration.*
 import scala.jdk.CollectionConverters.*
+import scodec.bits.ByteVector
 
 import com.intellij.openapi.util.text.StringUtil
 
@@ -80,7 +81,11 @@ object CodeForcesApi {
       HttpClientManager[F].getClient.use { client =>
         client
           .get(uri"https://codeforces.com/settings/general") { response =>
-            Async[F].delay { response.status.isSuccess }
+            response.body.compile.to(ByteVector).flatMap { content =>
+              val html = content.decodeUtf8.getOrElse("")
+              if Jsoup.parse(html).select("div.userbox").isEmpty then Async[F].pure(false)
+              else Async[F].pure(true)
+            }
           }
           .handleErrorWith { case status: UnexpectedStatus =>
             Async[F].pure(false)
