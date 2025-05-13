@@ -1,3 +1,8 @@
+## 1.04
+## Fixed
+- Fix CodeForces login issue
+- Fix code file template return empty string issue
+ 
 ## 1.0.2
 ### Changed
 - Change leetcode icons
