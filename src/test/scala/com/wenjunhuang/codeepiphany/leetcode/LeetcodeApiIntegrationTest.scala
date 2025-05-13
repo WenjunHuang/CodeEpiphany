@@ -219,8 +219,8 @@ class LeetcodeApiIntegrationTest extends BasePlatformTestCase {
     import httpClientService.*
     val leetCodeCNApi = LeetCodeApi[IO](LeetCodeCN)
     println(
-      (setCookie(httpClientManager) *> leetCodeCNApi
-        .getSolutionTags("two-sum"))
+      leetCodeCNApi
+        .getSolutionTags("two-sum")
         .unsafeRunSync()
     )
     //    val leetCodeApi = LeetCodeApi[IO](LeetCode)
