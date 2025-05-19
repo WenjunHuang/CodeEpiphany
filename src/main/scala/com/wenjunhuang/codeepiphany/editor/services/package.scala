@@ -42,7 +42,7 @@ package object services {
       }
   }
 
-  def submitCode[F[_]: Async: Concurrent: HttpClientManager: LoggerFactory](
+  def submitCode[F[_]: {Async, Concurrent, HttpClientManager, LoggerFactory}](
     vf: VirtualFile,
     project: Project
   ): F[Unit] = {

@@ -80,7 +80,7 @@ class SubmissionPresenter(private val myProject: Project) extends Disposable {
               }
           }
       }
-      .compile()
+      .compile
       .drain
       .unsafeRunCancelable()
 

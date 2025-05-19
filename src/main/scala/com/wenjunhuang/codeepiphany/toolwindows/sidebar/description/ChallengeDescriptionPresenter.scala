@@ -32,7 +32,7 @@ import com.wenjunhuang.codeepiphany.utils.walkaround.FileEditorManagerListenerBr
 
 class ChallengeDescriptionPresenter(private val myProject: Project) extends Disposable {
   private val logger            = Logger.getInstance(getClass)
-  private val myLogger          = LoggerFactory.getLogger[IO]()
+  private val myLogger          = LoggerFactory.getLogger[IO]
   private val myDescriptionView = ChallengeDescriptionView(this, myProject)
 
   myProject.getMessageBus

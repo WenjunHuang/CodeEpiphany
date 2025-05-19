@@ -56,7 +56,7 @@ object CefRemoteRequestHandler {
 
           private val queue: ArrayBlockingQueue[ByteBuffer] = ju.concurrent.ArrayBlockingQueue[ByteBuffer](10)
 
-          private val myLogger: Logger[IO] = LoggerFactory[IO].getLogger
+          private val myLogger: Logger[IO] = LoggerFactory.getLogger[IO]
 
           override def processRequest(request: CefRequest, callback: CefCallback): Boolean =
             Method.fromString(request.getMethod) match

@@ -104,7 +104,7 @@ class LoginDialog(
   private implicit val myHttpClientKeeper: HttpClientManager[IO] =
     HttpClientService.getInstance(myProject).httpClientManager
 
-  private val myOkAction: OkAction = new OkAction {
+  private val myOkAction: DialogWrapper#OkAction = new OkAction {
     override def doAction(e: ActionEvent): Unit = {
       val text = myCookieText.getText
       myCookieText.setEnabled(false)
