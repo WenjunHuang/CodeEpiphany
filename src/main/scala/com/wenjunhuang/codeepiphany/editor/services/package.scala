@@ -19,7 +19,10 @@ import com.wenjunhuang.codeepiphany.services.http.HttpClientManager
 import com.wenjunhuang.codeepiphany.settings.ChallengeSettings
 
 package object services {
-  def runCode[F[_]: Async: Concurrent: HttpClientManager: LoggerFactory](vf: VirtualFile, project: Project): F[Unit] = {
+  def runCode[F[_]: { Async, Concurrent, HttpClientManager, LoggerFactory }](
+    vf: VirtualFile,
+    project: Project
+  ): F[Unit] = {
     showConsole(project)
       *> console.info[F](project, s"Start to run ${vf.getName}")
       *> Async[F].delay {
@@ -42,7 +45,7 @@ package object services {
       }
   }
 
-  def submitCode[F[_]: {Async, Concurrent, HttpClientManager, LoggerFactory}](
+  def submitCode[F[_]: { Async, Concurrent, HttpClientManager, LoggerFactory }](
     vf: VirtualFile,
     project: Project
   ): F[Unit] = {

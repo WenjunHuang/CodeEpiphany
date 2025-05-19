@@ -1,8 +1,9 @@
 package com.wenjunhuang.codeepiphany.utils
 
-import cats.effect.{ IO, Sync, SyncIO }
+import cats.effect.{IO, Sync, SyncIO}
 import cats.syntax.all.*
-import org.typelevel.log4cats.{ LoggerFactory, LoggerFactoryGen, SelfAwareStructuredLogger }
+import org.typelevel.log4cats.{LoggerFactory, SelfAwareStructuredLogger}
+
 import com.intellij.openapi.diagnostic.Logger as jLogger
 
 trait DiagnosticLoggerFactory[F[_]] extends LoggerFactory[F] {

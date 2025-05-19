@@ -37,8 +37,7 @@ class AtCoderApiIntegrationTest extends BasePlatformTestCase {
   def testGetAllContests(): Unit = {
     val httpClientKeeper = HttpClientService.getInstance(getProject)
     import httpClientKeeper.*
-    val atCoderApi                = AtCoderApi[IO]()
-    atCoderApi.getAllContests.map { contests =>
+    AtCoderApi[IO].getAllContests.map { contests =>
       assert(contests.nonEmpty)
     }.unsafeRunSync()
   }

@@ -122,7 +122,7 @@ class HackerRankChallengesView(private val myProject: Project) extends BaseChall
   }
 
   private def initialize(): IO[HackerRankBootstrapParameters] = {
-    HackerRankApi[IO]().getInitialData.map { case (userInfo, challengeDomains) =>
+    HackerRankApi[IO].getInitialData.map { case (userInfo, challengeDomains) =>
       HackerRankBootstrapParameters(userInfo, challengeDomains.sortBy(_.id) :+ PROJECT_EULER_DOMAIN)
     }
   }

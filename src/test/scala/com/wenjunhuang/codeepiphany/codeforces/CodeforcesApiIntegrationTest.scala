@@ -43,7 +43,7 @@ class CodeforcesApiIntegrationTest extends BasePlatformTestCase {
   def testGetProblemSets(): Unit = {
     val httpClientKeeper = HttpClientService.getInstance(getProject)
     import httpClientKeeper.*
-    val api = CodeForcesApi[IO]()
+    val api = CodeForcesApi[IO]
     api.getAllProblemSets.flatMap { problems =>
       IO.delay {
         assertThat(problems.size, not(0))
@@ -55,7 +55,7 @@ class CodeforcesApiIntegrationTest extends BasePlatformTestCase {
   def testCheckLogin(): Unit = {
     val httpClientKeeper = HttpClientService.getInstance(getProject)
     import httpClientKeeper.*
-    val api = CodeForcesApi[IO]()
+    val api = CodeForcesApi[IO]
     (setCookie(httpClientKeeper.httpClientManager)
       *>
         api
@@ -70,7 +70,7 @@ class CodeforcesApiIntegrationTest extends BasePlatformTestCase {
   def testGetTags(): Unit = {
     val httpClientKeeper = HttpClientService.getInstance(getProject)
     import httpClientKeeper.*
-    val api = CodeForcesApi[IO]()
+    val api = CodeForcesApi[IO]
     (setCookie(httpClientKeeper.httpClientManager)
       *>
       api
@@ -85,7 +85,7 @@ class CodeforcesApiIntegrationTest extends BasePlatformTestCase {
   def testGetChallengeData(): Unit = {
     val httpClientKeeper = HttpClientService.getInstance(getProject)
     import httpClientKeeper.*
-    val api = CodeForcesApi[IO]()
+    val api = CodeForcesApi[IO]
     (setCookie(httpClientKeeper.httpClientManager)
       *>
       api

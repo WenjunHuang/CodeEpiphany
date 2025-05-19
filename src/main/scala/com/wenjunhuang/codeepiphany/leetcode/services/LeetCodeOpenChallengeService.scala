@@ -19,7 +19,7 @@ import com.wenjunhuang.codeepiphany.settings.dojo.BaseCodeDojoSettings
 
 case class LeetCodeOpenChallengeRequest(questionSlug: String)
 
-class LeetCodeOpenChallengeService[F[_]: Async: Concurrent: HttpClientManager: LoggerFactory](
+class LeetCodeOpenChallengeService[F[_]: {Async, Concurrent, HttpClientManager, LoggerFactory}](
   project: Project,
   private val myLeetCodeDojo: CodeDojo.LeetCode.type | CodeDojo.LeetCodeCN.type
 ) extends BaseOpenChallengeService[F, LeetCodeOpenChallengeRequest, LeetCodeChallengeCodeTemplate](

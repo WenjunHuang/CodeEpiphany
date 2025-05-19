@@ -7,7 +7,7 @@ import fs2.Stream
 import java.util.concurrent.CancellationException
 import javax.imageio.ImageIO
 import javax.swing.event.DocumentEvent
-import org.jooq.{DSLContext, Record}
+import org.jooq.{ DSLContext, Record }
 import org.typelevel.ci.CIString
 import org.typelevel.log4cats.LoggerFactory
 import scala.jdk.OptionConverters.*
@@ -15,24 +15,24 @@ import scodec.bits.ByteVector
 
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.DialogBuilder
-import com.intellij.ui.components.{JBLabel, JBTextField}
+import com.intellij.ui.components.{ JBLabel, JBTextField }
 import com.intellij.ui.DocumentAdapter
 import com.intellij.util.ui.components.BorderLayoutPanel
 import com.intellij.util.ui.JBImageIcon
 import com.intellij.util.IconUtil
 
-import com.wenjunhuang.codeepiphany.database.Tables.{CHALLENGE, CHALLENGE_LANGUAGE}
+import com.wenjunhuang.codeepiphany.database.Tables.{ CHALLENGE, CHALLENGE_LANGUAGE }
 import com.wenjunhuang.codeepiphany.luogu.models.LuoGuSubmissionResponse
 import com.wenjunhuang.codeepiphany.luogu.settings.LuoGuSettingsConfigurable
-import com.wenjunhuang.codeepiphany.model.{Language, LanguageVersion, SubmissionResult}
+import com.wenjunhuang.codeepiphany.model.{ Language, LanguageVersion, SubmissionResult }
 import com.wenjunhuang.codeepiphany.model.newtypes.SubmissionId
 import com.wenjunhuang.codeepiphany.model.CodeDojo.LuoGu
-import com.wenjunhuang.codeepiphany.services.{console, BaseSubmissionService, ChallengeRepository}
+import com.wenjunhuang.codeepiphany.services.{ console, BaseSubmissionService, ChallengeRepository }
 import com.wenjunhuang.codeepiphany.services.http.HttpClientManager
 import com.wenjunhuang.codeepiphany.settings.ChallengeSettings.ChallengeSettingsStateItem
 import com.wenjunhuang.codeepiphany.utils.implicits.*
 
-class LuoGuSubmissionService[F[_]: Async: Concurrent: HttpClientManager: LoggerFactory](project: Project)
+class LuoGuSubmissionService[F[_]: { Async, Concurrent, HttpClientManager, LoggerFactory }](project: Project)
     extends BaseSubmissionService[F](project, LuoGu) {
   override type SubmissionRequest  = Request
   override type SubmissionResponse = LuoGuSubmissionResponse
@@ -50,7 +50,7 @@ class LuoGuSubmissionService[F[_]: Async: Concurrent: HttpClientManager: LoggerF
   ): SubmissionResponseInfo = SubmissionResponseInfo(response.result, response.message, response.submissionId)
 
   override protected def callApi(basicInfo: Request, processedCode: String): Stream[F, SubmissionResponse] = {
-    LuoGuApi[F]()
+    LuoGuApi[F]
       .submitAnswer(basicInfo.problemId, basicInfo.languageId, processedCode, showCaptcha)
   }
 
@@ -96,7 +96,7 @@ class LuoGuSubmissionService[F[_]: Async: Concurrent: HttpClientManager: LoggerF
       val dialog = DialogBuilder(myProject)
         .centerPanel(
           BorderLayoutPanel(0, 5)
-            .addToCenter(JBLabel(IconUtil.scale(JBImageIcon(captchaImage),null,2.0)))
+            .addToCenter(JBLabel(IconUtil.scale(JBImageIcon(captchaImage), null, 2.0)))
             .addToBottom(input)
         )
       dialog.setTitle("Captcha")

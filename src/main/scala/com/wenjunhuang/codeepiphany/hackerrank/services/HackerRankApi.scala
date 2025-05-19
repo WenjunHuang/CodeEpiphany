@@ -1,13 +1,13 @@
 package com.wenjunhuang.codeepiphany.hackerrank.services
 
-import cats.effect.{Async, Concurrent, Temporal}
+import cats.effect.{ Async, Concurrent, Temporal }
 import cats.syntax.all.*
 import fs2.Stream
 import io.circe.*
 import io.circe.optics.JsonPath
 import io.circe.parser.parse
 import io.circe.syntax.*
-import org.http4s.{Headers, Method, Request, Uri}
+import org.http4s.{ Headers, Method, Request, Uri }
 import org.http4s.circe.*
 import org.http4s.circe.CirceEntityEncoder.*
 import org.http4s.client.Client
@@ -17,7 +17,7 @@ import org.jsoup.Jsoup
 import scala.concurrent.duration.*
 
 import com.wenjunhuang.codeepiphany.hackerrank.models.*
-import com.wenjunhuang.codeepiphany.hackerrank.models.HackerRankContest.{Master, ProjectEuler}
+import com.wenjunhuang.codeepiphany.hackerrank.models.HackerRankContest.{ Master, ProjectEuler }
 import com.wenjunhuang.codeepiphany.model.*
 import com.wenjunhuang.codeepiphany.model.CodeDojo.HackerRank
 import com.wenjunhuang.codeepiphany.services.http.HttpClientManager
@@ -62,7 +62,7 @@ trait HackerRankApi[F[_]] {
 }
 
 object HackerRankApi {
-  def apply[F[_]: Async: Concurrent: HttpClientManager](): HackerRankApi[F] = new HackerRankApi[F]
+  def apply[F[_]: { Async, Concurrent, HttpClientManager }]: HackerRankApi[F] = new HackerRankApi[F]
     with Http4sClientDsl[F] {
 
     override def checkLogin(): F[Boolean] = HttpClientManager[F].getClient.use { client =>

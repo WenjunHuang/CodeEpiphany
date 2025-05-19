@@ -5,32 +5,37 @@ import cats.syntax.all.*
 import io.circe.generic.auto.*
 import io.circe.parser.*
 import io.circe.syntax.*
-import javax.swing.{Icon, JTable, SwingConstants}
-import javax.swing.table.{DefaultTableCellRenderer, TableCellRenderer}
+import javax.swing.{ Icon, JTable, SwingConstants }
+import javax.swing.table.{ DefaultTableCellRenderer, TableCellRenderer }
 import monocle.syntax.all.*
 import org.typelevel.ci.CIString
 
 import com.intellij.icons.AllIcons
-import com.intellij.openapi.actionSystem.{ActionGroup, ActionManager}
+import com.intellij.openapi.actionSystem.{ ActionGroup, ActionManager }
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.util.ui.table.IconTableCellRenderer
 
-import com.wenjunhuang.codeepiphany.actions.{DifficultyParameterAction, OpenChallengeActionGroup, StatusParameterAction, TagsAction}
+import com.wenjunhuang.codeepiphany.actions.{
+  DifficultyParameterAction,
+  OpenChallengeActionGroup,
+  StatusParameterAction,
+  TagsAction
+}
 import com.wenjunhuang.codeepiphany.actions.DifficultyParameterAction.DifficultyParameterProvider
 import com.wenjunhuang.codeepiphany.actions.StatusParameterAction.StatusParameterProvider
-import com.wenjunhuang.codeepiphany.actions.TagsAction.{SingleTagGroupProvider, Tag}
-import com.wenjunhuang.codeepiphany.hackerrank.actions.{CategoryParameterAction, SkillParameterAction}
-import com.wenjunhuang.codeepiphany.hackerrank.actions.CategoryParameterAction.{Category, CategoryProvider}
+import com.wenjunhuang.codeepiphany.actions.TagsAction.{ SingleTagGroupProvider, Tag }
+import com.wenjunhuang.codeepiphany.hackerrank.actions.{ CategoryParameterAction, SkillParameterAction }
+import com.wenjunhuang.codeepiphany.hackerrank.actions.CategoryParameterAction.{ Category, CategoryProvider }
 import com.wenjunhuang.codeepiphany.hackerrank.actions.SkillParameterAction.SkillParameterProvider
 import com.wenjunhuang.codeepiphany.hackerrank.models.*
 import com.wenjunhuang.codeepiphany.hackerrank.services.HackerRankApi
 import com.wenjunhuang.codeepiphany.hackerrank.settings.HackerRankSettings
 import com.wenjunhuang.codeepiphany.hackerrank.ui.HackerRankQueryParametersPresenter.*
 import com.wenjunhuang.codeepiphany.model.*
-import com.wenjunhuang.codeepiphany.services.{ParametersQueryPresenter, QueryContext}
-import com.wenjunhuang.codeepiphany.services.http.{HttpClientManager, HttpClientService}
-import com.wenjunhuang.codeepiphany.utils.{OrderByColumnInfo, PageSize, Pagination}
+import com.wenjunhuang.codeepiphany.services.{ ParametersQueryPresenter, QueryContext }
+import com.wenjunhuang.codeepiphany.services.http.{ HttpClientManager, HttpClientService }
+import com.wenjunhuang.codeepiphany.utils.{ OrderByColumnInfo, PageSize, Pagination }
 import com.wenjunhuang.codeepiphany.utils.actions.DataSink
 import com.wenjunhuang.codeepiphany.utils.implicits.*
 import com.wenjunhuang.codeepiphany.utils.ui.TagPaneAction
@@ -272,7 +277,7 @@ class HackerRankQueryParametersPresenter(project: Project, bootstraps: HackerRan
     val from  = math.max((context.pagination.currentPage - 1) * context.pagination.pageSize.value, 0)
     val limit = context.pagination.pageSize.value
     val state = context.criteria
-    HackerRankApi[IO]()
+    HackerRankApi[IO]
       .searchChallenges(
         from,
         limit,

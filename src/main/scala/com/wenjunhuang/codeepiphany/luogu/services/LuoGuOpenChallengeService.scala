@@ -10,14 +10,14 @@ import com.intellij.openapi.project.Project
 import com.wenjunhuang.codeepiphany.database.tables.records.{ ChallengeLanguageRecord, ChallengeRecord }
 import com.wenjunhuang.codeepiphany.luogu.models.{ LuoGuChallengeCodeTemplate, LuoGuChallengeItem }
 import com.wenjunhuang.codeepiphany.luogu.settings.{ LuoGuSettings, LuoGuSettingsConfigurable }
-import com.wenjunhuang.codeepiphany.model.{ ChallengeDifficulty, CodeDojo, Language, LanguageVersion }
+import com.wenjunhuang.codeepiphany.model.{ ApiError, ChallengeDifficulty, CodeDojo, Language, LanguageVersion }
 import com.wenjunhuang.codeepiphany.model.newtypes.CodeDojoChallengeId
 import com.wenjunhuang.codeepiphany.services.http.HttpClientManager
 import com.wenjunhuang.codeepiphany.services.BaseOpenChallengeService
 import com.wenjunhuang.codeepiphany.settings.dojo.BaseCodeDojoSettings
 import com.wenjunhuang.codeepiphany.utils.template.VelocityTool
 
-class LuoGuOpenChallengeService[F[_]: Async: Concurrent: HttpClientManager: LoggerFactory](project: Project)
+class LuoGuOpenChallengeService[F[_]: { Async, Concurrent, HttpClientManager, LoggerFactory }](project: Project)
     extends BaseOpenChallengeService[F, LuoGuChallengeItem, LuoGuChallengeCodeTemplate](
       project,
       CodeDojo.LuoGu,
@@ -55,7 +55,7 @@ class LuoGuOpenChallengeService[F[_]: Async: Concurrent: HttpClientManager: Logg
     language: Language,
     languageVersion: LanguageVersion
   ): F[(CodeDojoChallengeId, LuoGuChallengeCodeTemplate)] = {
-    LuoGuApi[F]()
+    LuoGuApi[F]
       .getChallengeData(req.pid)
       .flatMap { content =>
         if content.supportedLanguages.contains((language, languageVersion)) then
@@ -65,7 +65,10 @@ class LuoGuOpenChallengeService[F[_]: Async: Concurrent: HttpClientManager: Logg
           )
         else
           Async[F].raiseError(
-            new Exception(s"This challenge does not support ${language.show} ${languageVersion.version}")
+            ApiError.InvalidContent(
+              CodeDojo.LuoGu,
+              s"This challenge does not support ${language.show} ${languageVersion.version}"
+            )
           )
       }
   }

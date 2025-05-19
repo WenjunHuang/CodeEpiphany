@@ -69,7 +69,7 @@ object file {
       FileEditorManager.getInstance(project).openTextEditor(descriptor, false)
     }.evalOnEDTWithWrite()
 
-  def saveEditedFile[F[_]: Async: LoggerFactory](file: VirtualFile): F[Either[Throwable, Unit]] =
+  def saveEditedFile[F[_]: {Async, LoggerFactory}](file: VirtualFile): F[Either[Throwable, Unit]] =
     Async[F]
       .delay(FileDocumentManager.getInstance().isFileModified(file))
       .flatMap { isModified =>

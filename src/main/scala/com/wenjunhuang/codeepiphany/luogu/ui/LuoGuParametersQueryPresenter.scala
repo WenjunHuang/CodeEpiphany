@@ -196,7 +196,7 @@ class LuoGuParametersQueryPresenter(project: Project, bootstrap: LuoGuBootstrapP
     context: QueryContext[LuoGuParametersQueryPresenter.QueryParams]
   ): IO[(Pagination, List[LuoGuChallengeItem])] = {
     implicit val httpClient: HttpClientManager[IO] = HttpClientService.getInstance(myProject).httpClientManager
-    LuoGuApi[IO]()
+    LuoGuApi[IO]
       .searchChallenges(
         context.criteria.selectedDifficulty,
         context.criteria.selectedQuestionBank,

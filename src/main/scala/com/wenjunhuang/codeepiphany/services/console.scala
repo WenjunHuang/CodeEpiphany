@@ -42,7 +42,7 @@ object console {
   private def currentDateTime(): String =
     LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
 
-  def showConsole[F[_]: Async: Concurrent: HttpClientManager: LoggerFactory](project: Project): F[Unit] = {
+  def showConsole[F[_]: {Async, Concurrent, HttpClientManager, LoggerFactory}](project: Project): F[Unit] = {
     Async[F].delay { SidebarWindowFactory.activate(project, LogConsoleView.DISPLAY_NAME) }.evalOnEDTDefault()
   }
 

@@ -1,6 +1,6 @@
 package com.wenjunhuang.codeepiphany.hackerrank.services
 
-import cats.effect.{Async, Concurrent}
+import cats.effect.{ Async, Concurrent }
 import cats.syntax.all.*
 import org.jooq.DSLContext
 import org.typelevel.ci.CIString
@@ -10,9 +10,14 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.text.StringUtil
 
 import com.wenjunhuang.codeepiphany.database.Tables.*
-import com.wenjunhuang.codeepiphany.database.tables.records.{ChallengeLanguageRecord, ChallengeRecord}
-import com.wenjunhuang.codeepiphany.hackerrank.models.{HackerRankChallengeCodeTemplate, HackerRankChallengeContent, HackerRankContest, HackerRankLanguageTemplate}
-import com.wenjunhuang.codeepiphany.hackerrank.settings.{HackerRankSettings, HackerRankSettingsConfigurable}
+import com.wenjunhuang.codeepiphany.database.tables.records.{ ChallengeLanguageRecord, ChallengeRecord }
+import com.wenjunhuang.codeepiphany.hackerrank.models.{
+  HackerRankChallengeCodeTemplate,
+  HackerRankChallengeContent,
+  HackerRankContest,
+  HackerRankLanguageTemplate
+}
+import com.wenjunhuang.codeepiphany.hackerrank.settings.{ HackerRankSettings, HackerRankSettingsConfigurable }
 import com.wenjunhuang.codeepiphany.model.*
 import com.wenjunhuang.codeepiphany.model.newtypes.*
 import com.wenjunhuang.codeepiphany.model.CodeDojo.HackerRank
@@ -22,13 +27,12 @@ import com.wenjunhuang.codeepiphany.settings.dojo.BaseCodeDojoSettings.LanguageS
 import com.wenjunhuang.codeepiphany.utils.implicits.*
 
 case class HackerRankOpenChallengeRequest(challengeSlug: String, contest: HackerRankContest)
-class HackerRankOpenChallengeService[F[_]: Async: Concurrent: HttpClientManager: LoggerFactory](project: Project)
+class HackerRankOpenChallengeService[F[_]: { Async, Concurrent, HttpClientManager, LoggerFactory }](project: Project)
     extends BaseOpenChallengeService[F, HackerRankOpenChallengeRequest, HackerRankChallengeCodeTemplate](
       project,
       CodeDojo.HackerRank,
       classOf[HackerRankSettingsConfigurable]
     ) {
-
   override protected def findLanguageSetting(
     language: Language,
     languageVersion: LanguageVersion
@@ -76,7 +80,7 @@ class HackerRankOpenChallengeService[F[_]: Async: Concurrent: HttpClientManager:
     language: Language,
     languageVersion: LanguageVersion
   ): F[(CodeDojoChallengeId, HackerRankChallengeCodeTemplate)] = {
-    HackerRankApi[F]()
+    HackerRankApi[F]
       .getChallengeContent(req.challengeSlug, req.contest)
       .flatMap { content =>
         content.codeTemplates.get((language, languageVersion)) match
@@ -86,7 +90,9 @@ class HackerRankOpenChallengeService[F[_]: Async: Concurrent: HttpClientManager:
               (CodeDojoChallengeId(template.id), template)
             }
           case None =>
-            Async[F].raiseError(new Exception(s"This challenge does not support ${language.show}${languageVersion.version}"))
+            Async[F].raiseError(
+              new Exception(s"This challenge does not support ${language.show}${languageVersion.version}")
+            )
       }
   }
 

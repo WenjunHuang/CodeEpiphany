@@ -3,7 +3,7 @@ package com.wenjunhuang.codeepiphany.codeforces.services
 import cats.effect.Concurrent
 import cats.effect.kernel.Async
 import cats.syntax.all.*
-import org.jooq.{DSLContext, Record}
+import org.jooq.{ DSLContext, Record }
 import org.typelevel.ci.CIString
 import org.typelevel.log4cats.LoggerFactory
 import scala.jdk.OptionConverters.*
@@ -12,15 +12,15 @@ import com.intellij.openapi.project.Project
 
 import com.wenjunhuang.codeepiphany.codeforces.models.CodeForcesSubmissionResponse
 import com.wenjunhuang.codeepiphany.codeforces.settings.CodeForcesSettingsConfigurable
-import com.wenjunhuang.codeepiphany.database.Tables.{CHALLENGE, CHALLENGE_LANGUAGE, CODEFORCES_CHALLENGE}
-import com.wenjunhuang.codeepiphany.model.{Language, LanguageVersion, SubmissionResult}
+import com.wenjunhuang.codeepiphany.database.Tables.{ CHALLENGE, CHALLENGE_LANGUAGE, CODEFORCES_CHALLENGE }
+import com.wenjunhuang.codeepiphany.model.{ Language, LanguageVersion, SubmissionResult }
 import com.wenjunhuang.codeepiphany.model.newtypes.SubmissionId
 import com.wenjunhuang.codeepiphany.model.CodeDojo.CodeForces
-import com.wenjunhuang.codeepiphany.services.{console, BaseSubmissionService, ChallengeRepository}
+import com.wenjunhuang.codeepiphany.services.{ console, BaseSubmissionService, ChallengeRepository }
 import com.wenjunhuang.codeepiphany.services.http.HttpClientManager
 import com.wenjunhuang.codeepiphany.settings.ChallengeSettings.ChallengeSettingsStateItem
 
-class CodeForcesSubmissionService[F[_]: Async: Concurrent: HttpClientManager: LoggerFactory](project: Project)
+class CodeForcesSubmissionService[F[_]: { Async, Concurrent, HttpClientManager, LoggerFactory }](project: Project)
     extends BaseSubmissionService[F](project, CodeForces) {
   override type SubmissionRequest  = CFRequest
   override type SubmissionResponse = CodeForcesSubmissionResponse
@@ -41,7 +41,7 @@ class CodeForcesSubmissionService[F[_]: Async: Concurrent: HttpClientManager: Lo
     basicInfo: CFRequest,
     processedCode: String
   ): fs2.Stream[F, CodeForcesSubmissionResponse] =
-    CodeForcesApi[F]().submitAnswer(
+    CodeForcesApi[F].submitAnswer(
       basicInfo.contestId,
       basicInfo.index,
       basicInfo.problemsetName,
@@ -93,7 +93,7 @@ class CodeForcesSubmissionService[F[_]: Async: Concurrent: HttpClientManager: Lo
     } yield CFRequest(contestId, index, problemset, language, langVer, programTypeId)
   }
   private def resolveProgramType(language: Language, version: LanguageVersion): Option[String] =
-    CodeForcesSettingsConfigurable.CODEFORCES_LANGUAGES.get((language,version))
+    CodeForcesSettingsConfigurable.CODEFORCES_LANGUAGES.get((language, version))
 
   case class CFRequest(
     contestId: Long,

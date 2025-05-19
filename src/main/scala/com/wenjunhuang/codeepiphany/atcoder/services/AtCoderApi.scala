@@ -37,7 +37,7 @@ trait AtCoderApi[F[_]] {
 }
 
 object AtCoderApi {
-  def apply[F[_]: Async: Concurrent: HttpClientManager](): AtCoderApi[F] = new AtCoderApi[F] with Http4sClientDsl[F] {
+  def apply[F[_]: { Async, Concurrent, HttpClientManager }]: AtCoderApi[F] = new AtCoderApi[F] with Http4sClientDsl[F] {
     override def checkLogin(): F[Boolean] = useClient { client =>
       client
         .expect[String](uri"https://atcoder.jp/settings")

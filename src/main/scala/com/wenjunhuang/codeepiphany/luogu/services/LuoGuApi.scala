@@ -51,7 +51,7 @@ trait LuoGuApi[F[_]] {
 }
 
 object LuoGuApi {
-  def apply[F[_]: Async: Concurrent: HttpClientManager](): LuoGuApi[F] = new LuoGuApi[F] with Http4sClientDsl[F] {
+  def apply[F[_]: { Async, Concurrent, HttpClientManager }]: LuoGuApi[F] = new LuoGuApi[F] with Http4sClientDsl[F] {
 
     private def useClient[A](fun: Client[F] => F[A]): F[A] = HttpClientManager[F].getClient.use(fun)
 

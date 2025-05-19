@@ -1,24 +1,28 @@
 package com.wenjunhuang.codeepiphany.codeforces.services
 
-import cats.effect.{Async, Concurrent}
+import cats.effect.{ Async, Concurrent }
 import cats.syntax.all.*
 import org.jooq.DSLContext
 import org.typelevel.log4cats.LoggerFactory
 
 import com.intellij.openapi.project.Project
 
-import com.wenjunhuang.codeepiphany.codeforces.models.{codeForcesRatingToDifficulty, CodeForcesChallengeCodeTemplate}
-import com.wenjunhuang.codeepiphany.codeforces.settings.{CodeForcesSettings, CodeForcesSettingsConfigurable}
-import com.wenjunhuang.codeepiphany.database.tables.records.{ChallengeLanguageRecord, ChallengeRecord, CodeforcesProblemsetsRecord}
+import com.wenjunhuang.codeepiphany.codeforces.models.{ codeForcesRatingToDifficulty, CodeForcesChallengeCodeTemplate }
+import com.wenjunhuang.codeepiphany.codeforces.settings.{ CodeForcesSettings, CodeForcesSettingsConfigurable }
+import com.wenjunhuang.codeepiphany.database.tables.records.{
+  ChallengeLanguageRecord,
+  ChallengeRecord,
+  CodeforcesProblemsetsRecord
+}
 import com.wenjunhuang.codeepiphany.database.Tables.*
-import com.wenjunhuang.codeepiphany.model.{CodeDojo, Language, LanguageVersion}
+import com.wenjunhuang.codeepiphany.model.{ ApiError, CodeDojo, Language, LanguageVersion }
 import com.wenjunhuang.codeepiphany.model.newtypes.CodeDojoChallengeId
 import com.wenjunhuang.codeepiphany.services.http.HttpClientManager
 import com.wenjunhuang.codeepiphany.services.BaseOpenChallengeService
 import com.wenjunhuang.codeepiphany.settings.dojo.BaseCodeDojoSettings
 import com.wenjunhuang.codeepiphany.utils.template.VelocityTool
 
-class CodeForcesOpenChallengeService[F[_]: Async: Concurrent: HttpClientManager: LoggerFactory](project: Project)
+class CodeForcesOpenChallengeService[F[_]: { Async, Concurrent, HttpClientManager, LoggerFactory }](project: Project)
     extends BaseOpenChallengeService[F, CodeforcesProblemsetsRecord, CodeForcesChallengeCodeTemplate](
       project,
       CodeDojo.CodeForces,
@@ -61,9 +65,9 @@ class CodeForcesOpenChallengeService[F[_]: Async: Concurrent: HttpClientManager:
     language: Language,
     languageVersion: LanguageVersion
   ): F[(CodeDojoChallengeId, CodeForcesChallengeCodeTemplate)] = {
-    CodeForcesApi[F]()
+    CodeForcesApi[F]
       .getChallengeData(Option(req.getProblemsetname), req.getContestid, req.getIndex)
-      .flatMap(_.liftTo[F](new Exception(s"Challenge ${req.getName} is not available")))
+      .flatMap(_.liftTo[F](ApiError.NotFound(CodeDojo.CodeForces, s"Challenge ${req.getName} is not available")))
       .flatMap { content =>
         if content.supportedLanguages.contains((language, languageVersion)) then
           Async[F].pure(
@@ -83,7 +87,10 @@ class CodeForcesOpenChallengeService[F[_]: Async: Concurrent: HttpClientManager:
           )
         else
           Async[F].raiseError(
-            new Exception(s"This challenge does not support ${language.show}${languageVersion.version}")
+            ApiError.InvalidContent(
+              CodeDojo.CodeForces,
+              s"This challenge does not support ${language.show}${languageVersion.version}"
+            )
           )
       }
   }

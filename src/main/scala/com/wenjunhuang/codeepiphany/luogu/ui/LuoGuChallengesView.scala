@@ -49,9 +49,7 @@ class LuoGuChallengesView(private val myProject: Project) extends BaseChallenges
 
   select(myCurrentUI, false)
 
-  private def initialize(): IO[LuoGuBootstrapParameters] = LuoGuApi[IO]().getUserInfo.map { userInfo =>
-    LuoGuBootstrapParameters(userInfo)
-  }
+  private def initialize(): IO[LuoGuBootstrapParameters] = LuoGuApi[IO].getUserInfo.map(LuoGuBootstrapParameters.apply)
 
   private val myLoginLogoutProvider = new LoginLogoutProvider {
     override def login(): Unit = {

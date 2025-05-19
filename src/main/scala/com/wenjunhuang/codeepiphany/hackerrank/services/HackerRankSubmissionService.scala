@@ -4,7 +4,7 @@ import cats.effect.Concurrent
 import cats.effect.kernel.Async
 import cats.syntax.all.*
 import fs2.Stream
-import org.jooq.{DSLContext, Record}
+import org.jooq.{ DSLContext, Record }
 import org.typelevel.ci.CIString
 import org.typelevel.log4cats.LoggerFactory
 import scala.jdk.OptionConverters.*
@@ -12,17 +12,17 @@ import scala.jdk.OptionConverters.*
 import com.intellij.openapi.project.Project
 
 import com.wenjunhuang.codeepiphany.database.Tables.*
-import com.wenjunhuang.codeepiphany.hackerrank.models.{HackerRankContest, HackerRankSubmissionResponse}
+import com.wenjunhuang.codeepiphany.hackerrank.models.{ HackerRankContest, HackerRankSubmissionResponse }
 import com.wenjunhuang.codeepiphany.model.*
 import com.wenjunhuang.codeepiphany.model.newtypes.SubmissionId
 import com.wenjunhuang.codeepiphany.model.CodeDojo.HackerRank
 import com.wenjunhuang.codeepiphany.model.SubmissionResult.Success
-import com.wenjunhuang.codeepiphany.services.{console, BaseSubmissionService, ChallengeRepository}
+import com.wenjunhuang.codeepiphany.services.{ console, BaseSubmissionService, ChallengeRepository }
 import com.wenjunhuang.codeepiphany.services.http.HttpClientManager
 import com.wenjunhuang.codeepiphany.settings.ChallengeSettings.ChallengeSettingsStateItem
 import com.wenjunhuang.codeepiphany.utils.IdGenerator
 
-class HackerRankSubmissionService[F[_]: Async: Concurrent: HttpClientManager: LoggerFactory](project: Project)
+class HackerRankSubmissionService[F[_]: { Async, Concurrent, HttpClientManager, LoggerFactory }](project: Project)
     extends BaseSubmissionService[F](project, HackerRank) {
   override type SubmissionRequest  = HRSubmissionRequest
   override type SubmissionResponse = HackerRankSubmissionResponse
@@ -73,7 +73,7 @@ class HackerRankSubmissionService[F[_]: Async: Concurrent: HttpClientManager: Lo
   override protected def callApi(
     basicInfo: HRSubmissionRequest,
     processedCode: String
-  ): Stream[F, HackerRankSubmissionResponse] = HackerRankApi[F]().submitAnswer(
+  ): Stream[F, HackerRankSubmissionResponse] = HackerRankApi[F].submitAnswer(
     basicInfo.slug,
     basicInfo.contest,
     basicInfo.language,

@@ -124,7 +124,7 @@ trait LeetCodeApi[F[_]] {
 
 object LeetCodeApi {
 
-  def apply[F[_]: Async: Concurrent: HttpClientManager](dojo: LeetCodeDojo): LeetCodeApi[F] = new LeetCodeApi[F]
+  def apply[F[_]: { Async, Concurrent, HttpClientManager }](dojo: LeetCodeDojo): LeetCodeApi[F] = new LeetCodeApi[F]
     with Http4sClientDsl[F] {
 
     private val graphqlUrl = Uri.unsafeFromString(s"https://${dojo.domain.toString}/graphql/")
@@ -147,7 +147,7 @@ object LeetCodeApi {
             .map {
               case r: LeetCodeSubmitAnswerResult.Started => r.copy(leetCodeSubmissionId = submissionId.toString)
               case r: LeetCodeSubmitAnswerResult.Pending => r.copy(leetCodeSubmissionId = submissionId.toString)
-              case r => r
+              case r                                     => r
             }
         }
       }
@@ -227,13 +227,13 @@ object LeetCodeApi {
       }
 
     override def submitContestAnswer(
-                                      id: String,
-                                      slug: String,
-                                      contestSlug: String,
-                                      language: Language,
-                                      languageVersion: LanguageVersion,
-                                      code: String
-                                    ): Stream[F, LeetCodeSubmitAnswerResult] = {
+      id: String,
+      slug: String,
+      contestSlug: String,
+      language: Language,
+      languageVersion: LanguageVersion,
+      code: String
+    ): Stream[F, LeetCodeSubmitAnswerResult] = {
       submitAnswer(
         Uri.unsafeFromString(s"https://${dojo.domain.toString}/contest/api/${contestSlug}/problems/$slug/submit/"),
         LeetCodeSubmitAnswerRequest(
@@ -245,12 +245,12 @@ object LeetCodeApi {
     }
 
     override def submitAnswer(
-                               id: String,
-                               slug: String,
-                               language: Language,
-                               languageVersion: LanguageVersion,
-                               code: String
-                             ): Stream[F, LeetCodeSubmitAnswerResult] = {
+      id: String,
+      slug: String,
+      language: Language,
+      languageVersion: LanguageVersion,
+      code: String
+    ): Stream[F, LeetCodeSubmitAnswerResult] = {
       submitAnswer(
         Uri.unsafeFromString(s"https://${dojo.domain.toString}/problems/$slug/submit/"),
         LeetCodeSubmitAnswerRequest(
@@ -281,7 +281,7 @@ object LeetCodeApi {
             )
             .flatMap {
               case r: LeetCodeSubmitAnswerResult.Success => Stream(Option(r).widen, None)
-              case r => Stream(Option(r).widen)
+              case r                                     => Stream(Option(r).widen)
             }
             .unNoneTerminate
         }
@@ -299,13 +299,13 @@ object LeetCodeApi {
       }
 
     override def runAnswer(
-                            id: String,
-                            slug: String,
-                            testCase: String,
-                            language: Language,
-                            languageVersion: LanguageVersion,
-                            code: String
-                          ): Stream[F, LeetCodeRunResult] = {
+      id: String,
+      slug: String,
+      testCase: String,
+      language: Language,
+      languageVersion: LanguageVersion,
+      code: String
+    ): Stream[F, LeetCodeRunResult] = {
       Stream
         .eval(useClient { client =>
           getCSRFToken.flatMap { csrfToken =>
@@ -335,7 +335,7 @@ object LeetCodeApi {
             )
             .flatMap {
               case r: LeetCodeRunResult.Success => Stream(Option(r).widen, None)
-              case r => Stream(Option(r).widen)
+              case r                            => Stream(Option(r).widen)
             }
             .unNoneTerminate
         }
@@ -481,12 +481,12 @@ object LeetCodeApi {
     }
 
     private def createSearchChallengesFilterJson(
-                                                  favorite: Option[LeetCodeFavoriteItem],
-                                                  difficulty: Option[ChallengeDifficulty],
-                                                  status: Option[ChallengeStatus],
-                                                  tags: List[LeetCodeTag],
-                                                  orderBy: Option[(LeetCodeSearchOrderBy, OrderDirection)]
-                                                ): Json = {
+      favorite: Option[LeetCodeFavoriteItem],
+      difficulty: Option[ChallengeDifficulty],
+      status: Option[ChallengeStatus],
+      tags: List[LeetCodeTag],
+      orderBy: Option[(LeetCodeSearchOrderBy, OrderDirection)]
+    ): Json = {
       favorite
         .map(item => JsonObject("listId" -> item.id.asJson))
         .getOrElse(JsonObject.empty)
@@ -499,7 +499,7 @@ object LeetCodeApi {
                 .map(s => JsonObject("status" -> dojo.leetCodeStatus(s).asJson))
                 .getOrElse(JsonObject.empty)
                 .deepMerge(tags.map(_.slug) match
-                  case Nil => JsonObject.empty
+                  case Nil  => JsonObject.empty
                   case list => JsonObject("tags" -> list.asJson))
             )
         )
@@ -508,15 +508,15 @@ object LeetCodeApi {
     }
 
     override def searchChallenges(
-                                   offset: Int,
-                                   limit: Int,
-                                   category: Option[LeetCodeCategoryListItem],
-                                   favorite: Option[LeetCodeFavoriteItem],
-                                   difficulty: Option[ChallengeDifficulty],
-                                   status: Option[ChallengeStatus],
-                                   tags: List[LeetCodeTag],
-                                   orderBy: Option[(LeetCodeSearchOrderBy, OrderDirection)]
-                                 ): F[LeetCodeChallengeList] =
+      offset: Int,
+      limit: Int,
+      category: Option[LeetCodeCategoryListItem],
+      favorite: Option[LeetCodeFavoriteItem],
+      difficulty: Option[ChallengeDifficulty],
+      status: Option[ChallengeStatus],
+      tags: List[LeetCodeTag],
+      orderBy: Option[(LeetCodeSearchOrderBy, OrderDirection)]
+    ): F[LeetCodeChallengeList] =
       useClient { client =>
         openGraphQLFile(dojo, "problemsetQuestionList").flatMap { file =>
           getCSRFToken.flatMap { csrfToken =>
@@ -532,10 +532,10 @@ object LeetCodeApi {
                       operationName = "problemsetQuestionList",
                       query = file,
                       variables = Map(
-                        "skip" -> offset.asJson,
-                        "limit" -> limit.asJson,
+                        "skip"         -> offset.asJson,
+                        "limit"        -> limit.asJson,
                         "categorySlug" -> category.map(_.slug).getOrElse("all-code-essentials").asJson,
-                        "filters" -> createSearchChallengesFilterJson(favorite, difficulty, status, tags, orderBy)
+                        "filters"      -> createSearchChallengesFilterJson(favorite, difficulty, status, tags, orderBy)
                       ).asJsonObject
                     )
                   )
@@ -552,46 +552,46 @@ object LeetCodeApi {
       }
 
     private def createOrderBy(
-                               orderBy: Option[(LeetCodeSearchOrderBy, OrderDirection)],
-                               orElse: JsonObject = JsonObject.empty
-                             ): JsonObject = {
+      orderBy: Option[(LeetCodeSearchOrderBy, OrderDirection)],
+      orElse: JsonObject = JsonObject.empty
+    ): JsonObject = {
       orderBy.map { case (order, direction) =>
         JsonObject("orderBy" -> order.value.asJson, "sortOrder" -> dojo.leetCodeOrderDirection(direction).asJson)
       }.getOrElse(orElse)
     }
 
     private def createSortField(
-                                 orderBy: Option[(LeetCodeSearchOrderBy, OrderDirection)],
-                                 orElse: JsonObject = JsonObject.empty
-                               ): JsonObject = {
+      orderBy: Option[(LeetCodeSearchOrderBy, OrderDirection)],
+      orElse: JsonObject = JsonObject.empty
+    ): JsonObject = {
       orderBy.map { case (order, direction) =>
         JsonObject("sortField" -> order.value.asJson, "sortOrder" -> dojo.leetCodeOrderDirection(direction).asJson)
       }.getOrElse(orElse)
     }
 
     private def createSearchKeywordFilterJson(
-                                               keyWord: String,
-                                               orderBy: Option[(LeetCodeSearchOrderBy, OrderDirection)]
-                                             ): Json = {
+      keyWord: String,
+      orderBy: Option[(LeetCodeSearchOrderBy, OrderDirection)]
+    ): Json = {
       JsonObject("searchKeywords" -> keyWord.asJson)
         .deepMerge(createOrderBy(orderBy))
         .asJson
     }
 
     override def searchCompanyChallenges(
-                                          offset: Int,
-                                          limit: Int,
-                                          interviewPeriodSlug: String,
-                                          companySlugs: List[String],
-                                          positionSlugs: List[String],
-                                          difficulty: Option[ChallengeDifficulty],
-                                          status: Option[ChallengeStatus],
-                                          tags: List[LeetCodeTag],
-                                          orderBy: Option[(LeetCodeSearchOrderBy, OrderDirection)]
-                                        ): F[LeetCodeCompanyChallengeList] = useClient { client =>
+      offset: Int,
+      limit: Int,
+      interviewPeriodSlug: String,
+      companySlugs: List[String],
+      positionSlugs: List[String],
+      difficulty: Option[ChallengeDifficulty],
+      status: Option[ChallengeStatus],
+      tags: List[LeetCodeTag],
+      orderBy: Option[(LeetCodeSearchOrderBy, OrderDirection)]
+    ): F[LeetCodeCompanyChallengeList] = useClient { client =>
       openGraphQLFile(dojo, "favoriteQuestionList").flatMap { file =>
         val favorite = companySlugs.head
-        val rest = companySlugs.tail
+        val rest     = companySlugs.tail
         getCSRFToken.flatMap { csrfToken =>
           client
             .expect[Json](
@@ -602,32 +602,32 @@ object LeetCodeApi {
                     operationName = "favoriteQuestionList",
                     query = file,
                     variables = Map(
-                      "skip" -> offset.asJson,
-                      "limit" -> limit.asJson,
+                      "skip"         -> offset.asJson,
+                      "limit"        -> limit.asJson,
                       "favoriteSlug" -> s"$favorite-${interviewPeriodSlug}".asJson,
                       "filtersV2" -> Map(
                         "companyFilter" -> Map("companySlugs" -> rest.asJson, "operator" -> "IS".asJson).asJson,
                         "positionFilter" -> Map(
                           "positionSlugs" -> positionSlugs.asJson,
-                          "operator" -> "IS".asJson
+                          "operator"      -> "IS".asJson
                         ).asJson,
                         "acceptanceFilter" -> Map.empty[String, String].asJson,
-                        "frequencyFilter" -> Map.empty[String, String].asJson,
+                        "frequencyFilter"  -> Map.empty[String, String].asJson,
                         "languageFilter" -> Map(
                           "languageSlugs" -> List.empty[String].asJson,
-                          "operator" -> "IS".asJson
+                          "operator"      -> "IS".asJson
                         ).asJson,
                         "difficultyFilter" -> Map(
                           "difficulties" -> difficulty.map(dojo.leetCodeDifficulty).toList.asJson,
-                          "operator" -> "IS".asJson
+                          "operator"     -> "IS".asJson
                         ).asJson,
                         "premiumFilter" -> Map(
                           "premiumStatus" -> List.empty[String].asJson,
-                          "operator" -> "IS".asJson
+                          "operator"      -> "IS".asJson
                         ).asJson,
                         "statusFilter" -> Map(
                           "questionStatuses" -> status.map(dojo.leetCodeStatusForCompanySearch).toList.asJson,
-                          "operator" -> "IS".asJson
+                          "operator"         -> "IS".asJson
                         ).asJson,
                         "topicFilter" -> Map("topicSlugs" -> tags.map(_.slug).asJson, "operator" -> "IS".asJson).asJson,
                         "filterCombineType" -> "ALL".asJson
@@ -653,11 +653,11 @@ object LeetCodeApi {
     }
 
     override def searchChallengesWithKeyword(
-                                              offset: Int,
-                                              limit: Int,
-                                              keyword: String,
-                                              orderBy: Option[(LeetCodeSearchOrderBy, OrderDirection)]
-                                            ): F[LeetCodeChallengeList] = {
+      offset: Int,
+      limit: Int,
+      keyword: String,
+      orderBy: Option[(LeetCodeSearchOrderBy, OrderDirection)]
+    ): F[LeetCodeChallengeList] = {
       useClient { client =>
         openGraphQLFile(dojo, "problemsetQuestionList").flatMap { file =>
           getCSRFToken.flatMap { csrfToken =>
@@ -670,10 +670,10 @@ object LeetCodeApi {
                       operationName = "problemsetQuestionList",
                       query = file,
                       variables = Map(
-                        "skip" -> offset.asJson,
-                        "limit" -> limit.asJson,
+                        "skip"         -> offset.asJson,
+                        "limit"        -> limit.asJson,
                         "categorySlug" -> "all-code-essentials".asJson,
-                        "filters" -> createSearchKeywordFilterJson(keyword, orderBy)
+                        "filters"      -> createSearchKeywordFilterJson(keyword, orderBy)
                       ).asJsonObject
                     )
                   )
@@ -746,7 +746,7 @@ object LeetCodeApi {
         useClient { client =>
           for
             csrfToken <- getCSRFToken
-            file <- openGraphQLFile(dojo, "solutionTags")
+            file      <- openGraphQLFile(dojo, "solutionTags")
             response <- client.expect[Json](
               Method
                 .POST(graphqlUrl, headers = commonHeaders(csrfToken))
@@ -762,7 +762,7 @@ object LeetCodeApi {
             case Some(json) =>
               json.as[LeetCodeSolutionTags] match
                 case Right(tags) => tags
-                case Left(e) => throw ApiError.InvalidContent(dojo, e.message)
+                case Left(e)     => throw ApiError.InvalidContent(dojo, e.message)
             case None =>
               throw ApiError.InvalidContent(dojo, "can not find 'data.solutionTags' in json")
         }
@@ -770,7 +770,7 @@ object LeetCodeApi {
         useClient { client =>
           for
             csrfToken <- getCSRFToken
-            file <- openGraphQLFile(dojo, "ugcArticleSolutionTags")
+            file      <- openGraphQLFile(dojo, "ugcArticleSolutionTags")
             response <- client.expect[Json](
               Method
                 .POST(graphqlUrl, headers = commonHeaders(csrfToken))
@@ -786,7 +786,7 @@ object LeetCodeApi {
             case Some(json) =>
               json.as[LeetCodeSolutionTags] match
                 case Right(tags) => tags
-                case Left(e) => throw ApiError.InvalidContent(dojo, e.message)
+                case Left(e)     => throw ApiError.InvalidContent(dojo, e.message)
             case None =>
               throw ApiError.InvalidContent(dojo, "can not find 'data.solutionTags' in json")
         }

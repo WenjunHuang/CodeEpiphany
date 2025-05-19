@@ -2,10 +2,16 @@ package com.wenjunhuang.codeepiphany.atcoder.ui
 
 import cats.effect.IO
 import cats.syntax.all.*
+import java.util.concurrent.atomic.AtomicBoolean
+import javax.swing.JComponent
+import org.typelevel.ci.CIString
+import org.typelevel.log4cats.LoggerFactory
+
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.actionSystem.{ActionGroup, ActionManager}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
+
 import com.wenjunhuang.codeepiphany.PluginBundle
 import com.wenjunhuang.codeepiphany.actions.LoginAction.{LOGIN_LOGOUT_KEY, LoginLogoutProvider}
 import com.wenjunhuang.codeepiphany.atcoder.actions.AtCoderChangeUIAction.{ATCODER_CHANGE_UI_PROVIDER_KEY, AtCoderChangeUIProvider, AtCoderUI}
@@ -16,18 +22,12 @@ import com.wenjunhuang.codeepiphany.atcoder.settings.AtCoderSettings
 import com.wenjunhuang.codeepiphany.model.Actions.ATCODER_TITLE_TOOLBAR_GROUP
 import com.wenjunhuang.codeepiphany.model.CodeDojo
 import com.wenjunhuang.codeepiphany.model.CodeDojo.AtCoder
+import com.wenjunhuang.codeepiphany.services.{console, AskForLoginResult, AuthService, BaseChallengesView}
 import com.wenjunhuang.codeepiphany.services.http.{HttpClientManager, HttpClientService}
-import com.wenjunhuang.codeepiphany.services.{AskForLoginResult, AuthService, BaseChallengesView, console}
 import com.wenjunhuang.codeepiphany.utils.actions.DataSink
 import com.wenjunhuang.codeepiphany.utils.extensions.*
 import com.wenjunhuang.codeepiphany.utils.implicits.*
 import com.wenjunhuang.codeepiphany.utils.ui.UnauthenticatedView
-import icons.CodeEpiphanyIcons
-import org.typelevel.ci.CIString
-import org.typelevel.log4cats.LoggerFactory
-
-import java.util.concurrent.atomic.AtomicBoolean
-import javax.swing.JComponent
 
 class AtCoderChallengesView(private val myProject: Project) extends BaseChallengesView[AtCoderUI] {
 
@@ -41,19 +41,16 @@ class AtCoderChallengesView(private val myProject: Project) extends BaseChalleng
   private var myQueryParamPresenter: Option[AtCoderParametersQueryPresenter] = None
   @volatile
   private var myKeywordSearchPresenter: Option[AtCoderKeywordQueryPresenter] = None
-  private var myCurrentUI = AtCoderUI.Unauthenticated
-  private val myLogger = LoggerFactory.getLogger[IO]
+  private var myCurrentUI                                                    = AtCoderUI.Unauthenticated
+  private val myLogger                                                       = LoggerFactory.getLogger[IO]
 
   @volatile
   private var myIsLoggingIn = false
 
   select(myCurrentUI, false)
 
-  private def initialize(): IO[AtCoderBootstrapParameters] = {
-    AtCoderApi[IO]().getUserInfo.map { userInfo =>
-      AtCoderBootstrapParameters(userInfo)
-    }
-  }
+  private def initialize(): IO[AtCoderBootstrapParameters] =
+    AtCoderApi[IO].getUserInfo.map(AtCoderBootstrapParameters.apply)
 
   private val myLoginLogoutProvider = new LoginLogoutProvider {
     override def login(): Unit = {
@@ -65,23 +62,22 @@ class AtCoderChallengesView(private val myProject: Project) extends BaseChalleng
           .flatMap {
             case AskForLoginResult.Done =>
               initialize().map { bootstrap =>
-                myQueryParamPresenter = Some(AtCoderParametersQueryPresenter(myProject, bootstrap))
-                myKeywordSearchPresenter = Some(AtCoderKeywordQueryPresenter(myProject, bootstrap))
+                myQueryParamPresenter = AtCoderParametersQueryPresenter(myProject, bootstrap).some
+                myKeywordSearchPresenter = AtCoderKeywordQueryPresenter(myProject, bootstrap).some
               } *> IO.delay {
                 AuthService.getInstance(myProject).setLogin(CodeDojo.AtCoder)
                 val gotoUI = loadLastUI().getOrElse(AtCoderUI.QueryParameters)
                 mySwitchUIProvider.switchTo(gotoUI)
-              }.evalOnEDTAny()
-                *> console.info[IO](myProject, s"Logged in to ${CodeDojo.AtCoder.show}.")
+              }.evalOnEDTAny() *> console.info[IO](myProject, s"Logged in to ${CodeDojo.AtCoder.show}.")
             case _ => console.info[IO](myProject, s"Login to ${CodeDojo.AtCoder.show} canceled.")
           }
           .handleErrorWith { e =>
-            myLogger.warn(e)("Failed to login") *>
-              console.error[IO](myProject, s"Login failed because of \"${e.getMessage}\"")
+            myLogger.warn(e)("Failed to login") *> console.error[IO](
+              myProject,
+              s"Login failed because of \"${e.getMessage}\""
+            )
           })
-        .guarantee(IO.delay {
-          myIsLoggingIn = false
-        })
+        .guarantee(IO.delay { myIsLoggingIn = false })
         .unsafeRunAsBackgroundProgressCancellable(myProject, s"Logging in to ${CodeDojo.AtCoder.show}...")
     }
 
@@ -89,9 +85,9 @@ class AtCoderChallengesView(private val myProject: Project) extends BaseChalleng
       .getInstance(myProject)
       .askForLogout[IO](CodeDojo.AtCoder)
       *> IO.delay {
-      AuthService.getInstance(myProject).clearLogin(CodeDojo.AtCoder)
-      mySwitchUIProvider.switchTo(AtCoderUI.Unauthenticated)
-    }.evalOnEDTAny()).unsafeRunAndForget()
+        AuthService.getInstance(myProject).clearLogin(CodeDojo.AtCoder)
+        mySwitchUIProvider.switchTo(AtCoderUI.Unauthenticated)
+      }.evalOnEDTAny()).unsafeRunAndForget()
 
     override def hasLoggedIn: Boolean = AuthService.getInstance(myProject).isLoggedIn(CodeDojo.AtCoder)
 
@@ -122,7 +118,7 @@ class AtCoderChallengesView(private val myProject: Project) extends BaseChalleng
 
   override def getTitleActionGroup: ActionGroup = {
     val actionManager = ActionManager.getInstance()
-    val actionGroup = actionManager.getAction(ATCODER_TITLE_TOOLBAR_GROUP).asInstanceOf[ActionGroup]
+    val actionGroup   = actionManager.getAction(ATCODER_TITLE_TOOLBAR_GROUP).asInstanceOf[ActionGroup]
     actionGroup
   }
 

@@ -31,7 +31,7 @@ lazy val codeEpiphany = (project in file("."))
     scalacOptions ++= Seq(
       "-Wunused:imports",
       "-language:implicitConversions",
-      "-Ykind-projector:underscores",
+      "-Xkind-projector:underscores",
       "-source:future", // enabling better-monadic-for syntax
       "-feature",
       "-deprecation",
@@ -44,10 +44,10 @@ lazy val codeEpiphany = (project in file("."))
     intellijVMOptions := intellijVMOptions.value.copy(
       xmx = 2048,
       xms = 256,
-      defaultOptions =
-        intellijVMOptions.value.defaultOptions ++ Seq("--add-opens=java.management/sun.management=ALL-UNNAMED",
-          "--add-opens=java.desktop/javax.swing.text=ALL-UNNAMED" // apple m4 need this parameter
-        )
+      defaultOptions = intellijVMOptions.value.defaultOptions ++ Seq(
+        "--add-opens=java.management/sun.management=ALL-UNNAMED",
+        "--add-opens=java.desktop/javax.swing.text=ALL-UNNAMED" // apple m4 need this parameter
+      )
     ),
     patchPluginXml := pluginXmlOptions { xml =>
       xml.version = version.value
@@ -61,20 +61,20 @@ lazy val codeEpiphany = (project in file("."))
       "org.typelevel"           %% "cats-effect"              % "3.6.1",
       "org.typelevel"           %% "cats-core"                % "2.13.0",
       "org.typelevel"           %% "cats-mtl"                 % "1.5.0",
-      "io.circe"                %% "circe-core"               % "0.14.10",
-      "io.circe"                %% "circe-generic"            % "0.14.10",
-      "io.circe"                %% "circe-parser"             % "0.14.10",
+      "io.circe"                %% "circe-core"               % "0.14.13",
+      "io.circe"                %% "circe-generic"            % "0.14.13",
+      "io.circe"                %% "circe-parser"             % "0.14.13",
       "io.circe"                %% "circe-optics"             % "0.15.0",
       "co.fs2"                  %% "fs2-core"                 % "3.12.0",
       "dev.optics"              %% "monocle-core"             % "3.3.0",
       "dev.optics"              %% "monocle-macro"            % "3.3.0",
       "org.typelevel"           %% "log4cats-core"            % "2.7.0",
-      "org.typelevel"           %% "case-insensitive"         % "1.4.2",
+      "org.typelevel"           %% "case-insensitive"         % "1.5.0",
       "org.http4s"              %% "http4s-client"            % "0.23.30",
       "org.http4s"              %% "http4s-dsl"               % "0.23.30",
       "org.http4s"              %% "http4s-circe"             % "0.23.30",
       "com.squareup.okhttp3"     % "okhttp"                   % "4.12.0",
-      "org.jsoup"                % "jsoup"                    % "1.18.3",
+      "org.jsoup"                % "jsoup"                    % "1.20.1",
       "com.vladsch.flexmark"     % "flexmark"                 % "0.64.8",
       "com.vladsch.flexmark"     % "flexmark-util-data"       % "0.64.8",
       "com.vladsch.flexmark"     % "flexmark-util-ast"        % "0.64.8",
@@ -91,7 +91,7 @@ lazy val codeEpiphany = (project in file("."))
       "io.monix"                %% "newtypes-core"            % "0.3.0",
       "io.monix"                %% "newtypes-circe-v0-14"     % "0.3.0",
       "com.github.cb372"        %% "cats-retry"               % "4.0.0",
-      "com.github.weisj"         % "jsvg"                     % "1.7.0",
+      "com.github.weisj"         % "jsvg"                     % "2.0.0",
       // add jooq and sqlite,
       "org.jooq"            % "jooq"             % "3.19.18",
       "org.reactivestreams" % "reactive-streams" % "1.0.4",

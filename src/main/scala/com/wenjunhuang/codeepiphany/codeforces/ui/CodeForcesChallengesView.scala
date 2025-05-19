@@ -57,7 +57,7 @@ class CodeForcesChallengesView(private val myProject: Project) extends BaseChall
 
   select(myCurrentUI, false)
   private def initialize(): IO[CodeForcesBootstrapParameters] = {
-    CodeForcesApi[IO]().getProblemTags.map { tags =>
+    CodeForcesApi[IO].getProblemTags.map { tags =>
       CodeForcesBootstrapParameters("*special" +: tags)
     }
   }
@@ -83,8 +83,10 @@ class CodeForcesChallengesView(private val myProject: Project) extends BaseChall
             case _ => console.info[IO](myProject, s"Login to ${CodeDojo.CodeForces.show} canceled.")
           }
           .handleErrorWith { e =>
-            myLogger.warn(e)("Failed to login") *>
-              console.error[IO](myProject, s"Login failed because of \"${e.getMessage}\"")
+            myLogger.warn(e)("Failed to login") *> console.error[IO](
+              myProject,
+              s"Login failed because of \"${e.getMessage}\""
+            )
           })
         .guarantee(IO.delay { myIsLoggingIn = false })
         .unsafeRunAsBackgroundProgressCancellable(myProject, s"Logging in to ${CodeDojo.CodeForces.show}...")

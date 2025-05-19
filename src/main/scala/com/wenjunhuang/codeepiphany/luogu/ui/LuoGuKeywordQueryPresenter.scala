@@ -29,7 +29,7 @@ class LuoGuKeywordQueryPresenter(project: Project, bootstrap: LuoGuBootstrapPara
 
   override protected def executeQuery(context: QueryContext[QueryParams]): IO[(Pagination, List[LuoGuChallengeItem])] =
     implicit val httpClient: HttpClientManager[IO] = HttpClientService.getInstance(myProject).httpClientManager
-    LuoGuApi[IO]()
+    LuoGuApi[IO]
       .searchChallenges(
         None,
         None,

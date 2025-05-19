@@ -43,7 +43,7 @@ class LuoGuApiIntegrationTest extends BasePlatformTestCase {
 
   def testSearchChallenges(): Unit = {
     implicit val httpClientKeeper = HttpClientService.getInstance(getProject).httpClientManager
-    val luoGuApi                  = LuoGuApi[IO]()
+    val luoGuApi                  = LuoGuApi[IO]
     println(
       (setCookie(httpClientKeeper) *>
         luoGuApi.searchChallenges(None, None, List.empty, None, None, 1))

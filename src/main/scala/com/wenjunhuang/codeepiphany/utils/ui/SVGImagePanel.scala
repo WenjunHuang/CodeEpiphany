@@ -2,8 +2,8 @@ package com.wenjunhuang.codeepiphany.utils.ui
 
 import com.github.weisj.jsvg.parser.SVGLoader
 import com.github.weisj.jsvg.SVGDocument
-import com.github.weisj.jsvg.attributes.ViewBox
-import java.awt.{Graphics, Graphics2D}
+import com.github.weisj.jsvg.view.{ FloatSize, ViewBox }
+import java.awt.{ Graphics, Graphics2D }
 import scala.compiletime.uninitialized
 
 import com.intellij.ui.components.JBPanel
@@ -25,7 +25,11 @@ class SVGImagePanel extends JBPanel[SVGImagePanel](true) {
     super.paintComponent(g)
     if mySvgDocument != null then
       val config = GraphicsUtil.setupAAPainting(g)
-      mySvgDocument.render(this, g.asInstanceOf[Graphics2D], ViewBox(0, 0, getWidth.toFloat, getHeight.toFloat))
+      mySvgDocument.render(
+        this,
+        g.asInstanceOf[Graphics2D],
+        ViewBox(FloatSize(getWidth.toFloat, getHeight.toFloat))
+      )
       config.restore()
   }
 }
