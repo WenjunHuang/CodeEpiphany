@@ -6,7 +6,6 @@ import sbt.librarymanagement.VersionNumber.SemVer
 import scala.io.Source
 import scala.util.Using
 
-//ThisBuild / scalaVersion     := "3.3.4"
 ThisBuild / scalaVersion     := "3.7.0"
 ThisBuild / intellijPlatform := versions.intellijPlatform
 ThisBuild / intellijBuild    := versions.intellijBuild
@@ -21,6 +20,8 @@ def markdownToHtml(file: File): String = {
     renderer.render(document)
   }.get
 }
+
+lazy val generateBuildConfig = taskKey[Unit]("Generate build config")
 
 lazy val codeEpiphany = (project in file("."))
   .settings(
@@ -68,7 +69,7 @@ lazy val codeEpiphany = (project in file("."))
       "co.fs2"                  %% "fs2-core"                 % "3.12.0",
       "dev.optics"              %% "monocle-core"             % "3.3.0",
       "dev.optics"              %% "monocle-macro"            % "3.3.0",
-      "org.typelevel"           %% "log4cats-core"            % "2.7.0",
+      "org.typelevel"           %% "log4cats-core"            % "2.7.1",
       "org.typelevel"           %% "case-insensitive"         % "1.5.0",
       "org.http4s"              %% "http4s-client"            % "0.23.30",
       "org.http4s"              %% "http4s-dsl"               % "0.23.30",
@@ -118,6 +119,11 @@ lazy val codeEpiphany = (project in file("."))
     Compile / unmanagedSourceDirectories ++= {
       if (
         VersionNumber((ThisBuild / intellijBuild).value)
+          .matchesSemVer(SemanticSelector(s">=${versions.intellijBuild252}"))
+      ) {
+        Seq(baseDirectory.value / "src" / "main" / "252")
+      } else if (
+        VersionNumber((ThisBuild / intellijBuild).value)
           .matchesSemVer(SemanticSelector(s">=${versions.intellijBuild241}"))
       ) {
         Seq(baseDirectory.value / "src" / "main" / "241")
@@ -125,8 +131,20 @@ lazy val codeEpiphany = (project in file("."))
         Seq(baseDirectory.value / "src" / "main" / "233")
       }
     },
+    Compile / unmanagedSourceDirectories += baseDirectory.value / "src" / "main" / "config",
     Test / managedResourceDirectories += baseDirectory.value / "testResources",
-
+    generateBuildConfig := {
+      val configFile = baseDirectory.value / "src" / "main" / "config" / "BuildConfig.scala"
+      val content = s"""package com.wenjunhuang.codeepiphany
+                         |
+                         |object BuildConfig {
+                         |  val version = ${VersionNumber((ThisBuild / intellijBuild).value)._1.get}
+                         |  val intellijBuild = "${versions.intellijBuild}"
+                         |}
+                         |""".stripMargin
+      IO.write(configFile, content)
+    },
+    Compile / compile := (Compile / compile).dependsOn(generateBuildConfig).value,
     // jooq
     jooqVersion       := "3.19.18",
     jooqCodegenConfig := file("jooq-codegen.xml"),

@@ -1,30 +1,33 @@
 package com.wenjunhuang.codeepiphany.utils
 
-import java.net.{PasswordAuthentication, ProxySelector, URL}
+import java.net.*
 
-import com.intellij.openapi.actionSystem.{ActionGroup, ActionManager, ActionToolbar, AnAction}
+import com.intellij.openapi.actionSystem.{ActionGroup, ActionToolbar, AnAction}
+import com.intellij.openapi.actionSystem.toolbarLayout.ToolbarLayoutStrategy
 import com.intellij.util.net.*
 
 object CompatibleUtils {
   inline def setToolBarWrapLayout(toolBar: ActionToolbar): Unit = {
-    toolBar.setLayoutPolicy(ActionToolbar.WRAP_LAYOUT_POLICY)
+    toolBar.setLayoutStrategy(ToolbarLayoutStrategy.WRAP_STRATEGY)
   }
 
   inline def updateActions(toolBar: ActionToolbar): Unit = {
-    toolBar.updateActionsImmediately()
+    toolBar.updateActionsAsync()
   }
 
-  inline def getIdeaProxyPasswordAuthentication(url: URL): PasswordAuthentication = {
-    val httpConfigurable = HttpConfigurable.getInstance()
+  inline def getIdeaProxyPasswordAuthentication(url: URL) = {
+    val httpConfigurable  = HttpConfigurable.getInstance()
     val ideaAuthenticator = IdeaWideAuthenticator(httpConfigurable)
     ideaAuthenticator.getPasswordAuthentication
   }
 
   inline def getIdeaProxySelector: ProxySelector = {
-    val httpConfigurable = HttpConfigurable.getInstance()
+    val httpConfigurable  = HttpConfigurable.getInstance()
+    val ideaAuthenticator = IdeaWideAuthenticator(httpConfigurable)
     val ideaProxySelector = IdeaWideProxySelector(httpConfigurable) // IntelliJ proxy selector
     ideaProxySelector
   }
+
   inline def getActionGroupChildren(actionGroup: ActionGroup): List[AnAction] =
-    actionGroup.getChildren(null, ActionManager.getInstance()).toList
+    actionGroup.getChildren(null).toList
 }

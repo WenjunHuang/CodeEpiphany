@@ -1,13 +1,16 @@
 package com.wenjunhuang.codeepiphany.services
 
 import javax.swing.JComponent
+
 import com.intellij.openapi.actionSystem.{ ActionGroup, ActionManager, AnAction, AnActionEvent, DefaultActionGroup }
 import com.intellij.openapi.observable.properties.{ AtomicProperty, ObservableProperty }
 import com.intellij.openapi.project.Project
+
 import com.wenjunhuang.codeepiphany.actions.RefreshAction.{ REFRESH_PROVIDER_KEY, RefreshProvider }
 import com.wenjunhuang.codeepiphany.model.Actions.CHALLENGES_TABLE_POPUP_GROUP
 import com.wenjunhuang.codeepiphany.utils.actions.DataSink
 import com.wenjunhuang.codeepiphany.utils.ui.TagPaneAction
+import com.wenjunhuang.codeepiphany.utils.CompatibleUtils
 
 abstract class ParametersQueryPresenter[UIBoostrapParameters, T, ResultItem](
   project: Project,
@@ -41,7 +44,8 @@ abstract class ParametersQueryPresenter[UIBoostrapParameters, T, ResultItem](
         dataSink
       )
     myQueryParametersActionGroup.removeAll()
-    myQueryParametersActionGroup.addAll(actions.getChildren(null, ActionManager.getInstance())*)
+    myQueryParametersActionGroup.addAll()
+    myQueryParametersActionGroup.addAll(CompatibleUtils.getActionGroupChildren(actions)*)
     dataSink.set(REFRESH_PROVIDER_KEY, myRefreshProvider)
   }
 
