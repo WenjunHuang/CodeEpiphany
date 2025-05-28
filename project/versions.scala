@@ -6,8 +6,8 @@ object versions {
   val intellijBuild241                   = "241.14494.240"
   var intellijBuild252                   = "252.13776.59"
 
-  val (intellijBuild, sinceBuild, untilBuild) = getBuildPart(intellijBuild252)
-  val pluginVersion: String                   = "1.0.4"
+  val (intellijBuild, sinceBuild, untilBuild) = getBuildPart(intellijBuild241)
+  val pluginVersion: String                   = "1.0.5"
 
   def getBuildPart(build: String): (String, String, String) = {
     if (build == intellijBuild233) {
