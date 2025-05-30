@@ -1,4 +1,7 @@
-## 1.04
+## 1.1.0
+### Added
+- Add [Browser Competitive-Companion](https://github.com/jmerle/competitive-companion) support to [CodeForces](https://codeforces.com/)
+## 1.0.4
 ## Fixed
 - Fix CodeForces login issue
 - Fix code file template return empty string issue

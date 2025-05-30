@@ -1,10 +1,10 @@
-## LeetCode Epiphany (悟码时刻) 🌟
+LeetCode Epiphany
 
 ### Current Supported Platforms
 
 - **[LeetCode](https://www.leetcode.com)**
-- **[力扣(LeetCode Chinese)](https://www.leetcode.cn)**
-- **[洛谷(LuoGu)](https://www.luogu.com.cn/)**
+- **[LeetCode Chinese](https://www.leetcode.cn)**
+- **[LuoGu](https://www.luogu.com.cn/)**
 - **[AtCoder](https://atcoder.jp)**
 - **[CodeForces](https://codeforces.com/)**
 - **[HackerRank](https://www.hackerrank.com)**
