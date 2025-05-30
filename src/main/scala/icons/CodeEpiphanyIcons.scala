@@ -54,7 +54,11 @@ object CodeEpiphanyIcons {
   val APP_BRACKETS: Icon = IconLoader.getIcon("/icons/app-brackets.svg", CodeEpiphanyIcons.getClass.getClassLoader)
 
   @static
+  val CC: Icon = IconLoader.getIcon("/icons/cc.png",CodeEpiphanyIcons.getClass.getClassLoader)
+  
+  @static
   val LOADING: AnimatedIcon = AnimatedIcon.Default.INSTANCE
+  
 
   object Dojos {
     val CODEFORCES_PATH = "/icons/dojos/codeforces.svg"

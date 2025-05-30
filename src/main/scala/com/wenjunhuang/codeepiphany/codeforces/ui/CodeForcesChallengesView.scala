@@ -2,17 +2,14 @@ package com.wenjunhuang.codeepiphany.codeforces.ui
 
 import cats.effect.IO
 import cats.syntax.all.*
-import icons.CodeEpiphanyIcons
-import java.util.concurrent.atomic.AtomicBoolean
-import javax.swing.JComponent
-import org.typelevel.ci.CIString
-import org.typelevel.log4cats.LoggerFactory
-
+import com.intellij.ide.util.ChooseElementsDialog
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.actionSystem.{ ActionGroup, ActionManager }
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.ui.messages.MessageDialog
 import com.intellij.openapi.util.Disposer
-
+import com.intellij.ui.components.DialogManager
+import com.wenjunhuang.codeepiphany.PluginBundle
 import com.wenjunhuang.codeepiphany.actions.LoginAction.{ LOGIN_LOGOUT_KEY, LoginLogoutProvider }
 import com.wenjunhuang.codeepiphany.codeforces.actions.CodeForcesChangeUIAction.{
   CODEFORCES_CHANGE_UI_PROVIDER_KEY,
@@ -23,19 +20,36 @@ import com.wenjunhuang.codeepiphany.codeforces.actions.CodeForcesUpdateProblemSe
   CODEFORCES_UPDATE_PROBLEM_SETS_PROVIDER_KEY,
   CodeForcesUpdateProblemSetsProvider
 }
+import com.wenjunhuang.codeepiphany.codeforces.services.{ CodeForcesApi, CodeForcesOpenChallengeService }
 import com.wenjunhuang.codeepiphany.codeforces.services.problemsets.fetchAndUpdateProblemSets
+import com.wenjunhuang.codeepiphany.codeforces.settings.CodeForcesSettings
+import com.wenjunhuang.codeepiphany.database.tables.records.CodeforcesProblemsetsRecord
 import com.wenjunhuang.codeepiphany.model.Actions.CODEFORCES_TITLE_TOOLBAR_GROUP
-import com.wenjunhuang.codeepiphany.model.CodeDojo
+import com.wenjunhuang.codeepiphany.model.{ CodeDojo, Language, LanguageVersion }
 import com.wenjunhuang.codeepiphany.model.CodeDojo.CodeForces
-import com.wenjunhuang.codeepiphany.services.{ console, AskForLoginResult, AuthService, BaseChallengesView }
 import com.wenjunhuang.codeepiphany.services.http.{ HttpClientManager, HttpClientService }
+import com.wenjunhuang.codeepiphany.services.{
+  console,
+  AskForLoginResult,
+  AuthService,
+  BaseChallengesView,
+  ChallengeRepository
+}
+import com.wenjunhuang.codeepiphany.utils.actions.DataSink
+import com.wenjunhuang.codeepiphany.utils.competitiveCompanion.CCAction.{ CCActionProvider, CC_ACTION_PROVIDER_KEY }
+import com.wenjunhuang.codeepiphany.utils.competitiveCompanion.startCCListening
 import com.wenjunhuang.codeepiphany.utils.extensions.*
 import com.wenjunhuang.codeepiphany.utils.implicits.*
 import com.wenjunhuang.codeepiphany.utils.ui.UnauthenticatedView
-import com.wenjunhuang.codeepiphany.PluginBundle
-import com.wenjunhuang.codeepiphany.codeforces.services.CodeForcesApi
-import com.wenjunhuang.codeepiphany.codeforces.settings.CodeForcesSettings
-import com.wenjunhuang.codeepiphany.utils.actions.DataSink
+import org.typelevel.ci.CIString
+import org.typelevel.log4cats.LoggerFactory
+import com.wenjunhuang.codeepiphany.database.Tables.CODEFORCES_PROBLEMSETS
+
+import scala.jdk.CollectionConverters.*
+import scala.jdk.OptionConverters.*
+import java.util.concurrent.atomic.AtomicBoolean
+import javax.swing.{ Icon, JComponent }
+import scala.concurrent.Future
 
 class CodeForcesChallengesView(private val myProject: Project) extends BaseChallengesView[CodeForcesUI] {
 
@@ -114,6 +128,90 @@ class CodeForcesChallengesView(private val myProject: Project) extends BaseChall
     override def getCurrentUI: CodeForcesUI = myCurrentUI
   }
 
+  private val myCCProvider = new CCActionProvider {
+    @volatile
+    private var cancellationToken: Option[() => Future[Unit]] = None
+
+    override def startListening(): Unit = {
+      try {
+        val v = startCCListening(myProject, CodeDojo.CodeForces, 27121).evalTap { event =>
+          event.group.split("-").toList match {
+            case group :: _ if CodeDojo.fromCIString(CIString(group.trim)).contains(CodeDojo.CodeForces) =>
+              // check if url match CodeForces URL pattern(https://codeforces.com/problemset/problem/954/G)
+
+              val urlPattern = """.*/problemset/problem/(\d+)/([A-Za-z0-9]+)""".r
+              event.url match {
+                case urlPattern(contestId, index) =>
+                  IO.delay {
+                    val languages = CodeForcesSettings.getInstance(myProject).getSelectedLanguages
+                    val dialog = new ChooseElementsDialog[(Language, LanguageVersion)](
+                      myProject,
+                      languages.asJava,
+                      s"Choose Language",
+                      s"Choose Language for ${CodeDojo.CodeForces.show}"
+                    ) {
+                      override def getItemText(item: (Language, LanguageVersion)): String = {
+                        Language.prettyPrint.tupled(item)
+                      }
+                      override def getItemIcon(item: (Language, LanguageVersion)): Icon = item._1.icon
+                    }
+                    dialog.showAndGetResult().asScala.headOption.map { selected =>
+                      (contestId, index, selected)
+                    }
+                  }.evalOnEDTAny().flatMap {
+                    case Some((contestId, index, selected)) =>
+                      ChallengeRepository.getInstance(myProject).getDSLContextResource[IO].use { dsl =>
+                        dsl
+                          .selectFrom(CODEFORCES_PROBLEMSETS)
+                          .where(CODEFORCES_PROBLEMSETS.CONTESTID.eq(contestId.toLong))
+                          .and(CODEFORCES_PROBLEMSETS.INDEX.eq(index))
+                          .fetchOptional()
+                          .toScala match {
+                          case Some(existing) =>
+                            openChallenge(myProject, selected._1, selected._2, existing)
+                          case None =>
+                            console.error[IO](
+                              myProject,
+                              "Challenge not found in database, please update problem sets first."
+                            ) *> IO.unit
+                        }
+                      }
+                    case None =>
+                      IO.unit
+                  }
+                case _ => IO.unit
+              }
+            case _ => IO.unit // Not a CodeForces event, ignore
+          }
+
+        }.compile.drain
+          .cancelable(IO.unit)
+          .unsafeRunCancelable()
+          .some
+        cancellationToken = v
+      } catch {
+        case e: Throwable =>
+          cancellationToken = None
+          (myLogger.error(e)("Failed to start listening for CC events") *>
+            console.error[IO](myProject, s"Failed to start listening for CC events because of \"${e.getMessage}\""))
+            .unsafeRunAndForget()
+      }
+    }
+
+    override def stopListening(): Unit = {
+      cancellationToken match {
+        case Some(cancel) =>
+          cancel()
+          cancellationToken = None
+        case None => // Already not listening
+      }
+    }
+
+    override def isListening: Boolean = {
+      cancellationToken.isDefined
+    }
+  }
+
   private val myUpdateProblemsProvider = new CodeForcesUpdateProblemSetsProvider {
     private val myUpdating = AtomicBoolean(false)
     override def updateProblemSets(): Unit =
@@ -143,6 +241,7 @@ class CodeForcesChallengesView(private val myProject: Project) extends BaseChall
     dataSink.set(LOGIN_LOGOUT_KEY, myLoginLogoutProvider)
     dataSink.set(CODEFORCES_CHANGE_UI_PROVIDER_KEY, mySwitchUIProvider)
     dataSink.set(CODEFORCES_UPDATE_PROBLEM_SETS_PROVIDER_KEY, myUpdateProblemsProvider)
+    dataSink.set(CC_ACTION_PROVIDER_KEY, myCCProvider)
 
   override def dispose(): Unit = {
     myKeywordSearchPresenter.foreach(Disposer.dispose)

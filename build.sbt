@@ -21,8 +21,6 @@ def markdownToHtml(file: File): String = {
   }.get
 }
 
-lazy val generateBuildConfig = taskKey[Unit]("Generate build config")
-
 lazy val codeEpiphany = (project in file("."))
   .settings(
     name         := "CodeEpiphany",
@@ -131,20 +129,7 @@ lazy val codeEpiphany = (project in file("."))
         Seq(baseDirectory.value / "src" / "main" / "233")
       }
     },
-    Compile / unmanagedSourceDirectories += baseDirectory.value / "src" / "main" / "config",
     Test / managedResourceDirectories += baseDirectory.value / "testResources",
-    generateBuildConfig := {
-      val configFile = baseDirectory.value / "src" / "main" / "config" / "BuildConfig.scala"
-      val content = s"""package com.wenjunhuang.codeepiphany
-                         |
-                         |object BuildConfig {
-                         |  val version = ${VersionNumber((ThisBuild / intellijBuild).value)._1.get}
-                         |  val intellijBuild = "${versions.intellijBuild}"
-                         |}
-                         |""".stripMargin
-      IO.write(configFile, content)
-    },
-    Compile / compile := (Compile / compile).dependsOn(generateBuildConfig).value,
     // jooq
     jooqVersion       := "3.19.18",
     jooqCodegenConfig := file("jooq-codegen.xml"),

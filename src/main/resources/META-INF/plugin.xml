@@ -75,12 +75,16 @@
         </group>
         <group id="CodeEpiphany.Actions.LeetCode.ChangeUI"
                class="com.wenjunhuang.codeepiphany.leetcode.actions.LeetCodeChangeUIAction"/>
+
         <group id="CodeEpiphany.CodeForces.Group">
             <action id="CodeEpiphany.Actions.CodeForces.ChangeUI"
                     class="com.wenjunhuang.codeepiphany.codeforces.actions.CodeForcesChangeUIAction"/>
             <action id="CodeEpiphany.Actions.CodeForces.UpdateProblemSets"
                     class="com.wenjunhuang.codeepiphany.codeforces.actions.CodeForcesUpdateProblemSetsAction"
                     icon="CodeEpiphanyIcons.DOWNLOAD"/>
+            <action id="CodeEpiphany.Actions.CodeForces.CCAction"
+                    class="com.wenjunhuang.codeepiphany.codeforces.actions.CodeForcesCCAction"
+                    icon="CodeEpiphanyIcons.CC"/>
         </group>
         <group id="CodeEpiphany.AtCoder.Group">
             <action class="com.wenjunhuang.codeepiphany.atcoder.actions.AtCoderChangeUIAction"
@@ -179,6 +183,7 @@
             <reference ref="CodeEpiphany.Actions.LeetCode.ChangeUI"/>
         </group>
         <group id="CodeEpiphany.Dojos.TitleToolbar.CodeForces">
+            <reference ref="CodeEpiphany.Actions.CodeForces.CCAction"/>
             <reference ref="CodeEpiphany.Actions.CodeForces.ChangeUI"/>
             <reference ref="CodeEpiphany.Actions.CodeForces.UpdateProblemSets"/>
         </group>
