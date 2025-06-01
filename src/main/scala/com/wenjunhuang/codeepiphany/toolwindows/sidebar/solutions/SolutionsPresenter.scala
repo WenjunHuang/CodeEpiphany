@@ -121,12 +121,14 @@ class SolutionsPresenter(private val myProject: Project) extends Disposable {
           }
         }
         .flatMap { questionSlug =>
+          val api = LeetCodeApi[IO](codeDojo)
           for
-            solutionTags <- LeetCodeApi[IO](codeDojo).getSolutionTags(questionSlug)
+            solutionTags <- api.getSolutionTags(questionSlug)
+            userInfo     <- api.getUserInfo
             presenter <- IO.delay {
               val presenter = LeetCodeSolutionArticlesPresenter(
                 myProject,
-                LeetCodeSolutionArticlesPresenter.BootstrapParameters(questionSlug, solutionTags),
+                LeetCodeSolutionArticlesPresenter.BootstrapParameters(userInfo, questionSlug, solutionTags),
                 codeDojo
               )
               myView.addToCenter(presenter.getViewComponent)

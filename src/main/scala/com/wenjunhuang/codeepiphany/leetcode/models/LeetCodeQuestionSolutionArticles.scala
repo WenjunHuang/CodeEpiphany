@@ -77,7 +77,13 @@ case class LeetCodeQuestionSolutionArticle(
   isEditorsPick: Option[Boolean] = None,
   hitCount: Int,
   videosInfo: List[LeetCodeQuestionSolutionArticleVideoInfo] = Nil
-) derives ConfiguredCodec
+) derives ConfiguredCodec {
+   def upVote:Option[Int] = {
+    reactions
+      .find((element) => element.reactionType.toUpperCase() == "UPVOTE")
+      .map(_.count)
+  }
+}
 
 case class LeetCodeQuestionSolutionArticleEdge(node: LeetCodeQuestionSolutionArticle) derives ConfiguredCodec
 
