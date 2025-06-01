@@ -1,4 +1,4 @@
-package com.wenjunhuang.codeepiphany.toolwindows.sidebar.solution
+package com.wenjunhuang.codeepiphany.toolwindows.sidebar.notes
 
 import cats.effect.IO
 import cats.effect.std.Queue
@@ -32,14 +32,14 @@ import com.wenjunhuang.codeepiphany.utils.IdGenerator
 import com.wenjunhuang.codeepiphany.utils.walkaround.FileEditorManagerListenerBridge
 import com.wenjunhuang.codeepiphany.vfs.{SolutionRemarkFile, SolutionRemarkFileSystem}
 
-class SolutionListPresenter(val myProject: Project) extends Disposable {
+class NotesListPresenter(val myProject: Project) extends Disposable {
   private val myLogger = LoggerFactory[IO].getLogger
   private val myColumns = Array(
     new TreeColumnInfo("Title"),
     new ColumnInfo[DefaultMutableTreeNode, Int]("Submissions") {
       override def valueOf(item: DefaultMutableTreeNode): Int = item.getUserObject match
-        case SolutionEntry.SolutionNode(_, _, submissions, _)  => submissions
-        case SolutionEntry.LanguageNode(_, _, submissionCount) => submissionCount
+        case NoteEntry.NoteNode(_, _, submissions, _)  => submissions
+        case NoteEntry.LanguageNode(_, _, submissionCount) => submissionCount
     }
   )
 
@@ -56,9 +56,9 @@ class SolutionListPresenter(val myProject: Project) extends Disposable {
       value match
         case node: DefaultMutableTreeNode =>
           node.getUserObject match {
-            case SolutionEntry.SolutionNode(_, title, _, _) =>
+            case NoteEntry.NoteNode(_, title, _, _) =>
               append(title)
-            case SolutionEntry.LanguageNode(language, version, _) =>
+            case NoteEntry.LanguageNode(language, version, _) =>
               setIcon(language.icon)
               append(s"${language.show} ${version.version}")
             case _ =>
@@ -95,7 +95,7 @@ class SolutionListPresenter(val myProject: Project) extends Disposable {
   val myTreeModel: ListTreeTableModelOnColumns =
     ListTreeTableModelOnColumns(myRootNode, myColumns)
 
-  private val myView = SolutionListView(this)
+  private val myView = NoteListView(this)
 
   @volatile
   private var myQueue: Option[Queue[IO, Option[(ChallengeId, CodeDojo)]]] = None
@@ -155,7 +155,7 @@ class SolutionListPresenter(val myProject: Project) extends Disposable {
                         Language.fromCIString(CIString(lang)).foreach { lang =>
                           val submissions = record.get("submissions", classOf[Integer]).intValue()
                           val child = DefaultMutableTreeNode(
-                            SolutionEntry.LanguageNode(
+                            NoteEntry.LanguageNode(
                               lang,
                               LanguageVersion.fromString(record.get(CHALLENGE_LANGUAGE.LANGUAGEVERSION)),
                               submissions
@@ -167,7 +167,7 @@ class SolutionListPresenter(val myProject: Project) extends Disposable {
                       case None =>
                   }
                   parent.setUserObject(
-                    SolutionEntry.SolutionNode(solutionId, solutionTitle, totalSubmissions, isDefault == 1)
+                    NoteEntry.NoteNode(solutionId, solutionTitle, totalSubmissions, isDefault == 1)
                   )
                   parent
                 }
@@ -229,7 +229,7 @@ class SolutionListPresenter(val myProject: Project) extends Disposable {
       }
     } *> IO.delay {
       treeNode.getUserObject match {
-        case solution: SolutionEntry.SolutionNode =>
+        case solution: NoteEntry.NoteNode =>
           treeNode.setUserObject(solution.copy(title = title))
           myTreeModel.nodeChanged(treeNode)
         case _ =>
@@ -262,7 +262,7 @@ class SolutionListPresenter(val myProject: Project) extends Disposable {
             }.flatMap { solutionId =>
               IO.delay {
                 myRootNode.add(
-                  DefaultMutableTreeNode(SolutionEntry.SolutionNode(solutionId, title, 0, isDefault = false))
+                  DefaultMutableTreeNode(NoteEntry.NoteNode(solutionId, title, 0, isDefault = false))
                 )
                 myTreeModel.nodeStructureChanged(myRootNode)
               }.evalOnEDTDefault()

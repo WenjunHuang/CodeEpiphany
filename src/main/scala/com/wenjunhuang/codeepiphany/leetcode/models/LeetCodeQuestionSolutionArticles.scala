@@ -1,8 +1,11 @@
 package com.wenjunhuang.codeepiphany.leetcode.models
 
+import cats.Show
 import io.circe.derivation.ConfiguredCodec
-import io.circe.{ Decoder, DecodingFailure, Encoder, HCursor, Json, JsonObject }
+import io.circe.{Decoder, DecodingFailure, Encoder, HCursor, Json, JsonObject}
 import io.circe.Decoder.Result
+
+import com.wenjunhuang.codeepiphany.utils.AsyncAvatarLoader
 
 case class LeetCodeQuestionSolutionArticleTag(
   name: String,
@@ -11,7 +14,7 @@ case class LeetCodeQuestionSolutionArticleTag(
   tagType: Option[String] = None
 ) derives ConfiguredCodec
 
-case class LeetCodeQuestionSolutionArticleReaction(count: Int, reaction: String) derives ConfiguredCodec
+case class LeetCodeQuestionSolutionArticleReaction(count: Int, reactionType: String) derives ConfiguredCodec
 
 case class LeetCodeQuestionSolutionArticleAuthor(
   username: String,
@@ -19,7 +22,9 @@ case class LeetCodeQuestionSolutionArticleAuthor(
   userAvatar: String,
   userSlug: String,
   realName: String
-)
+) {
+  lazy val avatarIcon = new AsyncAvatarLoader(username,userAvatar, 20)
+}
 
 object LeetCodeQuestionSolutionArticleAuthor {
   implicit val decoder: Decoder[LeetCodeQuestionSolutionArticleAuthor] = (c: HCursor) => {
@@ -84,6 +89,14 @@ enum LeetCodeQuestionSolutionArticlesOrderBy(val leetCodeCN: String, val leetCod
   case Hot        extends LeetCodeQuestionSolutionArticlesOrderBy("HOT", Some("HOT"))
   case Newest     extends LeetCodeQuestionSolutionArticlesOrderBy("NEWEST_TO_OLDEST", Some("MOST_RECENT"))
   case Oldest     extends LeetCodeQuestionSolutionArticlesOrderBy("OLDEST_TO_NEWEST", None)
+}
+object LeetCodeQuestionSolutionArticlesOrderBy {
+  implicit val show: Show[LeetCodeQuestionSolutionArticlesOrderBy] = {
+    case LeetCodeQuestionSolutionArticlesOrderBy.MostUpvote => "Most Upvoted"
+    case LeetCodeQuestionSolutionArticlesOrderBy.Hot => "Hot"
+    case LeetCodeQuestionSolutionArticlesOrderBy.Newest => "Newest"
+    case LeetCodeQuestionSolutionArticlesOrderBy.Oldest => "Oldest"
+  }
 }
 
 case class LeetCodeSolutionArticle(

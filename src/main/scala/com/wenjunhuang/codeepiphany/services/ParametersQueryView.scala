@@ -109,6 +109,12 @@ class ParametersQueryView[Item](private val myPresenter: ParametersQueryPresente
     tableView
   }
 
+  override def removeNotify(): Unit = {
+    super.removeNotify()
+    Disposer.dispose(this)
+    myPresenter.dispose()
+  }
+
   override def addNotify(): Unit = {
     super.addNotify()
     myPresenter.requery()

@@ -38,6 +38,10 @@ object Actions {
   final val SUBMISSIONS_TABLE_POPUP_GROUP = "CodeEpiphany.Sidebar.SubmissionsTable.Popupmenu"
   final val SUBMISSIONS_TABLE_POPUP_PLACE = "CodeEpiphany.Sidebar.SubmissionsTable.Place"
 
+  // leetcode articles toolbar and popup menu
+  final val LEETCODE_ARTICLES_TOOLBAR_GROUP     = "CodeEpiphany.Sidebar.LeetCodeArticles.Toolbar.Group"
+  final val LEETCODE_ARTICLES_TOOLBAR_PLACE     = "CodeEpiphany.Sidebar.LeetCodeArticles.Toolbar.Place"
+
   // challenge editor toolbar
   final val CHALLENGE_EDITOR_TOOLBAR_GROUP = "CodeEpiphany.ChallengeEditor.Toolbar.Group"
   final val CHALLENGE_EDITOR_TOOLBAR_PLACE = "CodeEpiphany.ChallengeEditor.Toolbar.Place"

@@ -237,6 +237,12 @@
             <reference ref="CompareTwoFiles"/>
             <reference ref="CompareFileWithEditor"/>
         </group>
+
+        <group id="CodeEpiphany.Sidebar.LeetCodeArticles.Toolbar.Group">
+            <reference ref="CodeEpiphany.Actions.Tags"/>
+            <action id="CodeEpiphany.Sidebar.Solutions.Actions.LeetCodeArticlesOrderBy"
+                    class="com.wenjunhuang.codeepiphany.toolwindows.sidebar.solutions.leetcode.actions.ArticleOrderByAction"/>
+        </group>
     </actions>
 
 

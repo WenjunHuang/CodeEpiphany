@@ -1,4 +1,4 @@
-package com.wenjunhuang.codeepiphany.toolwindows.sidebar.solution;
+package com.wenjunhuang.codeepiphany.toolwindows.sidebar.notes;
 
 import com.intellij.icons.AllIcons;
 import com.intellij.openapi.actionSystem.ActionUpdateThread;
@@ -25,7 +25,7 @@ import javax.swing.border.TitledBorder;
 import javax.swing.tree.DefaultMutableTreeNode;
 import java.awt.*;
 
-public class SolutionListView {
+public class NoteListView {
 
     private JBLabel myChallengeName;
     private JComponent mySolutionPane;
@@ -34,9 +34,9 @@ public class SolutionListView {
     private TagUI myCodeDojo;
     private TreeTableView myTreeTable;
 
-    private SolutionListPresenter myPresenter;
+    private NotesListPresenter myPresenter;
 
-    public SolutionListView(SolutionListPresenter presenter) {
+    public NoteListView(NotesListPresenter presenter) {
         myPresenter = presenter;
         $$$setupUI$$$();
     }
@@ -56,7 +56,7 @@ public class SolutionListView {
                             public void actionPerformed(@NotNull AnActionEvent e) {
                                 var selected = myTreeTable.getSelection();
                                 if (CollectionUtils.isNotEmpty(selected)) {
-                                    if (selected.get(0) instanceof DefaultMutableTreeNode node && node.getUserObject() instanceof SolutionEntry.SolutionNode solution) {
+                                    if (selected.get(0) instanceof DefaultMutableTreeNode node && node.getUserObject() instanceof NoteEntry.NoteNode solution) {
                                         if (!solution.isDefault()) {
                                             var result = Messages.showInputDialog(myPresenter.myProject(), "Modify solution name", "Modify Solution Name", null, solution.title(), new InputValidator() {
                                                 @Override
@@ -82,7 +82,7 @@ public class SolutionListView {
                             public void update(@NotNull AnActionEvent e) {
                                 var selected = myTreeTable.getSelection();
                                 if (CollectionUtils.isNotEmpty(selected)) {
-                                    e.getPresentation().setEnabled(selected.get(0) instanceof DefaultMutableTreeNode node && node.getUserObject() instanceof SolutionEntry.SolutionNode);
+                                    e.getPresentation().setEnabled(selected.get(0) instanceof DefaultMutableTreeNode node && node.getUserObject() instanceof NoteEntry.NoteNode);
                                 } else {
                                     e.getPresentation().setEnabled(false);
                                 }
@@ -98,7 +98,7 @@ public class SolutionListView {
                             public void actionPerformed(@NotNull AnActionEvent e) {
                                 var selected = myTreeTable.getSelection();
                                 if (CollectionUtils.isNotEmpty(selected)) {
-                                    if (selected.get(0) instanceof DefaultMutableTreeNode node && node.getUserObject() instanceof SolutionEntry.SolutionNode solution) {
+                                    if (selected.get(0) instanceof DefaultMutableTreeNode node && node.getUserObject() instanceof NoteEntry.NoteNode solution) {
                                         myPresenter.openSolutionRemarkEditor(solution.solutionId());
                                     }
                                 }
@@ -108,7 +108,7 @@ public class SolutionListView {
                             public void update(@NotNull AnActionEvent e) {
                                 var selected = myTreeTable.getSelection();
                                 if (CollectionUtils.isNotEmpty(selected)) {
-                                    e.getPresentation().setEnabled(selected.get(0) instanceof DefaultMutableTreeNode node && node.getUserObject() instanceof SolutionEntry.SolutionNode);
+                                    e.getPresentation().setEnabled(selected.get(0) instanceof DefaultMutableTreeNode node && node.getUserObject() instanceof NoteEntry.NoteNode);
                                 } else {
                                     e.getPresentation().setEnabled(false);
                                 }

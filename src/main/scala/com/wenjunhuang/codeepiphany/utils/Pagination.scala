@@ -11,6 +11,10 @@ case class Pagination(currentPage: Int = 1, pageSize: PageSize = PageSize.Twenty
 
   def totalPages: Int =
     math.max(1, math.ceil(totalSize.toDouble / pageSize.value).toInt)
+    
+  def offset:Int = pageSize.value * (currentPage - 1)
+  
+  def limit:Int =  pageSize.value
 }
 
 enum PageSize(val value: Int) {
