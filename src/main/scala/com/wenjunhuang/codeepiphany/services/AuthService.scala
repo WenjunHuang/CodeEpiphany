@@ -20,7 +20,7 @@ import com.wenjunhuang.codeepiphany.model.CodeDojo.*
 import com.wenjunhuang.codeepiphany.services.http.HttpClientManager
 import com.wenjunhuang.codeepiphany.services.login.LoginDialog
 import com.wenjunhuang.codeepiphany.utils.CookieUtil
-import com.wenjunhuang.codeepiphany.utils.implicits.*
+import com.wenjunhuang.codeepiphany.utils.syntax.*
 
 @Service(Array(Level.PROJECT))
 final class AuthService(private val myProject: Project) {

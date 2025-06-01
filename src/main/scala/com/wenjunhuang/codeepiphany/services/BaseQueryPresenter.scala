@@ -21,7 +21,7 @@ import com.wenjunhuang.codeepiphany.actions.PaginationParameterActionGroup.{PAGI
 import com.wenjunhuang.codeepiphany.utils.{OrderByColumnInfo, PageSize, Pagination}
 import com.wenjunhuang.codeepiphany.utils.actions.DataSink
 import com.wenjunhuang.codeepiphany.utils.extensions.*
-import com.wenjunhuang.codeepiphany.utils.implicits.*
+import com.wenjunhuang.codeepiphany.utils.syntax.*
 
 case class QueryContext[T](criteria: T, pagination: Pagination) {
   def updateCriteria(f: T => T): QueryContext[T] =

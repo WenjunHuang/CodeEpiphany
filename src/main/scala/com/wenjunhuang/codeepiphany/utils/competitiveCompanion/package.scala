@@ -6,7 +6,7 @@ import com.intellij.openapi.project.Project
 import com.sun.net.httpserver.{ HttpExchange, HttpHandler, HttpServer }
 import com.wenjunhuang.codeepiphany.model.CodeDojo
 import com.wenjunhuang.codeepiphany.services.console
-import com.wenjunhuang.codeepiphany.utils.implicits.*
+import com.wenjunhuang.codeepiphany.utils.syntax.*
 import fs2.Stream
 import io.circe.generic.auto.*
 import io.circe.parser.decode

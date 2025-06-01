@@ -11,7 +11,7 @@ import com.intellij.openapi.util.{Key, TextRange}
 import com.wenjunhuang.codeepiphany.editor.actions.SurroundSubmissionRegionAction.{SURROUND_PROVIDER_KEY, SurroundSubmissionRegionProvider}
 import com.wenjunhuang.codeepiphany.settings.ChallengeSettings
 import com.wenjunhuang.codeepiphany.utils.actions.ActionCompatible
-import com.wenjunhuang.codeepiphany.utils.implicits.*
+import com.wenjunhuang.codeepiphany.utils.syntax.*
 
 class SurroundSubmissionRegionAction extends AnAction with ActionCompatible{
   override def actionPerformed(e: AnActionEvent): Unit = {

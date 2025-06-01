@@ -22,7 +22,7 @@ import scala.util.boundary
 import com.intellij.util.net.*
 import com.wenjunhuang.codeepiphany.model.CodeDojo
 import com.wenjunhuang.codeepiphany.utils.CompatibleUtils
-import com.wenjunhuang.codeepiphany.utils.implicits.*
+import com.wenjunhuang.codeepiphany.utils.syntax.*
 
 type CookieJar = Map[CodeDojo, Map[CIString, HttpCookie]]
 

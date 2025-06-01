@@ -12,7 +12,7 @@ import com.intellij.openapi.ui.{InputValidator, Messages}
 import com.intellij.openapi.util.io.FileUtilRt
 import com.intellij.openapi.vfs.{LocalFileSystem, VirtualFile}
 
-import com.wenjunhuang.codeepiphany.utils.implicits.*
+import com.wenjunhuang.codeepiphany.utils.syntax.*
 
 object file {
   def saveTextWithConflictResolution[F[_]: Async](file: File, content: String): F[Option[File]] = {

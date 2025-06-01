@@ -12,7 +12,7 @@ import com.intellij.openapi.project.Project
 
 import com.wenjunhuang.codeepiphany.services.http.HttpClientManager
 import com.wenjunhuang.codeepiphany.toolwindows.sidebar.{LogConsoleView, SidebarWindowFactory}
-import com.wenjunhuang.codeepiphany.utils.implicits.*
+import com.wenjunhuang.codeepiphany.utils.syntax.*
 
 object console {
   def info[F[_]: Async](project: Project, messages: MessageSeg*): F[Unit] =

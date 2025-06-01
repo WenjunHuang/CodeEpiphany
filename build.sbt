@@ -129,6 +129,7 @@ lazy val codeEpiphany = (project in file("."))
         Seq(baseDirectory.value / "src" / "main" / "233")
       }
     },
+    Compile / unmanagedResourceDirectories += target.value / "webViewResources",
     Test / managedResourceDirectories += baseDirectory.value / "testResources",
     // jooq
     jooqVersion       := "3.19.18",

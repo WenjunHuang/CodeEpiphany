@@ -17,7 +17,7 @@ import com.wenjunhuang.codeepiphany.services.file.saveEditedFile
 import com.wenjunhuang.codeepiphany.settings.ChallengeSettings
 import com.wenjunhuang.codeepiphany.utils.actions.ActionCompatible
 import com.wenjunhuang.codeepiphany.utils.extensions.*
-import com.wenjunhuang.codeepiphany.utils.implicits.*
+import com.wenjunhuang.codeepiphany.utils.syntax.*
 
 class SubmitCodeAction extends AnAction with ActionCompatible {
   override def actionPerformed(e: AnActionEvent): Unit = {

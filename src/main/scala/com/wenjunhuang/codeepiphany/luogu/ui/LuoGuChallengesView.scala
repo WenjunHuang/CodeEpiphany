@@ -26,7 +26,7 @@ import com.wenjunhuang.codeepiphany.services.{ console, AskForLoginResult, AuthS
 import com.wenjunhuang.codeepiphany.services.http.{ HttpClientManager, HttpClientService }
 import com.wenjunhuang.codeepiphany.utils.actions.DataSink
 import com.wenjunhuang.codeepiphany.utils.extensions.*
-import com.wenjunhuang.codeepiphany.utils.implicits.*
+import com.wenjunhuang.codeepiphany.utils.syntax.*
 import com.wenjunhuang.codeepiphany.utils.ui.UnauthenticatedView
 
 class LuoGuChallengesView(private val myProject: Project) extends BaseChallengesView[LuoGuUI] {

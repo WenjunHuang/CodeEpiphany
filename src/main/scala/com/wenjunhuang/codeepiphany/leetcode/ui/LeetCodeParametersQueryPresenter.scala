@@ -30,7 +30,7 @@ import com.wenjunhuang.codeepiphany.services.{ParametersQueryPresenter, QueryCon
 import com.wenjunhuang.codeepiphany.services.http.{HttpClientManager, HttpClientService}
 import com.wenjunhuang.codeepiphany.utils.{OrderByColumnInfo, PageSize, Pagination}
 import com.wenjunhuang.codeepiphany.utils.actions.DataSink
-import com.wenjunhuang.codeepiphany.utils.implicits.*
+import com.wenjunhuang.codeepiphany.utils.syntax.*
 import com.wenjunhuang.codeepiphany.utils.ui.TagPaneAction
 
 class LeetCodeParametersQueryPresenter(

@@ -1,33 +1,30 @@
 package com.wenjunhuang.codeepiphany.leetcode.services
 
-import cats.effect.{ Async, Concurrent, Resource, Temporal }
+import cats.effect.{Async, Concurrent, IO, Resource, Temporal}
 import cats.syntax.all.*
 import fs2.Stream
 import io.circe.*
 import io.circe.optics.JsonPath
 import io.circe.syntax.*
-import org.http4s.{ Headers, Method, Uri }
+import org.http4s.{Headers, Method, Uri}
 import org.http4s.circe.CirceEntityCodec.*
 import org.http4s.client.dsl.Http4sClientDsl
-import org.http4s.client.{ Client, UnexpectedStatus }
+import org.http4s.client.{Client, UnexpectedStatus}
 import org.http4s.headers.Referer
 import org.typelevel.ci.CIString
 import scala.concurrent.duration.*
-import scala.io.{ BufferedSource, Source }
+import scala.io.{BufferedSource, Source}
 
+import com.intellij.openapi.project.Project
 import com.intellij.util.LineSeparator
 
 import com.wenjunhuang.codeepiphany.leetcode.models
 import com.wenjunhuang.codeepiphany.leetcode.models.*
 import com.wenjunhuang.codeepiphany.leetcode.models.runCode.*
-import com.wenjunhuang.codeepiphany.leetcode.models.submitAnswer.{
-  LeetCodeSubmitAnswerRequest,
-  LeetCodeSubmitAnswerResponse,
-  LeetCodeSubmitAnswerResult
-}
+import com.wenjunhuang.codeepiphany.leetcode.models.submitAnswer.{LeetCodeSubmitAnswerRequest, LeetCodeSubmitAnswerResponse, LeetCodeSubmitAnswerResult}
 import com.wenjunhuang.codeepiphany.model.*
-import com.wenjunhuang.codeepiphany.model.CodeDojo.{ LeetCode, LeetCodeCN }
-import com.wenjunhuang.codeepiphany.services.http.HttpClientManager
+import com.wenjunhuang.codeepiphany.model.CodeDojo.{LeetCode, LeetCodeCN}
+import com.wenjunhuang.codeepiphany.services.http.{HttpClientManager, HttpClientService}
 
 enum LeetCodeSearchOrderBy(val value: String) {
   case FontEndId   extends LeetCodeSearchOrderBy("FRONTEND_ID")
@@ -134,6 +131,14 @@ trait LeetCodeApi[F[_]] {
 }
 
 object LeetCodeApi {
+
+  def apply(dojo: LeetCodeDojo, project: Project): LeetCodeApi[IO] = {
+
+    implicit val httpClientManager: HttpClientManager[IO] =
+      HttpClientService.getInstance(project).httpClientManager
+
+    apply[IO](dojo)
+  }
 
   def apply[F[_]: { Async, Concurrent, HttpClientManager }](dojo: LeetCodeDojo): LeetCodeApi[F] = new LeetCodeApi[F]
     with Http4sClientDsl[F] {

@@ -20,7 +20,7 @@ import com.wenjunhuang.codeepiphany.model.CodeDojo
 import com.wenjunhuang.codeepiphany.services.http.{ HttpClientManager, HttpClientService }
 import com.wenjunhuang.codeepiphany.settings.ChallengeSettings
 import com.wenjunhuang.codeepiphany.toolwindows.sidebar.solutions.leetcode.LeetCodeSolutionPresenter
-import com.wenjunhuang.codeepiphany.utils.implicits.*
+import com.wenjunhuang.codeepiphany.utils.syntax.*
 import com.wenjunhuang.codeepiphany.utils.walkaround.FileEditorManagerListenerBridge
 
 class SolutionsPresenter(private val myProject: Project) extends Disposable {
@@ -28,14 +28,11 @@ class SolutionsPresenter(private val myProject: Project) extends Disposable {
     HttpClientService.getInstance(myProject).httpClientManager
 
   private val myLogger = LoggerFactory.getLogger[IO]
-
+  private val myView = BorderLayoutPanel()
   @volatile
   private var myQueue: Option[Queue[IO, Option[(ChallengeId, CodeDojo)]]] = None
 
-  private val myView = BorderLayoutPanel()
-
   createQueryPipeline()
-
   Disposer.register(myProject, this)
 
   private def createQueryPipeline(): Unit = {

@@ -39,7 +39,7 @@ import com.wenjunhuang.codeepiphany.utils.actions.DataSink
 import com.wenjunhuang.codeepiphany.utils.competitiveCompanion.CCAction.{ CCActionProvider, CC_ACTION_PROVIDER_KEY }
 import com.wenjunhuang.codeepiphany.utils.competitiveCompanion.startCCListening
 import com.wenjunhuang.codeepiphany.utils.extensions.*
-import com.wenjunhuang.codeepiphany.utils.implicits.*
+import com.wenjunhuang.codeepiphany.utils.syntax.*
 import com.wenjunhuang.codeepiphany.utils.ui.UnauthenticatedView
 import org.typelevel.ci.CIString
 import org.typelevel.log4cats.LoggerFactory
