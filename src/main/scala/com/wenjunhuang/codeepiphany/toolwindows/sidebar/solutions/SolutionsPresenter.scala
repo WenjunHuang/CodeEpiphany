@@ -8,21 +8,18 @@ import fs2.concurrent.SignallingRef
 import javax.swing.JComponent
 import org.typelevel.log4cats.LoggerFactory
 import scala.concurrent.duration.*
-import scala.jdk.OptionConverters.*
 
 import com.intellij.openapi.fileEditor.{ FileEditorManagerEvent, FileEditorManagerListener }
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.util.Disposer
 import com.intellij.util.ui.components.BorderLayoutPanel
 
-import com.wenjunhuang.codeepiphany.database.Tables.CHALLENGE
-import com.wenjunhuang.codeepiphany.leetcode.services.LeetCodeApi
 import com.wenjunhuang.codeepiphany.model.newtypes.ChallengeId
 import com.wenjunhuang.codeepiphany.model.CodeDojo
-import com.wenjunhuang.codeepiphany.services.{ AuthService, ChallengeRepository }
 import com.wenjunhuang.codeepiphany.services.http.{ HttpClientManager, HttpClientService }
 import com.wenjunhuang.codeepiphany.settings.ChallengeSettings
-import com.wenjunhuang.codeepiphany.toolwindows.sidebar.solutions.leetcode.LeetCodeSolutionArticlesPresenter
+import com.wenjunhuang.codeepiphany.toolwindows.sidebar.solutions.leetcode.LeetCodeSolutionPresenter
 import com.wenjunhuang.codeepiphany.utils.implicits.*
 import com.wenjunhuang.codeepiphany.utils.walkaround.FileEditorManagerListenerBridge
 
@@ -31,12 +28,15 @@ class SolutionsPresenter(private val myProject: Project) extends Disposable {
     HttpClientService.getInstance(myProject).httpClientManager
 
   private val myLogger = LoggerFactory.getLogger[IO]
+
   @volatile
   private var myQueue: Option[Queue[IO, Option[(ChallengeId, CodeDojo)]]] = None
 
   private val myView = BorderLayoutPanel()
 
   createQueryPipeline()
+
+  Disposer.register(myProject, this)
 
   private def createQueryPipeline(): Unit = {
     Stream
@@ -98,49 +98,17 @@ class SolutionsPresenter(private val myProject: Project) extends Disposable {
   private def showLeetCodeSolutions(
     challengeId: ChallengeId,
     codeDojo: CodeDojo.LeetCodeCN.type | CodeDojo.LeetCode.type
-  ): IO[Unit] = {
-    // Implement the logic to fetch and display LeetCode solutions
-    if (
-      AuthService
-        .getInstance(myProject)
-        .isLoggedIn(codeDojo)
-    ) {
-      ChallengeRepository
-        .getInstance(myProject)
-        .getDSLContextResource[IO]
-        .use { dslContext =>
-          IO.delay {
-            dslContext
-              .select(CHALLENGE.SLUG)
-              .from(CHALLENGE)
-              .where(CHALLENGE.ID.eq(challengeId.value))
-              .fetchOptional()
-              .toScala
-              .map(_.value1())
-              .getOrElse(throw new NoSuchElementException(s"No challenge found for ID: ${challengeId.value}"))
-          }
-        }
-        .flatMap { questionSlug =>
-          val api = LeetCodeApi[IO](codeDojo)
-          for
-            solutionTags <- api.getSolutionTags(questionSlug)
-            userInfo     <- api.getUserInfo
-            presenter <- IO.delay {
-              val presenter = LeetCodeSolutionArticlesPresenter(
-                myProject,
-                LeetCodeSolutionArticlesPresenter.BootstrapParameters(userInfo, questionSlug, solutionTags),
-                codeDojo
-              )
-              myView.addToCenter(presenter.getViewComponent)
-            }.evalOnEDTDefault()
-          yield ()
-        }
-    } else {
-      IO.unit
-    }
-  }
+  ): IO[Unit] = IO.delay {
+    val leetCodePresenter = LeetCodeSolutionPresenter(challengeId, myProject, codeDojo)
+    myView.removeAll()
+    myView.addToCenter(leetCodePresenter.getView)
+    ()
+  }.evalOnEDTDefault()
 
   def getView: JComponent = myView
 
-  override def dispose(): Unit = myQueue.foreach(_.offer(None).unsafeRunAndForget())
+  override def dispose(): Unit = {
+    Option(myView.getParent).foreach(_.remove(myView))
+    myQueue.foreach(_.offer(None).unsafeRunAndForget())
+  }
 }

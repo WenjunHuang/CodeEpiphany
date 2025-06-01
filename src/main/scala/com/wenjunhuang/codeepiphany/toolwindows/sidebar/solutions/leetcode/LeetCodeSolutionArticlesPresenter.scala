@@ -3,7 +3,7 @@ package com.wenjunhuang.codeepiphany.toolwindows.sidebar.solutions.leetcode
 import cats.effect.IO
 import javax.swing.{ Icon, JTable, SwingConstants }
 import javax.swing.table.{ DefaultTableCellRenderer, TableCellRenderer }
-import javax.swing.GroupLayout.Alignment
+import javax.swing.event.{ ListSelectionEvent, ListSelectionListener }
 import monocle.syntax.all.*
 import scala.collection.mutable
 
@@ -40,6 +40,7 @@ import com.wenjunhuang.codeepiphany.utils.PageSize.Twenty
 class LeetCodeSolutionArticlesPresenter(
   project: Project,
   bootstrapParameters: BootstrapParameters,
+  private val myOnSelected: (LeetCodeQuestionSolutionArticle) => Unit,
   private val myCodeDojo: CodeDojo.LeetCodeCN.type | CodeDojo.LeetCode.type
 ) extends ParametersQueryPresenter[BootstrapParameters, QueryParams, LeetCodeQuestionSolutionArticle](
       project,
@@ -50,6 +51,7 @@ class LeetCodeSolutionArticlesPresenter(
     HttpClientService.getInstance(myProject).httpClientManager
 
   private val myTabsMap = mutable.Map[String, TagsAction.Tag]()
+
   private val myTabs = List(
     TagsAction.TagGroupTab(
       "Tags",
@@ -79,6 +81,23 @@ class LeetCodeSolutionArticlesPresenter(
       "Select tags to filter articles"
     )
   )
+
+  private val mySelectionListener = new ListSelectionListener {
+    override def valueChanged(e: ListSelectionEvent): Unit = {
+      if (!e.getValueIsAdjusting && !getQueryResultTableSelectionModel.isSelectionEmpty) {
+        val selectedIndex = getQueryResultTableSelectionModel.getMinSelectionIndex
+        val selectedItem = getQueryResultTableModel.getItem(selectedIndex)
+        myOnSelected(selectedItem)
+      }
+    }
+  }
+
+  getQueryResultTableSelectionModel.addListSelectionListener(mySelectionListener)
+
+  override def dispose(): Unit = {
+    getQueryResultTableSelectionModel.removeListSelectionListener(mySelectionListener)
+    super.dispose()
+  }
 
   override protected def prepareProviders(
     getter: () => QueryContext[QueryParams],
@@ -217,6 +236,7 @@ class LeetCodeSolutionArticlesPresenter(
 
   override def getQueryResultColumns: Array[OrderByColumnInfo[LeetCodeQuestionSolutionArticle, ?]] = Array(
     new OrderByColumnInfo[LeetCodeQuestionSolutionArticle, LeetCodeQuestionSolutionArticleAuthor]("Author") {
+      override def getPreferredStringValue: String = "Author"
 
       override def valueOf(item: LeetCodeQuestionSolutionArticle): LeetCodeQuestionSolutionArticleAuthor = item.author
 
@@ -236,6 +256,7 @@ class LeetCodeSolutionArticlesPresenter(
         }
     },
     new OrderByColumnInfo[LeetCodeQuestionSolutionArticle, Icon]("Status") {
+      override def getPreferredStringValue: String = "St"
       override def valueOf(item: LeetCodeQuestionSolutionArticle): Icon = {
         if (item.chargeType.toUpperCase() == "PREMIUM") {
           if (myBoostrapParameters.userInfo.isPremium.contains(true)) {
@@ -260,6 +281,7 @@ class LeetCodeSolutionArticlesPresenter(
         }
     },
     new OrderByColumnInfo[LeetCodeQuestionSolutionArticle, String]("Type") {
+      override def getPreferredStringValue: String = "St"
       override def valueOf(item: LeetCodeQuestionSolutionArticle): String = {
         if (item.byLeetcode) {
           s"<html><font color='${DIFFICULTY_EASY_COLOR}'>O</font></html>"
@@ -281,7 +303,7 @@ class LeetCodeSolutionArticlesPresenter(
         }
     },
     new OrderByColumnInfo[LeetCodeQuestionSolutionArticle, String]("Summary") {
-
+      override def getPreferredStringValue: String = "x".repeat(20)
       override def valueOf(item: LeetCodeQuestionSolutionArticle): String = item.summary.replaceAll("""\r\n|\n""", "")
 
       override def getRenderer(item: LeetCodeQuestionSolutionArticle): TableCellRenderer =
@@ -290,6 +312,7 @@ class LeetCodeSolutionArticlesPresenter(
         }
     },
     new OrderByColumnInfo[LeetCodeQuestionSolutionArticle, String]("HitCount") {
+      override def getPreferredStringValue: String = "x".repeat(5)
 
       override def valueOf(item: LeetCodeQuestionSolutionArticle): String = s"${item.hitCount}"
 
@@ -300,7 +323,7 @@ class LeetCodeSolutionArticlesPresenter(
         }
     },
     new OrderByColumnInfo[LeetCodeQuestionSolutionArticle, String]("UpVote") {
-
+      override def getPreferredStringValue: String = "x".repeat(5)
       override def valueOf(item: LeetCodeQuestionSolutionArticle): String = s"${item.upVote.getOrElse(0)}"
 
       override def getRenderer(item: LeetCodeQuestionSolutionArticle): TableCellRenderer =
@@ -310,6 +333,7 @@ class LeetCodeSolutionArticlesPresenter(
         }
     },
     new OrderByColumnInfo[LeetCodeQuestionSolutionArticle, String]("Created At") {
+      override def getPreferredStringValue: String = "yyyy-MM-dd HH:mm:ss"
 
       override def valueOf(item: LeetCodeQuestionSolutionArticle): String =
         s"${ZonedDateTime.parse(item.createdAt).toLocalDateTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))}"
