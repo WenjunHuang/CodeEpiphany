@@ -1,5 +1,9 @@
-.idea/*
+.idea/
+.bloop/
+.metals/
+metals.sbt
 .bsp/*
+.vscode/
 out/
 dist/*
 target/

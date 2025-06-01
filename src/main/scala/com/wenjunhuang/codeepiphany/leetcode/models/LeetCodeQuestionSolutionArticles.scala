@@ -85,3 +85,18 @@ enum LeetCodeQuestionSolutionArticlesOrderBy(val leetCodeCN: String, val leetCod
   case Newest     extends LeetCodeQuestionSolutionArticlesOrderBy("NEWEST_TO_OLDEST", Some("MOST_RECENT"))
   case Oldest     extends LeetCodeQuestionSolutionArticlesOrderBy("OLDEST_TO_NEWEST", None)
 }
+
+case class LeetCodeSolutionArticle(
+  uuid: String,
+  title: String,
+  content: String,
+  slug: String,
+  chargeType: String,
+  reactions: List[LeetCodeQuestionSolutionArticleReaction],
+  tags: List[LeetCodeQuestionSolutionArticleTag],
+  createdAt: String,
+  author: LeetCodeQuestionSolutionArticleAuthor,
+  topic: LeetCodeQuestionSolutionArticleTopic,
+  hitCount: Int,
+  videosInfo: List[LeetCodeQuestionSolutionArticleVideoInfo] = Nil
+) derives ConfiguredCodec

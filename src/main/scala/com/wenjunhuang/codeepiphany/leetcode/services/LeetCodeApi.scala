@@ -129,6 +129,8 @@ trait LeetCodeApi[F[_]] {
     userInput: Option[String] = None,
     tagSlugs: List[String] = Nil
   ): F[LeetCodeQuestionSolutionArticles]
+
+  def getSolutionArticle(articleSlug: String): F[LeetCodeSolutionArticle]
 }
 
 object LeetCodeApi {
@@ -821,12 +823,12 @@ object LeetCodeApi {
                     operationName = "questionTopicsList",
                     query = file,
                     variables = Map(
-                      "skip" -> offset.asJson,
-                      "first" -> limit.asJson,
+                      "skip"         -> offset.asJson,
+                      "first"        -> limit.asJson,
                       "questionSlug" -> questionSlug.asJson,
-                      "orderBy" -> orderBy.leetCodeCN.asJson,
-                      "userInput" -> userInput.getOrElse("").asJson,
-                      "tagSlugs" -> tagSlugs.asJson
+                      "orderBy"      -> orderBy.leetCodeCN.asJson,
+                      "userInput"    -> userInput.getOrElse("").asJson,
+                      "tagSlugs"     -> tagSlugs.asJson
                     ).asJsonObject
                   )
                 )
@@ -850,12 +852,12 @@ object LeetCodeApi {
                     operationName = "ugcArticleSolutionArticles",
                     query = file,
                     variables = Map(
-                      "skip" -> offset.asJson,
-                      "first" -> limit.asJson,
+                      "skip"         -> offset.asJson,
+                      "first"        -> limit.asJson,
                       "questionSlug" -> questionSlug.asJson,
-                      "orderBy" -> orderBy.leetCode.map(_.asJson).getOrElse(Json.Null),
-                      "userInput" -> userInput.getOrElse("").asJson,
-                      "tagSlugs" -> tagSlugs.asJson
+                      "orderBy"      -> orderBy.leetCode.map(_.asJson).getOrElse(Json.Null),
+                      "userInput"    -> userInput.getOrElse("").asJson,
+                      "tagSlugs"     -> tagSlugs.asJson
                     ).asJsonObject
                   )
                 )
@@ -867,6 +869,53 @@ object LeetCodeApi {
               .flatMap(_.as[LeetCodeQuestionSolutionArticles])
               .liftTo[F]
 
+          }
+        }
+    }
+
+    override def getSolutionArticle(articleSlug: String): F[LeetCodeSolutionArticle] = useClient { client =>
+      if dojo == CodeDojo.LeetCodeCN then
+        openGraphQLFile(dojo, "discussTopic").flatMap { file =>
+          getCSRFToken.flatMap { csrfToken =>
+            client.expect[Json](
+              Method
+                .POST(graphqlUrl, headers = commonHeaders(csrfToken))
+                .withEntity(
+                  LeetCodeGraphQLRequest(
+                    operationName = "discussTopic",
+                    query = file,
+                    variables = Map("slug" -> articleSlug).asJsonObject
+                  )
+                )
+            )
+          }.flatMap { json =>
+            JsonPath.root.data.solutionArticle.json
+              .getOption(json)
+              .toRight(ApiError.InvalidContent(dojo, "can not find 'data.solutionArticle' in json"))
+              .flatMap(_.as[LeetCodeSolutionArticle])
+              .liftTo[F]
+          }
+        }
+      else
+        openGraphQLFile(dojo, "ugcArticleSolutionArticle").flatMap { file =>
+          getCSRFToken.flatMap { csrfToken =>
+            client.expect[Json](
+              Method
+                .POST(graphqlUrl, headers = commonHeaders(csrfToken))
+                .withEntity(
+                  LeetCodeGraphQLRequest(
+                    operationName = "ugcArticleSolutionArticle",
+                    query = file,
+                    variables = Map("slug" -> articleSlug).asJsonObject
+                  )
+                )
+            )
+          }.flatMap { json =>
+            JsonPath.root.data.ugcArticleSolutionArticle.json
+              .getOption(json)
+              .toRight(ApiError.InvalidContent(dojo, "can not find 'data.ugcArticleSolutionArticle' in json"))
+              .flatMap(_.as[LeetCodeSolutionArticle])
+              .liftTo[F]
           }
         }
     }
