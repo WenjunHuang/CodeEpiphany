@@ -24,6 +24,7 @@ class SidebarWindowFactory extends ToolWindowFactoryBridge {
     cm.addContent(cf.createContent(descriptionPresenter.getView, DESCRIPTION, false))
     cm.addContent(cf.createContent(submissionPresenter.getView, SUBMISSIONS, false))
     cm.addContent(cf.createContent(solutionPresenter.getView, SOLUTIONS, false))
+
     Disposer.register(project, descriptionPresenter)
     Disposer.register(project, submissionPresenter)
     Disposer.register(project, solutionPresenter)
@@ -39,6 +40,8 @@ object SidebarWindowFactory {
   final val DESCRIPTION = "Description"
   final val SUBMISSIONS = "Submissions"
   final val SOLUTIONS   = "Solutions"
+  final val LEETCODE_ARTICLES = "LeetCode Articles"
+  final val LEETCODECN_ARTICLES = "LeetCodeCN Articles"
 
   def getToolWindow(project: Project): ToolWindow = {
     ToolWindowManager.getInstance(project).getToolWindow(SidebarWindowFactory.TOOL_WINDOW_ID) match

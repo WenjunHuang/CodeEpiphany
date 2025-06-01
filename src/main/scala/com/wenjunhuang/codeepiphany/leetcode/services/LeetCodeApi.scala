@@ -120,6 +120,15 @@ trait LeetCodeApi[F[_]] {
   ): Stream[F, LeetCodeSubmitAnswerResult]
 
   def getSolutionTags(questionSlug: String): F[LeetCodeSolutionTags]
+
+  def searchQuestionSolutionArticles(
+    offset: Int,
+    limit: Int,
+    questionSlug: String,
+    orderBy: LeetCodeQuestionSolutionArticlesOrderBy,
+    userInput: Option[String] = None,
+    tagSlugs: List[String] = Nil
+  ): F[LeetCodeQuestionSolutionArticles]
 }
 
 object LeetCodeApi {
@@ -791,6 +800,75 @@ object LeetCodeApi {
               throw ApiError.InvalidContent(dojo, "can not find 'data.solutionTags' in json")
         }
 
+    }
+
+    override def searchQuestionSolutionArticles(
+      offset: Int,
+      limit: Int,
+      questionSlug: String,
+      orderBy: LeetCodeQuestionSolutionArticlesOrderBy,
+      userInput: Option[String],
+      tagSlugs: List[String]
+    ): F[LeetCodeQuestionSolutionArticles] = useClient { client =>
+      if dojo == CodeDojo.LeetCodeCN then
+        openGraphQLFile(dojo, "questionTopicsList").flatMap { file =>
+          getCSRFToken.flatMap { csrfToken =>
+            client.expect[Json](
+              Method
+                .POST(graphqlUrl, headers = commonHeaders(csrfToken))
+                .withEntity(
+                  LeetCodeGraphQLRequest(
+                    operationName = "questionTopicsList",
+                    query = file,
+                    variables = Map(
+                      "skip" -> offset.asJson,
+                      "first" -> limit.asJson,
+                      "questionSlug" -> questionSlug.asJson,
+                      "orderBy" -> orderBy.leetCodeCN.asJson,
+                      "userInput" -> userInput.getOrElse("").asJson,
+                      "tagSlugs" -> tagSlugs.asJson
+                    ).asJsonObject
+                  )
+                )
+            )
+          }.flatMap { json =>
+            JsonPath.root.data.questionSolutionArticles.json
+              .getOption(json)
+              .toRight(ApiError.InvalidContent(dojo, "can not find 'data.questionSolutionArticles' in json"))
+              .flatMap(_.as[LeetCodeQuestionSolutionArticles])
+              .liftTo[F]
+          }
+        }
+      else
+        openGraphQLFile(dojo, "ugcArticleSolutionArticles").flatMap { file =>
+          getCSRFToken.flatMap { csrfToken =>
+            client.expect[Json](
+              Method
+                .POST(graphqlUrl, headers = commonHeaders(csrfToken))
+                .withEntity(
+                  LeetCodeGraphQLRequest(
+                    operationName = "ugcArticleSolutionArticles",
+                    query = file,
+                    variables = Map(
+                      "skip" -> offset.asJson,
+                      "first" -> limit.asJson,
+                      "questionSlug" -> questionSlug.asJson,
+                      "orderBy" -> orderBy.leetCode.map(_.asJson).getOrElse(Json.Null),
+                      "userInput" -> userInput.getOrElse("").asJson,
+                      "tagSlugs" -> tagSlugs.asJson
+                    ).asJsonObject
+                  )
+                )
+            )
+          }.flatMap { json =>
+            JsonPath.root.data.ugcArticleQuestionSolutionArticles.json
+              .getOption(json)
+              .toRight(ApiError.InvalidContent(dojo, "can not find 'data.ugcArticleQuestionSolutionArticles' in json"))
+              .flatMap(_.as[LeetCodeQuestionSolutionArticles])
+              .liftTo[F]
+
+          }
+        }
     }
   }
 }
