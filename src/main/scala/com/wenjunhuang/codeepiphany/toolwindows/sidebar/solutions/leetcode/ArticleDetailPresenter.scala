@@ -1,8 +1,9 @@
 package com.wenjunhuang.codeepiphany.toolwindows.sidebar.solutions.leetcode
-import cats.effect.{IO, Resource}
+import cats.effect.{Async, IO, Resource}
 import cats.effect.std.Queue
-import fs2.Stream.*
+import fs2.Stream
 import fs2.concurrent.SignallingRef
+import java.net.URI
 import org.typelevel.log4cats.LoggerFactory
 import scala.concurrent.duration.*
 
@@ -14,6 +15,8 @@ import com.wenjunhuang.codeepiphany.leetcode.models.LeetCodeQuestionSolutionArti
 import com.wenjunhuang.codeepiphany.leetcode.services.LeetCodeApi
 import com.wenjunhuang.codeepiphany.model.CodeDojo
 import com.wenjunhuang.codeepiphany.utils.syntax.*
+import com.wenjunhuang.codeepiphany.utils.{BrowserUtils, CancellableStream}
+import cats.syntax.all.*
 
 class ArticleDetailPresenter(
   private val myProject: Project,
@@ -21,50 +24,49 @@ class ArticleDetailPresenter(
 ) extends Disposable {
 
   @volatile
-  private var myQueue: Option[Queue[IO, Option[LeetCodeQuestionSolutionArticle]]] = None
-  private val myLogger                                                            = LoggerFactory.getLogger[IO]
+  private var myQueryQueue: Option[Queue[IO, Option[LeetCodeQuestionSolutionArticle]]] = None
+  private val myLogger                                                                 = LoggerFactory.getLogger[IO]
 
   createQueryPipeline()
   Disposer.register(myProject, this)
 
   private def createQueryPipeline(): Unit = {
-    eval(
-      (Queue.unbounded[IO, Option[LeetCodeQuestionSolutionArticle]], SignallingRef.of[IO, Boolean](false)).parTupled
-    ).flatMap { case (queue, initSignal) =>
-      resource(
-        Resource.make(IO.delay {
-          myQueue = Some(queue)
-        })(_ =>
-          IO.delay {
-            myQueue = None
-          }
-        )
-      ).flatMap { _ =>
-        fromQueueNoneTerminated(queue)
-          .evalMapAccumulate(initSignal) { case (lastSignal, context) =>
-            lastSignal.set(true) *>
-              SignallingRef
-                .of[IO, Boolean](false)
-                .map((_, context))
-          }
-          .debounce(300.millis)
-          .evalTap { (signal, context) =>
-            eval {
-              LeetCodeApi(myCodeDojo, myProject)
-                .getSolutionArticle(context.slug)
-                .flatMap { article =>
-                  IO.delay {
-                    article.content
-                  }.evalOnEDTDefault()
-                }
-                .recoverWith { e => myLogger.error(e)(s"Failed to show LeetCode solutions of ${context.slug}") }
-            }.interruptWhen(signal).compile.last
-          }
-      }
-    }.compile.drain.unsafeRunAndForget()
+    CancellableStream
+      .setup[LeetCodeQuestionSolutionArticle, Unit](300.millis)(processQuery)
+      .evalMap(queue =>
+        IO.delay {
+          myQueryQueue = Some(queue)
+        }.evalOnEDTDefault()
+      )
+      .use(_ => IO.never)
+      .unsafeRunAndForget()
   }
 
+  private def processQuery(ctx: CancellableStream.StreamContext[LeetCodeQuestionSolutionArticle]): IO[Unit] = {
+    val article = ctx.value
+    myLogger.info(s"Processing article: ${article.slug}")
+    Stream
+      .eval(
+        LeetCodeApi(myCodeDojo, myProject)
+          .getSolutionArticle(article.slug)
+          .flatMap { article =>
+            IO.delay {
+              article.content
+            }.evalOnEDTDefault()
+          }
+          .recoverWith { e => myLogger.error(e)(s"Failed to show LeetCode solutions of ${article.slug}") }
+      )
+      .interruptWhen(ctx.signal)
+      .compile
+      .drain
+  }
+
+  /** Handle user clicked a link in the description view browser
+   */
+  def userClickedLink[F[_]: Async](url: String): F[Unit] =
+    Async[F].delay(URI.create(url)).flatMap(uri => BrowserUtils.browseURI(uri, myProject))
+
   override def dispose(): Unit = {
-    myQueue.foreach(_.offer(None).unsafeRunSync())
+    myQueryQueue.foreach(_.offer(None).unsafeRunSync())
   }
 }

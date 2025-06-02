@@ -1,4 +1,6 @@
 import 'normalize-css/normalize.css'
+import 'overlayscrollbars/overlayscrollbars.css'
+import {OverlayScrollbars} from "overlayscrollbars";
 
 declare global {
     interface Window {
@@ -10,9 +12,9 @@ declare global {
         sendInfo: (info: string) => void;
     }
 
-    let OverlayScrollbarsGlobal: {
-        OverlayScrollbars: (element: Element | string, options?: any) => any;
-    };
+    // let OverlayScrollbarsGlobal: {
+    //     OverlayScrollbars: (element: Element | string, options?: any) => any;
+    // };
 }
 
 const MAX_ZOOM = 500;
@@ -21,15 +23,10 @@ const MIN_ZOOM = 25;
 const initialize = () => {
     // const _ = (new URL(window.location.href).searchParams.get('debug') != null);
 
-    OverlayScrollbarsGlobal.OverlayScrollbars(document.body, {});
+    OverlayScrollbars(document.body, {});
 
     const gState = {
         'zoom': 100,
-    }
-
-
-    const gStyles = {
-        'description': (document.getElementById('descriptionStyle')! as HTMLLinkElement),
     }
 
     function setZoom(zoom = 100) {
@@ -64,23 +61,12 @@ const initialize = () => {
     }
 
     let _init = function () {
-        OverlayScrollbarsGlobal.OverlayScrollbars(document.body, {});
+        // OverlayScrollbars(document.body, {});
         setZoom(gState.zoom);
         window.removeEventListener('load', _init);
     }
 
     window.addEventListener('load', _init);
-
-
-    function reloadStyles() {
-        gStyles.description.href = _setTimestamp(gStyles.description.href);
-    }
-
-    function _setTimestamp(url:string) {
-        let patchedUrl = new URL(url);
-        patchedUrl.searchParams.set('timestamp', new Date().getTime().toString());
-        return patchedUrl.toString();
-    }
 
     function _updateInfo() {
         let info = {
@@ -88,13 +74,12 @@ const initialize = () => {
             'canZoomIn': gState.zoom < MAX_ZOOM,
             'canZoomOut': gState.zoom > MIN_ZOOM,
         }
-        window.sendInfo(JSON.stringify(info));
+        window.sendInfo && window.sendInfo(JSON.stringify(info));
     }
 
     window.setZoom = setZoom;
     window.zoomIn = zoomIn;
     window.zoomOut = zoomOut;
-    window.reloadStyles = reloadStyles;
     window.actualZoom = actualZoom;
 }
 

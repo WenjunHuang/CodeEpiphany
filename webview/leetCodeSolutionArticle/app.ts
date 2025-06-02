@@ -1,4 +1,7 @@
-import 'normalize-css/normalize.css';
+import 'normalize-css/normalize.css'
+import 'overlayscrollbars/overlayscrollbars.css'
+import {OverlayScrollbars} from "overlayscrollbars";
+
 import {Marked} from 'marked'
 import {markedHighlight} from "marked-highlight";
 import hljs from 'highlight.js';
@@ -47,5 +50,6 @@ function showSolutionArticle(content: string, getIframeUrl: string) {
 }
 
 export function initialize() {
+    OverlayScrollbars(document.body,{});
     window.showSolutionArticle = showSolutionArticle;
 }

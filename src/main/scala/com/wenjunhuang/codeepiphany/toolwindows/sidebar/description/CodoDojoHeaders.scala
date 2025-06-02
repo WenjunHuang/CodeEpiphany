@@ -14,15 +14,40 @@ object CodoDojoHeaders {
   private def getCodeForcesHeader: String =
     // language=HTML
     """
-      |<script type="text/javascript" async src="https://codeforces.com/mathjax.codeforces.org/MathJax.js?config=TeX-AMS_HTML-full"></script>
-      |<script type="text/x-mathjax-config">
-      |    MathJax.Hub.Config({
-      |      tex2jax: {inlineMath: [['$$$','$$$']], displayMath: [['$$$$$$','$$$$$$']]}
-      |    });
-      |    MathJax.Hub.Register.StartupHook("End", function () {
-      |        Codeforces.runMathJaxListeners();
-      |    });
+      |<script type="text/javascript">
+      |    window.MathJax = {
+      |      extensions: ["tex2jax.js", "TeX/AMSmath.js", "TeX/AMSsymbols.js"],
+      |      jax: ["input/TeX", "output/HTML-CSS"],
+      |      tex2jax: {
+      |        inlineMath: [['$$$','$$$']], 
+      |        displayMath: [['$$$$$$','$$$$$$']],
+      |        processEscapes: true,
+      |        processEnvironments: true
+      |      },
+      |      "HTML-CSS": { 
+      |        fonts: ["TeX"],
+      |        linebreaks: { automatic: true },
+      |        imageFont: null
+      |      },
+      |      showProcessingMessages: false,
+      |      messageStyle: "none",
+      |      showMathMenu: false,
+      |      showMathMenuMSIE: false,
+      |      "fast-preview": { disabled: true },
+      |      positionToHash: false,
+      |      delayStartupUntil: "loaded",
+      |      TeX: {
+      |        extensions: ["AMSmath.js", "AMSsymbols.js", "noErrors.js", "noUndefined.js"],
+      |        Macros: {
+      |          ldots: "\\ldots",
+      |          cdots: "\\cdots",
+      |          vdots: "\\vdots",
+      |          ddots: "\\ddots"
+      |        }
+      |      }
+      |    };
       |</script>
+      |<script type="text/javascript" src="https://codeforces.com/mathjax.codeforces.org/MathJax.js?config=TeX-AMS_HTML-full"></script>
       |""".stripMargin
 
   private def getAtCoderHeader: String =

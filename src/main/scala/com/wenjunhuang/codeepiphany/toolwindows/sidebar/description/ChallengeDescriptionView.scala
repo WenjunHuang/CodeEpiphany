@@ -14,13 +14,14 @@ import com.intellij.ui.PopupHandler
 import com.intellij.util.ui.{JBInsets, JBUI}
 
 import com.wenjunhuang.codeepiphany.model.CodeDojo
+import com.wenjunhuang.codeepiphany.services.WebViewStyleProvider
 import com.wenjunhuang.codeepiphany.toolwindows.sidebar.SidebarActions
 import com.wenjunhuang.codeepiphany.utils.actions.{DataSink, UiDataProvider}
 import com.wenjunhuang.codeepiphany.utils.isDebug
 
 class ChallengeDescriptionView(private val myPresenter: ChallengeDescriptionPresenter, private val myProject: Project)
     extends SimpleToolWindowPanel(true)
-    with ChallengeDescriptionStyleProvider
+    with WebViewStyleProvider
     with CopyProvider
     with UiDataProvider
     with Disposable {

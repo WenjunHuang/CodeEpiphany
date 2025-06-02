@@ -1,4 +1,4 @@
-package com.wenjunhuang.codeepiphany.toolwindows.sidebar.description
+package com.wenjunhuang.codeepiphany.services
 
 import java.awt.Color
 
@@ -11,7 +11,7 @@ import com.intellij.util.ui.{JBUI, UIUtil}
 
 import com.wenjunhuang.codeepiphany.utils.extensions.*
 
-trait ChallengeDescriptionStyleProvider {
+trait WebViewStyleProvider {
 
   /** The padding of the body element in the description view with css padding property order: top, right, bottom, left
     */

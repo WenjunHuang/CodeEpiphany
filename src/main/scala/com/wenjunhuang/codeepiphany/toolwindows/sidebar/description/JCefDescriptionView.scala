@@ -1,6 +1,6 @@
 package com.wenjunhuang.codeepiphany.toolwindows.sidebar.description
 
-import cats.effect.{IO, Resource, SyncIO}
+import cats.effect.{ IO, Resource, SyncIO }
 import cats.syntax.all.*
 import io.circe.*
 import io.circe.generic.auto.*
@@ -12,25 +12,26 @@ import org.apache.commons.io.IOUtils
 import org.cef.browser.*
 import org.cef.handler.*
 import org.intellij.lang.annotations.Language
-import org.typelevel.log4cats.{Logger, LoggerFactory}
+import org.typelevel.log4cats.{ Logger, LoggerFactory }
 
 import com.intellij.ide.ui.LafManagerListener
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.application.ApplicationManager
-import com.intellij.openapi.editor.colors.{EditorColorsListener, EditorColorsManager}
+import com.intellij.openapi.editor.colors.{ EditorColorsListener, EditorColorsManager }
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
 import com.intellij.ui.jcef.*
 
 import com.wenjunhuang.codeepiphany.model.CodeDojo
+import com.wenjunhuang.codeepiphany.services.WebViewStyleProvider
 import com.wenjunhuang.codeepiphany.toolwindows.sidebar.description.JCefDescriptionView.*
 import com.wenjunhuang.codeepiphany.utils.syntax.*
-import com.wenjunhuang.codeepiphany.utils.isDebug
-import com.wenjunhuang.codeepiphany.utils.jcef.{CefLocalRequestHandler, CefStreamResourceHandler}
+import com.wenjunhuang.codeepiphany.utils.{ isDebug, ResourceHttpServer }
+import com.wenjunhuang.codeepiphany.utils.jcef.{ CefLocalRequestHandler, CefStreamResourceHandler }
 
 class JCefDescriptionView(
   private val presenter: ChallengeDescriptionPresenter,
-  private val styleProvider: ChallengeDescriptionStyleProvider,
+  private val styleProvider: WebViewStyleProvider,
   private val myProject: Project
 ) extends Disposable {
   private implicit val logger: Logger[SyncIO] = LoggerFactory[SyncIO].getLogger
@@ -38,7 +39,9 @@ class JCefDescriptionView(
   private val myBusConnection = ApplicationManager.getApplication.getMessageBus.connect(this)
   myBusConnection.subscribe(EditorColorsManager.TOPIC, _ => reloadStyles())
   myBusConnection.subscribe(LafManagerListener.TOPIC, _ => reloadStyles())
-  
+
+  private val myHttpServer: ResourceHttpServer = ResourceHttpServer("webview", 0)
+
   @volatile
   private var myDescription: Option[(String, CodeDojo)] = None
 
@@ -55,67 +58,76 @@ class JCefDescriptionView(
       }
     }
 
-  private val myLocalRequestHandler = createRequestHandler()
+  myHttpServer.addCustomResponse(
+    "/intellijStyle.css",
+    { () =>
+      ChallengeDescriptionStyle.getStyle(styleProvider, myDescription.map(_._2)).getBytes(StandardCharsets.UTF_8)
+    },
+    "text/css"
+  )
+  myHttpServer.start()
 
-  private def createRequestHandler(): CefLocalRequestHandler = {
-    val requestHandler = new CefLocalRequestHandler(
-      PROTOCOL,
-      HOST,
-      myProject,
-      urlClicked => presenter.userClickedLink[IO](urlClicked).unsafeRunAndForget()
-    )
-    requestHandler.addResource(VIEW_PATH) { () =>
-      val content =
-        Resource
-          .fromAutoCloseable(SyncIO.delay(getClass.getResourceAsStream("/html/descriptionViewer.html")))
-          .use { is =>
-            IOUtils.toString(is, StandardCharsets.UTF_8).pure[SyncIO]
-          }
-          .map { template =>
-            template
-              .replace(TEMPLATE_PLACEHOLDER, myDescription.map(_._1).getOrElse("No challenge selected 🌟"))
-              .replace(CODEDOJO_HEADER, myDescription.map(_._2).map(CodoDojoHeaders.getHeader).getOrElse(""))
-          }
-          .unsafeRunSync()
-      CefStreamResourceHandler(ByteArrayInputStream(content.getBytes(StandardCharsets.UTF_8)), "text/html", this).some
-    }
+  // private val myLocalRequestHandler = createRequestHandler()
 
-    requestHandler.addResource(OVERLAY_SCROLLBARS_CSS_PATH) { () =>
-      CefStreamResourceHandler(
-        ByteArrayInputStream(JBCefScrollbarsHelper.getOverlayScrollbarsSourceCSS.getBytes(StandardCharsets.UTF_8)),
-        "text/css",
-        this
-      ).some
-    }
+  // private def createRequestHandler(): CefLocalRequestHandler = {
+  //   val requestHandler = new CefLocalRequestHandler(
+  //     PROTOCOL,
+  //     HOST,
+  //     myProject,
+  //     urlClicked => presenter.userClickedLink[IO](urlClicked).unsafeRunAndForget()
+  //   )
+  //   requestHandler.addResource(VIEW_PATH) { () =>
+  //     val content =
+  //       Resource
+  //         .fromAutoCloseable(SyncIO.delay(getClass.getResourceAsStream("/html/descriptionViewer.html")))
+  //         .use { is =>
+  //           IOUtils.toString(is, StandardCharsets.UTF_8).pure[SyncIO]
+  //         }
+  //         .map { template =>
+  //           template
+  //             .replace(TEMPLATE_PLACEHOLDER, myDescription.map(_._1).getOrElse("No challenge selected 🌟"))
+  //             .replace(CODEDOJO_HEADER, myDescription.map(_._2).map(CodoDojoHeaders.getHeader).getOrElse(""))
+  //         }
+  //         .unsafeRunSync()
+  //     CefStreamResourceHandler(ByteArrayInputStream(content.getBytes(StandardCharsets.UTF_8)), "text/html", this).some
+  //   }
 
-    requestHandler.addResource(OVERLAY_SCROLLBARS_JS_PATH) { () =>
-      CefStreamResourceHandler(
-        ByteArrayInputStream(JBCefScrollbarsHelper.getOverlayScrollbarsSourceJS.getBytes(StandardCharsets.UTF_8)),
-        "text/javascript",
-        this
-      ).some
-    }
+  //   requestHandler.addResource(OVERLAY_SCROLLBARS_CSS_PATH) { () =>
+  //     CefStreamResourceHandler(
+  //       ByteArrayInputStream(JBCefScrollbarsHelper.getOverlayScrollbarsSourceCSS.getBytes(StandardCharsets.UTF_8)),
+  //       "text/css",
+  //       this
+  //     ).some
+  //   }
 
-    requestHandler.addResource(SCROLLBARS_CSS_PATH) { () =>
-      CefStreamResourceHandler(
-        ByteArrayInputStream(JBCefScrollbarsHelper.getOverlayScrollbarStyle.getBytes(StandardCharsets.UTF_8)),
-        "text/css",
-        this
-      ).some
-    }
+  //   requestHandler.addResource(OVERLAY_SCROLLBARS_JS_PATH) { () =>
+  //     CefStreamResourceHandler(
+  //       ByteArrayInputStream(JBCefScrollbarsHelper.getOverlayScrollbarsSourceJS.getBytes(StandardCharsets.UTF_8)),
+  //       "text/javascript",
+  //       this
+  //     ).some
+  //   }
 
-    requestHandler.addResource(DESCRIPTION_CSS_PATH) { () =>
-      CefStreamResourceHandler(
-        ByteArrayInputStream(
-          ChallengeDescriptionStyle.getStyle(styleProvider, myDescription.map(_._2)).getBytes(StandardCharsets.UTF_8)
-        ),
-        "text/css",
-        this
-      ).some
-    }
+  //   requestHandler.addResource(SCROLLBARS_CSS_PATH) { () =>
+  //     CefStreamResourceHandler(
+  //       ByteArrayInputStream(JBCefScrollbarsHelper.getOverlayScrollbarStyle.getBytes(StandardCharsets.UTF_8)),
+  //       "text/css",
+  //       this
+  //     ).some
+  //   }
 
-    requestHandler
-  }
+  //   requestHandler.addResource(DESCRIPTION_CSS_PATH) { () =>
+  //     CefStreamResourceHandler(
+  //       ByteArrayInputStream(
+  //         ChallengeDescriptionStyle.getStyle(styleProvider, myDescription.map(_._2)).getBytes(StandardCharsets.UTF_8)
+  //       ),
+  //       "text/css",
+  //       this
+  //     ).some
+  //   }
+
+  //   requestHandler
+  // }
 
   private val myBrowser: JBCefBrowser = createBrowser()
 
@@ -133,7 +145,7 @@ class JCefDescriptionView(
   private var myState = ViewerState()
 
   myBrowser.getJBCefClient
-    .addRequestHandler(myLocalRequestHandler, myBrowser.getCefBrowser)
+//    .addRequestHandler(myLocalRequestHandler, myBrowser.getCefBrowser)
     .addLifeSpanHandler(myLifeSpanHandler, myBrowser.getCefBrowser)
 
   private val myViewerStateJSQuery = createJSQuery()
@@ -156,16 +168,50 @@ class JCefDescriptionView(
   private val myLoadHandler = new CefLoadHandlerAdapter {
     override def onLoadEnd(browser: CefBrowser, frame: CefFrame, httpStatusCode: Int): Unit =
       if frame.isMain then
-        reloadStyles()
-        execute(s"sendInfo = function(info_text) {${myViewerStateJSQuery.inject("info_text")};}")
+//        reloadStyles()
+
+        myDescription match {
+          case Some((description, _)) =>
+            execute(s"""
+                       |document.getElementById('container').innerHTML = `${description}`;
+                       |""".stripMargin)
+          case None =>
+        }
+
+        val codeDojoHeaders = myDescription.map(_._2).map(CodoDojoHeaders.getHeader).getOrElse("")
+        if (codeDojoHeaders.nonEmpty) {
+          execute(
+            // language=JavaScript
+            s"""
+               |const tempDiv = document.createElement('div');
+               |tempDiv.innerHTML = `$codeDojoHeaders`;
+               |while (tempDiv.firstChild) {
+               |  const node = tempDiv.firstChild;
+               |  if (node.nodeName === 'SCRIPT' || node.nodeName === 'script') {
+               |    const newScript = document.createElement('script');
+               |    Array.from(node.attributes).forEach(attr => {
+               |      newScript.setAttribute(attr.name, attr.value);
+               |    });
+               |    newScript.textContent = node.textContent;
+               |    document.head.appendChild(newScript);
+               |    tempDiv.removeChild(node);
+               |  } else {
+               |    document.head.appendChild(node);
+               |  }
+               |}
+               |""".stripMargin
+          )
+        }
+
+        execute(s"window.sendInfo = function(info_text) {${myViewerStateJSQuery.inject("info_text")};}")
   }
 
   myBrowser.getJBCefClient.addLoadHandler(myLoadHandler, myBrowser.getCefBrowser)
 
-
-
-  def reload(): Unit =
-    myBrowser.loadURL(VIEWER_URL + s"?${System.currentTimeMillis()}")
+  private def reload(): Unit = {
+    val port = myHttpServer.getListeningPort.getOrElse(throw IllegalStateException("Http Server not started"))
+    myBrowser.loadURL(s"http://localhost:${port}/challengeDescription/index.html" + s"?${System.currentTimeMillis()}")
+  }
 
   def uiComponent: JComponent = myBrowser.getComponent
 
@@ -173,7 +219,6 @@ class JCefDescriptionView(
 
   def setDescription(content: Option[(String, CodeDojo)]): Unit =
     myDescription = content
-
     reload()
 
   def zoom_=(zoom: Double): Unit =
@@ -197,13 +242,14 @@ class JCefDescriptionView(
   def performCopy(): Unit = myBrowser.getCefBrowser.getMainFrame.copy()
 
   private def execute(@Language("javascript") script: String): Unit =
-    myBrowser.getCefBrowser.executeJavaScript(script, myBrowser.getCefBrowser.getURL(), 0)
+    myBrowser.getCefBrowser.executeJavaScript(script, myBrowser.getCefBrowser.getURL, 0)
 
   override def dispose(): Unit = {
-    myBrowser.getJBCefClient.removeRequestHandler(myLocalRequestHandler, myBrowser.getCefBrowser)
+//    myBrowser.getJBCefClient.removeRequestHandler(myLocalRequestHandler, myBrowser.getCefBrowser)
     myBrowser.getJBCefClient.removeLifeSpanHandler(myLifeSpanHandler, myBrowser.getCefBrowser)
     myBrowser.getJBCefClient.removeLoadHandler(myLoadHandler, myBrowser.getCefBrowser)
     Disposer.dispose(myBrowser)
+    myHttpServer.stop()
   }
 }
 

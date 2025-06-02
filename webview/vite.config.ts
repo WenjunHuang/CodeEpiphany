@@ -7,6 +7,7 @@ import {defineConfig} from 'vite';
 import importMetaUrlPlugin from '@codingame/esbuild-import-meta-url-plugin';
 import {dirname, resolve} from 'node:path'
 import {fileURLToPath} from "node:url";
+import {intellijStylePlugin} from './plugin/intellijStylePlugin';
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 
@@ -21,10 +22,6 @@ export const definedViteConfig = defineConfig({
             }
         },
         assetsDir: 'assets',
-    },
-    resolve: {
-        // not needed here, see https://github.com/TypeFox/monaco-languageclient#vite-dev-server-troubleshooting
-        // dedupe: ['vscode']
     },
     server: {
         port: 5173,
@@ -50,7 +47,9 @@ export const definedViteConfig = defineConfig({
         },
         include: []
     },
-    plugins: [],
+    plugins: [
+        intellijStylePlugin()
+    ],
     define: {
         rootDirectory: JSON.stringify(__dirname),
     },
