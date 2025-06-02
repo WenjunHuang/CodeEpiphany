@@ -3,11 +3,11 @@ package com.wenjunhuang.codeepiphany.utils
 import cats.effect.IO
 import com.sun.net.httpserver.{ HttpExchange, HttpHandler, HttpServer }
 import java.net.{ InetSocketAddress, URL }
+import java.nio.charset.StandardCharsets
 import org.typelevel.log4cats.LoggerFactory
 import scala.collection.mutable
 
 import com.wenjunhuang.codeepiphany.utils.syntax.*
-
 
 class ResourceHttpServer(private val myRootResourcePath: String, private val myPort: Int) {
   private val myLogger                   = LoggerFactory.getLogger[IO]
@@ -21,30 +21,48 @@ class ResourceHttpServer(private val myRootResourcePath: String, private val myP
   def getResourcePath: String = myRootResourcePath
 
   def getListeningPort: Option[Int] = server.map(_.getAddress.getPort)
-  
-  def addTemplateResponse(path: String, templatePath: String, contentType: String, variableProvider: () => Map[String, String] = () => Map.empty): Unit = {
+
+  def addTemplateResponse(
+    path: String,
+    templatePath: String,
+    contentType: String,
+    variableProvider: () => Map[String, String] = () => Map.empty
+  ): Unit = {
     val templateUrl = getClass.getClassLoader.getResource(s"$myRootResourcePath/$templatePath")
     if (templateUrl == null) {
       myLogger.error(s"Template not found: $templatePath").unsafeRunSync()
       return
     }
 
-    addCustomResponse(path, () => {
-      val template = new String(templateUrl.openStream().readAllBytes(), "UTF-8")
-      val processedContent = variableProvider().foldLeft(template) { case (acc, (key, value)) =>
-        acc.replace(key, value)
-      }
-      processedContent.getBytes("UTF-8")
-    }, contentType)
+    addCustomResponse(
+      path,
+      () => {
+        val template = new String(templateUrl.openStream().readAllBytes(), StandardCharsets.UTF_8)
+        val processedContent = variableProvider().foldLeft(template) { case (acc, (key, value)) =>
+          acc.replace(key, value)
+        }
+        processedContent.getBytes(StandardCharsets.UTF_8)
+      },
+      contentType
+    )
   }
 
-  def addCustomResponse(path: String, content: String, contentType: String, variableProvider: () => Map[String, String] = () => Map.empty): Unit = {
-    addCustomResponse(path, () => {
-      val processedContent = variableProvider().foldLeft(content) { case (acc, (key, value)) =>
-        acc.replace(key, value)
-      }
-      processedContent.getBytes("UTF-8")
-    }, contentType)
+  def addCustomResponse(
+    path: String,
+    content: String,
+    contentType: String,
+    variableProvider: () => Map[String, String] = () => Map.empty
+  ): Unit = {
+    addCustomResponse(
+      path,
+      () => {
+        val processedContent = variableProvider().foldLeft(content) { case (acc, (key, value)) =>
+          acc.replace(key, value)
+        }
+        processedContent.getBytes("UTF-8")
+      },
+      contentType
+    )
   }
 
   def addCustomResponse(path: String, content: Array[Byte], contentType: String): Unit = {

@@ -1,33 +1,34 @@
-package com.wenjunhuang.codeepiphany.toolwindows.sidebar.description
+package com.wenjunhuang.codeepiphany.toolwindows.sidebar.solutions.leetcode
 
-import cats.effect.{IO, SyncIO}
+import cats.effect.{ IO, SyncIO }
 import io.circe.*
 import io.circe.generic.auto.*
 import io.circe.parser.parse
 import java.nio.charset.StandardCharsets
+import java.util.Base64
 import javax.swing.JComponent
 import org.cef.browser.*
 import org.cef.handler.*
 import org.intellij.lang.annotations.Language
-import org.typelevel.log4cats.{Logger, LoggerFactory}
+import org.typelevel.log4cats.{ Logger, LoggerFactory }
 
 import com.intellij.ide.ui.LafManagerListener
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.application.ApplicationManager
-import com.intellij.openapi.editor.colors.{EditorColorsListener, EditorColorsManager}
+import com.intellij.openapi.editor.colors.{ EditorColorsListener, EditorColorsManager }
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
 import com.intellij.ui.jcef.*
 
 import com.wenjunhuang.codeepiphany.model.CodeDojo
 import com.wenjunhuang.codeepiphany.services.WebViewStyleProvider
-import com.wenjunhuang.codeepiphany.toolwindows.sidebar.description.JCefDescriptionView.*
-import com.wenjunhuang.codeepiphany.utils.{isDebug, ResourceHttpServer}
+import com.wenjunhuang.codeepiphany.utils.{ isDebug, ResourceHttpServer }
 import com.wenjunhuang.codeepiphany.utils.syntax.*
 
-class JCefDescriptionView(
-  private val presenter: ChallengeDescriptionPresenter,
-  private val styleProvider: WebViewStyleProvider,
+import JCefLeetCodeArticleView.*
+class JCefLeetCodeArticleView(
+  private val presenter: ArticleDetailPresenter,
+  private val myWebViewStyleProvider: WebViewStyleProvider,
   private val myProject: Project
 ) extends Disposable {
   private implicit val logger: Logger[SyncIO] = LoggerFactory[SyncIO].getLogger
@@ -39,7 +40,7 @@ class JCefDescriptionView(
   private val myHttpServer: ResourceHttpServer = ResourceHttpServer("webview", 0)
 
   @volatile
-  private var myDescriptionContent: Option[(String, CodeDojo)] = None
+  private var myArticleContent: Option[(String, CodeDojo)] = None
 
   private val myLifeSpanHandler =
     new CefLifeSpanHandlerAdapter {
@@ -57,15 +58,23 @@ class JCefDescriptionView(
   myHttpServer.addCustomResponse(
     "/intellijStyle.css",
     { () =>
-      ChallengeDescriptionStyle.getStyle(styleProvider, myDescriptionContent.map(_._2)).getBytes(StandardCharsets.UTF_8)
+      myWebViewStyleProvider.baseStyle.getBytes(StandardCharsets.UTF_8)
     },
     "text/css"
   )
-  myHttpServer.addTemplateResponse("/challengeDescription/index.html", "challengeDescription/index.html", "text/html", () =>
-    Map(
-      DESCRIPTION_CONTENT -> myDescriptionContent.map(_._1).getOrElse("No challenge selected 🌟"),
-      EXTRA_HEADER      -> myDescriptionContent.map(_._2).map(CodoDojoHeaders.getHeader).getOrElse("")
-    )
+  myHttpServer.addTemplateResponse(
+    "/leetCodeSolutionArticle/index.html",
+    "leetCodeSolutionArticle/index.html",
+    "text/html",
+    { () =>
+      Map(
+        ARTICLE_CONTENT ->
+          Base64.getEncoder.encodeToString(
+            myArticleContent.map(_._1).getOrElse("No article selected 🌟").getBytes(StandardCharsets.UTF_8)
+          ),
+        GET_IFRAME_URL -> ""
+      )
+    }
   )
   myHttpServer.start()
 
@@ -108,6 +117,9 @@ class JCefDescriptionView(
     override def onLoadEnd(browser: CefBrowser, frame: CefFrame, httpStatusCode: Int): Unit =
       if frame.isMain then
         reloadStyles()
+        execute(s"""
+             |window.showSolutionArticle()
+             |""".stripMargin)
         execute(s"window.sendInfo = function(info_text) {${myViewerStateJSQuery.inject("info_text")};}")
   }
 
@@ -115,15 +127,17 @@ class JCefDescriptionView(
 
   private def reload(): Unit = {
     val port = myHttpServer.getListeningPort.getOrElse(throw IllegalStateException("Http Server not started"))
-    myBrowser.loadURL(s"http://localhost:${port}/challengeDescription/index.html" + s"?${System.currentTimeMillis()}")
+    myBrowser.loadURL(
+      s"http://localhost:${port}/leetCodeSolutionArticle/index.html" + s"?${System.currentTimeMillis()}"
+    )
   }
 
   def uiComponent: JComponent = myBrowser.getComponent
 
   def preferredFocusedComponent: JComponent = myBrowser.getCefBrowser.getUIComponent.asInstanceOf[JComponent]
 
-  def setDescription(content: Option[(String, CodeDojo)]): Unit =
-    myDescriptionContent = content
+  def setArticleContent(content: Option[(String, CodeDojo)]): Unit =
+    myArticleContent = content
     reload()
 
   def zoom_=(zoom: Double): Unit =
@@ -157,9 +171,8 @@ class JCefDescriptionView(
   }
 }
 
-object JCefDescriptionView {
-  private val DESCRIPTION_CONTENT = "{{descriptionContent}}"
-  private val EXTRA_HEADER = "{{extraHeader}}"
-
+object JCefLeetCodeArticleView {
+  final val ARTICLE_CONTENT = "{{articleContent}}"
+  final val GET_IFRAME_URL  = "{{getIframeUrl}}"
   case class ViewerState(zoom: Double = 100.0, canZoomIn: Boolean = true, canZoomOut: Boolean = true)
 }

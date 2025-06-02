@@ -6,56 +6,14 @@ import com.intellij.ui.JBColor
 import com.intellij.ui.jcef.JBCefScrollbarsHelper
 
 import com.wenjunhuang.codeepiphany.model.CodeDojo
-import com.wenjunhuang.codeepiphany.model.CodeDojo.{AtCoder, CodeForces, HackerRank, LeetCode, LeetCodeCN, LuoGu}
+import com.wenjunhuang.codeepiphany.model.CodeDojo.{ AtCoder, CodeForces, HackerRank, LeetCode, LeetCodeCN, LuoGu }
 import com.wenjunhuang.codeepiphany.services.WebViewStyleProvider
 import com.wenjunhuang.codeepiphany.utils.extensions.*
 
 object ChallengeDescriptionStyle {
   def getStyle(styleProvider: WebViewStyleProvider, dojo: Option[CodeDojo]): String = {
-
-    val padding = styleProvider.bodyPadding.map { case (top, right, bottom, left) =>
-      s"${top}px ${right}px ${bottom}px ${left}px"
-    }.getOrElse("0")
-
-    // language=CSS
     s"""
-       |body {
-       |    line-height: ${styleProvider.lineHeight};
-       |    min-height: 100%;
-       |    position: relative;
-       |    background-color: ${styleProvider.backgroundColor.webRgba()};
-       |    font-family :${styleProvider.fontName},-apple-system,BlinkMacSystemFont,Segoe UI,Helvetica,Arial,sans-serif,Apple Color Emoji,Segoe UI Emoji;
-       |    font-size: ${styleProvider.fontSize}px;
-       |    padding: $padding;
-       |    color: ${styleProvider.foregroundColor.webRgba()};
-       |}
-       |
-       |a {
-       |  color: ${styleProvider.linkActiveForegroundColor.webRgba()}
-       |}
-       |
-       |table td, table th {
-       |    border: 1px solid ${styleProvider.separatorColor.webRgba()};
-       |}
-       |
-       |hr {
-       |    background-color: ${styleProvider.separatorColor.webRgba()};
-       |}
-       |
-       |kbd, tr {
-       |    border: 1px solid ${styleProvider.separatorColor.webRgba()};
-       |}
-       |
-       |blockquote {
-       |    border-left: 2px solid ${styleProvider.linkActiveForegroundColor.webRgba(0.4)}
-       |}
-       |
-       |blockquote, code, pre {
-       |    overflow: auto;
-       |    background-color: ${styleProvider.panelBackground.webRgba()}
-       |}
-       |
-       |${JBCefScrollbarsHelper.getOverlayScrollbarStyle}
+       |${styleProvider.baseStyle}
        |
        |${dojo.map(styleOfDojo(_, styleProvider)).getOrElse("")}
        |
@@ -73,7 +31,6 @@ object ChallengeDescriptionStyle {
       case AtCoder =>
         getAtCoderStyle(styleProvider)
       case LuoGu => ""
-
 
   private def getHackerRankStyle(styleProvider: WebViewStyleProvider): String =
     // language=CSS
@@ -128,7 +85,7 @@ object ChallengeDescriptionStyle {
        |}
        |""".stripMargin
 
-  private def getCodeForcesStyle(styleProvider: WebViewStyleProvider):String = {
+  private def getCodeForcesStyle(styleProvider: WebViewStyleProvider): String = {
     // language=CSS
     s"""
        |@media print {
@@ -665,8 +622,8 @@ object ChallengeDescriptionStyle {
        |""".stripMargin
   }
 
-  private def getAtCoderStyle(styleProvider: WebViewStyleProvider):String = {
-    //language=CSS
+  private def getAtCoderStyle(styleProvider: WebViewStyleProvider): String = {
+    // language=CSS
     s"""
        |span.lang-en {
        |display: inline;

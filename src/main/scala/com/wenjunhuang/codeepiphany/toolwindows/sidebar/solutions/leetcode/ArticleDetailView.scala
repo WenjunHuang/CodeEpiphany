@@ -1,4 +1,4 @@
-package com.wenjunhuang.codeepiphany.toolwindows.sidebar.description
+package com.wenjunhuang.codeepiphany.toolwindows.sidebar.solutions.leetcode
 
 import java.awt.Insets
 import java.awt.event.{ MouseWheelEvent, MouseWheelListener }
@@ -20,21 +20,21 @@ import com.wenjunhuang.codeepiphany.toolwindows.sidebar.SidebarActions
 import com.wenjunhuang.codeepiphany.utils.actions.{ DataSink, UiDataProvider }
 import com.wenjunhuang.codeepiphany.utils.isDebug
 
-class ChallengeDescriptionView(private val myPresenter: ChallengeDescriptionPresenter, private val myProject: Project)
+class ArticleDetailView(private val myPresenter: ArticleDetailPresenter, private val myProject: Project)
     extends SimpleToolWindowPanel(true)
     with WebViewStyleProvider
     with CopyProvider
     with UiDataProvider
     with WebviewActionProvider
     with Disposable {
-  private val myViewer = JCefDescriptionView(myPresenter, this, myProject)
+  private val myView = JCefLeetCodeArticleView(myPresenter, this, myProject)
 
   private val MOUSE_WHEEL_LISTENER = new MouseWheelListener {
     override def mouseWheelMoved(e: MouseWheelEvent): Unit =
       if e.isControlDown then
         e.getWheelRotation match
-          case rotation if rotation < 0 => myViewer.zoom = myViewer.zoom * 1.2
-          case rotation if rotation > 0 => myViewer.zoom = myViewer.zoom / 1.2
+          case rotation if rotation < 0 => myView.zoom = myView.zoom * 1.2
+          case rotation if rotation > 0 => myView.zoom = myView.zoom / 1.2
           case _                        => ()
         e.consume()
   }
@@ -45,15 +45,15 @@ class ChallengeDescriptionView(private val myPresenter: ChallengeDescriptionPres
   actionToolbar.setTargetComponent(this)
 
   setToolbar(actionToolbar.getComponent)
-  setContent(myViewer.uiComponent)
+  setContent(myView.uiComponent)
 
-  myViewer.preferredFocusedComponent.addMouseWheelListener(MOUSE_WHEEL_LISTENER)
+  myView.preferredFocusedComponent.addMouseWheelListener(MOUSE_WHEEL_LISTENER)
 
   Disposer.register(myPresenter, this)
 
   if !isDebug then
     PopupHandler.installPopupMenu(
-      myViewer.preferredFocusedComponent,
+      myView.preferredFocusedComponent,
       SidebarActions.GROUP_POPUP,
       SidebarActions.ACTION_PLACE
     )
@@ -64,26 +64,15 @@ class ChallengeDescriptionView(private val myPresenter: ChallengeDescriptionPres
   }
 
   override def dispose(): Unit =
-    myViewer.preferredFocusedComponent.removeMouseWheelListener(MOUSE_WHEEL_LISTENER)
-    Disposer.dispose(myViewer)
+    myView.preferredFocusedComponent.removeMouseWheelListener(MOUSE_WHEEL_LISTENER)
+    Disposer.dispose(myView)
 
-  def setDescription(content: Option[(String, CodeDojo)]): Unit =
-    myViewer.setDescription(content)
+  def setArticleContent(content: Option[(String, CodeDojo)]): Unit =
+    myView.setArticleContent(content)
 
-  override def zoomIn(): Unit = myViewer.zoomIn()
-
-  override def zoomOut(): Unit = myViewer.zoomOut()
-
-  override def canZoomIn: Boolean = myViewer.canZoomIn
-
-  override def canZoomOut: Boolean = myViewer.canZoomOut
-
-  override def actualZoom(): Unit = myViewer.actualZoom()
-
-  override def zoom: Double = myViewer.zoom
 
   override def performCopy(dataContext: DataContext): Unit =
-    myViewer.performCopy()
+    myView.performCopy()
 
   override def isCopyEnabled(dataContext: DataContext): Boolean = true
 
@@ -107,4 +96,16 @@ class ChallengeDescriptionView(private val myPresenter: ChallengeDescriptionPres
     )
     Some(insets.top, insets.right, insets.bottom, insets.left)
   }
+
+  override def zoomIn(): Unit = myView.zoomIn()
+
+  override def zoomOut(): Unit = myView.zoomOut()
+
+  override def canZoomIn: Boolean = myView.canZoomIn
+
+  override def canZoomOut: Boolean = myView.canZoomOut
+
+  override def actualZoom(): Unit = myView.actualZoom()
+
+  override def zoom: Double = myView.zoom
 }

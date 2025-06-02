@@ -4,10 +4,11 @@ import java.awt.Color
 
 import com.intellij.ide.ui.UISettings
 import com.intellij.openapi.editor.HighlighterColors
-import com.intellij.openapi.editor.colors.{EditorColorsManager, EditorColorsScheme}
+import com.intellij.openapi.editor.colors.{ EditorColorsManager, EditorColorsScheme }
 import com.intellij.openapi.editor.colors.impl.AppEditorFontOptions
 import com.intellij.ui.JBColor
-import com.intellij.util.ui.{JBUI, UIUtil}
+import com.intellij.ui.jcef.JBCefScrollbarsHelper
+import com.intellij.util.ui.{ JBUI, UIUtil }
 
 import com.wenjunhuang.codeepiphany.utils.extensions.*
 
@@ -35,4 +36,55 @@ trait WebViewStyleProvider {
   def separatorColor: JBColor          = JBColor.namedColor("Group.separatorColor", panelBackground)
   def infoForeground: JBColor          = JBColor.namedColor("Component.infoForeground", contrastedForeground)
   def fenceBackgroundColor             = JBColor(Color(212, 222, 231, 255 / 4), Color(212, 222, 231, 25))
+
+  def baseStyle: String = {
+    val padding = bodyPadding.map { case (top, right, bottom, left) =>
+      s"${top}px ${right}px ${bottom}px ${left}px"
+    }.getOrElse("0")
+    s"""
+       |body {
+       |    line-height: ${lineHeight};
+       |    min-height: 100%;
+       |    position: relative;
+       |    background-color: ${backgroundColor.webRgba()};
+       |    font-family :${fontName},-apple-system,BlinkMacSystemFont,Segoe UI,Helvetica,Arial,sans-serif,Apple Color Emoji,Segoe UI Emoji;
+       |    font-size: ${fontSize}px;
+       |    padding: $padding;
+       |    color: ${foregroundColor.webRgba()};
+       |}
+       |
+       |a {
+       |  color: ${linkActiveForegroundColor.webRgba()}
+       |}
+       |
+       |table td, table th {
+       |    border: 1px solid ${separatorColor.webRgba()};
+       |}
+       |
+       |hr {
+       |    background-color: ${separatorColor.webRgba()};
+       |}
+       |
+       |kbd, tr {
+       |    border: 1px solid ${separatorColor.webRgba()};
+       |}
+       |
+       |blockquote {
+       |    border-left: 2px solid ${linkActiveForegroundColor.webRgba(0.4)}
+       |}
+       |
+       |blockquote, code, pre {
+       |    overflow: auto;
+       |    background-color: ${panelBackground.webRgba()}
+       |}
+       |
+       |${JBCefScrollbarsHelper.getOverlayScrollbarStyle}
+     """.stripMargin
+  }
+}
+
+object WebViewStyleProvider {
+  def apply(body: (Int, Int, Int, Int)): WebViewStyleProvider = new WebViewStyleProvider {
+    override def bodyPadding: Option[(Int, Int, Int, Int)] = Some(body)
+  }
 }

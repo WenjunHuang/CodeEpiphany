@@ -66,30 +66,25 @@ class LeetCodeSolutionPresenter(
             solutionTags <- api.getSolutionTags(questionSlug)
             userInfo     <- api.getUserInfo
             presenter <- IO.delay {
-              val presenter = LeetCodeSolutionArticlesPresenter(
+              val articleDetailPresenter = ArticleDetailPresenter(myProject, myCodeDojo)
+              val articlesPresenter = LeetCodeSolutionArticlesPresenter(
                 myProject,
                 LeetCodeSolutionArticlesPresenter.BootstrapParameters(userInfo, questionSlug, solutionTags),
-                onArticleSelected,
+                {article=>
+                  articleDetailPresenter.setArticle(article)
+                },
                 myCodeDojo
               )
               val splitter = Splitter(false, 0.3f)
               splitter.setShowDividerControls(true)
-              splitter.setFirstComponent(presenter.getViewComponent)
-              splitter.setSecondComponent(LeetCodeSolutionPresenter.EMPTY_FORM)
+              splitter.setFirstComponent(articlesPresenter.getViewComponent)
+              splitter.setSecondComponent(articleDetailPresenter.getView)
               myView.removeAll()
               myView.addToCenter(splitter)
             }.evalOnEDTDefault()
           yield ()
         }.unsafeRunAndForget()
     }
-  }
-
-  private def onArticleSelected(article: LeetCodeQuestionSolutionArticle): Unit = {
-    // Handle article selection, e.g., update the view with the selected article's content
-//    myView.removeAll()
-//    myView.addToCenter(article.getViewComponent)
-//    myView.revalidate()
-//    myView.repaint()
   }
 
   def getView:JComponent = myView

@@ -3,16 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <title>Description Viewer</title>
-    {{codeDojoHeader}}
+    {{extraHeader}}
 </head>
 <body data-overlayscrollbars-initialize>
 <div id="container">
-    {{questionDescription}}
+    {{descriptionContent}}
 </div>
 </body>
 <script type="module">
     import initialize from "./app.ts";
-
     initialize();
 </script>
 </html>

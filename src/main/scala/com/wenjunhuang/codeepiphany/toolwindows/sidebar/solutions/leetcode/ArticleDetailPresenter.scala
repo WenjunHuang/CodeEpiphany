@@ -1,9 +1,11 @@
 package com.wenjunhuang.codeepiphany.toolwindows.sidebar.solutions.leetcode
-import cats.effect.{Async, IO, Resource}
+import cats.effect.{ Async, IO }
 import cats.effect.std.Queue
+import cats.syntax.all.*
 import fs2.Stream
-import fs2.concurrent.SignallingRef
+import java.awt.event.{ MouseWheelEvent, MouseWheelListener }
 import java.net.URI
+import javax.swing.JComponent
 import org.typelevel.log4cats.LoggerFactory
 import scala.concurrent.duration.*
 
@@ -14,9 +16,8 @@ import com.intellij.openapi.project.Project
 import com.wenjunhuang.codeepiphany.leetcode.models.LeetCodeQuestionSolutionArticle
 import com.wenjunhuang.codeepiphany.leetcode.services.LeetCodeApi
 import com.wenjunhuang.codeepiphany.model.CodeDojo
+import com.wenjunhuang.codeepiphany.utils.{ BrowserUtils, CancellableStream }
 import com.wenjunhuang.codeepiphany.utils.syntax.*
-import com.wenjunhuang.codeepiphany.utils.{BrowserUtils, CancellableStream}
-import cats.syntax.all.*
 
 class ArticleDetailPresenter(
   private val myProject: Project,
@@ -26,9 +27,15 @@ class ArticleDetailPresenter(
   @volatile
   private var myQueryQueue: Option[Queue[IO, Option[LeetCodeQuestionSolutionArticle]]] = None
   private val myLogger                                                                 = LoggerFactory.getLogger[IO]
+  private val myView = ArticleDetailView(this, myProject)
 
   createQueryPipeline()
   Disposer.register(myProject, this)
+  Disposer.register(this, myView)
+
+  def setArticle(article: LeetCodeQuestionSolutionArticle): Unit = {
+    myQueryQueue.foreach(_.offer(Some(article)).unsafeRunSync())
+  }
 
   private def createQueryPipeline(): Unit = {
     CancellableStream
@@ -51,7 +58,7 @@ class ArticleDetailPresenter(
           .getSolutionArticle(article.slug)
           .flatMap { article =>
             IO.delay {
-              article.content
+              myView.setArticleContent(Some((article.content, myCodeDojo)))
             }.evalOnEDTDefault()
           }
           .recoverWith { e => myLogger.error(e)(s"Failed to show LeetCode solutions of ${article.slug}") }
@@ -62,11 +69,13 @@ class ArticleDetailPresenter(
   }
 
   /** Handle user clicked a link in the description view browser
-   */
+    */
   def userClickedLink[F[_]: Async](url: String): F[Unit] =
     Async[F].delay(URI.create(url)).flatMap(uri => BrowserUtils.browseURI(uri, myProject))
 
   override def dispose(): Unit = {
     myQueryQueue.foreach(_.offer(None).unsafeRunSync())
   }
+
+  def getView: JComponent = myView
 }

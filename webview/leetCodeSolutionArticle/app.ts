@@ -1,14 +1,9 @@
-import 'normalize-css/normalize.css'
-import 'overlayscrollbars/overlayscrollbars.css'
-import {OverlayScrollbars} from "overlayscrollbars";
-
 import {Marked} from 'marked'
 import {markedHighlight} from "marked-highlight";
 import hljs from 'highlight.js';
 import 'highlight.js/styles/vs.css';
 import 'katex/dist/katex.min.css';
 import renderMathInElement from 'katex/contrib/auto-render';
-// @ts-ignore
 
 declare global {
     interface Window {
@@ -16,7 +11,9 @@ declare global {
     }
 }
 
-function showSolutionArticle(content: string, getIframeUrl: string) {
+const showSolutionArticle = (contentBased64: string, getIframeUrlBased64: string) =>{
+    const content = decodeBase64(contentBased64);
+    const getIframeUrl = decodeBase64(getIframeUrlBased64);
     const container = document.getElementById('container')!;
     const marked = new Marked(markedHighlight({
         emptyLangClass: 'hljs',
@@ -48,8 +45,13 @@ function showSolutionArticle(content: string, getIframeUrl: string) {
     });
 
 }
-
-export function initialize() {
-    OverlayScrollbars(document.body,{});
-    window.showSolutionArticle = showSolutionArticle;
+function decodeBase64(base64Str: string): string {
+    const binaryStr = atob(base64Str);
+    const bytes = new Uint8Array(binaryStr.length);
+    for (let i = 0; i < binaryStr.length; i++) {
+        bytes[i] = binaryStr.charCodeAt(i);
+    }
+    return new TextDecoder('utf-8').decode(bytes);
 }
+
+export default showSolutionArticle;

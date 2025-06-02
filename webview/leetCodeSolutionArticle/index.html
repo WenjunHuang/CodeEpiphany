@@ -1,21 +1,28 @@
 <!DOCTYPE html>
-<html lang="en" data-overlayscrollbars-initialize>
+<html lang="" data-overlayscrollbars-initialize>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>Article</title>
-    <style>
-        img, video {
-            height: auto;
-            max-width: 100%;
-        }
-    </style>
+<!--    <style>-->
+<!--        img, video {-->
+<!--            height: auto;-->
+<!--            max-width: 100%;-->
+<!--        }-->
+<!--    </style>-->
 </head>
-<body id="container" data-overlayscrollbars-initialize>
-</body>
-<script type="module">
-    import {initialize} from "./app.ts";
+<body  data-overlayscrollbars-initialize>
+<div id="container">
 
-    initialize();
+</div>
+</body>
+<script type="module" defer>
+    import showSolutionArticle from "./app.ts";
+    showSolutionArticle(content,getIframeUrl);
+
+</script>
+<script>
+    const content = "{{articleContent}}";
+    const getIframeUrl = "{{getIframeUrl}}";
 </script>
 </html>

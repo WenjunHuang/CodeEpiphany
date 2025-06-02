@@ -1,0 +1,20 @@
+package com.wenjunhuang.codeepiphany.actions.webview
+
+import com.intellij.openapi.actionSystem.{ ActionUpdateThread, AnAction, AnActionEvent }
+import com.intellij.openapi.project.DumbAware
+
+import com.wenjunhuang.codeepiphany.toolwindows.sidebar.description.ChallengeDescriptionView
+import com.wenjunhuang.codeepiphany.utils.actions.{ ActionCompatible, DataKeyNotNull }
+
+class ZoomOutAction
+    extends AnAction
+    with DumbAware
+    with DataKeyNotNull(WebviewActionProvider.DATA_KEY)
+    with ActionCompatible {
+  override def actionPerformed(e: AnActionEvent): Unit =
+    getValue(e).zoomOut()
+
+  override def update(e: AnActionEvent): Unit =
+    if !isSatisfied(e) then e.getPresentation.setEnabled(false)
+    else e.getPresentation.setEnabled(getValue(e).canZoomOut)
+}
