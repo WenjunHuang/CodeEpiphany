@@ -8,14 +8,8 @@ import scala.collection.mutable
 
 import com.wenjunhuang.codeepiphany.utils.syntax.*
 
-//object ResourceHttpServer {
-//  def apply(resourcePath: String, port: Int): Resource[IO, ResourceHttpServer] =
-//    Resource.make(IO(new ResourceHttpServer(resourcePath, port)).flatTap(it => IO.delay(it.start())))(server =>
-//      IO.delay(server.stop())
-//    )
-//}
 
-class ResourceHttpServer(private val myResourcePath: String, private val myPort: Int) {
+class ResourceHttpServer(private val myRootResourcePath: String, private val myPort: Int) {
   private val myLogger                   = LoggerFactory.getLogger[IO]
   private var server: Option[HttpServer] = None
 
@@ -24,12 +18,33 @@ class ResourceHttpServer(private val myResourcePath: String, private val myPort:
   private val customResponses: mutable.Map[String, CustomResponse]   = mutable.Map.empty
   private val dynamicResponses: mutable.Map[String, DynamicResponse] = mutable.Map.empty
 
-  def getResourcePath: String = myResourcePath
+  def getResourcePath: String = myRootResourcePath
 
   def getListeningPort: Option[Int] = server.map(_.getAddress.getPort)
+  
+  def addTemplateResponse(path: String, templatePath: String, contentType: String, variableProvider: () => Map[String, String] = () => Map.empty): Unit = {
+    val templateUrl = getClass.getClassLoader.getResource(s"$myRootResourcePath/$templatePath")
+    if (templateUrl == null) {
+      myLogger.error(s"Template not found: $templatePath").unsafeRunSync()
+      return
+    }
 
-  def addCustomResponse(path: String, content: String, contentType: String): Unit = {
-    customResponses += (path -> CustomResponse(content.getBytes("UTF-8"), contentType))
+    addCustomResponse(path, () => {
+      val template = new String(templateUrl.openStream().readAllBytes(), "UTF-8")
+      val processedContent = variableProvider().foldLeft(template) { case (acc, (key, value)) =>
+        acc.replace(key, value)
+      }
+      processedContent.getBytes("UTF-8")
+    }, contentType)
+  }
+
+  def addCustomResponse(path: String, content: String, contentType: String, variableProvider: () => Map[String, String] = () => Map.empty): Unit = {
+    addCustomResponse(path, () => {
+      val processedContent = variableProvider().foldLeft(content) { case (acc, (key, value)) =>
+        acc.replace(key, value)
+      }
+      processedContent.getBytes("UTF-8")
+    }, contentType)
   }
 
   def addCustomResponse(path: String, content: Array[Byte], contentType: String): Unit = {
@@ -71,10 +86,10 @@ class ResourceHttpServer(private val myResourcePath: String, private val myPort:
                   requestPath
                 }
 
-                val fullResourcePath = if (myResourcePath.endsWith("/")) {
-                  myResourcePath + resourcePath
+                val fullResourcePath = if (myRootResourcePath.endsWith("/")) {
+                  myRootResourcePath + resourcePath
                 } else {
-                  myResourcePath + "/" + resourcePath
+                  myRootResourcePath + "/" + resourcePath
                 }
 
                 Option(getClass.getClassLoader.getResource(fullResourcePath)) match {

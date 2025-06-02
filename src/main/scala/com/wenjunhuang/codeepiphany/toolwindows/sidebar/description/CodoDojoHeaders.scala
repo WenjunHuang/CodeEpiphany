@@ -16,34 +16,9 @@ object CodoDojoHeaders {
     """
       |<script type="text/javascript">
       |    window.MathJax = {
-      |      extensions: ["tex2jax.js", "TeX/AMSmath.js", "TeX/AMSsymbols.js"],
-      |      jax: ["input/TeX", "output/HTML-CSS"],
       |      tex2jax: {
       |        inlineMath: [['$$$','$$$']], 
-      |        displayMath: [['$$$$$$','$$$$$$']],
-      |        processEscapes: true,
-      |        processEnvironments: true
-      |      },
-      |      "HTML-CSS": { 
-      |        fonts: ["TeX"],
-      |        linebreaks: { automatic: true },
-      |        imageFont: null
-      |      },
-      |      showProcessingMessages: false,
-      |      messageStyle: "none",
-      |      showMathMenu: false,
-      |      showMathMenuMSIE: false,
-      |      "fast-preview": { disabled: true },
-      |      positionToHash: false,
-      |      delayStartupUntil: "loaded",
-      |      TeX: {
-      |        extensions: ["AMSmath.js", "AMSsymbols.js", "noErrors.js", "noUndefined.js"],
-      |        Macros: {
-      |          ldots: "\\ldots",
-      |          cdots: "\\cdots",
-      |          vdots: "\\vdots",
-      |          ddots: "\\ddots"
-      |        }
+      |        displayMath: [['$$$$$$','$$$$$$']]
       |      }
       |    };
       |</script>

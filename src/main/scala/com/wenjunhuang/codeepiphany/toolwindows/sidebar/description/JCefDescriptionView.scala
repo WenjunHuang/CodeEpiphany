@@ -65,6 +65,12 @@ class JCefDescriptionView(
     },
     "text/css"
   )
+  myHttpServer.addTemplateResponse("/challengeDescription/index.html", "challengeDescription/index.html", "text/html", () =>
+    Map(
+      TEMPLATE_PLACEHOLDER -> myDescription.map(_._1).getOrElse("No challenge selected 🌟"),
+      CODEDOJO_HEADER      -> myDescription.map(_._2).map(CodoDojoHeaders.getHeader).getOrElse("")
+    )
+  )
   myHttpServer.start()
 
   // private val myLocalRequestHandler = createRequestHandler()
@@ -145,7 +151,6 @@ class JCefDescriptionView(
   private var myState = ViewerState()
 
   myBrowser.getJBCefClient
-//    .addRequestHandler(myLocalRequestHandler, myBrowser.getCefBrowser)
     .addLifeSpanHandler(myLifeSpanHandler, myBrowser.getCefBrowser)
 
   private val myViewerStateJSQuery = createJSQuery()
@@ -168,41 +173,7 @@ class JCefDescriptionView(
   private val myLoadHandler = new CefLoadHandlerAdapter {
     override def onLoadEnd(browser: CefBrowser, frame: CefFrame, httpStatusCode: Int): Unit =
       if frame.isMain then
-//        reloadStyles()
-
-        myDescription match {
-          case Some((description, _)) =>
-            execute(s"""
-                       |document.getElementById('container').innerHTML = `${description}`;
-                       |""".stripMargin)
-          case None =>
-        }
-
-        val codeDojoHeaders = myDescription.map(_._2).map(CodoDojoHeaders.getHeader).getOrElse("")
-        if (codeDojoHeaders.nonEmpty) {
-          execute(
-            // language=JavaScript
-            s"""
-               |const tempDiv = document.createElement('div');
-               |tempDiv.innerHTML = `$codeDojoHeaders`;
-               |while (tempDiv.firstChild) {
-               |  const node = tempDiv.firstChild;
-               |  if (node.nodeName === 'SCRIPT' || node.nodeName === 'script') {
-               |    const newScript = document.createElement('script');
-               |    Array.from(node.attributes).forEach(attr => {
-               |      newScript.setAttribute(attr.name, attr.value);
-               |    });
-               |    newScript.textContent = node.textContent;
-               |    document.head.appendChild(newScript);
-               |    tempDiv.removeChild(node);
-               |  } else {
-               |    document.head.appendChild(node);
-               |  }
-               |}
-               |""".stripMargin
-          )
-        }
-
+        reloadStyles()
         execute(s"window.sendInfo = function(info_text) {${myViewerStateJSQuery.inject("info_text")};}")
   }
 
