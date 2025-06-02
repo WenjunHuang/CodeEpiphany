@@ -117,9 +117,6 @@ class JCefLeetCodeArticleView(
     override def onLoadEnd(browser: CefBrowser, frame: CefFrame, httpStatusCode: Int): Unit =
       if frame.isMain then
         reloadStyles()
-        execute(s"""
-             |window.showSolutionArticle()
-             |""".stripMargin)
         execute(s"window.sendInfo = function(info_text) {${myViewerStateJSQuery.inject("info_text")};}")
   }
 

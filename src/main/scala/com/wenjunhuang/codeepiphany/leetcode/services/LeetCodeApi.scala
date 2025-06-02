@@ -868,9 +868,9 @@ object LeetCodeApi {
                 )
             )
           }.flatMap { json =>
-            JsonPath.root.data.ugcArticleQuestionSolutionArticles.json
+            JsonPath.root.data.ugcArticleSolutionArticles.json
               .getOption(json)
-              .toRight(ApiError.InvalidContent(dojo, "can not find 'data.ugcArticleQuestionSolutionArticles' in json"))
+              .toRight(ApiError.InvalidContent(dojo, "can not find 'data.ugcArticleSolutionArticles' in json"))
               .flatMap(_.as[LeetCodeQuestionSolutionArticles])
               .liftTo[F]
 

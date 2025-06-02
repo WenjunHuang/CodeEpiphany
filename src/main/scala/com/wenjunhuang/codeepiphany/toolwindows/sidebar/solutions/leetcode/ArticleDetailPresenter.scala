@@ -58,7 +58,13 @@ class ArticleDetailPresenter(
           .getSolutionArticle(article.slug)
           .flatMap { article =>
             IO.delay {
-              myView.setArticleContent(Some((article.content, myCodeDojo)))
+              val content = article.content
+                .replaceAll("\\\\n", "\n")
+                .replaceAll("\\\\u([0-9a-fA-F]{4})", "\\u$1")
+                .replaceAll("\\\\'", "'")
+                .replaceAll("\\\\\"", "\"")
+                .replaceAll("\\\\\\\\", "\\\\")
+              myView.setArticleContent(Some((content, myCodeDojo)))
             }.evalOnEDTDefault()
           }
           .recoverWith { e => myLogger.error(e)(s"Failed to show LeetCode solutions of ${article.slug}") }
