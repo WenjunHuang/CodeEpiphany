@@ -1,11 +1,12 @@
 package com.wenjunhuang.codeepiphany.toolwindows.sidebar.solutions.leetcode
-import cats.effect.{ Async, IO }
+import cats.effect.{Async, IO}
 import cats.effect.std.Queue
 import cats.syntax.all.*
 import fs2.Stream
-import java.awt.event.{ MouseWheelEvent, MouseWheelListener }
+import java.awt.event.{MouseWheelEvent, MouseWheelListener}
 import java.net.URI
 import javax.swing.JComponent
+import org.apache.commons.text.StringEscapeUtils
 import org.typelevel.log4cats.LoggerFactory
 import scala.concurrent.duration.*
 
@@ -16,7 +17,7 @@ import com.intellij.openapi.project.Project
 import com.wenjunhuang.codeepiphany.leetcode.models.LeetCodeQuestionSolutionArticle
 import com.wenjunhuang.codeepiphany.leetcode.services.LeetCodeApi
 import com.wenjunhuang.codeepiphany.model.CodeDojo
-import com.wenjunhuang.codeepiphany.utils.{ BrowserUtils, CancellableStream }
+import com.wenjunhuang.codeepiphany.utils.{BrowserUtils, CancellableStream}
 import com.wenjunhuang.codeepiphany.utils.syntax.*
 
 class ArticleDetailPresenter(
@@ -58,12 +59,7 @@ class ArticleDetailPresenter(
           .getSolutionArticle(article.slug)
           .flatMap { article =>
             IO.delay {
-              val content = article.content
-                .replaceAll("\\\\n", "\n")
-                .replaceAll("\\\\u([0-9a-fA-F]{4})", "\\u$1")
-                .replaceAll("\\\\'", "'")
-                .replaceAll("\\\\\"", "\"")
-                .replaceAll("\\\\\\\\", "\\\\")
+              val content = StringEscapeUtils.unescapeJava(article.content)
               myView.setArticleContent(Some((content, myCodeDojo)))
             }.evalOnEDTDefault()
           }

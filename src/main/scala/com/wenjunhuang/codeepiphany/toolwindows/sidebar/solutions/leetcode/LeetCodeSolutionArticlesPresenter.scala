@@ -1,38 +1,32 @@
 package com.wenjunhuang.codeepiphany.toolwindows.sidebar.solutions.leetcode
 
 import cats.effect.IO
-import javax.swing.{ Icon, JTable, SwingConstants }
-import javax.swing.table.{ DefaultTableCellRenderer, TableCellRenderer }
-import javax.swing.event.{ ListSelectionEvent, ListSelectionListener }
+import cats.syntax.all.*
+import java.time.ZonedDateTime
+import java.time.format.DateTimeFormatter
+import javax.swing.{Icon, JTable, SwingConstants}
+import javax.swing.event.{ListSelectionEvent, ListSelectionListener}
+import javax.swing.table.{DefaultTableCellRenderer, TableCellRenderer}
 import monocle.syntax.all.*
+import org.apache.commons.text.StringEscapeUtils
 import scala.collection.mutable
 
-import com.intellij.openapi.actionSystem.{ ActionGroup, ActionManager }
+import com.intellij.icons.AllIcons
+import com.intellij.openapi.actionSystem.{ActionGroup, ActionManager}
 import com.intellij.openapi.project.Project
 import com.intellij.util.ui.table.IconTableCellRenderer
-import cats.syntax.all.*
-import java.time.{ LocalDateTime, ZonedDateTime }
-import java.time.format.DateTimeFormatter
-
-import com.intellij.icons.AllIcons
 
 import com.wenjunhuang.codeepiphany.actions.TagsAction
 import com.wenjunhuang.codeepiphany.actions.TagsAction.MultiTagGroupProvider
-import com.wenjunhuang.codeepiphany.leetcode.models.{
-  LeetCodeQuestionSolutionArticle,
-  LeetCodeQuestionSolutionArticleAuthor,
-  LeetCodeQuestionSolutionArticlesOrderBy,
-  LeetCodeSolutionTags,
-  LeetCodeUserInfo
-}
+import com.wenjunhuang.codeepiphany.leetcode.models.*
 import com.wenjunhuang.codeepiphany.leetcode.services.LeetCodeApi
-import com.wenjunhuang.codeepiphany.model.{ Actions, CodeDojo }
-import com.wenjunhuang.codeepiphany.model.DifficultyColors.{ DIFFICULTY_EASY_COLOR, DIFFICULTY_MEDIUM_COLOR }
-import com.wenjunhuang.codeepiphany.services.{ AuthService, ParametersQueryPresenter, QueryContext }
-import com.wenjunhuang.codeepiphany.services.http.{ HttpClientManager, HttpClientService }
+import com.wenjunhuang.codeepiphany.model.{Actions, CodeDojo}
+import com.wenjunhuang.codeepiphany.model.DifficultyColors.{DIFFICULTY_EASY_COLOR, DIFFICULTY_MEDIUM_COLOR}
+import com.wenjunhuang.codeepiphany.services.{ParametersQueryPresenter, QueryContext}
+import com.wenjunhuang.codeepiphany.services.http.{HttpClientManager, HttpClientService}
 import com.wenjunhuang.codeepiphany.toolwindows.sidebar.solutions.leetcode.LeetCodeSolutionArticlesPresenter.*
 import com.wenjunhuang.codeepiphany.toolwindows.sidebar.solutions.leetcode.actions.ArticleOrderByAction
-import com.wenjunhuang.codeepiphany.utils.{ AsyncAvatarLoader, OrderByColumnInfo, Pagination }
+import com.wenjunhuang.codeepiphany.utils.{OrderByColumnInfo, Pagination}
 import com.wenjunhuang.codeepiphany.utils.actions.DataSink
 import com.wenjunhuang.codeepiphany.utils.ui.TagPaneAction
 import com.wenjunhuang.codeepiphany.utils.PageSize.Twenty
@@ -304,7 +298,9 @@ class LeetCodeSolutionArticlesPresenter(
     },
     new OrderByColumnInfo[LeetCodeQuestionSolutionArticle, String]("Summary") {
       override def getPreferredStringValue: String = "x".repeat(20)
-      override def valueOf(item: LeetCodeQuestionSolutionArticle): String = item.summary.replaceAll("""\r\n|\n""", "")
+      override def valueOf(item: LeetCodeQuestionSolutionArticle): String = {
+        StringEscapeUtils.unescapeJava(item.summary)
+      }
 
       override def getRenderer(item: LeetCodeQuestionSolutionArticle): TableCellRenderer =
         new DefaultTableCellRenderer() {
