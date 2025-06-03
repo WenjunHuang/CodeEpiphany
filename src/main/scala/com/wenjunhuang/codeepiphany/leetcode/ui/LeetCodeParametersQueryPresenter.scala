@@ -407,6 +407,11 @@ class LeetCodeParametersQueryPresenter(
   override def getQueryResultColumns: Array[OrderByColumnInfo[LeetCodeChallengeListItem, ?]] = {
     import LeetCodeTableColumnTitle.*
     val userIsPremium = myBoostrapParameters.userInfo.isPremium.getOrElse(false)
+
+    def isRowEnabled(item: LeetCodeChallengeListItem) = {
+      !item.paidOnly || (item.paidOnly && userIsPremium)
+    }
+
     Array(
       new OrderByColumnInfo[LeetCodeChallengeListItem, Icon](Status.title) {
         override def valueOf(item: LeetCodeChallengeListItem): Icon =
@@ -448,7 +453,7 @@ class LeetCodeParametersQueryPresenter(
           new DefaultTableCellRenderer() {
             setHorizontalTextPosition(SwingConstants.LEADING)
             if item.paidOnly && userIsPremium then setIcon(AllIcons.Ide.Readwrite)
-            setEnabled(!item.paidOnly || (item.paidOnly && userIsPremium))
+            setEnabled(isRowEnabled(item))
           }
       },
       new OrderByColumnInfo[LeetCodeChallengeListItem, String](Solution.title) {
@@ -468,6 +473,7 @@ class LeetCodeParametersQueryPresenter(
         override def getRenderer(item: LeetCodeChallengeListItem): TableCellRenderer =
           new DefaultTableCellRenderer() {
             setHorizontalAlignment(SwingConstants.RIGHT)
+            setEnabled(isRowEnabled(item))
           }
       },
       new OrderByColumnInfo[LeetCodeChallengeListItem, String](Difficulty.title) {
@@ -481,6 +487,11 @@ class LeetCodeParametersQueryPresenter(
 
         override def setOrderFilter(filter: Option[OrderDirection]): Unit =
           setDirectionOf(LeetCodeSearchOrderBy.Difficulty, filter)
+
+        override def getRenderer(item: LeetCodeChallengeListItem): TableCellRenderer =
+          new DefaultTableCellRenderer() {
+            setEnabled(isRowEnabled(item))
+          }
       },
       new OrderByColumnInfo[LeetCodeChallengeListItem, String](Acceptance.title) {
         override def valueOf(item: LeetCodeChallengeListItem): String =
@@ -491,6 +502,7 @@ class LeetCodeParametersQueryPresenter(
         override def getRenderer(item: LeetCodeChallengeListItem): TableCellRenderer =
           new DefaultTableCellRenderer() {
             setHorizontalAlignment(SwingConstants.RIGHT)
+            setEnabled(isRowEnabled(item))
           }
 
         override def enableOrderBy: Boolean = true
@@ -510,6 +522,7 @@ class LeetCodeParametersQueryPresenter(
         override def getRenderer(item: LeetCodeChallengeListItem): TableCellRenderer =
           new DefaultTableCellRenderer() {
             setHorizontalAlignment(SwingConstants.RIGHT)
+            setEnabled(isRowEnabled(item))
           }
 
         override def enableOrderBy: Boolean = true

@@ -1,39 +1,35 @@
 package com.wenjunhuang.codeepiphany.toolwindows.sidebar.solutions.leetcode
 
 import cats.effect.IO
-import javax.swing.{JComponent, SwingConstants}
-import scala.jdk.OptionConverters.*
 
+import javax.swing.{ JComponent, SwingConstants }
+import scala.jdk.OptionConverters.*
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.Splitter
 import com.intellij.ui.components.JBLabel
 import com.intellij.ui.AnimatedIcon
 import com.intellij.util.ui.components.BorderLayoutPanel
-
 import com.wenjunhuang.codeepiphany.database.Tables.CHALLENGE
 import com.wenjunhuang.codeepiphany.leetcode.models.LeetCodeQuestionSolutionArticle
 import com.wenjunhuang.codeepiphany.leetcode.services.LeetCodeApi
 import com.wenjunhuang.codeepiphany.model.newtypes.ChallengeId
 import com.wenjunhuang.codeepiphany.model.CodeDojo
-import com.wenjunhuang.codeepiphany.services.{AuthService, ChallengeRepository}
-import com.wenjunhuang.codeepiphany.services.http.{HttpClientManager, HttpClientService}
+import com.wenjunhuang.codeepiphany.services.{ AuthService, ChallengeRepository }
+import com.wenjunhuang.codeepiphany.services.http.{ HttpClientManager, HttpClientService }
 import com.wenjunhuang.codeepiphany.utils.syntax.*
+import com.wenjunhuang.codeepiphany.utils.ui.UnauthenticatedView
 
 class LeetCodeSolutionPresenter(
   private val myChallengeId: ChallengeId,
   private val myProject: Project,
   private val myCodeDojo: CodeDojo.LeetCodeCN.type | CodeDojo.LeetCode.type
-) { self =>
+) {
   private val myView =
-    new BorderLayoutPanel(){
+    new BorderLayoutPanel() {
       override def removeNotify(): Unit = {
         super.removeNotify()
       }
     }
-  myView.addToCenter(JBLabel("Loading...", AnimatedIcon.Default.INSTANCE, SwingConstants.CENTER))
-
-  private implicit val httpClientManager: HttpClientManager[IO] =
-    HttpClientService.getInstance(myProject).httpClientManager
 
   initialize()
 
@@ -57,20 +53,39 @@ class LeetCodeSolutionPresenter(
               .toScala
               .map(_.value1())
               .getOrElse(throw new NoSuchElementException(s"No challenge found for ID: ${myChallengeId.value}"))
+          }.handleErrorWith { error =>
+            IO.delay {
+              myView.addToCenter(
+                new JBLabel(
+                  s"Error fetching challenge slug: ${error.getMessage}",
+                  AnimatedIcon.Default.INSTANCE,
+                  SwingConstants.CENTER
+                )
+              )
+            }.evalOnEDTDefault() *> IO.raiseError(error)
           }
         }
         .flatMap { questionSlug =>
-
-          val api = LeetCodeApi[IO](myCodeDojo)
+          val api = LeetCodeApi(myCodeDojo, myProject)
           for
+            _ <- IO.delay {
+              myView.removeAll()
+              myView.addToCenter(
+                new JBLabel(
+                  s"Loading solutions for $questionSlug...",
+                  AnimatedIcon.Default.INSTANCE,
+                  SwingConstants.CENTER
+                )
+              )
+            }.evalOnEDTDefault()
             solutionTags <- api.getSolutionTags(questionSlug)
             userInfo     <- api.getUserInfo
-            presenter <- IO.delay {
+            _ <- IO.delay {
               val articleDetailPresenter = ArticleDetailPresenter(myProject, myCodeDojo)
               val articlesPresenter = LeetCodeSolutionArticlesPresenter(
                 myProject,
                 LeetCodeSolutionArticlesPresenter.BootstrapParameters(userInfo, questionSlug, solutionTags),
-                {article=>
+                { article =>
                   articleDetailPresenter.setArticle(article)
                 },
                 myCodeDojo
@@ -83,15 +98,17 @@ class LeetCodeSolutionPresenter(
               myView.addToCenter(splitter)
             }.evalOnEDTDefault()
           yield ()
-        }.unsafeRunAndForget()
+        }
+        .unsafeRunAndForget()
+    } else {
+      myView.addToCenter(new UnauthenticatedView(myCodeDojo))
     }
   }
 
-  def getView:JComponent = myView
+  def getView: JComponent = myView
 }
 
 object LeetCodeSolutionPresenter {
-  val EMPTY_FORM: JComponent = BorderLayoutPanel().addToCenter(
-    new JBLabel("Please select a article to view the result.", SwingConstants.CENTER)
-  )
+  val EMPTY_FORM: JComponent =
+    BorderLayoutPanel().addToCenter(new JBLabel("Please select a article to view the result.", SwingConstants.CENTER))
 }

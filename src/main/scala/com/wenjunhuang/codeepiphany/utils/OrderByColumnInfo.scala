@@ -1,7 +1,6 @@
 package com.wenjunhuang.codeepiphany.utils
 
-import com.intellij.util.ui.ColumnInfo
-
+import com.intellij.util.ui.{ColumnInfo, UIUtil}
 import com.wenjunhuang.codeepiphany.model.OrderDirection
 import com.wenjunhuang.codeepiphany.model.OrderDirection.*
 
@@ -11,6 +10,8 @@ abstract class OrderByColumnInfo[Item, Aspect](name: String) extends ColumnInfo[
   def getOrderFilter: Option[OrderDirection] = None
 
   def setOrderFilter(filter: Option[OrderDirection]): Unit = {}
+
+  override def getAdditionalWidth: Int = UIUtil.DEFAULT_HGAP
 }
 
 object OrderByColumnInfo {

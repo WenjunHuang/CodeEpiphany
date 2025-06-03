@@ -8,7 +8,7 @@ export function intellijStylePlugin(): Plugin {
     name: 'intellij-style-plugin',
     transformIndexHtml: {
       order:"pre",
-      transform: (html) => {
+      handler: (html) => {
         return {
           html,
 

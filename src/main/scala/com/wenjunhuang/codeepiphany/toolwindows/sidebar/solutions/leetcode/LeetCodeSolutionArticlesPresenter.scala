@@ -4,15 +4,15 @@ import cats.effect.IO
 import cats.syntax.all.*
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
-import javax.swing.{Icon, JTable, SwingConstants}
-import javax.swing.event.{ListSelectionEvent, ListSelectionListener}
-import javax.swing.table.{DefaultTableCellRenderer, TableCellRenderer}
+import javax.swing.{ Icon, JTable, SwingConstants }
+import javax.swing.event.{ ListSelectionEvent, ListSelectionListener }
+import javax.swing.table.{ DefaultTableCellRenderer, TableCellRenderer }
 import monocle.syntax.all.*
 import org.apache.commons.text.StringEscapeUtils
 import scala.collection.mutable
 
 import com.intellij.icons.AllIcons
-import com.intellij.openapi.actionSystem.{ActionGroup, ActionManager}
+import com.intellij.openapi.actionSystem.{ ActionGroup, ActionManager }
 import com.intellij.openapi.project.Project
 import com.intellij.util.ui.table.IconTableCellRenderer
 
@@ -20,13 +20,13 @@ import com.wenjunhuang.codeepiphany.actions.TagsAction
 import com.wenjunhuang.codeepiphany.actions.TagsAction.MultiTagGroupProvider
 import com.wenjunhuang.codeepiphany.leetcode.models.*
 import com.wenjunhuang.codeepiphany.leetcode.services.LeetCodeApi
-import com.wenjunhuang.codeepiphany.model.{Actions, CodeDojo}
-import com.wenjunhuang.codeepiphany.model.DifficultyColors.{DIFFICULTY_EASY_COLOR, DIFFICULTY_MEDIUM_COLOR}
-import com.wenjunhuang.codeepiphany.services.{ParametersQueryPresenter, QueryContext}
-import com.wenjunhuang.codeepiphany.services.http.{HttpClientManager, HttpClientService}
+import com.wenjunhuang.codeepiphany.model.{ Actions, CodeDojo }
+import com.wenjunhuang.codeepiphany.model.DifficultyColors.{ DIFFICULTY_EASY_COLOR, DIFFICULTY_MEDIUM_COLOR }
+import com.wenjunhuang.codeepiphany.services.{ ParametersQueryPresenter, QueryContext }
+import com.wenjunhuang.codeepiphany.services.http.{ HttpClientManager, HttpClientService }
 import com.wenjunhuang.codeepiphany.toolwindows.sidebar.solutions.leetcode.LeetCodeSolutionArticlesPresenter.*
 import com.wenjunhuang.codeepiphany.toolwindows.sidebar.solutions.leetcode.actions.ArticleOrderByAction
-import com.wenjunhuang.codeepiphany.utils.{OrderByColumnInfo, Pagination}
+import com.wenjunhuang.codeepiphany.utils.{ OrderByColumnInfo, Pagination }
 import com.wenjunhuang.codeepiphany.utils.actions.DataSink
 import com.wenjunhuang.codeepiphany.utils.ui.TagPaneAction
 import com.wenjunhuang.codeepiphany.utils.PageSize.Twenty
@@ -80,8 +80,14 @@ class LeetCodeSolutionArticlesPresenter(
     override def valueChanged(e: ListSelectionEvent): Unit = {
       if (!e.getValueIsAdjusting && !getQueryResultTableSelectionModel.isSelectionEmpty) {
         val selectedIndex = getQueryResultTableSelectionModel.getMinSelectionIndex
-        val selectedItem = getQueryResultTableModel.getItem(selectedIndex)
-        myOnSelected(selectedItem)
+        val selectedItem  = getQueryResultTableModel.getItem(selectedIndex)
+        if (selectedItem.isPremium) {
+          if (userIsPremium) {
+            myOnSelected(selectedItem)
+          }
+        } else {
+          myOnSelected(selectedItem)
+        }
       }
     }
   }
@@ -92,6 +98,8 @@ class LeetCodeSolutionArticlesPresenter(
     getQueryResultTableSelectionModel.removeListSelectionListener(mySelectionListener)
     super.dispose()
   }
+
+  def userIsPremium: Boolean = myBoostrapParameters.userInfo.isPremium.getOrElse(false)
 
   override protected def prepareProviders(
     getter: () => QueryContext[QueryParams],
@@ -228,117 +236,128 @@ class LeetCodeSolutionArticlesPresenter(
       }
   }
 
-  override def getQueryResultColumns: Array[OrderByColumnInfo[LeetCodeQuestionSolutionArticle, ?]] = Array(
-    new OrderByColumnInfo[LeetCodeQuestionSolutionArticle, LeetCodeQuestionSolutionArticleAuthor]("Author") {
-      override def getPreferredStringValue: String = "Author"
-
-      override def valueOf(item: LeetCodeQuestionSolutionArticle): LeetCodeQuestionSolutionArticleAuthor = item.author
-
-      override def getRenderer(item: LeetCodeQuestionSolutionArticle): TableCellRenderer =
-        new IconTableCellRenderer[LeetCodeQuestionSolutionArticleAuthor]() {
-
-          override def getIcon(value: LeetCodeQuestionSolutionArticleAuthor, table: JTable, row: Int): Icon = {
-            value.avatarIcon.addListener(() => if (table != null) table.repaint())
-            value.avatarIcon
-          }
-
-          override def isCenterAlignment: Boolean = false
-
-          override def getText: String = item.author.realName
-
-          setToolTipText(s"Author: ${item.author.realName}")
-        }
-    },
-    new OrderByColumnInfo[LeetCodeQuestionSolutionArticle, Icon]("Status") {
-      override def getPreferredStringValue: String = "St"
-      override def valueOf(item: LeetCodeQuestionSolutionArticle): Icon = {
-        if (item.chargeType.toUpperCase() == "PREMIUM") {
-          if (myBoostrapParameters.userInfo.isPremium.contains(true)) {
-            AllIcons.General.GreenCheckmark
-          } else {
-            AllIcons.Diff.Lock
-          }
-        } else {
-          AllIcons.General.GreenCheckmark
-        }
-      }
-
-      override def getRenderer(item: LeetCodeQuestionSolutionArticle): TableCellRenderer =
-        new IconTableCellRenderer[Icon]() {
-          override def getIcon(value: Icon, table: JTable, row: Int): Icon = value
-
-          override def isCenterAlignment: Boolean = true
-
-          override def getText: String = ""
-
-          setToolTipText(if (item.chargeType.toUpperCase() == "PREMIUM") "Premium only" else "Free")
-        }
-    },
-    new OrderByColumnInfo[LeetCodeQuestionSolutionArticle, String]("Type") {
-      override def getPreferredStringValue: String = "St"
-      override def valueOf(item: LeetCodeQuestionSolutionArticle): String = {
-        if (item.byLeetcode) {
-          s"<html><font color='${DIFFICULTY_EASY_COLOR}'>O</font></html>"
-        } else if (item.isEditorsPick.contains(true)) {
-          s"<html><font color='${DIFFICULTY_MEDIUM_COLOR}'>EC</font></html>"
-        } else {
-          ""
-        }
-      }
-
-      override def getRenderer(item: LeetCodeQuestionSolutionArticle): TableCellRenderer =
-        new DefaultTableCellRenderer() {
-          setHorizontalAlignment(SwingConstants.CENTER)
-          setToolTipText(
-            if (item.byLeetcode) "Official Solution"
-            else if (item.isEditorsPick.contains(true)) "Editor's Choice"
-            else ""
-          )
-        }
-    },
-    new OrderByColumnInfo[LeetCodeQuestionSolutionArticle, String]("Summary") {
-      override def getPreferredStringValue: String = "x".repeat(20)
-      override def valueOf(item: LeetCodeQuestionSolutionArticle): String = {
-        StringEscapeUtils.unescapeJava(item.summary)
-      }
-
-      override def getRenderer(item: LeetCodeQuestionSolutionArticle): TableCellRenderer =
-        new DefaultTableCellRenderer() {
-          setToolTipText(item.summary)
-        }
-    },
-    new OrderByColumnInfo[LeetCodeQuestionSolutionArticle, String]("HitCount") {
-      override def getPreferredStringValue: String = "x".repeat(5)
-
-      override def valueOf(item: LeetCodeQuestionSolutionArticle): String = s"${item.hitCount}"
-
-      override def getRenderer(item: LeetCodeQuestionSolutionArticle): TableCellRenderer =
-        new DefaultTableCellRenderer() {
-          setHorizontalAlignment(SwingConstants.RIGHT)
-          setToolTipText(s"Hit Count: ${item.hitCount}")
-        }
-    },
-    new OrderByColumnInfo[LeetCodeQuestionSolutionArticle, String]("UpVote") {
-      override def getPreferredStringValue: String = "x".repeat(5)
-      override def valueOf(item: LeetCodeQuestionSolutionArticle): String = s"${item.upVote.getOrElse(0)}"
-
-      override def getRenderer(item: LeetCodeQuestionSolutionArticle): TableCellRenderer =
-        new DefaultTableCellRenderer() {
-          setHorizontalAlignment(SwingConstants.RIGHT)
-          setToolTipText(s"UpVote count: ${item.upVote.getOrElse(0)}")
-        }
-    },
-    new OrderByColumnInfo[LeetCodeQuestionSolutionArticle, String]("Created At") {
-      override def getPreferredStringValue: String = "yyyy-MM-dd HH:mm:ss"
-
-      override def valueOf(item: LeetCodeQuestionSolutionArticle): String =
-        s"${ZonedDateTime.parse(item.createdAt).toLocalDateTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))}"
-
-      override def getRenderer(item: LeetCodeQuestionSolutionArticle): TableCellRenderer =
-        new DefaultTableCellRenderer()
-
+  override def getQueryResultColumns: Array[OrderByColumnInfo[LeetCodeQuestionSolutionArticle, ?]] = {
+    def isRowEnabled(item: LeetCodeQuestionSolutionArticle) = {
+      !item.isPremium || userIsPremium
     }
-  )
+
+    Array(
+      new OrderByColumnInfo[LeetCodeQuestionSolutionArticle, LeetCodeQuestionSolutionArticleAuthor]("Author") {
+        override def getPreferredStringValue: String = "Author"
+
+        override def valueOf(item: LeetCodeQuestionSolutionArticle): LeetCodeQuestionSolutionArticleAuthor = item.author
+
+        override def getRenderer(item: LeetCodeQuestionSolutionArticle): TableCellRenderer =
+          new IconTableCellRenderer[LeetCodeQuestionSolutionArticleAuthor]() {
+
+            override def getIcon(value: LeetCodeQuestionSolutionArticleAuthor, table: JTable, row: Int): Icon = {
+              value.avatarIcon.addListener(() => if (table != null) table.repaint())
+              value.avatarIcon
+            }
+
+            override def isCenterAlignment: Boolean = false
+
+            override def getText: String = item.author.realName
+
+            setToolTipText(s"Author: ${item.author.realName}")
+            setEnabled(isRowEnabled(item))
+          }
+      },
+      new OrderByColumnInfo[LeetCodeQuestionSolutionArticle, Icon]("Status") {
+        override def getPreferredStringValue: String = "St"
+        override def valueOf(item: LeetCodeQuestionSolutionArticle): Icon = {
+          if (item.isPremium) {
+            if (userIsPremium) {
+              AllIcons.General.InspectionsOK
+            } else {
+              AllIcons.Diff.Lock
+            }
+          } else {
+            AllIcons.General.InspectionsOK
+          }
+        }
+
+        override def getRenderer(item: LeetCodeQuestionSolutionArticle): TableCellRenderer =
+          new IconTableCellRenderer[Icon]() {
+            override def getIcon(value: Icon, table: JTable, row: Int): Icon = value
+
+            override def isCenterAlignment: Boolean = true
+
+            override def getText: String = ""
+
+            setToolTipText(if (item.isPremium) "Premium only" else "Free")
+          }
+      },
+      new OrderByColumnInfo[LeetCodeQuestionSolutionArticle, String]("Type") {
+        override def getPreferredStringValue: String = "St"
+        override def valueOf(item: LeetCodeQuestionSolutionArticle): String = {
+          if (item.byLeetcode) {
+            s"<html><font color='$DIFFICULTY_EASY_COLOR'>O</font></html>"
+          } else if (item.isEditorsPick.contains(true)) {
+            s"<html><font color='$DIFFICULTY_MEDIUM_COLOR'>EC</font></html>"
+          } else {
+            ""
+          }
+        }
+
+        override def getRenderer(item: LeetCodeQuestionSolutionArticle): TableCellRenderer =
+          new DefaultTableCellRenderer() {
+            setHorizontalAlignment(SwingConstants.CENTER)
+            setToolTipText(
+              if (item.byLeetcode) "Official Solution"
+              else if (item.isEditorsPick.contains(true)) "Editor's Choice"
+              else ""
+            )
+          }
+      },
+      new OrderByColumnInfo[LeetCodeQuestionSolutionArticle, String]("Summary") {
+        override def getPreferredStringValue: String = "x".repeat(20)
+        override def valueOf(item: LeetCodeQuestionSolutionArticle): String = {
+          StringEscapeUtils.unescapeJava(item.summary)
+        }
+
+        override def getRenderer(item: LeetCodeQuestionSolutionArticle): TableCellRenderer =
+          new DefaultTableCellRenderer() {
+            setToolTipText(item.summary)
+            setEnabled(isRowEnabled(item))
+          }
+      },
+      new OrderByColumnInfo[LeetCodeQuestionSolutionArticle, String]("HitCount") {
+        override def getPreferredStringValue: String = "x".repeat(5)
+
+        override def valueOf(item: LeetCodeQuestionSolutionArticle): String = s"${item.hitCount}"
+
+        override def getRenderer(item: LeetCodeQuestionSolutionArticle): TableCellRenderer =
+          new DefaultTableCellRenderer() {
+            setHorizontalAlignment(SwingConstants.RIGHT)
+            setToolTipText(s"Hit Count: ${item.hitCount}")
+            setEnabled(isRowEnabled(item))
+          }
+      },
+      new OrderByColumnInfo[LeetCodeQuestionSolutionArticle, String]("UpVote") {
+        override def getPreferredStringValue: String                        = "x".repeat(5)
+        override def valueOf(item: LeetCodeQuestionSolutionArticle): String = s"${item.upVote.getOrElse(0)}"
+
+        override def getRenderer(item: LeetCodeQuestionSolutionArticle): TableCellRenderer =
+          new DefaultTableCellRenderer() {
+            setHorizontalAlignment(SwingConstants.RIGHT)
+            setToolTipText(s"UpVote count: ${item.upVote.getOrElse(0)}")
+            setEnabled(isRowEnabled(item))
+          }
+      },
+      new OrderByColumnInfo[LeetCodeQuestionSolutionArticle, String]("Created At") {
+        override def getPreferredStringValue: String = "yyyy-MM-dd HH:mm:ss"
+
+        override def valueOf(item: LeetCodeQuestionSolutionArticle): String =
+          s"${ZonedDateTime.parse(item.createdAt).toLocalDateTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))}"
+
+        override def getRenderer(item: LeetCodeQuestionSolutionArticle): TableCellRenderer =
+          new DefaultTableCellRenderer() {
+            setEnabled(isRowEnabled(item))
+          }
+      }
+    )
+  }
 }
 
 object LeetCodeSolutionArticlesPresenter {

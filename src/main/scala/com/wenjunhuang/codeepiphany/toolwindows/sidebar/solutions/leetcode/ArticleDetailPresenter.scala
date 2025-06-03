@@ -1,24 +1,23 @@
 package com.wenjunhuang.codeepiphany.toolwindows.sidebar.solutions.leetcode
-import cats.effect.{Async, IO}
 import cats.effect.std.Queue
+import cats.effect.{ Async, IO }
 import cats.syntax.all.*
-import fs2.Stream
-import java.awt.event.{MouseWheelEvent, MouseWheelListener}
-import java.net.URI
-import javax.swing.JComponent
-import org.apache.commons.text.StringEscapeUtils
-import org.typelevel.log4cats.LoggerFactory
-import scala.concurrent.duration.*
-
-import com.intellij.openapi.util.Disposer
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.project.Project
-
+import com.intellij.openapi.util.Disposer
 import com.wenjunhuang.codeepiphany.leetcode.models.LeetCodeQuestionSolutionArticle
 import com.wenjunhuang.codeepiphany.leetcode.services.LeetCodeApi
 import com.wenjunhuang.codeepiphany.model.CodeDojo
-import com.wenjunhuang.codeepiphany.utils.{BrowserUtils, CancellableStream}
 import com.wenjunhuang.codeepiphany.utils.syntax.*
+import com.wenjunhuang.codeepiphany.utils.{ BrowserUtils, CancellableStream }
+import fs2.Stream
+import org.apache.commons.text.StringEscapeUtils
+import org.typelevel.log4cats.LoggerFactory
+
+import java.net.URI
+import javax.swing.JComponent
+import scala.concurrent.duration.*
+import com.wenjunhuang.codeepiphany.utils.extensions.*
 
 class ArticleDetailPresenter(
   private val myProject: Project,
@@ -63,7 +62,8 @@ class ArticleDetailPresenter(
               myView.setArticleContent(Some((content, myCodeDojo)))
             }.evalOnEDTDefault()
           }
-          .recoverWith { e => myLogger.error(e)(s"Failed to show LeetCode solutions of ${article.slug}") }
+          .evalAsBackgroundProgress(myProject, s"Opening ${myCodeDojo.show} solution article")
+          .recoverWith { e => myLogger.error(e)(s"Failed to show ${myCodeDojo.show} solutions of ${article.slug}") }
       )
       .interruptWhen(ctx.signal)
       .compile

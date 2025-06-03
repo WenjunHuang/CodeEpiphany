@@ -5,6 +5,7 @@ import com.vladsch.flexmark.util.data.MutableDataSet
 import sbt.librarymanagement.VersionNumber.SemVer
 import scala.io.Source
 import scala.util.Using
+import scala.sys.process._
 
 ThisBuild / scalaVersion     := "3.7.0"
 ThisBuild / intellijPlatform := versions.intellijPlatform
@@ -19,6 +20,49 @@ def markdownToHtml(file: File): String = {
     val document = parser.parse(markdownSource.mkString)
     renderer.render(document)
   }.get
+}
+
+// Custom task to build webview with npm
+lazy val buildWebview = taskKey[Unit]("Build webview using npm")
+
+buildWebview := {
+  val log = streams.value.log
+  val webviewDir = baseDirectory.value / "webview"
+  val targetDir = target.value / "webviewResources"
+  
+  log.info("Building webview with npm...")
+  
+  // Check if package.json exists
+  if (!(webviewDir / "package.json").exists()) {
+    log.warn(s"package.json not found in ${webviewDir.getAbsolutePath}")
+  } else {
+    // Determine npm command based on OS
+    val npmCmd = if (System.getProperty("os.name").toLowerCase.contains("windows")) "npm.cmd" else "npm"
+    
+    // Check if node_modules exists, if not run npm install
+    if (!(webviewDir / "node_modules").exists()) {
+      log.info("node_modules not found, running npm install...")
+      val installResult = Process(s"$npmCmd install", webviewDir).!
+      if (installResult != 0) {
+        throw new MessageOnlyException("npm install failed")
+      }
+    }
+    
+    // Run npm run build
+    val buildResult = Process(s"$npmCmd run build", webviewDir).!
+    if (buildResult != 0) {
+      throw new MessageOnlyException("npm run build failed")
+    }
+    
+    // Verify that build output exists
+    if (targetDir.exists()) {
+      log.info(s"Webview build output found at ${targetDir.getAbsolutePath}")
+    } else {
+      log.warn(s"Build output directory ${targetDir.getAbsolutePath} not found")
+    }
+    
+    log.info("Webview build completed successfully")
+  }
 }
 
 lazy val codeEpiphany = (project in file("."))
@@ -55,6 +99,8 @@ lazy val codeEpiphany = (project in file("."))
       xml.changeNotes = s"<![CDATA[${markdownToHtml(baseDirectory.value / "CHANGELOG.md")}]]>"
       xml.pluginDescription = s"<![CDATA[${markdownToHtml(baseDirectory.value / "DESCRIPTION.md")}]]>"
     },
+    // Make buildWebview run before compile
+    Compile / compile := (Compile / compile).dependsOn(buildWebview).value,
     libraryDependencies ++= Seq(
       // add scala reflect
       "org.typelevel"           %% "cats-effect"              % "3.6.1",
@@ -91,6 +137,7 @@ lazy val codeEpiphany = (project in file("."))
       "io.monix"                %% "newtypes-circe-v0-14"     % "0.3.0",
       "com.github.cb372"        %% "cats-retry"               % "4.0.0",
       "com.github.weisj"         % "jsvg"                     % "2.0.0",
+      "org.apache.commons"       % "commons-text"             % "1.13.1",
       // add jooq and sqlite,
       "org.jooq"            % "jooq"                          % "3.19.18",
       "org.reactivestreams" % "reactive-streams"              % "1.0.4",
@@ -112,7 +159,6 @@ lazy val codeEpiphany = (project in file("."))
         .exclude("org.typelevel", "log4cats-slf4j_3")
         .exclude("org.jetbrains.kotlin", "*")
     ),
-    // copy all graphql files in src/main/scala to target when compile
     Compile / unmanagedSourceDirectories += baseDirectory.value / "gen",
     Compile / unmanagedSourceDirectories += baseDirectory.value / "src" / "main" / "jooq-generated",
     Compile / unmanagedSourceDirectories ++= {

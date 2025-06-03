@@ -43,6 +43,9 @@
             <action id="CodeEpiphany.Actions.ActivateSolutionsView"
                     class="com.wenjunhuang.codeepiphany.actions.ActivateSolutionsViewAction"
                     icon="CodeEpiphanyIcons.SOLUTION"/>
+            <action id="CodeEpiphany.Actions.ActivateNotesView"
+                    class="com.wenjunhuang.codeepiphany.actions.ActivateNotesViewAction"
+                    icon="CodeEpiphanyIcons.NOTE"/>
             <action id="CodeEpiphany.Actions.ActivateSubmissionsView"
                     class="com.wenjunhuang.codeepiphany.actions.ActivateSubmissionsViewAction"
                     icon="CodeEpiphanyIcons.SUBMISSIONS"/>
@@ -110,6 +113,7 @@
             <reference ref="CodeEpiphany.Actions.SurroundSubmissionRegion"/>
             <reference ref="CodeEpiphany.Actions.SolutionSelection"/>
             <reference ref="CodeEpiphany.Actions.ActivateSolutionsView"/>
+            <reference ref="CodeEpiphany.Actions.ActivateNotesView"/>
             <reference ref="CodeEpiphany.Actions.ActivateDescriptionView"/>
             <reference ref="CodeEpiphany.Actions.ActivateSubmissionsView"/>
         </group>
@@ -120,6 +124,7 @@
             <reference ref="CodeEpiphany.Actions.SurroundSubmissionRegion"/>
             <reference ref="CodeEpiphany.Actions.SolutionSelection"/>
             <reference ref="CodeEpiphany.Actions.ActivateSolutionsView"/>
+            <reference ref="CodeEpiphany.Actions.ActivateNotesView"/>
             <reference ref="CodeEpiphany.Actions.ActivateDescriptionView"/>
             <reference ref="CodeEpiphany.Actions.ActivateSubmissionsView"/>
         </group>

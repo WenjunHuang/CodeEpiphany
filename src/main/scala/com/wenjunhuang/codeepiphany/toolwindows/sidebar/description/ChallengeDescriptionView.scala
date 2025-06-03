@@ -27,7 +27,7 @@ class ChallengeDescriptionView(private val myPresenter: ChallengeDescriptionPres
     with UiDataProvider
     with WebviewActionProvider
     with Disposable {
-  private val myViewer = JCefDescriptionView(myPresenter, this, myProject)
+  private val myViewer = DescriptionJCefView(myPresenter, this, myProject)
 
   private val MOUSE_WHEEL_LISTENER = new MouseWheelListener {
     override def mouseWheelMoved(e: MouseWheelEvent): Unit =

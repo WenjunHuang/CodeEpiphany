@@ -27,7 +27,7 @@ class ArticleDetailView(private val myPresenter: ArticleDetailPresenter, private
     with UiDataProvider
     with WebviewActionProvider
     with Disposable {
-  private val myView = JCefLeetCodeArticleView(myPresenter, this, myProject)
+  private val myView = ArticleJCefView(myPresenter, this, myProject)
 
   private val MOUSE_WHEEL_LISTENER = new MouseWheelListener {
     override def mouseWheelMoved(e: MouseWheelEvent): Unit =

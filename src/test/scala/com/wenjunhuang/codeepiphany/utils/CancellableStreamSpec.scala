@@ -1,11 +1,12 @@
 package com.wenjunhuang.codeepiphany.utils
 
-import cats.effect.{IO, Ref}
-import cats.effect.kernel.Resource.{canceled, ExitCase}
+import cats.effect.kernel.Resource.{ExitCase, canceled}
 import cats.effect.testing.scalatest.AsyncIOSpec
+import cats.effect.{IO, Ref}
 import fs2.Stream
 import org.scalatest.freespec.AsyncFreeSpec
 import org.scalatest.matchers.should.Matchers
+
 import scala.concurrent.duration.*
 
 class CancellableStreamSpec extends AsyncFreeSpec with AsyncIOSpec with Matchers {

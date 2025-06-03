@@ -36,6 +36,9 @@ object CodeEpiphanyIcons {
   val SOLUTION: Icon = IconLoader.getIcon("/icons/solution.svg", CodeEpiphanyIcons.getClass.getClassLoader)
 
   @static
+  val NOTE: Icon = IconLoader.getIcon("/icons/note.svg", CodeEpiphanyIcons.getClass.getClassLoader)
+
+  @static
   val SUBMISSIONS: Icon = IconLoader.getIcon("/icons/submissions.svg", CodeEpiphanyIcons.getClass.getClassLoader)
 
   @static

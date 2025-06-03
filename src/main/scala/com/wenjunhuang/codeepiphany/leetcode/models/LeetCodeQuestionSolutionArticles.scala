@@ -2,7 +2,7 @@ package com.wenjunhuang.codeepiphany.leetcode.models
 
 import cats.Show
 import io.circe.derivation.ConfiguredCodec
-import io.circe.{Decoder, DecodingFailure, Encoder, HCursor, Json, JsonObject}
+import io.circe.{ Decoder, DecodingFailure, Encoder, HCursor, Json, JsonObject }
 import io.circe.Decoder.Result
 
 import com.wenjunhuang.codeepiphany.utils.AsyncAvatarLoader
@@ -23,7 +23,7 @@ case class LeetCodeQuestionSolutionArticleAuthor(
   userSlug: String,
   realName: String
 ) {
-  lazy val avatarIcon = new AsyncAvatarLoader(username,userAvatar, 20)
+  lazy val avatarIcon = new AsyncAvatarLoader(username, userAvatar, 20)
 }
 
 object LeetCodeQuestionSolutionArticleAuthor {
@@ -78,11 +78,13 @@ case class LeetCodeQuestionSolutionArticle(
   hitCount: Int,
   videosInfo: List[LeetCodeQuestionSolutionArticleVideoInfo] = Nil
 ) derives ConfiguredCodec {
-   def upVote:Option[Int] = {
+  def upVote: Option[Int] = {
     reactions
-      .find((element) => element.reactionType.toUpperCase() == "UPVOTE")
+      .find(element => element.reactionType.toUpperCase() == "UPVOTE")
       .map(_.count)
   }
+
+  def isPremium: Boolean = chargeType.toUpperCase() == "PREMIUM"
 }
 
 case class LeetCodeQuestionSolutionArticleEdge(node: LeetCodeQuestionSolutionArticle) derives ConfiguredCodec
@@ -99,9 +101,9 @@ enum LeetCodeQuestionSolutionArticlesOrderBy(val leetCodeCN: String, val leetCod
 object LeetCodeQuestionSolutionArticlesOrderBy {
   implicit val show: Show[LeetCodeQuestionSolutionArticlesOrderBy] = {
     case LeetCodeQuestionSolutionArticlesOrderBy.MostUpvote => "Most Upvoted"
-    case LeetCodeQuestionSolutionArticlesOrderBy.Hot => "Hot"
-    case LeetCodeQuestionSolutionArticlesOrderBy.Newest => "Newest"
-    case LeetCodeQuestionSolutionArticlesOrderBy.Oldest => "Oldest"
+    case LeetCodeQuestionSolutionArticlesOrderBy.Hot        => "Hot"
+    case LeetCodeQuestionSolutionArticlesOrderBy.Newest     => "Newest"
+    case LeetCodeQuestionSolutionArticlesOrderBy.Oldest     => "Oldest"
   }
 }
 

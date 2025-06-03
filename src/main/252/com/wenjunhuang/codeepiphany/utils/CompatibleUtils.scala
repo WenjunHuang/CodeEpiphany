@@ -1,8 +1,7 @@
 package com.wenjunhuang.codeepiphany.utils
 
 import java.net.*
-
-import com.intellij.openapi.actionSystem.{ActionGroup, ActionToolbar, AnAction}
+import com.intellij.openapi.actionSystem.{ActionGroup, ActionManager, ActionToolbar, AnAction, DefaultActionGroup}
 import com.intellij.openapi.actionSystem.toolbarLayout.ToolbarLayoutStrategy
 import com.intellij.util.net.*
 
@@ -28,6 +27,11 @@ object CompatibleUtils {
     ideaProxySelector
   }
 
-  inline def getActionGroupChildren(actionGroup: ActionGroup): List[AnAction] =
-    actionGroup.getChildren(null).toList
+  inline def getActionGroupChildren(actionGroup: ActionGroup): List[AnAction] = {
+    actionGroup match{
+      case dag:DefaultActionGroup =>
+        dag.getChildren(ActionManager.getInstance()).toList
+      case _ => Nil
+    }
+  }
 }

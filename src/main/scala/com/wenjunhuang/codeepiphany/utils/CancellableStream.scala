@@ -1,12 +1,11 @@
 package com.wenjunhuang.codeepiphany.utils
 
-import cats.effect.{ IO, Resource }
 import cats.effect.std.Queue
+import cats.effect.{IO, Resource}
 import fs2.Stream
 import fs2.concurrent.SignallingRef
 
 import scala.concurrent.duration.FiniteDuration
-import scala.concurrent.duration.DurationInt
 
 object CancellableStream {
   case class StreamContext[T](value: T, signal: SignallingRef[IO, Boolean])
