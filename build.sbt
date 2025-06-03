@@ -1,11 +1,10 @@
-import sbtjooq.codegen.CodegenMode.Unmanaged
 import com.vladsch.flexmark.html.HtmlRenderer
 import com.vladsch.flexmark.parser.Parser
 import com.vladsch.flexmark.util.data.MutableDataSet
-import sbt.librarymanagement.VersionNumber.SemVer
+import sbtjooq.codegen.CodegenMode.Unmanaged
 import scala.io.Source
+import scala.sys.process.*
 import scala.util.Using
-import scala.sys.process._
 
 ThisBuild / scalaVersion     := "3.7.0"
 ThisBuild / intellijPlatform := versions.intellijPlatform

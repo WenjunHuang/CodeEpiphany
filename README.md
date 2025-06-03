@@ -80,3 +80,7 @@
 💡立即使用 **LeetCode Epiphany**，开启您的算法征服之旅！
 
 ---
+
+**现已推出安卓版本！** 📱 从 [Google Play](https://play.google.com/store/apps/details?id=com.wenjunhuang.codeepiphanyapp) 下载我们的移动应用，随时随地刷题练习。您的支持是我们前进的动力！
+
+[<img src="https://play.google.com/intl/en_us/badges/static/images/badges/zh-cn_badge_web_generic.png" width="200" alt="Get it on Google Play">](https://play.google.com/store/apps/details?id=com.wenjunhuang.codeepiphanyapp)

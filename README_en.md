@@ -87,4 +87,8 @@ Explanation:
 
 💡Start your journey to mastering algorithms and coding challenges with **LeetCode Epiphany** today!
 
---- 
+---
+
+**Now available on Android!** 📱 Download our mobile app from [Google Play](https://play.google.com/store/apps/details?id=com.wenjunhuang.codeepiphanyapp) to practice coding challenges on the go. Your support means a lot to us! 
+
+[<img src="https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png" width="200" alt="Get it on Google Play">](https://play.google.com/store/apps/details?id=com.wenjunhuang.codeepiphanyapp) 

@@ -1,3 +1,8 @@
+## 1.2.1
+### Modified
+- Fix chinese translation issues
+- Modify readme and description documentation
+
 ## 1.2.0
 ### Added
 - LeetCode and LeetCodeCN official solutions view support
