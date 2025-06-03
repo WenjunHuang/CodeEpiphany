@@ -3,6 +3,7 @@ package com.wenjunhuang.codeepiphany.utils.jcef
 import cats.effect.{IO, Resource}
 import cats.syntax.all.*
 import fs2.concurrent.SignallingRef
+
 import java.util as ju
 import java.nio.ByteBuffer
 import java.util.concurrent.ArrayBlockingQueue
@@ -15,17 +16,19 @@ import org.http4s.{Headers, Method, Status, Uri}
 import org.http4s.client.dsl.Http4sClientDsl
 import org.http4s.headers.{`Content-Length`, `Content-Type`}
 import org.typelevel.log4cats.{Logger, LoggerFactory}
+
 import scala.jdk.CollectionConverters.*
-
 import com.intellij.openapi.project.Project
-
 import com.wenjunhuang.codeepiphany.services.http.HttpClientService
 import com.wenjunhuang.codeepiphany.utils.*
 import com.wenjunhuang.codeepiphany.utils.extensions.*
 import com.wenjunhuang.codeepiphany.utils.syntax.*
 import com.wenjunhuang.codeepiphany.utils.jcef.CefRemoteRequestHandler.createResourceRequestHandler
 
-class CefRemoteRequestHandler(private val project: Project) extends CefRequestHandlerAdapter {
+import scala.util.matching.Regex
+
+open class CefRemoteRequestHandler(private val project: Project,
+                                   private val matcher:Regex) extends CefRequestHandlerAdapter {
   override def getResourceRequestHandler(
     browser: CefBrowser,
     frame: CefFrame,
@@ -34,7 +37,14 @@ class CefRemoteRequestHandler(private val project: Project) extends CefRequestHa
     isDownload: Boolean,
     requestInitiator: String,
     disableDefaultHandling: BoolRef
-  ): CefResourceRequestHandler = createResourceRequestHandler(project)
+  ): CefResourceRequestHandler = {
+    if (matcher.matches(request.getURL)) {
+      // If the URL matches the regex, we handle it locally
+      createResourceRequestHandler(project)
+    } else {
+      null
+    }
+  }
 }
 
 object CefRemoteRequestHandler {

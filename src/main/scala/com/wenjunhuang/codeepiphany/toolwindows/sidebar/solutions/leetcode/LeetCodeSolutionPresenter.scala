@@ -72,7 +72,7 @@ class LeetCodeSolutionPresenter(
               myView.removeAll()
               myView.addToCenter(
                 new JBLabel(
-                  s"Loading solutions for $questionSlug...",
+                  s"Loading solutions ...",
                   AnimatedIcon.Default.INSTANCE,
                   SwingConstants.CENTER
                 )

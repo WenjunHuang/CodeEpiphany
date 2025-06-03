@@ -43,13 +43,6 @@ class DescriptionJCefView(
 
   override protected def getIndexPath: String = "challengeDescription/index.html"
 
-  override protected def getTemplateVariables: Map[String, String] = {
-    Map(
-      DESCRIPTION_CONTENT -> myContent.map(_._1).getOrElse("No challenge selected 🌟"),
-      EXTRA_HEADER        -> myContent.map(_._2).map(CodoDojoHeaders.getHeader).getOrElse("")
-    )
-  }
-
   @volatile
   var myContent: Option[(String, CodeDojo)] = None
   def setDescription(content: Option[(String, CodeDojo)]): Unit = {

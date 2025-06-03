@@ -4,9 +4,7 @@
 ## LeetCode Epiphany 🌟
 
 [![CI](https://github.com/WenjunHuang/CodeEpiphany/actions/workflows/ci.yml/badge.svg)](https://github.com/WenjunHuang/CodeEpiphany/actions/workflows/ci.yml)
-[![Release](https://github.com/WenjunHuang/CodeEpiphany/actions/workflows/release.yml/badge.svg)](https://github.com/WenjunHuang/CodeEpiphany/actions/workflows/release.yml)
 [![License](https://img.shields.io/github/license/WenjunHuang/CodeEpiphany)](LICENSE)
-[![GitHub release](https://img.shields.io/github/v/release/WenjunHuang/CodeEpiphany)](https://github.com/WenjunHuang/CodeEpiphany/releases)
 [![GitHub issues](https://img.shields.io/github/issues/WenjunHuang/CodeEpiphany)](https://github.com/WenjunHuang/CodeEpiphany/issues)
 
 **专为JetBrains IDE设计的全功能插件，助您高效应对编程挑战**

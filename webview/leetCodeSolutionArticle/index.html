@@ -5,18 +5,18 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>Article</title>
 </head>
-<body  data-overlayscrollbars-initialize>
+<body data-overlayscrollbars-initialize>
 <div id="container">
 
 </div>
 </body>
 <script type="module" defer>
     import showSolutionArticle from "./app.ts";
-    showSolutionArticle(content,getIframeUrl);
-
+    showSolutionArticle(content, codeDojo,getIframeUrl);
 </script>
 <script>
     const content = "{{articleContent}}";
+    const codeDojo = "{{codeDojo}}";
     const getIframeUrl = "{{getIframeUrl}}";
 </script>
 </html>

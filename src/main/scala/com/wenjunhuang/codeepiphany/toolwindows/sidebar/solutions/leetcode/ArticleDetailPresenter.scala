@@ -18,6 +18,11 @@ import java.net.URI
 import javax.swing.JComponent
 import scala.concurrent.duration.*
 import com.wenjunhuang.codeepiphany.utils.extensions.*
+import org.apache.commons.lang3.StringUtils
+import org.apache.commons.text.translate.{ AggregateTranslator, LookupTranslator, OctalUnescaper, UnicodeUnescaper }
+
+import java.util.Collections
+import scala.jdk.CollectionConverters.*
 
 class ArticleDetailPresenter(
   private val myProject: Project,
@@ -50,20 +55,24 @@ class ArticleDetailPresenter(
   }
 
   private def processQuery(ctx: CancellableStream.StreamContext[LeetCodeQuestionSolutionArticle]): IO[Unit] = {
-    val article = ctx.value
-    myLogger.info(s"Processing article: ${article.slug}")
+    val articleItem = ctx.value
+    myLogger.info(s"Processing article: ${articleItem.slug}")
     Stream
       .eval(
         LeetCodeApi(myCodeDojo, myProject)
-          .getSolutionArticle(article.slug)
+          .getSolutionArticle(articleItem.slug)
           .flatMap { article =>
             IO.delay {
-              val content = StringEscapeUtils.unescapeJava(article.content)
+              val content =
+                if (myCodeDojo == CodeDojo.LeetCode) ArticleDetailPresenter.UNESCAPE_LEETCODE.translate(article.content)
+                else article.content
               myView.setArticleContent(Some((content, myCodeDojo)))
             }.evalOnEDTDefault()
           }
           .evalAsBackgroundProgress(myProject, s"Opening ${myCodeDojo.show} solution article")
-          .recoverWith { e => myLogger.error(e)(s"Failed to show ${myCodeDojo.show} solutions of ${article.slug}") }
+          .recoverWith { e =>
+            myLogger.error(e)(s"Failed to show ${myCodeDojo.show} solutions of ${articleItem.title}")
+          }
       )
       .interruptWhen(ctx.signal)
       .compile
@@ -80,4 +89,14 @@ class ArticleDetailPresenter(
   }
 
   def getView: JComponent = myView
+}
+
+object ArticleDetailPresenter {
+  private val UNESCAPE_LEETCODE = new AggregateTranslator(
+    new OctalUnescaper(), // .between('\1', '\377'),
+    new UnicodeUnescaper(),
+    new LookupTranslator(
+      Collections.unmodifiableMap(Map("\\n" -> "\n", "\\\\" -> "\\", "\\\"" -> "\"", "\\'" -> "'").asJava)
+    )
+  )
 }

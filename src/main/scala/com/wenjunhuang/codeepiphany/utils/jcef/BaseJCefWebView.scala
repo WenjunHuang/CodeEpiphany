@@ -4,13 +4,13 @@ import cats.effect.SyncIO
 import com.intellij.ide.ui.LafManagerListener
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.application.ApplicationManager
-import com.intellij.openapi.editor.colors.{EditorColorsListener, EditorColorsManager}
+import com.intellij.openapi.editor.colors.{ EditorColorsListener, EditorColorsManager }
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
 import com.intellij.ui.jcef.*
 import com.wenjunhuang.codeepiphany.services.WebViewStyleProvider
 import com.wenjunhuang.codeepiphany.utils.syntax.*
-import com.wenjunhuang.codeepiphany.utils.{ResourceHttpServer, isDebug}
+import com.wenjunhuang.codeepiphany.utils.{ isDebug, ResourceHttpServer }
 import io.circe.*
 import io.circe.generic.auto.*
 import io.circe.parser.parse
@@ -18,7 +18,7 @@ import org.cef.browser.*
 import org.cef.handler.*
 import org.cef.network.CefRequest
 import org.intellij.lang.annotations.Language
-import org.typelevel.log4cats.{Logger, LoggerFactory}
+import org.typelevel.log4cats.{ Logger, LoggerFactory }
 
 import javax.swing.JComponent
 
@@ -52,7 +52,7 @@ abstract class BaseJCefWebView(
 
   // Browser and state management
   private val myBrowser: JBCefBrowser = createBrowser()
-  protected var myState: ViewerState = ViewerState()
+  protected var myState: ViewerState  = ViewerState()
   private val myViewerStateJSQuery    = createJSQuery()
 
   // Event handlers
@@ -63,7 +63,7 @@ abstract class BaseJCefWebView(
         execute(s"window.sendInfo = function(info_text) {${myViewerStateJSQuery.inject("info_text")};}")
   }
 
-  private val myRequestHandlerAdapter = new CefRequestHandlerAdapter() {
+  private val myRequestHandlerAdapter = new CefRemoteRequestHandler(myProject) {
     override def onBeforeBrowse(
       browser: CefBrowser,
       frame: CefFrame,
@@ -71,7 +71,7 @@ abstract class BaseJCefWebView(
       user_gesture: Boolean,
       is_redirect: Boolean
     ): Boolean = {
-      if user_gesture then
+      if frame.isMain && user_gesture && !is_redirect then
         onUserClickedLink(request.getURL)
         true
       else false
@@ -85,7 +85,6 @@ abstract class BaseJCefWebView(
       target_url: String,
       target_frame_name: String
     ): Boolean = {
-      onUserClickedLink(target_url)
       true
     }
   }
@@ -100,7 +99,6 @@ abstract class BaseJCefWebView(
   protected def setupHttpServer(): Unit
   protected def onUserClickedLink(url: String): Unit
   protected def getIndexPath: String
-  protected def getTemplateVariables: Map[String, String]
 
   // Initialize HTTP server
   setupHttpServer()

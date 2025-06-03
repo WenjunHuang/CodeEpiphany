@@ -36,6 +36,10 @@ class ArticleJCefView(
             Base64.getEncoder.encodeToString(
               myContent.map(_._1).getOrElse("No article selected 🌟").getBytes(StandardCharsets.UTF_8)
             ),
+          CODEDOJO ->
+            Base64.getEncoder.encodeToString(
+              myContent.map(_._2.value).getOrElse("").getBytes(StandardCharsets.UTF_8)
+            ),
           GET_IFRAME_URL -> ""
         )
       }
@@ -48,15 +52,6 @@ class ArticleJCefView(
 
   override protected def getIndexPath: String = "leetCodeSolutionArticle/index.html"
 
-  override protected def getTemplateVariables: Map[String, String] = {
-    Map(
-      ARTICLE_CONTENT ->
-        Base64.getEncoder.encodeToString(
-          myContent.map(_._1).getOrElse("No article selected 🌟").getBytes(StandardCharsets.UTF_8)
-        ),
-      GET_IFRAME_URL -> ""
-    )
-  }
 
   @volatile
   var myContent: Option[(String, CodeDojo)] = None
@@ -69,5 +64,6 @@ class ArticleJCefView(
 
 object ArticleJCefView {
   private val ARTICLE_CONTENT = "{{articleContent}}"
+  private val CODEDOJO = "{{codeDojo}}"
   private val GET_IFRAME_URL  = "{{getIframeUrl}}"
 }
