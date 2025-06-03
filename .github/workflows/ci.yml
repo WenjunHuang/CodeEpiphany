@@ -1,0 +1,67 @@
+name: CI
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    strategy:
+      matrix:
+        java-version: [17, 21]
+        
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Java ${{ matrix.java-version }}
+      uses: actions/setup-java@v4
+      with:
+        java-version: ${{ matrix.java-version }}
+        distribution: 'temurin'
+        
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        cache-dependency-path: webview/package-lock.json
+        
+    - name: Cache SBT dependencies
+      uses: actions/cache@v4
+      with:
+        path: |
+          ~/.sbt
+          ~/.ivy2/cache
+          ~/.cache/coursier
+        key: ${{ runner.os }}-sbt-${{ hashFiles('**/build.sbt', 'project/build.properties', 'project/plugins.sbt') }}
+        restore-keys: |
+          ${{ runner.os }}-sbt-
+          
+    - name: Install npm dependencies
+      run: |
+        cd webview
+        npm ci
+        
+    - name: Build webview
+      run: |
+        cd webview
+        npm run build
+        
+    - name: Run tests
+      run: sbt test
+      
+    - name: Build plugin
+      run: sbt buildPlugin
+      
+    - name: Upload build artifacts
+      if: matrix.java-version == '17'
+      uses: actions/upload-artifact@v4
+      with:
+        name: plugin-artifact
+        path: target/*.zip
+        retention-days: 30 
