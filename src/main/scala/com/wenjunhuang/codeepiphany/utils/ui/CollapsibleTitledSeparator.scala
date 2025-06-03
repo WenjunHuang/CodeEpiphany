@@ -9,7 +9,7 @@ import com.intellij.openapi.util.IconLoader
 import com.intellij.ui.TitledSeparator
 import com.intellij.util.ui.{IndentedIcon, UIUtil}
 
-import com.wenjunhuang.codeepiphany.utils.implicits.*
+import com.wenjunhuang.codeepiphany.utils.syntax.*
 
 class CollapsibleTitledSeparator(title: String,expanded:Boolean = true) extends TitledSeparator(title) {
   private val myExpanded = AtomicBooleanProperty(expanded)

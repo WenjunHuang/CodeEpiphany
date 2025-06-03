@@ -4,8 +4,8 @@ import cats.effect.IO
 import cats.effect.std.Queue
 import cats.syntax.all.*
 import fs2.Stream
-import java.awt.{BorderLayout, Font}
-import java.awt.datatransfer.{DataFlavor, StringSelection}
+import java.awt.{ BorderLayout, Font }
+import java.awt.datatransfer.{ DataFlavor, StringSelection }
 import java.awt.event.ActionEvent
 import java.net.HttpCookie
 import javax.swing.*
@@ -25,27 +25,27 @@ import com.intellij.openapi.actionSystem.*
 import com.intellij.openapi.editor.colors.impl.AppEditorFontOptions
 import com.intellij.openapi.ide.CopyPasteManager
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.ui.{ComponentValidator, DialogPanel, DialogWrapper, ValidationInfo}
+import com.intellij.openapi.ui.{ ComponentValidator, DialogPanel, DialogWrapper, ValidationInfo }
 import com.intellij.openapi.util.Disposer
-import com.intellij.ui.{AnimatedIcon, DocumentAdapter, PopupHandler}
-import com.intellij.ui.components.{JBScrollPane, JBTextArea}
-import com.intellij.ui.jcef.{JBCefBrowser, JBCefBrowserBuilder}
-import com.intellij.ui.tabs.{JBTabsEx, JBTabsFactory, TabInfo, TabsListener}
+import com.intellij.ui.{ AnimatedIcon, DocumentAdapter, PopupHandler }
+import com.intellij.ui.components.{ JBScrollPane, JBTextArea }
+import com.intellij.ui.jcef.{ JBCefBrowser, JBCefBrowserBuilder }
+import com.intellij.ui.tabs.{ JBTabsEx, JBTabsFactory, TabInfo, TabsListener }
 import com.intellij.util.ui.JBUI
 
 import com.wenjunhuang.codeepiphany.PluginBundle
 import com.wenjunhuang.codeepiphany.model.CodeDojo
-import com.wenjunhuang.codeepiphany.services.{AskForLoginResult, AuthService}
-import com.wenjunhuang.codeepiphany.services.http.{HttpClientManager, HttpClientService}
-import com.wenjunhuang.codeepiphany.utils.actions.{DataSink, UiDataProvider}
-import com.wenjunhuang.codeepiphany.utils.implicits.*
+import com.wenjunhuang.codeepiphany.services.{ AskForLoginResult, AuthService }
+import com.wenjunhuang.codeepiphany.services.http.{ HttpClientManager, HttpClientService }
+import com.wenjunhuang.codeepiphany.utils.actions.{ DataSink, UiDataProvider }
+import com.wenjunhuang.codeepiphany.utils.syntax.*
 import com.wenjunhuang.codeepiphany.utils.isDebug
 
 class LoginDialog(
   private val myProject: Project,
   private val myCodeDojo: CodeDojo,
   private val myLoginCallback: Either[Throwable, AskForLoginResult] => Unit
-) extends DialogWrapper(myProject, false, DialogWrapper.IdeModalityType.MODELESS) {
+) extends DialogWrapperBridge(myProject, false, DialogWrapper.IdeModalityType.MODELESS) {
   private val myLogger = LoggerFactory[IO].getLogger
   private val myTabs   = JBTabsFactory.createTabs(myProject, myDisposable).asInstanceOf[JBTabsEx]
 
@@ -104,39 +104,37 @@ class LoginDialog(
   private implicit val myHttpClientKeeper: HttpClientManager[IO] =
     HttpClientService.getInstance(myProject).httpClientManager
 
-  private val myOkAction: OkAction = new OkAction {
-    override def doAction(e: ActionEvent): Unit = {
-      val text = myCookieText.getText
-      myCookieText.setEnabled(false)
-      myOkAction.setEnabled(false)
-      myOkAction.putValue(Action.SMALL_ICON, AnimatedIcon.Default.INSTANCE)
-      myOkAction.putValue(Action.NAME, PluginBundle.message("loginDialog.validating"))
+  override protected def onOkAction(event: ActionEvent): Unit = {
+    val text = myCookieText.getText
+    myCookieText.setEnabled(false)
+    myOkAction.setEnabled(false)
+    myOkAction.putValue(Action.SMALL_ICON, AnimatedIcon.Default.INSTANCE)
+    myOkAction.putValue(Action.NAME, PluginBundle.message("loginDialog.validating"))
 
-      AuthService
-        .getInstance(myProject)
-        .validateUserCookieAndTestLogin[IO](myCodeDojo, text)
-        .flatMap {
-          case true =>
-            IO.delay(close(DialogWrapper.OK_EXIT_CODE, true))
-              .evalOnEDTAny() *>
-              IO.delay(myLoginCallback(Right(AskForLoginResult.Done)))
-          case false =>
-            IO.delay {
-              ComponentValidator
-                .getInstance(myCookieText)
-                .ifPresent(v =>
-                  v.updateInfo(ValidationInfo(PluginBundle.message("loginDialog.cookie.error"), myCookieText))
-                )
+    AuthService
+      .getInstance(myProject)
+      .validateUserCookieAndTestLogin[IO](myCodeDojo, text)
+      .flatMap {
+        case true =>
+          IO.delay(close(DialogWrapper.OK_EXIT_CODE, true))
+            .evalOnEDTAny() *>
+            IO.delay(myLoginCallback(Right(AskForLoginResult.Done)))
+        case false =>
+          IO.delay {
+            ComponentValidator
+              .getInstance(myCookieText)
+              .ifPresent(v =>
+                v.updateInfo(ValidationInfo(PluginBundle.message("loginDialog.cookie.error"), myCookieText))
+              )
 
-              myCookieText.setEnabled(true)
-              myCookieText.requestFocus()
-              myOkAction.setEnabled(true)
-              myOkAction.putValue(Action.SMALL_ICON, null)
-              myOkAction.putValue(Action.NAME, PluginBundle.message("loginDialog.ok"))
-            }.evalOnEDTAny()
-        }
-        .unsafeRunAndForget()
-    }
+            myCookieText.setEnabled(true)
+            myCookieText.requestFocus()
+            myOkAction.setEnabled(true)
+            myOkAction.putValue(Action.SMALL_ICON, null)
+            myOkAction.putValue(Action.NAME, PluginBundle.message("loginDialog.ok"))
+          }.evalOnEDTAny()
+      }
+      .unsafeRunAndForget()
   }
 
   private val myDialogPane = DialogPanel(BorderLayout())
@@ -154,8 +152,6 @@ class LoginDialog(
   override def doCancelAction(): Unit =
     myLoginCallback(Right(AskForLoginResult.Cancelled))
     super.doCancelAction()
-
-  override def getOKAction: Action = myOkAction
 
   override def createActions(): Array[Action] = {
     val helpAction: Action = new AbstractAction(PluginBundle.message("loginDialog.help")) {
@@ -247,7 +243,7 @@ class LoginDialog(
         _ <- Stream
           .fromQueueUnterminated(queue)
           .evalTap { cc =>
-            myLogger.info(s"Cookie processing stream received ${cc}")
+            myLogger.info(s"Cookie processing stream received $cc")
           }
           .mapAccumulate(Nil: List[HttpCookie]) {
             case (acc, CookieCheck.Add(cookie)) =>
@@ -278,7 +274,7 @@ class LoginDialog(
               else myLogger.info(s"Browser login failed due to no candidate cookie. CodeDojo:$myCodeDojo")
             }
           }
-          .onFinalizeCase { existCase => myLogger.info(s"Cookie processing stream finalized because of ${existCase}") }
+          .onFinalizeCase { existCase => myLogger.info(s"Cookie processing stream finalized because of $existCase") }
           .compile
           .drain
       yield ()).unsafeRunCancelable()

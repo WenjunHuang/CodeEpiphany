@@ -43,6 +43,9 @@
             <action id="CodeEpiphany.Actions.ActivateSolutionsView"
                     class="com.wenjunhuang.codeepiphany.actions.ActivateSolutionsViewAction"
                     icon="CodeEpiphanyIcons.SOLUTION"/>
+            <action id="CodeEpiphany.Actions.ActivateNotesView"
+                    class="com.wenjunhuang.codeepiphany.actions.ActivateNotesViewAction"
+                    icon="CodeEpiphanyIcons.NOTE"/>
             <action id="CodeEpiphany.Actions.ActivateSubmissionsView"
                     class="com.wenjunhuang.codeepiphany.actions.ActivateSubmissionsViewAction"
                     icon="CodeEpiphanyIcons.SUBMISSIONS"/>
@@ -75,12 +78,16 @@
         </group>
         <group id="CodeEpiphany.Actions.LeetCode.ChangeUI"
                class="com.wenjunhuang.codeepiphany.leetcode.actions.LeetCodeChangeUIAction"/>
+
         <group id="CodeEpiphany.CodeForces.Group">
             <action id="CodeEpiphany.Actions.CodeForces.ChangeUI"
                     class="com.wenjunhuang.codeepiphany.codeforces.actions.CodeForcesChangeUIAction"/>
             <action id="CodeEpiphany.Actions.CodeForces.UpdateProblemSets"
                     class="com.wenjunhuang.codeepiphany.codeforces.actions.CodeForcesUpdateProblemSetsAction"
                     icon="CodeEpiphanyIcons.DOWNLOAD"/>
+            <action id="CodeEpiphany.Actions.CodeForces.CCAction"
+                    class="com.wenjunhuang.codeepiphany.codeforces.actions.CodeForcesCCAction"
+                    icon="CodeEpiphanyIcons.CC"/>
         </group>
         <group id="CodeEpiphany.AtCoder.Group">
             <action class="com.wenjunhuang.codeepiphany.atcoder.actions.AtCoderChangeUIAction"
@@ -106,6 +113,7 @@
             <reference ref="CodeEpiphany.Actions.SurroundSubmissionRegion"/>
             <reference ref="CodeEpiphany.Actions.SolutionSelection"/>
             <reference ref="CodeEpiphany.Actions.ActivateSolutionsView"/>
+            <reference ref="CodeEpiphany.Actions.ActivateNotesView"/>
             <reference ref="CodeEpiphany.Actions.ActivateDescriptionView"/>
             <reference ref="CodeEpiphany.Actions.ActivateSubmissionsView"/>
         </group>
@@ -116,6 +124,7 @@
             <reference ref="CodeEpiphany.Actions.SurroundSubmissionRegion"/>
             <reference ref="CodeEpiphany.Actions.SolutionSelection"/>
             <reference ref="CodeEpiphany.Actions.ActivateSolutionsView"/>
+            <reference ref="CodeEpiphany.Actions.ActivateNotesView"/>
             <reference ref="CodeEpiphany.Actions.ActivateDescriptionView"/>
             <reference ref="CodeEpiphany.Actions.ActivateSubmissionsView"/>
         </group>
@@ -179,6 +188,7 @@
             <reference ref="CodeEpiphany.Actions.LeetCode.ChangeUI"/>
         </group>
         <group id="CodeEpiphany.Dojos.TitleToolbar.CodeForces">
+            <reference ref="CodeEpiphany.Actions.CodeForces.CCAction"/>
             <reference ref="CodeEpiphany.Actions.CodeForces.ChangeUI"/>
             <reference ref="CodeEpiphany.Actions.CodeForces.UpdateProblemSets"/>
         </group>
@@ -195,28 +205,28 @@
         </group>
 
         <group id="CodeEpiphany.Sidebar">
-            <action id="CodeEpiphany.Sidebar.Actions.ZoomIn"
-                    class="com.wenjunhuang.codeepiphany.toolwindows.sidebar.description.actions.ZoomInAction"
+            <action id="CodeEpiphany.Actions.Webview.ZoomIn"
+                    class="com.wenjunhuang.codeepiphany.actions.webview.ZoomInAction"
                     icon="AllIcons.General.ZoomIn"/>
-            <action id="CodeEpiphany.Sidebar.Actions.ZoomOut"
-                    class="com.wenjunhuang.codeepiphany.toolwindows.sidebar.description.actions.ZoomOutAction"
+            <action id="CodeEpiphany.Actions.Webview.ZoomOut"
+                    class="com.wenjunhuang.codeepiphany.actions.webview.ZoomOutAction"
                     icon="AllIcons.General.ZoomOut"/>
-            <action id="CodeEpiphany.Sidebar.Actions.ActualZoom"
-                    class="com.wenjunhuang.codeepiphany.toolwindows.sidebar.description.actions.ActualZoomAction"
+            <action id="CodeEpiphany.Actions.Webview.ActualZoom"
+                    class="com.wenjunhuang.codeepiphany.actions.webview.ActualZoomAction"
                     icon="AllIcons.General.ActualZoom"/>
         </group>
 
-        <group id="CodeEpiphany.Sidebar.Description.Toolbar">
-            <reference ref="CodeEpiphany.Sidebar.Actions.ZoomIn"/>
-            <reference ref="CodeEpiphany.Sidebar.Actions.ZoomOut"/>
-            <reference ref="CodeEpiphany.Sidebar.Actions.ActualZoom"/>
+        <group id="CodeEpiphany.Sidebar.Webview.Toolbar">
+            <reference ref="CodeEpiphany.Actions.Webview.ZoomIn"/>
+            <reference ref="CodeEpiphany.Actions.Webview.ZoomOut"/>
+            <reference ref="CodeEpiphany.Actions.Webview.ActualZoom"/>
         </group>
-        <group id="CodeEpiphany.Sidebar.Description.PopupMenu">
+        <group id="CodeEpiphany.Sidebar.Webview.PopupMenu">
             <reference ref="$Copy"/>
             <separator/>
             <reference ref="FindUsages"/>
             <separator/>
-            <reference ref="CodeEpiphany.Sidebar.Description.Toolbar"/>
+            <reference ref="CodeEpiphany.Sidebar.Webview.Toolbar"/>
         </group>
 
         <group id="CodeEpiphany.Sidebar.SubmissionLog.Toolbar.Group">
@@ -231,6 +241,12 @@
             <reference ref="CodeEpiphany.Actions.OpenSubmissionCode"/>
             <reference ref="CompareTwoFiles"/>
             <reference ref="CompareFileWithEditor"/>
+        </group>
+
+        <group id="CodeEpiphany.Sidebar.LeetCodeArticles.Toolbar.Group">
+            <reference ref="CodeEpiphany.Actions.Tags"/>
+            <action id="CodeEpiphany.Sidebar.Solutions.Actions.LeetCodeArticlesOrderBy"
+                    class="com.wenjunhuang.codeepiphany.toolwindows.sidebar.solutions.leetcode.actions.ArticleOrderByAction"/>
         </group>
     </actions>
 

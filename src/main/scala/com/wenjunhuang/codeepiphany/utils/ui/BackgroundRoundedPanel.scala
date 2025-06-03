@@ -6,7 +6,7 @@ import scala.util.Using
 
 import com.intellij.util.ui.GraphicsUtil
 
-import com.wenjunhuang.codeepiphany.utils.implicits.*
+import com.wenjunhuang.codeepiphany.utils.syntax.*
 
 class BackgroundRoundedPanel(private val radius: Int, private val layoutManager: LayoutManager) extends JComponent {
 

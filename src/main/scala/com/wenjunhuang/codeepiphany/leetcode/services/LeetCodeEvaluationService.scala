@@ -1,8 +1,8 @@
 package com.wenjunhuang.codeepiphany.leetcode.services
 
-import cats.effect.{Async, Concurrent}
+import cats.effect.{ Async, Concurrent }
 import cats.syntax.all.*
-import org.jooq.{DSLContext, Record}
+import org.jooq.{ DSLContext, Record }
 import org.typelevel.ci.CIString
 import org.typelevel.log4cats.LoggerFactory
 import scala.jdk.OptionConverters.*
@@ -10,18 +10,18 @@ import scala.jdk.OptionConverters.*
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.text.StringUtil
 
-import com.wenjunhuang.codeepiphany.database.Tables.{CHALLENGE, CHALLENGE_LANGUAGE, LEETCODE_CHALLENGE}
+import com.wenjunhuang.codeepiphany.database.Tables.{ CHALLENGE, CHALLENGE_LANGUAGE, LEETCODE_CHALLENGE }
 import com.wenjunhuang.codeepiphany.leetcode.models.*
 import com.wenjunhuang.codeepiphany.leetcode.models.runCode.LeetCodeRunResult
 import com.wenjunhuang.codeepiphany.model.*
 import com.wenjunhuang.codeepiphany.model.SubmissionResult.Processing
-import com.wenjunhuang.codeepiphany.services.{console, BaseCodeEvaluationService, ChallengeRepository}
+import com.wenjunhuang.codeepiphany.services.{ console, BaseCodeEvaluationService, ChallengeRepository }
 import com.wenjunhuang.codeepiphany.services.http.HttpClientManager
 import com.wenjunhuang.codeepiphany.settings.ChallengeSettings
 import com.wenjunhuang.codeepiphany.settings.ChallengeSettings.ChallengeSettingsStateItem
 import com.wenjunhuang.codeepiphany.utils.Tabulator
 
-class LeetCodeEvaluationService[F[_]: Async: Concurrent: HttpClientManager: LoggerFactory](
+class LeetCodeEvaluationService[F[_]: { Async, Concurrent, HttpClientManager, LoggerFactory }](
   project: Project,
   private val myLeetCode: CodeDojo.LeetCode.type | CodeDojo.LeetCodeCN.type
 ) extends BaseCodeEvaluationService[F](project, myLeetCode) {

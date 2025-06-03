@@ -24,7 +24,7 @@ import com.wenjunhuang.codeepiphany.services.{ console, AskForLoginResult, AuthS
 import com.wenjunhuang.codeepiphany.services.http.{ HttpClientManager, HttpClientService }
 import com.wenjunhuang.codeepiphany.utils.actions.DataSink
 import com.wenjunhuang.codeepiphany.utils.extensions.*
-import com.wenjunhuang.codeepiphany.utils.implicits.*
+import com.wenjunhuang.codeepiphany.utils.syntax.*
 import com.wenjunhuang.codeepiphany.utils.ui.UnauthenticatedView
 
 class HackerRankChallengesView(private val myProject: Project) extends BaseChallengesView[HackerRankUI] {
@@ -122,7 +122,7 @@ class HackerRankChallengesView(private val myProject: Project) extends BaseChall
   }
 
   private def initialize(): IO[HackerRankBootstrapParameters] = {
-    HackerRankApi[IO]().getInitialData.map { case (userInfo, challengeDomains) =>
+    HackerRankApi[IO].getInitialData.map { case (userInfo, challengeDomains) =>
       HackerRankBootstrapParameters(userInfo, challengeDomains.sortBy(_.id) :+ PROJECT_EULER_DOMAIN)
     }
   }

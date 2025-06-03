@@ -1,9 +1,9 @@
 package com.wenjunhuang.codeepiphany.utils
 
-import com.intellij.openapi.actionSystem.ActionToolbar
-import com.intellij.util.net.*
-
 import java.net.{PasswordAuthentication, ProxySelector, URL}
+
+import com.intellij.openapi.actionSystem.{ActionGroup, ActionManager, ActionToolbar, AnAction}
+import com.intellij.util.net.*
 
 object CompatibleUtils {
   inline def setToolBarWrapLayout(toolBar: ActionToolbar): Unit = {
@@ -25,4 +25,6 @@ object CompatibleUtils {
     val ideaProxySelector = IdeaWideProxySelector(httpConfigurable) // IntelliJ proxy selector
     ideaProxySelector
   }
+  inline def getActionGroupChildren(actionGroup: ActionGroup): List[AnAction] =
+    actionGroup.getChildren(null, ActionManager.getInstance()).toList
 }

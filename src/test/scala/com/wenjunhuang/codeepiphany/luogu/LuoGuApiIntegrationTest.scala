@@ -17,7 +17,7 @@ import com.wenjunhuang.codeepiphany.luogu.services.LuoGuApi
 import com.wenjunhuang.codeepiphany.model.CodeDojo
 import com.wenjunhuang.codeepiphany.services.http.{HttpClientManager, HttpClientService}
 import com.wenjunhuang.codeepiphany.utils.CookieUtil
-import com.wenjunhuang.codeepiphany.utils.implicits.*
+import com.wenjunhuang.codeepiphany.utils.syntax.*
 
 class LuoGuApiIntegrationTest extends BasePlatformTestCase {
   private var cookies: List[HttpCookie] = Nil
@@ -43,7 +43,7 @@ class LuoGuApiIntegrationTest extends BasePlatformTestCase {
 
   def testSearchChallenges(): Unit = {
     implicit val httpClientKeeper = HttpClientService.getInstance(getProject).httpClientManager
-    val luoGuApi                  = LuoGuApi[IO]()
+    val luoGuApi                  = LuoGuApi[IO]
     println(
       (setCookie(httpClientKeeper) *>
         luoGuApi.searchChallenges(None, None, List.empty, None, None, 1))

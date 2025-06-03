@@ -1,11 +1,11 @@
 package com.wenjunhuang.codeepiphany.toolwindows.sidebar.submissionlog
 
-import cats.effect.{ IO, Resource }
+import cats.effect.{IO, Resource}
 import cats.effect.std.Queue
 import cats.syntax.all.*
 import fs2.concurrent.SignallingRef
 import fs2.Stream
-import javax.swing.event.{ ListSelectionEvent, ListSelectionListener }
+import javax.swing.event.ListSelectionListener
 import javax.swing.JComponent
 import org.typelevel.ci.CIString
 import scala.concurrent.duration.*
@@ -18,12 +18,12 @@ import com.intellij.openapi.project.Project
 
 import com.wenjunhuang.codeepiphany.database.Tables.*
 import com.wenjunhuang.codeepiphany.hackerrank.models.HackerRankContest
-import com.wenjunhuang.codeepiphany.model.{ CodeDojo, Language, LanguageVersion }
+import com.wenjunhuang.codeepiphany.model.{CodeDojo, Language, LanguageVersion}
 import com.wenjunhuang.codeepiphany.model.newtypes.SubmissionId
 import com.wenjunhuang.codeepiphany.model.CodeDojo.*
 import com.wenjunhuang.codeepiphany.services.ChallengeRepository
 import com.wenjunhuang.codeepiphany.toolwindows.sidebar.submissionlog.SubmissionLogPresenter.SubmissionType
-import com.wenjunhuang.codeepiphany.utils.implicits.*
+import com.wenjunhuang.codeepiphany.utils.syntax.*
 
 class SubmissionPresenter(private val myProject: Project) extends Disposable {
   private val mySubmissionLogPresenter = new SubmissionLogPresenter(myProject)
@@ -39,9 +39,9 @@ class SubmissionPresenter(private val myProject: Project) extends Disposable {
         Stream
           .resource(
             Resource
-              .make(IO.delay { mySelectedSubmissionQueue = Some(queue) })(_ =>
+              .make(IO.delay { mySelectedSubmissionQueue = Some(queue) }) { _ =>
                 IO.delay { mySelectedSubmissionQueue = None }
-              )
+              }
           )
           .flatMap { _ =>
             Stream
@@ -80,18 +80,18 @@ class SubmissionPresenter(private val myProject: Project) extends Disposable {
               }
           }
       }
-      .compile()
+      .compile
       .drain
       .unsafeRunCancelable()
 
-  mySubmissionLogPresenter.getQueryResultTableSelectionModel.addListSelectionListener((e: ListSelectionEvent) => {
+  mySubmissionLogPresenter.getQueryResultTableSelectionModel.addListSelectionListener { e =>
     if !e.getValueIsAdjusting then
       mySubmissionLogPresenter.getQueryResultTableSelectionModel.getMinSelectionIndex match
         case selectedIndex if selectedIndex >= 0 =>
           val submission = mySubmissionLogPresenter.getQueryResultTableModel.getItem(selectedIndex)
           mySelectedSubmissionQueue.foreach(_.offer(Some(submission)).unsafeRunAndForget())
         case _ =>
-  })
+  }
 
   private def fetchSubmission(submissionId: SubmissionId): IO[Option[SubmissionType]] = {
     ChallengeRepository
@@ -201,11 +201,7 @@ class SubmissionPresenter(private val myProject: Project) extends Disposable {
                         )
                       }
                   case LuoGu =>
-                    SubmissionType.LuoGuSubmission(
-                      lang,
-                      languageVersion,
-                      submissionRecord
-                    ).some
+                    SubmissionType.LuoGuSubmission(lang, languageVersion, submissionRecord).some
                 }
               }.flatten
             }

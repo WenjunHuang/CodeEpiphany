@@ -1,24 +1,24 @@
 package com.wenjunhuang.codeepiphany.hackerrank.services
 
-import cats.effect.{Async, Concurrent}
+import cats.effect.{ Async, Concurrent }
 import cats.syntax.all.*
 import fs2.Stream
-import org.jooq.{DSLContext, Record}
+import org.jooq.{ DSLContext, Record }
 import org.typelevel.ci.CIString
 import org.typelevel.log4cats.LoggerFactory
 import scala.jdk.OptionConverters.*
 
 import com.intellij.openapi.project.Project
 
-import com.wenjunhuang.codeepiphany.database.Tables.{CHALLENGE, CHALLENGE_LANGUAGE, HACKERRANK_CHALLENGE}
-import com.wenjunhuang.codeepiphany.hackerrank.models.{HackerRankContest, HackerRankRunCodeResponse}
+import com.wenjunhuang.codeepiphany.database.Tables.{ CHALLENGE, CHALLENGE_LANGUAGE, HACKERRANK_CHALLENGE }
+import com.wenjunhuang.codeepiphany.hackerrank.models.{ HackerRankContest, HackerRankRunCodeResponse }
 import com.wenjunhuang.codeepiphany.model.*
 import com.wenjunhuang.codeepiphany.model.CodeDojo.HackerRank
-import com.wenjunhuang.codeepiphany.services.{console, BaseCodeEvaluationService, ChallengeRepository}
+import com.wenjunhuang.codeepiphany.services.{ console, BaseCodeEvaluationService, ChallengeRepository }
 import com.wenjunhuang.codeepiphany.services.http.HttpClientManager
 import com.wenjunhuang.codeepiphany.settings.ChallengeSettings.ChallengeSettingsStateItem
 
-class HackerRankEvaluationService[F[_]: Async: Concurrent: HttpClientManager: LoggerFactory](project: Project)
+class HackerRankEvaluationService[F[_]: { Async, Concurrent, HttpClientManager, LoggerFactory }](project: Project)
     extends BaseCodeEvaluationService[F](project, HackerRank) {
   override type EvaluationRequest  = HREvaluationRequest
   override type EvaluationResponse = HackerRankRunCodeResponse
@@ -37,7 +37,7 @@ class HackerRankEvaluationService[F[_]: Async: Concurrent: HttpClientManager: Lo
     code: String,
     customTestCases: Option[String]
   ): Stream[F, HackerRankRunCodeResponse] =
-    HackerRankApi[F]().runAnswer(request.slug, request.contest, request.language, request.languageVersion, code)
+    HackerRankApi[F].runAnswer(request.slug, request.contest, request.language, request.languageVersion, code)
 
   override protected def handleEvaluationResponse(
     response: HackerRankRunCodeResponse,

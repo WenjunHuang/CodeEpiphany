@@ -9,16 +9,15 @@ import org.typelevel.log4cats.LoggerFactory
 import com.intellij.openapi.project.Project
 
 import com.wenjunhuang.codeepiphany.database.Tables.*
-import com.wenjunhuang.codeepiphany.services.{console, ChallengeRepository}
+import com.wenjunhuang.codeepiphany.services.{ console, ChallengeRepository }
 import com.wenjunhuang.codeepiphany.services.http.HttpClientManager
 import com.wenjunhuang.codeepiphany.utils.IdGenerator
 
 object problemsets {
-  def fetchAndUpdateProblemSets[F[_]: Async: LoggerFactory: HttpClientManager](project: Project): F[Unit] = {
-    val api    = CodeForcesApi[F]()
+  def fetchAndUpdateProblemSets[F[_]: { Async, LoggerFactory, HttpClientManager }](project: Project): F[Unit] = {
     val logger = LoggerFactory.getLogger
     console.info[F](project, "Start to fetch problem sets of CodeForces ...") *>
-      api.getAllProblemSets.flatMap { problems =>
+      CodeForcesApi[F].getAllProblemSets.flatMap { problems =>
         logger.info(s"Got ${problems.size} problems of CodeForces")
         ChallengeRepository
           .getInstance(project)

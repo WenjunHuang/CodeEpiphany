@@ -41,19 +41,18 @@ class HackerRankKeywordQueryPresenter(project: Project)
   ): IO[(Pagination, List[HackerRankChallengeDetail])] = {
     if context.criteria.keyword.isEmpty then IO.pure((context.pagination, Nil))
     else
-      val api = HackerRankApi[IO]()
       val r = (
-        api
+        HackerRankApi[IO]
           .searchChallengesWithKeyword(HackerRankContest.Master, context.criteria.keyword)
           .recoverWith(_ => IO.pure(Nil)),
-        api
+        HackerRankApi[IO]
           .searchChallengesWithKeyword(HackerRankContest.ProjectEuler, context.criteria.keyword)
           .recoverWith(_ => IO.pure(Nil))
       ).parMapN(_ ++ _)
       Stream
         .evals(r)
         .parEvalMapUnorderedUnbounded { case (contest, challenge) =>
-          api.getChallengeDetail(challenge.challengeSlug, contest).attempt
+          HackerRankApi[IO].getChallengeDetail(challenge.challengeSlug, contest).attempt
         }
         .scan(Nil: List[HackerRankChallengeDetail]) {
           case (acc, Right(challenge)) => acc :+ challenge

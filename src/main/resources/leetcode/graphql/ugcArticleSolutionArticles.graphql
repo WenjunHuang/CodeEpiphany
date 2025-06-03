@@ -1,0 +1,65 @@
+query ugcArticleSolutionArticles($questionSlug: String!, $orderBy: ArticleOrderByEnum, $userInput: String, $tagSlugs: [String!], $skip: Int, $before: String, $after: String, $first: Int, $last: Int, $isMine: Boolean) {
+  ugcArticleSolutionArticles(
+    questionSlug: $questionSlug
+    orderBy: $orderBy
+    userInput: $userInput
+    tagSlugs: $tagSlugs
+    skip: $skip
+    first: $first
+    before: $before
+    after: $after
+    last: $last
+    isMine: $isMine
+  ) {
+    totalNum
+    edges {
+      node {
+        ...ugcSolutionArticleFragment
+      }
+    }
+  }
+}
+
+    fragment ugcSolutionArticleFragment on SolutionArticleNode {
+  uuid
+  title
+  slug
+  summary
+  author {
+    realName
+    userAvatar
+    userSlug
+    username:userName
+    certificationLevel
+  }
+  articleType
+  thumbnail
+  summary
+  createdAt
+  updatedAt
+  status
+  byLeetcode:isLeetcode
+  canSee
+  canEdit
+  isMyFavorite
+  chargeType
+  myReactionType
+  topicId
+  hitCount
+  hasVideo: hasVideoArticle
+  reactions {
+    count
+    reactionType
+  }
+  title
+  slug
+  tags {
+    name
+    slug
+    tagType
+  }
+  topic {
+    id
+    commentCount:topLevelCommentCount
+  }
+}

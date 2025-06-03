@@ -24,7 +24,7 @@ import com.wenjunhuang.codeepiphany.services.{ console, AskForLoginResult, AuthS
 import com.wenjunhuang.codeepiphany.services.http.{ HttpClientManager, HttpClientService }
 import com.wenjunhuang.codeepiphany.utils.actions.DataSink
 import com.wenjunhuang.codeepiphany.utils.extensions.*
-import com.wenjunhuang.codeepiphany.utils.implicits.*
+import com.wenjunhuang.codeepiphany.utils.syntax.*
 import com.wenjunhuang.codeepiphany.utils.ui.UnauthenticatedView
 
 class LeetCodeChallengesView(
@@ -43,7 +43,7 @@ class LeetCodeChallengesView(
       myApi.getFavoriteList.retryLimitsWithBackoff(),
       myApi.getTagTypeWithTags.retryLimitsWithBackoff(),
       myApi.getQuestionCompanyTags
-        .map(it => it.sortBy(_.questionCount)(Ordering.Int.reverse))
+        .map(it => it.sortBy(_.questionCount)(using Ordering.Int.reverse))
         .retryLimitsWithBackoff(),
       myApi.getPositionTags.retryLimitsWithBackoff()
     ).parMapN { (userInfo, categories, favorites, tagTypeWithTags, companyTags, positionTags) =>

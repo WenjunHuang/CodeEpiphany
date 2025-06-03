@@ -1,4 +1,20 @@
-## 1.04
+## 1.2.1
+### Modified
+- Fix chinese translation issues
+- Modify readme and description documentation
+
+## 1.2.0
+### Added
+- LeetCode and LeetCodeCN official solutions view support
+
+### Modified
+- Rename the old 'solutions' feature to 'my notes'
+ 
+## 1.1.0
+### Added
+- Add [Browser Competitive-Companion](https://github.com/jmerle/competitive-companion) support to [CodeForces](https://codeforces.com/)
+ 
+## 1.0.4
 ## Fixed
 - Fix CodeForces login issue
 - Fix code file template return empty string issue

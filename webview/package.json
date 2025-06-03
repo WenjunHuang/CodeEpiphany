@@ -1,0 +1,33 @@
+{
+  "name": "codeepiphany-editor",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "dev:debug": "vite --debug --force",
+    "build:dev": "vite build --mode development --emptyOutDir",
+    "build": "vite build --emptyOutDir",
+    "preview": "vite preview",
+    "test:unit": "vitest run --coverage",
+    "test:watch": "vitest"
+  },
+  "devDependencies": {
+    "@codingame/esbuild-import-meta-url-plugin": "~1.0.2",
+    "@types/katex": "^0.16.7",
+    "@types/node": "^22.13.5",
+    "rimraf": "^6.0.1",
+    "typescript": "^5.7.2",
+    "vite": "^6.3.4",
+    "vite-node": "^3.0.7",
+    "vitest": "^3.1.2"
+  },
+  "dependencies": {
+    "highlight.js": "^11.11.1",
+    "katex": "^0.16.22",
+    "marked": "^15.0.11",
+    "marked-highlight": "^2.2.1",
+    "normalize-css": "^2.3.1",
+    "overlayscrollbars": "^2.11.3"
+  }
+}

@@ -1,28 +1,31 @@
 package com.wenjunhuang.codeepiphany.services.http
 
-import cats.effect.{Async, Ref, Resource}
+import cats.effect.{ Async, Ref, Resource }
 import cats.effect.kernel.Ref.Make
 import cats.effect.kernel.Sync
 import cats.syntax.all.*
-
-import java.net.{HttpCookie, ProxySelector, SocketAddress, URI}
-import java.{net, util}
+import java.net.{ HttpCookie, ProxySelector, SocketAddress, URI }
+import java.{ net, util }
 import java.io.IOException
 import java.security.cert.X509Certificate
-import javax.net.ssl.{SSLContext, TrustManager, X509TrustManager}
+import java.util.concurrent.TimeUnit
+import javax.net.ssl.{ SSLContext, TrustManager, X509TrustManager }
 import okhttp3.*
 import org.http4s.client.Client
 import org.typelevel.ci.CIString
 import org.typelevel.log4cats.LoggerFactory
-
 import scala.annotation.static
 import scala.concurrent.duration.*
 import scala.jdk.CollectionConverters.*
 import scala.util.boundary
+
+import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.util.io.FileUtil
 import com.intellij.util.net.*
+
 import com.wenjunhuang.codeepiphany.model.CodeDojo
 import com.wenjunhuang.codeepiphany.utils.CompatibleUtils
-import com.wenjunhuang.codeepiphany.utils.implicits.*
+import com.wenjunhuang.codeepiphany.utils.syntax.*
 
 type CookieJar = Map[CodeDojo, Map[CIString, HttpCookie]]
 
@@ -39,9 +42,9 @@ trait HttpClientManager[F[_]] {
 }
 
 object HttpClientManager {
-  def apply[F[_] : HttpClientManager]: HttpClientManager[F] = summon[HttpClientManager[F]]
+  def apply[F[_]: HttpClientManager]: HttpClientManager[F] = summon[HttpClientManager[F]]
 
-  def make[F[_] : Make : Async : LoggerFactory](): HttpClientManager[F] =
+  def make[F[_]: { Make, Async, LoggerFactory }](): HttpClientManager[F] =
     new HttpClientManager[F] {
       private val cookieManager: Ref[F, CookieJar] =
         Ref.unsafe[F, CookieJar](Map.empty[CodeDojo, Map[CIString, HttpCookie]])
@@ -94,10 +97,10 @@ object HttpClientManager {
   }
 
   private def makeDefaultHttpClient(
-                                     connectionTimeout: FiniteDuration,
-                                     writeTimeout: FiniteDuration,
-                                     readTimeout: FiniteDuration
-                                   ): OkHttpClient = {
+    connectionTimeout: FiniteDuration,
+    writeTimeout: FiniteDuration,
+    readTimeout: FiniteDuration
+  ): OkHttpClient = {
     java.util.logging.Logger.getLogger(classOf[OkHttpClient].getName).setLevel(java.util.logging.Level.FINE)
     val sslContext = SSLContext.getInstance("SSL")
     sslContext.init(null, Array[TrustManager](trustAllManager), new java.security.SecureRandom())
@@ -110,6 +113,7 @@ object HttpClientManager {
       .dispatcher(Dispatcher(intellijComputeContext))
       .followRedirects(false)
       .followSslRedirects(false)
+      .cache(Cache(FileUtil.createTempDirectory("ce", "okhttp", true), 10L * 1024L * 1024L))
       .connectTimeout(connectionTimeout.toMillis, java.util.concurrent.TimeUnit.MILLISECONDS)
       .writeTimeout(writeTimeout.toMillis, java.util.concurrent.TimeUnit.MILLISECONDS)
       .readTimeout(readTimeout.toMillis, java.util.concurrent.TimeUnit.MILLISECONDS)
@@ -118,7 +122,7 @@ object HttpClientManager {
       .proxySelector(new ProxySelector {
         override def select(uri: URI): util.List[net.Proxy] = {
           val ideaProxySelector = CompatibleUtils.getIdeaProxySelector
-          val proxies = ideaProxySelector.select(uri)
+          val proxies           = ideaProxySelector.select(uri)
           proxies
         }
 

@@ -1,5 +1,10 @@
-.idea/*
+.idea/
+.bloop/
+.metals/
+node_modules/
+metals.sbt
 .bsp/*
+.vscode/
 out/
 dist/*
 target/

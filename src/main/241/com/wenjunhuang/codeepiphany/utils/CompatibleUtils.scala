@@ -1,12 +1,10 @@
 package com.wenjunhuang.codeepiphany.utils
 
-import com.intellij.credentialStore.Credentials
-import com.intellij.openapi.actionSystem.ActionToolbar
-import com.intellij.openapi.actionSystem.toolbarLayout.ToolbarLayoutStrategy
-import com.intellij.util.net.*
-
 import java.net.*
 
+import com.intellij.openapi.actionSystem.{ActionGroup, ActionManager, ActionToolbar, AnAction}
+import com.intellij.openapi.actionSystem.toolbarLayout.ToolbarLayoutStrategy
+import com.intellij.util.net.*
 
 object CompatibleUtils {
   inline def setToolBarWrapLayout(toolBar: ActionToolbar): Unit = {
@@ -18,15 +16,18 @@ object CompatibleUtils {
   }
 
   inline def getIdeaProxyPasswordAuthentication(url: URL) = {
-    val httpConfigurable = HttpConfigurable.getInstance()
+    val httpConfigurable  = HttpConfigurable.getInstance()
     val ideaAuthenticator = IdeaWideAuthenticator(httpConfigurable)
     ideaAuthenticator.getPasswordAuthentication
   }
 
   inline def getIdeaProxySelector: ProxySelector = {
-    val httpConfigurable = HttpConfigurable.getInstance()
+    val httpConfigurable  = HttpConfigurable.getInstance()
     val ideaAuthenticator = IdeaWideAuthenticator(httpConfigurable)
     val ideaProxySelector = IdeaWideProxySelector(httpConfigurable) // IntelliJ proxy selector
     ideaProxySelector
   }
+
+  inline def getActionGroupChildren(actionGroup: ActionGroup): List[AnAction] =
+    actionGroup.getChildren(null, ActionManager.getInstance()).toList
 }

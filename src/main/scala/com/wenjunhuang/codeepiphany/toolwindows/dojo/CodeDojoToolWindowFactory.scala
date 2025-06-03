@@ -29,6 +29,7 @@ import com.wenjunhuang.codeepiphany.settings.CodeEpiphanySettings
 import com.wenjunhuang.codeepiphany.settings.CodeEpiphanySettings.CodeEpiphanySettingsChangedListener
 import com.wenjunhuang.codeepiphany.toolwindows.dojo.CodeDojoToolWindowFactory.updateContents
 import com.wenjunhuang.codeepiphany.utils.walkaround.ToolWindowFactoryBridge
+import com.wenjunhuang.codeepiphany.utils.CompatibleUtils
 
 class CodeDojoToolWindowFactory extends ToolWindowFactoryBridge with DumbAware {
   override def createToolWindowContent(project: Project, toolWindow: ToolWindow): Unit = {
@@ -63,9 +64,7 @@ class CodeDojoToolWindowFactory extends ToolWindowFactoryBridge with DumbAware {
   private def setupContentActions(toolWindow: ToolWindow, content: Content): Unit = {
     Option(content.getActions) match
       case Some(actions) =>
-        toolWindow.setTitleActions(
-          (actions.getChildren(null, ActionManager.getInstance()).toList ++ createTitleActions()).asJava
-        )
+        toolWindow.setTitleActions((CompatibleUtils.getActionGroupChildren(actions) ++ createTitleActions()).asJava)
       case None =>
         toolWindow.setTitleActions(createTitleActions().asJava)
   }

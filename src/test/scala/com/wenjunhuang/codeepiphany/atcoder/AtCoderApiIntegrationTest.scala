@@ -12,7 +12,7 @@ import com.wenjunhuang.codeepiphany.atcoder.services.AtCoderApi
 import com.wenjunhuang.codeepiphany.model.CodeDojo
 import com.wenjunhuang.codeepiphany.services.http.{HttpClientManager, HttpClientService}
 import com.wenjunhuang.codeepiphany.utils.CookieUtil
-import com.wenjunhuang.codeepiphany.utils.implicits.*
+import com.wenjunhuang.codeepiphany.utils.syntax.*
 
 class AtCoderApiIntegrationTest extends BasePlatformTestCase {
   private var cookies: List[HttpCookie] = Nil
@@ -37,8 +37,7 @@ class AtCoderApiIntegrationTest extends BasePlatformTestCase {
   def testGetAllContests(): Unit = {
     val httpClientKeeper = HttpClientService.getInstance(getProject)
     import httpClientKeeper.*
-    val atCoderApi                = AtCoderApi[IO]()
-    atCoderApi.getAllContests.map { contests =>
+    AtCoderApi[IO].getAllContests.map { contests =>
       assert(contests.nonEmpty)
     }.unsafeRunSync()
   }

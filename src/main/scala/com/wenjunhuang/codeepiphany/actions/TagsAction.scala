@@ -15,7 +15,7 @@ import com.intellij.util.ui.JBUI
 
 import com.wenjunhuang.codeepiphany.actions.TagsAction.*
 import com.wenjunhuang.codeepiphany.utils.actions.{ ActionCompatible, DataKeyNotNull, ParameterProvider }
-import com.wenjunhuang.codeepiphany.utils.implicits.*
+import com.wenjunhuang.codeepiphany.utils.syntax.*
 import com.wenjunhuang.codeepiphany.utils.ui.{ CollapsibleTitledSeparator, TagPane, TagPaneAction }
 
 class TagsAction extends ComboBoxAction with DataKeyNotNull(TAG_PROVIDER_KEY) with ActionCompatible {

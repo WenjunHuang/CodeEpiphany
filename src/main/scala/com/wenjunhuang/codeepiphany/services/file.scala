@@ -12,7 +12,7 @@ import com.intellij.openapi.ui.{InputValidator, Messages}
 import com.intellij.openapi.util.io.FileUtilRt
 import com.intellij.openapi.vfs.{LocalFileSystem, VirtualFile}
 
-import com.wenjunhuang.codeepiphany.utils.implicits.*
+import com.wenjunhuang.codeepiphany.utils.syntax.*
 
 object file {
   def saveTextWithConflictResolution[F[_]: Async](file: File, content: String): F[Option[File]] = {
@@ -69,7 +69,7 @@ object file {
       FileEditorManager.getInstance(project).openTextEditor(descriptor, false)
     }.evalOnEDTWithWrite()
 
-  def saveEditedFile[F[_]: Async: LoggerFactory](file: VirtualFile): F[Either[Throwable, Unit]] =
+  def saveEditedFile[F[_]: {Async, LoggerFactory}](file: VirtualFile): F[Either[Throwable, Unit]] =
     Async[F]
       .delay(FileDocumentManager.getInstance().isFileModified(file))
       .flatMap { isModified =>

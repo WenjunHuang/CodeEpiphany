@@ -21,7 +21,8 @@ import com.wenjunhuang.codeepiphany.actions.PaginationParameterActionGroup.{PAGI
 import com.wenjunhuang.codeepiphany.utils.{OrderByColumnInfo, PageSize, Pagination}
 import com.wenjunhuang.codeepiphany.utils.actions.DataSink
 import com.wenjunhuang.codeepiphany.utils.extensions.*
-import com.wenjunhuang.codeepiphany.utils.implicits.*
+import com.wenjunhuang.codeepiphany.utils.syntax.*
+import com.wenjunhuang.codeepiphany.utils.CancellableStream
 
 case class QueryContext[T](criteria: T, pagination: Pagination) {
   def updateCriteria(f: T => T): QueryContext[T] =
@@ -110,49 +111,41 @@ abstract class BaseQueryPresenter[UIBoostrapParameters, T, ResultItem](
     myQueryQueue.foreach(_.offer(None).unsafeRunSync())
   }
 
-  private def createQueryPipeline(): Unit = {
-    Stream
-      .eval((Queue.unbounded[IO, Option[QueryContext[T]]], SignallingRef.of[IO, Boolean](false)).parTupled)
-      .flatMap { case (queue, initSignal) =>
-        Stream
-          .resource(Resource.make(IO.delay { myQueryQueue = Some(queue) })(_ => IO.delay { myQueryQueue = None }))
-          .flatMap { _ =>
-            Stream
-              .fromQueueNoneTerminated(queue)
-              .evalMapAccumulate(initSignal) { case (lastSignal, context) =>
-                lastSignal.set(true) *>
-                  SignallingRef
-                    .of[IO, Boolean](false)
-                    .map((_, context))
-              }
-              .debounce(300.millis)
-              .evalTap((_, context) => IO.delay { updateQueryUI(context) }.evalOnEDTAny())
-              .evalTap { (signal, context) =>
-                Stream
-                  .eval(IO.delay { myIsQuerying = true } *> executeQuery(context))
-                  .evalTap { case (pagination, items) =>
-                    IO.delay {
-                      val updatedCriteria = myQueryStateManager.update(_.copy(pagination = pagination)).criteria
-                      myQueryResultTableModel.setItems(util.ArrayList[ResultItem](items.asJavaCollection))
-                      refreshPagination()
+  private def handleQueryResult(pagination: Pagination, items: List[ResultItem]): IO[Unit] = IO.delay {
+    val updatedCriteria = myQueryStateManager.update(_.copy(pagination = pagination)).criteria
+    myQueryResultTableModel.setItems(util.ArrayList[ResultItem](items.asJavaCollection))
+    refreshPagination()
+    saveQueryCriteria(updatedCriteria, pagination)
+  }.evalOnEDTAny()
 
-                      saveQueryCriteria(updatedCriteria, pagination)
-                    }.evalOnEDTAny()
-                  }
-                  .interruptWhen(signal)
-                  .onFinalize(IO.delay { myIsQuerying = false })
-                  .compile
-                  .drain
-                  .recoverWith { e =>
-                    myLoggerIO.warn(e)("Failed to execute query") *>
-                      console.error[IO](myProject, s"Failed to execute query because of \"${e.getMessage}\"")
-                  }
-                  .evalAsBackgroundProgress(myProject, "Querying challenges...")
-              }
-          }
-      }
+  private def executeQueryWithProgress(context: QueryContext[T]): IO[Unit] = {
+    Stream
+      .eval(IO.delay { myIsQuerying = true } *> executeQuery(context))
+      .evalTap { case (pagination, items) => handleQueryResult(pagination, items) }
+      .onFinalize(IO.delay { myIsQuerying = false })
       .compile
       .drain
+      .recoverWith { e =>
+        myLoggerIO.warn(e)("Failed to execute query") *>
+          console.error[IO](myProject, s"Failed to execute query because of \"${e.getMessage}\"")
+      }
+      .evalAsBackgroundProgress(myProject, "Querying challenges...")
+  }
+
+  private def processQuery(ctx: CancellableStream.StreamContext[QueryContext[T]]): IO[Unit] = {
+    IO.delay { updateQueryUI(ctx.value) }.evalOnEDTAny() *>
+      Stream
+        .eval(executeQueryWithProgress(ctx.value))
+        .interruptWhen(ctx.signal)
+        .compile
+        .drain
+  }
+
+  private def createQueryPipeline(): Unit = {
+    CancellableStream
+      .setup[QueryContext[T], Unit](300.millis)(processQuery)
+      .evalMap(queue => IO.delay { myQueryQueue = Some(queue) })
+      .use(_ => IO.never)
       .unsafeRunAndForget()
   }
 

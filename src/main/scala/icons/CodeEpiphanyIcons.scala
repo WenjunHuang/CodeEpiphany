@@ -36,6 +36,9 @@ object CodeEpiphanyIcons {
   val SOLUTION: Icon = IconLoader.getIcon("/icons/solution.svg", CodeEpiphanyIcons.getClass.getClassLoader)
 
   @static
+  val NOTE: Icon = IconLoader.getIcon("/icons/note.svg", CodeEpiphanyIcons.getClass.getClassLoader)
+
+  @static
   val SUBMISSIONS: Icon = IconLoader.getIcon("/icons/submissions.svg", CodeEpiphanyIcons.getClass.getClassLoader)
 
   @static
@@ -54,7 +57,11 @@ object CodeEpiphanyIcons {
   val APP_BRACKETS: Icon = IconLoader.getIcon("/icons/app-brackets.svg", CodeEpiphanyIcons.getClass.getClassLoader)
 
   @static
+  val CC: Icon = IconLoader.getIcon("/icons/cc.png",CodeEpiphanyIcons.getClass.getClassLoader)
+  
+  @static
   val LOADING: AnimatedIcon = AnimatedIcon.Default.INSTANCE
+  
 
   object Dojos {
     val CODEFORCES_PATH = "/icons/dojos/codeforces.svg"

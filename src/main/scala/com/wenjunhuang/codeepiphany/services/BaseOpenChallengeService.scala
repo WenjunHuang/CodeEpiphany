@@ -23,7 +23,7 @@ import com.wenjunhuang.codeepiphany.settings.dojo.BaseCodeDojoSettings.LanguageS
 import com.wenjunhuang.codeepiphany.settings.dojo.BaseSettingsConfigurable
 import com.wenjunhuang.codeepiphany.settings.ChallengeSettings
 import com.wenjunhuang.codeepiphany.settings.ChallengeSettings.ChallengeSettingsStateItem
-import com.wenjunhuang.codeepiphany.utils.implicits.*
+import com.wenjunhuang.codeepiphany.utils.syntax.*
 import com.wenjunhuang.codeepiphany.utils.template.VelocityUtils
 import com.wenjunhuang.codeepiphany.utils.IdGenerator
 

@@ -26,7 +26,7 @@ import com.wenjunhuang.codeepiphany.luogu.models.*
 import com.wenjunhuang.codeepiphany.luogu.settings.LuoGuSettingsConfigurable.LUOGU_LANGUAGES_REVERSE
 import com.wenjunhuang.codeepiphany.model.{ CodeDojo, OrderDirection, SubmissionResult }
 import com.wenjunhuang.codeepiphany.services.http.HttpClientManager
-import com.wenjunhuang.codeepiphany.utils.implicits.*
+import com.wenjunhuang.codeepiphany.utils.syntax.*
 
 trait LuoGuApi[F[_]] {
   def checkLogin(): F[Boolean]
@@ -51,7 +51,7 @@ trait LuoGuApi[F[_]] {
 }
 
 object LuoGuApi {
-  def apply[F[_]: Async: Concurrent: HttpClientManager](): LuoGuApi[F] = new LuoGuApi[F] with Http4sClientDsl[F] {
+  def apply[F[_]: { Async, Concurrent, HttpClientManager }]: LuoGuApi[F] = new LuoGuApi[F] with Http4sClientDsl[F] {
 
     private def useClient[A](fun: Client[F] => F[A]): F[A] = HttpClientManager[F].getClient.use(fun)
 

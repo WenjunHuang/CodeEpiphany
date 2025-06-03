@@ -50,7 +50,7 @@ trait CodeForcesApi[F[_]] {
 
 object CodeForcesApi {
 
-  def apply[F[_]: Async: Concurrent: HttpClientManager](): CodeForcesApi[F] = new CodeForcesApi[F]
+  def apply[F[_]: { Async, Concurrent, HttpClientManager }]: CodeForcesApi[F] = new CodeForcesApi[F]
     with Http4sClientDsl[F] {
 
     private def useClient[A](fun: Client[F] => F[A]): F[A] = HttpClientManager[F].getClient.use(fun)

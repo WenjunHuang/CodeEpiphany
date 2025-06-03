@@ -38,9 +38,6 @@ import com.wenjunhuang.codeepiphany.utils.actions.DataSink
 
 class SubmissionLogPresenter(project: Project)
     extends ParametersQueryPresenter[Unit, QueryParams, SubmissionLogEntry](project, ()) {
-  override protected def saveQueryCriteria(queryCriteria: QueryParams, pagination: Pagination): Unit = {}
-
-  override protected def loadQueryCriteria(): Option[(QueryParams, Pagination)] = None
 
   override def getRowSelectionTablePopup: ActionGroup = {
     ActionManager.getInstance().getAction(Actions.SUBMISSIONS_TABLE_POPUP_GROUP).asInstanceOf[ActionGroup]

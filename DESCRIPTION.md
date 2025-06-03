@@ -1,10 +1,10 @@
-## LeetCode Epiphany (悟码时刻) 🌟
+LeetCode Epiphany
 
 ### Current Supported Platforms
 
 - **[LeetCode](https://www.leetcode.com)**
-- **[力扣(LeetCode Chinese)](https://www.leetcode.cn)**
-- **[洛谷(LuoGu)](https://www.luogu.com.cn/)**
+- **[LeetCode Chinese](https://www.leetcode.cn)**
+- **[LuoGu](https://www.luogu.com.cn/)**
 - **[AtCoder](https://atcoder.jp)**
 - **[CodeForces](https://codeforces.com/)**
 - **[HackerRank](https://www.hackerrank.com)**
@@ -31,6 +31,8 @@
   document explanations for each solution, enabling thorough exploration of different approaches.
 - 📊 More Features Coming Soon: Stay tuned for even more powerful tools to enhance your competitive programming
   experience!
+
+**Now available on Android!** 📱 Download our mobile app from [Google Play](https://play.google.com/store/apps/details?id=com.wenjunhuang.codeepiphanyapp) to practice coding challenges on the go. Your support means a lot to us! [<img src="https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png" width="200" alt="Get it on Google Play">](https://play.google.com/store/apps/details?id=com.wenjunhuang.codeepiphanyapp)
  
 ### 刷题神器
 
@@ -49,6 +51,8 @@
 - 🔄 **多平台多语言支持**: 单一项目中兼容多个编程平台与多种编程语言。算法爱好者无需多开IDE或创建多个项目，即可轻松切换不同解题环境
 - ✍️ **多解法支持**: 同一题目支持编写多种解法。您可为每种方案编写代码、测试用例与解题说明，全方位探索不同思路
 - 📊 **持续更新**: 更多强大功能即将上线，全面提升您的编程竞赛体验！
+
+**现已推出安卓版本！** 📱 从 [Google Play](https://play.google.com/store/apps/details?id=com.wenjunhuang.codeepiphanyapp) 下载我们的移动应用，随时随地刷题练习。您的支持是我们前进的动力！[<img src="https://play.google.com/intl/en_us/badges/static/images/badges/zh-cn_badge_web_generic.png" width="200" alt="Get it on Google Play">](https://play.google.com/store/apps/details?id=com.wenjunhuang.codeepiphanyapp)
 
 ### 🔗 Learn More
 - **[📖Documentation](https://github.com/WenjunHuang/CodeEpiphany/wiki)**

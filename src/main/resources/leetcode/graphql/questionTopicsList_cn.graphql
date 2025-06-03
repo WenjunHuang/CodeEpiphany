@@ -1,0 +1,65 @@
+query questionTopicsList($questionSlug: String!, $skip: Int, $first: Int, $orderBy: SolutionArticleOrderBy, $userInput: String, $tagSlugs: [String!]) {
+  questionSolutionArticles(
+    questionSlug: $questionSlug
+    skip: $skip
+    first: $first
+    orderBy: $orderBy
+    userInput: $userInput
+    tagSlugs: $tagSlugs
+  ) {
+    totalNum
+    edges {
+      node {
+        rewardEnabled
+        canEditReward
+        uuid
+        title
+        slug
+        sunk
+        chargeType
+        status
+        identifier
+        canEdit
+        canSee
+        reactionType
+        hasVideo
+        favoriteCount
+        upvoteCount
+        reactions: reactionsV2 {
+          count
+          reactionType
+        }
+        tags {
+          name
+          nameTranslated
+          slug
+          tagType
+        }
+        createdAt
+        thumbnail
+        author {
+          username
+          certificationLevel
+          userAvatar: profile{userAvatar}
+          userSlug: profile{userSlug}
+          realName: profile{realName}
+        }
+        summary
+        topic {
+          id
+          commentCount
+        }
+        byLeetcode
+        isMyFavorite
+        isMostPopular
+        isEditorsPick
+        hitCount
+        videosInfo {
+          videoId
+          coverUrl
+          duration
+        }
+      }
+    }
+  }
+}

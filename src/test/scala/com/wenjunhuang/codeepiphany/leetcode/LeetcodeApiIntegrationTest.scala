@@ -10,7 +10,7 @@ import com.wenjunhuang.codeepiphany.model.CodeDojo
 import com.wenjunhuang.codeepiphany.model.CodeDojo.{ LeetCode, LeetCodeCN }
 import com.wenjunhuang.codeepiphany.services.http.{ HttpClientManager, HttpClientService }
 import com.wenjunhuang.codeepiphany.utils.CookieUtil
-import com.wenjunhuang.codeepiphany.utils.implicits.*
+import com.wenjunhuang.codeepiphany.utils.syntax.*
 import org.hamcrest.CoreMatchers.*
 import org.hamcrest.MatcherAssert.assertThat
 import java.io.FileInputStream
@@ -212,5 +212,23 @@ class LeetcodeApiIntegrationTest extends BasePlatformTestCase {
 //        .unsafeRunSync()
 //    )
 
+  }
+
+  def testGetSolutionTags(): Unit = {
+    val httpClientService = HttpClientService.getInstance(getProject)
+    import httpClientService.*
+    val leetCodeCNApi = LeetCodeApi[IO](LeetCodeCN)
+    println(
+      (setCookie(httpClientManager) *>
+        leetCodeCNApi
+          .getSolutionTags("two-sum"))
+        .unsafeRunSync()
+    )
+    //    val leetCodeApi = LeetCodeApi[IO](LeetCode)
+    //    println(
+    //      (setCookie(httpClientManager) *> leetCodeApi
+    //        .searchCompanyChallenges(0, 20, List("facebook"), Nil, None, None, None))
+    //        .unsafeRunSync()
+    //    )
   }
 }

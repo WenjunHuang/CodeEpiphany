@@ -218,10 +218,10 @@ object OkHttpBuilder {
     * @param okHttpClient
     *   the underlying client.
     */
-  def fromUnmanaged[F[_]: Async: HttpClientManager: LoggerFactory](okHttpClient: OkHttpClient): OkHttpBuilder[F] =
+  def fromUnmanaged[F[_]: { Async, HttpClientManager, LoggerFactory }](okHttpClient: OkHttpClient): OkHttpBuilder[F] =
     new OkHttpBuilder[F](okHttpClient) {}
 
-  private def defaultOkHttpClient[F[_]: Async: LoggerFactory]: Resource[F, OkHttpClient] =
+  private def defaultOkHttpClient[F[_]: { Async, LoggerFactory }]: Resource[F, OkHttpClient] =
     Resource.make(Async[F].delay(new OkHttpClient()))(shutdown(_))
 
   private def shutdown[F[_]](client: OkHttpClient)(implicit F: Async[F], loggerFactory: LoggerFactory[F]) =

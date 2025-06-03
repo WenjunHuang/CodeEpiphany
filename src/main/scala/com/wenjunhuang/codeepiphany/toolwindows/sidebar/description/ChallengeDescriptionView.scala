@@ -1,7 +1,7 @@
 package com.wenjunhuang.codeepiphany.toolwindows.sidebar.description
 
 import java.awt.Insets
-import java.awt.event.{MouseWheelEvent, MouseWheelListener}
+import java.awt.event.{ MouseWheelEvent, MouseWheelListener }
 import javax.swing.JComponent
 
 import com.intellij.ide.CopyProvider
@@ -11,20 +11,23 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.SimpleToolWindowPanel
 import com.intellij.openapi.util.Disposer
 import com.intellij.ui.PopupHandler
-import com.intellij.util.ui.{JBInsets, JBUI}
+import com.intellij.util.ui.{ JBInsets, JBUI }
 
+import com.wenjunhuang.codeepiphany.actions.webview.WebviewActionProvider
 import com.wenjunhuang.codeepiphany.model.CodeDojo
+import com.wenjunhuang.codeepiphany.services.WebViewStyleProvider
 import com.wenjunhuang.codeepiphany.toolwindows.sidebar.SidebarActions
-import com.wenjunhuang.codeepiphany.utils.actions.{DataSink, UiDataProvider}
+import com.wenjunhuang.codeepiphany.utils.actions.{ DataSink, UiDataProvider }
 import com.wenjunhuang.codeepiphany.utils.isDebug
 
 class ChallengeDescriptionView(private val myPresenter: ChallengeDescriptionPresenter, private val myProject: Project)
     extends SimpleToolWindowPanel(true)
-    with ChallengeDescriptionStyleProvider
+    with WebViewStyleProvider
     with CopyProvider
     with UiDataProvider
+    with WebviewActionProvider
     with Disposable {
-  private val myViewer = JCefDescriptionView(myPresenter, this, myProject)
+  private val myViewer = DescriptionJCefView(myPresenter, this, myProject)
 
   private val MOUSE_WHEEL_LISTENER = new MouseWheelListener {
     override def mouseWheelMoved(e: MouseWheelEvent): Unit =
@@ -56,11 +59,9 @@ class ChallengeDescriptionView(private val myPresenter: ChallengeDescriptionPres
     )
 
   override def uiDataSnapshot(dataSink: DataSink): Unit = {
-    dataSink.set(ChallengeDescriptionView.DATA_KEY, this)
+    dataSink.set(WebviewActionProvider.DATA_KEY, this)
     dataSink.set(PlatformDataKeys.COPY_PROVIDER, this)
   }
-
-
 
   override def dispose(): Unit =
     myViewer.preferredFocusedComponent.removeMouseWheelListener(MOUSE_WHEEL_LISTENER)
@@ -69,17 +70,17 @@ class ChallengeDescriptionView(private val myPresenter: ChallengeDescriptionPres
   def setDescription(content: Option[(String, CodeDojo)]): Unit =
     myViewer.setDescription(content)
 
-  def zoomIn(): Unit = myViewer.zoomIn()
+  override def zoomIn(): Unit = myViewer.zoomIn()
 
-  def zoomOut(): Unit = myViewer.zoomOut()
+  override def zoomOut(): Unit = myViewer.zoomOut()
 
-  def canZoomIn: Boolean = myViewer.canZoomIn
+  override def canZoomIn: Boolean = myViewer.canZoomIn
 
-  def canZoomOut: Boolean = myViewer.canZoomOut
+  override def canZoomOut: Boolean = myViewer.canZoomOut
 
-  def actualZoom(): Unit = myViewer.actualZoom()
+  override def actualZoom(): Unit = myViewer.actualZoom()
 
-  def zoom: Double = myViewer.zoom
+  override def zoom: Double = myViewer.zoom
 
   override def performCopy(dataContext: DataContext): Unit =
     myViewer.performCopy()
@@ -106,8 +107,4 @@ class ChallengeDescriptionView(private val myPresenter: ChallengeDescriptionPres
     )
     Some(insets.top, insets.right, insets.bottom, insets.left)
   }
-}
-
-object ChallengeDescriptionView {
-  val DATA_KEY: DataKey[ChallengeDescriptionView] = DataKey.create[ChallengeDescriptionView]("DescriptionView")
 }

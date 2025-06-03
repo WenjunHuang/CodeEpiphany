@@ -4,7 +4,7 @@ import cats.effect.Concurrent
 import cats.effect.kernel.Async
 import cats.syntax.all.*
 import fs2.Stream
-import org.jooq.{DSLContext, Record}
+import org.jooq.{ DSLContext, Record }
 import org.typelevel.ci.CIString
 import org.typelevel.log4cats.LoggerFactory
 import scala.jdk.OptionConverters.*
@@ -13,15 +13,15 @@ import com.intellij.openapi.project.Project
 
 import com.wenjunhuang.codeepiphany.atcoder.models.AtCoderSubmissionResponse
 import com.wenjunhuang.codeepiphany.atcoder.settings.AtCoderSettingsConfigurable
-import com.wenjunhuang.codeepiphany.database.Tables.{ATCODER_CHALLENGE, CHALLENGE, CHALLENGE_LANGUAGE}
-import com.wenjunhuang.codeepiphany.model.{Language, LanguageVersion, SubmissionResult}
+import com.wenjunhuang.codeepiphany.database.Tables.{ ATCODER_CHALLENGE, CHALLENGE, CHALLENGE_LANGUAGE }
+import com.wenjunhuang.codeepiphany.model.{ Language, LanguageVersion, SubmissionResult }
 import com.wenjunhuang.codeepiphany.model.newtypes.SubmissionId
 import com.wenjunhuang.codeepiphany.model.CodeDojo.AtCoder
-import com.wenjunhuang.codeepiphany.services.{console, BaseSubmissionService, ChallengeRepository}
+import com.wenjunhuang.codeepiphany.services.{ console, BaseSubmissionService, ChallengeRepository }
 import com.wenjunhuang.codeepiphany.services.http.HttpClientManager
 import com.wenjunhuang.codeepiphany.settings.ChallengeSettings.ChallengeSettingsStateItem
 
-class AtCoderSubmissionService[F[_]: Async: Concurrent: HttpClientManager: LoggerFactory](project: Project)
+class AtCoderSubmissionService[F[_]: { Async, Concurrent, HttpClientManager, LoggerFactory }](project: Project)
     extends BaseSubmissionService[F](project, AtCoder) {
   override type SubmissionRequest  = Request
   override type SubmissionResponse = AtCoderSubmissionResponse
@@ -39,7 +39,7 @@ class AtCoderSubmissionService[F[_]: Async: Concurrent: HttpClientManager: Logge
   ): SubmissionResponseInfo = SubmissionResponseInfo(response.result, response.message, response.submissionId)
 
   override protected def callApi(basicInfo: Request, processedCode: String): Stream[F, AtCoderSubmissionResponse] =
-    AtCoderApi[F]().submitAnswer(basicInfo.contestId, basicInfo.problemId, basicInfo.languageId, processedCode)
+    AtCoderApi[F].submitAnswer(basicInfo.contestId, basicInfo.problemId, basicInfo.languageId, processedCode)
 
   override protected def reportSubmitResult(
     lastResponseInfo: SubmissionResponseInfo,

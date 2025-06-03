@@ -6,7 +6,7 @@ import org.http4s.client.Client
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.project.Project
 
-import com.wenjunhuang.codeepiphany.utils.implicits.*
+import com.wenjunhuang.codeepiphany.utils.syntax.*
 
 @Service
 final class HttpClientService(private val project: Project) {

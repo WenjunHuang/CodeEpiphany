@@ -14,15 +14,15 @@ object CodoDojoHeaders {
   private def getCodeForcesHeader: String =
     // language=HTML
     """
-      |<script type="text/javascript" async src="https://codeforces.com/mathjax.codeforces.org/MathJax.js?config=TeX-AMS_HTML-full"></script>
-      |<script type="text/x-mathjax-config">
-      |    MathJax.Hub.Config({
-      |      tex2jax: {inlineMath: [['$$$','$$$']], displayMath: [['$$$$$$','$$$$$$']]}
-      |    });
-      |    MathJax.Hub.Register.StartupHook("End", function () {
-      |        Codeforces.runMathJaxListeners();
-      |    });
+      |<script type="text/javascript">
+      |    window.MathJax = {
+      |      tex2jax: {
+      |        inlineMath: [['$$$','$$$']], 
+      |        displayMath: [['$$$$$$','$$$$$$']]
+      |      }
+      |    };
       |</script>
+      |<script type="text/javascript" src="https://codeforces.com/mathjax.codeforces.org/MathJax.js?config=TeX-AMS_HTML-full"></script>
       |""".stripMargin
 
   private def getAtCoderHeader: String =

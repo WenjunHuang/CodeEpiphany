@@ -26,7 +26,7 @@ import com.wenjunhuang.codeepiphany.services.{ console, AskForLoginResult, AuthS
 import com.wenjunhuang.codeepiphany.services.http.{ HttpClientManager, HttpClientService }
 import com.wenjunhuang.codeepiphany.utils.actions.DataSink
 import com.wenjunhuang.codeepiphany.utils.extensions.*
-import com.wenjunhuang.codeepiphany.utils.implicits.*
+import com.wenjunhuang.codeepiphany.utils.syntax.*
 import com.wenjunhuang.codeepiphany.utils.ui.UnauthenticatedView
 
 class LuoGuChallengesView(private val myProject: Project) extends BaseChallengesView[LuoGuUI] {
@@ -49,9 +49,7 @@ class LuoGuChallengesView(private val myProject: Project) extends BaseChallenges
 
   select(myCurrentUI, false)
 
-  private def initialize(): IO[LuoGuBootstrapParameters] = LuoGuApi[IO]().getUserInfo.map { userInfo =>
-    LuoGuBootstrapParameters(userInfo)
-  }
+  private def initialize(): IO[LuoGuBootstrapParameters] = LuoGuApi[IO].getUserInfo.map(LuoGuBootstrapParameters.apply)
 
   private val myLoginLogoutProvider = new LoginLogoutProvider {
     override def login(): Unit = {

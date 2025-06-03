@@ -13,23 +13,17 @@ trait DiagnosticLoggerFactory[F[_]] extends LoggerFactory[F] {
 }
 
 object DiagnosticLoggerInternal {
-  private def contextLog[F[_]](
-      isEnabled: F[Boolean],
-      ctx: Map[String, String],
-      logging: () => Unit
-  )(implicit F: Sync[F]): F[Unit] = {
+  private def contextLog[F[_]](isEnabled: F[Boolean], ctx: Map[String, String], logging: () => Unit)(implicit
+    F: Sync[F]
+  ): F[Unit] = {
 
     val ifEnabled = F.delay(logging())
 
-    isEnabled.ifM(
-      ifEnabled,
-      F.unit
-    )
+    isEnabled.ifM(ifEnabled, F.unit)
   }
 
-  final class DiagnosticLogger[F[_]](val logger: jLogger, sync: Sync.Type = Sync.Type.Delay)(implicit
-      F: Sync[F]
-  ) extends SelfAwareStructuredLogger[F] {
+  final class DiagnosticLogger[F[_]](val logger: jLogger, sync: Sync.Type = Sync.Type.Delay)(implicit F: Sync[F])
+      extends SelfAwareStructuredLogger[F] {
 
     override def isTraceEnabled: F[Boolean] = F.delay(logger.isTraceEnabled)
 
@@ -137,6 +131,7 @@ trait LoggerOps {
 
     override def fromName(name: String): F[SelfAwareStructuredLogger[F]] = Sync[F].delay(getLoggerFromName(name))
   }
-  implicit val loggingIO: LoggerFactory[IO]        = makeLoggerFactory[IO]
-  implicit val loggingSynIO: LoggerFactory[SyncIO] = makeLoggerFactory[SyncIO]
+  implicit val loggingIO: LoggerFactory[IO]           = makeLoggerFactory[IO]
+//  implicit val loggingFactoryGenIO: LoggerFactoryGen[IO] = loggingIO
+  implicit val loggingSynIO: LoggerFactory[SyncIO]       = makeLoggerFactory[SyncIO]
 }

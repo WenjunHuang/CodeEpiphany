@@ -18,7 +18,7 @@ import com.intellij.openapi.util.io.FileUtil
 
 import com.wenjunhuang.codeepiphany.model.Constants
 import com.wenjunhuang.codeepiphany.settings.CodeEpiphanySettings
-import com.wenjunhuang.codeepiphany.utils.implicits.*
+import com.wenjunhuang.codeepiphany.utils.syntax.*
 import com.wenjunhuang.codeepiphany.utils.isDebug
 
 @Service(Array(Level.PROJECT))

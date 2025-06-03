@@ -12,7 +12,7 @@ import com.intellij.openapi.project.Project
 
 import com.wenjunhuang.codeepiphany.services.http.HttpClientManager
 import com.wenjunhuang.codeepiphany.toolwindows.sidebar.{LogConsoleView, SidebarWindowFactory}
-import com.wenjunhuang.codeepiphany.utils.implicits.*
+import com.wenjunhuang.codeepiphany.utils.syntax.*
 
 object console {
   def info[F[_]: Async](project: Project, messages: MessageSeg*): F[Unit] =
@@ -42,7 +42,7 @@ object console {
   private def currentDateTime(): String =
     LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
 
-  def showConsole[F[_]: Async: Concurrent: HttpClientManager: LoggerFactory](project: Project): F[Unit] = {
+  def showConsole[F[_]: {Async, Concurrent, HttpClientManager, LoggerFactory}](project: Project): F[Unit] = {
     Async[F].delay { SidebarWindowFactory.activate(project, LogConsoleView.DISPLAY_NAME) }.evalOnEDTDefault()
   }
 
