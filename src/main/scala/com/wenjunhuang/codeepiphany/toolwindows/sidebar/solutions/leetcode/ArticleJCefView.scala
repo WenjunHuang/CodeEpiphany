@@ -1,15 +1,19 @@
 package com.wenjunhuang.codeepiphany.toolwindows.sidebar.solutions.leetcode
 
 import cats.effect.IO
+
 import com.intellij.openapi.project.Project
+
 import com.wenjunhuang.codeepiphany.model.CodeDojo
 import com.wenjunhuang.codeepiphany.services.WebViewStyleProvider
 import com.wenjunhuang.codeepiphany.utils.jcef.BaseJCefWebView
 import com.wenjunhuang.codeepiphany.toolwindows.sidebar.solutions.leetcode.ArticleJCefView.*
 import com.wenjunhuang.codeepiphany.utils.syntax.*
-
 import java.nio.charset.StandardCharsets
 import java.util.Base64
+import org.cef.browser.CefFrame
+import org.cef.network.CefRequest
+import org.typelevel.ci.CIString
 
 class ArticleJCefView(
   private val presenter: ArticleDetailPresenter,
@@ -52,7 +56,14 @@ class ArticleJCefView(
 
   override protected def getIndexPath: String = "leetCodeSolutionArticle/index.html"
 
-
+  override protected def requestFilter(frame: CefFrame, req: CefRequest): Boolean = {
+    if (!frame.isMain && CIString(req.getURL).contains(CodeDojo.LeetCode.domain)) {
+      // leetcode 的iframe，需要自己处理
+      false
+    } else {
+      true
+    }
+  }
   @volatile
   var myContent: Option[(String, CodeDojo)] = None
 

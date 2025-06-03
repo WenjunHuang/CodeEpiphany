@@ -1,6 +1,7 @@
 package com.wenjunhuang.codeepiphany.utils.jcef
 
 import cats.effect.SyncIO
+
 import com.intellij.ide.ui.LafManagerListener
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.application.ApplicationManager
@@ -8,6 +9,7 @@ import com.intellij.openapi.editor.colors.{ EditorColorsListener, EditorColorsMa
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
 import com.intellij.ui.jcef.*
+
 import com.wenjunhuang.codeepiphany.services.WebViewStyleProvider
 import com.wenjunhuang.codeepiphany.utils.syntax.*
 import com.wenjunhuang.codeepiphany.utils.{ isDebug, ResourceHttpServer }
@@ -19,8 +21,8 @@ import org.cef.handler.*
 import org.cef.network.CefRequest
 import org.intellij.lang.annotations.Language
 import org.typelevel.log4cats.{ Logger, LoggerFactory }
-
 import javax.swing.JComponent
+import scala.util.matching.Regex
 
 /** Abstract base class for JCef-based web views. Provides common functionality for browser setup, event handling, and
   * resource management.
@@ -63,7 +65,7 @@ abstract class BaseJCefWebView(
         execute(s"window.sendInfo = function(info_text) {${myViewerStateJSQuery.inject("info_text")};}")
   }
 
-  private val myRequestHandlerAdapter = new CefRemoteRequestHandler(myProject) {
+  private val myRequestHandlerAdapter = new CefRemoteRequestHandler(myProject, requestFilter) {
     override def onBeforeBrowse(
       browser: CefBrowser,
       frame: CefFrame,
@@ -158,6 +160,8 @@ abstract class BaseJCefWebView(
   def reloadStyles(): Unit = execute("reloadStyles()")
 
   def performCopy(): Unit = myBrowser.getCefBrowser.getMainFrame.copy()
+
+  protected def requestFilter(frame:CefFrame,req:CefRequest):Boolean = true
 
   protected def execute(@Language("javascript") script: String): Unit =
     myBrowser.getCefBrowser.executeJavaScript(script, myBrowser.getCefBrowser.getURL, 0)

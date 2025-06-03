@@ -1,21 +1,21 @@
 package com.wenjunhuang.codeepiphany.utils.jcef
 
-import cats.effect.{IO, Resource}
+import cats.effect.{ IO, Resource }
 import cats.syntax.all.*
 import fs2.concurrent.SignallingRef
 
 import java.util as ju
 import java.nio.ByteBuffer
 import java.util.concurrent.ArrayBlockingQueue
-import org.cef.browser.{CefBrowser, CefFrame}
+import org.cef.browser.{ CefBrowser, CefFrame }
 import org.cef.callback.CefCallback
 import org.cef.handler.*
-import org.cef.misc.{BoolRef, IntRef, StringRef}
-import org.cef.network.{CefPostDataElement, CefRequest, CefResponse}
-import org.http4s.{Headers, Method, Status, Uri}
+import org.cef.misc.{ BoolRef, IntRef, StringRef }
+import org.cef.network.{ CefPostDataElement, CefRequest, CefResponse }
+import org.http4s.{ Headers, Method, Status, Uri }
 import org.http4s.client.dsl.Http4sClientDsl
-import org.http4s.headers.{`Content-Length`, `Content-Type`}
-import org.typelevel.log4cats.{Logger, LoggerFactory}
+import org.http4s.headers.{ `Content-Length`, `Content-Type` }
+import org.typelevel.log4cats.{ Logger, LoggerFactory }
 
 import scala.jdk.CollectionConverters.*
 import com.intellij.openapi.project.Project
@@ -27,8 +27,8 @@ import com.wenjunhuang.codeepiphany.utils.jcef.CefRemoteRequestHandler.createRes
 
 import scala.util.matching.Regex
 
-open class CefRemoteRequestHandler(private val project: Project,
-                                   private val matcher:Regex) extends CefRequestHandlerAdapter {
+open class CefRemoteRequestHandler(private val project: Project, private val myFilter: (CefFrame,CefRequest)=>Boolean = { (_, _) => true })
+    extends CefRequestHandlerAdapter {
   override def getResourceRequestHandler(
     browser: CefBrowser,
     frame: CefFrame,
@@ -38,11 +38,11 @@ open class CefRemoteRequestHandler(private val project: Project,
     requestInitiator: String,
     disableDefaultHandling: BoolRef
   ): CefResourceRequestHandler = {
-    if (matcher.matches(request.getURL)) {
+    if (myFilter(frame, request)) {
+      null
+    } else {
       // If the URL matches the regex, we handle it locally
       createResourceRequestHandler(project)
-    } else {
-      null
     }
   }
 }
@@ -141,7 +141,8 @@ object CefRemoteRequestHandler {
           ): Unit = {
             response.setStatus(status.code)
             headers.headers.map(h => (h.name.toString, h.value)).toMap.foreach { case (k, v) =>
-              response.setHeaderByName(k, v, true)
+              if k.toLowerCase != "content-security-policy" then
+                response.setHeaderByName(k, v, true)
             }
             response.setMimeType(headers.get[`Content-Type`].map(_._1.show).getOrElse("text/html"))
             responseLength.set(headers.get[`Content-Length`].map(_.length).getOrElse(-1L).toInt)
