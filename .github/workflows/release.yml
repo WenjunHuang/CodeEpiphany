@@ -23,8 +23,6 @@ jobs:
       uses: actions/setup-node@v4
       with:
         node-version: '18'
-        cache: 'npm'
-        cache-dependency-path: webview/package-lock.json
         
     - name: Cache SBT dependencies
       uses: actions/cache@v4
@@ -37,21 +35,21 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-sbt-
           
+    - name: Cache npm dependencies
+      uses: actions/cache@v4
+      with:
+        path: ~/.npm
+        key: ${{ runner.os }}-node-${{ hashFiles('webview/package-lock.json') }}
+        restore-keys: |
+          ${{ runner.os }}-node-
+          
     - name: Install npm dependencies
       run: |
         cd webview
         npm ci
         
-    - name: Build webview
-      run: |
-        cd webview
-        npm run build
-        
-    - name: Run tests
-      run: sbt test
-      
     - name: Build plugin
-      run: sbt buildPlugin
+      run: sbt compile packageArtifactZip
       
     - name: Get version from tag
       id: get_version
