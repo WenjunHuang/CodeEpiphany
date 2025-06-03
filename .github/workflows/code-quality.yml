@@ -20,6 +20,11 @@ jobs:
         java-version: '17'
         distribution: 'temurin'
         
+    - name: Setup SBT
+      uses: olafurpg/setup-scala@v14
+      with:
+        java-version: '17'
+        
     - name: Cache SBT dependencies
       uses: actions/cache@v4
       with:
