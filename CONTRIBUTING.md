@@ -36,17 +36,29 @@ Thank you for your interest in contributing to CodeEpiphany! This document provi
    sbt test
    ```
 
+### Quick Build Testing
+
+To test the full build process locally (simulating CI):
+
+- **Linux/macOS**: `./scripts/test-build.sh`
+- **Windows**: `scripts\test-build.cmd`
+
+These scripts will:
+- Install npm dependencies
+- Build the project with SBT
+- Create the plugin artifact
+- Verify the build output
+
 ## CI/CD Workflows
 
 ### Continuous Integration (CI)
 
 The CI workflow runs on every push and pull request to `main` and `develop` branches:
 
-- **Java Matrix Testing**: Tests on Java 17 and 21
-- **Dependencies**: Caches SBT and npm dependencies
-- **Webview Build**: Builds frontend assets with npm
-- **Testing**: Runs all SBT tests
-- **Plugin Build**: Creates plugin artifact
+- **Java Version**: Tests on Java 17
+- **Dependencies**: Caches SBT and npm dependencies separately for better reliability
+- **Webview Build**: Automatically built during SBT compilation
+- **Plugin Build**: Creates plugin artifact using `packageArtifactZip`
 
 ### Code Quality
 
@@ -94,7 +106,7 @@ Example: `feat: Add support for new coding platform`
 
 1. Create a feature branch from `develop`
 2. Make your changes following the code standards
-3. Test locally with `sbt test` and `npm run build`
+3. Test locally with the build scripts or manually
 4. Format code with `sbt scalafmtAll`
 5. Commit with conventional messages
 6. Push and create PR to `develop` branch
@@ -106,7 +118,15 @@ Example: `feat: Add support for new coding platform`
 2. Create tag - Push a version tag (e.g., `v1.2.3`)
 3. Automated release - GitHub Actions will create the release
 
-## Getting Help
+## Troubleshooting
+
+### Common Issues
+
+1. **Node.js cache errors**: The CI now uses separate npm cache actions to avoid path issues
+2. **SBT build failures**: Use `packageArtifactZip` instead of deprecated `buildPlugin`
+3. **Webview build**: The webview is automatically built during SBT compilation
+
+### Getting Help
 
 - **Issues**: [GitHub Issues](https://github.com/WenjunHuang/CodeEpiphany/issues)
 - **Wiki**: Check the [project wiki](https://github.com/WenjunHuang/CodeEpiphany/wiki)
