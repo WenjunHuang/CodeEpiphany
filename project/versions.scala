@@ -6,7 +6,7 @@ object versions {
   val intellijBuild241                   = "241.14494.240"
   var intellijBuild252                   = "252.13776.59"
 
-  val (intellijBuild, sinceBuild, untilBuild) = getBuildPart(intellijBuild252)
+  val (intellijBuild, sinceBuild, untilBuild) = getBuildPart(intellijBuild233)
   val pluginVersion: String                   = "1.2.0"
 
   def getBuildPart(build: String): (String, String, String) = {

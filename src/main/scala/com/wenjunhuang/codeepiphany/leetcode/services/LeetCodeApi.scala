@@ -1,19 +1,19 @@
 package com.wenjunhuang.codeepiphany.leetcode.services
 
-import cats.effect.{Async, Concurrent, IO, Resource, Temporal}
+import cats.effect.{ Async, Concurrent, IO, Resource, Temporal }
 import cats.syntax.all.*
 import fs2.Stream
 import io.circe.*
 import io.circe.optics.JsonPath
 import io.circe.syntax.*
-import org.http4s.{Headers, Method, Uri}
+import org.http4s.{ Headers, Method, Uri }
 import org.http4s.circe.CirceEntityCodec.*
 import org.http4s.client.dsl.Http4sClientDsl
-import org.http4s.client.{Client, UnexpectedStatus}
+import org.http4s.client.{ Client, UnexpectedStatus }
 import org.http4s.headers.Referer
 import org.typelevel.ci.CIString
 import scala.concurrent.duration.*
-import scala.io.{BufferedSource, Source}
+import scala.io.{ BufferedSource, Source }
 
 import com.intellij.openapi.project.Project
 import com.intellij.util.LineSeparator
@@ -21,10 +21,14 @@ import com.intellij.util.LineSeparator
 import com.wenjunhuang.codeepiphany.leetcode.models
 import com.wenjunhuang.codeepiphany.leetcode.models.*
 import com.wenjunhuang.codeepiphany.leetcode.models.runCode.*
-import com.wenjunhuang.codeepiphany.leetcode.models.submitAnswer.{LeetCodeSubmitAnswerRequest, LeetCodeSubmitAnswerResponse, LeetCodeSubmitAnswerResult}
+import com.wenjunhuang.codeepiphany.leetcode.models.submitAnswer.{
+  LeetCodeSubmitAnswerRequest,
+  LeetCodeSubmitAnswerResponse,
+  LeetCodeSubmitAnswerResult
+}
 import com.wenjunhuang.codeepiphany.model.*
-import com.wenjunhuang.codeepiphany.model.CodeDojo.{LeetCode, LeetCodeCN}
-import com.wenjunhuang.codeepiphany.services.http.{HttpClientManager, HttpClientService}
+import com.wenjunhuang.codeepiphany.model.CodeDojo.{ LeetCode, LeetCodeCN }
+import com.wenjunhuang.codeepiphany.services.http.{ HttpClientManager, HttpClientService }
 
 enum LeetCodeSearchOrderBy(val value: String) {
   case FontEndId   extends LeetCodeSearchOrderBy("FRONTEND_ID")
@@ -49,6 +53,7 @@ object LeetCodeSearchOrderBy {
 }
 
 trait LeetCodeApi[F[_]] {
+  def getCSRFToken: F[String]
   def getFavoriteList: F[List[LeetCodeFavoriteItem]]
   def getCategoryList: F[List[LeetCodeCategoryListItem]]
   def getTagTypeWithTags: F[List[LeetCodeTagTypeWithTags]]
@@ -358,18 +363,35 @@ object LeetCodeApi {
     }
 
     override def getFavoriteList: F[List[LeetCodeFavoriteItem]] = HttpClientManager[F].getClient.use { client =>
-      client.expect[List[LeetCodeFavoriteItem]](s"https://${dojo.domain.toString}/problems/api/favorites/")
+      for
+        csrfToken <- getCSRFToken
+        response <- client.expect[List[LeetCodeFavoriteItem]](
+          Method.GET(
+            Uri.unsafeFromString(s"https://${dojo.domain.toString}/problems/api/favorites/"),
+            headers = commonHeaders(csrfToken)
+          )
+        )
+      yield response
     }
 
     override def getCategoryList: F[List[LeetCodeCategoryListItem]] = useClient { client =>
-      client.expect[Json](s"https://${dojo.domain.toString}/problems/api/card-info/").flatMap { json =>
-        JsonPath.root.categories
-          .selectDynamic("0")
-          .json
-          .getOption(json)
-          .toRight(ApiError.InvalidContent(dojo, "can not find 'categories.0' in json"))
-          .flatMap(_.as[List[LeetCodeCategoryListItem]])
-          .liftTo[F]
+      getCSRFToken.flatMap { csrfToken =>
+        client
+          .expect[Json](
+            Method.GET(
+              Uri.unsafeFromString(s"https://${dojo.domain.toString}/problems/api/card-info/"),
+              headers = commonHeaders(csrfToken)
+            )
+          )
+          .flatMap { json =>
+            JsonPath.root.categories
+              .selectDynamic("0")
+              .json
+              .getOption(json)
+              .toRight(ApiError.InvalidContent(dojo, "can not find 'categories.0' in json"))
+              .flatMap(_.as[List[LeetCodeCategoryListItem]])
+              .liftTo[F]
+          }
       }
     }
 
@@ -733,7 +755,7 @@ object LeetCodeApi {
       }
     }
 
-    private def getCSRFToken: F[String] =
+    override def getCSRFToken: F[String] =
       useClient { client =>
         client.get[String](Uri.unsafeFromString(s"https://${dojo.domain.toString}/api/home/")) { response =>
           response.cookies.find(_.name == "csrftoken") match

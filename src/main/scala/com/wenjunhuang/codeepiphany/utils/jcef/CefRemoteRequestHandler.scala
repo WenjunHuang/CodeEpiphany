@@ -1,34 +1,37 @@
 package com.wenjunhuang.codeepiphany.utils.jcef
 
-import cats.effect.{ IO, Resource }
+import cats.effect.{IO, Resource}
 import cats.syntax.all.*
 import fs2.concurrent.SignallingRef
-
 import java.util as ju
+import java.io.ByteArrayOutputStream
 import java.nio.ByteBuffer
 import java.util.concurrent.ArrayBlockingQueue
-import org.cef.browser.{ CefBrowser, CefFrame }
+import org.cef.browser.{CefBrowser, CefFrame}
 import org.cef.callback.CefCallback
 import org.cef.handler.*
-import org.cef.misc.{ BoolRef, IntRef, StringRef }
-import org.cef.network.{ CefPostDataElement, CefRequest, CefResponse }
-import org.http4s.{ Headers, Method, Status, Uri }
+import org.cef.misc.{BoolRef, IntRef, StringRef}
+import org.cef.network.{CefPostDataElement, CefRequest, CefResponse}
+import org.http4s.{Headers, Method, Status, Uri}
 import org.http4s.client.dsl.Http4sClientDsl
-import org.http4s.headers.{ `Content-Length`, `Content-Type` }
-import org.typelevel.log4cats.{ Logger, LoggerFactory }
-
+import org.http4s.headers.{`Content-Length`, `Content-Type`}
+import org.typelevel.log4cats.{Logger, LoggerFactory}
 import scala.jdk.CollectionConverters.*
+
 import com.intellij.openapi.project.Project
+
 import com.wenjunhuang.codeepiphany.services.http.HttpClientService
 import com.wenjunhuang.codeepiphany.utils.*
 import com.wenjunhuang.codeepiphany.utils.extensions.*
 import com.wenjunhuang.codeepiphany.utils.syntax.*
 import com.wenjunhuang.codeepiphany.utils.jcef.CefRemoteRequestHandler.createResourceRequestHandler
-
 import scala.util.matching.Regex
 
-open class CefRemoteRequestHandler(private val project: Project, private val myFilter: (CefFrame,CefRequest)=>Boolean = { (_, _) => true })
-    extends CefRequestHandlerAdapter {
+open class CefRemoteRequestHandler(
+  private val project: Project,
+  private val myFilter: (CefFrame, CefRequest) => Boolean = { (_, _) => true },
+  private val myHeaders: (CefRequest) => IO[Headers] = { _ => IO.pure(Headers.empty) }
+) extends CefRequestHandlerAdapter {
   override def getResourceRequestHandler(
     browser: CefBrowser,
     frame: CefFrame,
@@ -42,15 +45,18 @@ open class CefRemoteRequestHandler(private val project: Project, private val myF
       null
     } else {
       // If the URL matches the regex, we handle it locally
-      createResourceRequestHandler(project)
+      createResourceRequestHandler(project, myHeaders)
     }
   }
 }
 
 object CefRemoteRequestHandler {
-  def createResourceRequestHandler(project: Project): CefResourceRequestHandler =
+  def createResourceRequestHandler(
+    project: Project,
+    createHeaders: CefRequest => IO[Headers] = { _ => IO.pure(Headers.empty) }
+  ): CefResourceRequestHandler =
     new CefResourceRequestHandlerAdapter {
-      override def getResourceHandler(browser: CefBrowser, frame: CefFrame, request: CefRequest): CefResourceHandler =
+      override def getResourceHandler(browser: CefBrowser, frame: CefFrame, request: CefRequest): CefResourceHandler = {
         new CefResourceHandlerAdapter with Http4sClientDsl[IO] {
           @volatile
           var headers: Headers = Headers.empty
@@ -75,61 +81,72 @@ object CefRemoteRequestHandler {
                 val requestUrl     = request.getURL
                 val requestHeaders = request.headers
                 val body = request.getPostData match
-                  case null => Vector.empty
+                  case null => Array.empty[Byte]
                   case b =>
                     val bodyVector = new ju.Vector[CefPostDataElement](b.getElementCount)
                     b.getElements(bodyVector)
-                    bodyVector.asScala.toVector
-                HttpClientService
-                  .getInstance(project)
-                  .http4sClient
-                  .use { client =>
-                    val h4sRequest =
-                      if body.isEmpty then
-                        method.apply(uri = Uri.unsafeFromString(requestUrl), headers = requestHeaders)
-                      else method.apply(body = body, uri = Uri.unsafeFromString(requestUrl), headers = requestHeaders)
+                    val output = ByteArrayOutputStream()
+                    bodyVector.forEach{elem=>
+                      val buf = Array.ofDim[Byte](elem.getBytesCount)
+                      elem.getBytes(buf.length,buf)
+                      output.write(buf)
+                    }
+                    output.toByteArray
 
-                    client
-                      .stream(h4sRequest)
-                      .map { response =>
-                        headers = response.headers
-                        status = response.status
-                        callback.Continue()
-                        response
-                      }
-                      .flatMap(response => response.body.chunkMin(4086))
-                      .evalTap(chunk =>
-                        IO.blocking {
-                          val buffer = chunk.toByteBuffer
-                          queue.put(buffer)
-
-                          readResponseCallback.foreach(_.Continue())
-                          readResponseCallback = None
+                createHeaders(request).flatMap { extraHeaders =>
+                  HttpClientService
+                    .getInstance(project)
+                    .http4sClient
+                    .use { client =>
+                      val h4sRequest =
+                        if (body.isEmpty) {
+                          method.apply(uri = Uri.unsafeFromString(requestUrl), headers = requestHeaders ++ extraHeaders)
+                        } else {
+                          method.apply(body = body, uri = Uri.unsafeFromString(requestUrl), headers = requestHeaders)
                         }
-                      )
-                      .interruptWhen(signal)
-                      .onFinalizeCaseWeak { existCase =>
-                        done = true
-                        val callback = readResponseCallback
-                        readResponseCallback = None
-                        existCase match
-                          case Resource.ExitCase.Canceled =>
-                            callback.foreach(_.cancel())
-                            myLogger.info(s"Request ${method.name} $requestUrl is cancelled")
-                          case Resource.ExitCase.Errored(e) =>
-                            callback.foreach(_.cancel())
-                            myLogger.warn(e)(s"Failed to process ${method.name} $requestUrl")
-                          case Resource.ExitCase.Succeeded =>
-                            callback.foreach(_.Continue())
-                            myLogger.info(s"Request ${method.name} $requestUrl is completed")
-                      }
-                      .compile
-                      .drain
-                  }
-                  .handleErrorWith(e =>
-                    myLogger.warn(e)(s"Failed to process request") *>
-                      IO.delay(callback.cancel())
-                  )
+
+                      client
+                        .stream(h4sRequest)
+                        .map { response =>
+                          headers = response.headers
+                          status = response.status
+                          callback.Continue()
+                          response
+                        }
+                        .flatMap(response => response.body.chunkMin(4086))
+                        .evalTap(chunk =>
+                          IO.blocking {
+                            val buffer = chunk.toByteBuffer
+                            queue.put(buffer)
+
+                            readResponseCallback.foreach(_.Continue())
+                            readResponseCallback = None
+                          }
+                        )
+                        .interruptWhen(signal)
+                        .onFinalizeCaseWeak { existCase =>
+                          done = true
+                          val callback = readResponseCallback
+                          readResponseCallback = None
+                          existCase match
+                            case Resource.ExitCase.Canceled =>
+                              callback.foreach(_.cancel())
+                              myLogger.info(s"Request ${method.name} $requestUrl is cancelled")
+                            case Resource.ExitCase.Errored(e) =>
+                              callback.foreach(_.cancel())
+                              myLogger.warn(e)(s"Failed to process ${method.name} $requestUrl")
+                            case Resource.ExitCase.Succeeded =>
+                              callback.foreach(_.Continue())
+                              myLogger.info(s"Request ${method.name} $requestUrl is completed")
+                        }
+                        .compile
+                        .drain
+                    }
+                    .handleErrorWith(e =>
+                      myLogger.warn(e)(s"Failed to process request") *>
+                        IO.delay(callback.cancel())
+                    )
+                }
                   .unsafeRunAndForget()
 
                 true
@@ -141,8 +158,7 @@ object CefRemoteRequestHandler {
           ): Unit = {
             response.setStatus(status.code)
             headers.headers.map(h => (h.name.toString, h.value)).toMap.foreach { case (k, v) =>
-              if k.toLowerCase != "content-security-policy" then
-                response.setHeaderByName(k, v, true)
+              if k.toLowerCase != "content-security-policy" then response.setHeaderByName(k, v, true)
             }
             response.setMimeType(headers.get[`Content-Type`].map(_._1.show).getOrElse("text/html"))
             responseLength.set(headers.get[`Content-Length`].map(_.length).getOrElse(-1L).toInt)
@@ -169,5 +185,6 @@ object CefRemoteRequestHandler {
 
                 true
         }
+      }
     }
 }
