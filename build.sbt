@@ -88,7 +88,7 @@ buildWebview := {
   }
 }
 
-val pluginVersion: String = "1.2.1"
+val pluginVersion: String = "1.2.2"
 
 lazy val codeEpiphany = (project in file("."))
   .settings(
