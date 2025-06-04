@@ -8,7 +8,31 @@ import scala.util.Using
 
 ThisBuild / scalaVersion     := "3.7.0"
 ThisBuild / intellijPlatform := versions.intellijPlatform
-ThisBuild / intellijBuild    := versions.intellijBuild
+
+// 动态设置IntelliJ版本
+ThisBuild / intellijBuild := {
+  val requestedVersion = sys.props.get("intellij.version").orElse(sys.env.get("INTELLIJ_VERSION"))
+
+  val selectedBuild = requestedVersion match {
+    case Some("233") =>
+      println(s"Using IntelliJ version 233 (${versions.intellijBuild233})")
+      versions.intellijBuild233
+    case Some("241") =>
+      println(s"Using IntelliJ version 241 (${versions.intellijBuild241})")
+      versions.intellijBuild241
+    case Some("252") =>
+      println(s"Using IntelliJ version 252 (${versions.intellijBuild252})")
+      versions.intellijBuild252
+    case Some(other) =>
+      println(s"Warning: Unknown IntelliJ version '$other', falling back to default (252)")
+      versions.intellijBuild252
+    case None =>
+      println(s"No IntelliJ version specified, using default (252: ${versions.intellijBuild252})")
+      versions.intellijBuild252
+  }
+
+  selectedBuild
+}
 
 def markdownToHtml(file: File): String = {
   val options  = new MutableDataSet()
@@ -25,19 +49,19 @@ def markdownToHtml(file: File): String = {
 lazy val buildWebview = taskKey[Unit]("Build webview using npm")
 
 buildWebview := {
-  val log = streams.value.log
+  val log        = streams.value.log
   val webviewDir = baseDirectory.value / "webview"
-  val targetDir = target.value / "webviewResources"
-  
+  val targetDir  = target.value / "webviewResources"
+
   log.info("Building webview with npm...")
-  
+
   // Check if package.json exists
   if (!(webviewDir / "package.json").exists()) {
     log.warn(s"package.json not found in ${webviewDir.getAbsolutePath}")
   } else {
     // Determine npm command based on OS
     val npmCmd = if (System.getProperty("os.name").toLowerCase.contains("windows")) "npm.cmd" else "npm"
-    
+
     // Check if node_modules exists, if not run npm install
     if (!(webviewDir / "node_modules").exists()) {
       log.info("node_modules not found, running npm install...")
@@ -46,28 +70,30 @@ buildWebview := {
         throw new MessageOnlyException("npm install failed")
       }
     }
-    
+
     // Run npm run build
     val buildResult = Process(s"$npmCmd run build", webviewDir).!
     if (buildResult != 0) {
       throw new MessageOnlyException("npm run build failed")
     }
-    
+
     // Verify that build output exists
     if (targetDir.exists()) {
       log.info(s"Webview build output found at ${targetDir.getAbsolutePath}")
     } else {
       log.warn(s"Build output directory ${targetDir.getAbsolutePath} not found")
     }
-    
+
     log.info("Webview build completed successfully")
   }
 }
 
+val pluginVersion: String = "1.2.1"
+
 lazy val codeEpiphany = (project in file("."))
   .settings(
     name         := "CodeEpiphany",
-    version      := s"${versions.pluginVersion}-${VersionNumber(versions.intellijBuild)._1.get}",
+    version      := s"$pluginVersion-${VersionNumber((ThisBuild / intellijBuild).value)._1.get}",
     compileOrder := CompileOrder.Mixed,
     fork         := true,
     scalacOptions ++= Seq(
@@ -92,9 +118,12 @@ lazy val codeEpiphany = (project in file("."))
       )
     ),
     patchPluginXml := pluginXmlOptions { xml =>
+      val currentBuild                = (ThisBuild / intellijBuild).value
+      val (_, sinceBuild, untilBuild) = versions.getBuildPart(currentBuild)
+
       xml.version = version.value
-      xml.sinceBuild = versions.sinceBuild
-      xml.untilBuild = versions.untilBuild
+      xml.sinceBuild = sinceBuild
+      xml.untilBuild = untilBuild
       xml.changeNotes = s"<![CDATA[${markdownToHtml(baseDirectory.value / "CHANGELOG.md")}]]>"
       xml.pluginDescription = s"<![CDATA[${markdownToHtml(baseDirectory.value / "DESCRIPTION.md")}]]>"
     },

@@ -3,7 +3,7 @@
 .metals/
 node_modules/
 metals.sbt
-.bsp/*
+.bsp/
 .vscode/
 out/
 dist/*
