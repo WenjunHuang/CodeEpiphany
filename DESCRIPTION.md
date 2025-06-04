@@ -52,7 +52,9 @@ LeetCode Epiphany
 - ✍️ **多解法支持**: 同一题目支持编写多种解法。您可为每种方案编写代码、测试用例与解题说明，全方位探索不同思路
 - 📊 **持续更新**: 更多强大功能即将上线，全面提升您的编程竞赛体验！
 
-**现已推出安卓版本！** 📱 从 [Google Play](https://play.google.com/store/apps/details?id=com.wenjunhuang.codeepiphanyapp) 下载我们的移动应用，随时随地刷题练习。您的支持是我们前进的动力！[<img src="https://play.google.com/intl/en_us/badges/static/images/badges/zh-cn_badge_web_generic.png" width="200" alt="Get it on Google Play">](https://play.google.com/store/apps/details?id=com.wenjunhuang.codeepiphanyapp)
+**现已推出安卓版本！** 📱 从 [Google Play](https://play.google.com/store/apps/details?id=com.wenjunhuang.codeepiphanyapp) 下载我们的移动应用，随时随地刷题练习。您的支持是我们前进的动力！
+
+[<img src="https://play.google.com/intl/en_us/badges/static/images/badges/zh-cn_badge_web_generic.png" width="200" alt="Get it on Google Play">](https://play.google.com/store/apps/details?id=com.wenjunhuang.codeepiphanyapp)
 
 ### 🔗 Learn More
 - **[📖Documentation](https://github.com/WenjunHuang/CodeEpiphany/wiki)**

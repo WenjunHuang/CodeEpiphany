@@ -2,17 +2,20 @@ name: CI
 
 on:
   push:
-    branches: [ main, develop ]
+    branches: [ develop,main ]
   pull_request:
-    branches: [ main, develop ]
+    branches: [ main ]
 
 jobs:
   build:
     runs-on: ubuntu-latest
+    name: Build with IntelliJ ${{ matrix.intellij-version }}
     
     strategy:
       matrix:
         java-version: [17]
+        intellij-version: [233, 241, 252]
+      fail-fast: false  # 允许其他版本继续构建，即使某个版本失败
         
     steps:
     - name: Checkout code
@@ -41,8 +44,9 @@ jobs:
           ~/.sbt
           ~/.ivy2/cache
           ~/.cache/coursier
-        key: ${{ runner.os }}-sbt-${{ hashFiles('**/build.sbt', 'project/build.properties', 'project/plugins.sbt') }}
+        key: ${{ runner.os }}-sbt-intellij${{ matrix.intellij-version }}-${{ hashFiles('**/build.sbt', 'project/build.properties', 'project/plugins.sbt') }}
         restore-keys: |
+          ${{ runner.os }}-sbt-intellij${{ matrix.intellij-version }}-
           ${{ runner.os }}-sbt-
           
     - name: Cache npm dependencies
@@ -58,13 +62,23 @@ jobs:
         cd webview
         npm ci
 
-    - name: Build plugin
-      run: sbt compile packageArtifactZip
-      
-    - name: Upload build artifacts
-      if: matrix.java-version == '17'
-      uses: actions/upload-artifact@v4
-      with:
-        name: plugin-artifact
-        path: target/*.zip
-        retention-days: 30 
+    - name: Show IntelliJ version configuration
+      run: sbt -Dintellij.version=${{ matrix.intellij-version }} 'show intellijBuild'
+      env:
+        INTELLIJ_VERSION: ${{ matrix.intellij-version }}
+
+    - name: Build and test plugin for IntelliJ ${{ matrix.intellij-version }}
+      run: sbt -Dintellij.version=${{ matrix.intellij-version }} clean compile
+      env:
+        INTELLIJ_VERSION: ${{ matrix.intellij-version }}
+        
+    - name: Package plugin for IntelliJ ${{ matrix.intellij-version }}
+      run: sbt -Dintellij.version=${{ matrix.intellij-version }} packageArtifact
+      env:
+        INTELLIJ_VERSION: ${{ matrix.intellij-version }} 
+        
+    - name: Publish plugin to JetBrains Marketplace
+      if: github.ref == 'refs/heads/main' 
+      run: sbt -Dintellij.version=${{ matrix.intellij-version }} publishPlugin
+      env:
+        IJ_PLUGIN_REPO_TOKEN: ${{ secrets.IJ_PLUGIN_REPO_TOKEN }} 
