@@ -24,14 +24,14 @@ import com.wenjunhuang.codeepiphany.model.{ Actions, CodeDojo }
 import com.wenjunhuang.codeepiphany.model.DifficultyColors.{ DIFFICULTY_EASY_COLOR, DIFFICULTY_MEDIUM_COLOR }
 import com.wenjunhuang.codeepiphany.services.{ ParametersQueryPresenter, QueryContext }
 import com.wenjunhuang.codeepiphany.services.http.{ HttpClientManager, HttpClientService }
-import com.wenjunhuang.codeepiphany.toolwindows.sidebar.solutions.leetcode.LeetCodeSolutionArticlesPresenter.*
+import com.wenjunhuang.codeepiphany.toolwindows.sidebar.solutions.leetcode.SolutionArticlesPresenter.*
 import com.wenjunhuang.codeepiphany.toolwindows.sidebar.solutions.leetcode.actions.ArticleOrderByAction
-import com.wenjunhuang.codeepiphany.utils.{ OrderByColumnInfo, Pagination }
+import com.wenjunhuang.codeepiphany.utils.{ AsyncAvatarLoader, OrderByColumnInfo, Pagination }
 import com.wenjunhuang.codeepiphany.utils.actions.DataSink
 import com.wenjunhuang.codeepiphany.utils.ui.TagPaneAction
 import com.wenjunhuang.codeepiphany.utils.PageSize.Twenty
 
-class LeetCodeSolutionArticlesPresenter(
+class SolutionArticlesPresenter(
   project: Project,
   bootstrapParameters: BootstrapParameters,
   private val myOnSelected: (LeetCodeQuestionSolutionArticle) => Unit,
@@ -245,13 +245,15 @@ class LeetCodeSolutionArticlesPresenter(
       new OrderByColumnInfo[LeetCodeQuestionSolutionArticle, LeetCodeQuestionSolutionArticleAuthor]("Author") {
         override def getPreferredStringValue: String = "Author"
 
-        override def valueOf(item: LeetCodeQuestionSolutionArticle): LeetCodeQuestionSolutionArticleAuthor = item.author
+        override def valueOf(item: LeetCodeQuestionSolutionArticle): LeetCodeQuestionSolutionArticleAuthor = {
+          item.author
+        }
 
         override def getRenderer(item: LeetCodeQuestionSolutionArticle): TableCellRenderer =
           new IconTableCellRenderer[LeetCodeQuestionSolutionArticleAuthor]() {
 
             override def getIcon(value: LeetCodeQuestionSolutionArticleAuthor, table: JTable, row: Int): Icon = {
-              value.avatarIcon.addListener(() => if (table != null) table.repaint())
+              value.avatarIcon.setListener(() => if (table != null) table.repaint())
               value.avatarIcon
             }
 
@@ -360,7 +362,7 @@ class LeetCodeSolutionArticlesPresenter(
   }
 }
 
-object LeetCodeSolutionArticlesPresenter {
+object SolutionArticlesPresenter {
   case class QueryParams(
     questionSlug: String,
     userInput: Option[String],

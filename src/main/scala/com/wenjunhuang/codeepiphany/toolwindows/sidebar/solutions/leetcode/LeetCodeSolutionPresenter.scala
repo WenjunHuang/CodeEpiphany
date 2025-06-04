@@ -82,9 +82,9 @@ class LeetCodeSolutionPresenter(
             userInfo     <- api.getUserInfo
             _ <- IO.delay {
               val articleDetailPresenter = ArticleDetailPresenter(myProject, myCodeDojo)
-              val articlesPresenter = LeetCodeSolutionArticlesPresenter(
+              val articlesPresenter = SolutionArticlesPresenter(
                 myProject,
-                LeetCodeSolutionArticlesPresenter.BootstrapParameters(userInfo, questionSlug, solutionTags),
+                SolutionArticlesPresenter.BootstrapParameters(userInfo, questionSlug, solutionTags),
                 { article =>
                   articleDetailPresenter.setArticle(article)
                 },
