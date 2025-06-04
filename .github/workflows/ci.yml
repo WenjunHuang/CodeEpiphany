@@ -2,9 +2,9 @@ name: CI
 
 on:
   push:
-    branches: [ main, develop ]
+    branches: [ develop,main ]
   pull_request:
-    branches: [ main, develop ]
+    branches: [ main ]
 
 jobs:
   build:
@@ -73,6 +73,12 @@ jobs:
         INTELLIJ_VERSION: ${{ matrix.intellij-version }}
         
     - name: Package plugin for IntelliJ ${{ matrix.intellij-version }}
-      run: sbt -Dintellij.version=${{ matrix.intellij-version }} packageArtifactZip
+      run: sbt -Dintellij.version=${{ matrix.intellij-version }} packageArtifact
       env:
         INTELLIJ_VERSION: ${{ matrix.intellij-version }} 
+        
+    - name: Publish plugin to JetBrains Marketplace
+      if: github.ref == 'refs/heads/main' 
+      run: sbt -Dintellij.version=${{ matrix.intellij-version }} publishPlugin
+      env:
+        IJ_PLUGIN_REPO_TOKEN: ${{ secrets.IJ_PLUGIN_REPO_TOKEN }} 
