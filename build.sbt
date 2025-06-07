@@ -6,6 +6,8 @@ import scala.io.Source
 import scala.sys.process.*
 import scala.util.Using
 
+val pluginVersion: String = "1.2.3"
+
 ThisBuild / scalaVersion     := "3.7.0"
 ThisBuild / intellijPlatform := versions.intellijPlatform
 
@@ -51,7 +53,7 @@ lazy val buildWebview = taskKey[Unit]("Build webview using npm")
 buildWebview := {
   val log        = streams.value.log
   val webviewDir = baseDirectory.value / "webview"
-  val targetDir  = target.value / "webviewResources"
+  val targetDir  = target.value / "webviewResources" / "webview"
 
   log.info("Building webview with npm...")
 
@@ -88,7 +90,6 @@ buildWebview := {
   }
 }
 
-val pluginVersion: String = "1.2.2"
 
 lazy val codeEpiphany = (project in file("."))
   .settings(
@@ -128,7 +129,30 @@ lazy val codeEpiphany = (project in file("."))
       xml.pluginDescription = s"<![CDATA[${markdownToHtml(baseDirectory.value / "DESCRIPTION.md")}]]>"
     },
     // Make buildWebview run before compile
-    Compile / compile := (Compile / compile).dependsOn(buildWebview).value,
+    Compile / unmanagedResources := (Compile / unmanagedResources).dependsOn(buildWebview).value,
+    Compile / unmanagedSourceDirectories += baseDirectory.value / "gen",
+    Compile / unmanagedSourceDirectories += baseDirectory.value / "src" / "main" / "jooq-generated",
+    Compile / unmanagedResourceDirectories += target.value / "webviewResources",
+    Compile / unmanagedSourceDirectories ++= {
+      if (
+        VersionNumber((ThisBuild / intellijBuild).value)
+          .matchesSemVer(SemanticSelector(s">=${versions.intellijBuild252}"))
+      ) {
+        Seq(baseDirectory.value / "src" / "main" / "252")
+      } else if (
+        VersionNumber((ThisBuild / intellijBuild).value)
+          .matchesSemVer(SemanticSelector(s">=${versions.intellijBuild241}"))
+      ) {
+        Seq(baseDirectory.value / "src" / "main" / "241")
+      } else {
+        Seq(baseDirectory.value / "src" / "main" / "233")
+      }
+    },
+    Test / managedResourceDirectories += baseDirectory.value / "testResources",
+    // jooq
+    jooqVersion       := "3.19.18",
+    jooqCodegenConfig := file("jooq-codegen.xml"),
+    jooqCodegenMode   := Unmanaged,
     libraryDependencies ++= Seq(
       // add scala reflect
       "org.typelevel"           %% "cats-effect"              % "3.6.1",
@@ -186,29 +210,6 @@ lazy val codeEpiphany = (project in file("."))
       _.exclude("org.slf4j", "*")
         .exclude("org.typelevel", "log4cats-slf4j_3")
         .exclude("org.jetbrains.kotlin", "*")
-    ),
-    Compile / unmanagedSourceDirectories += baseDirectory.value / "gen",
-    Compile / unmanagedSourceDirectories += baseDirectory.value / "src" / "main" / "jooq-generated",
-    Compile / unmanagedSourceDirectories ++= {
-      if (
-        VersionNumber((ThisBuild / intellijBuild).value)
-          .matchesSemVer(SemanticSelector(s">=${versions.intellijBuild252}"))
-      ) {
-        Seq(baseDirectory.value / "src" / "main" / "252")
-      } else if (
-        VersionNumber((ThisBuild / intellijBuild).value)
-          .matchesSemVer(SemanticSelector(s">=${versions.intellijBuild241}"))
-      ) {
-        Seq(baseDirectory.value / "src" / "main" / "241")
-      } else {
-        Seq(baseDirectory.value / "src" / "main" / "233")
-      }
-    },
-    Compile / unmanagedResourceDirectories += target.value / "webviewResources",
-    Test / managedResourceDirectories += baseDirectory.value / "testResources",
-    // jooq
-    jooqVersion       := "3.19.18",
-    jooqCodegenConfig := file("jooq-codegen.xml"),
-    jooqCodegenMode   := Unmanaged
+    )
   )
   .enablePlugins(SbtIdeaPlugin, JooqCodegenPlugin)

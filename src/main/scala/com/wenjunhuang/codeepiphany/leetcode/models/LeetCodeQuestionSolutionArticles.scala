@@ -23,7 +23,7 @@ case class LeetCodeQuestionSolutionArticleAuthor(
   userSlug: String,
   realName: String
 ) {
-  lazy val avatarIcon = new AsyncAvatarLoader(username, userAvatar, 20)
+  lazy val avatarIcon = new AsyncAvatarLoader(username, userAvatar, javax.swing.UIManager.getInt("Table.rowHeight") - 4)
 }
 
 object LeetCodeQuestionSolutionArticleAuthor {

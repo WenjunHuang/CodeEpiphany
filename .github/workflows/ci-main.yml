@@ -1,8 +1,8 @@
-name: CI
+name: CI Main
 
 on:
   push:
-    branches: [ develop,main ]
+    branches: [ main ]
   pull_request:
     branches: [ main ]
 
@@ -15,7 +15,7 @@ jobs:
       matrix:
         java-version: [17]
         intellij-version: [233, 241, 252]
-      fail-fast: false  # 允许其他版本继续构建，即使某个版本失败
+      fail-fast: true  # 允许其他版本继续构建，即使某个版本失败
         
     steps:
     - name: Checkout code
@@ -67,18 +67,8 @@ jobs:
       env:
         INTELLIJ_VERSION: ${{ matrix.intellij-version }}
 
-    - name: Build and test plugin for IntelliJ ${{ matrix.intellij-version }}
-      run: sbt -Dintellij.version=${{ matrix.intellij-version }} clean compile
-      env:
-        INTELLIJ_VERSION: ${{ matrix.intellij-version }}
-        
-    - name: Package plugin for IntelliJ ${{ matrix.intellij-version }}
-      run: sbt -Dintellij.version=${{ matrix.intellij-version }} packageArtifact
-      env:
-        INTELLIJ_VERSION: ${{ matrix.intellij-version }} 
-        
     - name: Publish plugin to JetBrains Marketplace
-      if: github.ref == 'refs/heads/main' 
-      run: sbt -Dintellij.version=${{ matrix.intellij-version }} publishPlugin
+      if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+      run: sbt -Dintellij.version=${{ matrix.intellij-version }} clean publishPlugin
       env:
-        IJ_PLUGIN_REPO_TOKEN: ${{ secrets.IJ_PLUGIN_REPO_TOKEN }} 
+        IJ_PLUGIN_REPO_TOKEN: ${{ secrets.IJ_PLUGIN_REPO_TOKEN }}

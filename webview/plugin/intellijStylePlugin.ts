@@ -1,35 +1,52 @@
-import type { Plugin } from 'vite';
+import type {Plugin} from 'vite';
 
 /**
  * Vite 插件：自动注入样式表链接和重载功能
  */
-export function intellijStylePlugin(): Plugin {
-  return {
-    name: 'intellij-style-plugin',
-    transformIndexHtml: {
-      order:"pre",
-      handler: (html) => {
-        return {
-          html,
+export function intellijStylePostPlugin(): Plugin {
+    return {
+        name: 'intellij-style-post-plugin',
+        transformIndexHtml: {
+            order: 'post',
+            handler: (html) => {
+                return {
+                    html,
+                    tags: [
+                        {
+                            tag: 'link',
+                            attrs: {
+                                id: 'intellijStyle',
+                                rel: 'stylesheet',
+                                type: 'text/css',
+                                href: '/intellijStyle.css'
+                            },
+                            injectTo: 'head'
+                        },
+                    ]
+                }
+            }
+        }
+    }
+}
 
-          tags: [
-            {
-              tag: 'link',
-              attrs: {
-                id: 'intellijStyle',
-                rel: 'stylesheet',
-                type: 'text/css',
-                href: '/intellijStyle.css'
-              },
-              injectTo: 'head'
-            },
-            {
+export function intellijStylePrePlugin(): Plugin {
+    return {
+        name: 'intellij-style-plugin',
+        transformIndexHtml: {
+            order: "pre",
+            handler: (html) => {
+                return {
+                    html,
 
-              tag: 'script',
-              attrs: {
-                type: 'module',
-              },
-              children: `
+                    tags: [
+
+                        {
+
+                            tag: 'script',
+                            attrs: {
+                                type: 'module',
+                            },
+                            children: `
             import 'normalize-css/normalize.css'
             import 'overlayscrollbars/overlayscrollbars.css'
             import {OverlayScrollbars} from "overlayscrollbars";
@@ -113,11 +130,12 @@ export function intellijStylePlugin(): Plugin {
 
               window.reloadStyles = reloadStyles;
             `,
-              injectTo: 'head'
+                            injectTo: 'head'
+                        }
+                    ]
+                };
             }
-          ]
-        };
-      }
-    }
-  };
-} 
+        }
+    };
+}
+

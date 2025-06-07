@@ -12,7 +12,7 @@ import java.util.Locale
 import org.http4s.{ Headers, Method, Uri, UrlForm }
 import org.http4s.client.{ Client, UnexpectedStatus }
 import org.http4s.client.dsl.Http4sClientDsl
-import org.http4s.headers.Referer
+import org.http4s.headers.{ Accept, Referer }
 import org.http4s.implicits.uri
 import org.jsoup.Jsoup
 import org.typelevel.ci.CIString
@@ -228,8 +228,12 @@ object CodeForcesApi {
           .expect[String](
             Method
               .POST(
-                uri"https://codeforces.com/data/submitSource",
-                headers = Headers(Referer(uri"https://codeforces.com/problemset/status?my=on"))
+                uri"https://codeforces.com/data/submitSource"
+                  .withQueryParam("rv", scala.util.Random.nextLong().toHexString.substring(0, 9)),
+                headers = Headers(
+                  Referer(uri"https://codeforces.com/contest/2115/my"),
+                  "x-csrf-token" -> csrfToken
+                )
               )
               .withEntity(UrlForm("submissionId" -> oldResponse.submissionId.toString, "csrf_token" -> csrfToken))
           )
