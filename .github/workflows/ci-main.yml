@@ -69,6 +69,6 @@ jobs:
 
     - name: Publish plugin to JetBrains Marketplace
       if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-      run: sbt -Dintellij.version=${{ matrix.intellij-version }} clean publishPlugin
+      run: sbt -Dintellij.version=${{ matrix.intellij-version }} clean packageArtifact publishPlugin
       env:
         IJ_PLUGIN_REPO_TOKEN: ${{ secrets.IJ_PLUGIN_REPO_TOKEN }}
