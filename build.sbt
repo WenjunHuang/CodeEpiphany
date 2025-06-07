@@ -5,7 +5,8 @@ import sbtjooq.codegen.CodegenMode.Unmanaged
 import scala.io.Source
 import scala.sys.process.*
 import scala.util.Using
-import sbt.IO
+
+val pluginVersion: String = "1.2.3"
 
 ThisBuild / scalaVersion     := "3.7.0"
 ThisBuild / intellijPlatform := versions.intellijPlatform
@@ -89,7 +90,6 @@ buildWebview := {
   }
 }
 
-val pluginVersion: String = "1.2.2"
 
 lazy val codeEpiphany = (project in file("."))
   .settings(

@@ -1,4 +1,9 @@
-## 1.2.1
+## 1.2.3 
+- Fix webview scrollbar style not compatible with IDE theme issue
+- Fix user avatar icon size is too big for leetcode solution view in macos
+- Fix codeforces code submission result issue
+ 
+## 1.2.2
 ### Modified
 - Fix chinese translation issues
 - Modify readme and description documentation

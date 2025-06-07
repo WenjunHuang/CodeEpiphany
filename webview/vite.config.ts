@@ -7,7 +7,7 @@ import {defineConfig} from 'vite';
 import importMetaUrlPlugin from '@codingame/esbuild-import-meta-url-plugin';
 import {dirname, resolve} from 'node:path'
 import {fileURLToPath} from "node:url";
-import {intellijStylePlugin} from './plugin/intellijStylePlugin';
+import {intellijStylePrePlugin,intellijStylePostPlugin} from './plugin/intellijStylePlugin';
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 
@@ -48,7 +48,8 @@ export const definedViteConfig = defineConfig({
         include: []
     },
     plugins: [
-        intellijStylePlugin()
+        intellijStylePrePlugin(),
+        intellijStylePostPlugin()
     ],
     define: {
         rootDirectory: JSON.stringify(__dirname),
