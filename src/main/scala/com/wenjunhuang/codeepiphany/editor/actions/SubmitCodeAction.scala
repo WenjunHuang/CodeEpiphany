@@ -11,7 +11,7 @@ import com.wenjunhuang.codeepiphany.editor.actions.SubmitCodeAction.*
 import com.wenjunhuang.codeepiphany.editor.services.{ runCode, submitCode }
 import com.wenjunhuang.codeepiphany.model.CodeDojo
 import com.wenjunhuang.codeepiphany.model.CodeDojo.{ AtCoder, CodeForces, LuoGu }
-import com.wenjunhuang.codeepiphany.services.http.{ HttpClientManager, HttpClientService }
+import com.wenjunhuang.codeepiphany.services.http.{ HttpClientManager }
 import com.wenjunhuang.codeepiphany.services.AuthService
 import com.wenjunhuang.codeepiphany.services.file.saveEditedFile
 import com.wenjunhuang.codeepiphany.settings.ChallengeSettings
@@ -56,8 +56,6 @@ object SubmitCodeAction {
 
     def createProvider(vf: VirtualFile, project: Project, codeDojo: CodeDojo): SubmitCodeProvider =
       new SubmitCodeProvider:
-        implicit val httpClientKeeper: HttpClientManager[IO] = HttpClientService.getInstance(project).httpClientManager
-
         override def canSubmit: Boolean = {
           ChallengeSettings.getInstance(project).findChallengeId(vf).exists { challenge =>
             AuthService.getInstance(project).isLoggedIn(challenge.dojo)
@@ -72,15 +70,15 @@ object SubmitCodeAction {
 
         override def submitCurrent(): Unit = {
           if canSubmit then
-            (saveEditedFile[IO](vf) *>
-              submitCode[IO](vf, project))
+            (saveEditedFile(vf) *>
+              submitCode(vf, project))
               .unsafeRunAsBackgroundProgressCancellable(project, "Submitting code")
         }
 
         override def runCurrent(): Unit = {
           if canRun then
-            (saveEditedFile[IO](vf) *>
-              runCode[IO](vf, project))
+            (saveEditedFile(vf) *>
+              runCode(vf, project))
               .unsafeRunAsBackgroundProgressCancellable(project, "Running code")
         }
 

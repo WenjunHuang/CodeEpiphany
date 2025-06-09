@@ -1,7 +1,7 @@
 package com.wenjunhuang.codeepiphany.services
 
 import cats.effect.implicits.*
-import cats.effect.Async
+import cats.effect.IO
 import cats.syntax.all.*
 import java.net.HttpCookie
 import java.util.concurrent.atomic.AtomicReference
@@ -26,32 +26,26 @@ import com.wenjunhuang.codeepiphany.utils.syntax.*
 final class AuthService(private val myProject: Project) {
   private val myLoginCache = AtomicReference[Set[CodeDojo]](Set.empty)
 
-  def askForLogout[F[_]: { Async, HttpClientManager }](codeDojo: CodeDojo): F[Unit] =
-    (removeAuthentication(codeDojo), HttpClientManager[F].clearCookiesForHost(codeDojo.domain)).parTupled.void
+  def askForLogout(codeDojo: CodeDojo): IO[Unit] =
+    (removeAuthentication(codeDojo), HttpClientManager.clearCookiesForHost(codeDojo.domain)).parTupled.void
 
-  def validateUserCookieAndTestLogin[F[_]: { Async, HttpClientManager }](
-    codeDojo: CodeDojo,
-    cookie: String
-  ): F[Boolean] =
-    Async[F]
+  def validateUserCookieAndTestLogin(codeDojo: CodeDojo, cookie: String): IO[Boolean] =
+    IO
       .delay(CookieUtil.parseCookies(cookie))
       .flatMap(validateUserCookieAndTestLogin(codeDojo, _))
 
-  def validateUserCookieAndTestLogin[F[_]: { Async, HttpClientManager }](
-    codeDojo: CodeDojo,
-    cookies: List[HttpCookie]
-  ): F[Boolean] =
-    HttpClientManager[F].updateCookiesForHost(codeDojo.domain, cookies) *>
+  def validateUserCookieAndTestLogin(codeDojo: CodeDojo, cookies: List[HttpCookie]): IO[Boolean] =
+    HttpClientManager.updateCookiesForHost(codeDojo.domain, cookies) *>
       checkLoginStatus(codeDojo).flatMap {
-        case true  => saveAuthentication(codeDojo, cookies) *> true.pure[F]
-        case false => HttpClientManager[F].clearCookiesForHost(codeDojo.domain) *> false.pure[F]
+        case true  => saveAuthentication(codeDojo, cookies) *> true.pure[IO]
+        case false => HttpClientManager.clearCookiesForHost(codeDojo.domain) *> false.pure[IO]
       }
 
-  def loadAuthenticationMayAskForLogin[F[_]: { Async, HttpClientManager }](codeDojo: CodeDojo): F[AskForLoginResult] =
+  def loadAuthenticationMayAskForLogin(codeDojo: CodeDojo): IO[AskForLoginResult] =
     for
       _           <- loadAuthentication(codeDojo)
       r           <- isAuthenticated(codeDojo)
-      loginResult <- if !r then askForLogin(codeDojo) else Async[F].delay(AskForLoginResult.Done)
+      loginResult <- if !r then askForLogin(codeDojo) else IO.delay(AskForLoginResult.Done)
     yield loginResult
 
   def isLoggedIn(codeDojo: CodeDojo): Boolean = myLoginCache.get().contains(codeDojo)
@@ -60,43 +54,43 @@ final class AuthService(private val myProject: Project) {
 
   def clearLogin(codeDojo: CodeDojo): Unit = myLoginCache.updateAndGet(_ - codeDojo)
 
-  private def isAuthenticated[F[_]: {Async, HttpClientManager}](codeDojo: CodeDojo): F[Boolean] =
+  private def isAuthenticated(codeDojo: CodeDojo): IO[Boolean] =
     checkLoginStatus(codeDojo)
 
-  private def loadAuthentication[F[_]: {Async, HttpClientManager}](codeDojo: CodeDojo): F[Unit] =
-    Async[F].blocking(SensitiveDataStore.loadData(codeDojo.value)).flatMap {
+  private def loadAuthentication(codeDojo: CodeDojo): IO[Unit] =
+    IO.blocking(SensitiveDataStore.loadData(codeDojo.value)).flatMap {
       case Some(authCookies) =>
-        Async[F]
+        IO
           .delay(CookieUtil.parseCookies(authCookies))
-          .flatMap(HttpClientManager[F].updateCookiesForHost(codeDojo.domain, _))
-      case None => ().pure[F]
+          .flatMap(HttpClientManager.updateCookiesForHost(codeDojo.domain, _))
+      case None => IO.unit
     }
 
-  private def saveAuthentication[F[_]: Async](codeDojo: CodeDojo, authCookies: List[HttpCookie]): F[Unit] =
-    Async[F].blocking {
+  private def saveAuthentication(codeDojo: CodeDojo, authCookies: List[HttpCookie]): IO[Unit] =
+    IO.blocking {
       SensitiveDataStore.saveData(codeDojo.value, CookieUtil.encodeCookies(authCookies))
     }
 
-  private def removeAuthentication[F[_]: Async](codeDojo: CodeDojo): F[Unit] = Async[F].blocking {
+  private def removeAuthentication(codeDojo: CodeDojo): IO[Unit] = IO.blocking {
     SensitiveDataStore.removeData(codeDojo.value)
   }
 
-  private def askForLogin[F[_]: Async](codeDojo: CodeDojo): F[AskForLoginResult] =
-    Async[F]
+  private def askForLogin(codeDojo: CodeDojo): IO[AskForLoginResult] =
+    IO
       .async_[AskForLoginResult] { cb =>
         val dialog = new LoginDialog(myProject, codeDojo, cb)
         dialog.show()
       }
       .evalOnEDTAny()
 
-  private def checkLoginStatus[F[_]: { Async, HttpClientManager }](codeDojo: CodeDojo): F[Boolean] =
+  private def checkLoginStatus(codeDojo: CodeDojo): IO[Boolean] =
     codeDojo match
-      case CodeDojo.HackerRank => HackerRankApi[F].checkLogin()
-      case CodeDojo.LeetCode   => LeetCodeApi[F](LeetCode).checkLogin()
-      case CodeDojo.LeetCodeCN => LeetCodeApi[F](LeetCodeCN).checkLogin()
-      case CodeDojo.CodeForces => CodeForcesApi[F].checkLogin()
-      case CodeDojo.AtCoder    => AtCoderApi[F].checkLogin()
-      case CodeDojo.LuoGu      => LuoGuApi[F].checkLogin()
+      case CodeDojo.HackerRank => HackerRankApi.checkLogin()
+      case CodeDojo.LeetCode   => LeetCodeApi(LeetCode).checkLogin()
+      case CodeDojo.LeetCodeCN => LeetCodeApi(LeetCodeCN).checkLogin()
+      case CodeDojo.CodeForces => CodeForcesApi.checkLogin()
+      case CodeDojo.AtCoder    => AtCoderApi.checkLogin()
+      case CodeDojo.LuoGu      => LuoGuApi.checkLogin()
 }
 
 object AuthService {

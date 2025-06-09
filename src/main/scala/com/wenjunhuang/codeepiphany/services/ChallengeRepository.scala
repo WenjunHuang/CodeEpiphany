@@ -1,11 +1,11 @@
 package com.wenjunhuang.codeepiphany.services
 
-import cats.effect.{Async, IO}
+import cats.effect.{ Async, IO }
 import cats.effect.kernel.Resource
-import com.zaxxer.hikari.{HikariConfig, HikariDataSource}
+import com.zaxxer.hikari.{ HikariConfig, HikariDataSource }
 import java.io.File
 import org.flywaydb.core.Flyway
-import org.jooq.{DSLContext, Log, SQLDialect}
+import org.jooq.{ DSLContext, Log, SQLDialect }
 import org.jooq.impl.DSL
 import org.jooq.tools.JooqLogger
 
@@ -38,7 +38,6 @@ final class ChallengeRepository(private val myProject: Project) extends Disposab
   @volatile
   private var myDataSource: Option[HikariDataSource] = None
 
-
   private def createDataSource(): HikariDataSource = synchronized {
     myDataSource.getOrElse {
       val config = HikariConfig()
@@ -64,8 +63,8 @@ final class ChallengeRepository(private val myProject: Project) extends Disposab
 
   private def getDatabaseFile: File = {
     val settings = CodeEpiphanySettings.getInstance(myProject).getState
-    val folder = settings.getDatabaseFolder(myProject)
-    val file = File(folder, Constants.CHALLENGE_STORAGE_FILE)
+    val folder   = settings.getDatabaseFolder(myProject)
+    val file     = File(folder, Constants.CHALLENGE_STORAGE_FILE)
     FileUtil.createIfDoesntExist(file)
     file
   }
@@ -78,8 +77,8 @@ final class ChallengeRepository(private val myProject: Project) extends Disposab
 
   def getDSLContext: DSLContext = DSL.using(createDataSource(), SQLDialect.SQLITE)
 
-  def getDSLContextResource[F[_]: Async]: Resource[F, DSLContext] =
-    Resource.make(Async[F].delay(getDSLContext))(_ => Async[F].pure(()))
+  def getDSLContextResource: Resource[IO, DSLContext] =
+    Resource.make(IO.delay(getDSLContext))(_ => IO.unit)
 
   override def dispose(): Unit = {
     closeDataSource(true)

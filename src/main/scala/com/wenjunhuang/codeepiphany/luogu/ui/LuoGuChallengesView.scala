@@ -2,37 +2,29 @@ package com.wenjunhuang.codeepiphany.luogu.ui
 
 import cats.effect.IO
 import cats.syntax.all.*
-import javax.swing.JComponent
-import org.typelevel.ci.CIString
-import org.typelevel.log4cats.LoggerFactory
-
 import com.intellij.openapi.Disposable
-import com.intellij.openapi.actionSystem.{ ActionGroup, ActionManager }
+import com.intellij.openapi.actionSystem.{ActionGroup, ActionManager}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
-
-import com.wenjunhuang.codeepiphany.actions.LoginAction.{ LOGIN_LOGOUT_KEY, LoginLogoutProvider }
-import com.wenjunhuang.codeepiphany.luogu.actions.LuoGuChangeUIAction.{
-  LUOGU_CHANGE_UI_PROVIDER_KEY,
-  LuoGuChangeUIProvider,
-  LuoGuUI
-}
+import com.wenjunhuang.codeepiphany.actions.LoginAction.{LOGIN_LOGOUT_KEY, LoginLogoutProvider}
+import com.wenjunhuang.codeepiphany.luogu.actions.LuoGuChangeUIAction.{LUOGU_CHANGE_UI_PROVIDER_KEY, LuoGuChangeUIProvider, LuoGuUI}
 import com.wenjunhuang.codeepiphany.luogu.services.LuoGuApi
 import com.wenjunhuang.codeepiphany.luogu.settings.LuoGuSettings
 import com.wenjunhuang.codeepiphany.model.Actions.LUOGU_TITLE_TOOLBAR_GROUP
 import com.wenjunhuang.codeepiphany.model.CodeDojo
 import com.wenjunhuang.codeepiphany.model.CodeDojo.LuoGu
-import com.wenjunhuang.codeepiphany.services.{ console, AskForLoginResult, AuthService, BaseChallengesView }
-import com.wenjunhuang.codeepiphany.services.http.{ HttpClientManager, HttpClientService }
+import com.wenjunhuang.codeepiphany.services.http.HttpClientManager
+import com.wenjunhuang.codeepiphany.services.{AskForLoginResult, AuthService, BaseChallengesView, console}
 import com.wenjunhuang.codeepiphany.utils.actions.DataSink
 import com.wenjunhuang.codeepiphany.utils.extensions.*
 import com.wenjunhuang.codeepiphany.utils.syntax.*
 import com.wenjunhuang.codeepiphany.utils.ui.UnauthenticatedView
+import org.typelevel.ci.CIString
+import org.typelevel.log4cats.LoggerFactory
+
+import javax.swing.JComponent
 
 class LuoGuChallengesView(private val myProject: Project) extends BaseChallengesView[LuoGuUI] {
-
-  private implicit val httpClientManager: HttpClientManager[IO] =
-    HttpClientService.getInstance(myProject).httpClientManager
 
   private val myUnauthenticatedView =
     UnauthenticatedView(LuoGu, None)
@@ -49,15 +41,15 @@ class LuoGuChallengesView(private val myProject: Project) extends BaseChallenges
 
   select(myCurrentUI, false)
 
-  private def initialize(): IO[LuoGuBootstrapParameters] = LuoGuApi[IO].getUserInfo.map(LuoGuBootstrapParameters.apply)
+  private def initialize(): IO[LuoGuBootstrapParameters] = LuoGuApi.getUserInfo.map(LuoGuBootstrapParameters.apply)
 
   private val myLoginLogoutProvider = new LoginLogoutProvider {
     override def login(): Unit = {
       myIsLoggingIn = true
-      (console.info[IO](myProject, s"Logging in to ${CodeDojo.LuoGu.show}...") *>
+      (console.info(myProject, s"Logging in to ${CodeDojo.LuoGu.show}...") *>
         AuthService
           .getInstance(myProject)
-          .loadAuthenticationMayAskForLogin[IO](CodeDojo.LuoGu)
+          .loadAuthenticationMayAskForLogin(CodeDojo.LuoGu)
           .flatMap {
             case AskForLoginResult.Done =>
               initialize().map { bootstrap =>
@@ -68,12 +60,12 @@ class LuoGuChallengesView(private val myProject: Project) extends BaseChallenges
                 val gotoUI = loadLatestUI().getOrElse(LuoGuUI.QueryParameters)
                 mySwitchUIProvider.switchTo(gotoUI)
               }.evalOnEDTAny()
-                *> console.info[IO](myProject, s"Logged in to ${CodeDojo.LuoGu.show}.")
-            case _ => console.info[IO](myProject, s"Login to ${CodeDojo.LuoGu.show} canceled.")
+                *> console.info(myProject, s"Logged in to ${CodeDojo.LuoGu.show}.")
+            case _ => console.info(myProject, s"Login to ${CodeDojo.LuoGu.show} canceled.")
           }
           .handleErrorWith { e =>
             myLogger.warn(e)("Failed to login") *>
-              console.error[IO](myProject, s"Login failed because of \"${e.getMessage}\"")
+              console.error(myProject, s"Login failed because of \"${e.getMessage}\"")
           })
         .guarantee(IO.delay { myIsLoggingIn = false })
         .unsafeRunAsBackgroundProgressCancellable(myProject, s"Logging in to ${CodeDojo.LuoGu.show}...")
@@ -81,7 +73,7 @@ class LuoGuChallengesView(private val myProject: Project) extends BaseChallenges
 
     override def logout(): Unit = (AuthService
       .getInstance(myProject)
-      .askForLogout[IO](CodeDojo.LuoGu)
+      .askForLogout(CodeDojo.LuoGu)
       *> IO.delay {
         AuthService.getInstance(myProject).clearLogin(CodeDojo.LuoGu)
         mySwitchUIProvider.switchTo(LuoGuUI.Unauthenticated)

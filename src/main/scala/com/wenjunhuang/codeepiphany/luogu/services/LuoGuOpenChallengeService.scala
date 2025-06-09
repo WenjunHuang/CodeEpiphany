@@ -1,24 +1,22 @@
 package com.wenjunhuang.codeepiphany.luogu.services
 
+import cats.effect.{Async, Concurrent, IO}
 import cats.syntax.all.*
-import cats.effect.{ Async, Concurrent }
+import com.intellij.openapi.project.Project
+import com.wenjunhuang.codeepiphany.database.tables.records.{ChallengeLanguageRecord, ChallengeRecord}
+import com.wenjunhuang.codeepiphany.luogu.models.{LuoGuChallengeCodeTemplate, LuoGuChallengeItem}
+import com.wenjunhuang.codeepiphany.luogu.settings.{LuoGuSettings, LuoGuSettingsConfigurable}
+import com.wenjunhuang.codeepiphany.model.newtypes.CodeDojoChallengeId
+import com.wenjunhuang.codeepiphany.model.*
+import com.wenjunhuang.codeepiphany.services.BaseOpenChallengeService
+import com.wenjunhuang.codeepiphany.services.http.HttpClientManager
+import com.wenjunhuang.codeepiphany.settings.dojo.BaseCodeDojoSettings
+import com.wenjunhuang.codeepiphany.utils.template.VelocityTool
 import org.jooq.DSLContext
 import org.typelevel.log4cats.LoggerFactory
 
-import com.intellij.openapi.project.Project
-
-import com.wenjunhuang.codeepiphany.database.tables.records.{ ChallengeLanguageRecord, ChallengeRecord }
-import com.wenjunhuang.codeepiphany.luogu.models.{ LuoGuChallengeCodeTemplate, LuoGuChallengeItem }
-import com.wenjunhuang.codeepiphany.luogu.settings.{ LuoGuSettings, LuoGuSettingsConfigurable }
-import com.wenjunhuang.codeepiphany.model.{ ApiError, ChallengeDifficulty, CodeDojo, Language, LanguageVersion }
-import com.wenjunhuang.codeepiphany.model.newtypes.CodeDojoChallengeId
-import com.wenjunhuang.codeepiphany.services.http.HttpClientManager
-import com.wenjunhuang.codeepiphany.services.BaseOpenChallengeService
-import com.wenjunhuang.codeepiphany.settings.dojo.BaseCodeDojoSettings
-import com.wenjunhuang.codeepiphany.utils.template.VelocityTool
-
-class LuoGuOpenChallengeService[F[_]: { Async, Concurrent, HttpClientManager, LoggerFactory }](project: Project)
-    extends BaseOpenChallengeService[F, LuoGuChallengeItem, LuoGuChallengeCodeTemplate](
+class LuoGuOpenChallengeService(project: Project)
+    extends BaseOpenChallengeService[LuoGuChallengeItem, LuoGuChallengeCodeTemplate](
       project,
       CodeDojo.LuoGu,
       classOf[LuoGuSettingsConfigurable]
@@ -54,17 +52,17 @@ class LuoGuOpenChallengeService[F[_]: { Async, Concurrent, HttpClientManager, Lo
     req: LuoGuChallengeItem,
     language: Language,
     languageVersion: LanguageVersion
-  ): F[(CodeDojoChallengeId, LuoGuChallengeCodeTemplate)] = {
-    LuoGuApi[F]
+  ): IO[(CodeDojoChallengeId, LuoGuChallengeCodeTemplate)] = {
+    LuoGuApi
       .getChallengeData(req.pid)
       .flatMap { content =>
         if content.supportedLanguages.contains((language, languageVersion)) then
-          Async[F].pure(
+          IO.pure(
             CodeDojoChallengeId(req.pid),
             LuoGuChallengeCodeTemplate(req.pid, content.title, language, languageVersion, content.description)
           )
         else
-          Async[F].raiseError(
+          IO.raiseError(
             ApiError.InvalidContent(
               CodeDojo.LuoGu,
               s"This challenge does not support ${language.show} ${languageVersion.version}"

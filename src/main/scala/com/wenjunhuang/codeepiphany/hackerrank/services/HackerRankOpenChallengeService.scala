@@ -1,34 +1,27 @@
 package com.wenjunhuang.codeepiphany.hackerrank.services
 
-import cats.effect.{ Async, Concurrent }
+import cats.effect.{Concurrent, IO}
 import cats.syntax.all.*
+import com.intellij.openapi.project.Project
+import com.intellij.openapi.util.text.StringUtil
+import com.wenjunhuang.codeepiphany.database.Tables.*
+import com.wenjunhuang.codeepiphany.database.tables.records.{ChallengeLanguageRecord, ChallengeRecord}
+import com.wenjunhuang.codeepiphany.hackerrank.models.{HackerRankChallengeCodeTemplate, HackerRankChallengeContent, HackerRankContest, HackerRankLanguageTemplate}
+import com.wenjunhuang.codeepiphany.hackerrank.settings.{HackerRankSettings, HackerRankSettingsConfigurable}
+import com.wenjunhuang.codeepiphany.model.*
+import com.wenjunhuang.codeepiphany.model.CodeDojo.HackerRank
+import com.wenjunhuang.codeepiphany.model.newtypes.*
+import com.wenjunhuang.codeepiphany.services.BaseOpenChallengeService
+import com.wenjunhuang.codeepiphany.services.http.HttpClientManager
+import com.wenjunhuang.codeepiphany.settings.dojo.BaseCodeDojoSettings.LanguageSettingsState
+import com.wenjunhuang.codeepiphany.utils.syntax.*
 import org.jooq.DSLContext
 import org.typelevel.ci.CIString
 import org.typelevel.log4cats.LoggerFactory
 
-import com.intellij.openapi.project.Project
-import com.intellij.openapi.util.text.StringUtil
-
-import com.wenjunhuang.codeepiphany.database.Tables.*
-import com.wenjunhuang.codeepiphany.database.tables.records.{ ChallengeLanguageRecord, ChallengeRecord }
-import com.wenjunhuang.codeepiphany.hackerrank.models.{
-  HackerRankChallengeCodeTemplate,
-  HackerRankChallengeContent,
-  HackerRankContest,
-  HackerRankLanguageTemplate
-}
-import com.wenjunhuang.codeepiphany.hackerrank.settings.{ HackerRankSettings, HackerRankSettingsConfigurable }
-import com.wenjunhuang.codeepiphany.model.*
-import com.wenjunhuang.codeepiphany.model.newtypes.*
-import com.wenjunhuang.codeepiphany.model.CodeDojo.HackerRank
-import com.wenjunhuang.codeepiphany.services.http.HttpClientManager
-import com.wenjunhuang.codeepiphany.services.BaseOpenChallengeService
-import com.wenjunhuang.codeepiphany.settings.dojo.BaseCodeDojoSettings.LanguageSettingsState
-import com.wenjunhuang.codeepiphany.utils.syntax.*
-
 case class HackerRankOpenChallengeRequest(challengeSlug: String, contest: HackerRankContest)
-class HackerRankOpenChallengeService[F[_]: { Async, Concurrent, HttpClientManager, LoggerFactory }](project: Project)
-    extends BaseOpenChallengeService[F, HackerRankOpenChallengeRequest, HackerRankChallengeCodeTemplate](
+class HackerRankOpenChallengeService(project: Project)
+    extends BaseOpenChallengeService[HackerRankOpenChallengeRequest, HackerRankChallengeCodeTemplate](
       project,
       CodeDojo.HackerRank,
       classOf[HackerRankSettingsConfigurable]
@@ -79,20 +72,18 @@ class HackerRankOpenChallengeService[F[_]: { Async, Concurrent, HttpClientManage
     req: HackerRankOpenChallengeRequest,
     language: Language,
     languageVersion: LanguageVersion
-  ): F[(CodeDojoChallengeId, HackerRankChallengeCodeTemplate)] = {
-    HackerRankApi[F]
+  ): IO[(CodeDojoChallengeId, HackerRankChallengeCodeTemplate)] = {
+    HackerRankApi
       .getChallengeContent(req.challengeSlug, req.contest)
       .flatMap { content =>
         content.codeTemplates.get((language, languageVersion)) match
           case Some(temp) =>
-            Async[F].delay {
+            IO.delay {
               val template = handleValidTemplate(content, temp, req.contest, language, languageVersion)
               (CodeDojoChallengeId(template.id), template)
             }
           case None =>
-            Async[F].raiseError(
-              new Exception(s"This challenge does not support ${language.show}${languageVersion.version}")
-            )
+            IO.raiseError(new Exception(s"This challenge does not support ${language.show}${languageVersion.version}"))
       }
   }
 

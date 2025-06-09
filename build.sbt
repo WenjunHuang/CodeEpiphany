@@ -90,7 +90,6 @@ buildWebview := {
   }
 }
 
-
 lazy val codeEpiphany = (project in file("."))
   .settings(
     name         := "CodeEpiphany",
@@ -148,7 +147,10 @@ lazy val codeEpiphany = (project in file("."))
         Seq(baseDirectory.value / "src" / "main" / "233")
       }
     },
+    // 常规测试配置 - 排除集成测试
     Test / managedResourceDirectories += baseDirectory.value / "testResources",
+    Test / testOptions += Tests.Filter(name => !name.startsWith("integration")),
+    
     // jooq
     jooqVersion       := "3.19.18",
     jooqCodegenConfig := file("jooq-codegen.xml"),
@@ -213,3 +215,12 @@ lazy val codeEpiphany = (project in file("."))
     )
   )
   .enablePlugins(SbtIdeaPlugin, JooqCodegenPlugin)
+
+// 集成测试任务
+lazy val integrationTest = taskKey[Unit]("运行集成测试")
+integrationTest := (Test / testOnly).toTask(" integration.*").value
+
+// 添加用于运行集成测试的任务别名
+addCommandAlias("testOnly", "test:testOnly")
+addCommandAlias("integrationTest", "integrationTest")
+addCommandAlias("integrationTestOnly", "test:testOnly integration.*")

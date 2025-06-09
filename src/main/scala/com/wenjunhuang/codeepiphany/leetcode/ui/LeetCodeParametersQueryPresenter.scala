@@ -2,23 +2,15 @@ package com.wenjunhuang.codeepiphany.leetcode.ui
 
 import cats.effect.IO
 import cats.syntax.all.*
-import io.circe.*
-import io.circe.parser.*
-import io.circe.syntax.*
-import javax.swing.{Icon, JTable, SwingConstants}
-import javax.swing.table.{DefaultTableCellRenderer, TableCellRenderer}
-import monocle.syntax.all.*
-
 import com.intellij.icons.AllIcons
 import com.intellij.openapi.actionSystem.{ActionGroup, ActionManager}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.util.ui.table.IconTableCellRenderer
-
-import com.wenjunhuang.codeepiphany.actions.{OpenChallengeActionGroup, TagsAction}
 import com.wenjunhuang.codeepiphany.actions.DifficultyParameterAction.{DIFFICULTIES_PROVIDER_KEY, DifficultyParameterProvider}
 import com.wenjunhuang.codeepiphany.actions.StatusParameterAction.{STATUS_PROVIDER_KEY, StatusParameterProvider}
 import com.wenjunhuang.codeepiphany.actions.TagsAction.*
+import com.wenjunhuang.codeepiphany.actions.{OpenChallengeActionGroup, TagsAction}
 import com.wenjunhuang.codeepiphany.leetcode.actions.FavoriteParameterAction.{FAVORITE_PROVIDER_KEY, FavoriteParameterProvider}
 import com.wenjunhuang.codeepiphany.leetcode.actions.LeetCodeCategoryParameterAction.{LEETCODE_CATEGORY_PROVIDER_KEY, LeetCodeCategoryProvider}
 import com.wenjunhuang.codeepiphany.leetcode.models.*
@@ -26,12 +18,19 @@ import com.wenjunhuang.codeepiphany.leetcode.services.{LeetCodeApi, LeetCodeSear
 import com.wenjunhuang.codeepiphany.leetcode.settings.{LeetCodeCNSettings, LeetCodeSettings}
 import com.wenjunhuang.codeepiphany.leetcode.ui.LeetCodeParametersQueryPresenter.*
 import com.wenjunhuang.codeepiphany.model.*
+import com.wenjunhuang.codeepiphany.services.http.{HttpClientManager}
 import com.wenjunhuang.codeepiphany.services.{ParametersQueryPresenter, QueryContext}
-import com.wenjunhuang.codeepiphany.services.http.{HttpClientManager, HttpClientService}
-import com.wenjunhuang.codeepiphany.utils.{OrderByColumnInfo, PageSize, Pagination}
 import com.wenjunhuang.codeepiphany.utils.actions.DataSink
 import com.wenjunhuang.codeepiphany.utils.syntax.*
 import com.wenjunhuang.codeepiphany.utils.ui.TagPaneAction
+import com.wenjunhuang.codeepiphany.utils.{OrderByColumnInfo, PageSize, Pagination}
+import io.circe.*
+import io.circe.parser.*
+import io.circe.syntax.*
+import monocle.syntax.all.*
+
+import javax.swing.table.{DefaultTableCellRenderer, TableCellRenderer}
+import javax.swing.{Icon, JTable, SwingConstants}
 
 class LeetCodeParametersQueryPresenter(
   project: Project,
@@ -41,8 +40,6 @@ class LeetCodeParametersQueryPresenter(
       project,
       boostrap
     ) {
-  private implicit val httpClientManager: HttpClientManager[IO] =
-    HttpClientService.getInstance(myProject).httpClientManager
 
   override protected def prepareProviders(
     getter: () => QueryContext[LeetCodeQueryCriteria],
@@ -352,7 +349,7 @@ class LeetCodeParametersQueryPresenter(
     val pageSize    = context.pagination.pageSize
     val currentPage = context.pagination.currentPage
     val orderBy     = context.criteria.orderBy
-    LeetCodeApi[IO](myLeetCodeDojo)
+    LeetCodeApi(myLeetCodeDojo)
       .searchChallenges(
         pageSize.value * (currentPage - 1),
         pageSize.value,

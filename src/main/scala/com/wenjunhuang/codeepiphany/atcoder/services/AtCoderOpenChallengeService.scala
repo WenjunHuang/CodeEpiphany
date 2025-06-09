@@ -1,29 +1,23 @@
 package com.wenjunhuang.codeepiphany.atcoder.services
 
-import cats.effect.{ Async, Concurrent }
+import cats.effect.{Async, Concurrent, IO}
 import cats.syntax.all.*
+import com.intellij.openapi.project.Project
+import com.wenjunhuang.codeepiphany.atcoder.models.AtCoderChallengeCodeTemplate
+import com.wenjunhuang.codeepiphany.atcoder.settings.{AtCoderSettings, AtCoderSettingsConfigurable}
+import com.wenjunhuang.codeepiphany.database.Tables.*
+import com.wenjunhuang.codeepiphany.database.tables.records.{AtcoderProblemsRecord, ChallengeLanguageRecord, ChallengeRecord}
+import com.wenjunhuang.codeepiphany.model.newtypes.CodeDojoChallengeId
+import com.wenjunhuang.codeepiphany.model.{ChallengeDifficulty, CodeDojo, Language, LanguageVersion}
+import com.wenjunhuang.codeepiphany.services.BaseOpenChallengeService
+import com.wenjunhuang.codeepiphany.services.http.HttpClientManager
+import com.wenjunhuang.codeepiphany.settings.dojo.BaseCodeDojoSettings
+import com.wenjunhuang.codeepiphany.utils.template.VelocityTool
 import org.jooq.DSLContext
 import org.typelevel.log4cats.LoggerFactory
 
-import com.intellij.openapi.project.Project
-
-import com.wenjunhuang.codeepiphany.atcoder.models.AtCoderChallengeCodeTemplate
-import com.wenjunhuang.codeepiphany.atcoder.settings.{ AtCoderSettings, AtCoderSettingsConfigurable }
-import com.wenjunhuang.codeepiphany.database.tables.records.{
-  AtcoderProblemsRecord,
-  ChallengeLanguageRecord,
-  ChallengeRecord
-}
-import com.wenjunhuang.codeepiphany.database.Tables.*
-import com.wenjunhuang.codeepiphany.model.{ ChallengeDifficulty, CodeDojo, Language, LanguageVersion }
-import com.wenjunhuang.codeepiphany.model.newtypes.CodeDojoChallengeId
-import com.wenjunhuang.codeepiphany.services.http.HttpClientManager
-import com.wenjunhuang.codeepiphany.services.BaseOpenChallengeService
-import com.wenjunhuang.codeepiphany.settings.dojo.BaseCodeDojoSettings
-import com.wenjunhuang.codeepiphany.utils.template.VelocityTool
-
-class AtCoderOpenChallengeService[F[_]: { Async, Concurrent, HttpClientManager, LoggerFactory }](project: Project)
-    extends BaseOpenChallengeService[F, AtcoderProblemsRecord, AtCoderChallengeCodeTemplate](
+class AtCoderOpenChallengeService(project: Project)
+    extends BaseOpenChallengeService[AtcoderProblemsRecord, AtCoderChallengeCodeTemplate](
       project,
       CodeDojo.AtCoder,
       classOf[AtCoderSettingsConfigurable]
@@ -69,13 +63,13 @@ class AtCoderOpenChallengeService[F[_]: { Async, Concurrent, HttpClientManager, 
     req: AtcoderProblemsRecord,
     language: Language,
     languageVersion: LanguageVersion
-  ): F[(CodeDojoChallengeId, AtCoderChallengeCodeTemplate)] = {
-    AtCoderApi[F]
+  ): IO[(CodeDojoChallengeId, AtCoderChallengeCodeTemplate)] = {
+    AtCoderApi
       .getChallengeData(req.getContestid, req.getProblemid)
-      .flatMap(_.liftTo[F](new Exception(s"Challenge ${req.getName} is not available")))
+      .flatMap(_.liftTo[IO](new Exception(s"Challenge ${req.getName} is not available")))
       .flatMap { content =>
         if content.supportedLanguages.contains((language, languageVersion)) then
-          Async[F].pure(
+          IO.pure(
             CodeDojoChallengeId(req.getProblemid),
             AtCoderChallengeCodeTemplate(
               contestId = req.getContestid,
@@ -93,9 +87,7 @@ class AtCoderOpenChallengeService[F[_]: { Async, Concurrent, HttpClientManager, 
             )
           )
         else
-          Async[F].raiseError(
-            new Exception(s"This challenge does not support ${language.show} ${languageVersion.version}")
-          )
+          IO.raiseError(new Exception(s"This challenge does not support ${language.show} ${languageVersion.version}"))
       }
   }
 }

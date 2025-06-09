@@ -2,38 +2,32 @@ package com.wenjunhuang.codeepiphany.luogu.ui
 
 import cats.effect.IO
 import cats.syntax.all.*
-import io.circe.*
-import io.circe.parser.*
-import io.circe.syntax.*
-import javax.swing.SwingConstants
-import javax.swing.table.{ DefaultTableCellRenderer, TableCellRenderer }
-import monocle.syntax.all.*
-
-import com.intellij.openapi.actionSystem.{ ActionGroup, ActionManager }
+import com.intellij.openapi.actionSystem.{ActionGroup, ActionManager}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.text.StringUtil
-
-import com.wenjunhuang.codeepiphany.actions.{ OpenChallengeActionGroup, TagsAction }
 import com.wenjunhuang.codeepiphany.actions.TagsAction.MultiTagGroupProvider
-import com.wenjunhuang.codeepiphany.luogu.actions.{ LuoGuDifficultyParameterAction, LuoGuQuestionBankParameterAction }
+import com.wenjunhuang.codeepiphany.actions.{OpenChallengeActionGroup, TagsAction}
 import com.wenjunhuang.codeepiphany.luogu.actions.LuoGuDifficultyParameterAction.LuoGuDifficultyParameterProvider
 import com.wenjunhuang.codeepiphany.luogu.actions.LuoGuQuestionBankParameterAction.LuoGuQuestionBankParameterProvider
+import com.wenjunhuang.codeepiphany.luogu.actions.{LuoGuDifficultyParameterAction, LuoGuQuestionBankParameterAction}
 import com.wenjunhuang.codeepiphany.luogu.models.*
 import com.wenjunhuang.codeepiphany.luogu.services.LuoGuApi
 import com.wenjunhuang.codeepiphany.luogu.settings.LuoGuSettings
-import com.wenjunhuang.codeepiphany.luogu.ui.LuoGuParametersQueryPresenter.{
-  DIFFICULTY_TAG_RADIUS,
-  QUESTION_BANK_RADIUS,
-  QueryParams,
-  TAG_TAG_RADIUS
-}
-import com.wenjunhuang.codeepiphany.model.{ Actions, OrderDirection }
-import com.wenjunhuang.codeepiphany.services.{ ParametersQueryPresenter, QueryContext }
-import com.wenjunhuang.codeepiphany.services.http.{ HttpClientManager, HttpClientService }
-import com.wenjunhuang.codeepiphany.utils.{ OrderByColumnInfo, PageSize, Pagination }
+import com.wenjunhuang.codeepiphany.luogu.ui.LuoGuParametersQueryPresenter.{DIFFICULTY_TAG_RADIUS, QUESTION_BANK_RADIUS, QueryParams, TAG_TAG_RADIUS}
+import com.wenjunhuang.codeepiphany.model.{Actions, OrderDirection}
+import com.wenjunhuang.codeepiphany.services.http.HttpClientManager
+import com.wenjunhuang.codeepiphany.services.{ParametersQueryPresenter, QueryContext}
+import com.wenjunhuang.codeepiphany.utils.PageSize.Fifty
 import com.wenjunhuang.codeepiphany.utils.actions.DataSink
 import com.wenjunhuang.codeepiphany.utils.ui.TagPaneAction
-import com.wenjunhuang.codeepiphany.utils.PageSize.Fifty
+import com.wenjunhuang.codeepiphany.utils.{OrderByColumnInfo, PageSize, Pagination}
+import io.circe.*
+import io.circe.parser.*
+import io.circe.syntax.*
+import monocle.syntax.all.*
+
+import javax.swing.SwingConstants
+import javax.swing.table.{DefaultTableCellRenderer, TableCellRenderer}
 
 class LuoGuParametersQueryPresenter(project: Project, bootstrap: LuoGuBootstrapParameters)
     extends ParametersQueryPresenter[
@@ -195,8 +189,7 @@ class LuoGuParametersQueryPresenter(project: Project, bootstrap: LuoGuBootstrapP
   override protected def executeQuery(
     context: QueryContext[LuoGuParametersQueryPresenter.QueryParams]
   ): IO[(Pagination, List[LuoGuChallengeItem])] = {
-    implicit val httpClient: HttpClientManager[IO] = HttpClientService.getInstance(myProject).httpClientManager
-    LuoGuApi[IO]
+    LuoGuApi
       .searchChallenges(
         context.criteria.selectedDifficulty,
         context.criteria.selectedQuestionBank,

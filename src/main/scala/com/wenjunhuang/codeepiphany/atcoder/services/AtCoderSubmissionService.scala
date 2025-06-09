@@ -20,17 +20,18 @@ import com.wenjunhuang.codeepiphany.model.CodeDojo.AtCoder
 import com.wenjunhuang.codeepiphany.services.{ console, BaseSubmissionService, ChallengeRepository }
 import com.wenjunhuang.codeepiphany.services.http.HttpClientManager
 import com.wenjunhuang.codeepiphany.settings.ChallengeSettings.ChallengeSettingsStateItem
+import cats.effect.IO
 
-class AtCoderSubmissionService[F[_]: { Async, Concurrent, HttpClientManager, LoggerFactory }](project: Project)
-    extends BaseSubmissionService[F](project, AtCoder) {
+class AtCoderSubmissionService(project: Project)
+    extends BaseSubmissionService(project, AtCoder) {
   override type SubmissionRequest  = Request
   override type SubmissionResponse = AtCoderSubmissionResponse
 
-  override protected def prepareSubmissionRequest(item: ChallengeSettingsStateItem): F[Request] =
+  override protected def prepareSubmissionRequest(item: ChallengeSettingsStateItem): IO[Request] =
     ChallengeRepository
       .getInstance(myProject)
-      .getDSLContextResource[F]
-      .use { client => Async[F].delay(createRequest(item, client)) }
+      .getDSLContextResource
+      .use { client =>IO.delay(createRequest(item, client)) }
 
   override protected def updateSpecificSubmissionRecord(
     dsl: DSLContext,
@@ -38,18 +39,18 @@ class AtCoderSubmissionService[F[_]: { Async, Concurrent, HttpClientManager, Log
     response: AtCoderSubmissionResponse
   ): SubmissionResponseInfo = SubmissionResponseInfo(response.result, response.message, response.submissionId)
 
-  override protected def callApi(basicInfo: Request, processedCode: String): Stream[F, AtCoderSubmissionResponse] =
-    AtCoderApi[F].submitAnswer(basicInfo.contestId, basicInfo.problemId, basicInfo.languageId, processedCode)
+  override protected def callApi(basicInfo: Request, processedCode: String): Stream[IO, AtCoderSubmissionResponse] =
+    AtCoderApi.submitAnswer(basicInfo.contestId, basicInfo.problemId, basicInfo.languageId, processedCode)
 
   override protected def reportSubmitResult(
     lastResponseInfo: SubmissionResponseInfo,
     lastResponse: AtCoderSubmissionResponse
-  ): F[Unit] = {
+  ): IO[Unit] = {
     lastResponseInfo.result match
       case SubmissionResult.Success =>
-        console.info[F](project, s"🎉 Passed!")
+        console.info(project, s"🎉 Passed!")
       case _ =>
-        console.error[F](project, s"${lastResponseInfo.result.show}\n${lastResponseInfo.message}")
+        console.error(project, s"${lastResponseInfo.result.show}\n${lastResponseInfo.message}")
   }
 
   private def createRequest(item: ChallengeSettingsStateItem, client: DSLContext): Request = {

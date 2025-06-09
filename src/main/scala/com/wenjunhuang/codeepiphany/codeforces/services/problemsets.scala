@@ -1,29 +1,30 @@
 package com.wenjunhuang.codeepiphany.codeforces.services
 
+import cats.effect.IO
 import cats.effect.kernel.Async
 import cats.syntax.all.*
-import java.time.LocalDateTime
+import com.intellij.openapi.project.Project
+import com.wenjunhuang.codeepiphany.database.Tables.*
+import com.wenjunhuang.codeepiphany.services.http.HttpClientManager
+import com.wenjunhuang.codeepiphany.services.{ChallengeRepository, console}
+import com.wenjunhuang.codeepiphany.utils.IdGenerator
+import com.wenjunhuang.codeepiphany.utils.syntax.*
 import org.jooq.impl.DSL
 import org.typelevel.log4cats.LoggerFactory
 
-import com.intellij.openapi.project.Project
-
-import com.wenjunhuang.codeepiphany.database.Tables.*
-import com.wenjunhuang.codeepiphany.services.{ console, ChallengeRepository }
-import com.wenjunhuang.codeepiphany.services.http.HttpClientManager
-import com.wenjunhuang.codeepiphany.utils.IdGenerator
+import java.time.LocalDateTime
 
 object problemsets {
-  def fetchAndUpdateProblemSets[F[_]: { Async, LoggerFactory, HttpClientManager }](project: Project): F[Unit] = {
-    val logger = LoggerFactory.getLogger
-    console.info[F](project, "Start to fetch problem sets of CodeForces ...") *>
-      CodeForcesApi[F].getAllProblemSets.flatMap { problems =>
+  def fetchAndUpdateProblemSets(project: Project): IO[Unit] = {
+    val logger = LoggerFactory.getLogger[IO]
+    console.info(project, "Start to fetch problem sets of CodeForces ...") *>
+      CodeForcesApi.getAllProblemSets.flatMap { problems =>
         logger.info(s"Got ${problems.size} problems of CodeForces")
         ChallengeRepository
           .getInstance(project)
-          .getDSLContextResource[F]
+          .getDSLContextResource
           .use { client =>
-            Async[F].blocking {
+            IO.blocking {
               client.transactionResult {
                 config =>
                   val dsl        = DSL.using(config)
@@ -54,10 +55,10 @@ object problemsets {
           }
       }.attempt.flatMap {
         case Right(count) =>
-          console.info[F](project, s"Successfully fetch problem sets of CodeForces with $count problems")
+          console.info(project, s"Successfully fetch problem sets of CodeForces with $count problems")
         case Left(e) =>
           logger.warn(e)("Error to fetch problem sets of CodeForces") *>
-            console.error[F](project, s"Error to fetch problem sets of CodeForces: \n ${e.getMessage}")
+            console.error(project, s"Error to fetch problem sets of CodeForces: \n ${e.getMessage}")
       }
   }
 }

@@ -108,7 +108,7 @@ class NotesListPresenter(val myProject: Project) extends Disposable {
       .debounce(200.millis)
       .evalMap {
         case Some((challengeId, codeDojo)) =>
-          ChallengeRepository.getInstance(myProject).getDSLContextResource[IO].use { dsl =>
+          ChallengeRepository.getInstance(myProject).getDSLContextResource.use { dsl =>
             IO.blocking {
               val (title, difficulty) = dsl
                 .selectFrom(CHALLENGE)
@@ -219,7 +219,7 @@ class NotesListPresenter(val myProject: Project) extends Disposable {
   }
 
   def modifySolutionTitle(solutionId: Long, treeNode: DefaultMutableTreeNode, title: String): Unit = {
-    (ChallengeRepository.getInstance(myProject).getDSLContextResource[IO].use { dsl =>
+    (ChallengeRepository.getInstance(myProject).getDSLContextResource.use { dsl =>
       IO.blocking {
         dsl
           .update(SOLUTION)
@@ -248,7 +248,7 @@ class NotesListPresenter(val myProject: Project) extends Disposable {
       case Some((challengeId, _)) =>
         ChallengeRepository
           .getInstance(myProject)
-          .getDSLContextResource[IO]
+          .getDSLContextResource
           .use { dsl =>
             IO.blocking {
               val record = dsl

@@ -4,57 +4,41 @@ import cats.effect.IO
 import cats.syntax.all.*
 import com.intellij.ide.util.ChooseElementsDialog
 import com.intellij.openapi.Disposable
-import com.intellij.openapi.actionSystem.{ ActionGroup, ActionManager }
+import com.intellij.openapi.actionSystem.{ActionGroup, ActionManager}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.messages.MessageDialog
 import com.intellij.openapi.util.Disposer
 import com.intellij.ui.components.DialogManager
 import com.wenjunhuang.codeepiphany.PluginBundle
-import com.wenjunhuang.codeepiphany.actions.LoginAction.{ LOGIN_LOGOUT_KEY, LoginLogoutProvider }
-import com.wenjunhuang.codeepiphany.codeforces.actions.CodeForcesChangeUIAction.{
-  CODEFORCES_CHANGE_UI_PROVIDER_KEY,
-  CodeForcesChangeUIProvider,
-  CodeForcesUI
-}
-import com.wenjunhuang.codeepiphany.codeforces.actions.CodeForcesUpdateProblemSetsAction.{
-  CODEFORCES_UPDATE_PROBLEM_SETS_PROVIDER_KEY,
-  CodeForcesUpdateProblemSetsProvider
-}
-import com.wenjunhuang.codeepiphany.codeforces.services.{ CodeForcesApi, CodeForcesOpenChallengeService }
+import com.wenjunhuang.codeepiphany.actions.LoginAction.{LOGIN_LOGOUT_KEY, LoginLogoutProvider}
+import com.wenjunhuang.codeepiphany.codeforces.actions.CodeForcesChangeUIAction.{CODEFORCES_CHANGE_UI_PROVIDER_KEY, CodeForcesChangeUIProvider, CodeForcesUI}
+import com.wenjunhuang.codeepiphany.codeforces.actions.CodeForcesUpdateProblemSetsAction.{CODEFORCES_UPDATE_PROBLEM_SETS_PROVIDER_KEY, CodeForcesUpdateProblemSetsProvider}
 import com.wenjunhuang.codeepiphany.codeforces.services.problemsets.fetchAndUpdateProblemSets
+import com.wenjunhuang.codeepiphany.codeforces.services.{CodeForcesApi, CodeForcesOpenChallengeService}
 import com.wenjunhuang.codeepiphany.codeforces.settings.CodeForcesSettings
+import com.wenjunhuang.codeepiphany.database.Tables.CODEFORCES_PROBLEMSETS
 import com.wenjunhuang.codeepiphany.database.tables.records.CodeforcesProblemsetsRecord
 import com.wenjunhuang.codeepiphany.model.Actions.CODEFORCES_TITLE_TOOLBAR_GROUP
-import com.wenjunhuang.codeepiphany.model.{ CodeDojo, Language, LanguageVersion }
 import com.wenjunhuang.codeepiphany.model.CodeDojo.CodeForces
-import com.wenjunhuang.codeepiphany.services.http.{ HttpClientManager, HttpClientService }
-import com.wenjunhuang.codeepiphany.services.{
-  console,
-  AskForLoginResult,
-  AuthService,
-  BaseChallengesView,
-  ChallengeRepository
-}
+import com.wenjunhuang.codeepiphany.model.{CodeDojo, Language, LanguageVersion}
+import com.wenjunhuang.codeepiphany.services.http.HttpClientManager
+import com.wenjunhuang.codeepiphany.services.*
 import com.wenjunhuang.codeepiphany.utils.actions.DataSink
-import com.wenjunhuang.codeepiphany.utils.competitiveCompanion.CCAction.{ CCActionProvider, CC_ACTION_PROVIDER_KEY }
+import com.wenjunhuang.codeepiphany.utils.competitiveCompanion.CCAction.{CCActionProvider, CC_ACTION_PROVIDER_KEY}
 import com.wenjunhuang.codeepiphany.utils.competitiveCompanion.startCCListening
 import com.wenjunhuang.codeepiphany.utils.extensions.*
 import com.wenjunhuang.codeepiphany.utils.syntax.*
 import com.wenjunhuang.codeepiphany.utils.ui.UnauthenticatedView
 import org.typelevel.ci.CIString
 import org.typelevel.log4cats.LoggerFactory
-import com.wenjunhuang.codeepiphany.database.Tables.CODEFORCES_PROBLEMSETS
 
+import java.util.concurrent.atomic.AtomicBoolean
+import javax.swing.{Icon, JComponent}
+import scala.concurrent.Future
 import scala.jdk.CollectionConverters.*
 import scala.jdk.OptionConverters.*
-import java.util.concurrent.atomic.AtomicBoolean
-import javax.swing.{ Icon, JComponent }
-import scala.concurrent.Future
 
 class CodeForcesChallengesView(private val myProject: Project) extends BaseChallengesView[CodeForcesUI] {
-
-  private implicit val httpClientManager: HttpClientManager[IO] =
-    HttpClientService.getInstance(myProject).httpClientManager
 
   private val myUnauthenticatedView =
     UnauthenticatedView(CodeForces, Some(PluginBundle.message("needFetchQuestions.tips", CodeForces.show)))
@@ -71,7 +55,7 @@ class CodeForcesChallengesView(private val myProject: Project) extends BaseChall
 
   select(myCurrentUI, false)
   private def initialize(): IO[CodeForcesBootstrapParameters] = {
-    CodeForcesApi[IO].getProblemTags.map { tags =>
+    CodeForcesApi.getProblemTags.map { tags =>
       CodeForcesBootstrapParameters("*special" +: tags)
     }
   }
@@ -79,10 +63,10 @@ class CodeForcesChallengesView(private val myProject: Project) extends BaseChall
   private val myLoginLogoutProvider = new LoginLogoutProvider {
     override def login(): Unit = {
       myIsLoggingIn = true
-      (console.info[IO](myProject, s"Logging in to ${CodeDojo.CodeForces.show}...") *>
+      (console.info(myProject, s"Logging in to ${CodeDojo.CodeForces.show}...") *>
         AuthService
           .getInstance(myProject)
-          .loadAuthenticationMayAskForLogin[IO](CodeDojo.CodeForces)
+          .loadAuthenticationMayAskForLogin(CodeDojo.CodeForces)
           .flatMap {
             case AskForLoginResult.Done =>
               initialize().map { bootstrap =>
@@ -93,11 +77,11 @@ class CodeForcesChallengesView(private val myProject: Project) extends BaseChall
                 val gotoUI = loadLastUI().getOrElse(CodeForcesUI.QueryParameters)
                 mySwitchUIProvider.switchTo(gotoUI)
               }.evalOnEDTAny()
-                *> console.info[IO](myProject, s"Logged in to ${CodeDojo.CodeForces.show}.")
-            case _ => console.info[IO](myProject, s"Login to ${CodeDojo.CodeForces.show} canceled.")
+                *> console.info(myProject, s"Logged in to ${CodeDojo.CodeForces.show}.")
+            case _ => console.info(myProject, s"Login to ${CodeDojo.CodeForces.show} canceled.")
           }
           .handleErrorWith { e =>
-            myLogger.warn(e)("Failed to login") *> console.error[IO](
+            myLogger.warn(e)("Failed to login") *> console.error(
               myProject,
               s"Login failed because of \"${e.getMessage}\""
             )
@@ -108,7 +92,7 @@ class CodeForcesChallengesView(private val myProject: Project) extends BaseChall
 
     override def logout(): Unit = (AuthService
       .getInstance(myProject)
-      .askForLogout[IO](CodeDojo.CodeForces)
+      .askForLogout(CodeDojo.CodeForces)
       *> IO.delay {
         AuthService.getInstance(myProject).clearLogin(CodeDojo.CodeForces)
         mySwitchUIProvider.switchTo(CodeForcesUI.Unauthenticated)
@@ -160,7 +144,7 @@ class CodeForcesChallengesView(private val myProject: Project) extends BaseChall
                     }
                   }.evalOnEDTAny().flatMap {
                     case Some((contestId, index, selected)) =>
-                      ChallengeRepository.getInstance(myProject).getDSLContextResource[IO].use { dsl =>
+                      ChallengeRepository.getInstance(myProject).getDSLContextResource.use { dsl =>
                         dsl
                           .selectFrom(CODEFORCES_PROBLEMSETS)
                           .where(CODEFORCES_PROBLEMSETS.CONTESTID.eq(contestId.toLong))
@@ -170,7 +154,7 @@ class CodeForcesChallengesView(private val myProject: Project) extends BaseChall
                           case Some(existing) =>
                             openChallenge(myProject, selected._1, selected._2, existing)
                           case None =>
-                            console.error[IO](
+                            console.error(
                               myProject,
                               "Challenge not found in database, please update problem sets first."
                             ) *> IO.unit
@@ -193,7 +177,7 @@ class CodeForcesChallengesView(private val myProject: Project) extends BaseChall
         case e: Throwable =>
           cancellationToken = None
           (myLogger.error(e)("Failed to start listening for CC events") *>
-            console.error[IO](myProject, s"Failed to start listening for CC events because of \"${e.getMessage}\""))
+            console.error(myProject, s"Failed to start listening for CC events because of \"${e.getMessage}\""))
             .unsafeRunAndForget()
       }
     }
@@ -216,9 +200,9 @@ class CodeForcesChallengesView(private val myProject: Project) extends BaseChall
     private val myUpdating = AtomicBoolean(false)
     override def updateProblemSets(): Unit =
       if !myUpdating.compareAndExchange(false, true) then
-        (fetchAndUpdateProblemSets[IO](myProject).handleErrorWith { e =>
+        (fetchAndUpdateProblemSets(myProject).handleErrorWith { e =>
           myLogger.warn(e)("Failed to update CodeForces problem sets") *>
-            console.error[IO](myProject, s"Failed to update problem sets because of \"${e.getMessage}\"")
+            console.error(myProject, s"Failed to update problem sets because of \"${e.getMessage}\"")
         } *> IO.delay(myUpdating.set(false))).unsafeRunAndForget()
 
     override def isUpdatingProblemSets: Boolean = myUpdating.get()

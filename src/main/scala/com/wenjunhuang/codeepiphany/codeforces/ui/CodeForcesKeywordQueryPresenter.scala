@@ -41,7 +41,7 @@ class CodeForcesKeywordQueryPresenter(project: Project, bootstrap: CodeForcesBoo
     else
       ChallengeRepository
         .getInstance(myProject)
-        .getDSLContextResource[IO]
+        .getDSLContextResource
         .use { dsl =>
           IO.delay {
             val keyword     = context.criteria.keyword
