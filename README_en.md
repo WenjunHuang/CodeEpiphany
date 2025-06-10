@@ -4,6 +4,13 @@
 [![License](https://img.shields.io/github/license/WenjunHuang/CodeEpiphany)](LICENSE)
 [![GitHub issues](https://img.shields.io/github/issues/WenjunHuang/CodeEpiphany)](https://github.com/WenjunHuang/CodeEpiphany/issues)
 
+
+**Now available on Android!** 📱 Download our mobile app from [Google Play](https://play.google.com/store/apps/details?id=com.wenjunhuang.codeepiphanyapp) to practice coding challenges on the go. Your support means a lot to us!
+
+[<img src="https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png" width="200" alt="Get it on Google Play">](https://play.google.com/store/apps/details?id=com.wenjunhuang.codeepiphanyapp)
+
+---
+
 **A feature-rich plugin designed to streamline coding challenges in JetBrains IDEs.**
 
 🚀 **LeetCode Epiphany** integrates popular competitive programming platforms into
@@ -88,7 +95,3 @@ Explanation:
 💡Start your journey to mastering algorithms and coding challenges with **LeetCode Epiphany** today!
 
 ---
-
-**Now available on Android!** 📱 Download our mobile app from [Google Play](https://play.google.com/store/apps/details?id=com.wenjunhuang.codeepiphanyapp) to practice coding challenges on the go. Your support means a lot to us! 
-
-[<img src="https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png" width="200" alt="Get it on Google Play">](https://play.google.com/store/apps/details?id=com.wenjunhuang.codeepiphanyapp) 
