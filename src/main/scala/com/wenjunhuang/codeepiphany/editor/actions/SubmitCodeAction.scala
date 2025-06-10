@@ -1,23 +1,18 @@
 package com.wenjunhuang.codeepiphany.editor.actions
 
-import cats.effect.IO
-
 import com.intellij.openapi.actionSystem.*
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Key
 import com.intellij.openapi.vfs.VirtualFile
-
 import com.wenjunhuang.codeepiphany.editor.actions.SubmitCodeAction.*
-import com.wenjunhuang.codeepiphany.editor.services.{ runCode, submitCode }
+import com.wenjunhuang.codeepiphany.editor.services.{runCode, submitCode}
 import com.wenjunhuang.codeepiphany.model.CodeDojo
-import com.wenjunhuang.codeepiphany.model.CodeDojo.{ AtCoder, CodeForces, LuoGu }
-import com.wenjunhuang.codeepiphany.services.http.{ HttpClientManager }
+import com.wenjunhuang.codeepiphany.model.CodeDojo.{AtCoder, CodeForces, LuoGu}
 import com.wenjunhuang.codeepiphany.services.AuthService
 import com.wenjunhuang.codeepiphany.services.file.saveEditedFile
 import com.wenjunhuang.codeepiphany.settings.ChallengeSettings
 import com.wenjunhuang.codeepiphany.utils.actions.ActionCompatible
 import com.wenjunhuang.codeepiphany.utils.extensions.*
-import com.wenjunhuang.codeepiphany.utils.syntax.*
 
 class SubmitCodeAction extends AnAction with ActionCompatible {
   override def actionPerformed(e: AnActionEvent): Unit = {

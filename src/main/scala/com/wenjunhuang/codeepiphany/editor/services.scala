@@ -18,7 +18,7 @@ import com.wenjunhuang.codeepiphany.utils.syntax.*
 import org.typelevel.log4cats.{ Logger, LoggerFactory }
 import com.wenjunhuang.codeepiphany.PluginBundle
 
-package object services {
+object services {
   def runCode(vf: VirtualFile, project: Project): IO[Unit] = {
     showConsole(project)
       *> console.info(project, PluginBundle.message("run.code.start", vf.getName))
@@ -47,7 +47,10 @@ package object services {
     val settings = ChallengeSettings.getInstance(project)
     (settings.findChallengeId(vf) match
       case Some(item) =>
-        showConsole(project) *> console.info(project, PluginBundle.message("submit.code.start", vf.getName, item.dojo.show)) >>
+        showConsole(project) *> console.info(
+          project,
+          PluginBundle.message("submit.code.start", vf.getName, item.dojo.show)
+        ) >>
           (
             item.dojo match
               case CodeDojo.HackerRank => HackerRankSubmissionService(project).submitCode(vf)
@@ -63,5 +66,4 @@ package object services {
         logger.warn(e)("Error to submit code")
     }
   }
-
 }
