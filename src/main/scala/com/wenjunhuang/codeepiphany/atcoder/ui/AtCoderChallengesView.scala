@@ -8,22 +8,29 @@ import org.typelevel.ci.CIString
 import org.typelevel.log4cats.LoggerFactory
 
 import com.intellij.openapi.Disposable
-import com.intellij.openapi.actionSystem.{ActionGroup, ActionManager}
+import com.intellij.openapi.actionSystem.{ ActionGroup, ActionManager }
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
 
 import com.wenjunhuang.codeepiphany.PluginBundle
-import com.wenjunhuang.codeepiphany.actions.LoginAction.{LOGIN_LOGOUT_KEY, LoginLogoutProvider}
-import com.wenjunhuang.codeepiphany.atcoder.actions.AtCoderChangeUIAction.{ATCODER_CHANGE_UI_PROVIDER_KEY, AtCoderChangeUIProvider, AtCoderUI}
-import com.wenjunhuang.codeepiphany.atcoder.actions.AtCoderUpdateProblemSetsAction.{ATCODER_UPDATE_PROBLEM_SETS_PROVIDER_KEY, AtCoderUpdateProblemSetsProvider}
+import com.wenjunhuang.codeepiphany.actions.LoginAction.{ LOGIN_LOGOUT_KEY, LoginLogoutProvider }
+import com.wenjunhuang.codeepiphany.atcoder.actions.AtCoderChangeUIAction.{
+  ATCODER_CHANGE_UI_PROVIDER_KEY,
+  AtCoderChangeUIProvider,
+  AtCoderUI
+}
+import com.wenjunhuang.codeepiphany.atcoder.actions.AtCoderUpdateProblemSetsAction.{
+  ATCODER_UPDATE_PROBLEM_SETS_PROVIDER_KEY,
+  AtCoderUpdateProblemSetsProvider
+}
 import com.wenjunhuang.codeepiphany.atcoder.services.AtCoderApi
 import com.wenjunhuang.codeepiphany.atcoder.services.problemsets.fetchAndUpdateProblemSets
 import com.wenjunhuang.codeepiphany.atcoder.settings.AtCoderSettings
 import com.wenjunhuang.codeepiphany.model.Actions.ATCODER_TITLE_TOOLBAR_GROUP
 import com.wenjunhuang.codeepiphany.model.CodeDojo
 import com.wenjunhuang.codeepiphany.model.CodeDojo.AtCoder
-import com.wenjunhuang.codeepiphany.services.{console, AskForLoginResult, AuthService, BaseChallengesView}
-import com.wenjunhuang.codeepiphany.services.http.{HttpClientManager}
+import com.wenjunhuang.codeepiphany.services.{ console, AskForLoginResult, AuthService, BaseChallengesView }
+import com.wenjunhuang.codeepiphany.services.http.HttpClientManager
 import com.wenjunhuang.codeepiphany.utils.actions.DataSink
 import com.wenjunhuang.codeepiphany.utils.extensions.*
 import com.wenjunhuang.codeepiphany.utils.syntax.*
@@ -51,7 +58,7 @@ class AtCoderChallengesView(private val myProject: Project) extends BaseChalleng
   private val myLoginLogoutProvider = new LoginLogoutProvider {
     override def login(): Unit = {
       myIsLoggingIn = true
-      (console.info(myProject, s"Logging in to ${CodeDojo.AtCoder.show}...") *>
+      (console.info(myProject, PluginBundle.message("console.loggingIn", CodeDojo.AtCoder.show)) *>
         AuthService
           .getInstance(myProject)
           .loadAuthenticationMayAskForLogin(CodeDojo.AtCoder)
@@ -64,17 +71,24 @@ class AtCoderChallengesView(private val myProject: Project) extends BaseChalleng
                 AuthService.getInstance(myProject).setLogin(CodeDojo.AtCoder)
                 val gotoUI = loadLastUI().getOrElse(AtCoderUI.QueryParameters)
                 mySwitchUIProvider.switchTo(gotoUI)
-              }.evalOnEDTAny() *> console.info(myProject, s"Logged in to ${CodeDojo.AtCoder.show}.")
-            case _ => console.info(myProject, s"Login to ${CodeDojo.AtCoder.show} canceled.")
+              }.evalOnEDTAny() *> console.info(
+                myProject,
+                PluginBundle.message("console.loggedIn", CodeDojo.AtCoder.show)
+              )
+            case _ => console.info(myProject, PluginBundle.message("console.loginCancelled", CodeDojo.AtCoder.show))
           }
           .handleErrorWith { e =>
-            myLogger.warn(e)("Failed to login") *> console.error(
+            myLogger
+              .warn(e)(s"Failed to login ${CodeDojo.AtCoder.show}") *> console.error(
               myProject,
-              s"Login failed because of \"${e.getMessage}\""
+              PluginBundle.message("console.loginFailed", CodeDojo.AtCoder.show, e.getMessage)
             )
           })
         .guarantee(IO.delay { myIsLoggingIn = false })
-        .unsafeRunAsBackgroundProgressCancellable(myProject, s"Logging in to ${CodeDojo.AtCoder.show}...")
+        .unsafeRunAsBackgroundProgressCancellable(
+          myProject,
+          PluginBundle.message("console.loggingIn", CodeDojo.AtCoder.show)
+        )
     }
 
     override def logout(): Unit = (AuthService

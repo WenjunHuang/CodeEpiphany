@@ -1,15 +1,14 @@
 package com.wenjunhuang.codeepiphany.utils
 
-import cats.effect.{IO, OutcomeIO}
+import cats.effect.IO
 import cats.effect.kernel.Resource.ExitCase
 import cats.effect.kernel.Resource.ExitCase.{Canceled, Errored, Succeeded}
-import scala.concurrent.duration.*
-
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.progress.{PerformInBackgroundOption, ProgressIndicator, ProgressManager, Task}
 import com.intellij.openapi.project.Project
-
 import com.wenjunhuang.codeepiphany.utils.syntax.*
+
+import scala.concurrent.duration.*
 
 trait IOExtensionsOps {
   private val myLogger = Logger.getInstance(getClass.getName)

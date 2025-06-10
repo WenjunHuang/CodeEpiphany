@@ -5,6 +5,7 @@ import cats.effect.{Concurrent, IO}
 import cats.syntax.all.*
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.text.StringUtil
+import com.wenjunhuang.codeepiphany.PluginBundle
 import com.wenjunhuang.codeepiphany.database.Tables.*
 import com.wenjunhuang.codeepiphany.leetcode.models.*
 import com.wenjunhuang.codeepiphany.leetcode.models.submitAnswer.LeetCodeSubmitAnswerResult
@@ -95,7 +96,7 @@ class LeetCodeSubmissionService(
   ): IO[Unit] =
     lastResponseInfo.result match {
       case SubmissionResult.Success =>
-        console.info(project, s"🎉 Passed!\n${lastResponseInfo.message}")
+        console.info(project, PluginBundle.message("submission.passed") + s"\n${lastResponseInfo.message}")
       case _ =>
         console.error(project, s"${lastResponseInfo.result.show}\n${lastResponseInfo.message}")
     }

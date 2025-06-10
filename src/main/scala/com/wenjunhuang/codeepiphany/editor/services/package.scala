@@ -1,13 +1,13 @@
 package com.wenjunhuang.codeepiphany.editor
 
-import cats.effect.{Concurrent, IO}
+import cats.effect.{ Concurrent, IO }
 import cats.syntax.all.*
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
 import com.wenjunhuang.codeepiphany.atcoder.services.AtCoderSubmissionService
 import com.wenjunhuang.codeepiphany.codeforces.services.CodeForcesSubmissionService
-import com.wenjunhuang.codeepiphany.hackerrank.services.{HackerRankEvaluationService, HackerRankSubmissionService}
-import com.wenjunhuang.codeepiphany.leetcode.services.{LeetCodeEvaluationService, LeetCodeSubmissionService}
+import com.wenjunhuang.codeepiphany.hackerrank.services.{ HackerRankEvaluationService, HackerRankSubmissionService }
+import com.wenjunhuang.codeepiphany.leetcode.services.{ LeetCodeEvaluationService, LeetCodeSubmissionService }
 import com.wenjunhuang.codeepiphany.luogu.services.LuoGuSubmissionService
 import com.wenjunhuang.codeepiphany.model.CodeDojo
 import com.wenjunhuang.codeepiphany.services.console
@@ -15,12 +15,13 @@ import com.wenjunhuang.codeepiphany.services.console.showConsole
 import com.wenjunhuang.codeepiphany.services.http.HttpClientManager
 import com.wenjunhuang.codeepiphany.settings.ChallengeSettings
 import com.wenjunhuang.codeepiphany.utils.syntax.*
-import org.typelevel.log4cats.{Logger, LoggerFactory}
+import org.typelevel.log4cats.{ Logger, LoggerFactory }
+import com.wenjunhuang.codeepiphany.PluginBundle
 
 package object services {
   def runCode(vf: VirtualFile, project: Project): IO[Unit] = {
     showConsole(project)
-      *> console.info(project, s"Start to run ${vf.getName}")
+      *> console.info(project, PluginBundle.message("run.code.start", vf.getName))
       *> IO.delay {
         val settings = ChallengeSettings.getInstance(project)
         settings.findChallengeId(vf)
@@ -37,7 +38,7 @@ package object services {
               IO.unit
         case None => IO.unit
       }.handleErrorWith { e =>
-        console.error(project, s"Error to run code: \n ${e.getMessage}")
+        console.error(project, PluginBundle.message("error.run.code", e.getMessage))
       }
   }
 
@@ -46,7 +47,7 @@ package object services {
     val settings = ChallengeSettings.getInstance(project)
     (settings.findChallengeId(vf) match
       case Some(item) =>
-        showConsole(project) *> console.info(project, s"Start to submit ${vf.getName} to ${item.dojo.show}") >>
+        showConsole(project) *> console.info(project, PluginBundle.message("submit.code.start", vf.getName, item.dojo.show)) >>
           (
             item.dojo match
               case CodeDojo.HackerRank => HackerRankSubmissionService(project).submitCode(vf)
@@ -58,7 +59,7 @@ package object services {
           )
       case None => IO.unit
     ).handleErrorWith { e =>
-      console.error(project, s"Error to submit code: \n ${e.getMessage}") >>
+      console.error(project, PluginBundle.message("error.submit.code", e.getMessage)) >>
         logger.warn(e)("Error to submit code")
     }
   }

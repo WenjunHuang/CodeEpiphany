@@ -7,10 +7,9 @@ import fs2.Stream
 import org.jooq.{ DSLContext, Record }
 import org.typelevel.ci.CIString
 import org.typelevel.log4cats.LoggerFactory
+
 import scala.jdk.OptionConverters.*
-
 import com.intellij.openapi.project.Project
-
 import com.wenjunhuang.codeepiphany.atcoder.models.AtCoderSubmissionResponse
 import com.wenjunhuang.codeepiphany.atcoder.settings.AtCoderSettingsConfigurable
 import com.wenjunhuang.codeepiphany.database.Tables.{ ATCODER_CHALLENGE, CHALLENGE, CHALLENGE_LANGUAGE }
@@ -21,9 +20,9 @@ import com.wenjunhuang.codeepiphany.services.{ console, BaseSubmissionService, C
 import com.wenjunhuang.codeepiphany.services.http.HttpClientManager
 import com.wenjunhuang.codeepiphany.settings.ChallengeSettings.ChallengeSettingsStateItem
 import cats.effect.IO
+import com.wenjunhuang.codeepiphany.PluginBundle
 
-class AtCoderSubmissionService(project: Project)
-    extends BaseSubmissionService(project, AtCoder) {
+class AtCoderSubmissionService(project: Project) extends BaseSubmissionService(project, AtCoder) {
   override type SubmissionRequest  = Request
   override type SubmissionResponse = AtCoderSubmissionResponse
 
@@ -31,7 +30,7 @@ class AtCoderSubmissionService(project: Project)
     ChallengeRepository
       .getInstance(myProject)
       .getDSLContextResource
-      .use { client =>IO.delay(createRequest(item, client)) }
+      .use { client => IO.delay(createRequest(item, client)) }
 
   override protected def updateSpecificSubmissionRecord(
     dsl: DSLContext,
@@ -48,7 +47,7 @@ class AtCoderSubmissionService(project: Project)
   ): IO[Unit] = {
     lastResponseInfo.result match
       case SubmissionResult.Success =>
-        console.info(project, s"🎉 Passed!")
+        console.info(project, PluginBundle.message("submission.passed"))
       case _ =>
         console.error(project, s"${lastResponseInfo.result.show}\n${lastResponseInfo.message}")
   }

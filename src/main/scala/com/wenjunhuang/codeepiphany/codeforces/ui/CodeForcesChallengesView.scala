@@ -6,22 +6,18 @@ import com.intellij.ide.util.ChooseElementsDialog
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.actionSystem.{ActionGroup, ActionManager}
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.ui.messages.MessageDialog
 import com.intellij.openapi.util.Disposer
-import com.intellij.ui.components.DialogManager
 import com.wenjunhuang.codeepiphany.PluginBundle
 import com.wenjunhuang.codeepiphany.actions.LoginAction.{LOGIN_LOGOUT_KEY, LoginLogoutProvider}
 import com.wenjunhuang.codeepiphany.codeforces.actions.CodeForcesChangeUIAction.{CODEFORCES_CHANGE_UI_PROVIDER_KEY, CodeForcesChangeUIProvider, CodeForcesUI}
 import com.wenjunhuang.codeepiphany.codeforces.actions.CodeForcesUpdateProblemSetsAction.{CODEFORCES_UPDATE_PROBLEM_SETS_PROVIDER_KEY, CodeForcesUpdateProblemSetsProvider}
+import com.wenjunhuang.codeepiphany.codeforces.services.CodeForcesApi
 import com.wenjunhuang.codeepiphany.codeforces.services.problemsets.fetchAndUpdateProblemSets
-import com.wenjunhuang.codeepiphany.codeforces.services.{CodeForcesApi, CodeForcesOpenChallengeService}
 import com.wenjunhuang.codeepiphany.codeforces.settings.CodeForcesSettings
 import com.wenjunhuang.codeepiphany.database.Tables.CODEFORCES_PROBLEMSETS
-import com.wenjunhuang.codeepiphany.database.tables.records.CodeforcesProblemsetsRecord
 import com.wenjunhuang.codeepiphany.model.Actions.CODEFORCES_TITLE_TOOLBAR_GROUP
 import com.wenjunhuang.codeepiphany.model.CodeDojo.CodeForces
 import com.wenjunhuang.codeepiphany.model.{CodeDojo, Language, LanguageVersion}
-import com.wenjunhuang.codeepiphany.services.http.HttpClientManager
 import com.wenjunhuang.codeepiphany.services.*
 import com.wenjunhuang.codeepiphany.utils.actions.DataSink
 import com.wenjunhuang.codeepiphany.utils.competitiveCompanion.CCAction.{CCActionProvider, CC_ACTION_PROVIDER_KEY}
@@ -63,7 +59,7 @@ class CodeForcesChallengesView(private val myProject: Project) extends BaseChall
   private val myLoginLogoutProvider = new LoginLogoutProvider {
     override def login(): Unit = {
       myIsLoggingIn = true
-      (console.info(myProject, s"Logging in to ${CodeDojo.CodeForces.show}...") *>
+      (console.info(myProject, PluginBundle.message("console.loggingIn", CodeDojo.CodeForces.show)) *>
         AuthService
           .getInstance(myProject)
           .loadAuthenticationMayAskForLogin(CodeDojo.CodeForces)
@@ -77,17 +73,21 @@ class CodeForcesChallengesView(private val myProject: Project) extends BaseChall
                 val gotoUI = loadLastUI().getOrElse(CodeForcesUI.QueryParameters)
                 mySwitchUIProvider.switchTo(gotoUI)
               }.evalOnEDTAny()
-                *> console.info(myProject, s"Logged in to ${CodeDojo.CodeForces.show}.")
-            case _ => console.info(myProject, s"Login to ${CodeDojo.CodeForces.show} canceled.")
+                *> console.info(myProject, PluginBundle.message("console.loggedIn", CodeDojo.CodeForces.show))
+            case _ => console.info(myProject, PluginBundle.message("console.loginCancelled", CodeDojo.CodeForces.show))
           }
           .handleErrorWith { e =>
-            myLogger.warn(e)("Failed to login") *> console.error(
+            myLogger
+              .warn(e)("Failed to login") *> console.error(
               myProject,
-              s"Login failed because of \"${e.getMessage}\""
+              PluginBundle.message("console.loginFailed", CodeDojo.CodeForces.show, e.getMessage)
             )
           })
         .guarantee(IO.delay { myIsLoggingIn = false })
-        .unsafeRunAsBackgroundProgressCancellable(myProject, s"Logging in to ${CodeDojo.CodeForces.show}...")
+        .unsafeRunAsBackgroundProgressCancellable(
+          myProject,
+          PluginBundle.message("console.loggingIn", CodeDojo.CodeForces.show)
+        )
     }
 
     override def logout(): Unit = (AuthService

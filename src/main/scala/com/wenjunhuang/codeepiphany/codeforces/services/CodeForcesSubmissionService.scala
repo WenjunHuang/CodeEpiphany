@@ -1,15 +1,15 @@
 package com.wenjunhuang.codeepiphany.codeforces.services
 
-import cats.effect.{IO,Concurrent}
+import cats.effect.{ Concurrent, IO }
 import cats.effect.kernel.Async
 import cats.syntax.all.*
 import org.jooq.{ DSLContext, Record }
 import org.typelevel.ci.CIString
 import org.typelevel.log4cats.LoggerFactory
+
 import scala.jdk.OptionConverters.*
-
 import com.intellij.openapi.project.Project
-
+import com.wenjunhuang.codeepiphany.PluginBundle
 import com.wenjunhuang.codeepiphany.codeforces.models.CodeForcesSubmissionResponse
 import com.wenjunhuang.codeepiphany.codeforces.settings.CodeForcesSettingsConfigurable
 import com.wenjunhuang.codeepiphany.database.Tables.{ CHALLENGE, CHALLENGE_LANGUAGE, CODEFORCES_CHALLENGE }
@@ -20,8 +20,7 @@ import com.wenjunhuang.codeepiphany.services.{ console, BaseSubmissionService, C
 import com.wenjunhuang.codeepiphany.services.http.HttpClientManager
 import com.wenjunhuang.codeepiphany.settings.ChallengeSettings.ChallengeSettingsStateItem
 
-class CodeForcesSubmissionService(project: Project)
-    extends BaseSubmissionService(project, CodeForces) {
+class CodeForcesSubmissionService(project: Project) extends BaseSubmissionService(project, CodeForces) {
   override type SubmissionRequest  = CFRequest
   override type SubmissionResponse = CodeForcesSubmissionResponse
 
@@ -29,7 +28,7 @@ class CodeForcesSubmissionService(project: Project)
     ChallengeRepository
       .getInstance(myProject)
       .getDSLContextResource
-      .use { client =>IO.delay(createCFRequest(item, client)) }
+      .use { client => IO.delay(createCFRequest(item, client)) }
 
   override protected def updateSpecificSubmissionRecord(
     dsl: DSLContext,
@@ -55,7 +54,7 @@ class CodeForcesSubmissionService(project: Project)
   ): IO[Unit] = {
     lastResponseInfo.result match
       case SubmissionResult.Success =>
-        console.info(project, s"🎉 Passed!\n${lastResponse.message}")
+        console.info(project, PluginBundle.message("submission.passed") + "\n${lastResponse.message}")
       case _ =>
         console.error(project, s"${lastResponseInfo.result.show}\n${lastResponse.message}")
   }

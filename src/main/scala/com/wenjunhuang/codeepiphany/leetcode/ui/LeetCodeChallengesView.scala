@@ -21,6 +21,7 @@ import org.typelevel.ci.CIString
 import org.typelevel.log4cats.LoggerFactory
 
 import javax.swing.JComponent
+import com.wenjunhuang.codeepiphany.PluginBundle
 
 class LeetCodeChallengesView(
   private val myProject: Project,
@@ -61,7 +62,7 @@ class LeetCodeChallengesView(
   private val myLoginLogoutProvider = new LoginLogoutProvider {
     override def login(): Unit = {
       myIsLoggingIn = true
-      (console.info(myProject, s"Logging in to ${myCodeDojo.show}...") *>
+      (console.info(myProject, PluginBundle.message("console.loggingIn", myCodeDojo.show)) *>
         AuthService
           .getInstance(myProject)
           .loadAuthenticationMayAskForLogin(myCodeDojo)
@@ -76,15 +77,15 @@ class LeetCodeChallengesView(
                 val gotoUI = loadLastUI().getOrElse(QueryParameters)
                 mySwitchUIProvider.switchTo(gotoUI)
               }.evalOnEDTAny()
-                *> console.info(myProject, s"Logged in to ${myCodeDojo.show}.")
-            case _ => console.info(myProject, s"Login to ${myCodeDojo.show} canceled.")
+                *> console.info(myProject, PluginBundle.message("console.loggedIn", myCodeDojo.show))
+            case _ => console.info(myProject, PluginBundle.message("console.loginCancelled", myCodeDojo.show))
           }
           .handleErrorWith { e =>
             myLogger.warn(e)("Failed to login") *>
-              console.error(myProject, s"Login failed because of \"${e.getMessage}\"")
+              console.error(myProject, PluginBundle.message("console.loginFailed", myCodeDojo.show, e.getMessage))
           })
         .guarantee(IO.delay { myIsLoggingIn = false })
-        .unsafeRunAsBackgroundProgressCancellable(myProject, s"Logging in to ${myCodeDojo.show}...")
+        .unsafeRunAsBackgroundProgressCancellable(myProject, PluginBundle.message("console.loggingIn", myCodeDojo.show))
     }
 
     override def logout(): Unit = (AuthService

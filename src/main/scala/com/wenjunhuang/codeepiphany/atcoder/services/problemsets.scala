@@ -9,6 +9,7 @@ import org.typelevel.log4cats.LoggerFactory
 import com.intellij.execution.filters.BrowserHyperlinkInfo
 import com.intellij.openapi.project.Project
 
+import com.wenjunhuang.codeepiphany.PluginBundle
 import com.wenjunhuang.codeepiphany.atcoder.models.AtCoderDifficulty
 import com.wenjunhuang.codeepiphany.database.Tables.*
 import com.wenjunhuang.codeepiphany.services.{ console, ChallengeRepository }
@@ -97,10 +98,10 @@ object problemsets {
       }.attempt.flatMap {
         case Right((problems, contests)) =>
           showConsole(project) *>
-            console.info(project, s"Successfully fetch $problems problems and $contests contests of AtCoder")
+            console.info(project, PluginBundle.message("atcoder.problemsets.success", problems, contests))
         case Left(e) =>
           showConsole(project) *>
-            console.error(project, s"Error to fetch problem sets of AtCoder: \n ${e.getMessage}")
+            console.error(project, PluginBundle.message("atcoder.problemsets.error", e.getMessage))
             *> logger.warn(e)("Error to fetch problem sets of AtCoder")
       }
   }

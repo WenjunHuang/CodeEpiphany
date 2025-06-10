@@ -13,11 +13,12 @@ import org.jooq.impl.DSL
 import org.typelevel.log4cats.LoggerFactory
 
 import java.time.LocalDateTime
+import com.wenjunhuang.codeepiphany.PluginBundle
 
 object problemsets {
   def fetchAndUpdateProblemSets(project: Project): IO[Unit] = {
     val logger = LoggerFactory.getLogger[IO]
-    console.info(project, "Start to fetch problem sets of CodeForces ...") *>
+    console.info(project, PluginBundle.message("codeforces.problemsets.start")) *>
       CodeForcesApi.getAllProblemSets.flatMap { problems =>
         logger.info(s"Got ${problems.size} problems of CodeForces")
         ChallengeRepository
@@ -55,10 +56,10 @@ object problemsets {
           }
       }.attempt.flatMap {
         case Right(count) =>
-          console.info(project, s"Successfully fetch problem sets of CodeForces with $count problems")
+          console.info(project, PluginBundle.message("codeforces.problemsets.success", count))
         case Left(e) =>
           logger.warn(e)("Error to fetch problem sets of CodeForces") *>
-            console.error(project, s"Error to fetch problem sets of CodeForces: \n ${e.getMessage}")
+            console.error(project, PluginBundle.message("codeforces.problemsets.error", e.getMessage))
       }
   }
 }

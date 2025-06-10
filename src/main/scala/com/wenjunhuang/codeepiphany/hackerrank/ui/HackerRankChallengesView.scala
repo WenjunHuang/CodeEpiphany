@@ -1,10 +1,15 @@
 package com.wenjunhuang.codeepiphany.hackerrank.ui
 
+import cats.syntax.all.*
 import cats.effect.IO
-import com.intellij.openapi.actionSystem.{ActionGroup, ActionManager}
+import com.intellij.openapi.actionSystem.{ ActionGroup, ActionManager }
 import com.intellij.openapi.project.Project
-import com.wenjunhuang.codeepiphany.actions.LoginAction.{LOGIN_LOGOUT_KEY, LoginLogoutProvider}
-import com.wenjunhuang.codeepiphany.hackerrank.actions.ChangeChallengesUIAction.{CHANGE_CHALLENGES_UI_PROVIDER_KEY, ChangeChallengesUIProvider, HackerRankUI}
+import com.wenjunhuang.codeepiphany.actions.LoginAction.{ LOGIN_LOGOUT_KEY, LoginLogoutProvider }
+import com.wenjunhuang.codeepiphany.hackerrank.actions.ChangeChallengesUIAction.{
+  CHANGE_CHALLENGES_UI_PROVIDER_KEY,
+  ChangeChallengesUIProvider,
+  HackerRankUI
+}
 import com.wenjunhuang.codeepiphany.hackerrank.models.PROJECT_EULER_DOMAIN
 import com.wenjunhuang.codeepiphany.hackerrank.services.HackerRankApi
 import com.wenjunhuang.codeepiphany.hackerrank.settings.HackerRankSettings
@@ -12,7 +17,7 @@ import com.wenjunhuang.codeepiphany.model.Actions.HACKERRANK_TITLE_TOOLBAR_GROUP
 import com.wenjunhuang.codeepiphany.model.CodeDojo
 import com.wenjunhuang.codeepiphany.model.CodeDojo.HackerRank
 import com.wenjunhuang.codeepiphany.services.http.HttpClientManager
-import com.wenjunhuang.codeepiphany.services.{AskForLoginResult, AuthService, BaseChallengesView, console}
+import com.wenjunhuang.codeepiphany.services.{ console, AskForLoginResult, AuthService, BaseChallengesView }
 import com.wenjunhuang.codeepiphany.utils.actions.DataSink
 import com.wenjunhuang.codeepiphany.utils.extensions.*
 import com.wenjunhuang.codeepiphany.utils.syntax.*
@@ -21,6 +26,7 @@ import org.typelevel.ci.CIString
 import org.typelevel.log4cats.LoggerFactory
 
 import javax.swing.JComponent
+import com.wenjunhuang.codeepiphany.PluginBundle
 
 class HackerRankChallengesView(private val myProject: Project) extends BaseChallengesView[HackerRankUI] {
 
@@ -80,7 +86,7 @@ class HackerRankChallengesView(private val myProject: Project) extends BaseChall
 
   private def performLogin(): Unit = {
     myIsLoggingIn = true
-    (console.info(myProject, "Logging in to HackerRank...") *>
+    (console.info(myProject, PluginBundle.message("console.loggingIn", CodeDojo.HackerRank.show)) *>
       AuthService
         .getInstance(myProject)
         .loadAuthenticationMayAskForLogin(CodeDojo.HackerRank)
@@ -94,16 +100,25 @@ class HackerRankChallengesView(private val myProject: Project) extends BaseChall
 
                 val gotoUI = loadLatestUI().getOrElse(HackerRankUI.QueryParameters)
                 mySwitchUIProvider.switchTo(gotoUI)
-              }.evalOnEDTAny() *> console.info(myProject, "Logged in to HackerRank.")
+              }.evalOnEDTAny() *> console.info(
+                myProject,
+                PluginBundle.message("console.loggedIn", CodeDojo.HackerRank.show)
+              )
             }
-          case _ => console.info(myProject, "Login to HackerRank canceled.")
+          case _ => console.info(myProject, PluginBundle.message("console.loginCancelled", CodeDojo.HackerRank.show))
         }
         .handleErrorWith { e =>
           myLogger.warn(e)("Failed to login") *>
-            console.error(myProject, s"Login failed because of \"${e.getMessage}\"")
+            console.error(
+              myProject,
+              PluginBundle.message("console.loginFailed", CodeDojo.HackerRank.show, e.getMessage)
+            )
         })
       .guarantee(IO.delay { myIsLoggingIn = false })
-      .unsafeRunAsBackgroundProgressCancellable(myProject, "Logging in to HackerRank...")
+      .unsafeRunAsBackgroundProgressCancellable(
+        myProject,
+        PluginBundle.message("console.loggingIn", CodeDojo.HackerRank.show)
+      )
   }
 
   private def performLogout(): Unit = {
