@@ -20,7 +20,7 @@
     "typescript": "^5.7.2",
     "vite": "^6.3.4",
     "vite-node": "^3.2.3",
-    "vitest": "^3.1.2"
+    "vitest": "^3.2.3"
   },
   "dependencies": {
     "highlight.js": "^11.11.1",
