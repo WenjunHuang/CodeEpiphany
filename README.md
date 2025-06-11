@@ -3,7 +3,7 @@
 
 ## LeetCode Epiphany 🌟
 
-[![CI](https://github.com/WenjunHuang/CodeEpiphany/actions/workflows/ci.yml/badge.svg)](https://github.com/WenjunHuang/CodeEpiphany/actions/workflows/ci.yml)
+[![CI](https://github.com/WenjunHuang/CodeEpiphany/actions/workflows/ci-main.yml/badge.svg)](https://github.com/WenjunHuang/CodeEpiphany/actions/workflows/ci.yml)
 [![License](https://img.shields.io/github/license/WenjunHuang/CodeEpiphany)](LICENSE)
 [![GitHub issues](https://img.shields.io/github/issues/WenjunHuang/CodeEpiphany)](https://github.com/WenjunHuang/CodeEpiphany/issues)
 

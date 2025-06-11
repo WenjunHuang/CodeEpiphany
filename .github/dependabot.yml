@@ -6,6 +6,19 @@ updates:
     schedule:
       interval: "weekly"
     open-pull-requests-limit: 10
+    target-branch: "develop"
+    assignees:
+      - "WenjunHuang"
+    commit-message:
+      prefix: "chore(deps): "
+      
+  # Enable version updates for SBT
+  - package-ecosystem: "sbt"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 10
+    target-branch: "develop"
     assignees:
       - "WenjunHuang"
     commit-message:
@@ -17,6 +30,7 @@ updates:
     schedule:
       interval: "weekly"
     open-pull-requests-limit: 5
+    target-branch: "develop"
     assignees:
       - "WenjunHuang"
     commit-message:
