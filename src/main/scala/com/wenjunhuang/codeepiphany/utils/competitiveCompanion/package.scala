@@ -53,13 +53,13 @@ package object competitiveCompanion {
         }.map(_ => queue)
       }
       .evalTap { _ =>
-        console.info[IO](
+        console.info(
           project,
           s"Competitive Companion server started on port $port. Listening for ${codeDojo.show} problem creation..."
         )
       }
       .onFinalize(
-        console.info[IO](project, s"Competitive Companion server on port $port for ${codeDojo.show} stopped.")
+        console.info(project, s"Competitive Companion server on port $port for ${codeDojo.show} stopped.")
       )
       .flatMap { queue =>
         Stream.fromQueueUnterminated(queue)

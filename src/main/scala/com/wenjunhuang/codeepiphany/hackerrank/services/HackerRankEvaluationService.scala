@@ -1,6 +1,6 @@
 package com.wenjunhuang.codeepiphany.hackerrank.services
 
-import cats.effect.{ Async, Concurrent }
+import cats.effect.{ Concurrent, IO }
 import cats.syntax.all.*
 import fs2.Stream
 import org.jooq.{ DSLContext, Record }
@@ -18,34 +18,33 @@ import com.wenjunhuang.codeepiphany.services.{ console, BaseCodeEvaluationServic
 import com.wenjunhuang.codeepiphany.services.http.HttpClientManager
 import com.wenjunhuang.codeepiphany.settings.ChallengeSettings.ChallengeSettingsStateItem
 
-class HackerRankEvaluationService[F[_]: { Async, Concurrent, HttpClientManager, LoggerFactory }](project: Project)
-    extends BaseCodeEvaluationService[F](project, HackerRank) {
+class HackerRankEvaluationService(project: Project) extends BaseCodeEvaluationService(project, HackerRank) {
   override type EvaluationRequest  = HREvaluationRequest
   override type EvaluationResponse = HackerRankRunCodeResponse
 
   override protected def prepareRequest(
     item: ChallengeSettingsStateItem,
     customTestCases: Option[String]
-  ): F[HREvaluationRequest] =
+  ): IO[HREvaluationRequest] =
     ChallengeRepository
       .getInstance(myProject)
-      .getDSLContextResource[F]
-      .use(client => Async[F].delay(queryChallengeBasicInfo(item, client)))
+      .getDSLContextResource
+      .use(client => IO.delay(queryChallengeBasicInfo(item, client)))
 
   override protected def callApi(
     request: HREvaluationRequest,
     code: String,
     customTestCases: Option[String]
-  ): Stream[F, HackerRankRunCodeResponse] =
-    HackerRankApi[F].runAnswer(request.slug, request.contest, request.language, request.languageVersion, code)
+  ): Stream[IO, HackerRankRunCodeResponse] =
+    HackerRankApi.runAnswer(request.slug, request.contest, request.language, request.languageVersion, code)
 
   override protected def handleEvaluationResponse(
     response: HackerRankRunCodeResponse,
     request: HREvaluationRequest,
     code: String,
     customTestCases: Option[String]
-  ): F[EvaluationResponseInfo] =
-    Async[F].delay {
+  ): IO[EvaluationResponseInfo] =
+    IO.delay {
       if response.status == 0 then EvaluationResponseInfo(SubmissionResult.Processing, "")
       else
         response.compilemessage.filter(_.nonEmpty) match
@@ -59,12 +58,12 @@ class HackerRankEvaluationService[F[_]: { Async, Concurrent, HttpClientManager, 
   override protected def reportEvaluationResult(
     lastResponseInfo: EvaluationResponseInfo,
     lastResponse: HackerRankRunCodeResponse
-  ): F[Unit] = {
+  ): IO[Unit] = {
     lastResponseInfo.result match
       case SubmissionResult.Success =>
-        console.info[F](myProject, "🎉 Passed!")
+        console.info(myProject, "🎉 Passed!")
       case _ =>
-        console.error[F](myProject, s"${lastResponseInfo.result.show}: ${lastResponseInfo.message}")
+        console.error(myProject, s"${lastResponseInfo.result.show}: ${lastResponseInfo.message}")
   }
 
   private def queryChallengeBasicInfo(item: ChallengeSettingsStateItem, client: DSLContext): HREvaluationRequest = {

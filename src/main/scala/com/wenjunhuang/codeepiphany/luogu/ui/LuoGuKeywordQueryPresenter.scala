@@ -1,25 +1,23 @@
 package com.wenjunhuang.codeepiphany.luogu.ui
 
 import cats.effect.IO
-import io.circe.generic.auto.*
-import io.circe.parser.*
-import io.circe.syntax.*
-import monocle.syntax.all.*
-
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.text.StringUtil
-
 import com.wenjunhuang.codeepiphany.actions.OpenChallengeActionGroup
-import com.wenjunhuang.codeepiphany.luogu.models.{ LuoGuChallengeItem, LuoGuSearchOrderBy }
+import com.wenjunhuang.codeepiphany.luogu.models.{LuoGuChallengeItem, LuoGuSearchOrderBy}
 import com.wenjunhuang.codeepiphany.luogu.services.LuoGuApi
 import com.wenjunhuang.codeepiphany.luogu.settings.LuoGuSettings
 import com.wenjunhuang.codeepiphany.luogu.ui.LuoGuKeywordQueryPresenter.*
 import com.wenjunhuang.codeepiphany.model.OrderDirection
-import com.wenjunhuang.codeepiphany.services.{ KeywordQueryPresenter, QueryContext }
 import com.wenjunhuang.codeepiphany.services.KeywordQueryPresenter.KeywordHolder
-import com.wenjunhuang.codeepiphany.services.http.{ HttpClientManager, HttpClientService }
-import com.wenjunhuang.codeepiphany.utils.{ OrderByColumnInfo, PageSize, Pagination }
+import com.wenjunhuang.codeepiphany.services.http.HttpClientManager
+import com.wenjunhuang.codeepiphany.services.{KeywordQueryPresenter, QueryContext}
 import com.wenjunhuang.codeepiphany.utils.actions.DataSink
+import com.wenjunhuang.codeepiphany.utils.{OrderByColumnInfo, PageSize, Pagination}
+import io.circe.generic.auto.*
+import io.circe.parser.*
+import io.circe.syntax.*
+import monocle.syntax.all.*
 
 class LuoGuKeywordQueryPresenter(project: Project, bootstrap: LuoGuBootstrapParameters)
     extends KeywordQueryPresenter[LuoGuBootstrapParameters, QueryParams, LuoGuChallengeItem](project, bootstrap) {
@@ -28,8 +26,7 @@ class LuoGuKeywordQueryPresenter(project: Project, bootstrap: LuoGuBootstrapPara
   ): QueryContext[QueryParams] = QueryContext[QueryParams](criteria = QueryParams("", None), pagination = Pagination())
 
   override protected def executeQuery(context: QueryContext[QueryParams]): IO[(Pagination, List[LuoGuChallengeItem])] =
-    implicit val httpClient: HttpClientManager[IO] = HttpClientService.getInstance(myProject).httpClientManager
-    LuoGuApi[IO]
+    LuoGuApi
       .searchChallenges(
         None,
         None,

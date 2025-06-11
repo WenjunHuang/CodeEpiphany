@@ -1,9 +1,9 @@
 package com.wenjunhuang.codeepiphany.toolwindows.sidebar
 
-import cats.effect.Async
+import cats.effect.IO
 
 import com.intellij.execution.filters.TextConsoleBuilderFactory
-import com.intellij.execution.ui.{ConsoleView, ConsoleViewContentType}
+import com.intellij.execution.ui.{ ConsoleView, ConsoleViewContentType }
 import com.intellij.ide.DataManager
 import com.intellij.openapi.actionSystem.*
 import com.intellij.openapi.project.Project
@@ -14,9 +14,9 @@ import com.intellij.openapi.wm.ToolWindowManager
 import com.wenjunhuang.codeepiphany.model.Constants
 import com.wenjunhuang.codeepiphany.utils.syntax.*
 import com.wenjunhuang.codeepiphany.PluginBundle
-import com.wenjunhuang.codeepiphany.utils.actions.{DataSink, UiDataProvider}
+import com.wenjunhuang.codeepiphany.utils.actions.{ DataSink, UiDataProvider }
 
-class LogConsoleView(private val myProject: Project) extends SimpleToolWindowPanel(false, true) with UiDataProvider{
+class LogConsoleView(private val myProject: Project) extends SimpleToolWindowPanel(false, true) with UiDataProvider {
 
   private val myConsoleView: ConsoleView = TextConsoleBuilderFactory.getInstance().createBuilder(myProject).getConsole
 
@@ -38,7 +38,7 @@ class LogConsoleView(private val myProject: Project) extends SimpleToolWindowPan
   }
 
   override def uiDataSnapshot(sink: DataSink): Unit = {
-    sink.set(LogConsoleView.CONSOLE_VIEW_KEY,myConsoleView)
+    sink.set(LogConsoleView.CONSOLE_VIEW_KEY, myConsoleView)
   }
 }
 
@@ -57,6 +57,6 @@ object LogConsoleView {
     CONSOLE_VIEW_KEY.getData(DataManager.getInstance().getDataContext(logConsoleView))
   }
 
-  def getConsoleViewF[F[_]: Async](project: Project): F[ConsoleView] =
-    Async[F].delay(getConsoleView(project)).evalOnEDTAny()
+  def getConsoleViewF(project: Project): IO[ConsoleView] =
+    IO.delay(getConsoleView(project)).evalOnEDTAny()
 }

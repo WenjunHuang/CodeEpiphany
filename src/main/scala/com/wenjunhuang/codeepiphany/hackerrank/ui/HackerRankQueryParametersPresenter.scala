@@ -34,7 +34,7 @@ import com.wenjunhuang.codeepiphany.hackerrank.settings.HackerRankSettings
 import com.wenjunhuang.codeepiphany.hackerrank.ui.HackerRankQueryParametersPresenter.*
 import com.wenjunhuang.codeepiphany.model.*
 import com.wenjunhuang.codeepiphany.services.{ ParametersQueryPresenter, QueryContext }
-import com.wenjunhuang.codeepiphany.services.http.{ HttpClientManager, HttpClientService }
+import com.wenjunhuang.codeepiphany.services.http.{ HttpClientManager }
 import com.wenjunhuang.codeepiphany.utils.{ OrderByColumnInfo, PageSize, Pagination }
 import com.wenjunhuang.codeepiphany.utils.actions.DataSink
 import com.wenjunhuang.codeepiphany.utils.syntax.*
@@ -45,8 +45,6 @@ class HackerRankQueryParametersPresenter(project: Project, bootstraps: HackerRan
       project,
       bootstraps
     ) {
-  private implicit val myHttpClientManager: HttpClientManager[IO] =
-    HttpClientService.getInstance(project).httpClientManager
 
   override protected def createInitialQueryParameters(
     boostrapParameters: HackerRankBootstrapParameters
@@ -277,7 +275,7 @@ class HackerRankQueryParametersPresenter(project: Project, bootstraps: HackerRan
     val from  = math.max((context.pagination.currentPage - 1) * context.pagination.pageSize.value, 0)
     val limit = context.pagination.pageSize.value
     val state = context.criteria
-    HackerRankApi[IO]
+    HackerRankApi
       .searchChallenges(
         from,
         limit,

@@ -39,7 +39,7 @@ class AtCoderKeywordQueryPresenter(project: Project, bootstrap: AtCoderBootstrap
     else
       ChallengeRepository
         .getInstance(myProject)
-        .getDSLContextResource[IO]
+        .getDSLContextResource
         .use { dsl =>
           IO.delay {
             val keyword     = context.criteria.keyword

@@ -23,7 +23,7 @@ import com.wenjunhuang.codeepiphany.leetcode.services.LeetCodeApi
 import com.wenjunhuang.codeepiphany.model.{ Actions, CodeDojo }
 import com.wenjunhuang.codeepiphany.model.DifficultyColors.{ DIFFICULTY_EASY_COLOR, DIFFICULTY_MEDIUM_COLOR }
 import com.wenjunhuang.codeepiphany.services.{ ParametersQueryPresenter, QueryContext }
-import com.wenjunhuang.codeepiphany.services.http.{ HttpClientManager, HttpClientService }
+import com.wenjunhuang.codeepiphany.services.http.{ HttpClientManager }
 import com.wenjunhuang.codeepiphany.toolwindows.sidebar.solutions.leetcode.SolutionArticlesPresenter.*
 import com.wenjunhuang.codeepiphany.toolwindows.sidebar.solutions.leetcode.actions.ArticleOrderByAction
 import com.wenjunhuang.codeepiphany.utils.{ AsyncAvatarLoader, OrderByColumnInfo, Pagination }
@@ -40,9 +40,6 @@ class SolutionArticlesPresenter(
       project,
       bootstrapParameters
     ) {
-
-  private implicit val httpClientManager: HttpClientManager[IO] =
-    HttpClientService.getInstance(myProject).httpClientManager
 
   private val myTabsMap = mutable.Map[String, TagsAction.Tag]()
 
@@ -222,7 +219,7 @@ class SolutionArticlesPresenter(
   override protected def executeQuery(
     context: QueryContext[QueryParams]
   ): IO[(Pagination, List[LeetCodeQuestionSolutionArticle])] = {
-    LeetCodeApi[IO](myCodeDojo)
+    LeetCodeApi(myCodeDojo)
       .searchQuestionSolutionArticles(
         context.pagination.offset,
         context.pagination.limit,

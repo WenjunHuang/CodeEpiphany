@@ -160,7 +160,7 @@ class CodeForcesParametersQueryPresenter(project: Project, bootstrap: CodeForces
   ): IO[(Pagination, List[CodeforcesProblemsetsRecord])] =
     ChallengeRepository
       .getInstance(myProject)
-      .getDSLContextResource[IO]
+      .getDSLContextResource
       .use { dsl =>
         val state = context.criteria
         val from  = math.max((context.pagination.currentPage - 1) * context.pagination.pageSize.value, 0)

@@ -96,7 +96,7 @@ class SubmissionPresenter(private val myProject: Project) extends Disposable {
   private def fetchSubmission(submissionId: SubmissionId): IO[Option[SubmissionType]] = {
     ChallengeRepository
       .getInstance(myProject)
-      .getDSLContextResource[IO]
+      .getDSLContextResource
       .use { dsl =>
         IO.delay {
           dsl

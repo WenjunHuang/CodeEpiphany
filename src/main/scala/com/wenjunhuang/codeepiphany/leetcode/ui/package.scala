@@ -1,22 +1,21 @@
 package com.wenjunhuang.codeepiphany.leetcode
 
 import cats.effect.IO
-import javax.swing.ListSelectionModel
-import org.typelevel.log4cats.LoggerFactory
-
 import com.intellij.openapi.project.Project
 import com.intellij.util.ui.ListTableModel
-
 import com.wenjunhuang.codeepiphany.actions.OpenChallengeActionGroup.OpenChallengeProvider
 import com.wenjunhuang.codeepiphany.leetcode.models.LeetCodeChallengeListItem
-import com.wenjunhuang.codeepiphany.leetcode.services.{LeetCodeOpenChallengeRequest, LeetCodeOpenChallengeService}
-import com.wenjunhuang.codeepiphany.leetcode.settings.{LeetCodeCNSettings, LeetCodeSettings}
-import com.wenjunhuang.codeepiphany.model.{CodeDojo, Language, LanguageVersion}
+import com.wenjunhuang.codeepiphany.leetcode.services.{ LeetCodeOpenChallengeRequest, LeetCodeOpenChallengeService }
+import com.wenjunhuang.codeepiphany.leetcode.settings.{ LeetCodeCNSettings, LeetCodeSettings }
+import com.wenjunhuang.codeepiphany.model.{ CodeDojo, Language, LanguageVersion }
 import com.wenjunhuang.codeepiphany.services.console
 import com.wenjunhuang.codeepiphany.services.console.showConsole
-import com.wenjunhuang.codeepiphany.services.http.{HttpClientManager, HttpClientService}
+import com.wenjunhuang.codeepiphany.services.http.HttpClientManager
 import com.wenjunhuang.codeepiphany.utils.extensions.*
 import com.wenjunhuang.codeepiphany.utils.syntax.*
+import org.typelevel.log4cats.LoggerFactory
+
+import javax.swing.ListSelectionModel
 
 package object ui {
   def createLeetCodeChallengeProvider(
@@ -26,19 +25,18 @@ package object ui {
     bootstrap: LeetCodeBootstrapParameters,
     leetCodeDojo: CodeDojo.LeetCode.type | CodeDojo.LeetCodeCN.type
   ): OpenChallengeProvider = {
-    implicit val httpClientManager: HttpClientManager[IO] = HttpClientService.getInstance(project).httpClientManager
-    val logger                     = LoggerFactory.getLogger[IO]
+    val logger = LoggerFactory.getLogger[IO]
 
     new OpenChallengeProvider {
       override def openCurrentSelectedChallenge(language: Language, languageVersion: LanguageVersion): Unit = {
         selectionModel.getSelectedIndices.toList match
           case head :: _ =>
             val selected = tableModel.getItem(head)
-            LeetCodeOpenChallengeService[IO](project, leetCodeDojo)
+            LeetCodeOpenChallengeService(project, leetCodeDojo)
               .openChallenge(LeetCodeOpenChallengeRequest(selected.titleSlug), language, languageVersion)
               .handleErrorWith { e =>
-                showConsole[IO](project) *>
-                  console.error[IO](project, e.getMessage) *> logger.warn(e)("Failed to open challenge")
+                console.showConsole(project) *>
+                  console.error(project, e.getMessage) *> logger.warn(e)("Failed to open challenge")
               }
               .evalAsBackgroundProgress(project, s"Opening challenge ${selected.title}...")
               .unsafeRunAndForget()
@@ -61,5 +59,5 @@ package object ui {
       }
     }
   }
-  
+
 }

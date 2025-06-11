@@ -37,15 +37,13 @@ class SidebarWindowFactory extends ToolWindowFactoryBridge {
 }
 
 object SidebarWindowFactory {
-  final val TOOL_WINDOW_ID = "CodeEpiphany Sidebar"
+  final val TOOL_WINDOW_ID = "LeetCode Epiphany Sidebar"
 
-  final val CONSOLE             = LogConsoleView.DISPLAY_NAME
-  final val DESCRIPTION         = "Description"
-  final val SUBMISSIONS         = "Submissions"
-  final val SOLUTIONS           = "Solutions"
-  final val NOTES               = "Notes"
-  final val LEETCODE_ARTICLES   = "LeetCode Articles"
-  final val LEETCODECN_ARTICLES = "LeetCodeCN Articles"
+  final val CONSOLE     = LogConsoleView.DISPLAY_NAME
+  final val DESCRIPTION = "Description"
+  final val SUBMISSIONS = "Submissions"
+  final val SOLUTIONS   = "Solutions"
+  final val NOTES       = "Notes"
 
   def getToolWindow(project: Project): ToolWindow = {
     ToolWindowManager.getInstance(project).getToolWindow(SidebarWindowFactory.TOOL_WINDOW_ID) match

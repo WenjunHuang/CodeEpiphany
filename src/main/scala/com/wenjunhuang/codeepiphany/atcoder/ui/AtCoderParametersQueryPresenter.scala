@@ -114,7 +114,7 @@ class AtCoderParametersQueryPresenter(project: Project, bootstrap: AtCoderBootst
   ): IO[(Pagination, List[AtCoderTableItem])] =
     ChallengeRepository
       .getInstance(myProject)
-      .getDSLContextResource[IO]
+      .getDSLContextResource
       .use { dsl =>
         val state = context.criteria
         val from  = math.max((context.pagination.currentPage - 1) * context.pagination.pageSize.value, 0)

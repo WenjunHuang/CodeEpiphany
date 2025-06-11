@@ -1,45 +1,42 @@
 package com.wenjunhuang.codeepiphany.leetcode.services
 
-import cats.effect.Concurrent
 import cats.effect.kernel.Async
+import cats.effect.{Concurrent, IO}
 import cats.syntax.all.*
-import org.jooq.{ DSLContext, Record }
-import org.typelevel.ci.CIString
-import org.typelevel.log4cats.LoggerFactory
-import scala.jdk.OptionConverters.*
-
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.text.StringUtil
-
+import com.wenjunhuang.codeepiphany.PluginBundle
 import com.wenjunhuang.codeepiphany.database.Tables.*
 import com.wenjunhuang.codeepiphany.leetcode.models.*
 import com.wenjunhuang.codeepiphany.leetcode.models.submitAnswer.LeetCodeSubmitAnswerResult
-import com.wenjunhuang.codeepiphany.leetcode.models.submitAnswer.LeetCodeSubmitAnswerResult.{
-  Pending,
-  Started,
-  Success
-}
+import com.wenjunhuang.codeepiphany.leetcode.models.submitAnswer.LeetCodeSubmitAnswerResult.{Pending, Started, Success}
 import com.wenjunhuang.codeepiphany.model.*
-import com.wenjunhuang.codeepiphany.model.newtypes.SubmissionId
 import com.wenjunhuang.codeepiphany.model.SubmissionResult.Processing
-import com.wenjunhuang.codeepiphany.services.{ console, BaseSubmissionService, ChallengeRepository }
+import com.wenjunhuang.codeepiphany.model.newtypes.SubmissionId
 import com.wenjunhuang.codeepiphany.services.http.HttpClientManager
+import com.wenjunhuang.codeepiphany.services.{BaseSubmissionService, ChallengeRepository, console}
 import com.wenjunhuang.codeepiphany.settings.ChallengeSettings
 import com.wenjunhuang.codeepiphany.settings.ChallengeSettings.ChallengeSettingsStateItem
 import com.wenjunhuang.codeepiphany.utils.Tabulator
+import fs2.Stream
+import org.jooq.{DSLContext, Record}
+import org.typelevel.ci.CIString
+import org.typelevel.log4cats.LoggerFactory
 
-class LeetCodeSubmissionService[F[_]: { Async, Concurrent, HttpClientManager, LoggerFactory }](
+import scala.jdk.OptionConverters.*
+
+class LeetCodeSubmissionService(
   project: Project,
   private val myLeetCode: CodeDojo.LeetCode.type | CodeDojo.LeetCodeCN.type
-) extends BaseSubmissionService[F](project, myLeetCode) {
+) extends BaseSubmissionService(project, myLeetCode) {
   override type SubmissionRequest  = LeetCodeSubmissionRequest
   override type SubmissionResponse = LeetCodeSubmitAnswerResult
 
-  override protected def prepareSubmissionRequest(item: ChallengeSettingsStateItem): F[LeetCodeSubmissionRequest] = {
+  override protected def prepareSubmissionRequest(item: ChallengeSettingsStateItem): IO[LeetCodeSubmissionRequest] = {
     ChallengeRepository
       .getInstance(project)
-      .getDSLContextResource[F]
-      .use(client => Async[F].delay(createSubmissionRequest(item, client)))
+      .getDSLContextResource
+      .use(client => IO.delay(createSubmissionRequest(item, client)))
   }
 
   override protected def updateSpecificSubmissionRecord(
@@ -84,8 +81,8 @@ class LeetCodeSubmissionService[F[_]: { Async, Concurrent, HttpClientManager, Lo
   override protected def callApi(
     basicInfo: LeetCodeSubmissionRequest,
     processedCode: String
-  ): fs2.Stream[F, LeetCodeSubmitAnswerResult] =
-    LeetCodeApi[F](myLeetCode).submitAnswer(
+  ):Stream[IO, LeetCodeSubmitAnswerResult] =
+    LeetCodeApi(myLeetCode).submitAnswer(
       basicInfo.questionId,
       basicInfo.questionSlug,
       basicInfo.language,
@@ -96,12 +93,12 @@ class LeetCodeSubmissionService[F[_]: { Async, Concurrent, HttpClientManager, Lo
   override protected def reportSubmitResult(
     lastResponseInfo: SubmissionResponseInfo,
     lastResponse: LeetCodeSubmitAnswerResult
-  ): F[Unit] =
+  ): IO[Unit] =
     lastResponseInfo.result match {
       case SubmissionResult.Success =>
-        console.info[F](project, s"🎉 Passed!\n${lastResponseInfo.message}")
+        console.info(project, PluginBundle.message("submission.passed") + s"\n${lastResponseInfo.message}")
       case _ =>
-        console.error[F](project, s"${lastResponseInfo.result.show}\n${lastResponseInfo.message}")
+        console.error(project, s"${lastResponseInfo.result.show}\n${lastResponseInfo.message}")
     }
 
   private def formatSuccessMetrics(response: LeetCodeSubmitAnswerResult.Success): String = {

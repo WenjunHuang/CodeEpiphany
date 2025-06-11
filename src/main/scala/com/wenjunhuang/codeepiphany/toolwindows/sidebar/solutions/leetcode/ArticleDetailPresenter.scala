@@ -59,7 +59,7 @@ class ArticleDetailPresenter(
     myLogger.info(s"Processing article: ${articleItem.slug}")
     Stream
       .eval(
-        LeetCodeApi(myCodeDojo, myProject)
+        LeetCodeApi(myCodeDojo)
           .getSolutionArticle(articleItem.slug)
           .flatMap { article =>
             IO.delay {

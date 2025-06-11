@@ -1,44 +1,41 @@
 package com.wenjunhuang.codeepiphany.hackerrank.services
 
-import cats.effect.Concurrent
-import cats.effect.kernel.Async
+import cats.effect.{ Concurrent, IO }
 import cats.syntax.all.*
+import com.intellij.openapi.project.Project
+import com.wenjunhuang.codeepiphany.database.Tables.*
+import com.wenjunhuang.codeepiphany.hackerrank.models.{ HackerRankContest, HackerRankSubmissionResponse }
+import com.wenjunhuang.codeepiphany.model.*
+import com.wenjunhuang.codeepiphany.model.CodeDojo.HackerRank
+import com.wenjunhuang.codeepiphany.model.SubmissionResult.Success
+import com.wenjunhuang.codeepiphany.model.newtypes.SubmissionId
+import com.wenjunhuang.codeepiphany.services.http.HttpClientManager
+import com.wenjunhuang.codeepiphany.services.{ console, BaseSubmissionService, ChallengeRepository }
+import com.wenjunhuang.codeepiphany.settings.ChallengeSettings.ChallengeSettingsStateItem
+import com.wenjunhuang.codeepiphany.utils.IdGenerator
 import fs2.Stream
 import org.jooq.{ DSLContext, Record }
 import org.typelevel.ci.CIString
 import org.typelevel.log4cats.LoggerFactory
+
 import scala.jdk.OptionConverters.*
+import com.wenjunhuang.codeepiphany.PluginBundle
 
-import com.intellij.openapi.project.Project
-
-import com.wenjunhuang.codeepiphany.database.Tables.*
-import com.wenjunhuang.codeepiphany.hackerrank.models.{ HackerRankContest, HackerRankSubmissionResponse }
-import com.wenjunhuang.codeepiphany.model.*
-import com.wenjunhuang.codeepiphany.model.newtypes.SubmissionId
-import com.wenjunhuang.codeepiphany.model.CodeDojo.HackerRank
-import com.wenjunhuang.codeepiphany.model.SubmissionResult.Success
-import com.wenjunhuang.codeepiphany.services.{ console, BaseSubmissionService, ChallengeRepository }
-import com.wenjunhuang.codeepiphany.services.http.HttpClientManager
-import com.wenjunhuang.codeepiphany.settings.ChallengeSettings.ChallengeSettingsStateItem
-import com.wenjunhuang.codeepiphany.utils.IdGenerator
-
-class HackerRankSubmissionService[F[_]: { Async, Concurrent, HttpClientManager, LoggerFactory }](project: Project)
-    extends BaseSubmissionService[F](project, HackerRank) {
+class HackerRankSubmissionService(project: Project) extends BaseSubmissionService(project, HackerRank) {
   override type SubmissionRequest  = HRSubmissionRequest
   override type SubmissionResponse = HackerRankSubmissionResponse
 
-  override protected def prepareSubmissionRequest(item: ChallengeSettingsStateItem): F[HRSubmissionRequest] =
+  override protected def prepareSubmissionRequest(item: ChallengeSettingsStateItem): IO[HRSubmissionRequest] =
     ChallengeRepository
       .getInstance(myProject)
-      .getDSLContextResource[F]
-      .use { client => Async[F].delay(queryChallengeBasicInfo(item, client)) }
+      .getDSLContextResource
+      .use { client => IO.delay(queryChallengeBasicInfo(item, client)) }
 
   override protected def updateSpecificSubmissionRecord(
     dsl: DSLContext,
     submissionId: SubmissionId,
     response: HackerRankSubmissionResponse
   ): SubmissionResponseInfo = {
-
     dsl
       .deleteFrom(HACKERRANK_SUBMISSION_CASE)
       .where(HACKERRANK_SUBMISSION_CASE.SUBMISSIONID.eq(submissionId.value))
@@ -73,7 +70,7 @@ class HackerRankSubmissionService[F[_]: { Async, Concurrent, HttpClientManager, 
   override protected def callApi(
     basicInfo: HRSubmissionRequest,
     processedCode: String
-  ): Stream[F, HackerRankSubmissionResponse] = HackerRankApi[F].submitAnswer(
+  ): Stream[IO, HackerRankSubmissionResponse] = HackerRankApi.submitAnswer(
     basicInfo.slug,
     basicInfo.contest,
     basicInfo.language,
@@ -84,12 +81,12 @@ class HackerRankSubmissionService[F[_]: { Async, Concurrent, HttpClientManager, 
   override protected def reportSubmitResult(
     lastResponseInfo: SubmissionResponseInfo,
     lastResponse: HackerRankSubmissionResponse
-  ): F[Unit] = {
+  ): IO[Unit] = {
     lastResponseInfo.result match
       case Success =>
-        console.info[F](project, "🎉 Passed!")
+        console.info(project, PluginBundle.message("submission.passed"))
       case _ =>
-        console.error[F](project, s"${lastResponseInfo.result.show}\n${lastResponseInfo.message}")
+        console.error(project, s"${lastResponseInfo.result.show}\n${lastResponseInfo.message}")
   }
 
   private def toSubmissionResult(status: String): SubmissionResult = {

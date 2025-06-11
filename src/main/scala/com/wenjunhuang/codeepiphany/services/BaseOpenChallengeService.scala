@@ -2,6 +2,7 @@ package com.wenjunhuang.codeepiphany.services
 
 import cats.data.ReaderT
 import cats.effect.Async
+import cats.effect.IO
 import cats.syntax.all.*
 import java.io.File
 import org.jooq.DSLContext
@@ -27,7 +28,7 @@ import com.wenjunhuang.codeepiphany.utils.syntax.*
 import com.wenjunhuang.codeepiphany.utils.template.VelocityUtils
 import com.wenjunhuang.codeepiphany.utils.IdGenerator
 
-abstract class BaseOpenChallengeService[F[_]: Async, Req, Template](
+abstract class BaseOpenChallengeService[Req,Template](
   protected val myProject: Project,
   protected val myCodeDojo: CodeDojo,
   protected val myConfigClass: Class[? <: BaseSettingsConfigurable]
@@ -57,18 +58,18 @@ abstract class BaseOpenChallengeService[F[_]: Async, Req, Template](
     req: Req,
     language: Language,
     languageVersion: LanguageVersion
-  ): F[(CodeDojoChallengeId, Template)]
+  ): IO[(CodeDojoChallengeId, Template)]
 
-  def openChallenge(req: Req, language: Language, languageVersion: LanguageVersion): F[Unit] = {
+  def openChallenge(req: Req, language: Language, languageVersion: LanguageVersion): IO[Unit] = {
     for {
       settingsResult <- prepareState(req, language, languageVersion)
       _              <- processChallenge().run(settingsResult)
     } yield ()
   }
 
-  private def processChallenge(): ReaderT[F, ServiceState, Unit] = {
+  private def processChallenge(): ReaderT[IO, ServiceState, Unit] = {
     for {
-      state            <- ReaderT.ask[F, ServiceState]
+      state            <- ReaderT.ask[IO, ServiceState]
       (fileName, code) <- generateFileContent()
       codeFile         <- handleFileOperations(buildFileObject(state.sourceFolder, fileName, state.language), code)
       _                <- ReaderT.liftF(openTextEditor(codeFile, myProject))
@@ -79,30 +80,30 @@ abstract class BaseOpenChallengeService[F[_]: Async, Req, Template](
     new File(sourceFolder, s"${StringUtil.trim(fileName)}.${language.fileExt}")
   }
 
-  private def handleFileOperations(file: File, code: String): ReaderT[F, ServiceState, VirtualFile] = {
+  private def handleFileOperations(file: File, code: String): ReaderT[IO, ServiceState, VirtualFile] = {
     ChallengeSettings.getInstance(myProject).findChallengeId(file.getCanonicalPath) match {
       case Some(_) => ReaderT.liftF(refreshAndFindFileByIoFile(file))
 
       case None => createNewChallenge(file, code)
     }
   }
-  private def generateFileContent(): ReaderT[F, ServiceState, (String, String)] = {
+  private def generateFileContent(): ReaderT[IO, ServiceState, (String, String)] = {
     for {
-      state <- ReaderT.ask[F, ServiceState]
+      state <- ReaderT.ask[IO, ServiceState]
       result <- ReaderT.liftF(
         (
           VelocityUtils.generateContent(state.fileNameTemplate.value, state.language, state.template),
           VelocityUtils.generateContent(state.codeTemplate.value, state.language, state.template)
-        ).mapN((_, _)).liftTo[F]
+        ).mapN((_, _)).liftTo[IO]
       )
     } yield result
   }
 
-  private def createNewChallenge(file: File, code: String): ReaderT[F, ServiceState, VirtualFile] = {
+  private def createNewChallenge(file: File, code: String): ReaderT[IO, ServiceState, VirtualFile] = {
     for {
       vf <- ReaderT.liftF(
         saveTextWithConflictResolution(file, code)
-          .flatMap(_.liftTo[F](new Exception("Failed to save file")))
+          .flatMap(_.liftTo[IO](new Exception("Failed to save file")))
           .flatMap(refreshAndFindFileByIoFile)
       )
       (challengeId, langId, solutionId) <- storeChallengeToDatabase(code)
@@ -115,10 +116,10 @@ abstract class BaseOpenChallengeService[F[_]: Async, Req, Template](
     challengeId: ChallengeId,
     challengeLanguageId: ChallengeLanguageId,
     solutionId: SolutionId
-  ): ReaderT[F, ServiceState, VirtualFile] =
+  ): ReaderT[IO, ServiceState, VirtualFile] =
     for {
-      state <- ReaderT.ask[F, ServiceState]
-      vf <- ReaderT.liftF(Async[F].delay {
+      state <- ReaderT.ask[IO, ServiceState]
+      vf <- ReaderT.liftF(IO.delay {
         ChallengeSettings
           .getInstance(myProject)
           .addChallenge(
@@ -131,11 +132,11 @@ abstract class BaseOpenChallengeService[F[_]: Async, Req, Template](
 
   private def storeChallengeToDatabase(
     code: String
-  ): ReaderT[F, ServiceState, (ChallengeId, ChallengeLanguageId, SolutionId)] = {
+  ): ReaderT[IO, ServiceState, (ChallengeId, ChallengeLanguageId, SolutionId)] = {
     for {
-      state <- ReaderT.ask[F, ServiceState]
+      state <- ReaderT.ask[IO, ServiceState]
       result <- ReaderT.liftF(ChallengeRepository.getInstance(myProject).getDSLContextResource.use { client =>
-        Async[F].blocking {
+        IO.blocking {
           client.transactionResult { trx =>
             val dsl = trx.dsl()
             val challengeRecord = dsl.fetchOne(
@@ -183,9 +184,9 @@ abstract class BaseOpenChallengeService[F[_]: Async, Req, Template](
     } yield result
   }
 
-  private def prepareState(req: Req, language: Language, languageVersion: LanguageVersion): F[ServiceState] = {
+  private def prepareState(req: Req, language: Language, languageVersion: LanguageVersion): IO[ServiceState] = {
     for {
-      setting <- Async[F].delay {
+      setting <- IO.delay {
         findLanguageSetting(language, languageVersion) match
           case Some(state) if isSettingsValid(state, language, languageVersion) =>
             state

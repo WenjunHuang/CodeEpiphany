@@ -1,6 +1,6 @@
 package com.wenjunhuang.codeepiphany.services.http
 
-import cats.effect.{ Async, Resource }
+import cats.effect.{ IO, Resource }
 import cats.effect.std.Dispatcher
 import cats.syntax.all.*
 import fs2.io.readInputStream
@@ -30,6 +30,7 @@ import scala.util.control.NonFatal
 import com.intellij.openapi.diagnostic.Logger
 
 import com.wenjunhuang.codeepiphany.services.http.OkHttpBuilder.*
+import com.wenjunhuang.codeepiphany.utils.syntax.*
 
 /** A builder for [[org.http4s.client.Client]] with an OkHttp backend.
   *
@@ -39,16 +40,12 @@ import com.wenjunhuang.codeepiphany.services.http.OkHttpBuilder.*
   * @param okHttpClient
   *   the underlying OkHttp client.
   */
-sealed abstract class OkHttpBuilder[F[_]] private (val okHttpClient: OkHttpClient)(implicit
-  val F: Async[F],
-  val HttpClientKeeper: HttpClientManager[F],
-  val loggerFactory: LoggerFactory[F]
-) {
-  private val myLogger       = loggerFactory.getLogger
+sealed abstract class OkHttpBuilder private (val okHttpClient: OkHttpClient) {
+  private val myLogger       = LoggerFactory.getLogger[IO]
   private val myUnPureLogger = Logger.getInstance(getClass.getName)
 
-  private def invokeCallback(result: Result[F], cb: Result[F] => Unit, dispatcher: Dispatcher[F]): Unit = {
-    val f = logTap(result).flatMap(r => F.delay(cb(r)))
+  private def invokeCallback(result: Result, cb: Result => Unit, dispatcher: Dispatcher[IO]): Unit = {
+    val f = logTap(result).flatMap(r => IO.delay(cb(r)))
     dispatcher.unsafeRunAndForget(f)
   }
 
@@ -56,25 +53,25 @@ sealed abstract class OkHttpBuilder[F[_]] private (val okHttpClient: OkHttpClien
     *
     * The shutdown method on this client is a no-op. $WHYNOSHUTDOWN
     */
-  private def create(dispatcher: Dispatcher[F]): Client[F] = Client(run(dispatcher))
+  private def create(dispatcher: Dispatcher[IO]): Client[IO] = Client(run(dispatcher))
 
-  def resource: Resource[F, Client[F]] =
-    Dispatcher.parallel[F].flatMap(dispatcher => Resource.make(F.delay(create(dispatcher)))(client => F.unit))
+  def resource: Resource[IO, Client[IO]] =
+    Dispatcher.parallel[IO].flatMap(dispatcher => Resource.make(IO.delay(create(dispatcher)))(_ => IO.unit))
 
-  private def run(dispatcher: Dispatcher[F])(req: Request[F]): Resource[F, Response[F]] = {
+  private def run(dispatcher: Dispatcher[IO])(req: Request[IO]): Resource[IO, Response[IO]] = {
     val addCookiesToRequest = req.uri.host
-      .map(host => HttpClientKeeper.getCookiesForHost(CIString(host.value)))
-      .getOrElse(List.empty[HttpCookie].pure[F])
+      .map(host => HttpClientManager.getCookiesForHost(CIString(host.value)))
+      .getOrElse(List.empty[HttpCookie].pure[IO])
       .map { cookies => cookies.foldLeft(req)((req, cookie) => req.addCookie(cookie.getName, cookie.getValue)) }
 
     Resource
       .suspend(addCookiesToRequest.flatMap { req =>
-        F.async[Resource[F, Response[F]]] { cb =>
-          F.delay {
+        IO.async[Resource[IO, Response[IO]]] { cb =>
+          IO.delay {
             val cancelledSignal = AtomicBoolean(false)
             okHttpClient.newCall(toOkHttpRequest(req, dispatcher)).enqueue(handler(cb, dispatcher, cancelledSignal))
 
-            Some(F.delay { cancelledSignal.set(true) }) // finalizer to cancel the request
+            IO.delay { cancelledSignal.set(true) }.some // finalizer to cancel the request
           }
         }
       })
@@ -92,25 +89,25 @@ sealed abstract class OkHttpBuilder[F[_]] private (val okHttpClient: OkHttpClien
                 Request(Method.GET, req.uri.resolve(newLocation), headers = req.headers.removePayloadHeaders)
               )
             case _ =>
-              Resource.eval(Async[F].pure(response))
+              Resource.eval(IO.pure(response))
         }
       }
   }
 
-  private def updateCookies(uri: Uri, response: Response[F]): F[Response[F]] = {
+  private def updateCookies(uri: Uri, response: Response[IO]): IO[Response[IO]] = {
     uri.host
       .map(host =>
-        HttpClientKeeper
+        HttpClientManager
           .updateCookiesForHost(CIString(host.value), response.cookies.map(c => HttpCookie(c.name, c.content)))
       )
-      .traverse(identity) *> Async[F].pure(response)
+      .traverse(identity) *> IO.pure(response)
   }
 
   private def handler(
-    cb: Result[F] => Unit,
-    dispatcher: Dispatcher[F],
+    cb: Result => Unit,
+    dispatcher: Dispatcher[IO],
     cancelledSignal: AtomicBoolean // a signal that indicates if the request has been cancelled before the callback is invoked
-  )(implicit F: Async[F]): Callback =
+  ): Callback =
     new Callback {
       override def onFailure(call: Call, e: IOException): Unit =
         invokeCallback(Left(e), cb, dispatcher)
@@ -133,17 +130,17 @@ sealed abstract class OkHttpBuilder[F[_]] private (val okHttpClient: OkHttpClien
           val r = Status
             .fromInt(response.code())
             .map { s =>
-              val body = readInputStream(F.delay(response.body.byteStream()), 1024, false)
+              val body = readInputStream(IO.delay(response.body.byteStream()), 1024, false)
 
-              val okhttpResponseDisposer = F.delay {
+              val okhttpResponseDisposer = IO.delay {
                 try response.close()
                 catch { case _: Throwable => }
               } *> myLogger.trace("Response was closed after resource use")
 
-              Resource[F, Response[F]](
-                F.pure(
+              Resource[IO, Response[IO]](
+                IO.pure(
                   (
-                    Response[F](status = s, headers = getHeaders(response), httpVersion = protocol, body = body),
+                    Response[IO](status = s, headers = getHeaders(response), httpVersion = protocol, body = body),
                     okhttpResponseDisposer
                   )
                 )
@@ -164,7 +161,7 @@ sealed abstract class OkHttpBuilder[F[_]] private (val okHttpClient: OkHttpClien
       response.headers().values(k).asScala.map(k -> _)
     })
 
-  private def toOkHttpRequest(req: Request[F], dispatcher: Dispatcher[F])(implicit F: Async[F]): OKRequest = {
+  private def toOkHttpRequest(req: Request[IO], dispatcher: Dispatcher[IO]): OKRequest = {
     val body = req match {
       // if it's a GET or HEAD, okhttp wants us to pass null
       case _ if req.method == Method.GET || req.method == Method.HEAD => null
@@ -182,7 +179,7 @@ sealed abstract class OkHttpBuilder[F[_]] private (val okHttpClient: OkHttpClien
             val f = req.body.chunks
               .map(_.toArray)
               .evalScan(sink) { (oldSink, b) =>
-                F.delay(oldSink.write(b))
+                IO.delay(oldSink.write(b))
               }
               .compile
               .drain
@@ -204,10 +201,10 @@ sealed abstract class OkHttpBuilder[F[_]] private (val okHttpClient: OkHttpClien
       .build()
   }
 
-  private def logTap(result: Result[F]): F[Either[Throwable, Resource[F, Response[F]]]] =
+  private def logTap(result: Result): IO[Either[Throwable, Resource[IO, Response[IO]]]] =
     (result match {
       case Left(e)  => myLogger.warn(e)("Error in ok call back")
-      case Right(_) => Async[F].unit
+      case Right(_) => IO.unit
     }).map(_ => result)
 }
 
@@ -218,27 +215,24 @@ object OkHttpBuilder {
     * @param okHttpClient
     *   the underlying client.
     */
-  def fromUnmanaged[F[_]: { Async, HttpClientManager, LoggerFactory }](okHttpClient: OkHttpClient): OkHttpBuilder[F] =
-    new OkHttpBuilder[F](okHttpClient) {}
+  def fromUnmanaged(okHttpClient: OkHttpClient): OkHttpBuilder =
+    new OkHttpBuilder(okHttpClient) {}
 
-  private def defaultOkHttpClient[F[_]: { Async, LoggerFactory }]: Resource[F, OkHttpClient] =
-    Resource.make(Async[F].delay(new OkHttpClient()))(shutdown(_))
-
-  private def shutdown[F[_]](client: OkHttpClient)(implicit F: Async[F], loggerFactory: LoggerFactory[F]) =
-    val logger = loggerFactory.getLogger
-    F.delay(client.dispatcher.executorService().shutdown()).recoverWith { case NonFatal(t) =>
+  private def shutdown[F[_]](client: OkHttpClient) =
+    val logger = LoggerFactory.getLogger[IO]
+    IO.delay(client.dispatcher.executorService().shutdown()).recoverWith { case NonFatal(t) =>
       logger.warn(t)("Unable to shut down dispatcher when disposing of OkHttp client")
-    } *> F.delay {
+    } *> IO.delay {
       client.connectionPool().evictAll()
     }.recoverWith { case NonFatal(t) =>
       logger.warn(t)("Unable to evict connection pool when disposing of OkHttp client")
-    } *> F.delay {
+    } *> IO.delay {
       if (client.cache() != null)
         client.cache().close()
     }.recoverWith { case NonFatal(t) =>
       logger.warn(t)("Unable to close cache when disposing of OkHttp client")
     }
 
-  private type Result[F[_]] = Either[Throwable, Resource[F, Response[F]]]
+  private type Result = Either[Throwable, Resource[IO, Response[IO]]]
 
 }

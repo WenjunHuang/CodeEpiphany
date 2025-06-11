@@ -1,22 +1,20 @@
 package com.wenjunhuang.codeepiphany.codeforces
 
 import cats.effect.IO
-import javax.swing.ListSelectionModel
-import org.typelevel.log4cats.LoggerFactory
-
 import com.intellij.openapi.project.Project
 import com.intellij.util.ui.ListTableModel
-
 import com.wenjunhuang.codeepiphany.actions.OpenChallengeActionGroup.OpenChallengeProvider
 import com.wenjunhuang.codeepiphany.codeforces.services.CodeForcesOpenChallengeService
 import com.wenjunhuang.codeepiphany.codeforces.settings.CodeForcesSettings
 import com.wenjunhuang.codeepiphany.database.tables.records.CodeforcesProblemsetsRecord
-import com.wenjunhuang.codeepiphany.model.{ Language, LanguageVersion }
+import com.wenjunhuang.codeepiphany.model.{Language, LanguageVersion}
 import com.wenjunhuang.codeepiphany.services.console
-import com.wenjunhuang.codeepiphany.services.console.showConsole
-import com.wenjunhuang.codeepiphany.services.http.{ HttpClientManager, HttpClientService }
+import com.wenjunhuang.codeepiphany.services.http.{HttpClientManager}
 import com.wenjunhuang.codeepiphany.utils.extensions.*
 import com.wenjunhuang.codeepiphany.utils.syntax.*
+import org.typelevel.log4cats.LoggerFactory
+
+import javax.swing.ListSelectionModel
 
 package object ui {
 
@@ -50,13 +48,12 @@ package object ui {
     languageVersion: LanguageVersion,
     selected: CodeforcesProblemsetsRecord
   ): IO[Unit] = {
-    implicit val httpClientManager: HttpClientManager[IO] = HttpClientService.getInstance(project).httpClientManager
-    val logger                                            = LoggerFactory.getLogger[IO]
-    CodeForcesOpenChallengeService[IO](project)
+    val logger = LoggerFactory.getLogger[IO]
+    CodeForcesOpenChallengeService(project)
       .openChallenge(selected, language, languageVersion)
       .handleErrorWith { e =>
-        showConsole[IO](project) *>
-          console.error[IO](project, e.getMessage) *> logger.warn(e)("Failed to open challenge")
+        console.showConsole(project) *>
+          console.error(project, e.getMessage) *> logger.warn(e)("Failed to open challenge")
       }
       .evalAsBackgroundProgress(project, s"Opening challenge ${selected.getName}...")
   }

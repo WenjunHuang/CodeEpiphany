@@ -215,7 +215,7 @@ class SubmissionLogPresenter(project: Project)
   override protected def executeQuery(
     context: QueryContext[QueryParams]
   ): IO[(Pagination, List[SubmissionLogEntry])] = {
-    ChallengeRepository.getInstance(myProject).getDSLContextResource[IO].use { dsl =>
+    ChallengeRepository.getInstance(myProject).getDSLContextResource.use { dsl =>
       IO.delay {
         val total = context.criteria
           .fillQueryConditions(

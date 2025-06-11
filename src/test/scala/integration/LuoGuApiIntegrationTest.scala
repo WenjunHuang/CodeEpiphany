@@ -1,29 +1,28 @@
-package com.wenjunhuang.codeepiphany.luogu
+package integration
 
 import cats.effect.IO
+import com.intellij.testFramework.fixtures.BasePlatformTestCase
+import com.intellij.util.net.HttpConfigurable
 import com.vladsch.flexmark.html.HtmlRenderer
 import com.vladsch.flexmark.parser.Parser
 import com.vladsch.flexmark.util.data.MutableDataSet
-import io.circe.optics.*
-import io.circe.parser.*
-import java.io.FileInputStream
-import java.net.{HttpCookie, URLDecoder}
-import scala.io.Source
-
-import com.intellij.testFramework.fixtures.BasePlatformTestCase
-import com.intellij.util.net.HttpConfigurable
-
 import com.wenjunhuang.codeepiphany.luogu.services.LuoGuApi
 import com.wenjunhuang.codeepiphany.model.CodeDojo
-import com.wenjunhuang.codeepiphany.services.http.{HttpClientManager, HttpClientService}
+import com.wenjunhuang.codeepiphany.services.http.HttpClientManager
 import com.wenjunhuang.codeepiphany.utils.CookieUtil
 import com.wenjunhuang.codeepiphany.utils.syntax.*
+import io.circe.optics.*
+import io.circe.parser.*
+
+import java.io.FileInputStream
+import java.net.{ HttpCookie, URLDecoder }
+import scala.io.Source
 
 class LuoGuApiIntegrationTest extends BasePlatformTestCase {
   private var cookies: List[HttpCookie] = Nil
 
-  private def setCookie(httpClientKeeper: HttpClientManager[IO]): IO[Unit] = {
-    httpClientKeeper.updateCookiesForHost(CodeDojo.LuoGu.domain, cookies)
+  private def setCookie(): IO[Unit] = {
+    HttpClientManager.updateCookiesForHost(CodeDojo.LuoGu.domain, cookies)
   }
 
   override def setUp(): Unit = {
@@ -42,10 +41,9 @@ class LuoGuApiIntegrationTest extends BasePlatformTestCase {
   override def getTestDataPath = s"${getBasePath}/${getTestName(false)}"
 
   def testSearchChallenges(): Unit = {
-    implicit val httpClientKeeper = HttpClientService.getInstance(getProject).httpClientManager
-    val luoGuApi                  = LuoGuApi[IO]
+    val luoGuApi                  = LuoGuApi
     println(
-      (setCookie(httpClientKeeper) *>
+      (setCookie() *>
         luoGuApi.searchChallenges(None, None, List.empty, None, None, 1))
         .unsafeRunSync()
     )
