@@ -1,4 +1,4 @@
-package com.wenjunhuang.codeepiphany.services.login;
+package com.wenjunhuang.codeepiphany.utils.walkaround;
 
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
@@ -11,7 +11,7 @@ import java.awt.event.ActionEvent;
 /**
  * 这个中间java类是为了绕过scala 3.6以后不能正确继承带protected构造函数的内部类的问题
  */
-abstract class DialogWrapperBridge extends DialogWrapper {
+public abstract class DialogWrapperBridge extends DialogWrapper {
     protected AbstractAction myOkAction = new OkAction() {
         @Override
         protected void doAction(ActionEvent e) {
