@@ -1,0 +1,9 @@
+@use "sass:meta";
+
+html[data-theme="light"] {
+  @include meta.load-css("highlight.js/styles/a11y-light");
+}
+
+html[data-theme="dark"] {
+  @include meta.load-css("highlight.js/styles/a11y-dark");
+} 

@@ -248,19 +248,23 @@
             <action id="CodeEpiphany.Sidebar.Solutions.Actions.LeetCodeArticlesOrderBy"
                     class="com.wenjunhuang.codeepiphany.toolwindows.sidebar.solutions.leetcode.actions.ArticleOrderByAction"/>
         </group>
+<!--        <action id="com.wenjunhuang.codeepiphany.test.TestAction" class="com.wenjunhuang.codeepiphany.test.TestAction"-->
+<!--                text="TestAction" description="TestAction">-->
+<!--            <add-to-group group-id="ToolsMenu" anchor="first"/>-->
+<!--        </action>-->
     </actions>
 
 
     <extensions defaultExtensionNs="com.intellij">
         <notificationGroup displayType="BALLOON" id="My Plugin Notification"/>
         <toolWindow factoryClass="com.wenjunhuang.codeepiphany.toolwindows.sidebar.SidebarWindowFactory"
-                    id="CodeEpiphany Sidebar"
+                    id="LeetCode Epiphany Sidebar"
                     secondary="false"
                     anchor="bottom"
                     icon="CodeEpiphanyIcons.PLUGIN"/>
         <toolWindow factoryClass="com.wenjunhuang.codeepiphany.toolwindows.dojo.CodeDojoToolWindowFactory"
                     icon="CodeEpiphanyIcons.PLUGIN"
-                    id="CodeEpiphany CodeDojos" anchor="left"/>
+                    id="LeetCode Epiphany" anchor="left"/>
 
         <registryKey defaultValue="false" description="Enable debug" key="codeepiphany.debug"/>
 

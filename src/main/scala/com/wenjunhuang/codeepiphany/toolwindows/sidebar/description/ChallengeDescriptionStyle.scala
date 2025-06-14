@@ -16,7 +16,6 @@ object ChallengeDescriptionStyle {
        |${styleProvider.baseStyle}
        |
        |${dojo.map(styleOfDojo(_, styleProvider)).getOrElse("")}
-       |
        |""".stripMargin
   }
 

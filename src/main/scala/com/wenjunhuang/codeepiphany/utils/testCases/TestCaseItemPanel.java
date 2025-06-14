@@ -90,7 +90,7 @@ public class TestCaseItemPanel {
         });
 
         var toolbar = ActionManager.getInstance().createActionToolbar("TestCaseItemPanelToolbar", new DefaultActionGroup(
-                new AnAction("Delete", "Delete", AllIcons.General.Delete) {
+                new AnAction("Delete", "Delete", AllIcons.General.Remove) {
                     @Override
                     public void actionPerformed(@NotNull AnActionEvent e) {
                         myDeleteAction.run();

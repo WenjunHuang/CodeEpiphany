@@ -1,7 +1,7 @@
 import {Marked} from 'marked'
 import {markedHighlight} from "marked-highlight";
 import hljs from 'highlight.js';
-import 'highlight.js/styles/vs.css';
+import './app.scss';
 import 'katex/dist/katex.min.css';
 import renderMathInElement from 'katex/contrib/auto-render';
 import katex_extension from "./katex_extension";
@@ -15,7 +15,7 @@ declare global {
 }
 
 const showSolutionArticle = (contentBased64: string,
-                             codeDojoBased64:string,
+                             codeDojoBased64: string,
                              getIframeUrlBased64: string) => {
     const content = decodeBase64(contentBased64);
     const codeDojo = decodeBase64(codeDojoBased64);
@@ -26,12 +26,12 @@ const showSolutionArticle = (contentBased64: string,
         langPrefix: 'hljs language-',
         highlight(code, lang) {
             const language = hljs.getLanguage(lang) ? lang : 'plaintext';
-            console.log(lang, language);
             return hljs.highlight(code, {language}).value;
         }
-    }) );
+    }));
     if (codeDojo.toLowerCase() === 'leetcodecn')
         marked = marked.use(katex_extension({}));
+
 
     container.innerHTML = <string>marked.parse(content);
     if (codeDojo.toLowerCase() === 'leetcode') {

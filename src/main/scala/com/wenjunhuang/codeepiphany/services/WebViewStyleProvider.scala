@@ -30,6 +30,14 @@ trait WebViewStyleProvider {
     if settings.getPresentationMode then settings.getPresentationModeIdeScale
     else settings.getIdeScale
   }
+
+  def isDarkMode: Boolean = {
+    val bgColor = colorsScheme.getDefaultBackground
+    // Calculate relative luminance using the formula: 0.299R + 0.587G + 0.114B
+    val luminance = (0.299 * bgColor.getRed + 0.587 * bgColor.getGreen + 0.114 * bgColor.getBlue) / 255
+    luminance < 0.5 // If luminance is less than 0.5, consider it dark mode
+  }
+
   def backgroundColor: Color           = colorsScheme.getDefaultBackground
   def foregroundColor: Color           = colorsScheme.getDefaultForeground
   def linkActiveForegroundColor: Color = JBUI.CurrentTheme.Link.Foreground.ENABLED
@@ -42,6 +50,9 @@ trait WebViewStyleProvider {
       s"${top}px ${right}px ${bottom}px ${left}px"
     }.getOrElse("0")
     s"""
+       |:root{
+       |   --darkMode: ${if (isDarkMode) 1 else 0};
+       |}
        |body {
        |    line-height: ${lineHeight};
        |    min-height: 100%;
