@@ -1,22 +1,20 @@
 package com.wenjunhuang.codeepiphany.hackerrank.services
 
-import cats.effect.{ Concurrent, IO }
+import cats.effect.IO
 import cats.syntax.all.*
 import fs2.Stream
-import org.jooq.{ DSLContext, Record }
+import org.jooq.{DSLContext, Record}
 import org.typelevel.ci.CIString
-import org.typelevel.log4cats.LoggerFactory
 import scala.jdk.OptionConverters.*
 
 import com.intellij.openapi.project.Project
 
-import com.wenjunhuang.codeepiphany.database.Tables.{ CHALLENGE, CHALLENGE_LANGUAGE, HACKERRANK_CHALLENGE }
-import com.wenjunhuang.codeepiphany.hackerrank.models.{ HackerRankContest, HackerRankRunCodeResponse }
+import com.wenjunhuang.codeepiphany.database.Tables.{CHALLENGE, CHALLENGE_LANGUAGE, HACKERRANK_CHALLENGE}
+import com.wenjunhuang.codeepiphany.hackerrank.models.{HackerRankContest, HackerRankRunCodeResponse}
 import com.wenjunhuang.codeepiphany.model.*
 import com.wenjunhuang.codeepiphany.model.CodeDojo.HackerRank
-import com.wenjunhuang.codeepiphany.services.{ console, BaseCodeEvaluationService, ChallengeRepository }
-import com.wenjunhuang.codeepiphany.services.http.HttpClientManager
-import com.wenjunhuang.codeepiphany.settings.ChallengeSettings.ChallengeSettingsStateItem
+import com.wenjunhuang.codeepiphany.services.{console, BaseCodeEvaluationService, ChallengeRepository}
+import com.wenjunhuang.codeepiphany.settings.ChallengeSettings.{ChallengeSettingsStateItem, TestCase}
 
 class HackerRankEvaluationService(project: Project) extends BaseCodeEvaluationService(project, HackerRank) {
   override type EvaluationRequest  = HREvaluationRequest
@@ -24,7 +22,7 @@ class HackerRankEvaluationService(project: Project) extends BaseCodeEvaluationSe
 
   override protected def prepareRequest(
     item: ChallengeSettingsStateItem,
-    customTestCases: Option[String]
+    customTestCases: Option[List[TestCase]]
   ): IO[HREvaluationRequest] =
     ChallengeRepository
       .getInstance(myProject)
@@ -34,7 +32,7 @@ class HackerRankEvaluationService(project: Project) extends BaseCodeEvaluationSe
   override protected def callApi(
     request: HREvaluationRequest,
     code: String,
-    customTestCases: Option[String]
+    customTestCases:Option[List[TestCase]]
   ): Stream[IO, HackerRankRunCodeResponse] =
     HackerRankApi.runAnswer(request.slug, request.contest, request.language, request.languageVersion, code)
 
@@ -42,7 +40,7 @@ class HackerRankEvaluationService(project: Project) extends BaseCodeEvaluationSe
     response: HackerRankRunCodeResponse,
     request: HREvaluationRequest,
     code: String,
-    customTestCases: Option[String]
+    customTestCases: Option[List[TestCase]]
   ): IO[EvaluationResponseInfo] =
     IO.delay {
       if response.status == 0 then EvaluationResponseInfo(SubmissionResult.Processing, "")

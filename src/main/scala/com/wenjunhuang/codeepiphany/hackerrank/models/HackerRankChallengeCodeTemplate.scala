@@ -3,6 +3,8 @@ package com.wenjunhuang.codeepiphany.hackerrank.models
 import scala.beans.BeanProperty
 
 import com.wenjunhuang.codeepiphany.model.{CodeDojo, Language, LanguageVersion}
+import com.wenjunhuang.codeepiphany.services.BaseOpenChallengeService
+import com.wenjunhuang.codeepiphany.settings.ChallengeSettings
 
 case class HackerRankChallengeCodeTemplate(
   @BeanProperty
@@ -36,4 +38,11 @@ case class HackerRankChallengeCodeTemplate(
 
   def getLanguage: String        = language.value
   def getLanguageVersion: String = languageVersion.version
+}
+
+object HackerRankChallengeCodeTemplate {
+  implicit val testCasesHolder: BaseOpenChallengeService.TestCasesHolder[HackerRankChallengeCodeTemplate] =
+    new BaseOpenChallengeService.TestCasesHolder[HackerRankChallengeCodeTemplate] {
+      override def getTestCases(template: HackerRankChallengeCodeTemplate): List[ChallengeSettings.TestCase] = Nil
+    }
 }

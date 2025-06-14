@@ -18,8 +18,9 @@ import com.wenjunhuang.codeepiphany.model.SubmissionResult.Processing
 import com.wenjunhuang.codeepiphany.services.{ console, BaseCodeEvaluationService, ChallengeRepository }
 import com.wenjunhuang.codeepiphany.services.http.HttpClientManager
 import com.wenjunhuang.codeepiphany.settings.ChallengeSettings
-import com.wenjunhuang.codeepiphany.settings.ChallengeSettings.ChallengeSettingsStateItem
+import com.wenjunhuang.codeepiphany.settings.ChallengeSettings.{ ChallengeSettingsStateItem, TestCase }
 import com.wenjunhuang.codeepiphany.utils.Tabulator
+import com.wenjunhuang.codeepiphany.PluginBundle
 
 class LeetCodeEvaluationService(
   project: Project,
@@ -30,12 +31,26 @@ class LeetCodeEvaluationService(
 
   override protected def prepareRequest(
     item: ChallengeSettings.ChallengeSettingsStateItem,
-    customTestCases: Option[String]
+    customTestCases: Option[List[TestCase]]
   ): IO[LeetCodeEvaluationRequest] = {
     ChallengeRepository
       .getInstance(myProject)
       .getDSLContextResource
-      .use(client => IO.delay(queryChallengeInfo(item, client)))
+      .use(client =>
+        IO.delay {
+          val request = queryChallengeInfo(item, client)
+          customTestCases match {
+            case Some(testCases) =>
+              request.copy(testCase = makeTestCasesString(testCases))
+            case _ =>
+              request
+          }
+        }
+      )
+  }
+
+  private def makeTestCasesString(testCase: List[TestCase]): String = {
+    testCase.map(tc => s"${tc.input}\n${tc.expectedOutput}").mkString("\n")
   }
 
   private def queryChallengeInfo(item: ChallengeSettingsStateItem, client: DSLContext): LeetCodeEvaluationRequest = {
@@ -72,12 +87,12 @@ class LeetCodeEvaluationService(
   override protected def callApi(
     request: LeetCodeEvaluationRequest,
     code: String,
-    customTestCases: Option[String]
+    customTestCases: Option[List[TestCase]]
   ): fs2.Stream[IO, LeetCodeRunResult] = LeetCodeApi(myLeetCode)
     .runAnswer(
       request.leetCodeQuestionId,
       request.questionSlug,
-      customTestCases.getOrElse(request.testCase),
+      customTestCases.map(makeTestCasesString).getOrElse(request.testCase),
       request.language,
       request.languageVersion,
       code
@@ -87,7 +102,7 @@ class LeetCodeEvaluationService(
     response: LeetCodeRunResult,
     request: EvaluationRequest,
     code: String,
-    customTestCases: Option[String]
+    customTestCases: Option[List[TestCase]]
   ): IO[EvaluationResponseInfo] = {
     IO.delay {
       response match
@@ -95,9 +110,9 @@ class LeetCodeEvaluationService(
           val result = myLeetCode.fromLeetCodeRunResult(success.statusMsg, success.correctAnswer)
           val message = result match
             case SubmissionResult.Success if success.correctAnswer.contains(true) =>
-              "🎉 Passed!"
+              PluginBundle.message("submission.passed")
             case SubmissionResult.Failure =>
-              s"Wrong Answer!\n${formatResultDiff(success, customTestCases.getOrElse(request.testCase))}"
+              s"${PluginBundle.message("submissionResult.failure")}\n${formatResultDiff(success, customTestCases.map(makeTestCasesString).getOrElse(request.testCase))}"
             case result =>
               formatErrorMessage(result, success)
           EvaluationResponseInfo(result, message)

@@ -13,14 +13,13 @@ import com.intellij.ui.ScrollPaneFactory
 import com.intellij.util.ui.JBUI
 
 import com.wenjunhuang.codeepiphany.utils.walkaround.DialogWrapperBridge
-import com.wenjunhuang.codeepiphany.PluginBundle
+import com.wenjunhuang.codeepiphany.{ settings, PluginBundle }
+import com.wenjunhuang.codeepiphany.settings.ChallengeSettings
 
 object TestCasesDialog {
   private val DIALOG_WIDTH  = 600
   private val DIALOG_HEIGHT = 400
   private val TOOLBAR_ID    = "TestCasesDialog"
-
-  type TestCase = (String, String)
 
   private def createGridBagConstraints: GridBagConstraints = {
     val gbc = new GridBagConstraints()
@@ -32,11 +31,14 @@ object TestCasesDialog {
   }
 }
 
-class TestCasesDialog(private val myProject: Project, private val myInitialTestCases: List[TestCasesDialog.TestCase])
-    extends DialogWrapperBridge(myProject, false, DialogWrapper.IdeModalityType.MODELESS) {
+class TestCasesDialog(
+  private val myProject: Project,
+  private val myTestCases: List[ChallengeSettings.TestCase],
+  private val myDefaultTestCases: List[ChallengeSettings.TestCase]
+) extends DialogWrapperBridge(myProject, false, DialogWrapper.IdeModalityType.IDE) {
   import TestCasesDialog.*
 
-  private val myTestCaseItemPanels = mutable.ListBuffer.from(createTestCaseItemsFromTestCases())
+  private val myTestCaseItemPanels = mutable.ListBuffer.from(createTestCaseItemsFromTestCases(myTestCases))
 
   private val myScrollPane = ScrollPaneFactory.createScrollPane(
     createTestCasesPanel(),
@@ -45,21 +47,22 @@ class TestCasesDialog(private val myProject: Project, private val myInitialTestC
   )
 
   init()
+  setTitle(PluginBundle.message("testcases.dialog.title"))
   setSize(DIALOG_WIDTH, DIALOG_HEIGHT)
 
-  private def createTestCaseItemsFromTestCases(): List[TestCaseItemPanel] = {
-    myInitialTestCases.zipWithIndex.map { case ((input, expected), index) =>
-      createNewTestCaseItemPanel(index, input, expected)
+  private def createTestCaseItemsFromTestCases(testCases: List[ChallengeSettings.TestCase]): List[TestCaseItemPanel] = {
+    testCases.zipWithIndex.map { case (testCase, index) =>
+      createNewTestCaseItemPanel(index, testCase)
     }
   }
 
-  private def createNewTestCaseItemPanel(index: Int, input: String, expected: String): TestCaseItemPanel = {
+  private def createNewTestCaseItemPanel(index: Int, testCase: ChallengeSettings.TestCase): TestCaseItemPanel = {
     var panel: TestCaseItemPanel = null
     panel = new TestCaseItemPanel(
       myProject,
       PluginBundle.message("testcases.title", index + 1),
-      input,
-      expected,
+      testCase.input,
+      testCase.expectedOutput,
       () => {
         myTestCaseItemPanels.remove(myTestCaseItemPanels.indexOf(panel))
         refreshTestCaseItemPanels()
@@ -83,7 +86,13 @@ class TestCasesDialog(private val myProject: Project, private val myInitialTestC
     myScrollPane.setViewportView(createTestCasesPanel())
   }
 
-  override protected def onOkAction(e: ActionEvent): Unit = {}
+  def getTestCases(): List[ChallengeSettings.TestCase] = {
+    myTestCaseItemPanels.map(item => ChallengeSettings.TestCase(item.getInputValue, item.getExpectedValue)).toList
+  }
+
+  override protected def onOkAction(e: ActionEvent): Unit = {
+    close(DialogWrapper.OK_EXIT_CODE)
+  }
 
   override def createTitlePane(): JComponent = {
     val actionGroup = new DefaultActionGroup(
@@ -94,7 +103,7 @@ class TestCasesDialog(private val myProject: Project, private val myInitialTestC
       ) {
         override def actionPerformed(e: AnActionEvent): Unit = {
           myTestCaseItemPanels.clear()
-          myTestCaseItemPanels.addAll(createTestCaseItemsFromTestCases())
+          myTestCaseItemPanels.addAll(createTestCaseItemsFromTestCases(myDefaultTestCases))
           refreshTestCaseItemPanels()
         }
       },
@@ -104,7 +113,9 @@ class TestCasesDialog(private val myProject: Project, private val myInitialTestC
         AllIcons.General.Add
       ) {
         override def actionPerformed(e: AnActionEvent): Unit = {
-          myTestCaseItemPanels.addOne(createNewTestCaseItemPanel(myTestCaseItemPanels.size, "", ""))
+          myTestCaseItemPanels.addOne(
+            createNewTestCaseItemPanel(myTestCaseItemPanels.size, ChallengeSettings.TestCase("", ""))
+          )
           refreshTestCaseItemPanels()
           val verticalScrollBar = myScrollPane.getVerticalScrollBar
           verticalScrollBar.setValue(verticalScrollBar.getMaximum)
@@ -112,10 +123,11 @@ class TestCasesDialog(private val myProject: Project, private val myInitialTestC
       }
     )
 
-    ActionManager
+    val toolbar = ActionManager
       .getInstance()
       .createActionToolbar(TOOLBAR_ID, actionGroup, true)
-      .getComponent
+    toolbar.setTargetComponent(myScrollPane)
+    toolbar.getComponent
   }
 
   override def createCenterPanel(): JComponent = myScrollPane

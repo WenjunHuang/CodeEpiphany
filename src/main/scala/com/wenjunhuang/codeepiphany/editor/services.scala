@@ -17,11 +17,12 @@ import com.wenjunhuang.codeepiphany.settings.ChallengeSettings
 import com.wenjunhuang.codeepiphany.utils.syntax.*
 import org.typelevel.log4cats.{ Logger, LoggerFactory }
 import com.wenjunhuang.codeepiphany.PluginBundle
+import scala.jdk.CollectionConverters.*
 
 object services {
   def runCode(vf: VirtualFile, project: Project): IO[Unit] = {
     showConsole(project)
-      *> console.info(project, PluginBundle.message("run.code.start", vf.getName))
+      *> console.info(project, PluginBundle.message("test.code.start", vf.getName))
       *> IO.delay {
         val settings = ChallengeSettings.getInstance(project)
         settings.findChallengeId(vf)
@@ -31,14 +32,25 @@ object services {
             case CodeDojo.HackerRank =>
               HackerRankEvaluationService(project).evaluateCode(vf, None)
             case CodeDojo.LeetCodeCN =>
-              LeetCodeEvaluationService(project, CodeDojo.LeetCodeCN).evaluateCode(vf, None)
+              ChallengeSettings
+                .getInstance(project)
+                .findChallengeId(vf) match {
+                case Some(challenge) =>
+                  LeetCodeEvaluationService(project, CodeDojo.LeetCodeCN).evaluateCode(
+                    vf,
+                    challenge.testCases.asScala.toList.some
+                  )
+                case None =>
+                  IO.raiseError(new IllegalStateException(PluginBundle.message("error.no.challenge", vf.getName)))
+              }
+
             case CodeDojo.LeetCode =>
               LeetCodeEvaluationService(project, CodeDojo.LeetCode).evaluateCode(vf, None)
             case CodeDojo.CodeForces | CodeDojo.AtCoder | CodeDojo.LuoGu =>
               IO.unit
         case None => IO.unit
       }.handleErrorWith { e =>
-        console.error(project, PluginBundle.message("error.run.code", e.getMessage))
+        console.error(project, PluginBundle.message("test.code.error", e.getMessage))
       }
   }
 

@@ -10,14 +10,14 @@ import com.intellij.openapi.vfs.{ VfsUtilCore, VirtualFile }
 
 import com.wenjunhuang.codeepiphany.model.{ CodeDojo, Language, SubmissionResult }
 import com.wenjunhuang.codeepiphany.settings.ChallengeSettings
-import com.wenjunhuang.codeepiphany.settings.ChallengeSettings.ChallengeSettingsStateItem
+import com.wenjunhuang.codeepiphany.settings.ChallengeSettings.{ ChallengeSettingsStateItem, TestCase }
 
 abstract class BaseCodeEvaluationService(protected val myProject: Project, protected val myCodeDojo: CodeDojo) {
   type EvaluationRequest
   type EvaluationResponse
   protected case class EvaluationResponseInfo(result: SubmissionResult, message: String)
 
-  def evaluateCode(vf: VirtualFile, customTestCases: Option[String]): IO[Unit] = {
+  def evaluateCode(vf: VirtualFile, customTestCases: Option[List[TestCase]]): IO[Unit] = {
     for {
       item          <- findSettingItem(vf)
       localCode     <- readLocalCode(vf)
@@ -27,26 +27,33 @@ abstract class BaseCodeEvaluationService(protected val myProject: Project, prote
     } yield ()
   }
 
-  protected def prepareRequest(item: ChallengeSettingsStateItem, customTestCases: Option[String]): IO[EvaluationRequest]
+  protected def prepareRequest(
+    item: ChallengeSettingsStateItem,
+    customTestCases: Option[List[TestCase]]
+  ): IO[EvaluationRequest]
 
   protected def callApi(
     request: EvaluationRequest,
     code: String,
-    customTestCases: Option[String]
+    customTestCases: Option[List[TestCase]]
   ): Stream[IO, EvaluationResponse]
 
   protected def handleEvaluationResponse(
     response: EvaluationResponse,
     request: EvaluationRequest,
     code: String,
-    customTestCases: Option[String]
+    customTestCases: Option[List[TestCase]]
   ): IO[EvaluationResponseInfo]
   protected def reportEvaluationResult(
     lastResponseInfo: EvaluationResponseInfo,
     lastResponse: EvaluationResponse
   ): IO[Unit]
 
-  private def executeEvaluation(request: EvaluationRequest, code: String, customTestCases: Option[String]): IO[Unit] = {
+  private def executeEvaluation(
+    request: EvaluationRequest,
+    code: String,
+    customTestCases: Option[List[TestCase]]
+  ): IO[Unit] = {
     callApi(request, code, customTestCases).evalMap { response =>
       handleEvaluationResponse(response, request, code, customTestCases).map((_, response))
     }.compile.last.flatMap {

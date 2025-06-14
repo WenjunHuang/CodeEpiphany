@@ -113,7 +113,8 @@ object LeetCodeSettingsConfigurable {
                 status = None,
                 testCase = "",
                 metaData = ""
-              )
+              ),
+              testCases = Nil
             )
         }
       })

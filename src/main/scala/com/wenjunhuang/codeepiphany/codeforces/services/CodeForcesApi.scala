@@ -3,7 +3,9 @@ package com.wenjunhuang.codeepiphany.codeforces.services
 import cats.effect.implicits.*
 import cats.effect.{ Async, Concurrent, IO, Temporal }
 import cats.syntax.all.*
+
 import com.intellij.openapi.util.text.StringUtil
+
 import com.wenjunhuang.codeepiphany.codeforces.models.*
 import com.wenjunhuang.codeepiphany.codeforces.settings.CodeForcesSettingsConfigurable
 import com.wenjunhuang.codeepiphany.model.{ ApiError, CodeDojo, SubmissionResult }
@@ -21,12 +23,16 @@ import org.typelevel.ci.CIString
 import retry.*
 import retry.ResultHandler.{ noop, retryOnAllErrors }
 import scodec.bits.ByteVector
-
 import java.time.format.DateTimeFormatter
 import java.time.{ LocalDateTime, ZoneId }
 import java.util.Locale
+import org.jsoup.nodes.Element
 import scala.concurrent.duration.*
 import scala.jdk.CollectionConverters.*
+
+import com.intellij.util.ui.Html
+
+import com.wenjunhuang.codeepiphany.settings.ChallengeSettings.TestCase
 
 trait CodeForcesApi {
   def getAllProblemSets: IO[List[(CodeForcesProblem, CodeForcesProblemStatistics)]]
@@ -127,16 +133,46 @@ object CodeForcesApi extends CodeForcesApi with Http4sClientDsl[IO] {
                 CodeForcesSettingsConfigurable.CODEFORCES_LANGUAGES_REVERSE.get(option.attr("value"))
             }
             .collect { case Some(value) => value }
+          val inputs          = jsoup.select(".input pre").asScala.toList
+          val expectedOutputs = jsoup.select(".output pre").asScala.toList
+          val testCases = inputs.zip(expectedOutputs).map { case (input, output) =>
+            TestCase(parseMainTestBlock(input), parseMainTestBlock(output))
+          }
           CodeForcesChallengeData(
             contestId = contestId,
             index = index,
             description = element.outerHtml(),
-            supportedLanguages.toSet
+            supportedLanguages.toSet,
+            testCases = testCases
           )
         }
       }
     }
 
+  private def parseMainTestBlock(block: Element): String = {
+    block.select(".test-example-line").asScala.toList match {
+      case Nil => StringUtil.unescapeXmlEntities(block.html())
+      case lines =>
+        lines.filter { line =>
+          val l = line.select(".test-example-line, br").asScala.filterNot(_ == line)
+          l.isEmpty
+        }.map { el =>
+          StringUtil.unescapeXmlEntities(el.html())
+        }.mkString("\n")
+    }
+
+  }
+//  private parseMainTestBlock(block: Element): string {
+//    const lines = [...block.querySelectorAll('.test-example-line')].filter(
+//    el => el.querySelector('.test-example-line, br') === null,
+//    );
+//
+//    if (lines.length === 0) {
+//    return decodeHtml(block.innerHTML);
+//  }
+//
+//    return [...lines].map(el => decodeHtml(el.innerHTML)).join('\n');
+//  }
   private def prepareSubmitAnswer(): IO[(String, String, String)] = {
     HttpClientManager.getClient.use { client =>
       client.expect[String](Method.GET(uri"https://codeforces.com/problemset/submit")).map { content =>

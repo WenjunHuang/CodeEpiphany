@@ -29,8 +29,12 @@
                     class="com.wenjunhuang.codeepiphany.actions.StatusParameterAction"/>
             <action id="CodeEpiphany.Actions.Tags"
                     class="com.wenjunhuang.codeepiphany.actions.TagsAction"/>
-            <action id="CodeEpiphany.Actions.RunCode"
-                    class="com.wenjunhuang.codeepiphany.editor.actions.RunCodeAction"
+
+            <action id="CodeEpiphany.Actions.EditTestCases"
+                    class="com.wenjunhuang.codeepiphany.editor.actions.TestCasesEditionAction"
+                    icon="CodeEpiphanyIcons.EDIT_TESTCASES"/>
+            <action id="CodeEpiphany.Actions.RunTest"
+                    class="com.wenjunhuang.codeepiphany.editor.actions.RunTestAction"
                     icon="CodeEpiphanyIcons.RUN"/>
             <action id="CodeEpiphany.Actions.SubmitCode"
                     class="com.wenjunhuang.codeepiphany.editor.actions.SubmitCodeAction"
@@ -108,7 +112,8 @@
         </group>
 
         <group id="CodeEpiphany.Editor.Group">
-            <reference ref="CodeEpiphany.Actions.RunCode"/>
+            <reference ref="CodeEpiphany.Actions.EditTestCases"/>
+            <reference ref="CodeEpiphany.Actions.RunTest"/>
             <reference ref="CodeEpiphany.Actions.SubmitCode"/>
             <reference ref="CodeEpiphany.Actions.SurroundSubmissionRegion"/>
             <reference ref="CodeEpiphany.Actions.SolutionSelection"/>
@@ -119,7 +124,8 @@
         </group>
 
         <group id="CodeEpiphany.ChallengeEditor.Toolbar.Group">
-            <reference ref="CodeEpiphany.Actions.RunCode"/>
+            <reference ref="CodeEpiphany.Actions.EditTestCases"/>
+            <reference ref="CodeEpiphany.Actions.RunTest"/>
             <reference ref="CodeEpiphany.Actions.SubmitCode"/>
             <reference ref="CodeEpiphany.Actions.SurroundSubmissionRegion"/>
             <reference ref="CodeEpiphany.Actions.SolutionSelection"/>
@@ -248,10 +254,6 @@
             <action id="CodeEpiphany.Sidebar.Solutions.Actions.LeetCodeArticlesOrderBy"
                     class="com.wenjunhuang.codeepiphany.toolwindows.sidebar.solutions.leetcode.actions.ArticleOrderByAction"/>
         </group>
-<!--        <action id="com.wenjunhuang.codeepiphany.test.TestAction" class="com.wenjunhuang.codeepiphany.test.TestAction"-->
-<!--                text="TestAction" description="TestAction">-->
-<!--            <add-to-group group-id="ToolsMenu" anchor="first"/>-->
-<!--        </action>-->
     </actions>
 
 

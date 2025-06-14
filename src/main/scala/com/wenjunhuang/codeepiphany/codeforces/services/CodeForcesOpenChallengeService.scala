@@ -75,7 +75,8 @@ class CodeForcesOpenChallengeService(project: Project)
                 rating = Option(req.getRating).map(_.toInt),
                 problemsetName = Option(req.getProblemsetname),
                 tags = req.getTags.split(",").toList,
-                content = content
+                content = content,
+                testCases = content.testCases
               )
             )
           )

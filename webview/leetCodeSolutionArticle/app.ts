@@ -19,6 +19,7 @@ const showSolutionArticle = (contentBased64: string,
                              getIframeUrlBased64: string) => {
     const content = decodeBase64(contentBased64);
     const codeDojo = decodeBase64(codeDojoBased64);
+    // @ts-ignore
     const getIframeUrl = decodeBase64(getIframeUrlBased64);
     const container = document.getElementById('container')!;
     let marked = new Marked(markedHighlight({

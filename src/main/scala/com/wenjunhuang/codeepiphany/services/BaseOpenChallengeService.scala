@@ -14,21 +14,26 @@ import com.intellij.openapi.ui.MessageDialogBuilder
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.vfs.VirtualFile
 
-import com.wenjunhuang.codeepiphany.database.tables.records.{ChallengeLanguageRecord, ChallengeRecord}
+import com.wenjunhuang.codeepiphany.database.tables.records.{ ChallengeLanguageRecord, ChallengeRecord }
 import com.wenjunhuang.codeepiphany.database.Tables.*
-import com.wenjunhuang.codeepiphany.model.{CodeDojo, Language, LanguageVersion}
+import com.wenjunhuang.codeepiphany.model.{ CodeDojo, Language, LanguageVersion }
 import com.wenjunhuang.codeepiphany.model.newtypes.*
 import com.wenjunhuang.codeepiphany.services.database.getOrCreateDefaultSolution
-import com.wenjunhuang.codeepiphany.services.file.{openTextEditor, refreshAndFindFileByIoFile, saveTextWithConflictResolution}
+import com.wenjunhuang.codeepiphany.services.file.{
+  openTextEditor,
+  refreshAndFindFileByIoFile,
+  saveTextWithConflictResolution
+}
+import com.wenjunhuang.codeepiphany.services.BaseOpenChallengeService.TestCasesHolder
 import com.wenjunhuang.codeepiphany.settings.dojo.BaseCodeDojoSettings.LanguageSettingsState
 import com.wenjunhuang.codeepiphany.settings.dojo.BaseSettingsConfigurable
 import com.wenjunhuang.codeepiphany.settings.ChallengeSettings
-import com.wenjunhuang.codeepiphany.settings.ChallengeSettings.ChallengeSettingsStateItem
+import com.wenjunhuang.codeepiphany.settings.ChallengeSettings.{ ChallengeSettingsStateItem, TestCase }
 import com.wenjunhuang.codeepiphany.utils.syntax.*
 import com.wenjunhuang.codeepiphany.utils.template.VelocityUtils
 import com.wenjunhuang.codeepiphany.utils.IdGenerator
 
-abstract class BaseOpenChallengeService[Req,Template](
+abstract class BaseOpenChallengeService[Req, Template: TestCasesHolder](
   protected val myProject: Project,
   protected val myCodeDojo: CodeDojo,
   protected val myConfigClass: Class[? <: BaseSettingsConfigurable]
@@ -124,7 +129,15 @@ abstract class BaseOpenChallengeService[Req,Template](
           .getInstance(myProject)
           .addChallenge(
             vf,
-            ChallengeSettingsStateItem(challengeId, challengeLanguageId, myCodeDojo, state.language, solutionId)
+            ChallengeSettingsStateItem(
+              challengeId,
+              challengeLanguageId,
+              myCodeDojo,
+              state.language,
+              solutionId,
+              summon[TestCasesHolder[Template]].getTestCases(state.template),
+              summon[TestCasesHolder[Template]].getTestCases(state.template)
+            )
           )
         vf
       })
@@ -228,5 +241,11 @@ abstract class BaseOpenChallengeService[Req,Template](
     state.languageVersion.contains(languageVersion) &&
     state.fileNameTemplate.nonEmpty &&
     state.codeTemplate.nonEmpty
+  }
+}
+
+object BaseOpenChallengeService {
+  trait TestCasesHolder[F] {
+    def getTestCases(template:F): List[TestCase]
   }
 }

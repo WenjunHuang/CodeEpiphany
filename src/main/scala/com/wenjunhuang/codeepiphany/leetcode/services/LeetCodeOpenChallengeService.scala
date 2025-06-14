@@ -2,7 +2,9 @@ package com.wenjunhuang.codeepiphany.leetcode.services
 
 import cats.effect.{ Concurrent, IO }
 import cats.syntax.all.*
+
 import com.intellij.openapi.project.Project
+
 import com.wenjunhuang.codeepiphany.database.Tables.*
 import com.wenjunhuang.codeepiphany.database.tables.records.{ ChallengeLanguageRecord, ChallengeRecord }
 import com.wenjunhuang.codeepiphany.leetcode.models.*
@@ -19,6 +21,11 @@ import com.wenjunhuang.codeepiphany.services.http.HttpClientManager
 import com.wenjunhuang.codeepiphany.settings.dojo.BaseCodeDojoSettings
 import org.jooq.DSLContext
 import org.typelevel.log4cats.LoggerFactory
+
+import com.intellij.openapi.util.text.StringUtil
+import scala.jdk.CollectionConverters.*
+
+import com.wenjunhuang.codeepiphany.settings.ChallengeSettings
 
 case class LeetCodeOpenChallengeRequest(questionSlug: String)
 
@@ -101,7 +108,18 @@ class LeetCodeOpenChallengeService(
                 difficulty = myLeetCodeDojo.fromLeetCodeDifficulty(content.difficulty).value,
                 language = language,
                 languageVersion = languageVersion,
-                content = content
+                content = content,
+                testCases = StringUtil
+                  .splitByLines(content.exampleTestcases)
+                  .toList
+                  .grouped(2)
+                  .toList match {
+                  case Nil => Nil
+                  case g =>
+                    g.filter(_.size == 2).map { case List(input, expectedOutput) =>
+                      ChallengeSettings.TestCase(input = input, expectedOutput = expectedOutput)
+                    }
+                }
               )
             )
           )
