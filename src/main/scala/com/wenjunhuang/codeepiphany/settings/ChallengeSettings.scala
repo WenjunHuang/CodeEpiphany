@@ -1,26 +1,24 @@
 package com.wenjunhuang.codeepiphany.settings
 
 import java.util as ju
-import scala.annotation.meta.{ beanGetter, beanSetter }
+import scala.annotation.meta.{beanGetter, beanSetter}
 import scala.beans.BeanProperty
 import scala.compiletime.uninitialized
 import scala.util.hashing.Hashing.Default
 
-import com.intellij.openapi.components.{ PersistentStateComponent, Service, State, Storage }
+import com.intellij.openapi.components.{PersistentStateComponent, Service, State, Storage}
 import com.intellij.openapi.components.Service.Level
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
-import com.intellij.util.xmlb.annotations.{ OptionTag, XCollection }
+import com.intellij.util.xmlb.annotations.{OptionTag, XCollection}
 
-import com.wenjunhuang.codeepiphany.model.{ CodeDojo, Constants, Language }
+import com.wenjunhuang.codeepiphany.model.{CodeDojo, Constants, Language}
 import com.wenjunhuang.codeepiphany.model.newtypes.*
-import com.wenjunhuang.codeepiphany.settings.ChallengeSettings.{
-  ChallengeSettingsState,
-  ChallengeSettingsStateItem,
-  TestCase
-}
-import com.wenjunhuang.codeepiphany.utils.XmlUtils.{ CodeDojoConverter, LanguageConverter }
+import com.wenjunhuang.codeepiphany.settings.ChallengeSettings.{ChallengeSettingsState, ChallengeSettingsStateItem, TestCase}
+import com.wenjunhuang.codeepiphany.utils.XmlUtils.{CodeDojoConverter, LanguageConverter}
 import scala.jdk.CollectionConverters.*
+
+import com.wenjunhuang.codeepiphany.PluginBundle
 
 @Service(Array(Level.PROJECT))
 @State(name = Constants.CHALLENGE_SETTING, storages = Array(new Storage(Constants.CHALLENGE_SETTING_FILE)))
@@ -133,6 +131,23 @@ object ChallengeSettings {
       r.input = input
       r.expectedOutput = expectedOutput
       r
+    }
+
+    extension (testCases:List[TestCase]) {
+      def show: String = {
+        if testCases.isEmpty then ""
+        else
+          testCases.zipWithIndex.map { (testCase, index) =>
+            s"""
+               |${PluginBundle.message("testcases.title", index + 1)}:
+               |-----------------------------------------------------
+               |input:
+               |${testCase.input}
+               |-----------------------------------------------------
+               |expected output:
+               |${testCase.expectedOutput}""".stripMargin
+          }.mkString("\n")
+      }
     }
   }
 

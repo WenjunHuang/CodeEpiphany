@@ -18,20 +18,7 @@ case class LuoGuChallengeCodeTemplate(
   testCases: List[ChallengeSettings.TestCase]
 ) {
   def getCodeDojo: String = CodeDojo.LuoGu.value
-  def getTestCases: String = {
-    if testCases.isEmpty then ""
-    else
-      testCases.zipWithIndex.map { (testCase, index) =>
-        s"""
-           |${PluginBundle.message("testcases.title", index + 1)}:
-           |-----------------------------------------------------
-           |input:
-           |${testCase.input}
-           |-----------------------------------------------------
-           |expected output:
-           |${testCase.expectedOutput}""".stripMargin
-      }.mkString("\n")
-  }
+  def getTestCases: String = testCases.show
 }
 
 object LuoGuChallengeCodeTemplate {

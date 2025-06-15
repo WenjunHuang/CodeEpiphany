@@ -106,7 +106,8 @@ class HackerRankOpenChallengeService(project: Project)
       contest.slug,
       ChallengeDifficulty.fromCIString(CIString(content.detail.difficultyName)).get.value,
       language,
-      languageVersion
+      languageVersion,
+      content.testCases
     )
   }
 }

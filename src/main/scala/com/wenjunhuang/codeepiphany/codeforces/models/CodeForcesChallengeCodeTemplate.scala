@@ -27,16 +27,9 @@ case class CodeForcesChallengeCodeTemplate(
   def getRating: String          = rating.map(_.toString).getOrElse("")
   def getProblemsetName: String  = problemsetName.getOrElse("")
   def getTags: String            = tags.mkString(", ")
-  def getTestCases: String = {
-    if testCases.isEmpty then ""
-    else
-      testCases.zipWithIndex.map { (testCase, index) =>
-        s"""
-           |${PluginBundle.message("testcases.title", index + 1)}:
-           |${testCase.input}
-           |${testCase.expectedOutput}""".stripMargin
-      }.mkString("\n")
-  }
+  def getTestCases: String = testCases.show
+
+
 }
 
 object CodeForcesChallengeCodeTemplate {

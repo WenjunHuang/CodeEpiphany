@@ -1,6 +1,7 @@
 package com.wenjunhuang.codeepiphany.hackerrank.services
 
 import cats.effect.{ Concurrent, IO, Temporal }
+import cats.effect.syntax.all.*
 import cats.syntax.all.*
 import fs2.Stream
 import io.circe.*
@@ -21,6 +22,9 @@ import com.wenjunhuang.codeepiphany.hackerrank.models.HackerRankContest.{ Master
 import com.wenjunhuang.codeepiphany.model.*
 import com.wenjunhuang.codeepiphany.model.CodeDojo.HackerRank
 import com.wenjunhuang.codeepiphany.services.http.HttpClientManager
+import scala.jdk.CollectionConverters.*
+
+import com.wenjunhuang.codeepiphany.settings.ChallengeSettings
 
 trait HackerRankApi {
   def getInitialData: IO[(HackerRankUserInfo, List[HackerRankChallengeDomain])]
@@ -119,12 +123,13 @@ object HackerRankApi extends HackerRankApi with Http4sClientDsl[IO] {
     HttpClientManager.getClient.use { client =>
       client
         .expect[String](Request[IO](Method.GET, makeGetChallengeContentRequestUrl(problemSlug, contest)))
-        .map { content =>
+        .flatMap { content =>
           Option(Jsoup.parse(content).selectFirst("script[id=initialData]")) match
-            case None => throw ApiError.InvalidContent(HackerRank, "can not find element script[id=initialData]")
+            case None =>
+              IO.raiseError(ApiError.InvalidContent(HackerRank, "can not find element script[id=initialData]"))
             case Some(element) =>
               parse(Uri.decode(element.html())) match {
-                case Left(e) => throw ApiError.InvalidContent(HackerRank, e.getMessage)
+                case Left(e) => IO.raiseError(ApiError.InvalidContent(HackerRank, e.getMessage))
                 case Right(json) =>
                   JsonPath.root.community.challenges.challenge
                     .selectDynamic(s"${contest.slug}/$problemSlug")
@@ -135,9 +140,27 @@ object HackerRankApi extends HackerRankApi with Http4sClientDsl[IO] {
                     .flatMap { json =>
                       json
                         .as[HackerRankChallengeContent]
+                        .map { content =>
+                          val document = Jsoup.parse(content.detail.bodyHtml.getOrElse(""))
+                          val testCases = document
+                            .select(".challenge_sample_input pre")
+                            .asScala
+                            .zip(document.select(".challenge_sample_output pre").asScala)
+                            .map { case (input, output) =>
+                              ChallengeSettings.TestCase(input.text(), output.text())
+                            }
+                            .toList
+
+                          content.copy(testCases = if (testCases.isEmpty) {
+                            document.select(".challenge-body-html pre").asScala.toList.grouped(2).collect {
+                              case Seq(input, output) =>
+                                ChallengeSettings.TestCase(input.text(), output.text())
+                            }.toList
+                          } else testCases)
+                        }
                         .leftMap(e => ApiError.InvalidContent(HackerRank, e.getMessage))
                     }
-                    .fold(throw _, identity)
+                    .liftTo[IO]
               }
         }
     }

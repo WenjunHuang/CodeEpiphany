@@ -19,6 +19,7 @@ import com.wenjunhuang.codeepiphany.model.CodeDojo.HackerRank
 import com.wenjunhuang.codeepiphany.model.Language.*
 import com.wenjunhuang.codeepiphany.model.LanguageVersion.*
 import com.wenjunhuang.codeepiphany.settings.dojo.{BaseCodeDojoSettings, BaseSettingsConfigurable}
+import com.wenjunhuang.codeepiphany.settings.ChallengeSettings
 
 class HackerRankSettingsConfigurable(project: Project)
     extends BaseSettingsConfigurable(
@@ -112,7 +113,21 @@ object HackerRankSettingsConfigurable {
               Master.slug,
               ChallengeDifficulty.Hard.value,
               language,
-              languageVersion
+              languageVersion,
+              testCases = List(
+                ChallengeSettings.TestCase(
+                  "1",
+                  "1 2 3",
+                ),
+                ChallengeSettings.TestCase(
+                  "2",
+                  "1 2 3 4",
+                ),
+                ChallengeSettings.TestCase(
+                  "3",
+                  "1 2 3 4 5",
+                )
+              )
             )
         }
       })

@@ -7,6 +7,7 @@ import monocle.macros.GenLens
 import org.typelevel.ci.CIString
 
 import com.wenjunhuang.codeepiphany.model.{Language, LanguageVersion}
+import com.wenjunhuang.codeepiphany.settings.ChallengeSettings.TestCase
 
 case class HackerRankChallengeDetail(
   id: Int,
@@ -26,12 +27,14 @@ case class HackerRankChallengeDetail(
   successRatio: Double,
   totalCount: Int,
   solvedCount: Int,
-  maxScore: Int
+  maxScore: Int,
 ) derives ConfiguredDecoder
 
 case class HackerRankLanguageTemplate(header: String, template: String, tail: String)
 
-case class HackerRankChallengeContent(detail: HackerRankChallengeDetail, codeTemplates: Map[(Language, LanguageVersion), HackerRankLanguageTemplate])
+case class HackerRankChallengeContent(detail: HackerRankChallengeDetail,
+                                      codeTemplates: Map[(Language, LanguageVersion), HackerRankLanguageTemplate],
+                                      testCases: List[TestCase])
 
 object HackerRankChallengeContent {
   implicit val decoder: Decoder[HackerRankChallengeContent] = (c: HCursor) =>
@@ -71,6 +74,6 @@ object HackerRankChallengeContent {
           case _ => ()
         }
       }
-      HackerRankChallengeContent(detail, templates)
+      HackerRankChallengeContent(detail, templates,Nil)
     }
 }
