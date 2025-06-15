@@ -104,7 +104,7 @@ enum Language(val value: String, val fileExt: String, val show: String, val icon
     val result   = mutable.ListBuffer.empty[String]
     val accum    = mutable.ListBuffer.empty[String]
     var inRegion = false
-    StringUtil.splitByLinesDontTrim(code).foreach { line =>
+    StringUtil.splitByLinesKeepSeparators(code).foreach { line =>
       val trimmed = line.trim
       if matchRegion(trimmed, Constants.SUBMIT_CODE_REGION_BEGIN) then inRegion = true
       else if matchRegion(trimmed, Constants.SUBMIT_CODE_REGION_END) then

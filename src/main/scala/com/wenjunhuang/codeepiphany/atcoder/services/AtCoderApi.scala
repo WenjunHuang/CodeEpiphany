@@ -1,24 +1,25 @@
 package com.wenjunhuang.codeepiphany.atcoder.services
 
-import cats.effect.kernel.Async
-import cats.effect.{ Concurrent, IO, Temporal }
+import cats.effect.{IO, Temporal}
 import cats.syntax.all.*
-import com.intellij.openapi.util.text.StringUtil
-import com.wenjunhuang.codeepiphany.atcoder.models.*
-import com.wenjunhuang.codeepiphany.atcoder.settings.AtCoderSettingsConfigurable.ATCODER_LANGUAGES_REVERSE
-import com.wenjunhuang.codeepiphany.model.{ ApiError, CodeDojo, SubmissionResult }
-import com.wenjunhuang.codeepiphany.services.http.HttpClientManager
 import fs2.Stream
 import io.circe.JsonObject
+import org.http4s.{Method, UrlForm}
+import org.http4s.client.{Client, UnexpectedStatus}
 import org.http4s.client.dsl.Http4sClientDsl
-import org.http4s.client.{ Client, UnexpectedStatus }
 import org.http4s.implicits.uri
-import org.http4s.{ Method, UrlForm }
 import org.jsoup.Jsoup
 import org.typelevel.ci.CIString
-
 import scala.concurrent.duration.*
 import scala.jdk.CollectionConverters.*
+
+import com.intellij.openapi.util.text.StringUtil
+
+import com.wenjunhuang.codeepiphany.atcoder.models.*
+import com.wenjunhuang.codeepiphany.atcoder.settings.AtCoderSettingsConfigurable.ATCODER_LANGUAGES_REVERSE
+import com.wenjunhuang.codeepiphany.model.{ApiError, CodeDojo, SubmissionResult}
+import com.wenjunhuang.codeepiphany.services.http.HttpClientManager
+import com.wenjunhuang.codeepiphany.settings.ChallengeSettings
 
 trait AtCoderApi {
   def checkLogin(): IO[Boolean]
@@ -116,11 +117,50 @@ object AtCoderApi extends AtCoderApi with Http4sClientDsl[IO] {
                 .map { value =>
                   ATCODER_LANGUAGES_REVERSE.get(value)
                 }
-                .collect { case Some(v) =>
-                  v
+                .collect { case Some(v) => v }
+                .toList
+              val inputs = doc
+                .select("h3")
+                .asScala
+                .filter(_.text().contains("入力例"))
+                .map(_.nextElementSibling())
+                .map { el =>
+                  if (el.tagName().toUpperCase == "PRE") {
+                    el
+                  } else if (el.tagName().toUpperCase == "DIV") {
+                    el.nextElementSibling()
+                  } else if (el.childrenSize() >= 3) {
+                    el.children().get(2)
+                  } else {
+                    el.children().get(0)
+                  }
+                }
+                .toSeq
+              val outputs = doc
+                .select("h3")
+                .asScala
+                .filter(_.text().contains("出力例"))
+                .map(_.nextElementSibling())
+                .map { el =>
+                  if (el.tagName().toUpperCase == "PRE") {
+                    el
+                  } else if (el.tagName().toUpperCase == "DIV") {
+                    el.nextElementSibling()
+                  } else if (el.childrenSize() >= 3) {
+                    el.children().get(2)
+                  } else {
+                    el.children().get(0)
+                  }
+                }
+                .toSeq
+
+              val testCases = inputs
+                .zip(outputs)
+                .map { case (input, output) =>
+                  ChallengeSettings.TestCase(input.text().trim, output.text().trim)
                 }
                 .toList
-              AtCoderChallengeData(contestId, problemId, description, supportedLanguages.toSet)
+              AtCoderChallengeData(contestId, problemId, description, supportedLanguages.toSet, testCases)
             }
         }
   }

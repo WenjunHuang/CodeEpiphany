@@ -20,7 +20,6 @@ class TestCasesEditionAction
     extends AnAction
     with ActionCompatible
     with ProjectNonNull
-    with FileEditorUserLoggedIn
     with FileEditorKeyNotNull[TestCasesEditionProvider](TESTCASES_PROVIDER_KEY) {
 
   override def actionPerformed(e: AnActionEvent): Unit = {

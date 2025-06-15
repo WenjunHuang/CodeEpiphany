@@ -1,14 +1,18 @@
 package com.wenjunhuang.codeepiphany.atcoder.services
 
-import cats.effect.{Async, Concurrent, IO}
+import cats.effect.{ Async, Concurrent, IO }
 import cats.syntax.all.*
 import com.intellij.openapi.project.Project
 import com.wenjunhuang.codeepiphany.atcoder.models.AtCoderChallengeCodeTemplate
-import com.wenjunhuang.codeepiphany.atcoder.settings.{AtCoderSettings, AtCoderSettingsConfigurable}
+import com.wenjunhuang.codeepiphany.atcoder.settings.{ AtCoderSettings, AtCoderSettingsConfigurable }
 import com.wenjunhuang.codeepiphany.database.Tables.*
-import com.wenjunhuang.codeepiphany.database.tables.records.{AtcoderProblemsRecord, ChallengeLanguageRecord, ChallengeRecord}
+import com.wenjunhuang.codeepiphany.database.tables.records.{
+  AtcoderProblemsRecord,
+  ChallengeLanguageRecord,
+  ChallengeRecord
+}
 import com.wenjunhuang.codeepiphany.model.newtypes.CodeDojoChallengeId
-import com.wenjunhuang.codeepiphany.model.{ChallengeDifficulty, CodeDojo, Language, LanguageVersion}
+import com.wenjunhuang.codeepiphany.model.{ ChallengeDifficulty, CodeDojo, Language, LanguageVersion }
 import com.wenjunhuang.codeepiphany.services.BaseOpenChallengeService
 import com.wenjunhuang.codeepiphany.services.http.HttpClientManager
 import com.wenjunhuang.codeepiphany.settings.dojo.BaseCodeDojoSettings
@@ -83,7 +87,8 @@ class AtCoderOpenChallengeService(project: Project)
               language = language,
               languageVersion = languageVersion,
               record = req,
-              content = content
+              content = content,
+              testCases = content.testCases
             )
           )
         else
