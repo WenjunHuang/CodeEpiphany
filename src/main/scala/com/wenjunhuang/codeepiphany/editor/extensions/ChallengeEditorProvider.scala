@@ -92,7 +92,10 @@ class ChallengeEditorProvider extends FileEditorProviderBridge with DumbAware {
 
     // 配置提交代码提供者
     editorWrapper.putUserData(SUBMITCODE_PROVIDER_KEY, SubmitCodeProvider.createProvider(file, project, challenge.dojo))
-    editorWrapper.putUserData(RUNTEST_PROVIDER_KEY, RunTestProvider.createProvider(file, project, challenge.dojo))
+    if (challenge.dojo == CodeDojo.LeetCode || challenge.dojo == CodeDojo.LeetCodeCN) {
+      // 如果是 LeetCode 的挑战，配置测试代码
+      editorWrapper.putUserData(RUNTEST_PROVIDER_KEY, RunTestProvider.createProvider(file, project, challenge.dojo))
+    }
     editorWrapper.putUserData(FILEEDITOR_CODEDOJO_KEY, challenge.dojo)
     editorWrapper.putUserData(
       TESTCASES_PROVIDER_KEY,
@@ -112,7 +115,6 @@ class ChallengeEditorProvider extends FileEditorProviderBridge with DumbAware {
         override def updateTestCases(testCases: List[ChallengeSettings.TestCase]): Unit = {
           ChallengeSettings.getInstance(project).updateChallengeTestCases(file, testCases.asJava)
         }
-
       }
     )
 

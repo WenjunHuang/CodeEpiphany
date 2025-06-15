@@ -79,6 +79,9 @@ class TestCasesDialog(
       panel.add(item.getComponent, gbc)
     }
 
+    gbc.weighty = 1.0
+    gbc.fill = GridBagConstraints.BOTH
+    panel.add(JPanel(), gbc)
     panel
   }
 

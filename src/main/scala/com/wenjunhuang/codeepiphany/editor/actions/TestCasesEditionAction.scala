@@ -35,8 +35,8 @@ class TestCasesEditionAction
   }
 
   override def update(event: AnActionEvent): Unit = {
-    if isSatisfied(event) then event.getPresentation.setEnabled(true)
-    else event.getPresentation.setEnabled(false)
+    if isSatisfied(event) then event.getPresentation.setEnabledAndVisible(true)
+    else event.getPresentation.setEnabledAndVisible(false)
   }
 }
 

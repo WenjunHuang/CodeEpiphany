@@ -1,11 +1,11 @@
 package com.wenjunhuang.codeepiphany.luogu.services
 
-import cats.effect.{Async, Concurrent, IO}
+import cats.effect.{ Async, Concurrent, IO }
 import cats.syntax.all.*
 import com.intellij.openapi.project.Project
-import com.wenjunhuang.codeepiphany.database.tables.records.{ChallengeLanguageRecord, ChallengeRecord}
-import com.wenjunhuang.codeepiphany.luogu.models.{LuoGuChallengeCodeTemplate, LuoGuChallengeItem}
-import com.wenjunhuang.codeepiphany.luogu.settings.{LuoGuSettings, LuoGuSettingsConfigurable}
+import com.wenjunhuang.codeepiphany.database.tables.records.{ ChallengeLanguageRecord, ChallengeRecord }
+import com.wenjunhuang.codeepiphany.luogu.models.{ LuoGuChallengeCodeTemplate, LuoGuChallengeItem }
+import com.wenjunhuang.codeepiphany.luogu.settings.{ LuoGuSettings, LuoGuSettingsConfigurable }
 import com.wenjunhuang.codeepiphany.model.newtypes.CodeDojoChallengeId
 import com.wenjunhuang.codeepiphany.model.*
 import com.wenjunhuang.codeepiphany.services.BaseOpenChallengeService
@@ -59,7 +59,14 @@ class LuoGuOpenChallengeService(project: Project)
         if content.supportedLanguages.contains((language, languageVersion)) then
           IO.pure(
             CodeDojoChallengeId(req.pid),
-            LuoGuChallengeCodeTemplate(req.pid, content.title, language, languageVersion, content.description)
+            LuoGuChallengeCodeTemplate(
+              req.pid,
+              content.title,
+              language,
+              languageVersion,
+              content.description,
+              content.testCases
+            )
           )
         else
           IO.raiseError(

@@ -6,6 +6,7 @@ import cats.syntax.all.*
 import com.vladsch.flexmark.html.HtmlRenderer
 import com.vladsch.flexmark.parser.Parser
 import com.vladsch.flexmark.util.data.MutableDataSet
+
 import com.wenjunhuang.codeepiphany.luogu.models.*
 import com.wenjunhuang.codeepiphany.luogu.settings.LuoGuSettingsConfigurable.LUOGU_LANGUAGES_REVERSE
 import com.wenjunhuang.codeepiphany.model.{ CodeDojo, OrderDirection, SubmissionResult }
@@ -23,10 +24,11 @@ import org.http4s.implicits.uri
 import org.http4s.{ Headers, Method, Uri }
 import org.jsoup.Jsoup
 import scodec.bits.ByteVector
-
 import java.net.{ HttpCookie, URLDecoder }
 import scala.concurrent.duration.*
 import scala.jdk.CollectionConverters.*
+
+import com.wenjunhuang.codeepiphany.settings.ChallengeSettings
 
 trait LuoGuApi {
   def checkLogin(): IO[Boolean]
@@ -91,17 +93,28 @@ object LuoGuApi extends LuoGuApi with Http4sClientDsl[IO] {
   }
 
   private def makeDescriptionHtml(json: Json): String = {
+    // 提取并处理 LaTeX 公式
+    def processLatex(text: String): String = {
+      val latexRegex = """\$\$([\s\S]*?)\$\$""".r
+      latexRegex.replaceAllIn(text, m => {
+        val latex = m.group(1)
+          .replace("\\\\", "DOUBLE_BACKSLASH") // 保护双反斜杠
+          .replace("\\", "SINGLE_BACKSLASH")   // 保护单反斜杠
+        // 保护 LaTeX 公式，避免被 flexmark 处理
+        s"<pre class='latex'>$latex</pre>"
+      })
+    }
 
     val title =
       s"# ${JsonPath.root.data.problem.pid.string.getOption(json).getOrElse("")} ${JsonPath.root.data.problem.title.string.getOption(json).getOrElse("")}"
     val description =
-      s"## 题目描述\n\n${JsonPath.root.data.problem.content.description.string.getOption(json).getOrElse("")}"
-    val formatI = s"## 输入格式\n\n${JsonPath.root.data.problem.content.formatI.string.getOption(json).getOrElse("")}"
-    val formatO = s"## 输出格式\n\n${JsonPath.root.data.problem.content.formatO.string.getOption(json).getOrElse("")}"
-    val hint    = s"## 说明/提示\n\n${JsonPath.root.data.problem.content.hint.string.getOption(json).getOrElse("")}"
+      s"## 题目描述\n\n${processLatex(JsonPath.root.data.problem.content.description.string.getOption(json).getOrElse(""))}"
+    val formatI = s"## 输入格式\n\n${processLatex(JsonPath.root.data.problem.content.formatI.string.getOption(json).getOrElse(""))}"
+    val formatO = s"## 输出格式\n\n${processLatex(JsonPath.root.data.problem.content.formatO.string.getOption(json).getOrElse(""))}"
+    val hint    = s"## 说明/提示\n\n${processLatex(JsonPath.root.data.problem.content.hint.string.getOption(json).getOrElse(""))}"
     val translation = JsonPath.root.data.problem.translation.string.getOption(json).getOrElse("") match {
       case "" => ""
-      case t  => s"## 题意翻译\n\n$t"
+      case t  => s"## 题意翻译\n\n${processLatex(t)}"
     }
     val limits = JsonPath.root.data.problem.limits.time.arr
       .getOption(json)
@@ -132,7 +145,18 @@ object LuoGuApi extends LuoGuApi with Http4sClientDsl[IO] {
     val parser   = Parser.builder(options).build()
     val renderer = HtmlRenderer.builder(options).build()
     val document = parser.parse(markdown)
-    renderer.render(document)
+    val html = renderer.render(document)
+    
+    // 恢复 LaTeX 公式
+    val latexPattern = """<pre class='latex'>([\s\S]*?)</pre>""".r
+    val processedHtml = latexPattern.replaceAllIn(html, m => {
+      val content = m.group(1)
+      // 再恢复单反斜杠
+      val withSingleBackslash = content.replace("DOUBLE_BACKSLASH", "\\\\").replace("SINGLE_BACKSLASH", "\\")
+      // 添加 $$ 分隔符，使用 Regex.quoteReplacement 来转义 $
+      java.util.regex.Matcher.quoteReplacement(s"$$$$$withSingleBackslash$$$$")
+    })
+    processedHtml
   }
 
   override def getChallengeData(pid: String): IO[LuoGuChallengeData] =
@@ -148,8 +172,9 @@ object LuoGuApi extends LuoGuApi with Http4sClientDsl[IO] {
               (
                 JsonPath.root.data.problem.pid.string.getOption(json),
                 JsonPath.root.data.problem.title.string.getOption(json),
-                JsonPath.root.data.problem.acceptLanguages.as[List[Int]].getOption(json)
-              ).mapN { (pid, title, acceptLanguages) =>
+                JsonPath.root.data.problem.acceptLanguages.as[List[Int]].getOption(json),
+                JsonPath.root.data.problem.samples.arr.getOption(json)
+              ).mapN { (pid, title, acceptLanguages, samples) =>
                 LuoGuChallengeData(
                   pid,
                   title,
@@ -159,7 +184,10 @@ object LuoGuApi extends LuoGuApi with Http4sClientDsl[IO] {
                     .collect {
                       case v if LUOGU_LANGUAGES_REVERSE.contains(v) => LUOGU_LANGUAGES_REVERSE(v)
                     }
-                    .toSet
+                    .toSet,
+                  samples.map(_.as[List[String]].getOrElse(List.empty)).collect { case input :: output :: Nil =>
+                    ChallengeSettings.TestCase(input, output)
+                  }.toList
                 )
               }.toRight(new Exception("Failed to parse challenge data"))
             }.liftTo[IO]

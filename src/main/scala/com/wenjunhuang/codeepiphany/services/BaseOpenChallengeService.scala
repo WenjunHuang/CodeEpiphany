@@ -76,7 +76,7 @@ abstract class BaseOpenChallengeService[Req, Template: TestCasesHolder](
     for {
       state            <- ReaderT.ask[IO, ServiceState]
       (fileName, code) <- generateFileContent()
-      codeFile         <- handleFileOperations(buildFileObject(state.sourceFolder, fileName, state.language), code)
+      codeFile         <- createNewChallenge(buildFileObject(state.sourceFolder, fileName, state.language), code)
       _                <- ReaderT.liftF(openTextEditor(codeFile, myProject))
     } yield ()
   }
@@ -85,13 +85,31 @@ abstract class BaseOpenChallengeService[Req, Template: TestCasesHolder](
     new File(sourceFolder, s"${StringUtil.trim(fileName)}.${language.fileExt}")
   }
 
-  private def handleFileOperations(file: File, code: String): ReaderT[IO, ServiceState, VirtualFile] = {
-    ChallengeSettings.getInstance(myProject).findChallengeId(file.getCanonicalPath) match {
-      case Some(_) => ReaderT.liftF(refreshAndFindFileByIoFile(file))
+//  private def handleFileOperations(file: File, code: String): ReaderT[IO, ServiceState, VirtualFile] = {
+//    ChallengeSettings.getInstance(myProject).findChallengeId(file.getCanonicalPath) match {
+//      case Some(challenge) =>
+//        for {
+//          vf <- ReaderT.liftF(
+//            refreshAndFindFileByIoFile(file)
+//              .map(_.some)
+//              .recoverWith(e =>
+//                IO.delay {
+//                  ChallengeSettings.getInstance(myProject).removeChallenge(file.getCanonicalPath)
+//                  None
+//                }.evalOnEDTAny()
+//              )
+//          )
+//          r <- vf match {
+//            case Some(vf) =>
+//              ReaderT.liftF(IO.pure(vf))
+//            case None =>
+//              createNewChallenge(file, code)
+//          }
+//        } yield r
+//      case None => createNewChallenge(file, code)
+//    }
+//  }
 
-      case None => createNewChallenge(file, code)
-    }
-  }
   private def generateFileContent(): ReaderT[IO, ServiceState, (String, String)] = {
     for {
       state <- ReaderT.ask[IO, ServiceState]
@@ -246,6 +264,6 @@ abstract class BaseOpenChallengeService[Req, Template: TestCasesHolder](
 
 object BaseOpenChallengeService {
   trait TestCasesHolder[F] {
-    def getTestCases(template:F): List[TestCase]
+    def getTestCases(template: F): List[TestCase]
   }
 }
