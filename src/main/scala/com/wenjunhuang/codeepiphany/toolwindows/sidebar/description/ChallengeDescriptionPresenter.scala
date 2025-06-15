@@ -1,6 +1,6 @@
 package com.wenjunhuang.codeepiphany.toolwindows.sidebar.description
 
-import cats.effect.{Async, IO}
+import cats.effect.{ Async, IO }
 import cats.effect.kernel.Resource.ExitCase
 import cats.effect.std.Queue
 import cats.syntax.all.*
@@ -14,7 +14,7 @@ import scala.jdk.OptionConverters.*
 import com.intellij.ide.BrowserUtil
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.diagnostic.Logger
-import com.intellij.openapi.fileEditor.{FileEditorManager, FileEditorManagerEvent, FileEditorManagerListener}
+import com.intellij.openapi.fileEditor.{ FileEditorManager, FileEditorManagerEvent, FileEditorManagerListener }
 import com.intellij.openapi.fileTypes.FileTypes
 import com.intellij.openapi.fileTypes.ex.FileTypeChooser
 import com.intellij.openapi.project.Project
@@ -69,27 +69,24 @@ class ChallengeDescriptionPresenter(private val myProject: Project) extends Disp
       .evalTap {
         case Some((challengeId, dojo)) =>
           val repository = ChallengeRepository.getInstance(myProject)
-          repository
-            .getDSLContextResource[IO]
-            .use { dsl =>
-              IO.blocking {
-                dsl
-                  .selectFrom(CHALLENGE)
-                  .where(CHALLENGE.ID.eq(challengeId.value))
-                  .fetchOptional()
-                  .toScala
-                  .map { _.getDescription }
-              }.flatMap { record =>
-                IO.delay {
-                  record.map { description =>
-                    myDescriptionView.setDescription(Some(description, dojo))
-                  }
-                }.evalOnEDTDefault()
-              }.void
-            }
-            .handleErrorWith { e =>
-              myLogger.warn(e)("Error while fetching challenge description")
-            }
+          repository.getDSLContextResource.use { dsl =>
+            IO.blocking {
+              dsl
+                .selectFrom(CHALLENGE)
+                .where(CHALLENGE.ID.eq(challengeId.value))
+                .fetchOptional()
+                .toScala
+                .map { _.getDescription }
+            }.flatMap { record =>
+              IO.delay {
+                record.map { description =>
+                  myDescriptionView.setDescription(Some(description, dojo))
+                }
+              }.evalOnEDTDefault()
+            }.void
+          }.handleErrorWith { e =>
+            myLogger.warn(e)("Error while fetching challenge description")
+          }
         case None =>
           IO.delay { myDescriptionView.setDescription(None) }
             .evalOnEDTDefault()
@@ -128,6 +125,4 @@ class ChallengeDescriptionPresenter(private val myProject: Project) extends Disp
   }
 }
 
-object ChallengeDescriptionPresenter {
-
-}
+object ChallengeDescriptionPresenter {}

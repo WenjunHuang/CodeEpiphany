@@ -1,3 +1,14 @@
+## 1.3.0
+### Added
+- Add TestCase support for LeetCode, LeetCodeCN, LuoGu, CodeForces, AtCoder and HackerRank
+- Add TestCase variable in code file template for LeetCode, LeetCodeCN, LuoGu, CodeForces, AtCoder and HackerRank
+
+### Fixed
+- [#16](https://github.com/WenjunHuang/CodeEpiphany/issues/36)
+- [#29](https://github.com/WenjunHuang/CodeEpiphany/issues/29)
+- [#37](https://github.com/WenjunHuang/CodeEpiphany/issues/37)
+- [#38](https://github.com/WenjunHuang/CodeEpiphany/issues/38)
+ 
 ## 1.2.3 
 - Fix webview scrollbar style not compatible with IDE theme issue
 - Fix user avatar icon size is too big for leetcode solution view in macos

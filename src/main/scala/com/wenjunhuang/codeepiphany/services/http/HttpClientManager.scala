@@ -1,92 +1,87 @@
 package com.wenjunhuang.codeepiphany.services.http
 
-import cats.effect.{ Async, Ref, Resource }
 import cats.effect.kernel.Ref.Make
 import cats.effect.kernel.Sync
+import cats.effect.{ Async, Ref, Resource }
 import cats.syntax.all.*
-import java.net.{ HttpCookie, ProxySelector, SocketAddress, URI }
-import java.{ net, util }
-import java.io.IOException
-import java.security.cert.X509Certificate
-import java.util.concurrent.TimeUnit
-import javax.net.ssl.{ SSLContext, TrustManager, X509TrustManager }
+import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.util.io.FileUtil
+import com.intellij.util.net.*
+import com.wenjunhuang.codeepiphany.model.CodeDojo
+import com.wenjunhuang.codeepiphany.utils.CompatibleUtils
+import com.wenjunhuang.codeepiphany.utils.syntax.*
 import okhttp3.*
 import org.http4s.client.Client
 import org.typelevel.ci.CIString
 import org.typelevel.log4cats.LoggerFactory
+
+import java.io.IOException
+import java.net.{ HttpCookie, ProxySelector, SocketAddress, URI }
+import java.security.cert.X509Certificate
+import java.util.concurrent.TimeUnit
+import java.{ net, util }
+import javax.net.ssl.{ SSLContext, TrustManager, X509TrustManager }
 import scala.annotation.static
 import scala.concurrent.duration.*
 import scala.jdk.CollectionConverters.*
 import scala.util.boundary
-
-import com.intellij.openapi.application.ApplicationManager
-import com.intellij.openapi.util.io.FileUtil
-import com.intellij.util.net.*
-
-import com.wenjunhuang.codeepiphany.model.CodeDojo
-import com.wenjunhuang.codeepiphany.utils.CompatibleUtils
-import com.wenjunhuang.codeepiphany.utils.syntax.*
+import cats.effect.IO
 
 type CookieJar = Map[CodeDojo, Map[CIString, HttpCookie]]
 
-trait HttpClientManager[F[_]] {
-  def getClient: Resource[F, Client[F]]
+trait HttpClientManager {
+  def getClient: Resource[IO, Client[IO]]
 
-  def updateCookiesForHost(host: CIString, cookies: List[HttpCookie]): F[Unit]
+  def updateCookiesForHost(host: CIString, cookies: List[HttpCookie]): IO[Unit]
 
-  def getCookiesForHost(host: CIString): F[List[HttpCookie]]
+  def getCookiesForHost(host: CIString): IO[List[HttpCookie]]
 
-  def findCookieForHost(host: CIString, cookieName: CIString): F[Option[HttpCookie]]
+  def findCookieForHost(host: CIString, cookieName: CIString): IO[Option[HttpCookie]]
 
-  def clearCookiesForHost(host: CIString): F[Unit]
+  def clearCookiesForHost(host: CIString): IO[Unit]
 }
 
-object HttpClientManager {
-  def apply[F[_]: HttpClientManager]: HttpClientManager[F] = summon[HttpClientManager[F]]
+object HttpClientManager extends HttpClientManager {
 
-  def make[F[_]: { Make, Async, LoggerFactory }](): HttpClientManager[F] =
-    new HttpClientManager[F] {
-      private val cookieManager: Ref[F, CookieJar] =
-        Ref.unsafe[F, CookieJar](Map.empty[CodeDojo, Map[CIString, HttpCookie]])
+  private val cookieManager: Ref[IO, CookieJar] =
+    Ref.unsafe[IO, CookieJar](Map.empty[CodeDojo, Map[CIString, HttpCookie]])
 
-      override def clearCookiesForHost(host: CIString): F[Unit] = cookieManager.update { cookies =>
-        CodeDojo.fromCIHostname(host).fold(cookies)(cookies.removed)
-      }
+  override def clearCookiesForHost(host: CIString): IO[Unit] = cookieManager.update { cookies =>
+    CodeDojo.fromCIHostname(host).fold(cookies)(cookies.removed)
+  }
 
-      override def getClient: Resource[F, Client[F]] = {
-        implicit val hk: HttpClientManager[F] = this
-        Resource.suspend(Sync[F].delay {
-          OkHttpBuilder.fromUnmanaged[F](defaultHttpClient).resource
-        })
-      }
+  override def getClient: Resource[IO, Client[IO]] = {
+    Resource.suspend(IO.delay {
+      OkHttpBuilder.fromUnmanaged(defaultHttpClient).resource
+    })
+  }
 
-      override def findCookieForHost(host: CIString, cookieName: CIString): F[Option[HttpCookie]] =
-        getCookiesForHost(host).map(_.find(cookie => CIString(cookie.getName) == cookieName))
+  override def findCookieForHost(host: CIString, cookieName: CIString): IO[Option[HttpCookie]] =
+    getCookiesForHost(host).map(_.find(cookie => CIString(cookie.getName) == cookieName))
 
-      override def getCookiesForHost(host: CIString): F[List[HttpCookie]] =
-        for {
-          cookies <- cookieManager.get
-        } yield CodeDojo
-          .fromCIHostname(host)
-          .fold(List.empty[HttpCookie])(cookies.getOrElse(_, Map.empty).values.toList)
+  override def getCookiesForHost(host: CIString): IO[List[HttpCookie]] =
+    for {
+      cookies <- cookieManager.get
+    } yield CodeDojo
+      .fromCIHostname(host)
+      .fold(List.empty[HttpCookie])(cookies.getOrElse(_, Map.empty).values.toList)
 
-      override def updateCookiesForHost(host: CIString, cookies: List[HttpCookie]): F[Unit] =
-        Sync[F]
-          .delay(cookies.map(cookie => CIString(cookie.getName) -> cookie).toMap)
-          .flatMap { cookiesByDomain =>
-            cookieManager.update { cookies =>
-              CodeDojo
-                .fromCIHostname(host)
-                .fold(cookies) { codeDojo =>
-                  cookies.updatedWith(codeDojo) {
-                    case None => Some(cookiesByDomain)
-                    case Some(exists) =>
-                      Some(exists ++ cookiesByDomain)
-                  }
-                }
+  override def updateCookiesForHost(host: CIString, cookies: List[HttpCookie]): IO[Unit] =
+    IO
+      .delay(cookies.map(cookie => CIString(cookie.getName) -> cookie).toMap)
+      .flatMap { cookiesByDomain =>
+        cookieManager.update { cookies =>
+          CodeDojo
+            .fromCIHostname(host)
+            .fold(cookies) { codeDojo =>
+              cookies.updatedWith(codeDojo) {
+                case None => Some(cookiesByDomain)
+                case Some(exists) =>
+                  Some(exists ++ cookiesByDomain)
+              }
             }
-          }
-    }
+        }
+      }
 
   private val trustAllManager = new X509TrustManager {
     override def checkClientTrusted(x509Certificates: Array[X509Certificate], s: String): Unit = {}

@@ -1,28 +1,38 @@
 package com.wenjunhuang.codeepiphany.leetcode.services
 
-import cats.effect.{Async, Concurrent}
+import cats.effect.{ Concurrent, IO }
 import cats.syntax.all.*
-import org.jooq.DSLContext
-import org.typelevel.log4cats.LoggerFactory
 
 import com.intellij.openapi.project.Project
 
 import com.wenjunhuang.codeepiphany.database.Tables.*
-import com.wenjunhuang.codeepiphany.database.tables.records.{ChallengeLanguageRecord, ChallengeRecord}
+import com.wenjunhuang.codeepiphany.database.tables.records.{ ChallengeLanguageRecord, ChallengeRecord }
 import com.wenjunhuang.codeepiphany.leetcode.models.*
-import com.wenjunhuang.codeepiphany.leetcode.settings.{LeetCodeCNSettings, LeetCodeCNSettingsConfigurable, LeetCodeSettings, LeetCodeSettingsConfigurable}
-import com.wenjunhuang.codeepiphany.model.{CodeDojo, Language, LanguageVersion}
+import com.wenjunhuang.codeepiphany.leetcode.settings.{
+  LeetCodeCNSettings,
+  LeetCodeCNSettingsConfigurable,
+  LeetCodeSettings,
+  LeetCodeSettingsConfigurable
+}
 import com.wenjunhuang.codeepiphany.model.newtypes.CodeDojoChallengeId
+import com.wenjunhuang.codeepiphany.model.{ CodeDojo, Language, LanguageVersion }
 import com.wenjunhuang.codeepiphany.services.BaseOpenChallengeService
 import com.wenjunhuang.codeepiphany.services.http.HttpClientManager
 import com.wenjunhuang.codeepiphany.settings.dojo.BaseCodeDojoSettings
+import org.jooq.DSLContext
+import org.typelevel.log4cats.LoggerFactory
+
+import com.intellij.openapi.util.text.StringUtil
+import scala.jdk.CollectionConverters.*
+
+import com.wenjunhuang.codeepiphany.settings.ChallengeSettings
 
 case class LeetCodeOpenChallengeRequest(questionSlug: String)
 
-class LeetCodeOpenChallengeService[F[_]: {Async, Concurrent, HttpClientManager, LoggerFactory}](
+class LeetCodeOpenChallengeService(
   project: Project,
   private val myLeetCodeDojo: CodeDojo.LeetCode.type | CodeDojo.LeetCodeCN.type
-) extends BaseOpenChallengeService[F, LeetCodeOpenChallengeRequest, LeetCodeChallengeCodeTemplate](
+) extends BaseOpenChallengeService[LeetCodeOpenChallengeRequest, LeetCodeChallengeCodeTemplate](
       project,
       myLeetCodeDojo,
       if myLeetCodeDojo == CodeDojo.LeetCode then classOf[LeetCodeSettingsConfigurable]
@@ -70,8 +80,8 @@ class LeetCodeOpenChallengeService[F[_]: {Async, Concurrent, HttpClientManager, 
     req: LeetCodeOpenChallengeRequest,
     language: Language,
     languageVersion: LanguageVersion
-  ): F[(CodeDojoChallengeId, LeetCodeChallengeCodeTemplate)] = {
-    LeetCodeApi[F](myLeetCodeDojo)
+  ): IO[(CodeDojoChallengeId, LeetCodeChallengeCodeTemplate)] = {
+    LeetCodeApi(myLeetCodeDojo)
       .getQuestionData(req.questionSlug)
       .map { content =>
         content.codeSnippets.find { snippet =>
@@ -82,9 +92,9 @@ class LeetCodeOpenChallengeService[F[_]: {Async, Concurrent, HttpClientManager, 
       }
       .flatMap {
         case None =>
-          Async[F].raiseError(new Exception(s"This challenge does not support ${language.show}${languageVersion.version}"))
+          IO.raiseError(new Exception(s"This challenge does not support ${language.show}${languageVersion.version}"))
         case Some((content, codeSnippet)) =>
-          Async[F].pure(
+          IO.pure(
             (
               CodeDojoChallengeId(content.questionId),
               LeetCodeChallengeCodeTemplate(
@@ -98,7 +108,18 @@ class LeetCodeOpenChallengeService[F[_]: {Async, Concurrent, HttpClientManager, 
                 difficulty = myLeetCodeDojo.fromLeetCodeDifficulty(content.difficulty).value,
                 language = language,
                 languageVersion = languageVersion,
-                content = content
+                content = content,
+                testCases = StringUtil
+                  .splitByLines(content.exampleTestcases)
+                  .toList
+                  .grouped(2)
+                  .toList match {
+                  case Nil => Nil
+                  case g =>
+                    g.filter(_.size == 2).map { case List(input, expectedOutput) =>
+                      ChallengeSettings.TestCase(input = input, expectedOutput = expectedOutput)
+                    }
+                }
               )
             )
           )

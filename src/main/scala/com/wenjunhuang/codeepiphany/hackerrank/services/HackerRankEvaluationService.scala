@@ -1,51 +1,48 @@
 package com.wenjunhuang.codeepiphany.hackerrank.services
 
-import cats.effect.{ Async, Concurrent }
+import cats.effect.IO
 import cats.syntax.all.*
 import fs2.Stream
-import org.jooq.{ DSLContext, Record }
+import org.jooq.{DSLContext, Record}
 import org.typelevel.ci.CIString
-import org.typelevel.log4cats.LoggerFactory
 import scala.jdk.OptionConverters.*
 
 import com.intellij.openapi.project.Project
 
-import com.wenjunhuang.codeepiphany.database.Tables.{ CHALLENGE, CHALLENGE_LANGUAGE, HACKERRANK_CHALLENGE }
-import com.wenjunhuang.codeepiphany.hackerrank.models.{ HackerRankContest, HackerRankRunCodeResponse }
+import com.wenjunhuang.codeepiphany.database.Tables.{CHALLENGE, CHALLENGE_LANGUAGE, HACKERRANK_CHALLENGE}
+import com.wenjunhuang.codeepiphany.hackerrank.models.{HackerRankContest, HackerRankRunCodeResponse}
 import com.wenjunhuang.codeepiphany.model.*
 import com.wenjunhuang.codeepiphany.model.CodeDojo.HackerRank
-import com.wenjunhuang.codeepiphany.services.{ console, BaseCodeEvaluationService, ChallengeRepository }
-import com.wenjunhuang.codeepiphany.services.http.HttpClientManager
-import com.wenjunhuang.codeepiphany.settings.ChallengeSettings.ChallengeSettingsStateItem
+import com.wenjunhuang.codeepiphany.services.{console, BaseCodeEvaluationService, ChallengeRepository}
+import com.wenjunhuang.codeepiphany.settings.ChallengeSettings.{ChallengeSettingsStateItem, TestCase}
 
-class HackerRankEvaluationService[F[_]: { Async, Concurrent, HttpClientManager, LoggerFactory }](project: Project)
-    extends BaseCodeEvaluationService[F](project, HackerRank) {
+class HackerRankEvaluationService(project: Project) extends BaseCodeEvaluationService(project, HackerRank) {
   override type EvaluationRequest  = HREvaluationRequest
   override type EvaluationResponse = HackerRankRunCodeResponse
 
   override protected def prepareRequest(
     item: ChallengeSettingsStateItem,
-    customTestCases: Option[String]
-  ): F[HREvaluationRequest] =
+    customTestCases: Option[List[TestCase]]
+  ): IO[HREvaluationRequest] =
     ChallengeRepository
       .getInstance(myProject)
-      .getDSLContextResource[F]
-      .use(client => Async[F].delay(queryChallengeBasicInfo(item, client)))
+      .getDSLContextResource
+      .use(client => IO.delay(queryChallengeBasicInfo(item, client)))
 
   override protected def callApi(
     request: HREvaluationRequest,
     code: String,
-    customTestCases: Option[String]
-  ): Stream[F, HackerRankRunCodeResponse] =
-    HackerRankApi[F].runAnswer(request.slug, request.contest, request.language, request.languageVersion, code)
+    customTestCases:Option[List[TestCase]]
+  ): Stream[IO, HackerRankRunCodeResponse] =
+    HackerRankApi.runAnswer(request.slug, request.contest, request.language, request.languageVersion, code)
 
   override protected def handleEvaluationResponse(
     response: HackerRankRunCodeResponse,
     request: HREvaluationRequest,
     code: String,
-    customTestCases: Option[String]
-  ): F[EvaluationResponseInfo] =
-    Async[F].delay {
+    customTestCases: Option[List[TestCase]]
+  ): IO[EvaluationResponseInfo] =
+    IO.delay {
       if response.status == 0 then EvaluationResponseInfo(SubmissionResult.Processing, "")
       else
         response.compilemessage.filter(_.nonEmpty) match
@@ -59,12 +56,12 @@ class HackerRankEvaluationService[F[_]: { Async, Concurrent, HttpClientManager, 
   override protected def reportEvaluationResult(
     lastResponseInfo: EvaluationResponseInfo,
     lastResponse: HackerRankRunCodeResponse
-  ): F[Unit] = {
+  ): IO[Unit] = {
     lastResponseInfo.result match
       case SubmissionResult.Success =>
-        console.info[F](myProject, "🎉 Passed!")
+        console.info(myProject, "🎉 Passed!")
       case _ =>
-        console.error[F](myProject, s"${lastResponseInfo.result.show}: ${lastResponseInfo.message}")
+        console.error(myProject, s"${lastResponseInfo.result.show}: ${lastResponseInfo.message}")
   }
 
   private def queryChallengeBasicInfo(item: ChallengeSettingsStateItem, client: DSLContext): HREvaluationRequest = {

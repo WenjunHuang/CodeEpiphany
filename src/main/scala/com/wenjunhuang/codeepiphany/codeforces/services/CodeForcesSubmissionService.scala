@@ -1,15 +1,15 @@
 package com.wenjunhuang.codeepiphany.codeforces.services
 
-import cats.effect.Concurrent
+import cats.effect.{ Concurrent, IO }
 import cats.effect.kernel.Async
 import cats.syntax.all.*
 import org.jooq.{ DSLContext, Record }
 import org.typelevel.ci.CIString
 import org.typelevel.log4cats.LoggerFactory
+
 import scala.jdk.OptionConverters.*
-
 import com.intellij.openapi.project.Project
-
+import com.wenjunhuang.codeepiphany.PluginBundle
 import com.wenjunhuang.codeepiphany.codeforces.models.CodeForcesSubmissionResponse
 import com.wenjunhuang.codeepiphany.codeforces.settings.CodeForcesSettingsConfigurable
 import com.wenjunhuang.codeepiphany.database.Tables.{ CHALLENGE, CHALLENGE_LANGUAGE, CODEFORCES_CHALLENGE }
@@ -20,16 +20,15 @@ import com.wenjunhuang.codeepiphany.services.{ console, BaseSubmissionService, C
 import com.wenjunhuang.codeepiphany.services.http.HttpClientManager
 import com.wenjunhuang.codeepiphany.settings.ChallengeSettings.ChallengeSettingsStateItem
 
-class CodeForcesSubmissionService[F[_]: { Async, Concurrent, HttpClientManager, LoggerFactory }](project: Project)
-    extends BaseSubmissionService[F](project, CodeForces) {
+class CodeForcesSubmissionService(project: Project) extends BaseSubmissionService(project, CodeForces) {
   override type SubmissionRequest  = CFRequest
   override type SubmissionResponse = CodeForcesSubmissionResponse
 
-  override protected def prepareSubmissionRequest(item: ChallengeSettingsStateItem): F[CFRequest] =
+  override protected def prepareSubmissionRequest(item: ChallengeSettingsStateItem): IO[CFRequest] =
     ChallengeRepository
       .getInstance(myProject)
-      .getDSLContextResource[F]
-      .use { client => Async[F].delay(createCFRequest(item, client)) }
+      .getDSLContextResource
+      .use { client => IO.delay(createCFRequest(item, client)) }
 
   override protected def updateSpecificSubmissionRecord(
     dsl: DSLContext,
@@ -40,8 +39,8 @@ class CodeForcesSubmissionService[F[_]: { Async, Concurrent, HttpClientManager, 
   override protected def callApi(
     basicInfo: CFRequest,
     processedCode: String
-  ): fs2.Stream[F, CodeForcesSubmissionResponse] =
-    CodeForcesApi[F].submitAnswer(
+  ): fs2.Stream[IO, CodeForcesSubmissionResponse] =
+    CodeForcesApi.submitAnswer(
       basicInfo.contestId,
       basicInfo.index,
       basicInfo.problemsetName,
@@ -52,12 +51,12 @@ class CodeForcesSubmissionService[F[_]: { Async, Concurrent, HttpClientManager, 
   override protected def reportSubmitResult(
     lastResponseInfo: SubmissionResponseInfo,
     lastResponse: CodeForcesSubmissionResponse
-  ): F[Unit] = {
+  ): IO[Unit] = {
     lastResponseInfo.result match
       case SubmissionResult.Success =>
-        console.info[F](project, s"🎉 Passed!\n${lastResponse.message}")
+        console.info(project, PluginBundle.message("submission.passed") + "\n${lastResponse.message}")
       case _ =>
-        console.error[F](project, s"${lastResponseInfo.result.show}\n${lastResponse.message}")
+        console.error(project, s"${lastResponseInfo.result.show}\n${lastResponse.message}")
   }
 
   private def createCFRequest(item: ChallengeSettingsStateItem, client: DSLContext): CFRequest = {

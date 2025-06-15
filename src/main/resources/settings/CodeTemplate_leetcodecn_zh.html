@@ -2,7 +2,21 @@
 <body>
 <table width="100%" border="0" cellpadding="5" cellspacing="0" style="border-collapse: collapse; table-layout: auto;">
     <tr>
-        <td colspan="3"><font face="verdana" size="-1"><strong>LeetCodeCN 预定义变量列表</strong></font></td>
+        <td colspan="3"><font face="verdana" size="-1"><strong>力扣中国 预定义变量列表</strong></font></td>
+    </tr>
+    <tr>
+        <td valign="top" width="100">
+            <nobr><font face="verdana" size="-2"><strong>${beginRegion}</strong></font></nobr>
+        </td>
+        <td width="10">&nbsp;</td>
+        <td width="100%" valign="top"><font face="verdana" size="-1">标记提交区域开始的单行注释。</font></td>
+    </tr>
+    <tr>
+        <td valign="top" width="100">
+            <nobr><font face="verdana" size="-2"><strong>${endRegion}</strong></font></nobr>
+        </td>
+        <td width="10">&nbsp;</td>
+        <td width="100%" valign="top"><font face="verdana" size="-1">标记提交区域结束的单行注释。</font></td>
     </tr>
     <tr>
         <td valign="top" width="100">
@@ -16,7 +30,7 @@
             <nobr><font face="verdana" size="-2"><strong>${challenge.frontendQuestionId}</strong></font></nobr>
         </td>
         <td width="10">&nbsp;</td>
-        <td width="100%" valign="top"><font face="verdana" size="-1">前端题目标识符。</font></td>
+        <td width="100%" valign="top"><font face="verdana" size="-1">面向用户的题目标识符。</font></td>
     </tr>
     <tr>
         <td valign="top" width="100">
@@ -30,14 +44,14 @@
             <nobr><font face="verdana" size="-2"><strong>${challenge.name}</strong></font></nobr>
         </td>
         <td width="10">&nbsp;</td>
-        <td valign="top"><font face="verdana" size="-1">题目的名称，例如 "生日蛋糕蜡烛"。</font></td>
+        <td valign="top"><font face="verdana" size="-1">题目的名称，例如 "Birthday Cake Candles"。</font></td>
     </tr>
     <tr>
         <td valign="top">
             <nobr><font face="verdana" size="-2"><strong>${challenge.slug}</strong></font></nobr>
         </td>
         <td width="10">&nbsp;</td>
-        <td valign="top"><font face="verdana" size="-1">URL友好的题目标识符，例如 "birthday-cake-candles"。</font></td>
+        <td valign="top"><font face="verdana" size="-1">题目的 URL 友好标识符，例如 "birthday-cake-candles"。</font></td>
     </tr>
     <tr>
         <td valign="top">
@@ -58,42 +72,49 @@
             <nobr><font face="verdana" size="-2"><strong>${challenge.language}</strong></font></nobr>
         </td>
         <td width="10">&nbsp;</td>
-        <td valign="top"><font face="verdana" size="-1">代码的编程语言，例如 Java、C++、Rust。</font></td>
+        <td valign="top"><font face="verdana" size="-1">代码使用的编程语言，例如 Java、C++、Rust。</font></td>
     </tr>
     <tr>
         <td valign="top">
             <nobr><font face="verdana" size="-2"><strong>${challenge.languageVersion}</strong></font></nobr>
         </td>
         <td width="10">&nbsp;</td>
-        <td valign="top"><font face="verdana" size="-1">代码所使用的编程语言版本。</font></td>
+        <td valign="top"><font face="verdana" size="-1">使用的编程语言版本。</font></td>
     </tr>
     <tr>
         <td valign="top">
             <nobr><font face="verdana" size="-2"><strong>${challenge.difficulty}</strong></font></nobr>
         </td>
         <td width="10">&nbsp;</td>
-        <td valign="top"><font face="verdana" size="-1">题目的难度级别。</font></td>
+        <td valign="top"><font face="verdana" size="-1">题目的难度等级。</font></td>
+    </tr>
+    <tr>
+        <td valign="top">
+            <nobr><font face="verdana" size="-2"><strong>${challenge.testCases}</strong></font></nobr>
+        </td>
+        <td width="10">&nbsp;</td>
+        <td valign="top"><font face="verdana" size="-1">测试用例。</font></td>
     </tr>
     <tr>
         <td valign="top">
             <nobr><font face="verdana" size="-2"><strong>$!velocity.camelCaseName(str)</strong></font></nobr>
         </td>
         <td width="10">&nbsp;</td>
-        <td valign="top"><font face="verdana" size="-1">将字符串转换为驼峰式命名，首字母大写。</font></td>
+        <td valign="top"><font face="verdana" size="-1">将字符串转换为大驼峰命名法，首字母大写。</font></td>
     </tr>
     <tr>
         <td valign="top" width="100">
             <nobr><font face="verdana" size="-2"><strong>$!velocity.smallCamelCaseName(str)</strong></font></nobr>
         </td>
         <td width="10">&nbsp;</td>
-        <td valign="top"><font face="verdana" size="-1">将字符串转换为驼峰式命名，首字母小写。</font></td>
+        <td valign="top"><font face="verdana" size="-1">将字符串转换为小驼峰命名法，首字母小写。</font></td>
     </tr>
     <tr>
         <td valign="top">
             <nobr><font face="verdana" size="-2"><strong>$!velocity.snakeCaseName(str)</strong></font></nobr>
         </td>
         <td width="10">&nbsp;</td>
-        <td valign="top"><font face="verdana" size="-1">将字符串转换为蛇形命名法 (snake_case)。</font></td>
+        <td valign="top"><font face="verdana" size="-1">将字符串转换为下划线命名法。</font></td>
     </tr>
     <tr>
         <td valign="top">

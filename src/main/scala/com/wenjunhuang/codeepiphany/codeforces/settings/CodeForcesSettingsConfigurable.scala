@@ -3,12 +3,13 @@ package com.wenjunhuang.codeepiphany.codeforces.settings
 import com.intellij.openapi.project.Project
 
 import com.wenjunhuang.codeepiphany.PluginBundle
-import com.wenjunhuang.codeepiphany.codeforces.models.{CodeForcesChallengeCodeTemplate, CodeForcesChallengeData}
+import com.wenjunhuang.codeepiphany.codeforces.models.{ CodeForcesChallengeCodeTemplate, CodeForcesChallengeData }
 import com.wenjunhuang.codeepiphany.codeforces.settings.CodeForcesSettingsConfigurable.*
 import com.wenjunhuang.codeepiphany.model.*
 import com.wenjunhuang.codeepiphany.model.Language.*
 import com.wenjunhuang.codeepiphany.model.LanguageVersion.*
-import com.wenjunhuang.codeepiphany.settings.dojo.{BaseCodeDojoSettings, BaseSettingsConfigurable}
+import com.wenjunhuang.codeepiphany.settings.dojo.{ BaseCodeDojoSettings, BaseSettingsConfigurable }
+import com.wenjunhuang.codeepiphany.settings.ChallengeSettings.TestCase
 
 class CodeForcesSettingsConfigurable(project: Project)
     extends BaseSettingsConfigurable(
@@ -74,6 +75,13 @@ object CodeForcesSettingsConfigurable {
     Some(3500),
     None,
     List("divide and conquer", "dp"),
-    content = CodeForcesChallengeData(2061, "I", "Kevin and Nivek", Set((Java, SpecificVersion("21"))))
+    content = CodeForcesChallengeData(
+      2061,
+      "I",
+      "Kevin and Nivek",
+      Set((Java, SpecificVersion("21"))),
+      testCases = List(TestCase("1 2 3", "6"))
+    ),
+    testCases = List(TestCase("1 2 3", "6"), TestCase("4 5 6", "15"))
   )
 }

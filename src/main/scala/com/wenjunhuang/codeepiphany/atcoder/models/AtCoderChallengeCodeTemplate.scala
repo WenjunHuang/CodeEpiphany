@@ -5,6 +5,8 @@ import scala.beans.BeanProperty
 
 import com.wenjunhuang.codeepiphany.database.tables.records.AtcoderProblemsRecord
 import com.wenjunhuang.codeepiphany.model.{CodeDojo, Language, LanguageVersion}
+import com.wenjunhuang.codeepiphany.services.BaseOpenChallengeService
+import com.wenjunhuang.codeepiphany.settings.ChallengeSettings
 
 case class AtCoderChallengeCodeTemplate(
   @BeanProperty
@@ -24,9 +26,17 @@ case class AtCoderChallengeCodeTemplate(
   language: Language,
   languageVersion: LanguageVersion,
   record: AtcoderProblemsRecord,
-  content: AtCoderChallengeData
+  content: AtCoderChallengeData,
+  testCases: List[ChallengeSettings.TestCase]
 ) {
   def getLanguage: String        = language.value
   def getLanguageVersion: String = languageVersion.version
   def getCodeDojo: String        = codeDojo.show
+  def getTestCases: String       = testCases.show
+}
+object AtCoderChallengeCodeTemplate {
+  implicit val testCasesHolder: BaseOpenChallengeService.TestCasesHolder[AtCoderChallengeCodeTemplate] =
+    new BaseOpenChallengeService.TestCasesHolder[AtCoderChallengeCodeTemplate] {
+      override def getTestCases(template: AtCoderChallengeCodeTemplate): List[ChallengeSettings.TestCase] = template.testCases
+    }
 }

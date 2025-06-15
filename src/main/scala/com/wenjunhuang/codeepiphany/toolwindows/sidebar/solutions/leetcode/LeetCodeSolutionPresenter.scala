@@ -1,23 +1,23 @@
 package com.wenjunhuang.codeepiphany.toolwindows.sidebar.solutions.leetcode
 
 import cats.effect.IO
-
-import javax.swing.{ JComponent, SwingConstants }
-import scala.jdk.OptionConverters.*
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.Splitter
-import com.intellij.ui.components.JBLabel
 import com.intellij.ui.AnimatedIcon
+import com.intellij.ui.components.JBLabel
 import com.intellij.util.ui.components.BorderLayoutPanel
 import com.wenjunhuang.codeepiphany.database.Tables.CHALLENGE
 import com.wenjunhuang.codeepiphany.leetcode.models.LeetCodeQuestionSolutionArticle
 import com.wenjunhuang.codeepiphany.leetcode.services.LeetCodeApi
-import com.wenjunhuang.codeepiphany.model.newtypes.ChallengeId
 import com.wenjunhuang.codeepiphany.model.CodeDojo
-import com.wenjunhuang.codeepiphany.services.{ AuthService, ChallengeRepository }
-import com.wenjunhuang.codeepiphany.services.http.{ HttpClientManager, HttpClientService }
+import com.wenjunhuang.codeepiphany.model.newtypes.ChallengeId
+import com.wenjunhuang.codeepiphany.services.http.HttpClientManager
+import com.wenjunhuang.codeepiphany.services.{AuthService, ChallengeRepository}
 import com.wenjunhuang.codeepiphany.utils.syntax.*
 import com.wenjunhuang.codeepiphany.utils.ui.UnauthenticatedView
+
+import javax.swing.{JComponent, SwingConstants}
+import scala.jdk.OptionConverters.*
 
 class LeetCodeSolutionPresenter(
   private val myChallengeId: ChallengeId,
@@ -42,7 +42,7 @@ class LeetCodeSolutionPresenter(
     ) {
       ChallengeRepository
         .getInstance(myProject)
-        .getDSLContextResource[IO]
+        .getDSLContextResource
         .use { dslContext =>
           IO.delay {
             dslContext
@@ -66,16 +66,12 @@ class LeetCodeSolutionPresenter(
           }
         }
         .flatMap { questionSlug =>
-          val api = LeetCodeApi(myCodeDojo, myProject)
+          val api = LeetCodeApi(myCodeDojo)
           for
             _ <- IO.delay {
               myView.removeAll()
               myView.addToCenter(
-                new JBLabel(
-                  s"Loading solutions ...",
-                  AnimatedIcon.Default.INSTANCE,
-                  SwingConstants.CENTER
-                )
+                new JBLabel(s"Loading solutions ...", AnimatedIcon.Default.INSTANCE, SwingConstants.CENTER)
               )
             }.evalOnEDTDefault()
             solutionTags <- api.getSolutionTags(questionSlug)

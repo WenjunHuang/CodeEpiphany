@@ -4,8 +4,8 @@ import cats.effect.IO
 import cats.effect.std.Queue
 import cats.syntax.all.*
 import fs2.Stream
-import java.awt.{ BorderLayout, Font }
-import java.awt.datatransfer.{ DataFlavor, StringSelection }
+import java.awt.{BorderLayout, Font}
+import java.awt.datatransfer.{DataFlavor, StringSelection}
 import java.awt.event.ActionEvent
 import java.net.HttpCookie
 import javax.swing.*
@@ -25,21 +25,21 @@ import com.intellij.openapi.actionSystem.*
 import com.intellij.openapi.editor.colors.impl.AppEditorFontOptions
 import com.intellij.openapi.ide.CopyPasteManager
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.ui.{ ComponentValidator, DialogPanel, DialogWrapper, ValidationInfo }
+import com.intellij.openapi.ui.{ComponentValidator, DialogPanel, DialogWrapper, ValidationInfo}
 import com.intellij.openapi.util.Disposer
-import com.intellij.ui.{ AnimatedIcon, DocumentAdapter, PopupHandler }
-import com.intellij.ui.components.{ JBScrollPane, JBTextArea }
-import com.intellij.ui.jcef.{ JBCefBrowser, JBCefBrowserBuilder }
-import com.intellij.ui.tabs.{ JBTabsEx, JBTabsFactory, TabInfo, TabsListener }
+import com.intellij.ui.{AnimatedIcon, DocumentAdapter, PopupHandler}
+import com.intellij.ui.components.{JBScrollPane, JBTextArea}
+import com.intellij.ui.jcef.{JBCefBrowser, JBCefBrowserBuilder}
+import com.intellij.ui.tabs.{JBTabsEx, JBTabsFactory, TabInfo, TabsListener}
 import com.intellij.util.ui.JBUI
 
 import com.wenjunhuang.codeepiphany.PluginBundle
 import com.wenjunhuang.codeepiphany.model.CodeDojo
-import com.wenjunhuang.codeepiphany.services.{ AskForLoginResult, AuthService }
-import com.wenjunhuang.codeepiphany.services.http.{ HttpClientManager, HttpClientService }
-import com.wenjunhuang.codeepiphany.utils.actions.{ DataSink, UiDataProvider }
-import com.wenjunhuang.codeepiphany.utils.syntax.*
+import com.wenjunhuang.codeepiphany.services.{AskForLoginResult, AuthService}
+import com.wenjunhuang.codeepiphany.utils.actions.{DataSink, UiDataProvider}
 import com.wenjunhuang.codeepiphany.utils.isDebug
+import com.wenjunhuang.codeepiphany.utils.syntax.*
+import com.wenjunhuang.codeepiphany.utils.walkaround.DialogWrapperBridge
 
 class LoginDialog(
   private val myProject: Project,
@@ -101,9 +101,6 @@ class LoginDialog(
     myDisposable
   )
 
-  private implicit val myHttpClientKeeper: HttpClientManager[IO] =
-    HttpClientService.getInstance(myProject).httpClientManager
-
   override protected def onOkAction(event: ActionEvent): Unit = {
     val text = myCookieText.getText
     myCookieText.setEnabled(false)
@@ -113,7 +110,7 @@ class LoginDialog(
 
     AuthService
       .getInstance(myProject)
-      .validateUserCookieAndTestLogin[IO](myCodeDojo, text)
+      .validateUserCookieAndTestLogin(myCodeDojo, text)
       .flatMap {
         case true =>
           IO.delay(close(DialogWrapper.OK_EXIT_CODE, true))
@@ -261,7 +258,7 @@ class LoginDialog(
                 myLogger.info(s"Found login cookies for $myCodeDojo") *>
                   AuthService
                     .getInstance(myProject)
-                    .validateUserCookieAndTestLogin[IO](myCodeDojo, cookies)
+                    .validateUserCookieAndTestLogin(myCodeDojo, cookies)
                     .flatMap {
                       case true =>
                         myLogger.info(s"Browser login $myCodeDojo successful") *>

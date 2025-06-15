@@ -1,95 +1,49 @@
 package com.wenjunhuang.codeepiphany.editor.actions
 
-import cats.effect.IO
-
 import com.intellij.openapi.actionSystem.*
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Key
 import com.intellij.openapi.vfs.VirtualFile
 
 import com.wenjunhuang.codeepiphany.editor.actions.SubmitCodeAction.*
-import com.wenjunhuang.codeepiphany.editor.services.{ runCode, submitCode }
+import com.wenjunhuang.codeepiphany.editor.services.submitCode
 import com.wenjunhuang.codeepiphany.model.CodeDojo
-import com.wenjunhuang.codeepiphany.model.CodeDojo.{ AtCoder, CodeForces, LuoGu }
-import com.wenjunhuang.codeepiphany.services.http.{ HttpClientManager, HttpClientService }
 import com.wenjunhuang.codeepiphany.services.AuthService
 import com.wenjunhuang.codeepiphany.services.file.saveEditedFile
 import com.wenjunhuang.codeepiphany.settings.ChallengeSettings
-import com.wenjunhuang.codeepiphany.utils.actions.ActionCompatible
+import com.wenjunhuang.codeepiphany.utils.actions.{ ActionCompatible, FileEditorKeyNotNull, FileEditorUserLoggedIn }
 import com.wenjunhuang.codeepiphany.utils.extensions.*
-import com.wenjunhuang.codeepiphany.utils.syntax.*
 
-class SubmitCodeAction extends AnAction with ActionCompatible {
-  override def actionPerformed(e: AnActionEvent): Unit = {
-    getProvider(e) match
-      case Some(provider) =>
-        provider.submitCurrent()
-      case None =>
-  }
+class SubmitCodeAction
+    extends AnAction
+    with ActionCompatible
+    with FileEditorUserLoggedIn
+    with FileEditorKeyNotNull[SubmitCodeProvider](SUBMITCODE_PROVIDER_KEY) {
+  override def actionPerformed(e: AnActionEvent): Unit = getValue(e).submitCurrent()
 
-  override def update(e: AnActionEvent): Unit = {
-    val enabled = getProvider(e).exists(_.canSubmit)
-    e.getPresentation.setEnabled(enabled)
-  }
-
-  private def getProvider(e: AnActionEvent): Option[SubmitCodeProvider] = {
-    Option(e.getData(PlatformCoreDataKeys.FILE_EDITOR)).flatMap { editor =>
-      Option(SUBMITCODE_PROVIDER_KEY.get(editor))
-    }
+  override def update(event: AnActionEvent): Unit = {
+    if isSatisfied(event) then event.getPresentation.setEnabledAndVisible(true)
+    else event.getPresentation.setEnabledAndVisible(false)
   }
 }
+
 object SubmitCodeAction {
   val SUBMITCODE_PROVIDER_KEY: Key[SubmitCodeProvider] = Key[SubmitCodeProvider]("SubmitCodeProvider")
 
   trait SubmitCodeProvider {
     def submitCurrent(): Unit
-
-    def canSubmit: Boolean
-
-    def runCurrent(): Unit
-
-    def enabledRun: Boolean
-    def canRun: Boolean
   }
 
   object SubmitCodeProvider {
 
     def createProvider(vf: VirtualFile, project: Project, codeDojo: CodeDojo): SubmitCodeProvider =
-      new SubmitCodeProvider:
-        implicit val httpClientKeeper: HttpClientManager[IO] = HttpClientService.getInstance(project).httpClientManager
-
-        override def canSubmit: Boolean = {
-          ChallengeSettings.getInstance(project).findChallengeId(vf).exists { challenge =>
-            AuthService.getInstance(project).isLoggedIn(challenge.dojo)
-          }
-        }
-
-        override def canRun: Boolean = {
-          ChallengeSettings.getInstance(project).findChallengeId(vf).exists { challenge =>
-            AuthService.getInstance(project).isLoggedIn(challenge.dojo)
-          }
-        }
-
+      new SubmitCodeProvider {
         override def submitCurrent(): Unit = {
-          if canSubmit then
-            (saveEditedFile[IO](vf) *>
-              submitCode[IO](vf, project))
-              .unsafeRunAsBackgroundProgressCancellable(project, "Submitting code")
+          (saveEditedFile(vf) *>
+            submitCode(vf, project))
+            .unsafeRunAsBackgroundProgressCancellable(project, "Submitting code")
         }
-
-        override def runCurrent(): Unit = {
-          if canRun then
-            (saveEditedFile[IO](vf) *>
-              runCode[IO](vf, project))
-              .unsafeRunAsBackgroundProgressCancellable(project, "Running code")
-        }
-
-        override def enabledRun: Boolean =
-          codeDojo match
-            case CodeForces => false
-            case AtCoder    => false
-            case LuoGu      => false
-            case _          => true
+      }
 
   }
 }

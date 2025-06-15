@@ -7,8 +7,9 @@ import com.wenjunhuang.codeepiphany.utils.actions.{AbstractLoadingAction, Action
 
 class LoginAction extends AbstractLoadingAction with DataKeyNotNull(LOGIN_LOGOUT_KEY) with ActionCompatible {
 
-  override def actionPerformed(e: AnActionEvent): Unit =
-    Option(LOGIN_LOGOUT_KEY.getData(e.getDataContext)).foreach(_.login())
+  override def actionPerformed(e: AnActionEvent): Unit = 
+    getValue(e).login()
+  
 
   override def update(e: AnActionEvent): Unit = {
     val presentation = e.getPresentation

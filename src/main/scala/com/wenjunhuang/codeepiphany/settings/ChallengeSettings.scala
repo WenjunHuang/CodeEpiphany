@@ -4,17 +4,21 @@ import java.util as ju
 import scala.annotation.meta.{beanGetter, beanSetter}
 import scala.beans.BeanProperty
 import scala.compiletime.uninitialized
+import scala.util.hashing.Hashing.Default
 
 import com.intellij.openapi.components.{PersistentStateComponent, Service, State, Storage}
 import com.intellij.openapi.components.Service.Level
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
-import com.intellij.util.xmlb.annotations.OptionTag
+import com.intellij.util.xmlb.annotations.{OptionTag, XCollection}
 
 import com.wenjunhuang.codeepiphany.model.{CodeDojo, Constants, Language}
 import com.wenjunhuang.codeepiphany.model.newtypes.*
-import com.wenjunhuang.codeepiphany.settings.ChallengeSettings.{ChallengeSettingsState, ChallengeSettingsStateItem}
+import com.wenjunhuang.codeepiphany.settings.ChallengeSettings.{ChallengeSettingsState, ChallengeSettingsStateItem, TestCase}
 import com.wenjunhuang.codeepiphany.utils.XmlUtils.{CodeDojoConverter, LanguageConverter}
+import scala.jdk.CollectionConverters.*
+
+import com.wenjunhuang.codeepiphany.PluginBundle
 
 @Service(Array(Level.PROJECT))
 @State(name = Constants.CHALLENGE_SETTING, storages = Array(new Storage(Constants.CHALLENGE_SETTING_FILE)))
@@ -32,6 +36,8 @@ final class ChallengeSettings extends PersistentStateComponent[ChallengeSettings
     newItem.solutionId = item.solutionId
     newItem.dojo = item.dojo
     newItem.language = item.language
+    newItem.testCases = new ju.ArrayList[TestCase](item.testCases)
+    newItem.defaultTestCases = new ju.ArrayList[TestCase](item.defaultTestCases)
     myState.challenges.put(key, newItem)
   }
 
@@ -51,7 +57,22 @@ final class ChallengeSettings extends PersistentStateComponent[ChallengeSettings
       result.solutionId = item.solutionId
       result.dojo = item.dojo
       result.language = item.language
+      result.defaultTestCases.addAll(item.defaultTestCases)
+      result.testCases.addAll(item.testCases)
       result
+    }
+  }
+
+  def updateChallengeTestCases(filePath: String, testCases: ju.List[TestCase]): Unit = synchronized {
+    Option(myState.challenges.get(filePath)).foreach { item =>
+      item.testCases.clear()
+      item.testCases.addAll(testCases)
+    }
+  }
+  def updateChallengeTestCases(vf: VirtualFile, testCases: ju.List[TestCase]): Unit = synchronized {
+    Option(myState.challenges.get(vf.getCanonicalPath)).foreach { item =>
+      item.testCases.clear()
+      item.testCases.addAll(testCases)
     }
   }
 
@@ -86,6 +107,48 @@ object ChallengeSettings {
 
     @BeanProperty
     var solutionId: Long = uninitialized
+
+    @(XCollection @beanGetter @beanSetter)(elementTypes = Array(classOf[TestCase]))
+    @BeanProperty
+    var defaultTestCases: ju.List[TestCase] = new ju.ArrayList[TestCase]()
+
+    @(XCollection @beanGetter @beanSetter)(elementTypes = Array(classOf[TestCase]))
+    @BeanProperty
+    var testCases: ju.List[TestCase] = new ju.ArrayList[TestCase]()
+  }
+
+  class TestCase {
+    @BeanProperty
+    var input: String = uninitialized
+
+    @BeanProperty
+    var expectedOutput: String = uninitialized
+  }
+
+  object TestCase {
+    def apply(input: String, expectedOutput: String): TestCase = {
+      val r = new TestCase()
+      r.input = input
+      r.expectedOutput = expectedOutput
+      r
+    }
+
+    extension (testCases:List[TestCase]) {
+      def show: String = {
+        if testCases.isEmpty then ""
+        else
+          testCases.zipWithIndex.map { (testCase, index) =>
+            s"""
+               |${PluginBundle.message("testcases.title", index + 1)}:
+               |-----------------------------------------------------
+               |input:
+               |${testCase.input}
+               |-----------------------------------------------------
+               |expected output:
+               |${testCase.expectedOutput}""".stripMargin
+          }.mkString("\n")
+      }
+    }
   }
 
   object ChallengeSettingsStateItem {
@@ -94,7 +157,9 @@ object ChallengeSettings {
       challengeLanguageId: ChallengeLanguageId,
       codeDojo: CodeDojo,
       language: Language,
-      solutionId: SolutionId
+      solutionId: SolutionId,
+      testCases: List[TestCase],
+      defaultTestCases: List[TestCase]
     ): ChallengeSettingsStateItem = {
       val r = new ChallengeSettingsStateItem()
       r.challengeId = challengeId.value
@@ -102,6 +167,8 @@ object ChallengeSettings {
       r.dojo = codeDojo
       r.language = language
       r.solutionId = solutionId.value
+      r.testCases = new ju.ArrayList[TestCase](testCases.asJava)
+      r.defaultTestCases = new ju.ArrayList[TestCase](defaultTestCases.asJava)
       r
     }
   }

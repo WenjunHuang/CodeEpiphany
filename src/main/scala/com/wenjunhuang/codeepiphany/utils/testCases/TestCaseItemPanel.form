@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<form xmlns="http://www.intellij.com/uidesigner/form/" version="1" bind-to-class="com.wenjunhuang.codeepiphany.utils.testCases.TestCaseItemPanel">
+  <grid id="27dc6" binding="myRootPanel" layout-manager="GridLayoutManager" row-count="5" column-count="3" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+    <margin top="0" left="0" bottom="0" right="0"/>
+    <constraints>
+      <xy x="20" y="20" width="540" height="402"/>
+    </constraints>
+    <properties/>
+    <border type="empty">
+      <size top="0" left="0" bottom="8" right="0"/>
+    </border>
+    <children>
+      <component id="4b576" class="javax.swing.JLabel" binding="myName">
+        <constraints>
+          <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties>
+          <font style="1"/>
+          <text value="Label"/>
+        </properties>
+      </component>
+      <hspacer id="8e090">
+        <constraints>
+          <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="1" hsize-policy="6" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+        </constraints>
+      </hspacer>
+      <component id="890c9" class="com.intellij.ui.EditorTextField" binding="myInputValueEditor" custom-create="true">
+        <constraints>
+          <grid row="2" column="0" row-span="1" col-span="3" vsize-policy="0" hsize-policy="3" anchor="1" fill="1" indent="0" use-parent-layout="false">
+            <preferred-size width="-1" height="100"/>
+          </grid>
+        </constraints>
+        <properties/>
+      </component>
+      <component id="2ad0f" class="com.intellij.ui.EditorTextField" binding="myExpectedValueEditor" custom-create="true">
+        <constraints>
+          <grid row="4" column="0" row-span="1" col-span="3" vsize-policy="0" hsize-policy="3" anchor="1" fill="1" indent="0" use-parent-layout="false">
+            <preferred-size width="-1" height="100"/>
+          </grid>
+        </constraints>
+        <properties/>
+      </component>
+      <component id="94c61" class="javax.swing.JLabel">
+        <constraints>
+          <grid row="1" column="0" row-span="1" col-span="3" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties>
+          <text resource-bundle="messages/PluginBundle" key="leetcode.submissionResult.wrongAnswer.input.text"/>
+        </properties>
+      </component>
+      <component id="54c70" class="javax.swing.JLabel">
+        <constraints>
+          <grid row="3" column="0" row-span="1" col-span="3" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties>
+          <text resource-bundle="messages/PluginBundle" key="leetcode.submissionResult.wrongAnswer.expected.text"/>
+        </properties>
+      </component>
+      <component id="4327" class="javax.swing.JButton" binding="myDeleteButton" custom-create="true">
+        <constraints>
+          <grid row="0" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="4" fill="0" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties>
+          <text value=""/>
+        </properties>
+      </component>
+    </children>
+  </grid>
+</form>

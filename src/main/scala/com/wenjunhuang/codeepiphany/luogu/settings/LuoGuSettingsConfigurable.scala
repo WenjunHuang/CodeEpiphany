@@ -9,6 +9,7 @@ import com.wenjunhuang.codeepiphany.model.*
 import com.wenjunhuang.codeepiphany.model.Language.*
 import com.wenjunhuang.codeepiphany.model.LanguageVersion.*
 import com.wenjunhuang.codeepiphany.settings.dojo.{ BaseCodeDojoSettings, BaseSettingsConfigurable }
+import com.wenjunhuang.codeepiphany.settings.ChallengeSettings
 
 class LuoGuSettingsConfigurable(project: Project)
     extends BaseSettingsConfigurable(
@@ -66,6 +67,10 @@ object LuoGuSettingsConfigurable {
     title = "[THUPC 2025 初赛] 检查站",
     language = Language.Cpp,
     languageVersion = LanguageVersion.SpecificVersion("17"),
-    description = ""
+    description = "",
+    testCases = List(
+      ChallengeSettings.TestCase(input = "3 2\n1 2 3\n1 2\n", expectedOutput = "1 2\n"),
+      ChallengeSettings.TestCase(input = "5 3\n1 2 3 4 5\n1 2 3\n", expectedOutput = "1 2 3\n")
+    )
   )
 }

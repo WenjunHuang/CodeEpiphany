@@ -6,6 +6,20 @@
     </tr>
     <tr>
         <td valign="top" width="100">
+            <nobr><font face="verdana" size="-2"><strong>${beginRegion}</strong></font></nobr>
+        </td>
+        <td width="10">&nbsp;</td>
+        <td width="100%" valign="top"><font face="verdana" size="-1">标记提交区域开始的单行注释。</font></td>
+    </tr>
+    <tr>
+        <td valign="top" width="100">
+            <nobr><font face="verdana" size="-2"><strong>${endRegion}</strong></font></nobr>
+        </td>
+        <td width="10">&nbsp;</td>
+        <td width="100%" valign="top"><font face="verdana" size="-1">标记提交区域结束的单行注释。</font></td>
+    </tr>
+    <tr>
+        <td valign="top" width="100">
             <nobr><font face="verdana" size="-2"><strong>${challenge.id}</strong></font></nobr>
         </td>
         <td width="10">&nbsp;</td>
@@ -16,14 +30,14 @@
             <nobr><font face="verdana" size="-2"><strong>${challenge.name}</strong></font></nobr>
         </td>
         <td width="10">&nbsp;</td>
-        <td valign="top"><font face="verdana" size="-1">题目的名称，例如 "生日蛋糕蜡烛"。</font></td>
+        <td valign="top"><font face="verdana" size="-1">题目的名称，例如 "Birthday Cake Candles"。</font></td>
     </tr>
     <tr>
         <td valign="top">
             <nobr><font face="verdana" size="-2"><strong>${challenge.slug}</strong></font></nobr>
         </td>
         <td width="10">&nbsp;</td>
-        <td valign="top"><font face="verdana" size="-1">URL 友好的题目标识符，例如 "birthday-cake-candles"。</font></td>
+        <td valign="top"><font face="verdana" size="-1">题目的 URL 友好标识符，例如 "birthday-cake-candles"。</font></td>
     </tr>
     <tr>
         <td valign="top">
@@ -37,7 +51,7 @@
             <nobr><font face="verdana" size="-2"><strong>${challenge.contest}</strong></font></nobr>
         </td>
         <td width="10">&nbsp;</td>
-        <td valign="top"><font face="verdana" size="-1">题目所属的比赛，例如 "main" 或 "project euler"。</font></td>
+        <td valign="top"><font face="verdana" size="-1">题目所属的比赛，例如 'main'、'project euler'。</font></td>
     </tr>
     <tr>
         <td valign="top">
@@ -65,19 +79,43 @@
             <nobr><font face="verdana" size="-2"><strong>${challenge.code}</strong></font></nobr>
         </td>
         <td width="10">&nbsp;</td>
-        <td valign="top"><font face="verdana" size="-1">完整的题目代码，包含头部、模板和尾部部分。</font></td>
+        <td valign="top"><font face="verdana" size="-1">完整的题目代码，包含头部、模板和尾部。</font></td>
+    </tr>
+    <tr>
+        <td valign="top">
+            <nobr><font face="verdana" size="-2"><strong>${challenge.testCases}</strong></font></nobr>
+        </td>
+        <td width="10">&nbsp;</td>
+        <td valign="top"><font face="verdana" size="-1">测试用例。</font></td>
     </tr>
     <tr>
         <td valign="top">
             <nobr><font face="verdana" size="-2"><strong>$!velocity.camelCaseName(str)</strong></font></nobr>
         </td>
         <td width="10">&nbsp;</td>
-        <td valign="top"><font face="verdana" size="-1">将字符串转换为驼峰式命名，首字母大写。</font></td>
+        <td valign="top"><font face="verdana" size="-1">将字符串转换为大驼峰命名法，首字母大写。</font></td>
     </tr>
     <tr>
         <td valign="top" width="100">
             <nobr><font face="verdana" size="-2"><strong>$!velocity.smallCamelCaseName(str)</strong></font></nobr>
         </td>
         <td width="10">&nbsp;</td>
-        <td valign="top"><font face="verdana" size="-1">将字符串转换为小驼峰式命名，首字母小写。</font></td>
+        <td valign="top"><font face="verdana" size="-1">将字符串转换为小驼峰命名法，首字母小写。</font></td>
     </tr>
+    <tr>
+        <td valign="top">
+            <nobr><font face="verdana" size="-2"><strong>$!velocity.snakeCaseName(str)</strong></font></nobr>
+        </td>
+        <td width="10">&nbsp;</td>
+        <td valign="top"><font face="verdana" size="-1">将字符串转换为下划线命名法。</font></td>
+    </tr>
+    <tr>
+        <td valign="top">
+            <nobr><font face="verdana" size="-2"><strong>$!velocity.dateTime()</strong></font></nobr>
+        </td>
+        <td width="10">&nbsp;</td>
+        <td valign="top"><font face="verdana" size="-1">返回当前日期和时间，格式为 'yyyy-MM-dd HH:mm:ss'。</font></td>
+    </tr>
+</table>
+</body>
+</html>

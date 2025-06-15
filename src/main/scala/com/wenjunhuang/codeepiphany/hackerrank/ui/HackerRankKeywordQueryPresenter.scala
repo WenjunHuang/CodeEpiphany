@@ -19,7 +19,7 @@ import com.wenjunhuang.codeepiphany.hackerrank.services.HackerRankApi
 import com.wenjunhuang.codeepiphany.hackerrank.ui.HackerRankKeywordQueryPresenter.QueryParams
 import com.wenjunhuang.codeepiphany.model.{ ChallengeDifficulty, ChallengeStatus }
 import com.wenjunhuang.codeepiphany.services.{ KeywordQueryPresenter, QueryContext }
-import com.wenjunhuang.codeepiphany.services.http.{ HttpClientManager, HttpClientService }
+import com.wenjunhuang.codeepiphany.services.http.{ HttpClientManager }
 import com.wenjunhuang.codeepiphany.utils.{ OrderByColumnInfo, PageSize, Pagination }
 import com.wenjunhuang.codeepiphany.utils.actions.DataSink
 import io.circe.generic.auto.*
@@ -30,8 +30,6 @@ import com.wenjunhuang.codeepiphany.hackerrank.settings.HackerRankSettings
 
 class HackerRankKeywordQueryPresenter(project: Project)
     extends KeywordQueryPresenter[Unit, QueryParams, HackerRankChallengeDetail](project, ()) {
-  private implicit val httpClientManager: HttpClientManager[IO] =
-    HttpClientService.getInstance(myProject).httpClientManager
 
   override protected def createInitialQueryParameters(boostrapParameters: Unit): QueryContext[QueryParams] =
     QueryContext[QueryParams](criteria = QueryParams(""), pagination = Pagination())
@@ -42,17 +40,17 @@ class HackerRankKeywordQueryPresenter(project: Project)
     if context.criteria.keyword.isEmpty then IO.pure((context.pagination, Nil))
     else
       val r = (
-        HackerRankApi[IO]
+        HackerRankApi
           .searchChallengesWithKeyword(HackerRankContest.Master, context.criteria.keyword)
           .recoverWith(_ => IO.pure(Nil)),
-        HackerRankApi[IO]
+        HackerRankApi
           .searchChallengesWithKeyword(HackerRankContest.ProjectEuler, context.criteria.keyword)
           .recoverWith(_ => IO.pure(Nil))
       ).parMapN(_ ++ _)
       Stream
         .evals(r)
         .parEvalMapUnorderedUnbounded { case (contest, challenge) =>
-          HackerRankApi[IO].getChallengeDetail(challenge.challengeSlug, contest).attempt
+          HackerRankApi.getChallengeDetail(challenge.challengeSlug, contest).attempt
         }
         .scan(Nil: List[HackerRankChallengeDetail]) {
           case (acc, Right(challenge)) => acc :+ challenge

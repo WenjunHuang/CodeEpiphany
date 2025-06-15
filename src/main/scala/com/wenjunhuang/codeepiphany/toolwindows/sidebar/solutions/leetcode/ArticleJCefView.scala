@@ -77,7 +77,7 @@ class ArticleJCefView(
         "Accept-Language" -> "en-US,en;q=0.9,zh-CN;q=0.8,zh;q=0.7,de;q=0.6"
       )
       if (url.contains(CIString("graphql"))) {
-        LeetCodeApi(CodeDojo.LeetCode, myProject).getCSRFToken.map { csrfToken =>
+        LeetCodeApi(CodeDojo.LeetCode).getCSRFToken.map { csrfToken =>
           base ++ Headers("X-CSRFToken" -> csrfToken, `Content-Type`(MediaType.application.json))
         }
       } else {

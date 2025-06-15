@@ -26,7 +26,7 @@ class ResourceHttpServer(private val myRootResourcePath: String, private val myP
     path: String,
     templatePath: String,
     contentType: String,
-    variableProvider: () => Map[String, String] = () => Map.empty
+    variableProvider: () => Map[String, String | (() => String)] = () => Map.empty
   ): Unit = {
     val templateUrl = getClass.getClassLoader.getResource(s"$myRootResourcePath/$templatePath")
     if (templateUrl == null) {
@@ -39,7 +39,10 @@ class ResourceHttpServer(private val myRootResourcePath: String, private val myP
       () => {
         val template = new String(templateUrl.openStream().readAllBytes(), StandardCharsets.UTF_8)
         val processedContent = variableProvider().foldLeft(template) { case (acc, (key, value)) =>
-          acc.replace(key, value)
+          value match {
+            case str: String          => acc.replace(key, str)
+            case func: (() => String) => acc.replace(key, func())
+          }
         }
         processedContent.getBytes(StandardCharsets.UTF_8)
       },

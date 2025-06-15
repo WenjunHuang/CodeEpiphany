@@ -88,7 +88,7 @@ class CodeDojoToolWindowFactory extends ToolWindowFactoryBridge with DumbAware {
 }
 
 object CodeDojoToolWindowFactory {
-  final val TOOL_WINDOW_ID = "CodeEpiphany CodeDojos"
+  final val TOOL_WINDOW_ID = "LeetCode Epiphany"
 
   def getToolWindow(project: Project): ToolWindow = {
     ToolWindowManager.getInstance(project).getToolWindow(CodeDojoToolWindowFactory.TOOL_WINDOW_ID) match

@@ -4,11 +4,12 @@ import com.intellij.openapi.project.Project
 
 import com.wenjunhuang.codeepiphany.PluginBundle
 import com.wenjunhuang.codeepiphany.atcoder.models.AtCoderChallengeCodeTemplate
-import com.wenjunhuang.codeepiphany.atcoder.settings.AtCoderSettingsConfigurable.{ATCODER_LANGUAGES, DEMO_TEMPLATE}
-import com.wenjunhuang.codeepiphany.model.{CodeDojo, Language, LanguageVersion}
+import com.wenjunhuang.codeepiphany.atcoder.settings.AtCoderSettingsConfigurable.{ ATCODER_LANGUAGES, DEMO_TEMPLATE }
+import com.wenjunhuang.codeepiphany.model.{ CodeDojo, Language, LanguageVersion }
 import com.wenjunhuang.codeepiphany.model.Language.*
 import com.wenjunhuang.codeepiphany.model.LanguageVersion.*
-import com.wenjunhuang.codeepiphany.settings.dojo.{BaseCodeDojoSettings, BaseSettingsConfigurable}
+import com.wenjunhuang.codeepiphany.settings.dojo.{ BaseCodeDojoSettings, BaseSettingsConfigurable }
+import com.wenjunhuang.codeepiphany.settings.ChallengeSettings
 
 class AtCoderSettingsConfigurable(project: Project)
     extends BaseSettingsConfigurable(
@@ -96,7 +97,11 @@ object AtCoderSettingsConfigurable {
     languageVersion = AnyVersion,
     description = "",
     record = null,
-    content = null
+    content = null,
+    testCases = List(
+      ChallengeSettings.TestCase(input = "3\n1 2 3\n", expectedOutput = "1 2 3\n"),
+      ChallengeSettings.TestCase(input = "4\n1 2 3 4\n", expectedOutput = "1 2 3 4\n")
+    )
   )
 
 }

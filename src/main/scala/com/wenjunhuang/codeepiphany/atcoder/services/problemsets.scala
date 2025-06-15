@@ -1,7 +1,7 @@
 package com.wenjunhuang.codeepiphany.atcoder.services
 
 import cats.effect.implicits.*
-import cats.effect.kernel.{ Async, Concurrent }
+import cats.effect.{ IO, Concurrent }
 import cats.syntax.all.*
 import org.jooq.impl.DSL
 import org.typelevel.log4cats.LoggerFactory
@@ -9,6 +9,7 @@ import org.typelevel.log4cats.LoggerFactory
 import com.intellij.execution.filters.BrowserHyperlinkInfo
 import com.intellij.openapi.project.Project
 
+import com.wenjunhuang.codeepiphany.PluginBundle
 import com.wenjunhuang.codeepiphany.atcoder.models.AtCoderDifficulty
 import com.wenjunhuang.codeepiphany.database.Tables.*
 import com.wenjunhuang.codeepiphany.services.{ console, ChallengeRepository }
@@ -16,30 +17,31 @@ import com.wenjunhuang.codeepiphany.services.console.showConsole
 import com.wenjunhuang.codeepiphany.services.console.MessageSeg.Hyperlink
 import com.wenjunhuang.codeepiphany.services.http.HttpClientManager
 import com.wenjunhuang.codeepiphany.utils.IdGenerator
+import com.wenjunhuang.codeepiphany.utils.syntax.*
 
 object problemsets {
-  def fetchAndUpdateProblemSets[F[_]: { Async, Concurrent, LoggerFactory, HttpClientManager }](
+  def fetchAndUpdateProblemSets(
     project: Project
-  ): F[Unit] = {
-    val logger = LoggerFactory.getLogger
-    showConsole[F](project) *>
-      console.info[F](
+  ): IO[Unit] = {
+    val logger = LoggerFactory[IO].getLogger
+    showConsole(project) *>
+      console.info(
         project,
         "Start to fetch problem sets of AtCoder from ",
         Hyperlink("kenkoooo.com", BrowserHyperlinkInfo("https://kenkoooo.com/atcoder/"))
       ) *>
       (
-        AtCoderApi[F].getAllProblemDifficulty,
-        AtCoderApi[F].getAllProblems,
-        AtCoderApi[F].getAllContests
+        AtCoderApi.getAllProblemDifficulty,
+        AtCoderApi.getAllProblems,
+        AtCoderApi.getAllContests
       ).parTupled.flatMap { case (difficulties, problems, contests) =>
         logger.info(s"Got ${problems.size} problems  and ${contests.size} contests of AtCoder")
         val contestsMap = contests.map { contest => contest.id -> contest.title }.toMap
         ChallengeRepository
           .getInstance(project)
-          .getDSLContextResource[F]
+          .getDSLContextResource
           .use { client =>
-            Async[F].blocking {
+            IO.blocking {
               client.transactionResult { config =>
                 val dsl = DSL.using(config)
                 dsl
@@ -95,11 +97,11 @@ object problemsets {
           }
       }.attempt.flatMap {
         case Right((problems, contests)) =>
-          showConsole[F](project) *>
-            console.info[F](project, s"Successfully fetch $problems problems and $contests contests of AtCoder")
+          showConsole(project) *>
+            console.info(project, PluginBundle.message("atcoder.problemsets.success", problems, contests))
         case Left(e) =>
-          showConsole[F](project) *>
-            console.error[F](project, s"Error to fetch problem sets of AtCoder: \n ${e.getMessage}")
+          showConsole(project) *>
+            console.error(project, PluginBundle.message("atcoder.problemsets.error", e.getMessage))
             *> logger.warn(e)("Error to fetch problem sets of AtCoder")
       }
   }

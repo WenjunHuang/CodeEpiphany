@@ -10,10 +10,10 @@ import com.intellij.util.ui.ListTableModel
 import com.wenjunhuang.codeepiphany.actions.OpenChallengeActionGroup.OpenChallengeProvider
 import com.wenjunhuang.codeepiphany.atcoder.services.AtCoderOpenChallengeService
 import com.wenjunhuang.codeepiphany.atcoder.settings.AtCoderSettings
-import com.wenjunhuang.codeepiphany.model.{Language, LanguageVersion}
+import com.wenjunhuang.codeepiphany.model.{ Language, LanguageVersion }
 import com.wenjunhuang.codeepiphany.services.console
 import com.wenjunhuang.codeepiphany.services.console.showConsole
-import com.wenjunhuang.codeepiphany.services.http.{HttpClientManager, HttpClientService}
+import com.wenjunhuang.codeepiphany.services.http.{ HttpClientManager }
 import com.wenjunhuang.codeepiphany.utils.extensions.*
 import com.wenjunhuang.codeepiphany.utils.syntax.*
 
@@ -24,19 +24,18 @@ package object ui {
     selectionModel: ListSelectionModel,
     tableModel: ListTableModel[AtCoderTableItem]
   ): OpenChallengeProvider = {
-    implicit val httpClientManager: HttpClientManager[IO] = HttpClientService.getInstance(project).httpClientManager
-    val logger                                            = LoggerFactory.getLogger[IO]
+    val logger = LoggerFactory.getLogger[IO]
 
     new OpenChallengeProvider {
       override def openCurrentSelectedChallenge(language: Language, languageVersion: LanguageVersion): Unit = {
         selectionModel.getSelectedIndices.toList match
           case head :: _ =>
             val selected = tableModel.getItem(head)
-            AtCoderOpenChallengeService[IO](project)
+            AtCoderOpenChallengeService(project)
               .openChallenge(selected.record, language, languageVersion)
               .handleErrorWith { e =>
-                showConsole[IO](project) *>
-                  console.error[IO](project, e.getMessage) *> logger.warn(e)("Failed to open challenge")
+                console.showConsole(project) *>
+                  console.error(project, e.getMessage) *> logger.warn(e)("Failed to open challenge")
               }
               .evalAsBackgroundProgress(project, s"Opening challenge ${selected.record.getName}...")
               .unsafeRunAndForget()

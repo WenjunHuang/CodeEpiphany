@@ -44,7 +44,7 @@ import com.wenjunhuang.codeepiphany.leetcode.settings.{ LeetCodeCNSettings, Leet
 import com.wenjunhuang.codeepiphany.leetcode.ui.LeetCodeCompanyQueryPresenter.*
 import com.wenjunhuang.codeepiphany.model.*
 import com.wenjunhuang.codeepiphany.services.{ ParametersQueryPresenter, QueryContext }
-import com.wenjunhuang.codeepiphany.services.http.{ HttpClientManager, HttpClientService }
+import com.wenjunhuang.codeepiphany.services.http.{ HttpClientManager }
 import com.wenjunhuang.codeepiphany.utils.{ OrderByColumnInfo, PageSize, Pagination }
 import com.wenjunhuang.codeepiphany.utils.actions.DataSink
 import com.wenjunhuang.codeepiphany.utils.syntax.*
@@ -59,8 +59,6 @@ class LeetCodeCompanyQueryPresenter(
       LeetCodeCompanyQueryCriteria,
       LeetCodeChallengeListItem
     ](project, boostrap) {
-  private implicit val httpClientManager: HttpClientManager[IO] =
-    HttpClientService.getInstance(myProject).httpClientManager
 
   override protected def prepareProviders(
     getter: () => QueryContext[LeetCodeCompanyQueryCriteria],
@@ -405,7 +403,7 @@ class LeetCodeCompanyQueryPresenter(
       val pageSize    = context.pagination.pageSize
       val currentPage = context.pagination.currentPage
       val orderBy     = context.criteria.orderBy
-      LeetCodeApi[IO](myLeetCodeDojo)
+      LeetCodeApi(myLeetCodeDojo)
         .searchCompanyChallenges(
           pageSize.value * (currentPage - 1),
           pageSize.value,

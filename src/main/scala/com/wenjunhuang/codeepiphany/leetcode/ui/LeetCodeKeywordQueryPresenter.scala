@@ -1,29 +1,28 @@
 package com.wenjunhuang.codeepiphany.leetcode.ui
 
 import cats.effect.IO
-import io.circe.*
-import io.circe.generic.semiauto.*
-import io.circe.parser.*
-import io.circe.syntax.*
-import javax.swing.{Icon, JTable, SwingConstants}
-import javax.swing.table.{DefaultTableCellRenderer, TableCellRenderer}
-import monocle.syntax.all.*
-
 import com.intellij.icons.AllIcons
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.util.ui.table.IconTableCellRenderer
-
 import com.wenjunhuang.codeepiphany.actions.OpenChallengeActionGroup
 import com.wenjunhuang.codeepiphany.leetcode.models.*
 import com.wenjunhuang.codeepiphany.leetcode.services.{LeetCodeApi, LeetCodeSearchOrderBy}
 import com.wenjunhuang.codeepiphany.leetcode.settings.{LeetCodeCNSettings, LeetCodeSettings}
 import com.wenjunhuang.codeepiphany.leetcode.ui.LeetCodeKeywordQueryPresenter.LeetCodeKeywordQueryParams
 import com.wenjunhuang.codeepiphany.model.*
+import com.wenjunhuang.codeepiphany.services.http.{HttpClientManager}
 import com.wenjunhuang.codeepiphany.services.{KeywordQueryPresenter, QueryContext}
-import com.wenjunhuang.codeepiphany.services.http.{HttpClientManager, HttpClientService}
-import com.wenjunhuang.codeepiphany.utils.{OrderByColumnInfo, PageSize, Pagination}
 import com.wenjunhuang.codeepiphany.utils.actions.DataSink
+import com.wenjunhuang.codeepiphany.utils.{OrderByColumnInfo, PageSize, Pagination}
+import io.circe.*
+import io.circe.generic.semiauto.*
+import io.circe.parser.*
+import io.circe.syntax.*
+import monocle.syntax.all.*
+
+import javax.swing.table.{DefaultTableCellRenderer, TableCellRenderer}
+import javax.swing.{Icon, JTable, SwingConstants}
 
 class LeetCodeKeywordQueryPresenter(
   project: Project,
@@ -33,8 +32,6 @@ class LeetCodeKeywordQueryPresenter(
       project,
       bootstrap
     ) {
-  private implicit val httpClientManager: HttpClientManager[IO] =
-    HttpClientService.getInstance(myProject).httpClientManager
 
   override protected def createInitialQueryParameters(
     boostrapParameters: LeetCodeBootstrapParameters
@@ -48,7 +45,7 @@ class LeetCodeKeywordQueryPresenter(
     val currentPage = context.pagination.currentPage
     val keyword     = context.criteria.keyword
     val orderBy     = context.criteria.orderBy
-    LeetCodeApi[IO](myLeetCodeDojo)
+    LeetCodeApi(myLeetCodeDojo)
       .searchChallengesWithKeyword(pageSize.value * (currentPage - 1), pageSize.value, keyword, orderBy)
       .map { response =>
         (context.pagination.copy(totalSize = response.total), response.questions)
