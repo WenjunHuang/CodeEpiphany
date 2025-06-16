@@ -2,6 +2,7 @@
 .bloop/
 .metals/
 node_modules/
+package-lock.json
 metals.sbt
 .bsp/
 .vscode/
