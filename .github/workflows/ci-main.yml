@@ -60,7 +60,7 @@ jobs:
     - name: Install npm dependencies
       run: |
         cd webview
-        npm ci
+        npm i
 
     - name: Show IntelliJ version configuration
       run: sbt -Dintellij.version=${{ matrix.intellij-version }} 'show intellijBuild'
