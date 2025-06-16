@@ -27,7 +27,7 @@ object CodeEpiphanyIcons {
     IconLoader.getIcon("/icons/building.svg", CodeEpiphanyIcons.getClass.getClassLoader)
 
   @static
-  val EDIT_TESTCASES: Icon = IconLoader.getIcon("/icons/vial-virus.svg", CodeEpiphanyIcons.getClass.getClassLoader)
+  val EDIT_TESTCASES: Icon = IconLoader.getIcon("/icons/vialVirus.svg", CodeEpiphanyIcons.getClass.getClassLoader)
 
   @static
   val RUN: Icon = IconLoader.getIcon("/icons/run.svg", CodeEpiphanyIcons.getClass.getClassLoader)
