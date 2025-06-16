@@ -3,10 +3,6 @@ LeetCode Epiphany
 
 **Now available on Android!** 📱 Download our mobile app from [Google Play](https://play.google.com/store/apps/details?id=com.wenjunhuang.codeepiphanyapp) to practice coding challenges on the go.
 
-[<img src="https://cdn.jsdelivr.net/gh/WenjunHuang/CodeEpiphanyFiles@master/AppPhone.png" width="200" alt="Get it on Google Play">](https://play.google.com/store/apps/details?id=com.wenjunhuang.codeepiphanyapp)
-
-[<img src="https://cdn.jsdelivr.net/gh/WenjunHuang/CodeEpiphanyFiles@master/AppTablet.jpg" width="200" alt="Get it on Google Play">](https://play.google.com/store/apps/details?id=com.wenjunhuang.codeepiphanyapp)
-
 [<img src="https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png" width="200" alt="Get it on Google Play">](https://play.google.com/store/apps/details?id=com.wenjunhuang.codeepiphanyapp)
 
 ### Current Supported Platforms
@@ -43,10 +39,6 @@ LeetCode Epiphany
 
 
 **现已推出安卓版本！** 📱 从 [Google Play](https://play.google.com/store/apps/details?id=com.wenjunhuang.codeepiphanyapp) 下载我们的移动应用，随时随地刷题练习。
-
-[<img src="https://cdn.jsdelivr.net/gh/WenjunHuang/CodeEpiphanyFiles@master/AppPhone.png" width="200" alt="Get it on Google Play">](https://play.google.com/store/apps/details?id=com.wenjunhuang.codeepiphanyapp)
-
-[<img src="https://cdn.jsdelivr.net/gh/WenjunHuang/CodeEpiphanyFiles@master/AppTablet.jpg" width="200" alt="Get it on Google Play">](https://play.google.com/store/apps/details?id=com.wenjunhuang.codeepiphanyapp)
 
 [<img src="https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png" width="200" alt="Get it on Google Play">](https://play.google.com/store/apps/details?id=com.wenjunhuang.codeepiphanyapp)
 

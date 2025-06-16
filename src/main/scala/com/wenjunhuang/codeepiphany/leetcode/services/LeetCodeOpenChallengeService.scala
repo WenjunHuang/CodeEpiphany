@@ -113,13 +113,10 @@ class LeetCodeOpenChallengeService(
                   .splitByLines(content.exampleTestcases)
                   .toList
                   .grouped(2)
-                  .toList match {
-                  case Nil => Nil
-                  case g =>
-                    g.filter(_.size == 2).map { case List(input, expectedOutput) =>
-                      ChallengeSettings.TestCase(input = input, expectedOutput = expectedOutput)
-                    }
-                }
+                  .toList
+                  .collect { case input +: expectedOutput +: Nil =>
+                    ChallengeSettings.TestCase(input = input, expectedOutput = expectedOutput)
+                  }
               )
             )
           )
