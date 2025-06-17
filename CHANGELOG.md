@@ -8,6 +8,7 @@
 - [#29](https://github.com/WenjunHuang/CodeEpiphany/issues/29)
 - [#37](https://github.com/WenjunHuang/CodeEpiphany/issues/37)
 - [#38](https://github.com/WenjunHuang/CodeEpiphany/issues/38)
+- [#46](https://github.com/WenjunHuang/CodeEpiphany/issues/46)
  
 ## 1.2.3 
 - Fix webview scrollbar style not compatible with IDE theme issue

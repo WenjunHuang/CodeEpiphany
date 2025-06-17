@@ -8,21 +8,25 @@ import com.wenjunhuang.codeepiphany.utils.competitiveCompanion.CCAction.CC_ACTIO
 abstract class CCAction extends CheckboxAction with ActionCompatible with DataKeyNotNull(CC_ACTION_PROVIDER_KEY) {
 
   override def isSelected(e: AnActionEvent): Boolean = {
-    getValue(e).isListening
+    getValue(e) match {
+      case null     => false
+      case provider => provider.isListening
+    }
   }
 
   override def setSelected(e: AnActionEvent, state: Boolean): Unit = {
-    val provider = getValue(e)
-    if state then provider.startListening()
-    else provider.stopListening()
+    getValue(e) match {
+      case null => ()
+      case provider =>
+        if state then provider.startListening()
+        else provider.stopListening()
+    }
   }
 
   override def update(e: AnActionEvent): Unit = {
-    super.update(e)
     val presentation = e.getPresentation
     if isSatisfied(e) then presentation.setEnabledAndVisible(true)
     else presentation.setEnabledAndVisible(false)
-
   }
 }
 
