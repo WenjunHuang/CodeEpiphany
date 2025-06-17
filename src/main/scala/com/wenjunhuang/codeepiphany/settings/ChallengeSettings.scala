@@ -1,33 +1,42 @@
 package com.wenjunhuang.codeepiphany.settings
 
 import java.util as ju
-import scala.annotation.meta.{beanGetter, beanSetter}
+import scala.annotation.meta.{ beanGetter, beanSetter }
 import scala.beans.BeanProperty
 import scala.compiletime.uninitialized
 import scala.util.hashing.Hashing.Default
 
-import com.intellij.openapi.components.{PersistentStateComponent, Service, State, Storage}
+import com.intellij.openapi.components.{ PersistentStateComponent, Service, State, Storage }
 import com.intellij.openapi.components.Service.Level
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
-import com.intellij.util.xmlb.annotations.{OptionTag, XCollection}
+import com.intellij.util.xmlb.annotations.{ OptionTag, XCollection }
 
-import com.wenjunhuang.codeepiphany.model.{CodeDojo, Constants, Language}
+import com.wenjunhuang.codeepiphany.model.{ CodeDojo, Constants, Language }
 import com.wenjunhuang.codeepiphany.model.newtypes.*
-import com.wenjunhuang.codeepiphany.settings.ChallengeSettings.{ChallengeSettingsState, ChallengeSettingsStateItem, TestCase}
-import com.wenjunhuang.codeepiphany.utils.XmlUtils.{CodeDojoConverter, LanguageConverter}
+import com.wenjunhuang.codeepiphany.settings.ChallengeSettings.{
+  ChallengeSettingsState,
+  ChallengeSettingsStateItem,
+  TestCase
+}
+import com.wenjunhuang.codeepiphany.utils.XmlUtils.{ CodeDojoConverter, LanguageConverter }
 import scala.jdk.CollectionConverters.*
 
 import com.wenjunhuang.codeepiphany.PluginBundle
 
+/**
+ * 因为这个对象可能会被多个线程修改，为了简单起见，这里使用了同步锁。
+ */
 @Service(Array(Level.PROJECT))
 @State(name = Constants.CHALLENGE_SETTING, storages = Array(new Storage(Constants.CHALLENGE_SETTING_FILE)))
 final class ChallengeSettings extends PersistentStateComponent[ChallengeSettingsState] {
+  @volatile
   private var myState                           = ChallengeSettingsState()
-  override def getState: ChallengeSettingsState = myState
+  override def getState: ChallengeSettingsState = synchronized { myState }
 
-  override def loadState(state: ChallengeSettingsState): Unit =
+  override def loadState(state: ChallengeSettingsState): Unit = synchronized {
     myState = state
+  }
 
   def addChallenge(key: String, item: ChallengeSettingsStateItem): Unit = synchronized {
     val newItem = new ChallengeSettingsStateItem()
@@ -43,6 +52,10 @@ final class ChallengeSettings extends PersistentStateComponent[ChallengeSettings
 
   def removeChallenge(key: String): Unit = synchronized {
     myState.challenges.remove(key)
+  }
+  
+  def removeChallenge(vf: VirtualFile): Unit = synchronized {
+    myState.challenges.remove(vf.getCanonicalPath)
   }
 
   def addChallenge(vf: VirtualFile, item: ChallengeSettingsStateItem): Unit = synchronized {
@@ -84,6 +97,12 @@ final class ChallengeSettings extends PersistentStateComponent[ChallengeSettings
 
   def findChallengeId(vf: VirtualFile): Option[ChallengeSettingsStateItem] =
     findChallengeId(vf.getCanonicalPath)
+    
+  def modifyCodeFilePath(oldPath:String, newPath: String): Unit = synchronized {
+    if myState.challenges.containsKey(oldPath) then
+      val item = myState.challenges.remove(oldPath)
+      myState.challenges.put(newPath, item)
+  }
 }
 
 object ChallengeSettings {
@@ -133,7 +152,7 @@ object ChallengeSettings {
       r
     }
 
-    extension (testCases:List[TestCase]) {
+    extension (testCases: List[TestCase]) {
       def show: String = {
         if testCases.isEmpty then ""
         else

@@ -151,28 +151,19 @@ object CodeForcesApi extends CodeForcesApi with Http4sClientDsl[IO] {
 
   private def parseMainTestBlock(block: Element): String = {
     block.select(".test-example-line").asScala.toList match {
-      case Nil => StringUtil.unescapeXmlEntities(block.html())
+      case Nil => StringUtil.unescapeXmlEntities(block.html()).replace("<br>", "\n")
       case lines =>
         lines.filter { line =>
           val l = line.select(".test-example-line, br").asScala.filterNot(_ == line)
           l.isEmpty
         }.map { el =>
-          StringUtil.unescapeXmlEntities(el.html())
+          val r = StringUtil.unescapeXmlEntities(el.html())
+          r
         }.mkString("\n")
     }
 
   }
-//  private parseMainTestBlock(block: Element): string {
-//    const lines = [...block.querySelectorAll('.test-example-line')].filter(
-//    el => el.querySelector('.test-example-line, br') === null,
-//    );
-//
-//    if (lines.length === 0) {
-//    return decodeHtml(block.innerHTML);
-//  }
-//
-//    return [...lines].map(el => decodeHtml(el.innerHTML)).join('\n');
-//  }
+
   private def prepareSubmitAnswer(): IO[(String, String, String)] = {
     HttpClientManager.getClient.use { client =>
       client.expect[String](Method.GET(uri"https://codeforces.com/problemset/submit")).map { content =>
