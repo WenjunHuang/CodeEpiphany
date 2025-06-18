@@ -10,14 +10,15 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.text.StringUtil
 
 import com.wenjunhuang.codeepiphany.PluginBundle
-import com.wenjunhuang.codeepiphany.leetcode.models.{LeetCodeChallengeCodeTemplate, LeetCodeChallengeData}
+import com.wenjunhuang.codeepiphany.leetcode.models.{ LeetCodeChallengeCodeTemplate, LeetCodeChallengeData }
 import com.wenjunhuang.codeepiphany.leetcode.settings.LeetCodeCNSettingsConfigurable.*
 import com.wenjunhuang.codeepiphany.leetcode.settings.LeetCodeSettingsConfigurable.getDemoTemplate
 import com.wenjunhuang.codeepiphany.model.*
 import com.wenjunhuang.codeepiphany.model.CodeDojo.LeetCodeCN
 import com.wenjunhuang.codeepiphany.model.Language.*
 import com.wenjunhuang.codeepiphany.model.LanguageVersion.*
-import com.wenjunhuang.codeepiphany.settings.dojo.{BaseCodeDojoSettings, BaseSettingsConfigurable}
+import com.wenjunhuang.codeepiphany.settings.dojo.{ BaseCodeDojoSettings, BaseSettingsConfigurable }
+import com.wenjunhuang.codeepiphany.settings.ChallengeSettings
 class LeetCodeCNSettingsConfigurable(project: Project)
     extends BaseSettingsConfigurable(
       project,
@@ -106,7 +107,7 @@ object LeetCodeCNSettingsConfigurable {
                 dislikes = 0,
                 isLiked = None,
                 similarQuestions = "",
-                exampleTestcases = "",
+                exampleTestcaseList = List("[1, 3]\n[2]", "[1, 2]\n[3, 4]"),
                 topicTags = Nil,
                 codeSnippets = Nil,
                 hints = Nil,
@@ -114,8 +115,10 @@ object LeetCodeCNSettingsConfigurable {
                 testCase = "",
                 metaData = ""
               ),
-              testCases = Nil
-
+              testCases = List(
+                ChallengeSettings.TestCase(input = "[1, 3]\n[2]", expectedOutput = "2.00000"),
+                ChallengeSettings.TestCase(input = "[1, 2]\n[3, 4]", expectedOutput = "2.50000")
+              )
             )
         }
       })

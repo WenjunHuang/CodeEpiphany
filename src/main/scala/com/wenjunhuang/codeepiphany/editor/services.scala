@@ -30,7 +30,7 @@ object services {
         case Some(item) =>
           item.dojo match
             case CodeDojo.HackerRank =>
-              HackerRankEvaluationService(project).evaluateCode(vf, None)
+              HackerRankEvaluationService(project).evaluateCode(vf, item.testCases.asScala.toList.some)
             case CodeDojo.LeetCodeCN =>
               ChallengeSettings
                 .getInstance(project)
@@ -45,7 +45,7 @@ object services {
               }
 
             case CodeDojo.LeetCode =>
-              LeetCodeEvaluationService(project, CodeDojo.LeetCode).evaluateCode(vf, None)
+              LeetCodeEvaluationService(project, CodeDojo.LeetCode).evaluateCode(vf, item.testCases.asScala.toList.some)
             case CodeDojo.CodeForces | CodeDojo.AtCoder | CodeDojo.LuoGu =>
               IO.unit
         case None => IO.unit

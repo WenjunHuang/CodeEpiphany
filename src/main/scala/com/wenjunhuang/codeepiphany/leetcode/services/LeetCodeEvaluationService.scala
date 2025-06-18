@@ -50,7 +50,8 @@ class LeetCodeEvaluationService(
   }
 
   private def makeTestCasesString(testCase: List[TestCase]): String = {
-    testCase.map(tc => s"${tc.input}\n${tc.expectedOutput}").mkString("\n")
+    testCase.map(_.input).mkString("\n")
+//    testCase.map(tc => s"${tc.input}\n${tc.expectedOutput}").mkString("\n")
   }
 
   private def queryChallengeInfo(item: ChallengeSettingsStateItem, client: DSLContext): LeetCodeEvaluationRequest = {
@@ -88,8 +89,8 @@ class LeetCodeEvaluationService(
     request: LeetCodeEvaluationRequest,
     code: String,
     customTestCases: Option[List[TestCase]]
-  ): fs2.Stream[IO, LeetCodeRunResult] = LeetCodeApi(myLeetCode)
-    .runAnswer(
+  ): fs2.Stream[IO, LeetCodeRunResult] =
+    LeetCodeApi(myLeetCode).runAnswer(
       request.leetCodeQuestionId,
       request.questionSlug,
       customTestCases.map(makeTestCasesString).getOrElse(request.testCase),
@@ -112,7 +113,7 @@ class LeetCodeEvaluationService(
             case SubmissionResult.Success if success.correctAnswer.contains(true) =>
               PluginBundle.message("submission.passed")
             case SubmissionResult.Failure =>
-              s"${PluginBundle.message("submissionResult.failure")}\n${formatResultDiff(success, customTestCases.map(makeTestCasesString).getOrElse(request.testCase))}"
+              s"${formatResultDiff(success, customTestCases.map(tc=>tc.map(_.input)).getOrElse(request.testCase.split("\n").toList))}"
             case result =>
               formatErrorMessage(result, success)
           EvaluationResponseInfo(result, message)
@@ -131,22 +132,33 @@ class LeetCodeEvaluationService(
         response.statusMsg
     }
 
-  private def formatResultDiff(result: LeetCodeRunResult.Success, testCase: String): String = {
-    val cases = StringUtil.splitByLines(testCase).toList
-    val comparisons = cases.zip(result.codeAnswer.zip(result.expectedCodeAnswer)) ++
-      cases.zip(result.stdOutputList.zip(result.expectedStdOutputList))
+  private def formatResultDiff(result: LeetCodeRunResult.Success, testCases: List[String]): String = {
+    val comparisons = testCases.zip(result.codeAnswer.zip(result.expectedCodeAnswer))
 
-    Tabulator.format(
-      (List("Case", "Your Answer", "Expected Answer") +:
-        comparisons.collect {
-          case (testCase, (output, expected)) if output != expected =>
-            List(
-              StringUtil.escapeLineBreak(testCase),
-              StringUtil.escapeLineBreak(output),
-              StringUtil.escapeLineBreak(expected)
-            )
-        })*
-    )
+    comparisons.zipWithIndex.map{ case ((testCase, (output, expected)), index) =>
+      s"""
+          |${PluginBundle.message("testcases.title",index+1)}
+          |=========================
+          |${PluginBundle.message("leetcode.submissionResult.wrongAnswer.input.text")}:
+          |$testCase
+          |-------------------------
+          |${PluginBundle.message("leetcode.submissionResult.wrongAnswer.output.text")}:
+          |$output
+          |-------------------------
+          |${PluginBundle.message("leetcode.submissionResult.wrongAnswer.expected.text")}:
+          |$expected""".stripMargin
+    }.mkString("\n")
+//    Tabulator.format(
+//      (List("Case", "Your Answer", "Expected Answer") +:
+//        comparisons.collect {
+//          case (testCase, (output, expected)) if output != expected =>
+//            List(
+//              StringUtil.convertLineSeparators(testCase," "),
+//              StringUtil.escapeLineBreak(output),
+//              StringUtil.escapeLineBreak(expected)
+//            )
+//        })*
+//    )
   }
   override protected def reportEvaluationResult(
     lastResponseInfo: EvaluationResponseInfo,

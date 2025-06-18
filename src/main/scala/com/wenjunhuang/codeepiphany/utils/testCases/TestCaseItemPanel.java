@@ -67,7 +67,8 @@ public class TestCaseItemPanel {
     }
 
     private void createUIComponents() {
-        myInputValueEditor = new EditorTextField(EditorFactory.getInstance().createDocument(StringUtil.convertLineSeparators(myInitialInputValue)), myProject, FileTypes.PLAIN_TEXT,
+        var inputDocument = EditorFactory.getInstance().createDocument(StringUtil.convertLineSeparators(myInitialInputValue));
+        myInputValueEditor = new EditorTextField(inputDocument, myProject, FileTypes.PLAIN_TEXT,
                 false, false);
         myInputValueEditor.setFont(EditorFontType.PLAIN.getGlobalFont());
         myInputValueEditor.addSettingsProvider(editor -> {
@@ -77,6 +78,8 @@ public class TestCaseItemPanel {
             editor.setBackgroundColor(EditorFragmentComponent.getBackgroundColor(editor, false));
             editor.setBorder(new DarculaEditorTextFieldBorder(myInputValueEditor, editor));
         });
+        var f = myInputValueEditor.getPreferredSize();
+//        myInputValueEditor.setSize()
 
         myExpectedValueEditor = new EditorTextField(EditorFactory.getInstance().createDocument(StringUtil.convertLineSeparators(myInitialExpectedValue)), myProject, FileTypes.PLAIN_TEXT,
                 false, false);
@@ -120,8 +123,8 @@ public class TestCaseItemPanel {
         myRootPanel.add(myName, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         final Spacer spacer1 = new Spacer();
         myRootPanel.add(spacer1, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, 1, null, null, null, 0, false));
-        myRootPanel.add(myInputValueEditor, new GridConstraints(2, 0, 1, 3, GridConstraints.ANCHOR_NORTH, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(-1, 100), null, 0, false));
-        myRootPanel.add(myExpectedValueEditor, new GridConstraints(4, 0, 1, 3, GridConstraints.ANCHOR_NORTH, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(-1, 100), null, 0, false));
+        myRootPanel.add(myInputValueEditor, new GridConstraints(2, 0, 1, 3, GridConstraints.ANCHOR_NORTH, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_GROW, new Dimension(-1, 100), null, null, 0, false));
+        myRootPanel.add(myExpectedValueEditor, new GridConstraints(4, 0, 1, 3, GridConstraints.ANCHOR_NORTH, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_GROW, new Dimension(-1, 50), null, null, 0, false));
         final JLabel label1 = new JLabel();
         this.$$$loadLabelText$$$(label1, this.$$$getMessageFromBundle$$$("messages/PluginBundle", "leetcode.submissionResult.wrongAnswer.input.text"));
         myRootPanel.add(label1, new GridConstraints(1, 0, 1, 3, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));

@@ -1,7 +1,10 @@
 package com.wenjunhuang.codeepiphany.leetcode.services
 
-import cats.effect.{ Concurrent, IO }
-import cats.syntax.all.*
+import cats.effect.IO
+import org.jooq.DSLContext
+import org.jsoup.Jsoup
+import org.jsoup.nodes.TextNode
+import scala.jdk.CollectionConverters.*
 
 import com.intellij.openapi.project.Project
 
@@ -14,17 +17,11 @@ import com.wenjunhuang.codeepiphany.leetcode.settings.{
   LeetCodeSettings,
   LeetCodeSettingsConfigurable
 }
-import com.wenjunhuang.codeepiphany.model.newtypes.CodeDojoChallengeId
 import com.wenjunhuang.codeepiphany.model.{ CodeDojo, Language, LanguageVersion }
+import com.wenjunhuang.codeepiphany.model.newtypes.CodeDojoChallengeId
+import com.wenjunhuang.codeepiphany.model.CodeDojo.LeetCodeCN
 import com.wenjunhuang.codeepiphany.services.BaseOpenChallengeService
-import com.wenjunhuang.codeepiphany.services.http.HttpClientManager
 import com.wenjunhuang.codeepiphany.settings.dojo.BaseCodeDojoSettings
-import org.jooq.DSLContext
-import org.typelevel.log4cats.LoggerFactory
-
-import com.intellij.openapi.util.text.StringUtil
-import scala.jdk.CollectionConverters.*
-
 import com.wenjunhuang.codeepiphany.settings.ChallengeSettings
 
 case class LeetCodeOpenChallengeRequest(questionSlug: String)
@@ -72,7 +69,7 @@ class LeetCodeOpenChallengeService(
 
     leetCodeChallengeRecord
       .setFrontendquestionid(challenge.frontendQuestionId)
-      .setTestcase(challenge.content.exampleTestcases)
+      .setTestcase(challenge.content.exampleTestcaseList.mkString("\n"))
     leetCodeChallengeRecord.store()
   }
 
@@ -94,7 +91,59 @@ class LeetCodeOpenChallengeService(
         case None =>
           IO.raiseError(new Exception(s"This challenge does not support ${language.show}${languageVersion.version}"))
         case Some((content, codeSnippet)) =>
-          IO.pure(
+          IO.delay {
+            val inputs = content.exampleTestcaseList
+            val expectedOutputs =
+              if (myCodeDojo == LeetCodeCN && content.content.contains("English description is not available for the problem")) {
+                val document       = Jsoup.parse(content.translatedContent.getOrElse(""))
+                val outputElements = document.select("pre strong:containsOwn(输出)")
+                if (outputElements.isEmpty) {
+                  document
+                    .select("p strong:containsOwn(输出) + span.example-io")
+                    .asScala
+                    .map { el =>
+                      el.text()
+                    }
+                    .toList match {
+                    case Nil =>
+                      document
+                        .select("blockquote p:containsOwn(输出：) code")
+                        .asScala
+                        .map { el =>
+                          el.text().trim
+                        }
+                        .toList
+                    case outputs => outputs
+                  }
+                } else {
+                  outputElements.asScala.map { el =>
+                    el.nextSibling() match {
+                      case textNode: TextNode => textNode.text().trim
+                      case _                  => el.nextSibling().toString
+                    }
+                  }.toList
+                }
+              } else {
+                val document       = Jsoup.parse(content.content)
+                val outputElements = document.select("pre strong:containsOwn(Output:)")
+                if (outputElements.isEmpty) {
+                  document
+                    .select("p strong:containsOwn(Output:) + span.example-io")
+                    .asScala
+                    .map { el =>
+                      el.text()
+                    }
+                    .toList
+                } else {
+                  outputElements.asScala.map { el =>
+                    el.nextSibling() match {
+                      case textNode: TextNode => textNode.text().trim
+                      case _                  => el.nextSibling().toString
+                    }
+                  }.toList
+                }
+              }
+
             (
               CodeDojoChallengeId(content.questionId),
               LeetCodeChallengeCodeTemplate(
@@ -109,17 +158,14 @@ class LeetCodeOpenChallengeService(
                 language = language,
                 languageVersion = languageVersion,
                 content = content,
-                testCases = StringUtil
-                  .splitByLines(content.exampleTestcases)
-                  .toList
-                  .grouped(2)
-                  .toList
-                  .collect { case input +: expectedOutput +: Nil =>
-                    ChallengeSettings.TestCase(input = input, expectedOutput = expectedOutput)
+                testCases = inputs
+                  .zip(expectedOutputs)
+                  .map { case (input, expectedOutput) =>
+                    ChallengeSettings.TestCase(input, expectedOutput)
                   }
               )
             )
-          )
+          }
       }
   }
 }

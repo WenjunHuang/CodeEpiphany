@@ -16,7 +16,7 @@ case class LeetCodeChallengeData(
   dislikes: Int,
   isLiked: Option[Boolean] = None,
   similarQuestions: String,
-  exampleTestcases: String,
+  exampleTestcaseList: List[String],
   topicTags: List[LeetCodeQuestionTopicTag],
   codeSnippets: List[LeetCodeQuestionCodeSnippet],
   hints: List[String],
