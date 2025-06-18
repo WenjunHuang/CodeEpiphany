@@ -107,7 +107,7 @@ class LeetCodeOpenChallengeService(
                     .toList match {
                     case Nil =>
                       document
-                        .select("blockquote p:containsOwn(输出：) code")
+                        .select("blockquote p:containsOwn(输出) code")
                         .asScala
                         .map { el =>
                           el.text().trim
@@ -125,10 +125,10 @@ class LeetCodeOpenChallengeService(
                 }
               } else {
                 val document       = Jsoup.parse(content.content)
-                val outputElements = document.select("pre strong:containsOwn(Output:)")
+                val outputElements = document.select("pre strong:containsOwn(Output)")
                 if (outputElements.isEmpty) {
                   document
-                    .select("p strong:containsOwn(Output:) + span.example-io")
+                    .select("p strong:containsOwn(Output) + span.example-io")
                     .asScala
                     .map { el =>
                       el.text()
