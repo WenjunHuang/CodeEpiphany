@@ -17,6 +17,7 @@ import com.wenjunhuang.codeepiphany.model.CodeDojo.LeetCode
 import com.wenjunhuang.codeepiphany.model.Language.*
 import com.wenjunhuang.codeepiphany.model.LanguageVersion.*
 import com.wenjunhuang.codeepiphany.settings.dojo.{BaseCodeDojoSettings, BaseSettingsConfigurable}
+import com.wenjunhuang.codeepiphany.settings.ChallengeSettings
 
 class LeetCodeSettingsConfigurable(project: Project)
     extends BaseSettingsConfigurable(
@@ -106,7 +107,7 @@ object LeetCodeSettingsConfigurable {
                 dislikes = 0,
                 isLiked = None,
                 similarQuestions = "",
-                exampleTestcases = "",
+                exampleTestcaseList = List("[1, 3]\n[2]", "[1, 2]\n[3, 4]"),
                 topicTags = Nil,
                 codeSnippets = Nil,
                 hints = Nil,
@@ -114,7 +115,16 @@ object LeetCodeSettingsConfigurable {
                 testCase = "",
                 metaData = ""
               ),
-              testCases = Nil
+              testCases = List(
+                ChallengeSettings.TestCase(
+                  input = "[1, 3]\n[2]",
+                  expectedOutput = "2.00000"
+                ),
+                ChallengeSettings.TestCase(
+                  input = "[1, 2]\n[3, 4]",
+                  expectedOutput = "2.50000"
+                )
+              )
             )
         }
       })

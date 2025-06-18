@@ -110,12 +110,23 @@ class LeetCodeSubmissionService(
   }
 
   private def formatFailureDetails(response: LeetCodeSubmitAnswerResult.Success): String = {
-    Tabulator.format(
-      List("Input", "Output", "Expected"),
-      List(response.input, response.codeOutput, response.expectedOutput)
-        .map(_.getOrElse(""))
-        .map(StringUtil.escapeLineBreak)
-    )
+    s"""
+       |-------------------------
+       |${PluginBundle.message("leetcode.submissionResult.wrongAnswer.input.text")}:
+       |${response.input.getOrElse("")}
+       |-------------------------
+       |${PluginBundle.message("leetcode.submissionResult.wrongAnswer.output.text")}:
+       |${response.codeOutput.getOrElse("")}
+       |-------------------------
+       |${PluginBundle.message("leetcode.submissionResult.wrongAnswer.expected.text")}:
+       |${response.expectedOutput.getOrElse("")}
+       |""".stripMargin
+//    Tabulator.format(
+//      List("Input", "Output", "Expected"),
+//      List(response.input, response.codeOutput, response.expectedOutput)
+//        .map(_.getOrElse(""))
+//        .map(StringUtil.escapeLineBreak)
+//    )
   }
 
   private def createSubmissionRequest(

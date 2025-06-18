@@ -26,16 +26,16 @@
       </hspacer>
       <component id="890c9" class="com.intellij.ui.EditorTextField" binding="myInputValueEditor" custom-create="true">
         <constraints>
-          <grid row="2" column="0" row-span="1" col-span="3" vsize-policy="0" hsize-policy="3" anchor="1" fill="1" indent="0" use-parent-layout="false">
-            <preferred-size width="-1" height="100"/>
+          <grid row="2" column="0" row-span="1" col-span="3" vsize-policy="2" hsize-policy="3" anchor="1" fill="1" indent="0" use-parent-layout="false">
+            <minimum-size width="-1" height="100"/>
           </grid>
         </constraints>
         <properties/>
       </component>
       <component id="2ad0f" class="com.intellij.ui.EditorTextField" binding="myExpectedValueEditor" custom-create="true">
         <constraints>
-          <grid row="4" column="0" row-span="1" col-span="3" vsize-policy="0" hsize-policy="3" anchor="1" fill="1" indent="0" use-parent-layout="false">
-            <preferred-size width="-1" height="100"/>
+          <grid row="4" column="0" row-span="1" col-span="3" vsize-policy="2" hsize-policy="3" anchor="1" fill="1" indent="0" use-parent-layout="false">
+            <minimum-size width="-1" height="50"/>
           </grid>
         </constraints>
         <properties/>

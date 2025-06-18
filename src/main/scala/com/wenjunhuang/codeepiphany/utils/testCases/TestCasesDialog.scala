@@ -1,24 +1,23 @@
 package com.wenjunhuang.codeepiphany.utils.testCases
 
-import java.awt.{ GridBagConstraints, GridBagLayout }
+import java.awt.{GridBagConstraints, GridBagLayout}
 import java.awt.event.ActionEvent
-import javax.swing.{ JComponent, JPanel, ScrollPaneConstants }
+import javax.swing.{JComponent, JPanel, ScrollPaneConstants}
 import scala.collection.mutable
 
 import com.intellij.icons.AllIcons
-import com.intellij.openapi.actionSystem.{ ActionManager, AnAction, AnActionEvent, DefaultActionGroup }
+import com.intellij.openapi.actionSystem.{ActionManager, AnAction, AnActionEvent, DefaultActionGroup}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.DialogWrapper
 import com.intellij.ui.ScrollPaneFactory
-import com.intellij.util.ui.JBUI
 
-import com.wenjunhuang.codeepiphany.utils.walkaround.DialogWrapperBridge
-import com.wenjunhuang.codeepiphany.{ settings, PluginBundle }
+import com.wenjunhuang.codeepiphany.{settings, PluginBundle}
 import com.wenjunhuang.codeepiphany.settings.ChallengeSettings
+import com.wenjunhuang.codeepiphany.utils.walkaround.DialogWrapperBridge
 
 object TestCasesDialog {
   private val DIALOG_WIDTH  = 600
-  private val DIALOG_HEIGHT = 400
+  private val DIALOG_HEIGHT = 500
   private val TOOLBAR_ID    = "TestCasesDialog"
 
   private def createGridBagConstraints: GridBagConstraints = {

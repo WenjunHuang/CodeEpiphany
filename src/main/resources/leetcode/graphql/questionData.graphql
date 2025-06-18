@@ -13,7 +13,8 @@ query questionData($titleSlug: String!) {
         dislikes
         isLiked
         similarQuestions
-        exampleTestcases
+        exampleTestcaseList
+        testCase: sampleTestCase
         topicTags {
             name
             slug
@@ -30,7 +31,6 @@ query questionData($titleSlug: String!) {
             canSeeDetail
         }
         status
-        testCase: sampleTestCase
         metaData
         judgerAvailable
         judgeType

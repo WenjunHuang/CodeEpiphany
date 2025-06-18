@@ -1,3 +1,8 @@
+## 1.3.1
+### Fixed
+- Fix leetcode/leetcodecn test cases data not correctly parsed issue [#48](https://github.com/WenjunHuang/CodeEpiphany/issues/48)
+- [#49](https://github.com/WenjunHuang/CodeEpiphany/issues/49)
+ 
 ## 1.3.0
 ### Added
 - Add TestCase support for LeetCode, LeetCodeCN, LuoGu, CodeForces, AtCoder and HackerRank

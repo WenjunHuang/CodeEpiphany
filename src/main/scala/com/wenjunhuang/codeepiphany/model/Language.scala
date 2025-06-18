@@ -114,7 +114,7 @@ enum Language(val value: String, val fileExt: String, val show: String, val icon
           accum.clear()
       else if inRegion then accum += line
     }
-    result.mkString("\n")
+    result.mkString("")
   }
 
   def matchRegion(comment: String, region: String): Boolean = {
