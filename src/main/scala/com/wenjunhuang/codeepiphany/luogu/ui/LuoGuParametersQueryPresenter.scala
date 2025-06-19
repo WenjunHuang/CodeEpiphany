@@ -5,6 +5,7 @@ import cats.syntax.all.*
 import com.intellij.openapi.actionSystem.{ActionGroup, ActionManager}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.text.StringUtil
+import com.wenjunhuang.codeepiphany.PluginBundle
 import com.wenjunhuang.codeepiphany.actions.TagsAction.MultiTagGroupProvider
 import com.wenjunhuang.codeepiphany.actions.{OpenChallengeActionGroup, TagsAction}
 import com.wenjunhuang.codeepiphany.luogu.actions.LuoGuDifficultyParameterAction.LuoGuDifficultyParameterProvider
@@ -14,8 +15,7 @@ import com.wenjunhuang.codeepiphany.luogu.models.*
 import com.wenjunhuang.codeepiphany.luogu.services.LuoGuApi
 import com.wenjunhuang.codeepiphany.luogu.settings.LuoGuSettings
 import com.wenjunhuang.codeepiphany.luogu.ui.LuoGuParametersQueryPresenter.{DIFFICULTY_TAG_RADIUS, QUESTION_BANK_RADIUS, QueryParams, TAG_TAG_RADIUS}
-import com.wenjunhuang.codeepiphany.model.{Actions, OrderDirection}
-import com.wenjunhuang.codeepiphany.services.http.HttpClientManager
+import com.wenjunhuang.codeepiphany.model.{Actions, CodeDojo, OrderDirection}
 import com.wenjunhuang.codeepiphany.services.{ParametersQueryPresenter, QueryContext}
 import com.wenjunhuang.codeepiphany.utils.PageSize.Fifty
 import com.wenjunhuang.codeepiphany.utils.actions.DataSink
@@ -35,6 +35,8 @@ class LuoGuParametersQueryPresenter(project: Project, bootstrap: LuoGuBootstrapP
       LuoGuParametersQueryPresenter.QueryParams,
       LuoGuChallengeItem
     ](project, bootstrap) {
+
+  override def queryTitle: String = PluginBundle.message("query.challenge.title", CodeDojo.LuoGu.show)
 
   override protected def prepareProviders(
     getter: () => QueryContext[LuoGuParametersQueryPresenter.QueryParams],

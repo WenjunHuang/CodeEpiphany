@@ -2,31 +2,32 @@ package com.wenjunhuang.codeepiphany.toolwindows.sidebar.solutions.leetcode
 
 import cats.effect.IO
 import cats.syntax.all.*
+
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
-import javax.swing.{ Icon, JTable, SwingConstants }
-import javax.swing.event.{ ListSelectionEvent, ListSelectionListener }
-import javax.swing.table.{ DefaultTableCellRenderer, TableCellRenderer }
+import javax.swing.{Icon, JTable, SwingConstants}
+import javax.swing.event.{ListSelectionEvent, ListSelectionListener}
+import javax.swing.table.{DefaultTableCellRenderer, TableCellRenderer}
 import monocle.syntax.all.*
 import org.apache.commons.text.StringEscapeUtils
-import scala.collection.mutable
 
+import scala.collection.mutable
 import com.intellij.icons.AllIcons
-import com.intellij.openapi.actionSystem.{ ActionGroup, ActionManager }
+import com.intellij.openapi.actionSystem.{ActionGroup, ActionManager}
 import com.intellij.openapi.project.Project
 import com.intellij.util.ui.table.IconTableCellRenderer
-
+import com.wenjunhuang.codeepiphany.PluginBundle
 import com.wenjunhuang.codeepiphany.actions.TagsAction
 import com.wenjunhuang.codeepiphany.actions.TagsAction.MultiTagGroupProvider
 import com.wenjunhuang.codeepiphany.leetcode.models.*
 import com.wenjunhuang.codeepiphany.leetcode.services.LeetCodeApi
-import com.wenjunhuang.codeepiphany.model.{ Actions, CodeDojo }
-import com.wenjunhuang.codeepiphany.model.DifficultyColors.{ DIFFICULTY_EASY_COLOR, DIFFICULTY_MEDIUM_COLOR }
-import com.wenjunhuang.codeepiphany.services.{ ParametersQueryPresenter, QueryContext }
-import com.wenjunhuang.codeepiphany.services.http.{ HttpClientManager }
+import com.wenjunhuang.codeepiphany.model.{Actions, CodeDojo}
+import com.wenjunhuang.codeepiphany.model.DifficultyColors.{DIFFICULTY_EASY_COLOR, DIFFICULTY_MEDIUM_COLOR}
+import com.wenjunhuang.codeepiphany.services.{ParametersQueryPresenter, QueryContext}
+import com.wenjunhuang.codeepiphany.services.http.HttpClientManager
 import com.wenjunhuang.codeepiphany.toolwindows.sidebar.solutions.leetcode.SolutionArticlesPresenter.*
 import com.wenjunhuang.codeepiphany.toolwindows.sidebar.solutions.leetcode.actions.ArticleOrderByAction
-import com.wenjunhuang.codeepiphany.utils.{ AsyncAvatarLoader, OrderByColumnInfo, Pagination }
+import com.wenjunhuang.codeepiphany.utils.{AsyncAvatarLoader, OrderByColumnInfo, Pagination}
 import com.wenjunhuang.codeepiphany.utils.actions.DataSink
 import com.wenjunhuang.codeepiphany.utils.ui.TagPaneAction
 import com.wenjunhuang.codeepiphany.utils.PageSize.Twenty
@@ -91,6 +92,8 @@ class SolutionArticlesPresenter(
 
   getQueryResultTableSelectionModel.addListSelectionListener(mySelectionListener)
 
+  override def queryTitle: String = PluginBundle.message("query.solution.title",myBoostrapParameters.questionSlug)
+  
   override def dispose(): Unit = {
     getQueryResultTableSelectionModel.removeListSelectionListener(mySelectionListener)
     super.dispose()
