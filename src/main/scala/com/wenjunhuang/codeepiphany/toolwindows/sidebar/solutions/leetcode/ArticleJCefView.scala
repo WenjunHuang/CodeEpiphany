@@ -25,6 +25,8 @@ class ArticleJCefView(
   myProject: Project
 ) extends BaseJCefWebView(styleProvider, myProject, "webview") {
 
+  setArticleContent(None)
+
   // Set up HTTP server with article-specific resources
   override protected def setupHttpServer(): Unit = {
     myHttpServer.addCustomResponse(
