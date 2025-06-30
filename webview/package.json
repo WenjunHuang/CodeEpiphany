@@ -15,7 +15,7 @@
   "devDependencies": {
     "@codingame/esbuild-import-meta-url-plugin": "~1.0.2",
     "@types/katex": "^0.16.7",
-    "@types/node": "^22.15.30",
+    "@types/node": "^24.0.7",
     "rimraf": "^6.0.1",
     "sass": "^1.89.2",
     "typescript": "^5.7.2",
