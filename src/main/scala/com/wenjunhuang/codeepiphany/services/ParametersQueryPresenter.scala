@@ -49,10 +49,6 @@ abstract class ParametersQueryPresenter[UIBoostrapParameters, T, ResultItem](
     dataSink.set(REFRESH_PROVIDER_KEY, myRefreshProvider)
   }
 
-//  private inline def insertIf(inline condition: Boolean, inline actions: ActionGroup): Array[AnAction] =
-//    inline if condition then actions.getChildren(null, ActionManager.getInstance())
-//    else actions.getChildren(null)
-
   def getParametersActionGroup: ActionGroup                       = myQueryParametersActionGroup
   def getTagsActionModel: ObservableProperty[List[TagPaneAction]] = myTagsActionModel
   def getRowSelectionTablePopup: ActionGroup = {

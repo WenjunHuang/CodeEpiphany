@@ -6,12 +6,12 @@ import io.circe.parser.*
 import io.circe.syntax.*
 import monocle.syntax.all.*
 import org.jooq.impl.DSL
-import scala.jdk.CollectionConverters.*
 
+import scala.jdk.CollectionConverters.*
 import com.intellij.openapi.actionSystem.{ ActionGroup, ActionManager }
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.text.StringUtil
-
+import com.wenjunhuang.codeepiphany.PluginBundle
 import com.wenjunhuang.codeepiphany.actions.{ DifficultyParameterAction, OpenChallengeActionGroup, TagsAction }
 import com.wenjunhuang.codeepiphany.actions.DifficultyParameterAction.DifficultyParameterProvider
 import com.wenjunhuang.codeepiphany.actions.TagsAction.{ SingleTagGroupProvider, Tag }
@@ -20,7 +20,8 @@ import com.wenjunhuang.codeepiphany.codeforces.settings.CodeForcesSettings
 import com.wenjunhuang.codeepiphany.codeforces.ui.CodeForcesParametersQueryPresenter.*
 import com.wenjunhuang.codeepiphany.database.tables.records.CodeforcesProblemsetsRecord
 import com.wenjunhuang.codeepiphany.database.Tables.CODEFORCES_PROBLEMSETS_FTS
-import com.wenjunhuang.codeepiphany.model.{ Actions, ChallengeDifficulty, OrderDirection }
+import com.wenjunhuang.codeepiphany.model.CodeDojo.show
+import com.wenjunhuang.codeepiphany.model.{ Actions, ChallengeDifficulty, CodeDojo, OrderDirection }
 import com.wenjunhuang.codeepiphany.services.{ ChallengeRepository, ParametersQueryPresenter, QueryContext }
 import com.wenjunhuang.codeepiphany.utils.{ OrderByColumnInfo, PageSize, Pagination }
 import com.wenjunhuang.codeepiphany.utils.actions.DataSink
@@ -149,6 +150,8 @@ class CodeForcesParametersQueryPresenter(project: Project, bootstrap: CodeForces
         )
       }
   }
+
+  override protected def queryTitle: String = PluginBundle.message("query.challenge.title", show(CodeDojo.CodeForces))
 
   override protected def createInitialQueryParameters(
     boostrapParameters: CodeForcesBootstrapParameters

@@ -1,76 +1,111 @@
-## 1.3.1
-### Fixed
-- Fix leetcode/leetcodecn test cases data not correctly parsed issue [#48](https://github.com/WenjunHuang/CodeEpiphany/issues/48)
-- [#49](https://github.com/WenjunHuang/CodeEpiphany/issues/49)
- 
-## 1.3.0
+## 1.3.2
+
 ### Added
+
+- Add LuoGu question solution
+
+## 1.3.1
+
+### Fixed
+
+- Fix leetcode/leetcodecn test cases data not correctly parsed
+  issue [#48](https://github.com/WenjunHuang/CodeEpiphany/issues/48)
+- [#49](https://github.com/WenjunHuang/CodeEpiphany/issues/49)
+
+## 1.3.0
+
+### Added
+
 - Add TestCase support for LeetCode, LeetCodeCN, LuoGu, CodeForces, AtCoder and HackerRank
 - Add TestCase variable in code file template for LeetCode, LeetCodeCN, LuoGu, CodeForces, AtCoder and HackerRank
 
 ### Fixed
+
 - [#16](https://github.com/WenjunHuang/CodeEpiphany/issues/36)
 - [#29](https://github.com/WenjunHuang/CodeEpiphany/issues/29)
 - [#37](https://github.com/WenjunHuang/CodeEpiphany/issues/37)
 - [#38](https://github.com/WenjunHuang/CodeEpiphany/issues/38)
 - [#46](https://github.com/WenjunHuang/CodeEpiphany/issues/46)
- 
-## 1.2.3 
+
+## 1.2.3
+
 - Fix webview scrollbar style not compatible with IDE theme issue
 - Fix user avatar icon size is too big for leetcode solution view in macos
 - Fix codeforces code submission result issue
- 
+
 ## 1.2.2
+
 ### Modified
+
 - Fix chinese translation issues
 - Modify readme and description documentation
 
 ## 1.2.0
+
 ### Added
+
 - LeetCode and LeetCodeCN official solutions view support
 
 ### Modified
+
 - Rename the old 'solutions' feature to 'my notes'
- 
+
 ## 1.1.0
+
 ### Added
-- Add [Browser Competitive-Companion](https://github.com/jmerle/competitive-companion) support to [CodeForces](https://codeforces.com/)
- 
+
+- Add [Browser Competitive-Companion](https://github.com/jmerle/competitive-companion) support
+  to [CodeForces](https://codeforces.com/)
+
 ## 1.0.4
+
 ## Fixed
+
 - Fix CodeForces login issue
 - Fix code file template return empty string issue
- 
+
 ## 1.0.2
+
 ### Changed
+
 - Change leetcode icons
 
-
 ## 1.0.1
+
 ### Fixed
-- Fix luogu user cookie expiration causing login failure issue.[#17](https://github.com/WenjunHuang/CodeEpiphany/issues/17)
+
+- Fix luogu user cookie expiration causing login failure
+  issue.[#17](https://github.com/WenjunHuang/CodeEpiphany/issues/17)
+
 ### Changed
+
 - Change description
- 
+
 ## 1.0.0
+
 ### Added
+
 - Automatically save search queries
 - Save latest opened codedojo toolwindow and automatically open it when the IDE is restarted
- 
+
 ## 0.9.8
+
 ### Changed
+
 - Fix luogu login change
- 
+
 ## 0.9.3
+
 ### Changed
+
 - Fix leetcode company combobox dropdown slow
- 
+
 ## 0.9.2
 
 ### Changed
 
 - Fix a few bugs
- 
+
 ## 0.9.0
 
 ### Added

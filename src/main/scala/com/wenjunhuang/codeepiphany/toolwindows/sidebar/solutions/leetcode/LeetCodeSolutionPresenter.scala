@@ -3,6 +3,7 @@ package com.wenjunhuang.codeepiphany.toolwindows.sidebar.solutions.leetcode
 import cats.effect.IO
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.Splitter
+import com.intellij.openapi.util.Disposer
 import com.intellij.ui.AnimatedIcon
 import com.intellij.ui.components.JBLabel
 import com.intellij.util.ui.components.BorderLayoutPanel
@@ -12,11 +13,11 @@ import com.wenjunhuang.codeepiphany.leetcode.services.LeetCodeApi
 import com.wenjunhuang.codeepiphany.model.CodeDojo
 import com.wenjunhuang.codeepiphany.model.newtypes.ChallengeId
 import com.wenjunhuang.codeepiphany.services.http.HttpClientManager
-import com.wenjunhuang.codeepiphany.services.{AuthService, ChallengeRepository}
+import com.wenjunhuang.codeepiphany.services.{ AuthService, ChallengeRepository }
 import com.wenjunhuang.codeepiphany.utils.syntax.*
 import com.wenjunhuang.codeepiphany.utils.ui.UnauthenticatedView
 
-import javax.swing.{JComponent, SwingConstants}
+import javax.swing.{ JComponent, SwingConstants }
 import scala.jdk.OptionConverters.*
 
 class LeetCodeSolutionPresenter(
@@ -24,12 +25,7 @@ class LeetCodeSolutionPresenter(
   private val myProject: Project,
   private val myCodeDojo: CodeDojo.LeetCodeCN.type | CodeDojo.LeetCode.type
 ) {
-  private val myView =
-    new BorderLayoutPanel() {
-      override def removeNotify(): Unit = {
-        super.removeNotify()
-      }
-    }
+  private val myView = new BorderLayoutPanel()
 
   initialize()
 
@@ -86,7 +82,13 @@ class LeetCodeSolutionPresenter(
                 },
                 myCodeDojo
               )
-              val splitter = Splitter(false, 0.3f)
+
+              val splitter = new Splitter(false, 0.3f) {
+                override def removeNotify(): Unit = {
+                  Disposer.dispose(articlesPresenter)
+                  Disposer.dispose(articleDetailPresenter)
+                }
+              }
               splitter.setShowDividerControls(true)
               splitter.setFirstComponent(articlesPresenter.getViewComponent)
               splitter.setSecondComponent(articleDetailPresenter.getView)

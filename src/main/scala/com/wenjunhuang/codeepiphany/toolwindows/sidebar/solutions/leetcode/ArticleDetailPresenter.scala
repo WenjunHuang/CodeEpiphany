@@ -33,10 +33,11 @@ class ArticleDetailPresenter(
   private var myQueryQueue: Option[Queue[IO, Option[LeetCodeQuestionSolutionArticle]]] = None
   private val myLogger                                                                 = LoggerFactory.getLogger[IO]
   private val myView = ArticleDetailView(this, myProject)
-
-  createQueryPipeline()
+  
   Disposer.register(myProject, this)
   Disposer.register(this, myView)
+  
+  createQueryPipeline()
 
   def setArticle(article: LeetCodeQuestionSolutionArticle): Unit = {
     myQueryQueue.foreach(_.offer(Some(article)).unsafeRunSync())

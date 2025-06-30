@@ -2,53 +2,37 @@ package com.wenjunhuang.codeepiphany.leetcode.ui
 
 import cats.effect.IO
 import cats.syntax.all.*
-import io.circe.*
-import io.circe.syntax.*
-import io.circe.parser.*
-import io.circe.generic.auto.*
-import javax.swing.{ Icon, JTable, SwingConstants }
-import javax.swing.table.{ DefaultTableCellRenderer, TableCellRenderer }
-import monocle.syntax.all.*
-import org.typelevel.log4cats.LoggerFactory
-
 import com.intellij.icons.AllIcons
-import com.intellij.openapi.actionSystem.{ ActionGroup, ActionManager }
+import com.intellij.openapi.actionSystem.{ActionGroup, ActionManager}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.util.ui.table.IconTableCellRenderer
-
-import com.wenjunhuang.codeepiphany.actions.{ OpenChallengeActionGroup, TagsAction }
-import com.wenjunhuang.codeepiphany.actions.DifficultyParameterAction.{
-  DIFFICULTIES_PROVIDER_KEY,
-  DifficultyParameterProvider
-}
-import com.wenjunhuang.codeepiphany.actions.StatusParameterAction.{ STATUS_PROVIDER_KEY, StatusParameterProvider }
+import com.wenjunhuang.codeepiphany.PluginBundle
+import com.wenjunhuang.codeepiphany.actions.DifficultyParameterAction.{DIFFICULTIES_PROVIDER_KEY, DifficultyParameterProvider}
+import com.wenjunhuang.codeepiphany.actions.StatusParameterAction.{STATUS_PROVIDER_KEY, StatusParameterProvider}
 import com.wenjunhuang.codeepiphany.actions.TagsAction.*
-import com.wenjunhuang.codeepiphany.leetcode.actions.CompanyParameterAction.{
-  COMPANY_PROVIDER_KEY,
-  CompanyParameterProvider
-}
+import com.wenjunhuang.codeepiphany.actions.{OpenChallengeActionGroup, TagsAction}
+import com.wenjunhuang.codeepiphany.leetcode.actions.CompanyParameterAction.{COMPANY_PROVIDER_KEY, CompanyParameterProvider}
 import com.wenjunhuang.codeepiphany.leetcode.actions.InterviewPeriodParameterAction
-import com.wenjunhuang.codeepiphany.leetcode.actions.InterviewPeriodParameterAction.{
-  INTERVIEW_PERIOD_PROVIDER_KEY,
-  InterviewPeriod,
-  InterviewPeriodProvider
-}
-import com.wenjunhuang.codeepiphany.leetcode.actions.PositionParameterAction.{
-  POSITION_PROVIDER_KEY,
-  PositionParameterProvider
-}
+import com.wenjunhuang.codeepiphany.leetcode.actions.InterviewPeriodParameterAction.{INTERVIEW_PERIOD_PROVIDER_KEY, InterviewPeriod, InterviewPeriodProvider}
+import com.wenjunhuang.codeepiphany.leetcode.actions.PositionParameterAction.{POSITION_PROVIDER_KEY, PositionParameterProvider}
 import com.wenjunhuang.codeepiphany.leetcode.models.*
-import com.wenjunhuang.codeepiphany.leetcode.services.{ LeetCodeApi, LeetCodeSearchOrderBy }
-import com.wenjunhuang.codeepiphany.leetcode.settings.{ LeetCodeCNSettings, LeetCodeSettings }
+import com.wenjunhuang.codeepiphany.leetcode.services.{LeetCodeApi, LeetCodeSearchOrderBy}
+import com.wenjunhuang.codeepiphany.leetcode.settings.{LeetCodeCNSettings, LeetCodeSettings}
 import com.wenjunhuang.codeepiphany.leetcode.ui.LeetCodeCompanyQueryPresenter.*
 import com.wenjunhuang.codeepiphany.model.*
-import com.wenjunhuang.codeepiphany.services.{ ParametersQueryPresenter, QueryContext }
-import com.wenjunhuang.codeepiphany.services.http.{ HttpClientManager }
-import com.wenjunhuang.codeepiphany.utils.{ OrderByColumnInfo, PageSize, Pagination }
+import com.wenjunhuang.codeepiphany.services.{ParametersQueryPresenter, QueryContext}
 import com.wenjunhuang.codeepiphany.utils.actions.DataSink
-import com.wenjunhuang.codeepiphany.utils.syntax.*
 import com.wenjunhuang.codeepiphany.utils.ui.TagPaneAction
+import com.wenjunhuang.codeepiphany.utils.{OrderByColumnInfo, PageSize, Pagination}
+import io.circe.*
+import io.circe.generic.auto.*
+import io.circe.parser.*
+import io.circe.syntax.*
+import monocle.syntax.all.*
+
+import javax.swing.table.{DefaultTableCellRenderer, TableCellRenderer}
+import javax.swing.{Icon, JTable, SwingConstants}
 
 class LeetCodeCompanyQueryPresenter(
   project: Project,
@@ -59,6 +43,8 @@ class LeetCodeCompanyQueryPresenter(
       LeetCodeCompanyQueryCriteria,
       LeetCodeChallengeListItem
     ](project, boostrap) {
+
+  override def queryTitle: String = PluginBundle.message("query.challenge.title",myLeetCodeDojo.show)
 
   override protected def prepareProviders(
     getter: () => QueryContext[LeetCodeCompanyQueryCriteria],

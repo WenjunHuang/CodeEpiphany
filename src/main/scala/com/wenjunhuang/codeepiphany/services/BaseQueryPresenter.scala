@@ -1,24 +1,28 @@
 package com.wenjunhuang.codeepiphany.services
 
 import cats.effect.std.Queue
-import cats.effect.{IO, Resource, SyncIO}
+import cats.effect.{ IO, Resource, SyncIO }
 import cats.syntax.all.*
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
 import com.intellij.ui.SingleSelectionModel
-import com.intellij.util.ui.{ColumnInfo, ListTableModel}
-import com.wenjunhuang.codeepiphany.actions.PaginationParameterActionGroup.{PAGINATION_PROVIDER_KEY, PaginationParameterProvider}
+import com.intellij.util.ui.{ ColumnInfo, ListTableModel }
+import com.wenjunhuang.codeepiphany.PluginBundle
+import com.wenjunhuang.codeepiphany.actions.PaginationParameterActionGroup.{
+  PAGINATION_PROVIDER_KEY,
+  PaginationParameterProvider
+}
 import com.wenjunhuang.codeepiphany.utils.actions.DataSink
 import com.wenjunhuang.codeepiphany.utils.extensions.*
 import com.wenjunhuang.codeepiphany.utils.syntax.*
-import com.wenjunhuang.codeepiphany.utils.{CancellableStream, OrderByColumnInfo, PageSize, Pagination}
+import com.wenjunhuang.codeepiphany.utils.{ CancellableStream, OrderByColumnInfo, PageSize, Pagination }
 import fs2.Stream
 import fs2.concurrent.SignallingRef
-import org.typelevel.log4cats.{Logger, LoggerFactory}
+import org.typelevel.log4cats.{ Logger, LoggerFactory }
 
 import java.util
-import javax.swing.{JComponent, ListSelectionModel}
+import javax.swing.{ JComponent, ListSelectionModel }
 import scala.concurrent.duration.*
 import scala.jdk.CollectionConverters.*
 
@@ -85,6 +89,7 @@ abstract class BaseQueryPresenter[UIBoostrapParameters, T, ResultItem](
   protected def executeQuery(context: QueryContext[T]): IO[(Pagination, List[ResultItem])]
   protected def refreshPagination(): Unit
   protected def updateQueryUI(context: QueryContext[T]): Unit
+  protected def queryTitle: String = ""
 
   private def loadSavedCriteriaOrCreateFromBootstrapParameters(
     boostrapParameters: UIBoostrapParameters
@@ -125,9 +130,9 @@ abstract class BaseQueryPresenter[UIBoostrapParameters, T, ResultItem](
       .drain
       .recoverWith { e =>
         myLoggerIO.warn(e)("Failed to execute query") *>
-          console.error(myProject, s"Failed to execute query because of \"${e.getMessage}\"")
+          console.error(myProject, PluginBundle.message("query.error", e.getMessage))
       }
-      .evalAsBackgroundProgress(myProject, "Querying challenges...")
+      .evalAsBackgroundProgress(myProject, PluginBundle.message("query.progress.title", queryTitle))
   }
 
   private def processQuery(ctx: CancellableStream.StreamContext[QueryContext[T]]): IO[Unit] = {

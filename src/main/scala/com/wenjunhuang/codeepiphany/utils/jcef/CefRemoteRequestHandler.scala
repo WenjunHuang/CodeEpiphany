@@ -23,8 +23,6 @@ import java.io.ByteArrayOutputStream
 import java.nio.ByteBuffer
 import java.util as ju
 import java.util.concurrent.ArrayBlockingQueue
-import scala.jdk.CollectionConverters.*
-import scala.util.matching.Regex
 
 open class CefRemoteRequestHandler(
   private val project: Project,

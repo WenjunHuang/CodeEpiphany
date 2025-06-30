@@ -1,31 +1,23 @@
 package com.wenjunhuang.codeepiphany.services.http
 
-import cats.effect.kernel.Ref.Make
-import cats.effect.kernel.Sync
-import cats.effect.{ Async, Ref, Resource }
-import cats.syntax.all.*
-import com.intellij.openapi.application.ApplicationManager
+import cats.effect.{IO, Ref, Resource}
 import com.intellij.openapi.util.io.FileUtil
-import com.intellij.util.net.*
 import com.wenjunhuang.codeepiphany.model.CodeDojo
 import com.wenjunhuang.codeepiphany.utils.CompatibleUtils
 import com.wenjunhuang.codeepiphany.utils.syntax.*
 import okhttp3.*
 import org.http4s.client.Client
 import org.typelevel.ci.CIString
-import org.typelevel.log4cats.LoggerFactory
 
 import java.io.IOException
-import java.net.{ HttpCookie, ProxySelector, SocketAddress, URI }
+import java.net.{HttpCookie, ProxySelector, SocketAddress, URI}
 import java.security.cert.X509Certificate
-import java.util.concurrent.TimeUnit
-import java.{ net, util }
-import javax.net.ssl.{ SSLContext, TrustManager, X509TrustManager }
+import java.{net, util}
+import javax.net.ssl.{SSLContext, TrustManager, X509TrustManager}
 import scala.annotation.static
 import scala.concurrent.duration.*
 import scala.jdk.CollectionConverters.*
 import scala.util.boundary
-import cats.effect.IO
 
 type CookieJar = Map[CodeDojo, Map[CIString, HttpCookie]]
 

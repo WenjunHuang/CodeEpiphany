@@ -7,6 +7,7 @@ import com.intellij.openapi.actionSystem.{ActionGroup, ActionManager}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.util.ui.table.IconTableCellRenderer
+import com.wenjunhuang.codeepiphany.PluginBundle
 import com.wenjunhuang.codeepiphany.actions.DifficultyParameterAction.{DIFFICULTIES_PROVIDER_KEY, DifficultyParameterProvider}
 import com.wenjunhuang.codeepiphany.actions.StatusParameterAction.{STATUS_PROVIDER_KEY, StatusParameterProvider}
 import com.wenjunhuang.codeepiphany.actions.TagsAction.*
@@ -18,7 +19,7 @@ import com.wenjunhuang.codeepiphany.leetcode.services.{LeetCodeApi, LeetCodeSear
 import com.wenjunhuang.codeepiphany.leetcode.settings.{LeetCodeCNSettings, LeetCodeSettings}
 import com.wenjunhuang.codeepiphany.leetcode.ui.LeetCodeParametersQueryPresenter.*
 import com.wenjunhuang.codeepiphany.model.*
-import com.wenjunhuang.codeepiphany.services.http.{HttpClientManager}
+import com.wenjunhuang.codeepiphany.services.http.HttpClientManager
 import com.wenjunhuang.codeepiphany.services.{ParametersQueryPresenter, QueryContext}
 import com.wenjunhuang.codeepiphany.utils.actions.DataSink
 import com.wenjunhuang.codeepiphany.utils.syntax.*
@@ -40,6 +41,8 @@ class LeetCodeParametersQueryPresenter(
       project,
       boostrap
     ) {
+
+  override def queryTitle: String = PluginBundle.message("query.challenge.title",myLeetCodeDojo.show)
 
   override protected def prepareProviders(
     getter: () => QueryContext[LeetCodeQueryCriteria],
