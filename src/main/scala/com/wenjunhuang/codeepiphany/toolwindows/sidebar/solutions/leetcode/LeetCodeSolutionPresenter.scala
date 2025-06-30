@@ -1,6 +1,8 @@
 package com.wenjunhuang.codeepiphany.toolwindows.sidebar.solutions.leetcode
 
 import cats.effect.IO
+import cats.syntax.all.*
+import com.intellij.openapi.Disposable
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.Splitter
 import com.intellij.openapi.util.Disposer
@@ -8,11 +10,9 @@ import com.intellij.ui.AnimatedIcon
 import com.intellij.ui.components.JBLabel
 import com.intellij.util.ui.components.BorderLayoutPanel
 import com.wenjunhuang.codeepiphany.database.Tables.CHALLENGE
-import com.wenjunhuang.codeepiphany.leetcode.models.LeetCodeQuestionSolutionArticle
 import com.wenjunhuang.codeepiphany.leetcode.services.LeetCodeApi
 import com.wenjunhuang.codeepiphany.model.CodeDojo
 import com.wenjunhuang.codeepiphany.model.newtypes.ChallengeId
-import com.wenjunhuang.codeepiphany.services.http.HttpClientManager
 import com.wenjunhuang.codeepiphany.services.{ AuthService, ChallengeRepository }
 import com.wenjunhuang.codeepiphany.utils.syntax.*
 import com.wenjunhuang.codeepiphany.utils.ui.UnauthenticatedView
@@ -24,8 +24,10 @@ class LeetCodeSolutionPresenter(
   private val myChallengeId: ChallengeId,
   private val myProject: Project,
   private val myCodeDojo: CodeDojo.LeetCodeCN.type | CodeDojo.LeetCode.type
-) {
-  private val myView = new BorderLayoutPanel()
+) extends Disposable {
+  private val myView                                       = new BorderLayoutPanel()
+  private var myArticleDetailPresenter: Option[Disposable] = None
+  private var myArticlesPresenter: Option[Disposable]      = None
 
   initialize()
 
@@ -73,6 +75,10 @@ class LeetCodeSolutionPresenter(
             solutionTags <- api.getSolutionTags(questionSlug)
             userInfo     <- api.getUserInfo
             _ <- IO.delay {
+              myView.removeAll()
+              myArticleDetailPresenter.foreach(Disposer.dispose)
+              myArticlesPresenter.foreach(Disposer.dispose)
+
               val articleDetailPresenter = ArticleDetailPresenter(myProject, myCodeDojo)
               val articlesPresenter = SolutionArticlesPresenter(
                 myProject,
@@ -83,17 +89,14 @@ class LeetCodeSolutionPresenter(
                 myCodeDojo
               )
 
-              val splitter = new Splitter(false, 0.3f) {
-                override def removeNotify(): Unit = {
-                  Disposer.dispose(articlesPresenter)
-                  Disposer.dispose(articleDetailPresenter)
-                }
-              }
+              val splitter = new Splitter(false, 0.3f)
               splitter.setShowDividerControls(true)
               splitter.setFirstComponent(articlesPresenter.getViewComponent)
               splitter.setSecondComponent(articleDetailPresenter.getView)
-              myView.removeAll()
               myView.addToCenter(splitter)
+
+              myArticleDetailPresenter = articleDetailPresenter.some
+              myArticlesPresenter = articlesPresenter.some
             }.evalOnEDTDefault()
           yield ()
         }
@@ -104,6 +107,11 @@ class LeetCodeSolutionPresenter(
   }
 
   def getView: JComponent = myView
+
+  override def dispose(): Unit = {
+    myArticlesPresenter.foreach(Disposer.dispose)
+    myArticleDetailPresenter.foreach(Disposer.dispose)
+  }
 }
 
 object LeetCodeSolutionPresenter {

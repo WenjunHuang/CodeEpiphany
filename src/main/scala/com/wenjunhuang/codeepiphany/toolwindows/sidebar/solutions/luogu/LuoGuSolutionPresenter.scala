@@ -26,8 +26,9 @@ import scala.jdk.OptionConverters.*
 
 class LuoGuSolutionPresenter(private val myChallengeId: ChallengeId, private val myProject: Project)
     extends Disposable {
-  private val myLogger  = LoggerFactory.getLogger[IO]
-  private val myView    = new BorderLayoutPanel()
+  private val myLogger = LoggerFactory.getLogger[IO]
+  private val myView = new BorderLayoutPanel()
+
   private val myBrowser = createBrowser()
 
   Disposer.register(myProject, this)
