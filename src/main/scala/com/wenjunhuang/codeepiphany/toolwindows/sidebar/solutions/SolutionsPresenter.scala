@@ -1,32 +1,31 @@
 package com.wenjunhuang.codeepiphany.toolwindows.sidebar.solutions
 
-import cats.effect.{ IO, Resource }
 import cats.effect.std.Queue
+import cats.effect.{IO, Resource}
 import cats.syntax.all.*
-import fs2.Stream
-import fs2.concurrent.SignallingRef
-import javax.swing.JComponent
-import org.typelevel.log4cats.LoggerFactory
-import scala.concurrent.duration.*
-
-import com.intellij.openapi.fileEditor.{ FileEditorManagerEvent, FileEditorManagerListener }
 import com.intellij.openapi.Disposable
+import com.intellij.openapi.fileEditor.{FileEditorManagerEvent, FileEditorManagerListener}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
 import com.intellij.util.ui.components.BorderLayoutPanel
-
-import com.wenjunhuang.codeepiphany.model.newtypes.ChallengeId
 import com.wenjunhuang.codeepiphany.model.CodeDojo
-import com.wenjunhuang.codeepiphany.services.http.{ HttpClientManager }
+import com.wenjunhuang.codeepiphany.model.newtypes.ChallengeId
 import com.wenjunhuang.codeepiphany.settings.ChallengeSettings
 import com.wenjunhuang.codeepiphany.toolwindows.sidebar.solutions.leetcode.LeetCodeSolutionPresenter
+import com.wenjunhuang.codeepiphany.toolwindows.sidebar.solutions.luogu.LuoGuSolutionPresenter
 import com.wenjunhuang.codeepiphany.utils.syntax.*
 import com.wenjunhuang.codeepiphany.utils.walkaround.FileEditorManagerListenerBridge
+import fs2.Stream
+import fs2.concurrent.SignallingRef
+import org.typelevel.log4cats.LoggerFactory
+
+import javax.swing.JComponent
+import scala.concurrent.duration.*
 
 class SolutionsPresenter(private val myProject: Project) extends Disposable {
 
   private val myLogger = LoggerFactory.getLogger[IO]
-  private val myView = BorderLayoutPanel()
+  private val myView   = BorderLayoutPanel()
   @volatile
   private var myQueue: Option[Queue[IO, Option[(ChallengeId, CodeDojo)]]] = None
 
@@ -58,6 +57,8 @@ class SolutionsPresenter(private val myProject: Project) extends Disposable {
                       showLeetCodeSolutions(challengeId, CodeDojo.LeetCodeCN)
                     case (challengeId, CodeDojo.LeetCode) =>
                       showLeetCodeSolutions(challengeId, CodeDojo.LeetCode)
+                    case (challengeId, CodeDojo.LuoGu) =>
+                      showLuoGuSolutions(challengeId)
                     case _ =>
                       IO.unit
                   }).recoverWith { e => myLogger.error(e)("Failed to show LeetCode solutions") }
@@ -89,6 +90,13 @@ class SolutionsPresenter(private val myProject: Project) extends Disposable {
         }
       )
   }
+
+  private def showLuoGuSolutions(challengeId: ChallengeId): IO[Unit] = IO.delay {
+    val presenter = LuoGuSolutionPresenter(challengeId, myProject)
+    myView.removeAll()
+    myView.addToCenter(presenter.getView)
+    ()
+  }.evalOnEDTAny()
 
   private def showLeetCodeSolutions(
     challengeId: ChallengeId,
