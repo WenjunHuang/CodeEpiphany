@@ -6,7 +6,6 @@ case class LuoGuChallengeItem(
   pid: String,
   title: String,
   difficulty: LuoGuDifficulty,
-  fullScore: Int,
   `type`: LuoGuQuestionBank,
   totalSubmit: Int,
   totalAccepted: Int,
