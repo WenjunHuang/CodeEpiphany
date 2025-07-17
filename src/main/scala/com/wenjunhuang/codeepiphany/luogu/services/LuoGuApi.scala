@@ -12,6 +12,7 @@ import com.wenjunhuang.codeepiphany.luogu.settings.LuoGuSettingsConfigurable.LUO
 import com.wenjunhuang.codeepiphany.model.{ CodeDojo, OrderDirection, SubmissionResult }
 import com.wenjunhuang.codeepiphany.services.http.HttpClientManager
 import com.wenjunhuang.codeepiphany.utils.syntax.*
+import com.wenjunhuang.codeepiphany.utils.extensions.*
 import fs2.Stream
 import io.circe.Json
 import io.circe.optics.JsonPath
@@ -96,22 +97,29 @@ object LuoGuApi extends LuoGuApi with Http4sClientDsl[IO] {
     // 提取并处理 LaTeX 公式
     def processLatex(text: String): String = {
       val latexRegex = """\$\$([\s\S]*?)\$\$""".r
-      latexRegex.replaceAllIn(text, m => {
-        val latex = m.group(1)
-          .replace("\\\\", "DOUBLE_BACKSLASH") // 保护双反斜杠
-          .replace("\\", "SINGLE_BACKSLASH")   // 保护单反斜杠
-        // 保护 LaTeX 公式，避免被 flexmark 处理
-        s"<pre class='latex'>$latex</pre>"
-      })
+      latexRegex.replaceAllIn(
+        text,
+        m => {
+          val latex = m
+            .group(1)
+            .replace("\\\\", "DOUBLE_BACKSLASH") // 保护双反斜杠
+            .replace("\\", "SINGLE_BACKSLASH")   // 保护单反斜杠
+          // 保护 LaTeX 公式，避免被 flexmark 处理
+          s"<pre class='latex'>$latex</pre>"
+        }
+      )
     }
 
     val title =
       s"# ${JsonPath.root.data.problem.pid.string.getOption(json).getOrElse("")} ${JsonPath.root.data.problem.title.string.getOption(json).getOrElse("")}"
     val description =
       s"## 题目描述\n\n${processLatex(JsonPath.root.data.problem.content.description.string.getOption(json).getOrElse(""))}"
-    val formatI = s"## 输入格式\n\n${processLatex(JsonPath.root.data.problem.content.formatI.string.getOption(json).getOrElse(""))}"
-    val formatO = s"## 输出格式\n\n${processLatex(JsonPath.root.data.problem.content.formatO.string.getOption(json).getOrElse(""))}"
-    val hint    = s"## 说明/提示\n\n${processLatex(JsonPath.root.data.problem.content.hint.string.getOption(json).getOrElse(""))}"
+    val formatI =
+      s"## 输入格式\n\n${processLatex(JsonPath.root.data.problem.content.formatI.string.getOption(json).getOrElse(""))}"
+    val formatO =
+      s"## 输出格式\n\n${processLatex(JsonPath.root.data.problem.content.formatO.string.getOption(json).getOrElse(""))}"
+    val hint =
+      s"## 说明/提示\n\n${processLatex(JsonPath.root.data.problem.content.hint.string.getOption(json).getOrElse(""))}"
     val translation = JsonPath.root.data.problem.translation.string.getOption(json).getOrElse("") match {
       case "" => ""
       case t  => s"## 题意翻译\n\n${processLatex(t)}"
@@ -145,17 +153,20 @@ object LuoGuApi extends LuoGuApi with Http4sClientDsl[IO] {
     val parser   = Parser.builder(options).build()
     val renderer = HtmlRenderer.builder(options).build()
     val document = parser.parse(markdown)
-    val html = renderer.render(document)
-    
+    val html     = renderer.render(document)
+
     // 恢复 LaTeX 公式
     val latexPattern = """<pre class='latex'>([\s\S]*?)</pre>""".r
-    val processedHtml = latexPattern.replaceAllIn(html, m => {
-      val content = m.group(1)
-      // 再恢复单反斜杠
-      val withSingleBackslash = content.replace("DOUBLE_BACKSLASH", "\\\\").replace("SINGLE_BACKSLASH", "\\")
-      // 添加 $$ 分隔符，使用 Regex.quoteReplacement 来转义 $
-      java.util.regex.Matcher.quoteReplacement(s"$$$$$withSingleBackslash$$$$")
-    })
+    val processedHtml = latexPattern.replaceAllIn(
+      html,
+      m => {
+        val content = m.group(1)
+        // 再恢复单反斜杠
+        val withSingleBackslash = content.replace("DOUBLE_BACKSLASH", "\\\\").replace("SINGLE_BACKSLASH", "\\")
+        // 添加 $$ 分隔符，使用 Regex.quoteReplacement 来转义 $
+        java.util.regex.Matcher.quoteReplacement(s"$$$$$withSingleBackslash$$$$")
+      }
+    )
     processedHtml
   }
 
@@ -185,9 +196,12 @@ object LuoGuApi extends LuoGuApi with Http4sClientDsl[IO] {
                       case v if LUOGU_LANGUAGES_REVERSE.contains(v) => LUOGU_LANGUAGES_REVERSE(v)
                     }
                     .toSet,
-                  samples.map(_.as[List[String]].getOrElse(List.empty)).collect { case input :: output :: Nil =>
-                    ChallengeSettings.TestCase(input, output)
-                  }.toList
+                  samples
+                    .map(_.as[List[String]].getOrElse(List.empty))
+                    .collect { case input :: output :: Nil =>
+                      ChallengeSettings.TestCase(input, output)
+                    }
+                    .toList
                 )
               }.toRight(new Exception("Failed to parse challenge data"))
             }.liftTo[IO]
@@ -226,30 +240,36 @@ object LuoGuApi extends LuoGuApi with Http4sClientDsl[IO] {
     page: Int
   ): IO[(Int, List[LuoGuChallengeItem])] = useClient { client =>
     getCSRFTokenAndPassAntiCrawler.flatMap { csrfToken =>
+      val query = uri"https://www.luogu.com.cn/problem/list"
+        .withQueryParam("page", page)
+        .withQueryParam("_contentOnly", "1")
+        .addOpt(difficulties)((u, d) => u.withQueryParam("difficulty", d.value.toString))
+        .addOpt(luoguType)((u, t) => u.withQueryParam("type", t.value))
+        .addIf(tags.nonEmpty)(_.withQueryParam("tag", tags.map(_.id).mkString(",")))
+        .addOpt(keyword.filter(_.nonEmpty))((u, k) => u.withQueryParam("keyword", k))
+
       client
         .expect[String](
           Method.GET(
-            orderBy.foldLeft(
-              uri"https://www.luogu.com.cn/problem/list"
-                .withQueryParam("page", page)
-                .withQueryParam("difficulty", difficulties.map(_.value.toString).getOrElse(""))
-                .withQueryParam("type", luoguType.map(_.value).getOrElse(""))
-                .withQueryParam("tag", tags.map(_.id).mkString(","))
-                .withQueryParam("keyword", keyword.getOrElse(""))
-                .withQueryParam("_contentOnly", "1")
-            ) { case (uri, (orderBy, direction)) => orderBy.createOrderBy(uri, direction) },
+            orderBy.foldLeft(query) { case (uri, (orderBy, direction)) => orderBy.createOrderBy(uri, direction) },
             commonHeaders(csrfToken)
           )
         )
-        .flatMap { content =>
-          parse(content).flatMap { json =>
-            (
-              JsonPath.root.currentData.problems.count.int.getOption(json),
-              JsonPath.root.currentData.problems.result.json.getOption(json)
-            ).flatMapN { (count, problems) =>
-              problems.as[List[LuoGuChallengeItem]].map((count, _)).toOption
-            }.toRight(new Exception("Failed to parse json"))
-          }.liftTo[IO]
+        .flatMap { html =>
+          Jsoup.parse(html).select("script#lentille-context[type=\"application/json\"]").html() match
+            case "" => IO.raiseError(new Exception("Failed to find JSON context in HTML"))
+            case content =>
+              parse(content).flatMap { json =>
+                val r = (
+                  JsonPath.root.data.problems.count.int.getOption(json),
+                  JsonPath.root.data.problems.result.json.getOption(json)
+                ).flatMapN { (count, problems) => Option((count, problems)) }
+                  .toRight(new Exception("Failed to parse json"))
+                  .flatMap { case (count, problems) =>
+                    problems.as[List[LuoGuChallengeItem]].map((count, _))
+                  }
+                r
+              }.liftTo[IO]
         }
     }
   }
@@ -396,4 +416,5 @@ object LuoGuApi extends LuoGuApi with Http4sClientDsl[IO] {
     case 7  => SubmissionResult.RuntimeError
     case 12 => SubmissionResult.Success
     case _  => SubmissionResult.Failure
+
 }

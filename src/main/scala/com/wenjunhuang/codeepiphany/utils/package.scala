@@ -1,9 +1,11 @@
 package com.wenjunhuang.codeepiphany
+import org.http4s.Uri
+
 import com.intellij.openapi.util.registry.RegistryManager
 
 package object utils {
   object syntax     extends IOOps with LoggerOps with KotlinCompOps with SwingOps         {}
-  object extensions extends CefExtensionsOps with IOExtensionsOps with SwingExtensionsOps {}
+  object extensions extends CefExtensionsOps with IOExtensionsOps with SwingExtensionsOps with UriExtensionsOps{}
 
   final val isDebug: Boolean = RegistryManager.getInstance().is("codeepiphany.debug")
 }
