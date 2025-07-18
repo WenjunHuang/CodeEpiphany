@@ -1,10 +1,9 @@
 package com.wenjunhuang.codeepiphany.vfs
 
-import javax.swing.Icon
-
 import com.intellij.openapi.fileTypes.{FileTypeManager, LanguageFileType}
-
 import com.wenjunhuang.codeepiphany.model.{Language, LanguageVersion}
+
+import javax.swing.Icon
 
 class SubmissionCodeFileType(
   private val myLanguage: Language,

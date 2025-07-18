@@ -1,30 +1,24 @@
 package com.wenjunhuang.codeepiphany.editor.extensions
 
-import org.jdom.Element
-
 import com.intellij.openapi.editor.ex.EditorEx
 import com.intellij.openapi.fileEditor.*
 import com.intellij.openapi.fileEditor.impl.text.PsiAwareTextEditorProvider
-import com.intellij.openapi.project.{ DumbAware, Project }
-import com.intellij.openapi.vfs.VirtualFile
-import scala.jdk.CollectionConverters.*
-
+import com.intellij.openapi.project.{DumbAware, Project}
 import com.intellij.openapi.util.Key
-
-import com.wenjunhuang.codeepiphany.editor.actions.{
-  SolutionSelectionAction,
-  SurroundSubmissionRegionAction,
-  TestCasesEditionAction
-}
-import com.wenjunhuang.codeepiphany.editor.actions.RunTestAction.{ RUNTEST_PROVIDER_KEY, RunTestProvider }
+import com.intellij.openapi.vfs.VirtualFile
+import com.wenjunhuang.codeepiphany.editor.actions.RunTestAction.{RUNTEST_PROVIDER_KEY, RunTestProvider}
 import com.wenjunhuang.codeepiphany.editor.actions.SolutionSelectionAction.SOLUTION_PROVIDER_KEY
-import com.wenjunhuang.codeepiphany.editor.actions.SubmitCodeAction.{ SUBMITCODE_PROVIDER_KEY, SubmitCodeProvider }
+import com.wenjunhuang.codeepiphany.editor.actions.SubmitCodeAction.{SUBMITCODE_PROVIDER_KEY, SubmitCodeProvider}
 import com.wenjunhuang.codeepiphany.editor.actions.SurroundSubmissionRegionAction.SURROUND_PROVIDER_KEY
 import com.wenjunhuang.codeepiphany.editor.actions.TestCasesEditionAction.TESTCASES_PROVIDER_KEY
+import com.wenjunhuang.codeepiphany.editor.actions.{SolutionSelectionAction, SurroundSubmissionRegionAction, TestCasesEditionAction}
 import com.wenjunhuang.codeepiphany.editor.extensions.ChallengeEditorProvider.FILEEDITOR_CODEDOJO_KEY
 import com.wenjunhuang.codeepiphany.model.CodeDojo
 import com.wenjunhuang.codeepiphany.settings.ChallengeSettings
 import com.wenjunhuang.codeepiphany.utils.walkaround.FileEditorProviderBridge
+import org.jdom.Element
+
+import scala.jdk.CollectionConverters.*
 
 /** 挑战编辑器提供者 负责创建和管理挑战相关的编辑器
   */

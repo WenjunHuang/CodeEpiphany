@@ -16,8 +16,6 @@ import scala.Some;
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
 import java.awt.*;
-import java.lang.reflect.Method;
-import java.util.ResourceBundle;
 
 public class UnauthenticatedView extends BorderLayoutPanel {
 

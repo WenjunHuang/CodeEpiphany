@@ -1,7 +1,6 @@
 package com.wenjunhuang.codeepiphany.model
 
 import cats.Show
-
 import com.wenjunhuang.codeepiphany.PluginBundle
 import io.circe.*
 import org.typelevel.ci.CIString

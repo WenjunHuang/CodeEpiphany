@@ -1,16 +1,15 @@
 package com.wenjunhuang.codeepiphany.editor.extensions
 
-import scala.jdk.CollectionConverters.*
-
 import com.intellij.lang.ASTNode
 import com.intellij.lang.folding.{FoldingBuilderEx, FoldingDescriptor}
 import com.intellij.openapi.editor.{Document, FoldingGroup}
 import com.intellij.openapi.project.DumbAware
 import com.intellij.openapi.util.text.StringUtil
-import com.intellij.psi.{PsiComment, PsiElement}
 import com.intellij.psi.util.PsiTreeUtil
-
+import com.intellij.psi.{PsiComment, PsiElement}
 import com.wenjunhuang.codeepiphany.model.Constants
+
+import scala.jdk.CollectionConverters.*
 
 class SubmissionRegionFoldingBuilder extends FoldingBuilderEx with DumbAware {
   override def buildFoldRegions(root: PsiElement, document: Document, quick: Boolean): Array[FoldingDescriptor] = {

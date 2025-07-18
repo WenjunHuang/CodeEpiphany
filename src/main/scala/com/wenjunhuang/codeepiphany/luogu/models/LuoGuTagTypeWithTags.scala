@@ -1,8 +1,9 @@
 package com.wenjunhuang.codeepiphany.luogu.models
 
-import io.circe.parser.*
 import io.circe.Json
-import io.circe.derivation.{ConfiguredCodec, ConfiguredDecoder}
+import io.circe.derivation.ConfiguredCodec
+import io.circe.parser.*
+
 import scala.io.Source
 import scala.util.Using
 

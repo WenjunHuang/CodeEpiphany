@@ -1,17 +1,17 @@
 package com.wenjunhuang.codeepiphany.utils
 
 import cats.effect.kernel.Async
-import cats.effect.unsafe.{ IORuntime, IORuntimeConfig, Scheduler }
-import java.util.concurrent.{ Executor, Executors }
-import retry.*
-import retry.ResultHandler.{ noop, retryOnAllErrors }
-import scala.concurrent.{ ExecutionContext, ExecutionContextExecutorService }
-import scala.concurrent.duration.*
-
-import com.intellij.openapi.application.{ ApplicationManager, ModalityState }
+import cats.effect.unsafe.{IORuntime, IORuntimeConfig, Scheduler}
 import com.intellij.openapi.application.ex.ApplicationManagerEx
-import com.intellij.openapi.progress.{ ProgressIndicator, ProgressManager, Task }
+import com.intellij.openapi.application.{ApplicationManager, ModalityState}
+import com.intellij.openapi.progress.{ProgressIndicator, ProgressManager, Task}
 import com.intellij.openapi.project.Project
+import retry.*
+import retry.ResultHandler.{noop, retryOnAllErrors}
+
+import java.util.concurrent.{Executor, Executors}
+import scala.concurrent.duration.*
+import scala.concurrent.{ExecutionContext, ExecutionContextExecutorService}
 
 private trait IOOps {
   val intellijComputeContext: ExecutionContextExecutorService = ExecutionContextExecutorServiceBridge(

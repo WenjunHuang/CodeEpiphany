@@ -2,35 +2,34 @@ package com.wenjunhuang.codeepiphany.toolwindows.sidebar.notes
 
 import cats.effect.IO
 import cats.effect.std.Queue
-import fs2.Stream
-import java.time.LocalDateTime
-import javax.swing.{JComponent, JTree}
-import javax.swing.tree.DefaultMutableTreeNode
-import org.jooq.impl.DSL
-import org.typelevel.ci.CIString
-import org.typelevel.log4cats.LoggerFactory
-import scala.concurrent.duration.*
-import scala.jdk.CollectionConverters.*
-import scala.jdk.OptionConverters.*
-
+import com.intellij.openapi.Disposable
 import com.intellij.openapi.fileEditor.{FileEditorManager, FileEditorManagerEvent, FileEditorManagerListener}
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.Disposable
 import com.intellij.openapi.util.Disposer
 import com.intellij.openapi.util.text.StringUtil
-import com.intellij.ui.treeStructure.treetable.{ListTreeTableModelOnColumns, TreeColumnInfo}
 import com.intellij.ui.ColoredTreeCellRenderer
+import com.intellij.ui.treeStructure.treetable.{ListTreeTableModelOnColumns, TreeColumnInfo}
 import com.intellij.util.ui.ColumnInfo
-
 import com.wenjunhuang.codeepiphany.database.Tables.*
 import com.wenjunhuang.codeepiphany.model.*
 import com.wenjunhuang.codeepiphany.model.newtypes.ChallengeId
 import com.wenjunhuang.codeepiphany.services.ChallengeRepository
 import com.wenjunhuang.codeepiphany.settings.ChallengeSettings
-import com.wenjunhuang.codeepiphany.utils.syntax.*
 import com.wenjunhuang.codeepiphany.utils.IdGenerator
+import com.wenjunhuang.codeepiphany.utils.syntax.*
 import com.wenjunhuang.codeepiphany.utils.walkaround.FileEditorManagerListenerBridge
 import com.wenjunhuang.codeepiphany.vfs.{SolutionRemarkFile, SolutionRemarkFileSystem}
+import fs2.Stream
+import org.jooq.impl.DSL
+import org.typelevel.ci.CIString
+import org.typelevel.log4cats.LoggerFactory
+
+import java.time.LocalDateTime
+import javax.swing.tree.DefaultMutableTreeNode
+import javax.swing.{JComponent, JTree}
+import scala.concurrent.duration.*
+import scala.jdk.CollectionConverters.*
+import scala.jdk.OptionConverters.*
 
 class NotesListPresenter(val myProject: Project) extends Disposable {
   private val myLogger = LoggerFactory[IO].getLogger

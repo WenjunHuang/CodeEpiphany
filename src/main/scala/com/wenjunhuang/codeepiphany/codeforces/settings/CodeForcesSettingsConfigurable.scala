@@ -1,15 +1,14 @@
 package com.wenjunhuang.codeepiphany.codeforces.settings
 
 import com.intellij.openapi.project.Project
-
 import com.wenjunhuang.codeepiphany.PluginBundle
-import com.wenjunhuang.codeepiphany.codeforces.models.{ CodeForcesChallengeCodeTemplate, CodeForcesChallengeData }
+import com.wenjunhuang.codeepiphany.codeforces.models.{CodeForcesChallengeCodeTemplate, CodeForcesChallengeData}
 import com.wenjunhuang.codeepiphany.codeforces.settings.CodeForcesSettingsConfigurable.*
 import com.wenjunhuang.codeepiphany.model.*
 import com.wenjunhuang.codeepiphany.model.Language.*
 import com.wenjunhuang.codeepiphany.model.LanguageVersion.*
-import com.wenjunhuang.codeepiphany.settings.dojo.{ BaseCodeDojoSettings, BaseSettingsConfigurable }
 import com.wenjunhuang.codeepiphany.settings.ChallengeSettings.TestCase
+import com.wenjunhuang.codeepiphany.settings.dojo.{BaseCodeDojoSettings, BaseSettingsConfigurable}
 
 class CodeForcesSettingsConfigurable(project: Project)
     extends BaseSettingsConfigurable(

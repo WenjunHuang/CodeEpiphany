@@ -1,28 +1,23 @@
 package com.wenjunhuang.codeepiphany.services
 
 import cats.effect.std.Queue
-import cats.effect.{ IO, Resource, SyncIO }
-import cats.syntax.all.*
+import cats.effect.{IO, SyncIO}
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
 import com.intellij.ui.SingleSelectionModel
-import com.intellij.util.ui.{ ColumnInfo, ListTableModel }
+import com.intellij.util.ui.{ColumnInfo, ListTableModel}
 import com.wenjunhuang.codeepiphany.PluginBundle
-import com.wenjunhuang.codeepiphany.actions.PaginationParameterActionGroup.{
-  PAGINATION_PROVIDER_KEY,
-  PaginationParameterProvider
-}
+import com.wenjunhuang.codeepiphany.actions.PaginationParameterActionGroup.{PAGINATION_PROVIDER_KEY, PaginationParameterProvider}
 import com.wenjunhuang.codeepiphany.utils.actions.DataSink
 import com.wenjunhuang.codeepiphany.utils.extensions.*
 import com.wenjunhuang.codeepiphany.utils.syntax.*
-import com.wenjunhuang.codeepiphany.utils.{ CancellableStream, OrderByColumnInfo, PageSize, Pagination }
+import com.wenjunhuang.codeepiphany.utils.{CancellableStream, OrderByColumnInfo, PageSize, Pagination}
 import fs2.Stream
-import fs2.concurrent.SignallingRef
-import org.typelevel.log4cats.{ Logger, LoggerFactory }
+import org.typelevel.log4cats.{Logger, LoggerFactory}
 
 import java.util
-import javax.swing.{ JComponent, ListSelectionModel }
+import javax.swing.{JComponent, ListSelectionModel}
 import scala.concurrent.duration.*
 import scala.jdk.CollectionConverters.*
 

@@ -1,24 +1,14 @@
 package com.wenjunhuang.codeepiphany.utils.actions
 
-import com.intellij.openapi.actionSystem.{
-  AnAction,
-  AnActionEvent,
-  CommonDataKeys,
-  DataContext,
-  DataKey,
-  PlatformCoreDataKeys
-}
-import com.intellij.openapi.editor.Editor
+import com.intellij.openapi.actionSystem.*
 import com.intellij.openapi.fileEditor.FileEditor
 import com.intellij.openapi.util.Key
-
 import com.wenjunhuang.codeepiphany.editor.extensions.ChallengeEditorProvider
 import com.wenjunhuang.codeepiphany.model.CodeDojo
 import com.wenjunhuang.codeepiphany.services.AuthService
 
 trait ActionPrecondition {
   def isSatisfied(event: AnActionEvent): Boolean = true
-
 }
 
 trait ProjectNonNull extends ActionPrecondition {

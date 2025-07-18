@@ -1,13 +1,13 @@
 package com.wenjunhuang.codeepiphany.utils.ui
 
-import com.github.weisj.jsvg.parser.SVGLoader
 import com.github.weisj.jsvg.SVGDocument
-import com.github.weisj.jsvg.view.{ FloatSize, ViewBox }
-import java.awt.{ Graphics, Graphics2D }
-import scala.compiletime.uninitialized
-
+import com.github.weisj.jsvg.parser.SVGLoader
+import com.github.weisj.jsvg.view.{FloatSize, ViewBox}
 import com.intellij.ui.components.JBPanel
 import com.intellij.util.ui.GraphicsUtil
+
+import java.awt.{Graphics, Graphics2D}
+import scala.compiletime.uninitialized
 
 class SVGImagePanel extends JBPanel[SVGImagePanel](true) {
   private var mySvgDocument: SVGDocument = uninitialized

@@ -1,8 +1,8 @@
 package com.wenjunhuang.codeepiphany.utils.competitiveCompanion
 
 import com.intellij.openapi.actionSystem.ex.CheckboxAction
-import com.intellij.openapi.actionSystem.{ AnActionEvent, DataKey }
-import com.wenjunhuang.codeepiphany.utils.actions.{ ActionCompatible, DataKeyNotNull }
+import com.intellij.openapi.actionSystem.{AnActionEvent, DataKey}
+import com.wenjunhuang.codeepiphany.utils.actions.{ActionCompatible, DataKeyNotNull}
 import com.wenjunhuang.codeepiphany.utils.competitiveCompanion.CCAction.CC_ACTION_PROVIDER_KEY
 
 abstract class CCAction extends CheckboxAction with ActionCompatible with DataKeyNotNull(CC_ACTION_PROVIDER_KEY) {

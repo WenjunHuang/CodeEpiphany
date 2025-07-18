@@ -1,29 +1,27 @@
 package com.wenjunhuang.codeepiphany.utils.jcef
 
-import cats.effect.{ IO, SyncIO }
-
+import cats.effect.{IO, SyncIO}
 import com.intellij.ide.ui.LafManagerListener
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.application.ApplicationManager
-import com.intellij.openapi.editor.colors.{ EditorColorsListener, EditorColorsManager }
+import com.intellij.openapi.editor.colors.{EditorColorsListener, EditorColorsManager}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
 import com.intellij.ui.jcef.*
-
 import com.wenjunhuang.codeepiphany.services.WebViewStyleProvider
 import com.wenjunhuang.codeepiphany.utils.syntax.*
-import com.wenjunhuang.codeepiphany.utils.{ isDebug, ResourceHttpServer }
+import com.wenjunhuang.codeepiphany.utils.{ResourceHttpServer, isDebug}
 import io.circe.*
 import io.circe.generic.auto.*
 import io.circe.parser.parse
 import org.cef.browser.*
 import org.cef.handler.*
 import org.cef.network.CefRequest
-import org.intellij.lang.annotations.Language
-import org.typelevel.log4cats.{ Logger, LoggerFactory }
-import javax.swing.JComponent
 import org.http4s.Headers
-import scala.util.matching.Regex
+import org.intellij.lang.annotations.Language
+import org.typelevel.log4cats.{Logger, LoggerFactory}
+
+import javax.swing.JComponent
 
 /** Abstract base class for JCef-based web views. Provides common functionality for browser setup, event handling, and
   * resource management.

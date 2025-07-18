@@ -1,7 +1,6 @@
 package com.wenjunhuang.codeepiphany.atcoder.actions
 
 import com.intellij.openapi.actionSystem.DataKey
-
 import com.wenjunhuang.codeepiphany.atcoder.actions.AtCoderDifficultyParameterAction.*
 import com.wenjunhuang.codeepiphany.atcoder.models.AtCoderDifficulty
 import com.wenjunhuang.codeepiphany.utils.actions.{ParameterComboBoxAction, ParameterProvider}

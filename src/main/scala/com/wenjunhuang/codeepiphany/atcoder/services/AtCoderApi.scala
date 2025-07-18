@@ -2,24 +2,23 @@ package com.wenjunhuang.codeepiphany.atcoder.services
 
 import cats.effect.{IO, Temporal}
 import cats.syntax.all.*
-import fs2.Stream
-import io.circe.JsonObject
-import org.http4s.{Method, UrlForm}
-import org.http4s.client.{Client, UnexpectedStatus}
-import org.http4s.client.dsl.Http4sClientDsl
-import org.http4s.implicits.uri
-import org.jsoup.Jsoup
-import org.typelevel.ci.CIString
-import scala.concurrent.duration.*
-import scala.jdk.CollectionConverters.*
-
 import com.intellij.openapi.util.text.StringUtil
-
 import com.wenjunhuang.codeepiphany.atcoder.models.*
 import com.wenjunhuang.codeepiphany.atcoder.settings.AtCoderSettingsConfigurable.ATCODER_LANGUAGES_REVERSE
 import com.wenjunhuang.codeepiphany.model.{ApiError, CodeDojo, SubmissionResult}
 import com.wenjunhuang.codeepiphany.services.http.HttpClientManager
 import com.wenjunhuang.codeepiphany.settings.ChallengeSettings
+import fs2.Stream
+import io.circe.JsonObject
+import org.http4s.client.dsl.Http4sClientDsl
+import org.http4s.client.{Client, UnexpectedStatus}
+import org.http4s.implicits.uri
+import org.http4s.{Method, UrlForm}
+import org.jsoup.Jsoup
+import org.typelevel.ci.CIString
+
+import scala.concurrent.duration.*
+import scala.jdk.CollectionConverters.*
 
 trait AtCoderApi {
   def checkLogin(): IO[Boolean]

@@ -1,7 +1,8 @@
 package com.wenjunhuang.codeepiphany.utils
 
-import java.util.Optional
 import org.jetbrains.annotations.Nullable
+
+import java.util.Optional
 import scala.jdk.OptionConverters.*
 
 object JavaUtils {

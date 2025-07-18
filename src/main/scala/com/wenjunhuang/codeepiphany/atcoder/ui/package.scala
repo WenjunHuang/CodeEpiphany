@@ -1,21 +1,18 @@
 package com.wenjunhuang.codeepiphany.atcoder
 
 import cats.effect.IO
-import javax.swing.ListSelectionModel
-import org.typelevel.log4cats.LoggerFactory
-
 import com.intellij.openapi.project.Project
 import com.intellij.util.ui.ListTableModel
-
 import com.wenjunhuang.codeepiphany.actions.OpenChallengeActionGroup.OpenChallengeProvider
 import com.wenjunhuang.codeepiphany.atcoder.services.AtCoderOpenChallengeService
 import com.wenjunhuang.codeepiphany.atcoder.settings.AtCoderSettings
-import com.wenjunhuang.codeepiphany.model.{ Language, LanguageVersion }
+import com.wenjunhuang.codeepiphany.model.{Language, LanguageVersion}
 import com.wenjunhuang.codeepiphany.services.console
-import com.wenjunhuang.codeepiphany.services.console.showConsole
-import com.wenjunhuang.codeepiphany.services.http.{ HttpClientManager }
 import com.wenjunhuang.codeepiphany.utils.extensions.*
 import com.wenjunhuang.codeepiphany.utils.syntax.*
+import org.typelevel.log4cats.LoggerFactory
+
+import javax.swing.ListSelectionModel
 
 package object ui {
 

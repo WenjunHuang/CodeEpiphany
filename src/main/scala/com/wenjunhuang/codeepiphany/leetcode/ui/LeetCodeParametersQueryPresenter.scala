@@ -19,10 +19,8 @@ import com.wenjunhuang.codeepiphany.leetcode.services.{LeetCodeApi, LeetCodeSear
 import com.wenjunhuang.codeepiphany.leetcode.settings.{LeetCodeCNSettings, LeetCodeSettings}
 import com.wenjunhuang.codeepiphany.leetcode.ui.LeetCodeParametersQueryPresenter.*
 import com.wenjunhuang.codeepiphany.model.*
-import com.wenjunhuang.codeepiphany.services.http.HttpClientManager
 import com.wenjunhuang.codeepiphany.services.{ParametersQueryPresenter, QueryContext}
 import com.wenjunhuang.codeepiphany.utils.actions.DataSink
-import com.wenjunhuang.codeepiphany.utils.syntax.*
 import com.wenjunhuang.codeepiphany.utils.ui.TagPaneAction
 import com.wenjunhuang.codeepiphany.utils.{OrderByColumnInfo, PageSize, Pagination}
 import io.circe.*
@@ -38,9 +36,7 @@ class LeetCodeParametersQueryPresenter(
   boostrap: LeetCodeBootstrapParameters,
   private val myLeetCodeDojo: CodeDojo.LeetCode.type | CodeDojo.LeetCodeCN.type
 ) extends ParametersQueryPresenter[LeetCodeBootstrapParameters, LeetCodeQueryCriteria, LeetCodeChallengeListItem](
-      project,
-      boostrap
-    ) {
+      project, boostrap) {
 
   override def queryTitle: String = PluginBundle.message("query.challenge.title",myLeetCodeDojo.show)
 

@@ -1,16 +1,16 @@
 package com.wenjunhuang.codeepiphany.utils
 
 import cats.effect.std.Queue
-import cats.effect.{ IO, Resource }
+import cats.effect.{IO, Resource}
+import cats.syntax.all.*
 import com.intellij.openapi.project.Project
-import com.sun.net.httpserver.{ HttpExchange, HttpHandler, HttpServer }
+import com.sun.net.httpserver.{HttpExchange, HttpHandler, HttpServer}
 import com.wenjunhuang.codeepiphany.model.CodeDojo
 import com.wenjunhuang.codeepiphany.services.console
 import com.wenjunhuang.codeepiphany.utils.syntax.*
 import fs2.Stream
 import io.circe.generic.auto.*
 import io.circe.parser.decode
-import cats.syntax.all.*
 
 import scala.io.Source
 package object competitiveCompanion {

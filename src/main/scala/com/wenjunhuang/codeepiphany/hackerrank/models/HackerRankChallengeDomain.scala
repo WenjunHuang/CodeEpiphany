@@ -1,6 +1,6 @@
 package com.wenjunhuang.codeepiphany.hackerrank.models
 
-import io.circe.derivation.{ConfiguredCodec, ConfiguredDecoder}
+import io.circe.derivation.ConfiguredCodec
 
 case class HackerRankChallengeDomain(id: Int,
                                       name: String,

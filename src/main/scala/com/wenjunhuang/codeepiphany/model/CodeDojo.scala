@@ -1,14 +1,14 @@
 package com.wenjunhuang.codeepiphany.model
 
-import cats.syntax.all.*
 import cats.Show
+import cats.syntax.all.*
+import com.wenjunhuang.codeepiphany.PluginBundle
+import com.wenjunhuang.codeepiphany.atcoder.models.AtCoderDifficulty
+import org.typelevel.ci.CIString
+
 import java.net.HttpCookie
 import javax.swing.Icon
-import org.typelevel.ci.CIString
 import scala.annotation.static
-
-import com.wenjunhuang.codeepiphany.atcoder.models.AtCoderDifficulty
-import com.wenjunhuang.codeepiphany.PluginBundle
 
 enum CodeDojo(val domain: CIString, val value: String) {
   case HackerRank extends CodeDojo(CIString("hackerrank.com"), "hackerrank")

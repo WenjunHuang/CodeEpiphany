@@ -2,39 +2,30 @@ package com.wenjunhuang.codeepiphany.atcoder.ui
 
 import cats.effect.IO
 import cats.syntax.all.*
-import java.util.concurrent.atomic.AtomicBoolean
-import javax.swing.JComponent
-import org.typelevel.ci.CIString
-import org.typelevel.log4cats.LoggerFactory
-
 import com.intellij.openapi.Disposable
-import com.intellij.openapi.actionSystem.{ ActionGroup, ActionManager }
+import com.intellij.openapi.actionSystem.{ActionGroup, ActionManager}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
-
 import com.wenjunhuang.codeepiphany.PluginBundle
-import com.wenjunhuang.codeepiphany.actions.LoginAction.{ LOGIN_LOGOUT_KEY, LoginLogoutProvider }
-import com.wenjunhuang.codeepiphany.atcoder.actions.AtCoderChangeUIAction.{
-  ATCODER_CHANGE_UI_PROVIDER_KEY,
-  AtCoderChangeUIProvider,
-  AtCoderUI
-}
-import com.wenjunhuang.codeepiphany.atcoder.actions.AtCoderUpdateProblemSetsAction.{
-  ATCODER_UPDATE_PROBLEM_SETS_PROVIDER_KEY,
-  AtCoderUpdateProblemSetsProvider
-}
+import com.wenjunhuang.codeepiphany.actions.LoginAction.{LOGIN_LOGOUT_KEY, LoginLogoutProvider}
+import com.wenjunhuang.codeepiphany.atcoder.actions.AtCoderChangeUIAction.{ATCODER_CHANGE_UI_PROVIDER_KEY, AtCoderChangeUIProvider, AtCoderUI}
+import com.wenjunhuang.codeepiphany.atcoder.actions.AtCoderUpdateProblemSetsAction.{ATCODER_UPDATE_PROBLEM_SETS_PROVIDER_KEY, AtCoderUpdateProblemSetsProvider}
 import com.wenjunhuang.codeepiphany.atcoder.services.AtCoderApi
 import com.wenjunhuang.codeepiphany.atcoder.services.problemsets.fetchAndUpdateProblemSets
 import com.wenjunhuang.codeepiphany.atcoder.settings.AtCoderSettings
 import com.wenjunhuang.codeepiphany.model.Actions.ATCODER_TITLE_TOOLBAR_GROUP
 import com.wenjunhuang.codeepiphany.model.CodeDojo
 import com.wenjunhuang.codeepiphany.model.CodeDojo.AtCoder
-import com.wenjunhuang.codeepiphany.services.{ console, AskForLoginResult, AuthService, BaseChallengesView }
-import com.wenjunhuang.codeepiphany.services.http.HttpClientManager
+import com.wenjunhuang.codeepiphany.services.{AskForLoginResult, AuthService, BaseChallengesView, console}
 import com.wenjunhuang.codeepiphany.utils.actions.DataSink
 import com.wenjunhuang.codeepiphany.utils.extensions.*
 import com.wenjunhuang.codeepiphany.utils.syntax.*
 import com.wenjunhuang.codeepiphany.utils.ui.UnauthenticatedView
+import org.typelevel.ci.CIString
+import org.typelevel.log4cats.LoggerFactory
+
+import java.util.concurrent.atomic.AtomicBoolean
+import javax.swing.JComponent
 
 class AtCoderChallengesView(private val myProject: Project) extends BaseChallengesView[AtCoderUI] {
   private val myUnauthenticatedView =

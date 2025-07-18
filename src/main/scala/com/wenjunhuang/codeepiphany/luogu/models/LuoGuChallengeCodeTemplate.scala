@@ -1,11 +1,10 @@
 package com.wenjunhuang.codeepiphany.luogu.models
 
-import scala.beans.BeanProperty
-
-import com.wenjunhuang.codeepiphany.model.{ CodeDojo, Language, LanguageVersion }
+import com.wenjunhuang.codeepiphany.model.{CodeDojo, Language, LanguageVersion}
 import com.wenjunhuang.codeepiphany.services.BaseOpenChallengeService
 import com.wenjunhuang.codeepiphany.settings.ChallengeSettings
-import com.wenjunhuang.codeepiphany.PluginBundle
+
+import scala.beans.BeanProperty
 
 case class LuoGuChallengeCodeTemplate(
   @BeanProperty

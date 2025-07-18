@@ -1,10 +1,9 @@
 package com.wenjunhuang.codeepiphany.hackerrank.models
 
 import cats.Show
-import org.typelevel.ci.CIString
-
 import com.wenjunhuang.codeepiphany.PluginBundle
 import io.circe.*
+import org.typelevel.ci.CIString
 
 enum HackerRankChallengeSkill(val value: String) {
   case Intermediate extends HackerRankChallengeSkill("Problem Solving (Intermediate)")

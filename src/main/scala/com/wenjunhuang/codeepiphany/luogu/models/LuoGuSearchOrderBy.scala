@@ -1,11 +1,10 @@
 package com.wenjunhuang.codeepiphany.luogu.models
 
+import com.wenjunhuang.codeepiphany.model.OrderDirection
+import com.wenjunhuang.codeepiphany.model.OrderDirection.Ascending
 import io.circe.*
 import org.http4s.Uri
 import org.typelevel.ci.CIString
-
-import com.wenjunhuang.codeepiphany.model.OrderDirection
-import com.wenjunhuang.codeepiphany.model.OrderDirection.Ascending
 
 enum LuoGuSearchOrderBy {
   case PID

@@ -1,24 +1,12 @@
 package com.wenjunhuang.codeepiphany.atcoder.ui
 
-import cats.Show
 import cats.effect.IO
 import cats.syntax.all.*
-import io.circe.{Decoder, Encoder}
-import io.circe.generic.semiauto.*
-import io.circe.parser.*
-import io.circe.syntax.*
-
-import javax.swing.{Icon, JTable}
-import javax.swing.table.TableCellRenderer
-import monocle.syntax.all.*
-import org.jooq.impl.DSL
-
-import scala.jdk.CollectionConverters.*
 import com.intellij.openapi.actionSystem.{ActionGroup, ActionManager}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.text.StringUtil
-import com.intellij.util.ui.table.IconTableCellRenderer
 import com.intellij.util.ui.ColorIcon
+import com.intellij.util.ui.table.IconTableCellRenderer
 import com.wenjunhuang.codeepiphany.PluginBundle
 import com.wenjunhuang.codeepiphany.actions.OpenChallengeActionGroup
 import com.wenjunhuang.codeepiphany.atcoder.actions.AtCoderDifficultyParameterAction
@@ -26,13 +14,23 @@ import com.wenjunhuang.codeepiphany.atcoder.actions.AtCoderDifficultyParameterAc
 import com.wenjunhuang.codeepiphany.atcoder.models.{AtCoderDifficulty, AtCoderSearchOrderBy}
 import com.wenjunhuang.codeepiphany.atcoder.settings.AtCoderSettings
 import com.wenjunhuang.codeepiphany.atcoder.ui.AtCoderParametersQueryPresenter.*
-import com.wenjunhuang.codeepiphany.database.tables.records.AtcoderProblemsRecord
 import com.wenjunhuang.codeepiphany.database.Tables.*
+import com.wenjunhuang.codeepiphany.database.tables.records.AtcoderProblemsRecord
 import com.wenjunhuang.codeepiphany.model.{Actions, CodeDojo, OrderDirection}
 import com.wenjunhuang.codeepiphany.services.{ChallengeRepository, ParametersQueryPresenter, QueryContext}
-import com.wenjunhuang.codeepiphany.utils.{OrderByColumnInfo, PageSize, Pagination}
 import com.wenjunhuang.codeepiphany.utils.actions.DataSink
 import com.wenjunhuang.codeepiphany.utils.ui.TagPaneAction
+import com.wenjunhuang.codeepiphany.utils.{OrderByColumnInfo, PageSize, Pagination}
+import io.circe.generic.semiauto.*
+import io.circe.parser.*
+import io.circe.syntax.*
+import io.circe.{Decoder, Encoder}
+import monocle.syntax.all.*
+import org.jooq.impl.DSL
+
+import javax.swing.table.TableCellRenderer
+import javax.swing.{Icon, JTable}
+import scala.jdk.CollectionConverters.*
 
 class AtCoderParametersQueryPresenter(project: Project, bootstrap: AtCoderBootstrapParameters)
     extends ParametersQueryPresenter[

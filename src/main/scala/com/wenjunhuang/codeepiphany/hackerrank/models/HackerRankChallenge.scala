@@ -1,13 +1,12 @@
 package com.wenjunhuang.codeepiphany.hackerrank.models
 
-import io.circe.{Decoder, HCursor, Json}
+import com.wenjunhuang.codeepiphany.model.{Language, LanguageVersion}
+import com.wenjunhuang.codeepiphany.settings.ChallengeSettings.TestCase
 import io.circe.derivation.ConfiguredDecoder
+import io.circe.{Decoder, HCursor, Json}
 import monocle.Lens
 import monocle.macros.GenLens
 import org.typelevel.ci.CIString
-
-import com.wenjunhuang.codeepiphany.model.{Language, LanguageVersion}
-import com.wenjunhuang.codeepiphany.settings.ChallengeSettings.TestCase
 
 case class HackerRankChallengeDetail(
   id: Int,

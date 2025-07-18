@@ -1,15 +1,8 @@
 package com.wenjunhuang.codeepiphany.hackerrank.settings
 
 import cats.syntax.all.*
-import io.circe.optics.JsonPath
-import io.circe.parser.*
-import java.nio.charset.StandardCharsets
-import java.util.Objects
-import org.apache.commons.io.IOUtils
-
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.text.StringUtil
-
 import com.wenjunhuang.codeepiphany.PluginBundle
 import com.wenjunhuang.codeepiphany.hackerrank.models.HackerRankChallengeCodeTemplate
 import com.wenjunhuang.codeepiphany.hackerrank.models.HackerRankContest.Master
@@ -18,8 +11,14 @@ import com.wenjunhuang.codeepiphany.model.*
 import com.wenjunhuang.codeepiphany.model.CodeDojo.HackerRank
 import com.wenjunhuang.codeepiphany.model.Language.*
 import com.wenjunhuang.codeepiphany.model.LanguageVersion.*
-import com.wenjunhuang.codeepiphany.settings.dojo.{BaseCodeDojoSettings, BaseSettingsConfigurable}
 import com.wenjunhuang.codeepiphany.settings.ChallengeSettings
+import com.wenjunhuang.codeepiphany.settings.dojo.{BaseCodeDojoSettings, BaseSettingsConfigurable}
+import io.circe.optics.JsonPath
+import io.circe.parser.*
+import org.apache.commons.io.IOUtils
+
+import java.nio.charset.StandardCharsets
+import java.util.Objects
 
 class HackerRankSettingsConfigurable(project: Project)
     extends BaseSettingsConfigurable(

@@ -1,8 +1,8 @@
 package com.wenjunhuang.codeepiphany.leetcode.models
 
 import cats.syntax.all.*
-import io.circe.derivation.{Configuration, ConfiguredDecoder, ConfiguredEncoder}
 import io.circe.Decoder
+import io.circe.derivation.{Configuration, ConfiguredDecoder, ConfiguredEncoder}
 
 object runCode {
   // this api use snake_case for member names :}

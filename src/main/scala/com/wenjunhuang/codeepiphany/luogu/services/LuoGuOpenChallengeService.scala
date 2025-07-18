@@ -1,19 +1,16 @@
 package com.wenjunhuang.codeepiphany.luogu.services
 
-import cats.effect.{ Async, Concurrent, IO }
-import cats.syntax.all.*
+import cats.effect.IO
 import com.intellij.openapi.project.Project
-import com.wenjunhuang.codeepiphany.database.tables.records.{ ChallengeLanguageRecord, ChallengeRecord }
-import com.wenjunhuang.codeepiphany.luogu.models.{ LuoGuChallengeCodeTemplate, LuoGuChallengeItem }
-import com.wenjunhuang.codeepiphany.luogu.settings.{ LuoGuSettings, LuoGuSettingsConfigurable }
-import com.wenjunhuang.codeepiphany.model.newtypes.CodeDojoChallengeId
+import com.wenjunhuang.codeepiphany.database.tables.records.{ChallengeLanguageRecord, ChallengeRecord}
+import com.wenjunhuang.codeepiphany.luogu.models.{LuoGuChallengeCodeTemplate, LuoGuChallengeItem}
+import com.wenjunhuang.codeepiphany.luogu.settings.{LuoGuSettings, LuoGuSettingsConfigurable}
 import com.wenjunhuang.codeepiphany.model.*
+import com.wenjunhuang.codeepiphany.model.newtypes.CodeDojoChallengeId
 import com.wenjunhuang.codeepiphany.services.BaseOpenChallengeService
-import com.wenjunhuang.codeepiphany.services.http.HttpClientManager
 import com.wenjunhuang.codeepiphany.settings.dojo.BaseCodeDojoSettings
 import com.wenjunhuang.codeepiphany.utils.template.VelocityTool
 import org.jooq.DSLContext
-import org.typelevel.log4cats.LoggerFactory
 
 class LuoGuOpenChallengeService(project: Project)
     extends BaseOpenChallengeService[LuoGuChallengeItem, LuoGuChallengeCodeTemplate](

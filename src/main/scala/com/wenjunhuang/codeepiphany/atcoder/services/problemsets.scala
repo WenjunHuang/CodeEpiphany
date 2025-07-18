@@ -1,23 +1,20 @@
 package com.wenjunhuang.codeepiphany.atcoder.services
 
+import cats.effect.IO
 import cats.effect.implicits.*
-import cats.effect.{ IO, Concurrent }
 import cats.syntax.all.*
-import org.jooq.impl.DSL
-import org.typelevel.log4cats.LoggerFactory
-
 import com.intellij.execution.filters.BrowserHyperlinkInfo
 import com.intellij.openapi.project.Project
-
 import com.wenjunhuang.codeepiphany.PluginBundle
 import com.wenjunhuang.codeepiphany.atcoder.models.AtCoderDifficulty
 import com.wenjunhuang.codeepiphany.database.Tables.*
-import com.wenjunhuang.codeepiphany.services.{ console, ChallengeRepository }
-import com.wenjunhuang.codeepiphany.services.console.showConsole
 import com.wenjunhuang.codeepiphany.services.console.MessageSeg.Hyperlink
-import com.wenjunhuang.codeepiphany.services.http.HttpClientManager
+import com.wenjunhuang.codeepiphany.services.console.showConsole
+import com.wenjunhuang.codeepiphany.services.{ChallengeRepository, console}
 import com.wenjunhuang.codeepiphany.utils.IdGenerator
 import com.wenjunhuang.codeepiphany.utils.syntax.*
+import org.jooq.impl.DSL
+import org.typelevel.log4cats.LoggerFactory
 
 object problemsets {
   def fetchAndUpdateProblemSets(

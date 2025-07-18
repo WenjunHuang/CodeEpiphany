@@ -1,29 +1,27 @@
 package com.wenjunhuang.codeepiphany.codeforces.ui
 
 import cats.effect.IO
-import monocle.syntax.all.*
-import org.jooq.impl.DSL
-import scala.jdk.CollectionConverters.*
-
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.text.StringUtil
-
 import com.wenjunhuang.codeepiphany.actions.OpenChallengeActionGroup
 import com.wenjunhuang.codeepiphany.codeforces.models.CodeForcesSearchOrderBy
+import com.wenjunhuang.codeepiphany.codeforces.settings.CodeForcesSettings
 import com.wenjunhuang.codeepiphany.codeforces.ui.CodeForcesKeywordQueryPresenter.*
-import com.wenjunhuang.codeepiphany.database.tables.records.CodeforcesProblemsetsRecord
 import com.wenjunhuang.codeepiphany.database.Tables.*
+import com.wenjunhuang.codeepiphany.database.tables.records.CodeforcesProblemsetsRecord
 import com.wenjunhuang.codeepiphany.model.OrderDirection
-import com.wenjunhuang.codeepiphany.services.{ ChallengeRepository, KeywordQueryPresenter, QueryContext }
 import com.wenjunhuang.codeepiphany.services.KeywordQueryPresenter.KeywordHolder
-import com.wenjunhuang.codeepiphany.utils.{ OrderByColumnInfo, PageSize, Pagination }
+import com.wenjunhuang.codeepiphany.services.{ChallengeRepository, KeywordQueryPresenter, QueryContext}
 import com.wenjunhuang.codeepiphany.utils.actions.DataSink
-import io.circe.generic.semiauto.*
+import com.wenjunhuang.codeepiphany.utils.{OrderByColumnInfo, PageSize, Pagination}
 import io.circe.*
+import io.circe.generic.semiauto.*
 import io.circe.parser.*
 import io.circe.syntax.*
+import monocle.syntax.all.*
+import org.jooq.impl.DSL
 
-import com.wenjunhuang.codeepiphany.codeforces.settings.CodeForcesSettings
+import scala.jdk.CollectionConverters.*
 
 class CodeForcesKeywordQueryPresenter(project: Project, bootstrap: CodeForcesBootstrapParameters)
     extends KeywordQueryPresenter[CodeForcesBootstrapParameters, QueryParams, CodeforcesProblemsetsRecord](

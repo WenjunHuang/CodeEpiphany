@@ -1,6 +1,6 @@
 package com.wenjunhuang.codeepiphany.toolwindows.sidebar.solutions.leetcode
 import cats.effect.std.Queue
-import cats.effect.{ Async, IO }
+import cats.effect.{Async, IO}
 import cats.syntax.all.*
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.project.Project
@@ -8,20 +8,17 @@ import com.intellij.openapi.util.Disposer
 import com.wenjunhuang.codeepiphany.leetcode.models.LeetCodeQuestionSolutionArticle
 import com.wenjunhuang.codeepiphany.leetcode.services.LeetCodeApi
 import com.wenjunhuang.codeepiphany.model.CodeDojo
+import com.wenjunhuang.codeepiphany.utils.extensions.*
 import com.wenjunhuang.codeepiphany.utils.syntax.*
-import com.wenjunhuang.codeepiphany.utils.{ BrowserUtils, CancellableStream }
+import com.wenjunhuang.codeepiphany.utils.{BrowserUtils, CancellableStream}
 import fs2.Stream
-import org.apache.commons.text.StringEscapeUtils
+import org.apache.commons.text.translate.{AggregateTranslator, LookupTranslator, OctalUnescaper, UnicodeUnescaper}
 import org.typelevel.log4cats.LoggerFactory
 
 import java.net.URI
+import java.util.Collections
 import javax.swing.JComponent
 import scala.concurrent.duration.*
-import com.wenjunhuang.codeepiphany.utils.extensions.*
-import org.apache.commons.lang3.StringUtils
-import org.apache.commons.text.translate.{ AggregateTranslator, LookupTranslator, OctalUnescaper, UnicodeUnescaper }
-
-import java.util.Collections
 import scala.jdk.CollectionConverters.*
 
 class ArticleDetailPresenter(

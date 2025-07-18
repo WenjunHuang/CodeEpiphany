@@ -1,16 +1,15 @@
 package com.wenjunhuang.codeepiphany.utils.actions
 
-import icons.CodeEpiphanyIcons
-import javax.swing.JComponent
-
-import com.intellij.openapi.actionSystem.{ActionToolbar, Presentation}
 import com.intellij.openapi.actionSystem.impl.ActionButton
+import com.intellij.openapi.actionSystem.{ActionToolbar, Presentation}
 import com.intellij.openapi.util.Key
-import com.intellij.ui.{AnimatedIcon, CardLayoutPanel}
 import com.intellij.ui.components.JBLabel
-
+import com.intellij.ui.{AnimatedIcon, CardLayoutPanel}
 import com.wenjunhuang.codeepiphany.utils.actions.AbstractLoadingAction.*
 import com.wenjunhuang.codeepiphany.utils.walkaround.CustomComponentActionBridge
+import icons.CodeEpiphanyIcons
+
+import javax.swing.JComponent
 
 abstract class AbstractLoadingAction extends CustomComponentActionBridge {
 

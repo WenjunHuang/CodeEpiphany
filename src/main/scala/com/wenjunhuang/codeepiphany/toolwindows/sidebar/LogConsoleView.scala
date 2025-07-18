@@ -1,20 +1,18 @@
 package com.wenjunhuang.codeepiphany.toolwindows.sidebar
 
 import cats.effect.IO
-
 import com.intellij.execution.filters.TextConsoleBuilderFactory
-import com.intellij.execution.ui.{ ConsoleView, ConsoleViewContentType }
+import com.intellij.execution.ui.{ConsoleView, ConsoleViewContentType}
 import com.intellij.ide.DataManager
 import com.intellij.openapi.actionSystem.*
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.SimpleToolWindowPanel
 import com.intellij.openapi.util.Disposer
 import com.intellij.openapi.wm.ToolWindowManager
-
-import com.wenjunhuang.codeepiphany.model.Constants
-import com.wenjunhuang.codeepiphany.utils.syntax.*
 import com.wenjunhuang.codeepiphany.PluginBundle
-import com.wenjunhuang.codeepiphany.utils.actions.{ DataSink, UiDataProvider }
+import com.wenjunhuang.codeepiphany.model.Constants
+import com.wenjunhuang.codeepiphany.utils.actions.{DataSink, UiDataProvider}
+import com.wenjunhuang.codeepiphany.utils.syntax.*
 
 class LogConsoleView(private val myProject: Project) extends SimpleToolWindowPanel(false, true) with UiDataProvider {
 

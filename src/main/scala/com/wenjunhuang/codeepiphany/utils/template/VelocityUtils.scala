@@ -1,10 +1,10 @@
 package com.wenjunhuang.codeepiphany.utils.template
 
-import java.io.StringWriter
+import com.wenjunhuang.codeepiphany.model.{Constants, Language}
 import org.apache.velocity.VelocityContext
 import org.apache.velocity.app.Velocity
 
-import com.wenjunhuang.codeepiphany.model.{Constants, Language}
+import java.io.StringWriter
 
 object VelocityUtils {
   def generateContent(

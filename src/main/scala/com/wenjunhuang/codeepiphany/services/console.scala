@@ -1,14 +1,11 @@
 package com.wenjunhuang.codeepiphany.services
 
-import cats.effect.{Concurrent, IO}
-import cats.syntax.all.*
+import cats.effect.IO
 import com.intellij.execution.filters.HyperlinkInfo
 import com.intellij.execution.ui.ConsoleViewContentType
 import com.intellij.openapi.project.Project
-import com.wenjunhuang.codeepiphany.services.http.HttpClientManager
 import com.wenjunhuang.codeepiphany.toolwindows.sidebar.{LogConsoleView, SidebarWindowFactory}
 import com.wenjunhuang.codeepiphany.utils.syntax.*
-import org.typelevel.log4cats.LoggerFactory
 
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter

@@ -1,28 +1,27 @@
 package com.wenjunhuang.codeepiphany.editor.extensions
 
-import java.awt.{AWTEvent, EventQueue}
-import java.awt.event.{AWTEventListener, KeyAdapter}
-import java.beans.PropertyChangeListener
-import java.util
-import javax.swing.{JComponent, JLayeredPane}
-
 import com.intellij.codeHighlighting.BackgroundEditorHighlighter
 import com.intellij.ide.structureView.StructureViewBuilder
-import com.intellij.openapi.actionSystem.{ActionGroup, ActionManager}
-import com.intellij.openapi.editor.impl.EditorComponentImpl
-import com.intellij.openapi.util.{Disposer, Key}
 import com.intellij.openapi.Disposable
+import com.intellij.openapi.actionSystem.{ActionGroup, ActionManager}
 import com.intellij.openapi.editor.Editor
+import com.intellij.openapi.editor.impl.EditorComponentImpl
 import com.intellij.openapi.fileEditor.*
+import com.intellij.openapi.util.{Disposer, Key}
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.pom.Navigatable
 import com.intellij.ui.components.JBLayeredPane
 import com.intellij.util.Alarm
 import com.intellij.util.ui.{StartupUiUtil, UIUtil}
-
 import com.wenjunhuang.codeepiphany.editor.extensions
 import com.wenjunhuang.codeepiphany.editor.extensions.ChallengeEditor.*
 import com.wenjunhuang.codeepiphany.model.Actions
+
+import java.awt.event.{AWTEventListener, KeyAdapter}
+import java.awt.{AWTEvent, EventQueue}
+import java.beans.PropertyChangeListener
+import java.util
+import javax.swing.{JComponent, JLayeredPane}
 
 class ChallengeEditor(private val myDelegate: TextEditor, private val myName: String = "ChallengeEditor")
     extends TextEditorBridge {

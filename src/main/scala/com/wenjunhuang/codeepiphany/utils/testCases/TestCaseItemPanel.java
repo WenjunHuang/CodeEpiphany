@@ -23,7 +23,6 @@ import javax.swing.border.TitledBorder;
 import javax.swing.plaf.FontUIResource;
 import javax.swing.text.StyleContext;
 import java.awt.*;
-import java.awt.event.ActionEvent;
 import java.lang.reflect.Method;
 import java.util.Locale;
 import java.util.ResourceBundle;

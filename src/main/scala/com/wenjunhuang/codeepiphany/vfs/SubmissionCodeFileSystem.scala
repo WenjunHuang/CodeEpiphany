@@ -1,22 +1,21 @@
 package com.wenjunhuang.codeepiphany.vfs
 
-import io.circe.generic.auto.*
-import io.circe.parser.*
-import io.circe.syntax.*
-import org.typelevel.ci.CIString
-import scala.collection.mutable
-import scala.jdk.OptionConverters.*
-
 import com.intellij.openapi.fileTypes.{FileTypeManager, LanguageFileType, PlainTextLanguage}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.{VirtualFile, VirtualFileManager}
 import com.intellij.vcs.editor.ComplexPathVirtualFileSystem
 import com.intellij.vcs.editor.ComplexPathVirtualFileSystem.ComplexPathSerializer
-
 import com.wenjunhuang.codeepiphany.database.Tables.*
 import com.wenjunhuang.codeepiphany.model.{Language, LanguageVersion}
 import com.wenjunhuang.codeepiphany.services.ChallengeRepository
 import com.wenjunhuang.codeepiphany.vfs.SubmissionCodeFileSystem.*
+import io.circe.generic.auto.*
+import io.circe.parser.*
+import io.circe.syntax.*
+import org.typelevel.ci.CIString
+
+import scala.collection.mutable
+import scala.jdk.OptionConverters.*
 
 class SubmissionCodeFileSystem
     extends ComplexPathVirtualFileSystem[SubmissionCodeFilePath](SubmissionCodeFilePathSerializer) {
