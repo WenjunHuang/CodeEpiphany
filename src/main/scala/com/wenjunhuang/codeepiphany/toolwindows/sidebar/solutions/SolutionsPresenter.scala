@@ -1,10 +1,10 @@
 package com.wenjunhuang.codeepiphany.toolwindows.sidebar.solutions
 
 import cats.effect.std.Queue
-import cats.effect.{ IO, Resource }
+import cats.effect.{IO, Resource}
 import cats.syntax.all.*
 import com.intellij.openapi.Disposable
-import com.intellij.openapi.fileEditor.{ FileEditorManagerEvent, FileEditorManagerListener }
+import com.intellij.openapi.fileEditor.{FileEditorManagerEvent, FileEditorManagerListener}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
 import com.intellij.util.ui.components.BorderLayoutPanel
@@ -148,6 +148,7 @@ class SolutionsPresenter(private val myProject: Project) extends Disposable {
     */
   private def createEmptyPresenter(dojo: CodeDojo): SolutionPresenterInfo = {
     import com.intellij.ui.components.JBLabel
+
     import javax.swing.SwingConstants
 
     val emptyView = new JBLabel(s"Solutions for ${dojo.show} are not yet implemented", SwingConstants.CENTER)

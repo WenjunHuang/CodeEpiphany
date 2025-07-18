@@ -1,35 +1,34 @@
 package com.wenjunhuang.codeepiphany.luogu.services
 
-import cats.effect.{ Concurrent, IO, Temporal }
+import cats.effect.{IO, Temporal}
 import cats.implicits.*
 import cats.syntax.all.*
 import com.vladsch.flexmark.html.HtmlRenderer
 import com.vladsch.flexmark.parser.Parser
 import com.vladsch.flexmark.util.data.MutableDataSet
-
 import com.wenjunhuang.codeepiphany.luogu.models.*
 import com.wenjunhuang.codeepiphany.luogu.settings.LuoGuSettingsConfigurable.LUOGU_LANGUAGES_REVERSE
-import com.wenjunhuang.codeepiphany.model.{ CodeDojo, OrderDirection, SubmissionResult }
+import com.wenjunhuang.codeepiphany.model.{CodeDojo, OrderDirection, SubmissionResult}
 import com.wenjunhuang.codeepiphany.services.http.HttpClientManager
-import com.wenjunhuang.codeepiphany.utils.syntax.*
+import com.wenjunhuang.codeepiphany.settings.ChallengeSettings
 import com.wenjunhuang.codeepiphany.utils.extensions.*
+import com.wenjunhuang.codeepiphany.utils.syntax.*
 import fs2.Stream
 import io.circe.Json
 import io.circe.optics.JsonPath
 import io.circe.parser.*
 import io.circe.syntax.*
 import org.http4s.client.dsl.Http4sClientDsl
-import org.http4s.client.{ Client, UnexpectedStatus }
+import org.http4s.client.{Client, UnexpectedStatus}
 import org.http4s.headers.Referer
 import org.http4s.implicits.uri
-import org.http4s.{ Headers, Method, Uri }
+import org.http4s.{Headers, Method, Uri}
 import org.jsoup.Jsoup
 import scodec.bits.ByteVector
-import java.net.{ HttpCookie, URLDecoder }
+
+import java.net.{HttpCookie, URLDecoder}
 import scala.concurrent.duration.*
 import scala.jdk.CollectionConverters.*
-
-import com.wenjunhuang.codeepiphany.settings.ChallengeSettings
 
 trait LuoGuApi {
   def checkLogin(): IO[Boolean]

@@ -1,13 +1,12 @@
 package com.wenjunhuang.codeepiphany.toolwindows.sidebar.submissionlog.leetcode
 
-import java.awt.BorderLayout
-import javax.swing.JComponent
-
 import com.intellij.ui.components.JBTextArea
 import com.intellij.util.ui.JBUI
-
-import com.wenjunhuang.codeepiphany.utils.ui.BackgroundRoundedPanel
 import com.wenjunhuang.codeepiphany.utils.ColorUtils
+import com.wenjunhuang.codeepiphany.utils.ui.BackgroundRoundedPanel
+
+import java.awt.BorderLayout
+import javax.swing.JComponent
 
 class LeetCodeErrorResultForm(errorText: String) {
   private val myErrorPane = BackgroundRoundedPanel(12, BorderLayout())

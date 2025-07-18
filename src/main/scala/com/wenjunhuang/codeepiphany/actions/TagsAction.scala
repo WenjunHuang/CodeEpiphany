@@ -11,7 +11,6 @@ import com.intellij.util.ui.JBUI
 import com.intellij.util.ui.components.BorderLayoutPanel
 import com.wenjunhuang.codeepiphany.actions.TagsAction.*
 import com.wenjunhuang.codeepiphany.utils.actions.{ActionCompatible, DataKeyNotNull, ParameterProvider}
-import com.wenjunhuang.codeepiphany.utils.syntax.*
 import com.wenjunhuang.codeepiphany.utils.ui.{CollapsibleTitledSeparator, TagPane, TagPaneAction}
 
 import java.awt.{Dimension, GridBagConstraints, GridBagLayout}

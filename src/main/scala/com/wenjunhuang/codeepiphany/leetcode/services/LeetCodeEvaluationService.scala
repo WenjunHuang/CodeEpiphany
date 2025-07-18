@@ -1,26 +1,21 @@
 package com.wenjunhuang.codeepiphany.leetcode.services
 
-import cats.effect.{ Concurrent, IO }
+import cats.effect.IO
 import cats.syntax.all.*
-import org.jooq.{ DSLContext, Record }
-import org.typelevel.ci.CIString
-import org.typelevel.log4cats.LoggerFactory
-import scala.jdk.OptionConverters.*
-
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.util.text.StringUtil
-
-import com.wenjunhuang.codeepiphany.database.Tables.{ CHALLENGE, CHALLENGE_LANGUAGE, LEETCODE_CHALLENGE }
+import com.wenjunhuang.codeepiphany.PluginBundle
+import com.wenjunhuang.codeepiphany.database.Tables.{CHALLENGE, CHALLENGE_LANGUAGE, LEETCODE_CHALLENGE}
 import com.wenjunhuang.codeepiphany.leetcode.models.*
 import com.wenjunhuang.codeepiphany.leetcode.models.runCode.LeetCodeRunResult
 import com.wenjunhuang.codeepiphany.model.*
 import com.wenjunhuang.codeepiphany.model.SubmissionResult.Processing
-import com.wenjunhuang.codeepiphany.services.{ console, BaseCodeEvaluationService, ChallengeRepository }
-import com.wenjunhuang.codeepiphany.services.http.HttpClientManager
+import com.wenjunhuang.codeepiphany.services.{BaseCodeEvaluationService, ChallengeRepository, console}
 import com.wenjunhuang.codeepiphany.settings.ChallengeSettings
-import com.wenjunhuang.codeepiphany.settings.ChallengeSettings.{ ChallengeSettingsStateItem, TestCase }
-import com.wenjunhuang.codeepiphany.utils.Tabulator
-import com.wenjunhuang.codeepiphany.PluginBundle
+import com.wenjunhuang.codeepiphany.settings.ChallengeSettings.{ChallengeSettingsStateItem, TestCase}
+import org.jooq.{DSLContext, Record}
+import org.typelevel.ci.CIString
+
+import scala.jdk.OptionConverters.*
 
 class LeetCodeEvaluationService(
   project: Project,

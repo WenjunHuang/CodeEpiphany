@@ -1,7 +1,6 @@
 package com.wenjunhuang.codeepiphany.hackerrank.services
 
-import cats.effect.{Concurrent, IO}
-import cats.syntax.all.*
+import cats.effect.IO
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.text.StringUtil
 import com.wenjunhuang.codeepiphany.database.Tables.*
@@ -12,12 +11,9 @@ import com.wenjunhuang.codeepiphany.model.*
 import com.wenjunhuang.codeepiphany.model.CodeDojo.HackerRank
 import com.wenjunhuang.codeepiphany.model.newtypes.*
 import com.wenjunhuang.codeepiphany.services.BaseOpenChallengeService
-import com.wenjunhuang.codeepiphany.services.http.HttpClientManager
 import com.wenjunhuang.codeepiphany.settings.dojo.BaseCodeDojoSettings.LanguageSettingsState
-import com.wenjunhuang.codeepiphany.utils.syntax.*
 import org.jooq.DSLContext
 import org.typelevel.ci.CIString
-import org.typelevel.log4cats.LoggerFactory
 
 case class HackerRankOpenChallengeRequest(challengeSlug: String, contest: HackerRankContest)
 class HackerRankOpenChallengeService(project: Project)

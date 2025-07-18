@@ -1,6 +1,6 @@
 package com.wenjunhuang.codeepiphany.codeforces.models
 
-import io.circe.{ Decoder, Encoder }
+import io.circe.{Decoder, Encoder}
 import org.typelevel.ci.CIString
 
 enum CodeForcesSearchOrderBy {

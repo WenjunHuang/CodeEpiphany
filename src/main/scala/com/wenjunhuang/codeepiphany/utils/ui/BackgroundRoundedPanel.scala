@@ -1,12 +1,11 @@
 package com.wenjunhuang.codeepiphany.utils.ui
 
-import java.awt.{ Graphics, Graphics2D, LayoutManager }
+import com.intellij.util.ui.GraphicsUtil
+import com.wenjunhuang.codeepiphany.utils.syntax.*
+
+import java.awt.{Graphics, Graphics2D, LayoutManager}
 import javax.swing.JComponent
 import scala.util.Using
-
-import com.intellij.util.ui.GraphicsUtil
-
-import com.wenjunhuang.codeepiphany.utils.syntax.*
 
 class BackgroundRoundedPanel(private val radius: Int, private val layoutManager: LayoutManager) extends JComponent {
 

@@ -3,7 +3,6 @@ package com.wenjunhuang.codeepiphany.editor.extensions
 import com.intellij.openapi.fileEditor.impl.EditorTabTitleProvider
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
-
 import com.wenjunhuang.codeepiphany.database.Tables.CHALLENGE
 import com.wenjunhuang.codeepiphany.services.ChallengeRepository
 import com.wenjunhuang.codeepiphany.settings.ChallengeSettings

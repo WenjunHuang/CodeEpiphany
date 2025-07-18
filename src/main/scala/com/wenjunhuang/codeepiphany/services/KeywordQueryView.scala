@@ -1,31 +1,26 @@
 package com.wenjunhuang.codeepiphany.services
 
-import java.awt.{ BorderLayout, Color }
-import java.awt.event.{ MouseAdapter, MouseEvent }
-import javax.swing.{ JTable, ScrollPaneConstants }
-import javax.swing.table.DefaultTableCellRenderer
-
 import com.intellij.icons.AllIcons
-import com.intellij.openapi.actionSystem.{ ActionGroup, ActionManager }
+import com.intellij.openapi.actionSystem.{ActionGroup, ActionManager}
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.ui.SimpleToolWindowPanel
-import com.intellij.ui.{ PopupHandler, SearchTextField, SimpleTextAttributes }
 import com.intellij.ui.components.JBScrollPane
 import com.intellij.ui.table.TableView
+import com.intellij.ui.{PopupHandler, SearchTextField, SimpleTextAttributes}
 import com.intellij.util.ui.JBUI
 import com.intellij.util.ui.components.BorderLayoutPanel
-
 import com.wenjunhuang.codeepiphany.PluginBundle
 import com.wenjunhuang.codeepiphany.actions.PaginationParameterActionGroup
-import com.wenjunhuang.codeepiphany.model.Actions.{
-  CHALLENGES_TABLE_POPUP_GROUP,
-  CHALLENGES_TABLE_POPUP_PLACE,
-  TOOLBAR_PLACE
-}
+import com.wenjunhuang.codeepiphany.model.Actions.{CHALLENGES_TABLE_POPUP_GROUP, CHALLENGES_TABLE_POPUP_PLACE, TOOLBAR_PLACE}
 import com.wenjunhuang.codeepiphany.model.OrderDirection
-import com.wenjunhuang.codeepiphany.utils.{ ColorUtils, CompatibleUtils }
 import com.wenjunhuang.codeepiphany.utils.OrderByColumnInfo.nextOrderFilter
-import com.wenjunhuang.codeepiphany.utils.actions.{ DataSink, UiDataProvider }
+import com.wenjunhuang.codeepiphany.utils.actions.{DataSink, UiDataProvider}
+import com.wenjunhuang.codeepiphany.utils.{ColorUtils, CompatibleUtils}
+
+import java.awt.event.{MouseAdapter, MouseEvent}
+import java.awt.{BorderLayout, Color}
+import javax.swing.table.DefaultTableCellRenderer
+import javax.swing.{JTable, ScrollPaneConstants}
 
 class KeywordQueryView[Item](private val myPresenter: KeywordQueryPresenter[?, ?, Item])
     extends SimpleToolWindowPanel(true, true)

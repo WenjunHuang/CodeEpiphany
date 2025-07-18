@@ -11,7 +11,6 @@ import com.wenjunhuang.codeepiphany.leetcode.services.{LeetCodeApi, LeetCodeSear
 import com.wenjunhuang.codeepiphany.leetcode.settings.{LeetCodeCNSettings, LeetCodeSettings}
 import com.wenjunhuang.codeepiphany.leetcode.ui.LeetCodeKeywordQueryPresenter.LeetCodeKeywordQueryParams
 import com.wenjunhuang.codeepiphany.model.*
-import com.wenjunhuang.codeepiphany.services.http.{HttpClientManager}
 import com.wenjunhuang.codeepiphany.services.{KeywordQueryPresenter, QueryContext}
 import com.wenjunhuang.codeepiphany.utils.actions.DataSink
 import com.wenjunhuang.codeepiphany.utils.{OrderByColumnInfo, PageSize, Pagination}

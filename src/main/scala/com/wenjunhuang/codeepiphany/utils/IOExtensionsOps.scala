@@ -7,6 +7,7 @@ import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.progress.{PerformInBackgroundOption, ProgressIndicator, ProgressManager, Task}
 import com.intellij.openapi.project.Project
 import com.wenjunhuang.codeepiphany.utils.syntax.*
+
 import scala.concurrent.duration.*
 
 trait IOExtensionsOps {

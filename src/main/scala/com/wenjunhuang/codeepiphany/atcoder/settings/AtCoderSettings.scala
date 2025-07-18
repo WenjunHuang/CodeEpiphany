@@ -1,9 +1,8 @@
 package com.wenjunhuang.codeepiphany.atcoder.settings
 
-import com.intellij.openapi.components.{Service, State, Storage}
 import com.intellij.openapi.components.Service.Level
+import com.intellij.openapi.components.{Service, State, Storage}
 import com.intellij.openapi.project.Project
-
 import com.wenjunhuang.codeepiphany.model.Constants
 import com.wenjunhuang.codeepiphany.settings.dojo.BaseCodeDojoSettings
 

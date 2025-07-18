@@ -3,30 +3,27 @@ package com.wenjunhuang.codeepiphany.hackerrank.ui
 import cats.effect.IO
 import cats.effect.implicits.*
 import cats.syntax.all.*
-import fs2.Stream
-import javax.swing.{ Icon, JTable, SwingConstants }
-import javax.swing.table.{ DefaultTableCellRenderer, TableCellRenderer }
-import org.typelevel.ci.CIString
-
 import com.intellij.icons.AllIcons
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.util.ui.table.IconTableCellRenderer
-
 import com.wenjunhuang.codeepiphany.actions.OpenChallengeActionGroup.CHALLENGE_PROVIDER_KEY
-import com.wenjunhuang.codeepiphany.hackerrank.models.{ HackerRankChallengeDetail, HackerRankContest }
+import com.wenjunhuang.codeepiphany.hackerrank.models.{HackerRankChallengeDetail, HackerRankContest}
 import com.wenjunhuang.codeepiphany.hackerrank.services.HackerRankApi
-import com.wenjunhuang.codeepiphany.hackerrank.ui.HackerRankKeywordQueryPresenter.QueryParams
-import com.wenjunhuang.codeepiphany.model.{ ChallengeDifficulty, ChallengeStatus }
-import com.wenjunhuang.codeepiphany.services.{ KeywordQueryPresenter, QueryContext }
-import com.wenjunhuang.codeepiphany.services.http.{ HttpClientManager }
-import com.wenjunhuang.codeepiphany.utils.{ OrderByColumnInfo, PageSize, Pagination }
-import com.wenjunhuang.codeepiphany.utils.actions.DataSink
-import io.circe.generic.auto.*
-import io.circe.syntax.*
-import io.circe.parser.*
-
 import com.wenjunhuang.codeepiphany.hackerrank.settings.HackerRankSettings
+import com.wenjunhuang.codeepiphany.hackerrank.ui.HackerRankKeywordQueryPresenter.QueryParams
+import com.wenjunhuang.codeepiphany.model.{ChallengeDifficulty, ChallengeStatus}
+import com.wenjunhuang.codeepiphany.services.{KeywordQueryPresenter, QueryContext}
+import com.wenjunhuang.codeepiphany.utils.actions.DataSink
+import com.wenjunhuang.codeepiphany.utils.{OrderByColumnInfo, PageSize, Pagination}
+import fs2.Stream
+import io.circe.generic.auto.*
+import io.circe.parser.*
+import io.circe.syntax.*
+import org.typelevel.ci.CIString
+
+import javax.swing.table.{DefaultTableCellRenderer, TableCellRenderer}
+import javax.swing.{Icon, JTable, SwingConstants}
 
 class HackerRankKeywordQueryPresenter(project: Project)
     extends KeywordQueryPresenter[Unit, QueryParams, HackerRankChallengeDetail](project, ()) {

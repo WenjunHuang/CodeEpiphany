@@ -1,11 +1,10 @@
 package com.wenjunhuang.codeepiphany.leetcode.models
 
-import scala.beans.BeanProperty
-
-import com.wenjunhuang.codeepiphany.model.{ CodeDojo, Language, LanguageVersion }
-import com.wenjunhuang.codeepiphany.settings.ChallengeSettings.TestCase
-import com.wenjunhuang.codeepiphany.PluginBundle
+import com.wenjunhuang.codeepiphany.model.{CodeDojo, Language, LanguageVersion}
 import com.wenjunhuang.codeepiphany.services.BaseOpenChallengeService.TestCasesHolder
+import com.wenjunhuang.codeepiphany.settings.ChallengeSettings.TestCase
+
+import scala.beans.BeanProperty
 
 case class LeetCodeChallengeCodeTemplate(
   @BeanProperty

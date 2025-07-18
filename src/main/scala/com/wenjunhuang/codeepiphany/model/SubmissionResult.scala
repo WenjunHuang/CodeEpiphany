@@ -2,10 +2,9 @@ package com.wenjunhuang.codeepiphany.model
 
 import cats.Show
 import cats.syntax.all.*
-import org.typelevel.ci.CIString
-
 import com.wenjunhuang.codeepiphany.PluginBundle
 import com.wenjunhuang.codeepiphany.model.SubmissionResult.*
+import org.typelevel.ci.CIString
 
 enum SubmissionResult(val value: String) {
   case Processing          extends SubmissionResult("processing")

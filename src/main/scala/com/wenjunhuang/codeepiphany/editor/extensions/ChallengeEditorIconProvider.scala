@@ -1,15 +1,13 @@
 package com.wenjunhuang.codeepiphany.editor.extensions
 
-import javax.swing.Icon
-
 import com.intellij.ide.FileIconPatcher
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Key
 import com.intellij.openapi.vfs.VirtualFile
-
-import com.wenjunhuang.codeepiphany.database.Tables.*
 import com.wenjunhuang.codeepiphany.editor.extensions.ChallengeEditorIconProvider.{FILE_ICON_KEY, FileIcon}
 import com.wenjunhuang.codeepiphany.settings.ChallengeSettings
+
+import javax.swing.Icon
 
 class ChallengeEditorIconProvider extends FileIconPatcher {
   override def patchIcon(icon: Icon, file: VirtualFile, flags: Int, project: Project): Icon = {

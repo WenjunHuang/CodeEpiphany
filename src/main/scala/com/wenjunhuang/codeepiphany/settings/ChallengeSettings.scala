@@ -1,28 +1,21 @@
 package com.wenjunhuang.codeepiphany.settings
 
-import java.util as ju
-import scala.annotation.meta.{ beanGetter, beanSetter }
-import scala.beans.BeanProperty
-import scala.compiletime.uninitialized
-import scala.util.hashing.Hashing.Default
-
-import com.intellij.openapi.components.{ PersistentStateComponent, Service, State, Storage }
 import com.intellij.openapi.components.Service.Level
+import com.intellij.openapi.components.{PersistentStateComponent, Service, State, Storage}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
-import com.intellij.util.xmlb.annotations.{ OptionTag, XCollection }
-
-import com.wenjunhuang.codeepiphany.model.{ CodeDojo, Constants, Language }
-import com.wenjunhuang.codeepiphany.model.newtypes.*
-import com.wenjunhuang.codeepiphany.settings.ChallengeSettings.{
-  ChallengeSettingsState,
-  ChallengeSettingsStateItem,
-  TestCase
-}
-import com.wenjunhuang.codeepiphany.utils.XmlUtils.{ CodeDojoConverter, LanguageConverter }
-import scala.jdk.CollectionConverters.*
-
+import com.intellij.util.xmlb.annotations.{OptionTag, XCollection}
 import com.wenjunhuang.codeepiphany.PluginBundle
+import com.wenjunhuang.codeepiphany.model.newtypes.*
+import com.wenjunhuang.codeepiphany.model.{CodeDojo, Constants, Language}
+import com.wenjunhuang.codeepiphany.settings.ChallengeSettings.{ChallengeSettingsState, ChallengeSettingsStateItem, TestCase}
+import com.wenjunhuang.codeepiphany.utils.XmlUtils.{CodeDojoConverter, LanguageConverter}
+
+import java.util as ju
+import scala.annotation.meta.{beanGetter, beanSetter}
+import scala.beans.BeanProperty
+import scala.compiletime.uninitialized
+import scala.jdk.CollectionConverters.*
 
 /**
  * 因为这个对象可能会被多个线程修改，为了简单起见，这里使用了同步锁。

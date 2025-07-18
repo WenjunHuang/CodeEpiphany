@@ -1,8 +1,7 @@
 package com.wenjunhuang.codeepiphany.utils
 import cats.Show
-import io.circe.{Decoder, Encoder}
-
 import com.wenjunhuang.codeepiphany.PluginBundle
+import io.circe.{Decoder, Encoder}
 
 case class Pagination(currentPage: Int = 1, pageSize: PageSize = PageSize.Twenty, totalSize: Int = 0) {
   require(currentPage > 0, "Current page must be greater than 0")

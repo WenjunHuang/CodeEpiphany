@@ -1,6 +1,6 @@
 package com.wenjunhuang.codeepiphany.utils
 
-import cats.effect.kernel.Resource.{ExitCase, canceled}
+import cats.effect.kernel.Resource.ExitCase
 import cats.effect.testing.scalatest.AsyncIOSpec
 import cats.effect.{IO, Ref}
 import fs2.Stream

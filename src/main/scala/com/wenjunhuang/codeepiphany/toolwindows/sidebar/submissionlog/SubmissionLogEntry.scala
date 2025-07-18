@@ -1,8 +1,8 @@
 package com.wenjunhuang.codeepiphany.toolwindows.sidebar.submissionlog
 
-import java.time.LocalDateTime
-
 import com.wenjunhuang.codeepiphany.model.*
+
+import java.time.LocalDateTime
 
 case class SubmissionLogEntry(
   id: Long,

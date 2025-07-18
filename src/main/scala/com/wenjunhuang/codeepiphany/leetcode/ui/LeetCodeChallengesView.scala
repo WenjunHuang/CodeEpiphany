@@ -2,21 +2,17 @@ package com.wenjunhuang.codeepiphany.leetcode.ui
 
 import cats.effect.IO
 import cats.syntax.all.*
-import com.intellij.openapi.actionSystem.{ ActionGroup, ActionManager }
+import com.intellij.openapi.actionSystem.{ActionGroup, ActionManager}
 import com.intellij.openapi.project.Project
-import com.wenjunhuang.codeepiphany.actions.LoginAction.{ LOGIN_LOGOUT_KEY, LoginLogoutProvider }
+import com.wenjunhuang.codeepiphany.PluginBundle
+import com.wenjunhuang.codeepiphany.actions.LoginAction.{LOGIN_LOGOUT_KEY, LoginLogoutProvider}
 import com.wenjunhuang.codeepiphany.leetcode.actions.LeetCodeChangeUIAction.LeetCodeUI.*
-import com.wenjunhuang.codeepiphany.leetcode.actions.LeetCodeChangeUIAction.{
-  LEETCODE_CHANGE_UI_PROVIDER_KEY,
-  LeetCodeChangeUIProvider,
-  LeetCodeUI
-}
+import com.wenjunhuang.codeepiphany.leetcode.actions.LeetCodeChangeUIAction.{LEETCODE_CHANGE_UI_PROVIDER_KEY, LeetCodeChangeUIProvider, LeetCodeUI}
 import com.wenjunhuang.codeepiphany.leetcode.services.LeetCodeApi
-import com.wenjunhuang.codeepiphany.leetcode.settings.{ LeetCodeCNSettings, LeetCodeSettings }
+import com.wenjunhuang.codeepiphany.leetcode.settings.{LeetCodeCNSettings, LeetCodeSettings}
 import com.wenjunhuang.codeepiphany.model.Actions.LEETCODE_TITLE_TOOLBAR_GROUP
 import com.wenjunhuang.codeepiphany.model.CodeDojo
-import com.wenjunhuang.codeepiphany.services.http.HttpClientManager
-import com.wenjunhuang.codeepiphany.services.{ console, AskForLoginResult, AuthService, BaseChallengesView }
+import com.wenjunhuang.codeepiphany.services.{AskForLoginResult, AuthService, BaseChallengesView, console}
 import com.wenjunhuang.codeepiphany.utils.actions.DataSink
 import com.wenjunhuang.codeepiphany.utils.extensions.*
 import com.wenjunhuang.codeepiphany.utils.syntax.*
@@ -25,7 +21,6 @@ import org.typelevel.ci.CIString
 import org.typelevel.log4cats.LoggerFactory
 
 import javax.swing.JComponent
-import com.wenjunhuang.codeepiphany.PluginBundle
 
 class LeetCodeChallengesView(
   private val myProject: Project,

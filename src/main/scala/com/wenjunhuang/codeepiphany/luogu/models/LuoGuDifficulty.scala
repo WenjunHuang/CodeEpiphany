@@ -1,6 +1,6 @@
 package com.wenjunhuang.codeepiphany.luogu.models
 
-import io.circe.{ Decoder, Encoder }
+import io.circe.{Decoder, Encoder}
 
 enum LuoGuDifficulty(val value: Int) {
   case NonRated          extends LuoGuDifficulty(0)

@@ -10,7 +10,6 @@ import com.wenjunhuang.codeepiphany.luogu.settings.LuoGuSettings
 import com.wenjunhuang.codeepiphany.luogu.ui.LuoGuKeywordQueryPresenter.*
 import com.wenjunhuang.codeepiphany.model.OrderDirection
 import com.wenjunhuang.codeepiphany.services.KeywordQueryPresenter.KeywordHolder
-import com.wenjunhuang.codeepiphany.services.http.HttpClientManager
 import com.wenjunhuang.codeepiphany.services.{KeywordQueryPresenter, QueryContext}
 import com.wenjunhuang.codeepiphany.utils.actions.DataSink
 import com.wenjunhuang.codeepiphany.utils.{OrderByColumnInfo, PageSize, Pagination}

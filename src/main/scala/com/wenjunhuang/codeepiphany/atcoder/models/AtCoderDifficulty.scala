@@ -1,11 +1,11 @@
 package com.wenjunhuang.codeepiphany.atcoder.models
 
-import io.circe.{ Decoder, Encoder }
-import java.awt.Color
-import org.typelevel.ci.CIString
-
 import com.wenjunhuang.codeepiphany.atcoder.models.AtCoderDifficulty.*
 import com.wenjunhuang.codeepiphany.utils.ColorUtils
+import io.circe.{Decoder, Encoder}
+import org.typelevel.ci.CIString
+
+import java.awt.Color
 
 enum AtCoderDifficulty(val lowerBound: Int, val upperBound: Int) {
   case Grey   extends AtCoderDifficulty(Int.MinValue, 399)

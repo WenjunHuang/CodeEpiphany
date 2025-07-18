@@ -1,5 +1,4 @@
 package com.wenjunhuang.codeepiphany.luogu.models
-import cats.syntax.all.*
 import cats.Show
 import io.circe.{Decoder, Encoder}
 

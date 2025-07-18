@@ -1,9 +1,9 @@
 package com.wenjunhuang.codeepiphany.toolwindows.sidebar.submissionlog.leetcode
 
-import javax.swing.JComponent
-
 import com.wenjunhuang.codeepiphany.database.tables.records.{LeetcodeSubmissionRecord, SolutionSubmissionRecord}
 import com.wenjunhuang.codeepiphany.model.SubmissionResult
+
+import javax.swing.JComponent
 
 object LeetCodeSubmissionResultFormHelper {
   def createFromSubmissionType(

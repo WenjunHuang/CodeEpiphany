@@ -1,24 +1,23 @@
 package com.wenjunhuang.codeepiphany.leetcode.settings
 
-import io.circe.optics.JsonPath
-import io.circe.parser.*
-import java.nio.charset.StandardCharsets
-import java.util.Objects
-import org.apache.commons.io.IOUtils
-
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.text.StringUtil
-
 import com.wenjunhuang.codeepiphany.PluginBundle
-import com.wenjunhuang.codeepiphany.leetcode.models.{ LeetCodeChallengeCodeTemplate, LeetCodeChallengeData }
+import com.wenjunhuang.codeepiphany.leetcode.models.{LeetCodeChallengeCodeTemplate, LeetCodeChallengeData}
 import com.wenjunhuang.codeepiphany.leetcode.settings.LeetCodeCNSettingsConfigurable.*
 import com.wenjunhuang.codeepiphany.leetcode.settings.LeetCodeSettingsConfigurable.getDemoTemplate
 import com.wenjunhuang.codeepiphany.model.*
 import com.wenjunhuang.codeepiphany.model.CodeDojo.LeetCodeCN
 import com.wenjunhuang.codeepiphany.model.Language.*
 import com.wenjunhuang.codeepiphany.model.LanguageVersion.*
-import com.wenjunhuang.codeepiphany.settings.dojo.{ BaseCodeDojoSettings, BaseSettingsConfigurable }
 import com.wenjunhuang.codeepiphany.settings.ChallengeSettings
+import com.wenjunhuang.codeepiphany.settings.dojo.{BaseCodeDojoSettings, BaseSettingsConfigurable}
+import io.circe.optics.JsonPath
+import io.circe.parser.*
+import org.apache.commons.io.IOUtils
+
+import java.nio.charset.StandardCharsets
+import java.util.Objects
 class LeetCodeCNSettingsConfigurable(project: Project)
     extends BaseSettingsConfigurable(
       project,

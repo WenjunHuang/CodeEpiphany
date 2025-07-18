@@ -1,7 +1,6 @@
 package com.wenjunhuang.codeepiphany.leetcode.actions
 
 import com.intellij.openapi.actionSystem.DataKey
-
 import com.wenjunhuang.codeepiphany.leetcode.actions.LeetCodeCategoryParameterAction.*
 import com.wenjunhuang.codeepiphany.leetcode.models.LeetCodeCategoryListItem
 import com.wenjunhuang.codeepiphany.utils.actions.{ParameterComboBoxAction, ParameterProvider}

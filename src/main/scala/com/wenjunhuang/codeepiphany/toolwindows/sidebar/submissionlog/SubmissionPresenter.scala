@@ -1,29 +1,28 @@
 package com.wenjunhuang.codeepiphany.toolwindows.sidebar.submissionlog
 
-import cats.effect.{IO, Resource}
 import cats.effect.std.Queue
+import cats.effect.{IO, Resource}
 import cats.syntax.all.*
-import fs2.concurrent.SignallingRef
-import fs2.Stream
-import javax.swing.event.ListSelectionListener
-import javax.swing.JComponent
-import org.typelevel.ci.CIString
-import scala.concurrent.duration.*
-import scala.jdk.CollectionConverters.*
-import scala.jdk.OptionConverters.*
-
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.project.Project
-
 import com.wenjunhuang.codeepiphany.database.Tables.*
 import com.wenjunhuang.codeepiphany.hackerrank.models.HackerRankContest
-import com.wenjunhuang.codeepiphany.model.{CodeDojo, Language, LanguageVersion}
-import com.wenjunhuang.codeepiphany.model.newtypes.SubmissionId
 import com.wenjunhuang.codeepiphany.model.CodeDojo.*
+import com.wenjunhuang.codeepiphany.model.newtypes.SubmissionId
+import com.wenjunhuang.codeepiphany.model.{CodeDojo, Language, LanguageVersion}
 import com.wenjunhuang.codeepiphany.services.ChallengeRepository
 import com.wenjunhuang.codeepiphany.toolwindows.sidebar.submissionlog.SubmissionLogPresenter.SubmissionType
 import com.wenjunhuang.codeepiphany.utils.syntax.*
+import fs2.Stream
+import fs2.concurrent.SignallingRef
+import org.typelevel.ci.CIString
+
+import javax.swing.JComponent
+import javax.swing.event.ListSelectionListener
+import scala.concurrent.duration.*
+import scala.jdk.CollectionConverters.*
+import scala.jdk.OptionConverters.*
 
 class SubmissionPresenter(private val myProject: Project) extends Disposable {
   private val mySubmissionLogPresenter = new SubmissionLogPresenter(myProject)

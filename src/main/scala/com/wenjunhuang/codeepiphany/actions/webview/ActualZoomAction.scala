@@ -1,7 +1,6 @@
 package com.wenjunhuang.codeepiphany.actions.webview
 
 import com.intellij.openapi.actionSystem.{AnAction, AnActionEvent}
-
 import com.wenjunhuang.codeepiphany.utils.actions.{ActionCompatible, DataKeyNotNull}
 
 class ActualZoomAction extends AnAction with DataKeyNotNull(WebviewActionProvider.DATA_KEY) with ActionCompatible {

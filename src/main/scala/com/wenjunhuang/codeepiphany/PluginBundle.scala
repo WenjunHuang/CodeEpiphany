@@ -1,9 +1,9 @@
 package com.wenjunhuang.codeepiphany
 
-import org.jetbrains.annotations.{NotNull, PropertyKey}
-import scala.annotation.varargs
-
 import com.intellij.DynamicBundle
+import org.jetbrains.annotations.{NotNull, PropertyKey}
+
+import scala.annotation.varargs
 
 object PluginBundle {
   @varargs

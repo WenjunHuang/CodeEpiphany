@@ -13,11 +13,11 @@ import com.wenjunhuang.codeepiphany.database.Tables.CHALLENGE
 import com.wenjunhuang.codeepiphany.leetcode.services.LeetCodeApi
 import com.wenjunhuang.codeepiphany.model.CodeDojo
 import com.wenjunhuang.codeepiphany.model.newtypes.ChallengeId
-import com.wenjunhuang.codeepiphany.services.{ AuthService, ChallengeRepository }
+import com.wenjunhuang.codeepiphany.services.{AuthService, ChallengeRepository}
 import com.wenjunhuang.codeepiphany.utils.syntax.*
 import com.wenjunhuang.codeepiphany.utils.ui.UnauthenticatedView
 
-import javax.swing.{ JComponent, SwingConstants }
+import javax.swing.{JComponent, SwingConstants}
 import scala.jdk.OptionConverters.*
 
 class LeetCodeSolutionPresenter(

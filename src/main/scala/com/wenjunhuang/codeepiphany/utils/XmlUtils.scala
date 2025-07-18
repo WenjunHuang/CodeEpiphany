@@ -1,11 +1,9 @@
 package com.wenjunhuang.codeepiphany.utils
 
-import org.typelevel.ci.CIString
-
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.util.xmlb.Converter
-
-import com.wenjunhuang.codeepiphany.model.{ CodeDojo, Language, LanguageVersion }
+import com.wenjunhuang.codeepiphany.model.{CodeDojo, Language, LanguageVersion}
+import org.typelevel.ci.CIString
 
 object XmlUtils {
 

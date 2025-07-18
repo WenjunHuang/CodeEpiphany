@@ -1,36 +1,25 @@
 package com.wenjunhuang.codeepiphany.services.http
 
-import cats.effect.{ IO, Resource }
 import cats.effect.std.Dispatcher
+import cats.effect.{IO, Resource}
 import cats.syntax.all.*
+import com.intellij.openapi.diagnostic.Logger
+import com.wenjunhuang.codeepiphany.services.http.OkHttpBuilder.*
+import com.wenjunhuang.codeepiphany.utils.syntax.*
 import fs2.io.readInputStream
+import okhttp3.{Call, Callback, OkHttpClient, Protocol, RequestBody, Headers as OKHeaders, MediaType as OKMediaType, Request as OKRequest, Response as OKResponse}
+import okio.BufferedSink
+import org.http4s.client.Client
+import org.http4s.headers.{Location, `Content-Type`}
+import org.http4s.{Headers, HttpVersion, Method, Request, Response, Status, Uri}
+import org.typelevel.ci.CIString
+import org.typelevel.log4cats.LoggerFactory
+
 import java.io.IOException
 import java.net.HttpCookie
 import java.util.concurrent.atomic.AtomicBoolean
-import okhttp3.{
-  Call,
-  Callback,
-  Headers as OKHeaders,
-  MediaType as OKMediaType,
-  OkHttpClient,
-  Protocol,
-  Request as OKRequest,
-  RequestBody,
-  Response as OKResponse
-}
-import okio.BufferedSink
-import org.http4s.{ Headers, HttpVersion, Method, Request, Response, Status, Uri }
-import org.http4s.client.Client
-import org.http4s.headers.{ `Content-Type`, Location }
-import org.typelevel.ci.CIString
-import org.typelevel.log4cats.LoggerFactory
 import scala.jdk.CollectionConverters.*
 import scala.util.control.NonFatal
-
-import com.intellij.openapi.diagnostic.Logger
-
-import com.wenjunhuang.codeepiphany.services.http.OkHttpBuilder.*
-import com.wenjunhuang.codeepiphany.utils.syntax.*
 
 /** A builder for [[org.http4s.client.Client]] with an OkHttp backend.
   *

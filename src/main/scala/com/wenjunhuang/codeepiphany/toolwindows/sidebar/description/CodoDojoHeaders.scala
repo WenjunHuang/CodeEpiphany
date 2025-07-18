@@ -1,7 +1,7 @@
 package com.wenjunhuang.codeepiphany.toolwindows.sidebar.description
 
 import com.wenjunhuang.codeepiphany.model.CodeDojo
-import com.wenjunhuang.codeepiphany.model.CodeDojo.{ AtCoder, CodeForces, LuoGu }
+import com.wenjunhuang.codeepiphany.model.CodeDojo.{AtCoder, CodeForces, LuoGu}
 
 object CodoDojoHeaders {
   def getHeader(codeDojo: CodeDojo): String =

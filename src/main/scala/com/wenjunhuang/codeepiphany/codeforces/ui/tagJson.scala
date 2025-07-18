@@ -2,12 +2,8 @@ package com.wenjunhuang.codeepiphany.codeforces.ui
 
 import io.circe.*
 import io.circe.syntax.*
-//import io.circe.generic.auto.*
 import cats.syntax.all.*
-import io.circe.parser.*
-
 import com.wenjunhuang.codeepiphany.actions.TagsAction.Tag
-import com.wenjunhuang.codeepiphany.leetcode.models.LeetCodeTag
 
 private def codeForcesTagToJson(tags: List[Tag]): Json = {
   tags

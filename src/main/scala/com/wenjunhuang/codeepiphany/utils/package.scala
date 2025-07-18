@@ -1,6 +1,4 @@
 package com.wenjunhuang.codeepiphany
-import org.http4s.Uri
-
 import com.intellij.openapi.util.registry.RegistryManager
 
 package object utils {

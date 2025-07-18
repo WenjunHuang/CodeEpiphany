@@ -4,8 +4,8 @@ import cats.effect.IO
 import com.intellij.openapi.project.Project
 import com.wenjunhuang.codeepiphany.model.CodeDojo
 import com.wenjunhuang.codeepiphany.services.WebViewStyleProvider
-import com.wenjunhuang.codeepiphany.utils.jcef.BaseJCefWebView
 import com.wenjunhuang.codeepiphany.toolwindows.sidebar.description.DescriptionJCefView.*
+import com.wenjunhuang.codeepiphany.utils.jcef.BaseJCefWebView
 import com.wenjunhuang.codeepiphany.utils.syntax.*
 
 import java.nio.charset.StandardCharsets

@@ -1,9 +1,7 @@
 package com.wenjunhuang.codeepiphany.utils
 
 import cats.effect.Async
-import java.io.File
-import java.net.URI
-
+import cats.syntax.all.*
 import com.intellij.ide.BrowserUtil
 import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.fileTypes.FileTypes
@@ -11,8 +9,10 @@ import com.intellij.openapi.fileTypes.ex.FileTypeChooser
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.LocalFileSystem
 import com.intellij.util.io.URLUtil
-import cats.syntax.all.*
 import com.wenjunhuang.codeepiphany.utils.syntax.*
+
+import java.io.File
+import java.net.URI
 
 object BrowserUtils {
   def browseURI[F[_]: Async](uri: URI, project: Project): F[Unit] = {

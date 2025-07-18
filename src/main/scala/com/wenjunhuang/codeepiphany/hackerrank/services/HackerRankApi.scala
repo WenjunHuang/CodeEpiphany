@@ -1,30 +1,28 @@
 package com.wenjunhuang.codeepiphany.hackerrank.services
 
-import cats.effect.{ Concurrent, IO, Temporal }
-import cats.effect.syntax.all.*
+import cats.effect.{IO, Temporal}
 import cats.syntax.all.*
+import com.wenjunhuang.codeepiphany.hackerrank.models.*
+import com.wenjunhuang.codeepiphany.hackerrank.models.HackerRankContest.{Master, ProjectEuler}
+import com.wenjunhuang.codeepiphany.model.*
+import com.wenjunhuang.codeepiphany.model.CodeDojo.HackerRank
+import com.wenjunhuang.codeepiphany.services.http.HttpClientManager
+import com.wenjunhuang.codeepiphany.settings.ChallengeSettings
 import fs2.Stream
 import io.circe.*
 import io.circe.optics.JsonPath
 import io.circe.parser.parse
 import io.circe.syntax.*
-import org.http4s.{ Headers, Method, Request, Uri }
 import org.http4s.circe.*
 import org.http4s.circe.CirceEntityEncoder.*
 import org.http4s.client.Client
 import org.http4s.client.dsl.Http4sClientDsl
 import org.http4s.implicits.uri
+import org.http4s.{Headers, Method, Request, Uri}
 import org.jsoup.Jsoup
+
 import scala.concurrent.duration.*
-
-import com.wenjunhuang.codeepiphany.hackerrank.models.*
-import com.wenjunhuang.codeepiphany.hackerrank.models.HackerRankContest.{ Master, ProjectEuler }
-import com.wenjunhuang.codeepiphany.model.*
-import com.wenjunhuang.codeepiphany.model.CodeDojo.HackerRank
-import com.wenjunhuang.codeepiphany.services.http.HttpClientManager
 import scala.jdk.CollectionConverters.*
-
-import com.wenjunhuang.codeepiphany.settings.ChallengeSettings
 
 trait HackerRankApi {
   def getInitialData: IO[(HackerRankUserInfo, List[HackerRankChallengeDomain])]

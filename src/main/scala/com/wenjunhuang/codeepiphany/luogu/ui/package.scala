@@ -7,9 +7,8 @@ import com.wenjunhuang.codeepiphany.actions.OpenChallengeActionGroup.OpenChallen
 import com.wenjunhuang.codeepiphany.luogu.models.LuoGuChallengeItem
 import com.wenjunhuang.codeepiphany.luogu.services.LuoGuOpenChallengeService
 import com.wenjunhuang.codeepiphany.luogu.settings.LuoGuSettings
-import com.wenjunhuang.codeepiphany.model.{ Language, LanguageVersion }
+import com.wenjunhuang.codeepiphany.model.{Language, LanguageVersion}
 import com.wenjunhuang.codeepiphany.services.console
-import com.wenjunhuang.codeepiphany.services.http.HttpClientManager
 import com.wenjunhuang.codeepiphany.utils.extensions.*
 import com.wenjunhuang.codeepiphany.utils.syntax.*
 import org.typelevel.log4cats.LoggerFactory

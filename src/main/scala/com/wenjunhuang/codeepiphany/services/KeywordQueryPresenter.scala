@@ -1,12 +1,11 @@
 package com.wenjunhuang.codeepiphany.services
 
-import javax.swing.event.DocumentEvent
-import javax.swing.JComponent
-
 import com.intellij.openapi.project.Project
 import com.intellij.ui.DocumentAdapter
-
 import com.wenjunhuang.codeepiphany.services.KeywordQueryPresenter.KeywordHolder
+
+import javax.swing.JComponent
+import javax.swing.event.DocumentEvent
 
 abstract class KeywordQueryPresenter[UIBoostrapParameters, T: KeywordHolder, ResultItem](
   project: Project,
