@@ -19,6 +19,7 @@ export const definedViteConfig = defineConfig({
             input: {
                 challengeDescription: resolve(__dirname, 'challengeDescription/index.html'),
                 leetCodeSolutionArticle: resolve(__dirname, 'leetCodeSolutionArticle/index.html'),
+                luoguYiDun: resolve(__dirname, 'luoguYiDun/index.html'),
             }
         },
         assetsDir: 'assets',

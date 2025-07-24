@@ -8,7 +8,10 @@ export function intellijStylePostPlugin(): Plugin {
         name: 'intellij-style-post-plugin',
         transformIndexHtml: {
             order: 'post',
-            handler: (html) => {
+            handler: (html, ctx) => {
+                if (ctx.path.endsWith('luoguYiDun/index.html')) {
+                    return html;
+                }
                 return {
                     html,
                     tags: [
@@ -53,7 +56,10 @@ export function intellijStylePrePlugin(): Plugin {
         name: 'intellij-style-plugin',
         transformIndexHtml: {
             order: "pre",
-            handler: (html) => {
+            handler: (html, ctx) => {
+                if (ctx.path.endsWith('luoguYiDun/index.html')) {
+                    return html;
+                }
                 return {
                     html,
                     tags: [

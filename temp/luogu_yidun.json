@@ -1,0 +1,16 @@
+{
+  "captchaId": "54b8e9e1557a423b8c73e7f80294dbe3",
+  "mode": "embed",
+  "element": {},
+  "extraData": "hqgkQFqw0SjIeyBvZ607nb9dmIB9nwVXgUL-hvwM1q4",
+  "lang": "zh-CN",
+  "width": "300px",
+  "timeout": 10000,
+  "closeEnable": false,
+  "feedbackEnable": false,
+  "defaultFallback": false,
+  "ipv6": true,
+  "apiVersion": 2,
+  "onVerify": (e,t)=>{},
+"element": //父亲元素
+}
