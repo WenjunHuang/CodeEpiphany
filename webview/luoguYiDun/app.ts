@@ -15,8 +15,6 @@ function base64url(wordArray: CryptoJS.lib.WordArray) {
 }
 
 window.showYiDunCaptcha = async function (code: string, state: string, onVerify: (result: string) => void) {
-    console.log(code, state)
-
     const key = CryptoJS.enc.Hex.parse(state);
     const hmac = CryptoJS.HmacSHA256(code, key);
     const extra = base64url(hmac);
