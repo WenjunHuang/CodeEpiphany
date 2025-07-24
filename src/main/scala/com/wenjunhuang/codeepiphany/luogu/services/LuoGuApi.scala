@@ -1,6 +1,6 @@
 package com.wenjunhuang.codeepiphany.luogu.services
 
-import cats.effect.{IO, Temporal}
+import cats.effect.{ IO, Temporal }
 import cats.implicits.*
 import cats.syntax.all.*
 import com.vladsch.flexmark.html.HtmlRenderer
@@ -8,7 +8,7 @@ import com.vladsch.flexmark.parser.Parser
 import com.vladsch.flexmark.util.data.MutableDataSet
 import com.wenjunhuang.codeepiphany.luogu.models.*
 import com.wenjunhuang.codeepiphany.luogu.settings.LuoGuSettingsConfigurable.LUOGU_LANGUAGES_REVERSE
-import com.wenjunhuang.codeepiphany.model.{CodeDojo, OrderDirection, SubmissionResult}
+import com.wenjunhuang.codeepiphany.model.{ CodeDojo, OrderDirection, SubmissionResult }
 import com.wenjunhuang.codeepiphany.services.http.HttpClientManager
 import com.wenjunhuang.codeepiphany.settings.ChallengeSettings
 import com.wenjunhuang.codeepiphany.utils.extensions.*
@@ -19,16 +19,21 @@ import io.circe.optics.JsonPath
 import io.circe.parser.*
 import io.circe.syntax.*
 import org.http4s.client.dsl.Http4sClientDsl
-import org.http4s.client.{Client, UnexpectedStatus}
+import org.http4s.client.{ Client, UnexpectedStatus }
 import org.http4s.headers.Referer
 import org.http4s.implicits.uri
-import org.http4s.{Headers, Method, Uri}
+import org.http4s.{ Headers, Method, Uri }
 import org.jsoup.Jsoup
 import scodec.bits.ByteVector
 
-import java.net.{HttpCookie, URLDecoder}
+import java.net.{ HttpCookie, URLDecoder }
 import scala.concurrent.duration.*
 import scala.jdk.CollectionConverters.*
+
+enum AnswerCaptcha {
+  case YiDun(code: String, state: String)
+  case Image(captchaImage: ByteVector)
+}
 
 trait LuoGuApi {
   def checkLogin(): IO[Boolean]
@@ -48,7 +53,7 @@ trait LuoGuApi {
     pid: String,
     langId: String,
     code: String,
-    captchaNeeded: ByteVector => IO[String]
+    captchaNeeded: AnswerCaptcha => IO[String]
   ): Stream[IO, LuoGuSubmissionResponse]
 }
 
@@ -278,7 +283,7 @@ object LuoGuApi extends LuoGuApi with Http4sClientDsl[IO] {
     langId: String,
     code: String,
     captcha: Option[String],
-    captchaNeeded: ByteVector => IO[String]
+    captchaNeeded: AnswerCaptcha => IO[String]
   ): IO[String] = {
     getCSRFTokenAndPassAntiCrawler.flatMap { csrfToken =>
       useClient { client =>
@@ -308,19 +313,48 @@ object LuoGuApi extends LuoGuApi with Http4sClientDsl[IO] {
                   }.liftTo[IO]
                 }
               case 403 =>
-                client
-                  .get[ByteVector](
-                    uri"https://www.luogu.com.cn/api/verify/captcha"
-                      .withQueryParam("_t", s"${System.currentTimeMillis()}")
-                  ) { response =>
-                    response.contentType match
-                      case Some(contentType) if contentType.mediaType.isImage =>
-                        response.body.compile.to(ByteVector)
-                      case _ => IO.raiseError(new Exception("Failed to get captcha"))
+                response
+                  .as[String]
+                  .flatMap { body =>
+                    parse(body).flatMap { json =>
+                      JsonPath.root.errorType.string
+                        .getOption(json)
+                        .map((json, _))
+                        .toRight(new Exception("Failed to parse json"))
+                    }.liftTo[IO]
                   }
-                  .flatMap { captchaImage =>
-                    captchaNeeded(captchaImage).flatMap { captcha =>
-                      postAnswer(pid, langId, code, Some(captcha), captchaNeeded)
+                  .flatMap { case (json, errorType) =>
+                    if (errorType.contains("InvalidCaptchaException")) {
+                      val yiDunState = JsonPath.root.errorData.interactive.state.string
+                        .getOption(json)
+                      yiDunState match {
+                        case Some(state) =>
+                          captchaNeeded(AnswerCaptcha.YiDun(code,state)).flatMap { captcha =>
+                            postAnswer(pid, langId, code, Some(captcha), captchaNeeded)
+                          }
+                        case None =>
+                          client
+                            .get[ByteVector](
+                              uri"https://www.luogu.com.cn/api/verify/captcha"
+                                .withQueryParam("_t", s"${System.currentTimeMillis()}")
+                            ) { response =>
+                              response.contentType match
+                                case Some(contentType) if contentType.mediaType.isImage =>
+                                  response.body.compile.to(ByteVector)
+                                case _ => IO.raiseError(new Exception("Failed to get captcha"))
+                            }
+                            .flatMap { captchaImage =>
+                              captchaNeeded(AnswerCaptcha.Image(captchaImage)).flatMap { captcha =>
+                                postAnswer(pid, langId, code, Some(captcha), captchaNeeded)
+                              }
+                            }
+                      }
+                    } else {
+                      IO.raiseError(
+                        new Exception(
+                          s"Failed to submit answer: ${JsonPath.root.errorMessage.string.getOption(json).getOrElse("Unknown error")}"
+                        )
+                      )
                     }
                   }
               case _ =>
@@ -387,7 +421,7 @@ object LuoGuApi extends LuoGuApi with Http4sClientDsl[IO] {
     pid: String,
     langId: String,
     code: String,
-    captchaNeeded: ByteVector => IO[String]
+    captchaNeeded: AnswerCaptcha => IO[String]
   ): Stream[IO, LuoGuSubmissionResponse] =
     Stream
       .eval(postAnswer(pid, langId, code, None, captchaNeeded))

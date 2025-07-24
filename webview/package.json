@@ -24,6 +24,8 @@
     "vitest": "^3.2.3"
   },
   "dependencies": {
+    "@types/crypto-js": "^4.2.2",
+    "crypto-js": "^4.2.0",
     "highlight.js": "^11.11.1",
     "katex": "^0.16.22",
     "marked": "^15.0.11",

@@ -1,3 +1,8 @@
+## 1.3.4
+
+### Fixed
+- Support LuoGu's netease yidun captcha code when submitting answer. fix [#60](https://github.com/WenjunHuang/CodeEpiphany/issues/60)
+ 
 ## 1.3.3
 
 ### Fixed

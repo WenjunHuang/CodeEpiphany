@@ -6,7 +6,7 @@ import scala.io.Source
 import scala.sys.process.*
 import scala.util.Using
 
-val pluginVersion: String = "1.3.3"
+val pluginVersion: String = "1.3.4"
 
 ThisBuild / scalaVersion     := "3.7.0"
 ThisBuild / intellijPlatform := versions.intellijPlatform
@@ -150,7 +150,7 @@ lazy val codeEpiphany = (project in file("."))
     // 常规测试配置 - 排除集成测试
     Test / managedResourceDirectories += baseDirectory.value / "testResources",
     Test / testOptions += Tests.Filter(name => !name.startsWith("integration")),
-    
+
     // jooq
     jooqVersion       := "3.19.18",
     jooqCodegenConfig := file("jooq-codegen.xml"),

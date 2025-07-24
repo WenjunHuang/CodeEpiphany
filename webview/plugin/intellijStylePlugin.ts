@@ -8,7 +8,10 @@ export function intellijStylePostPlugin(): Plugin {
         name: 'intellij-style-post-plugin',
         transformIndexHtml: {
             order: 'post',
-            handler: (html) => {
+            handler: (html, ctx) => {
+                if (ctx.path.endsWith('luoguYiDun/index.html')) {
+                    return html;
+                }
                 return {
                     html,
                     tags: [
@@ -53,7 +56,10 @@ export function intellijStylePrePlugin(): Plugin {
         name: 'intellij-style-plugin',
         transformIndexHtml: {
             order: "pre",
-            handler: (html) => {
+            handler: (html, ctx) => {
+                if (ctx.path.endsWith('luoguYiDun/index.html')) {
+                    return html;
+                }
                 return {
                     html,
                     tags: [
@@ -75,12 +81,12 @@ export function intellijStylePrePlugin(): Plugin {
                                 // 样式重载函数
                                 function reloadStyles() {
                                     const styleElement = document.getElementById('intellijStyle');
-                                    if (styleElement) {
-                                        const newStyle = document.createElement('link');
+                                    if (styleElement && styleElement.tagName === 'LINK') {
+                                        const newStyle = document.createElement('LINK');
                                         newStyle.id = 'intellijStyle';
                                         newStyle.rel = 'stylesheet';
                                         newStyle.type = 'text/css';
-                                        newStyle.href = _setTimestamp(styleElement.href);
+                                        newStyle.href = appendTimestamp(styleElement.href);
                                         newStyle.onload = () => {
                                             onIntellijStyleLoaded();
                                         };
@@ -89,7 +95,7 @@ export function intellijStylePrePlugin(): Plugin {
                                 }
 
                                 // 为URL添加时间戳
-                                function _setTimestamp(url) {
+                                function appendTimestamp(url) {
                                     const patchedUrl = new URL(url);
                                     patchedUrl.searchParams.set('timestamp', new Date().getTime().toString());
                                     return patchedUrl.toString();

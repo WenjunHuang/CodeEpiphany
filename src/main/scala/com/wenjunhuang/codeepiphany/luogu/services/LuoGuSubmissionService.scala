@@ -2,34 +2,44 @@ package com.wenjunhuang.codeepiphany.luogu.services
 
 import cats.effect.IO
 import cats.syntax.all.*
+
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.DialogBuilder
 import com.intellij.ui.DocumentAdapter
-import com.intellij.ui.components.{JBLabel, JBTextField}
+import com.intellij.ui.components.{ JBLabel, JBTextField }
 import com.intellij.util.IconUtil
 import com.intellij.util.ui.JBImageIcon
 import com.intellij.util.ui.components.BorderLayoutPanel
-import com.wenjunhuang.codeepiphany.database.Tables.{CHALLENGE, CHALLENGE_LANGUAGE}
+
+import com.wenjunhuang.codeepiphany.database.Tables.{ CHALLENGE, CHALLENGE_LANGUAGE }
 import com.wenjunhuang.codeepiphany.luogu.models.LuoGuSubmissionResponse
 import com.wenjunhuang.codeepiphany.luogu.settings.LuoGuSettingsConfigurable
 import com.wenjunhuang.codeepiphany.model.CodeDojo.LuoGu
 import com.wenjunhuang.codeepiphany.model.newtypes.SubmissionId
-import com.wenjunhuang.codeepiphany.model.{Language, LanguageVersion, SubmissionResult}
-import com.wenjunhuang.codeepiphany.services.{BaseSubmissionService, ChallengeRepository, console}
+import com.wenjunhuang.codeepiphany.model.{ Language, LanguageVersion, SubmissionResult }
+import com.wenjunhuang.codeepiphany.services.{ console, BaseSubmissionService, ChallengeRepository }
 import com.wenjunhuang.codeepiphany.settings.ChallengeSettings.ChallengeSettingsStateItem
 import com.wenjunhuang.codeepiphany.utils.syntax.*
 import fs2.Stream
-import org.jooq.{DSLContext, Record}
+import org.jooq.{ DSLContext, Record }
 import org.typelevel.ci.CIString
 import scodec.bits.ByteVector
-
 import java.util.concurrent.CancellationException
 import javax.imageio.ImageIO
 import javax.swing.event.DocumentEvent
+import org.cef.browser.{ CefBrowser, CefFrame }
+import org.cef.handler.CefLoadHandlerAdapter
 import scala.jdk.OptionConverters.*
 
-class LuoGuSubmissionService(project: Project)
-    extends BaseSubmissionService(project, LuoGu) {
+import com.intellij.openapi.application.ex.{ ApplicationEx, ApplicationUtil }
+import com.intellij.openapi.application.{ ApplicationManager, ModalityState }
+import com.intellij.openapi.util.Disposer
+import com.intellij.ui.jcef.{ JBCefBrowserBase, JBCefJSQuery }
+
+import com.wenjunhuang.codeepiphany.utils.ResourceHttpServer
+import com.wenjunhuang.codeepiphany.utils.jcef.BaseJCefWebView
+
+class LuoGuSubmissionService(project: Project) extends BaseSubmissionService(project, LuoGu) {
   override type SubmissionRequest  = Request
   override type SubmissionResponse = LuoGuSubmissionResponse
 
@@ -85,7 +95,74 @@ class LuoGuSubmissionService(project: Project)
   private def resolveLanguageId(language: Language, version: LanguageVersion): Option[String] =
     LuoGuSettingsConfigurable.LUOGU_LANGUAGES.get((language, version))
 
-  private def showCaptcha(captcha: ByteVector): IO[String] = {
+  private def showCaptcha(captcha: AnswerCaptcha): IO[String] = {
+    captcha match {
+      case AnswerCaptcha.Image(captchaBytes) =>
+        showImageCaptcha(captchaBytes)
+      case AnswerCaptcha.YiDun(code, state) =>
+        showYiDunCaptcha(code, state)
+    }
+  }
+  private def showYiDunCaptcha(code: String, state: String): IO[String] = {
+    IO.async_[String] { cb =>
+      val httpServer = ResourceHttpServer("webview", 0)
+      httpServer.start()
+
+      val dialog  = DialogBuilder(myProject)
+      val browser = BaseJCefWebView.createBrowser()
+
+      val jsQuery = JBCefJSQuery.create(browser.asInstanceOf[JBCefBrowserBase])
+      jsQuery.addHandler { (s: String) =>
+        ApplicationManager.getApplication.invokeLater(
+          { () =>
+            dialog.getDialogWrapper.close(0, true)
+            cb(Right(s))
+          },
+          ModalityState.any()
+        )
+        JBCefJSQuery.Response(null)
+      }
+      // Event handlers
+      val myLoadHandler = new CefLoadHandlerAdapter {
+        override def onLoadEnd(browser: CefBrowser, frame: CefFrame, httpStatusCode: Int): Unit = {
+          if (frame.isMain) {
+
+            // language=JavaScript
+            val js =
+              s"""window.showYiDunCaptcha(`${code}`,"${state}", function(result){${jsQuery.inject("result")}});"""
+            browser.executeJavaScript(js, browser.getURL, 0)
+          }
+        }
+      }
+
+      // Initialize the browser client with handlers
+      browser.getJBCefClient
+        .addLoadHandler(myLoadHandler, browser.getCefBrowser)
+
+      dialog
+        .centerPanel(browser.getComponent)
+      dialog.setTitle("Captcha")
+      dialog.addCancelAction()
+      dialog.getDialogWrapper.setSize(400, 400)
+
+      Disposer.register(browser, jsQuery)
+
+      Disposer.register(
+        dialog,
+        { () =>
+          httpServer.stop()
+        }
+      )
+      Disposer.register(dialog, browser)
+
+      val port = httpServer.getListeningPort.getOrElse(throw IllegalStateException("Http Server not started"))
+      browser.loadURL(s"http://localhost:${port}/luoguYiDun/index.html")
+
+      if !dialog.showAndGet() then cb(Left(CancellationException("User canceled the captcha dialog")))
+    }.evalOnEDTDefault()
+
+  }
+  private def showImageCaptcha(captcha: ByteVector): IO[String] = {
     IO.delay {
       val captchaImage = ImageIO.read(captcha.toInputStream)
       val input        = JBTextField(6)
