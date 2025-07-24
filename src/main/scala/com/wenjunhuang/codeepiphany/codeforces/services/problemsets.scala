@@ -1,11 +1,9 @@
 package com.wenjunhuang.codeepiphany.codeforces.services
 
 import cats.effect.IO
-import cats.effect.kernel.Async
-import cats.syntax.all.*
 import com.intellij.openapi.project.Project
+import com.wenjunhuang.codeepiphany.PluginBundle
 import com.wenjunhuang.codeepiphany.database.Tables.*
-import com.wenjunhuang.codeepiphany.services.http.HttpClientManager
 import com.wenjunhuang.codeepiphany.services.{ChallengeRepository, console}
 import com.wenjunhuang.codeepiphany.utils.IdGenerator
 import com.wenjunhuang.codeepiphany.utils.syntax.*
@@ -13,7 +11,6 @@ import org.jooq.impl.DSL
 import org.typelevel.log4cats.LoggerFactory
 
 import java.time.LocalDateTime
-import com.wenjunhuang.codeepiphany.PluginBundle
 
 object problemsets {
   def fetchAndUpdateProblemSets(project: Project): IO[Unit] = {

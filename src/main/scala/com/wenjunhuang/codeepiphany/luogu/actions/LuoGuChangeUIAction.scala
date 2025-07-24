@@ -1,14 +1,12 @@
 package com.wenjunhuang.codeepiphany.luogu.actions
 
-import icons.CodeEpiphanyIcons
-import org.typelevel.ci.CIString
-
 import com.intellij.openapi.actionSystem.*
 import com.intellij.openapi.project.DumbAwareAction
-
-import com.wenjunhuang.codeepiphany.utils.actions.{ ActionCompatible, DataKeyNotNull }
-import LuoGuChangeUIAction.*
+import com.wenjunhuang.codeepiphany.luogu.actions.LuoGuChangeUIAction.*
 import com.wenjunhuang.codeepiphany.luogu.actions.LuoGuChangeUIAction.LuoGuUI.*
+import com.wenjunhuang.codeepiphany.utils.actions.{ActionCompatible, DataKeyNotNull}
+import icons.CodeEpiphanyIcons
+import org.typelevel.ci.CIString
 
 class LuoGuChangeUIAction
     extends DumbAwareAction

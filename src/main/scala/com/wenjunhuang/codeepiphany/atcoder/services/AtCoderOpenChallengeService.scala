@@ -1,6 +1,6 @@
 package com.wenjunhuang.codeepiphany.atcoder.services
 
-import cats.effect.{Async, Concurrent, IO}
+import cats.effect.IO
 import cats.syntax.all.*
 import com.intellij.openapi.project.Project
 import com.wenjunhuang.codeepiphany.atcoder.models.AtCoderChallengeCodeTemplate
@@ -10,11 +10,9 @@ import com.wenjunhuang.codeepiphany.database.tables.records.{AtcoderProblemsReco
 import com.wenjunhuang.codeepiphany.model.newtypes.CodeDojoChallengeId
 import com.wenjunhuang.codeepiphany.model.{ChallengeDifficulty, CodeDojo, Language, LanguageVersion}
 import com.wenjunhuang.codeepiphany.services.BaseOpenChallengeService
-import com.wenjunhuang.codeepiphany.services.http.HttpClientManager
 import com.wenjunhuang.codeepiphany.settings.dojo.BaseCodeDojoSettings
 import com.wenjunhuang.codeepiphany.utils.template.VelocityTool
 import org.jooq.DSLContext
-import org.typelevel.log4cats.LoggerFactory
 
 class AtCoderOpenChallengeService(project: Project)
     extends BaseOpenChallengeService[AtcoderProblemsRecord, AtCoderChallengeCodeTemplate](

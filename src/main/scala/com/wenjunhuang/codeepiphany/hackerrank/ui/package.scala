@@ -9,7 +9,6 @@ import com.wenjunhuang.codeepiphany.hackerrank.services.{HackerRankOpenChallenge
 import com.wenjunhuang.codeepiphany.hackerrank.settings.HackerRankSettings
 import com.wenjunhuang.codeepiphany.model.{Language, LanguageVersion}
 import com.wenjunhuang.codeepiphany.services.console
-import com.wenjunhuang.codeepiphany.services.http.HttpClientManager
 import com.wenjunhuang.codeepiphany.utils.extensions.*
 import com.wenjunhuang.codeepiphany.utils.syntax.*
 import org.typelevel.ci.CIString

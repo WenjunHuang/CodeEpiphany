@@ -1,10 +1,9 @@
 package com.wenjunhuang.codeepiphany.leetcode.ui
 import cats.syntax.all.*
-import io.circe.*
-import io.circe.syntax.*
-
 import com.wenjunhuang.codeepiphany.actions.TagsAction.Tag
 import com.wenjunhuang.codeepiphany.leetcode.models.LeetCodeTag
+import io.circe.*
+import io.circe.syntax.*
 
 private def leetCodeTagToJson(tags: List[Tag]): Json = {
   tags

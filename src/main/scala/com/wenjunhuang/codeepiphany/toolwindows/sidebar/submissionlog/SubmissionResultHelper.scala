@@ -1,15 +1,14 @@
 package com.wenjunhuang.codeepiphany.toolwindows.sidebar.submissionlog
 
-import java.awt.BorderLayout
-
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.ui.components.JBTextArea
 import com.intellij.util.ui.JBUI
-
 import com.wenjunhuang.codeepiphany.database.tables.records.SolutionSubmissionRecord
 import com.wenjunhuang.codeepiphany.model.SubmissionResult
-import com.wenjunhuang.codeepiphany.utils.ui.BackgroundRoundedPanel
 import com.wenjunhuang.codeepiphany.utils.ColorUtils
+import com.wenjunhuang.codeepiphany.utils.ui.BackgroundRoundedPanel
+
+import java.awt.BorderLayout
 
 object SubmissionResultHelper {
   def setupMessagePane(

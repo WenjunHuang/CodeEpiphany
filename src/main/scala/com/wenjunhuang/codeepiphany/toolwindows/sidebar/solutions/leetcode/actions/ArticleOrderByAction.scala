@@ -1,9 +1,7 @@
 package com.wenjunhuang.codeepiphany.toolwindows.sidebar.solutions.leetcode.actions
 
 import cats.syntax.all.*
-
 import com.intellij.openapi.actionSystem.DataKey
-
 import com.wenjunhuang.codeepiphany.leetcode.models.LeetCodeQuestionSolutionArticlesOrderBy
 import com.wenjunhuang.codeepiphany.toolwindows.sidebar.solutions.leetcode.actions.ArticleOrderByAction.*
 import com.wenjunhuang.codeepiphany.utils.actions.{ParameterComboBoxAction, ParameterProvider}

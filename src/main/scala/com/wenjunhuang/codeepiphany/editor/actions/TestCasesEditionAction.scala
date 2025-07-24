@@ -1,19 +1,10 @@
 package com.wenjunhuang.codeepiphany.editor.actions
 
-import com.intellij.openapi.actionSystem.{ AnAction, AnActionEvent }
+import com.intellij.openapi.actionSystem.{AnAction, AnActionEvent}
 import com.intellij.openapi.util.Key
-
-import com.wenjunhuang.codeepiphany.editor.actions.TestCasesEditionAction.{
-  TESTCASES_PROVIDER_KEY,
-  TestCasesEditionProvider
-}
+import com.wenjunhuang.codeepiphany.editor.actions.TestCasesEditionAction.{TESTCASES_PROVIDER_KEY, TestCasesEditionProvider}
 import com.wenjunhuang.codeepiphany.settings.ChallengeSettings
-import com.wenjunhuang.codeepiphany.utils.actions.{
-  ActionCompatible,
-  FileEditorKeyNotNull,
-  FileEditorUserLoggedIn,
-  ProjectNonNull
-}
+import com.wenjunhuang.codeepiphany.utils.actions.{ActionCompatible, FileEditorKeyNotNull, ProjectNonNull}
 import com.wenjunhuang.codeepiphany.utils.testCases.TestCasesDialog
 
 class TestCasesEditionAction

@@ -1,7 +1,6 @@
 package com.wenjunhuang.codeepiphany.actions
 
 import com.intellij.openapi.actionSystem.*
-
 import com.wenjunhuang.codeepiphany.actions.LoginAction.*
 import com.wenjunhuang.codeepiphany.utils.actions.{AbstractLoadingAction, ActionCompatible, DataKeyNotNull}
 

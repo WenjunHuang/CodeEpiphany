@@ -1,19 +1,15 @@
 package com.wenjunhuang.codeepiphany.leetcode.actions
 
-import icons.CodeEpiphanyIcons
-import javax.swing.Icon
-import org.typelevel.ci.CIString
-
 import com.intellij.icons.AllIcons
 import com.intellij.openapi.actionSystem.*
-
-import com.wenjunhuang.codeepiphany.leetcode.actions.LeetCodeChangeUIAction.{
-  LEETCODE_CHANGE_UI_PROVIDER_KEY,
-  LeetCodeUI
-}
-import com.wenjunhuang.codeepiphany.leetcode.actions.LeetCodeChangeUIAction.LeetCodeUI.*
-import com.wenjunhuang.codeepiphany.utils.actions.{ ActionCompatible, DataKeyNotNull }
 import com.wenjunhuang.codeepiphany.PluginBundle
+import com.wenjunhuang.codeepiphany.leetcode.actions.LeetCodeChangeUIAction.LeetCodeUI.*
+import com.wenjunhuang.codeepiphany.leetcode.actions.LeetCodeChangeUIAction.{LEETCODE_CHANGE_UI_PROVIDER_KEY, LeetCodeUI}
+import com.wenjunhuang.codeepiphany.utils.actions.{ActionCompatible, DataKeyNotNull}
+import icons.CodeEpiphanyIcons
+import org.typelevel.ci.CIString
+
+import javax.swing.Icon
 
 class LeetCodeChangeUIAction
     extends DefaultActionGroup

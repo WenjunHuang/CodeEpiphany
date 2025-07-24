@@ -1,14 +1,11 @@
 package com.wenjunhuang.codeepiphany.toolwindows.sidebar.description
 
-import java.awt.Color
-
-import com.intellij.ui.JBColor
-import com.intellij.ui.jcef.JBCefScrollbarsHelper
-
 import com.wenjunhuang.codeepiphany.model.CodeDojo
-import com.wenjunhuang.codeepiphany.model.CodeDojo.{ AtCoder, CodeForces, HackerRank, LeetCode, LeetCodeCN, LuoGu }
+import com.wenjunhuang.codeepiphany.model.CodeDojo.{AtCoder, CodeForces, HackerRank, LeetCode, LeetCodeCN, LuoGu}
 import com.wenjunhuang.codeepiphany.services.WebViewStyleProvider
 import com.wenjunhuang.codeepiphany.utils.extensions.*
+
+import java.awt.Color
 
 object ChallengeDescriptionStyle {
   def getStyle(styleProvider: WebViewStyleProvider, dojo: Option[CodeDojo]): String = {

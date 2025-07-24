@@ -1,11 +1,9 @@
 package com.wenjunhuang.codeepiphany.leetcode.models
 
 import cats.Show
-import io.circe.derivation.ConfiguredCodec
-import io.circe.{ Decoder, DecodingFailure, Encoder, HCursor, Json, JsonObject }
-import io.circe.Decoder.Result
-
 import com.wenjunhuang.codeepiphany.utils.AsyncAvatarLoader
+import io.circe.*
+import io.circe.derivation.ConfiguredCodec
 
 case class LeetCodeQuestionSolutionArticleTag(
   name: String,

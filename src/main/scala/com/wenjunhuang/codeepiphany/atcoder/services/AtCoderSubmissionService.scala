@@ -1,26 +1,22 @@
 package com.wenjunhuang.codeepiphany.atcoder.services
 
-import cats.effect.Concurrent
-import cats.effect.kernel.Async
+import cats.effect.IO
 import cats.syntax.all.*
-import fs2.Stream
-import org.jooq.{ DSLContext, Record }
-import org.typelevel.ci.CIString
-import org.typelevel.log4cats.LoggerFactory
-
-import scala.jdk.OptionConverters.*
 import com.intellij.openapi.project.Project
+import com.wenjunhuang.codeepiphany.PluginBundle
 import com.wenjunhuang.codeepiphany.atcoder.models.AtCoderSubmissionResponse
 import com.wenjunhuang.codeepiphany.atcoder.settings.AtCoderSettingsConfigurable
-import com.wenjunhuang.codeepiphany.database.Tables.{ ATCODER_CHALLENGE, CHALLENGE, CHALLENGE_LANGUAGE }
-import com.wenjunhuang.codeepiphany.model.{ Language, LanguageVersion, SubmissionResult }
-import com.wenjunhuang.codeepiphany.model.newtypes.SubmissionId
+import com.wenjunhuang.codeepiphany.database.Tables.{ATCODER_CHALLENGE, CHALLENGE, CHALLENGE_LANGUAGE}
 import com.wenjunhuang.codeepiphany.model.CodeDojo.AtCoder
-import com.wenjunhuang.codeepiphany.services.{ console, BaseSubmissionService, ChallengeRepository }
-import com.wenjunhuang.codeepiphany.services.http.HttpClientManager
+import com.wenjunhuang.codeepiphany.model.newtypes.SubmissionId
+import com.wenjunhuang.codeepiphany.model.{Language, LanguageVersion, SubmissionResult}
+import com.wenjunhuang.codeepiphany.services.{BaseSubmissionService, ChallengeRepository, console}
 import com.wenjunhuang.codeepiphany.settings.ChallengeSettings.ChallengeSettingsStateItem
-import cats.effect.IO
-import com.wenjunhuang.codeepiphany.PluginBundle
+import fs2.Stream
+import org.jooq.{DSLContext, Record}
+import org.typelevel.ci.CIString
+
+import scala.jdk.OptionConverters.*
 
 class AtCoderSubmissionService(project: Project) extends BaseSubmissionService(project, AtCoder) {
   override type SubmissionRequest  = Request

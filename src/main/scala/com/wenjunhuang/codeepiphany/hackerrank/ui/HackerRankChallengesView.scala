@@ -1,23 +1,19 @@
 package com.wenjunhuang.codeepiphany.hackerrank.ui
 
-import cats.syntax.all.*
 import cats.effect.IO
-import com.intellij.openapi.actionSystem.{ ActionGroup, ActionManager }
+import cats.syntax.all.*
+import com.intellij.openapi.actionSystem.{ActionGroup, ActionManager}
 import com.intellij.openapi.project.Project
-import com.wenjunhuang.codeepiphany.actions.LoginAction.{ LOGIN_LOGOUT_KEY, LoginLogoutProvider }
-import com.wenjunhuang.codeepiphany.hackerrank.actions.ChangeChallengesUIAction.{
-  CHANGE_CHALLENGES_UI_PROVIDER_KEY,
-  ChangeChallengesUIProvider,
-  HackerRankUI
-}
+import com.wenjunhuang.codeepiphany.PluginBundle
+import com.wenjunhuang.codeepiphany.actions.LoginAction.{LOGIN_LOGOUT_KEY, LoginLogoutProvider}
+import com.wenjunhuang.codeepiphany.hackerrank.actions.ChangeChallengesUIAction.{CHANGE_CHALLENGES_UI_PROVIDER_KEY, ChangeChallengesUIProvider, HackerRankUI}
 import com.wenjunhuang.codeepiphany.hackerrank.models.PROJECT_EULER_DOMAIN
 import com.wenjunhuang.codeepiphany.hackerrank.services.HackerRankApi
 import com.wenjunhuang.codeepiphany.hackerrank.settings.HackerRankSettings
 import com.wenjunhuang.codeepiphany.model.Actions.HACKERRANK_TITLE_TOOLBAR_GROUP
 import com.wenjunhuang.codeepiphany.model.CodeDojo
 import com.wenjunhuang.codeepiphany.model.CodeDojo.HackerRank
-import com.wenjunhuang.codeepiphany.services.http.HttpClientManager
-import com.wenjunhuang.codeepiphany.services.{ console, AskForLoginResult, AuthService, BaseChallengesView }
+import com.wenjunhuang.codeepiphany.services.{AskForLoginResult, AuthService, BaseChallengesView, console}
 import com.wenjunhuang.codeepiphany.utils.actions.DataSink
 import com.wenjunhuang.codeepiphany.utils.extensions.*
 import com.wenjunhuang.codeepiphany.utils.syntax.*
@@ -26,7 +22,6 @@ import org.typelevel.ci.CIString
 import org.typelevel.log4cats.LoggerFactory
 
 import javax.swing.JComponent
-import com.wenjunhuang.codeepiphany.PluginBundle
 
 class HackerRankChallengesView(private val myProject: Project) extends BaseChallengesView[HackerRankUI] {
 

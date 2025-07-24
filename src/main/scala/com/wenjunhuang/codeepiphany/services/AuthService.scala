@@ -1,15 +1,11 @@
 package com.wenjunhuang.codeepiphany.services
 
-import cats.effect.implicits.*
 import cats.effect.IO
+import cats.effect.implicits.*
 import cats.syntax.all.*
-import java.net.HttpCookie
-import java.util.concurrent.atomic.AtomicReference
-
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.components.Service.Level
 import com.intellij.openapi.project.Project
-
 import com.wenjunhuang.codeepiphany.atcoder.services.AtCoderApi
 import com.wenjunhuang.codeepiphany.codeforces.services.CodeForcesApi
 import com.wenjunhuang.codeepiphany.hackerrank.services.HackerRankApi
@@ -21,6 +17,9 @@ import com.wenjunhuang.codeepiphany.services.http.HttpClientManager
 import com.wenjunhuang.codeepiphany.services.login.LoginDialog
 import com.wenjunhuang.codeepiphany.utils.CookieUtil
 import com.wenjunhuang.codeepiphany.utils.syntax.*
+
+import java.net.HttpCookie
+import java.util.concurrent.atomic.AtomicReference
 
 @Service(Array(Level.PROJECT))
 final class AuthService(private val myProject: Project) {

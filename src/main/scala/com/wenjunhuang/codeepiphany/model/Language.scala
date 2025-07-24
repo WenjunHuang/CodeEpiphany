@@ -1,15 +1,14 @@
 package com.wenjunhuang.codeepiphany.model
 
+import com.intellij.openapi.util.text.StringUtil
+import com.wenjunhuang.codeepiphany.model.Language.escapeRegex
+import com.wenjunhuang.codeepiphany.model.LanguageVersion.SpecificVersion
 import icons.CodeEpiphanyIcons
-import javax.swing.Icon
 import org.typelevel.ci.CIString
+
+import javax.swing.Icon
 import scala.collection.mutable
 import scala.util.matching.Regex
-
-import com.intellij.openapi.util.text.StringUtil
-
-import com.wenjunhuang.codeepiphany.model.Language.escapeRegex
-import com.wenjunhuang.codeepiphany.model.LanguageVersion.{AnyVersion, SpecificVersion}
 
 enum LanguageVersion {
   case AnyVersion

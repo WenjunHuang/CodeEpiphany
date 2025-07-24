@@ -1,16 +1,12 @@
 package com.wenjunhuang.codeepiphany.services
 
 import cats.effect.IO
-import cats.effect.kernel.Async
-import cats.syntax.all.*
-import fs2.Stream
-
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.vfs.{ VfsUtilCore, VirtualFile }
-
-import com.wenjunhuang.codeepiphany.model.{ CodeDojo, Language, SubmissionResult }
+import com.intellij.openapi.vfs.{VfsUtilCore, VirtualFile}
+import com.wenjunhuang.codeepiphany.model.{CodeDojo, Language, SubmissionResult}
 import com.wenjunhuang.codeepiphany.settings.ChallengeSettings
-import com.wenjunhuang.codeepiphany.settings.ChallengeSettings.{ ChallengeSettingsStateItem, TestCase }
+import com.wenjunhuang.codeepiphany.settings.ChallengeSettings.{ChallengeSettingsStateItem, TestCase}
+import fs2.Stream
 
 abstract class BaseCodeEvaluationService(protected val myProject: Project, protected val myCodeDojo: CodeDojo) {
   type EvaluationRequest

@@ -1,8 +1,8 @@
 package com.wenjunhuang.codeepiphany.codeforces.models
 
-import java.time.LocalDateTime
-
 import com.wenjunhuang.codeepiphany.model.SubmissionResult
+
+import java.time.LocalDateTime
 
 case class CodeForcesSubmissionResponse(
   submissionId: Long,

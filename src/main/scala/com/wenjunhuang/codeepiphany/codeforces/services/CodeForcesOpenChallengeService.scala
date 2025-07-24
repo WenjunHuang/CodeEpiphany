@@ -1,6 +1,6 @@
 package com.wenjunhuang.codeepiphany.codeforces.services
 
-import cats.effect.{Concurrent, IO}
+import cats.effect.IO
 import cats.syntax.all.*
 import com.intellij.openapi.project.Project
 import com.wenjunhuang.codeepiphany.codeforces.models.{CodeForcesChallengeCodeTemplate, codeForcesRatingToDifficulty}
@@ -10,11 +10,9 @@ import com.wenjunhuang.codeepiphany.database.tables.records.{ChallengeLanguageRe
 import com.wenjunhuang.codeepiphany.model.newtypes.CodeDojoChallengeId
 import com.wenjunhuang.codeepiphany.model.{ApiError, CodeDojo, Language, LanguageVersion}
 import com.wenjunhuang.codeepiphany.services.BaseOpenChallengeService
-import com.wenjunhuang.codeepiphany.services.http.HttpClientManager
 import com.wenjunhuang.codeepiphany.settings.dojo.BaseCodeDojoSettings
 import com.wenjunhuang.codeepiphany.utils.template.VelocityTool
 import org.jooq.DSLContext
-import org.typelevel.log4cats.LoggerFactory
 
 class CodeForcesOpenChallengeService(project: Project)
     extends BaseOpenChallengeService[CodeforcesProblemsetsRecord, CodeForcesChallengeCodeTemplate](

@@ -1,9 +1,7 @@
 package com.wenjunhuang.codeepiphany.actions
 
 import cats.syntax.all.*
-
 import com.intellij.openapi.actionSystem.DataKey
-
 import com.wenjunhuang.codeepiphany.actions.CodeDojoParameterAction.*
 import com.wenjunhuang.codeepiphany.model.CodeDojo
 import com.wenjunhuang.codeepiphany.utils.actions.{ParameterComboBoxAction, ParameterProvider}

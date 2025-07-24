@@ -1,22 +1,20 @@
 package com.wenjunhuang.codeepiphany.services
 
 import cats.effect.IO
-import cats.syntax.all.*
-import fs2.Stream
-import java.time.LocalDateTime
-import org.jooq.DSLContext
-import org.jooq.impl.DSL
-import scala.jdk.OptionConverters.*
-
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.vfs.{ VfsUtilCore, VirtualFile }
-
+import com.intellij.openapi.vfs.{VfsUtilCore, VirtualFile}
 import com.wenjunhuang.codeepiphany.database.Tables.*
-import com.wenjunhuang.codeepiphany.model.{ CodeDojo, Language, SubmissionResult }
 import com.wenjunhuang.codeepiphany.model.newtypes.SubmissionId
+import com.wenjunhuang.codeepiphany.model.{CodeDojo, Language, SubmissionResult}
 import com.wenjunhuang.codeepiphany.settings.ChallengeSettings
 import com.wenjunhuang.codeepiphany.settings.ChallengeSettings.ChallengeSettingsStateItem
 import com.wenjunhuang.codeepiphany.utils.IdGenerator
+import fs2.Stream
+import org.jooq.DSLContext
+import org.jooq.impl.DSL
+
+import java.time.LocalDateTime
+import scala.jdk.OptionConverters.*
 
 abstract class BaseSubmissionService(protected val myProject: Project, protected val myCodeDojo: CodeDojo) {
   type SubmissionRequest

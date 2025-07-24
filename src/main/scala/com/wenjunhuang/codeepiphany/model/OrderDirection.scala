@@ -1,8 +1,8 @@
 package com.wenjunhuang.codeepiphany.model
 
-import org.jooq.{ Field, SortField }
-import org.typelevel.ci.CIString
 import io.circe.*
+import org.jooq.{Field, SortField}
+import org.typelevel.ci.CIString
 
 enum OrderDirection {
   case Ascending

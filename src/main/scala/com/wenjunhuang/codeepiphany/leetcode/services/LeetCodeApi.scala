@@ -1,8 +1,7 @@
 package com.wenjunhuang.codeepiphany.leetcode.services
 
-import cats.effect.{Concurrent, IO, Resource, Temporal}
+import cats.effect.{IO, Resource, Temporal}
 import cats.syntax.all.*
-import com.intellij.openapi.project.Project
 import com.intellij.util.LineSeparator
 import com.wenjunhuang.codeepiphany.leetcode.models
 import com.wenjunhuang.codeepiphany.leetcode.models.*
@@ -10,7 +9,7 @@ import com.wenjunhuang.codeepiphany.leetcode.models.runCode.*
 import com.wenjunhuang.codeepiphany.leetcode.models.submitAnswer.{LeetCodeSubmitAnswerRequest, LeetCodeSubmitAnswerResponse, LeetCodeSubmitAnswerResult}
 import com.wenjunhuang.codeepiphany.model.*
 import com.wenjunhuang.codeepiphany.model.CodeDojo.{LeetCode, LeetCodeCN}
-import com.wenjunhuang.codeepiphany.services.http.{HttpClientManager}
+import com.wenjunhuang.codeepiphany.services.http.HttpClientManager
 import fs2.Stream
 import io.circe.*
 import io.circe.optics.JsonPath
@@ -32,6 +31,7 @@ enum LeetCodeSearchOrderBy(val value: String) {
   case Difficulty  extends LeetCodeSearchOrderBy("DIFFICULTY")
   case Frequency   extends LeetCodeSearchOrderBy("FREQUENCY")
 }
+
 object LeetCodeSearchOrderBy {
   def fromCIString(value: CIString): Option[LeetCodeSearchOrderBy] =
     if value == CIString(FontEndId.value) then Some(FontEndId)

@@ -1,6 +1,6 @@
 package com.wenjunhuang.codeepiphany.leetcode.models
 
-import io.circe.derivation.{ ConfiguredDecoder, ConfiguredEncoder }
+import io.circe.derivation.{ConfiguredDecoder, ConfiguredEncoder}
 
 case class LeetCodeCompanyChallengeList(questions: List[LeetCodeCompanyChallengeListItem], total: Int)
     derives ConfiguredDecoder,

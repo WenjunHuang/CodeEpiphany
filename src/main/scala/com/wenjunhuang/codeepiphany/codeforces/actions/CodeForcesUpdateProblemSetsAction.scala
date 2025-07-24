@@ -1,7 +1,6 @@
 package com.wenjunhuang.codeepiphany.codeforces.actions
 
 import com.intellij.openapi.actionSystem.{AnActionEvent, DataKey}
-
 import com.wenjunhuang.codeepiphany.codeforces.actions.CodeForcesUpdateProblemSetsAction.*
 import com.wenjunhuang.codeepiphany.model.CodeDojo.CodeForces
 import com.wenjunhuang.codeepiphany.utils.actions.{AbstractLoadingAction, ActionCompatible, DataKeyNotNull, UserLoggedIn}

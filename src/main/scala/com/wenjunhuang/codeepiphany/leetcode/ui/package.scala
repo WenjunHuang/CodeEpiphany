@@ -5,12 +5,10 @@ import com.intellij.openapi.project.Project
 import com.intellij.util.ui.ListTableModel
 import com.wenjunhuang.codeepiphany.actions.OpenChallengeActionGroup.OpenChallengeProvider
 import com.wenjunhuang.codeepiphany.leetcode.models.LeetCodeChallengeListItem
-import com.wenjunhuang.codeepiphany.leetcode.services.{ LeetCodeOpenChallengeRequest, LeetCodeOpenChallengeService }
-import com.wenjunhuang.codeepiphany.leetcode.settings.{ LeetCodeCNSettings, LeetCodeSettings }
-import com.wenjunhuang.codeepiphany.model.{ CodeDojo, Language, LanguageVersion }
+import com.wenjunhuang.codeepiphany.leetcode.services.{LeetCodeOpenChallengeRequest, LeetCodeOpenChallengeService}
+import com.wenjunhuang.codeepiphany.leetcode.settings.{LeetCodeCNSettings, LeetCodeSettings}
+import com.wenjunhuang.codeepiphany.model.{CodeDojo, Language, LanguageVersion}
 import com.wenjunhuang.codeepiphany.services.console
-import com.wenjunhuang.codeepiphany.services.console.showConsole
-import com.wenjunhuang.codeepiphany.services.http.HttpClientManager
 import com.wenjunhuang.codeepiphany.utils.extensions.*
 import com.wenjunhuang.codeepiphany.utils.syntax.*
 import org.typelevel.log4cats.LoggerFactory

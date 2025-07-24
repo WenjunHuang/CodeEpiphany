@@ -1,8 +1,8 @@
 package com.wenjunhuang.codeepiphany.utils
 
-import java.awt.Color
-
 import com.intellij.util.MathUtil
+
+import java.awt.Color
 
 trait SwingExtensionsOps {
   extension (color: Color) {

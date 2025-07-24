@@ -1,28 +1,22 @@
 package com.wenjunhuang.codeepiphany.leetcode.services
 
 import cats.effect.IO
+import com.intellij.openapi.project.Project
+import com.wenjunhuang.codeepiphany.database.Tables.*
+import com.wenjunhuang.codeepiphany.database.tables.records.{ChallengeLanguageRecord, ChallengeRecord}
+import com.wenjunhuang.codeepiphany.leetcode.models.*
+import com.wenjunhuang.codeepiphany.leetcode.settings.{LeetCodeCNSettings, LeetCodeCNSettingsConfigurable, LeetCodeSettings, LeetCodeSettingsConfigurable}
+import com.wenjunhuang.codeepiphany.model.CodeDojo.LeetCodeCN
+import com.wenjunhuang.codeepiphany.model.newtypes.CodeDojoChallengeId
+import com.wenjunhuang.codeepiphany.model.{CodeDojo, Language, LanguageVersion}
+import com.wenjunhuang.codeepiphany.services.BaseOpenChallengeService
+import com.wenjunhuang.codeepiphany.settings.ChallengeSettings
+import com.wenjunhuang.codeepiphany.settings.dojo.BaseCodeDojoSettings
 import org.jooq.DSLContext
 import org.jsoup.Jsoup
 import org.jsoup.nodes.TextNode
+
 import scala.jdk.CollectionConverters.*
-
-import com.intellij.openapi.project.Project
-
-import com.wenjunhuang.codeepiphany.database.Tables.*
-import com.wenjunhuang.codeepiphany.database.tables.records.{ ChallengeLanguageRecord, ChallengeRecord }
-import com.wenjunhuang.codeepiphany.leetcode.models.*
-import com.wenjunhuang.codeepiphany.leetcode.settings.{
-  LeetCodeCNSettings,
-  LeetCodeCNSettingsConfigurable,
-  LeetCodeSettings,
-  LeetCodeSettingsConfigurable
-}
-import com.wenjunhuang.codeepiphany.model.{ CodeDojo, Language, LanguageVersion }
-import com.wenjunhuang.codeepiphany.model.newtypes.CodeDojoChallengeId
-import com.wenjunhuang.codeepiphany.model.CodeDojo.LeetCodeCN
-import com.wenjunhuang.codeepiphany.services.BaseOpenChallengeService
-import com.wenjunhuang.codeepiphany.settings.dojo.BaseCodeDojoSettings
-import com.wenjunhuang.codeepiphany.settings.ChallengeSettings
 
 case class LeetCodeOpenChallengeRequest(questionSlug: String)
 

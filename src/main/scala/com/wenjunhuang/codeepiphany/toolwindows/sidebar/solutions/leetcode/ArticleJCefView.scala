@@ -1,23 +1,21 @@
 package com.wenjunhuang.codeepiphany.toolwindows.sidebar.solutions.leetcode
 
 import cats.effect.IO
-
 import com.intellij.openapi.project.Project
-
+import com.wenjunhuang.codeepiphany.leetcode.services.LeetCodeApi
 import com.wenjunhuang.codeepiphany.model.CodeDojo
 import com.wenjunhuang.codeepiphany.services.WebViewStyleProvider
-import com.wenjunhuang.codeepiphany.utils.jcef.BaseJCefWebView
 import com.wenjunhuang.codeepiphany.toolwindows.sidebar.solutions.leetcode.ArticleJCefView.*
+import com.wenjunhuang.codeepiphany.utils.jcef.BaseJCefWebView
 import com.wenjunhuang.codeepiphany.utils.syntax.*
-import java.nio.charset.StandardCharsets
-import java.util.Base64
 import org.cef.browser.CefFrame
 import org.cef.network.CefRequest
-import org.http4s.{ Headers, MediaType }
-import org.http4s.headers.{ `Content-Length`, `Content-Type`, Accept, Referer }
+import org.http4s.headers.`Content-Type`
+import org.http4s.{Headers, MediaType}
 import org.typelevel.ci.CIString
 
-import com.wenjunhuang.codeepiphany.leetcode.services.LeetCodeApi
+import java.nio.charset.StandardCharsets
+import java.util.Base64
 
 class ArticleJCefView(
   private val presenter: ArticleDetailPresenter,

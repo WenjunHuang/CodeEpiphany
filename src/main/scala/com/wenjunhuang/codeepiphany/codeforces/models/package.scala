@@ -1,8 +1,7 @@
 package com.wenjunhuang.codeepiphany.codeforces
 
-import io.circe.derivation.Configuration
-
 import com.wenjunhuang.codeepiphany.model.ChallengeDifficulty
+import io.circe.derivation.Configuration
 
 package object models {
   given Configuration = Configuration.default.withDefaults

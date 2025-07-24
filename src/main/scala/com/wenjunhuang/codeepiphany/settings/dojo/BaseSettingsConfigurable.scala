@@ -1,12 +1,11 @@
 package com.wenjunhuang.codeepiphany.settings.dojo
 
-import scala.jdk.CollectionConverters.*
-
 import com.intellij.openapi.options.ConfigurableBase
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
-
 import com.wenjunhuang.codeepiphany.model.{CodeDojo, Language, LanguageVersion}
+
+import scala.jdk.CollectionConverters.*
 
 abstract class BaseSettingsConfigurable(
   protected val myProject: Project,

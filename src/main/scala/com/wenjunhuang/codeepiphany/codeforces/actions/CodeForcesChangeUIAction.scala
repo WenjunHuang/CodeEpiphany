@@ -1,14 +1,12 @@
 package com.wenjunhuang.codeepiphany.codeforces.actions
 
-import icons.CodeEpiphanyIcons
-import org.typelevel.ci.CIString
-
 import com.intellij.openapi.actionSystem.*
 import com.intellij.openapi.project.DumbAwareAction
-
 import com.wenjunhuang.codeepiphany.codeforces.actions.CodeForcesChangeUIAction.*
 import com.wenjunhuang.codeepiphany.codeforces.actions.CodeForcesChangeUIAction.CodeForcesUI.*
 import com.wenjunhuang.codeepiphany.utils.actions.{ActionCompatible, DataKeyNotNull}
+import icons.CodeEpiphanyIcons
+import org.typelevel.ci.CIString
 
 class CodeForcesChangeUIAction
     extends DumbAwareAction

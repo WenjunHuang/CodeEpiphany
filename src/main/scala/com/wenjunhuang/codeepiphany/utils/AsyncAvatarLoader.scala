@@ -1,16 +1,15 @@
 package com.wenjunhuang.codeepiphany.utils
 
 import cats.effect.IO
-import com.intellij.openapi.application.ex.ApplicationManagerEx
-import com.intellij.util.ui.{AvatarIcon, ColorPalette, ImageUtil}
+import com.intellij.util.ui.{ AvatarIcon, ColorPalette, ImageUtil }
+import com.wenjunhuang.codeepiphany.utils.syntax.*
 import kotlin.Pair as ktPair
 
 import java.awt.image.BufferedImage
-import java.awt.{Color, Image}
+import java.awt.{ Color, Image }
 import java.net.URL
 import javax.imageio.ImageIO
 import javax.swing.Icon
-import com.wenjunhuang.codeepiphany.utils.syntax.*
 
 class AsyncAvatarLoader(username: String, avatarUrl: String, size: Int) extends Icon {
   @volatile
@@ -19,48 +18,28 @@ class AsyncAvatarLoader(username: String, avatarUrl: String, size: Int) extends 
   private val placeholder =
     new AvatarIcon(size, 1.0, username, username.charAt(0).toString, AsyncAvatarLoader.AvatarPalette)
 
-
-  IO.delay{
-      val url = new URL(avatarUrl)
-      val img = ImageIO.read(url)
-      if (img != null) {
-        val scaled = ImageUtil.createCircleImage(img).getScaledInstance(size, size, Image.SCALE_SMOOTH)
-        val buffered = new BufferedImage(size, size, BufferedImage.TYPE_INT_ARGB)
-        val g = buffered.createGraphics()
-        ImageUtil.applyQualityRenderingHints(g)
-        g.drawImage(scaled, 0, 0, null)
-        g.dispose()
-        Some(buffered)
-      } else {
-        None
-      }
-  }.flatMap{
+  IO.delay {
+    val url = new URL(avatarUrl)
+    val img = ImageIO.read(url)
+    if (img != null) {
+      val scaled   = ImageUtil.createCircleImage(img).getScaledInstance(size, size, Image.SCALE_SMOOTH)
+      val buffered = new BufferedImage(size, size, BufferedImage.TYPE_INT_ARGB)
+      val g        = buffered.createGraphics()
+      ImageUtil.applyQualityRenderingHints(g)
+      g.drawImage(scaled, 0, 0, null)
+      g.dispose()
+      Some(buffered)
+    } else {
+      None
+    }
+  }.flatMap {
     case None => IO.unit
-    case Some(buffered) => IO.delay {
-      image = Some(buffered)
-      listener.foreach(_())
-    }.evalOnEDTAny()
+    case Some(buffered) =>
+      IO.delay {
+        image = Some(buffered)
+        listener.foreach(_())
+      }.evalOnEDTAny()
   }.unsafeRunAndForget()
-//  ApplicationManagerEx.getApplicationEx.executeOnPooledThread(new Runnable {
-//    override def run(): Unit = {
-//      try {
-//        val url = new URL(avatarUrl)
-//        val img = ImageIO.read(url)
-//        if (img != null) {
-//          val scaled   = ImageUtil.createCircleImage(img).getScaledInstance(size, size, Image.SCALE_SMOOTH)
-//          val buffered = new BufferedImage(size, size, BufferedImage.TYPE_INT_ARGB)
-//          val g        = buffered.createGraphics()
-//          ImageUtil.applyQualityRenderingHints(g)
-//          g.drawImage(scaled, 0, 0, null)
-//          g.dispose()
-//          image = Some(buffered)
-//          ApplicationManagerEx.getApplicationEx.invokeLater(() => listener.foreach(_()))
-//        }
-//      } catch {
-//        case _: Exception => // 使用占位符
-//      }
-//    }
-//  })
 
   def setListener(newListener: () => Unit): Unit = {
     listener = Some(newListener)
@@ -80,7 +59,7 @@ class AsyncAvatarLoader(username: String, avatarUrl: String, size: Int) extends 
 }
 
 object AsyncAvatarLoader {
-  object AvatarPalette extends ColorPalette {
+  private object AvatarPalette extends ColorPalette {
     override def getGradients: Array[ktPair[Color, Color]] =
       Array(
         new ktPair(Color(0x60a800), Color(0xd5ca00)),

@@ -1,13 +1,13 @@
 package com.wenjunhuang.codeepiphany.utils
 
 import cats.effect.IO
-import com.sun.net.httpserver.{ HttpExchange, HttpHandler, HttpServer }
-import java.net.{ InetSocketAddress, URL }
-import java.nio.charset.StandardCharsets
-import org.typelevel.log4cats.LoggerFactory
-import scala.collection.mutable
-
+import com.sun.net.httpserver.{HttpExchange, HttpHandler, HttpServer}
 import com.wenjunhuang.codeepiphany.utils.syntax.*
+import org.typelevel.log4cats.LoggerFactory
+
+import java.net.{InetSocketAddress, URL}
+import java.nio.charset.StandardCharsets
+import scala.collection.mutable
 
 class ResourceHttpServer(private val myRootResourcePath: String, private val myPort: Int) {
   private val myLogger                   = LoggerFactory.getLogger[IO]

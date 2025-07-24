@@ -1,7 +1,6 @@
 package com.wenjunhuang.codeepiphany.leetcode.models
 
 import io.circe.derivation.ConfiguredDecoder
-import io.circe.generic.auto.*
 
 case class LeetCodeUserInfo(
   isSignedIn: Boolean,

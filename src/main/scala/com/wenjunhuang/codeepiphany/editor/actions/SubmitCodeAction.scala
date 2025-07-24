@@ -4,14 +4,11 @@ import com.intellij.openapi.actionSystem.*
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Key
 import com.intellij.openapi.vfs.VirtualFile
-
 import com.wenjunhuang.codeepiphany.editor.actions.SubmitCodeAction.*
 import com.wenjunhuang.codeepiphany.editor.services.submitCode
 import com.wenjunhuang.codeepiphany.model.CodeDojo
-import com.wenjunhuang.codeepiphany.services.AuthService
 import com.wenjunhuang.codeepiphany.services.file.saveEditedFile
-import com.wenjunhuang.codeepiphany.settings.ChallengeSettings
-import com.wenjunhuang.codeepiphany.utils.actions.{ ActionCompatible, FileEditorKeyNotNull, FileEditorUserLoggedIn }
+import com.wenjunhuang.codeepiphany.utils.actions.{ActionCompatible, FileEditorKeyNotNull, FileEditorUserLoggedIn}
 import com.wenjunhuang.codeepiphany.utils.extensions.*
 
 class SubmitCodeAction

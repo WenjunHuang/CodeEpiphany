@@ -1,14 +1,12 @@
 package com.wenjunhuang.codeepiphany.atcoder.actions
 
-import icons.CodeEpiphanyIcons
-import org.typelevel.ci.CIString
-
 import com.intellij.openapi.actionSystem.*
 import com.intellij.openapi.project.DumbAwareAction
-
 import com.wenjunhuang.codeepiphany.atcoder.actions.AtCoderChangeUIAction.*
 import com.wenjunhuang.codeepiphany.atcoder.actions.AtCoderChangeUIAction.AtCoderUI.*
-import com.wenjunhuang.codeepiphany.utils.actions.{ ActionCompatible, DataKeyNotNull }
+import com.wenjunhuang.codeepiphany.utils.actions.{ActionCompatible, DataKeyNotNull}
+import icons.CodeEpiphanyIcons
+import org.typelevel.ci.CIString
 
 class AtCoderChangeUIAction
     extends DumbAwareAction

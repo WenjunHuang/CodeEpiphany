@@ -1,22 +1,22 @@
 package com.wenjunhuang.codeepiphany.editor
 
-import cats.effect.{ Concurrent, IO }
+import cats.effect.IO
 import cats.syntax.all.*
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
+import com.wenjunhuang.codeepiphany.PluginBundle
 import com.wenjunhuang.codeepiphany.atcoder.services.AtCoderSubmissionService
 import com.wenjunhuang.codeepiphany.codeforces.services.CodeForcesSubmissionService
-import com.wenjunhuang.codeepiphany.hackerrank.services.{ HackerRankEvaluationService, HackerRankSubmissionService }
-import com.wenjunhuang.codeepiphany.leetcode.services.{ LeetCodeEvaluationService, LeetCodeSubmissionService }
+import com.wenjunhuang.codeepiphany.hackerrank.services.{HackerRankEvaluationService, HackerRankSubmissionService}
+import com.wenjunhuang.codeepiphany.leetcode.services.{LeetCodeEvaluationService, LeetCodeSubmissionService}
 import com.wenjunhuang.codeepiphany.luogu.services.LuoGuSubmissionService
 import com.wenjunhuang.codeepiphany.model.CodeDojo
 import com.wenjunhuang.codeepiphany.services.console
 import com.wenjunhuang.codeepiphany.services.console.showConsole
-import com.wenjunhuang.codeepiphany.services.http.HttpClientManager
 import com.wenjunhuang.codeepiphany.settings.ChallengeSettings
 import com.wenjunhuang.codeepiphany.utils.syntax.*
-import org.typelevel.log4cats.{ Logger, LoggerFactory }
-import com.wenjunhuang.codeepiphany.PluginBundle
+import org.typelevel.log4cats.LoggerFactory
+
 import scala.jdk.CollectionConverters.*
 
 object services {

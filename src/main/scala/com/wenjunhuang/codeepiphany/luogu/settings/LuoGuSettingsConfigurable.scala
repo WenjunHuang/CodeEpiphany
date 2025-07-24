@@ -1,15 +1,14 @@
 package com.wenjunhuang.codeepiphany.luogu.settings
 
 import com.intellij.openapi.project.Project
-
 import com.wenjunhuang.codeepiphany.PluginBundle
 import com.wenjunhuang.codeepiphany.luogu.models.LuoGuChallengeCodeTemplate
-import com.wenjunhuang.codeepiphany.luogu.settings.LuoGuSettingsConfigurable.{ DEMO_TEMPLATE, LUOGU_LANGUAGES }
+import com.wenjunhuang.codeepiphany.luogu.settings.LuoGuSettingsConfigurable.{DEMO_TEMPLATE, LUOGU_LANGUAGES}
 import com.wenjunhuang.codeepiphany.model.*
 import com.wenjunhuang.codeepiphany.model.Language.*
 import com.wenjunhuang.codeepiphany.model.LanguageVersion.*
-import com.wenjunhuang.codeepiphany.settings.dojo.{ BaseCodeDojoSettings, BaseSettingsConfigurable }
 import com.wenjunhuang.codeepiphany.settings.ChallengeSettings
+import com.wenjunhuang.codeepiphany.settings.dojo.{BaseCodeDojoSettings, BaseSettingsConfigurable}
 
 class LuoGuSettingsConfigurable(project: Project)
     extends BaseSettingsConfigurable(

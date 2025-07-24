@@ -1,10 +1,8 @@
 package com.wenjunhuang.codeepiphany.actions.webview
 
-import com.intellij.openapi.actionSystem.{ ActionUpdateThread, AnAction, AnActionEvent }
+import com.intellij.openapi.actionSystem.{AnAction, AnActionEvent}
 import com.intellij.openapi.project.DumbAware
-
-import com.wenjunhuang.codeepiphany.toolwindows.sidebar.description.ChallengeDescriptionView
-import com.wenjunhuang.codeepiphany.utils.actions.{ ActionCompatible, DataKeyNotNull }
+import com.wenjunhuang.codeepiphany.utils.actions.{ActionCompatible, DataKeyNotNull}
 
 class ZoomInAction
     extends AnAction

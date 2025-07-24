@@ -2,18 +2,12 @@ package com.wenjunhuang.codeepiphany.leetcode.actions
 
 import cats.Show
 import cats.syntax.all.*
-import org.typelevel.ci.CIString
-
 import com.intellij.openapi.actionSystem.DataKey
-
-import com.wenjunhuang.codeepiphany.leetcode.actions.InterviewPeriodParameterAction.{
-  INTERVIEW_PERIOD_PROVIDER_KEY,
-  InterviewPeriod,
-  InterviewPeriodProvider
-}
-import com.wenjunhuang.codeepiphany.utils.actions.{ ParameterComboBoxAction, ParameterProvider }
 import com.wenjunhuang.codeepiphany.PluginBundle
+import com.wenjunhuang.codeepiphany.leetcode.actions.InterviewPeriodParameterAction.{INTERVIEW_PERIOD_PROVIDER_KEY, InterviewPeriod, InterviewPeriodProvider}
+import com.wenjunhuang.codeepiphany.utils.actions.{ParameterComboBoxAction, ParameterProvider}
 import io.circe.*
+import org.typelevel.ci.CIString
 
 class InterviewPeriodParameterAction
     extends ParameterComboBoxAction[InterviewPeriod, InterviewPeriodProvider](

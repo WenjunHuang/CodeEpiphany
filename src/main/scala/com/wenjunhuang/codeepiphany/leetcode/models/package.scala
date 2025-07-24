@@ -1,9 +1,8 @@
 package com.wenjunhuang.codeepiphany.leetcode
 
+import com.wenjunhuang.codeepiphany.model.*
 import io.circe.derivation.Configuration
 import org.typelevel.ci.CIString
-
-import com.wenjunhuang.codeepiphany.model.*
 
 package object models {
   given Configuration = Configuration.default.withDefaults

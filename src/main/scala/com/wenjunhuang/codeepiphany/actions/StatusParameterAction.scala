@@ -1,9 +1,7 @@
 package com.wenjunhuang.codeepiphany.actions
 
 import cats.syntax.all.*
-
 import com.intellij.openapi.actionSystem.*
-
 import com.wenjunhuang.codeepiphany.actions.StatusParameterAction.*
 import com.wenjunhuang.codeepiphany.model.ChallengeStatus
 import com.wenjunhuang.codeepiphany.utils.actions.{ParameterComboBoxAction, ParameterProvider}

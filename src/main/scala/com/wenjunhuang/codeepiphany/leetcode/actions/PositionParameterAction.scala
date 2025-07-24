@@ -1,9 +1,7 @@
 package com.wenjunhuang.codeepiphany.leetcode.actions
 
 import cats.syntax.all.*
-
 import com.intellij.openapi.actionSystem.DataKey
-
 import com.wenjunhuang.codeepiphany.leetcode.actions.PositionParameterAction.{POSITION_PROVIDER_KEY, PositionParameterProvider}
 import com.wenjunhuang.codeepiphany.leetcode.models.LeetCodeProblemsetPositionTag
 import com.wenjunhuang.codeepiphany.utils.actions.{ParameterComboBoxAction, ParameterProvider}

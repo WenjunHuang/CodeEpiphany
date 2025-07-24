@@ -1,38 +1,34 @@
 package com.wenjunhuang.codeepiphany.codeforces.services
 
 import cats.effect.implicits.*
-import cats.effect.{ Async, Concurrent, IO, Temporal }
+import cats.effect.{IO, Temporal}
 import cats.syntax.all.*
-
 import com.intellij.openapi.util.text.StringUtil
-
 import com.wenjunhuang.codeepiphany.codeforces.models.*
 import com.wenjunhuang.codeepiphany.codeforces.settings.CodeForcesSettingsConfigurable
-import com.wenjunhuang.codeepiphany.model.{ ApiError, CodeDojo, SubmissionResult }
+import com.wenjunhuang.codeepiphany.model.{ApiError, CodeDojo, SubmissionResult}
 import com.wenjunhuang.codeepiphany.services.http.HttpClientManager
+import com.wenjunhuang.codeepiphany.settings.ChallengeSettings.TestCase
 import fs2.Stream
 import io.circe.optics.JsonPath
 import io.circe.parser.parse
 import org.http4s.client.dsl.Http4sClientDsl
-import org.http4s.client.{ Client, UnexpectedStatus }
-import org.http4s.headers.{ Accept, Referer }
+import org.http4s.client.{Client, UnexpectedStatus}
+import org.http4s.headers.Referer
 import org.http4s.implicits.uri
-import org.http4s.{ Headers, Method, Uri, UrlForm }
+import org.http4s.{Headers, Method, Uri, UrlForm}
 import org.jsoup.Jsoup
+import org.jsoup.nodes.Element
 import org.typelevel.ci.CIString
 import retry.*
-import retry.ResultHandler.{ noop, retryOnAllErrors }
+import retry.ResultHandler.{noop, retryOnAllErrors}
 import scodec.bits.ByteVector
+
 import java.time.format.DateTimeFormatter
-import java.time.{ LocalDateTime, ZoneId }
+import java.time.{LocalDateTime, ZoneId}
 import java.util.Locale
-import org.jsoup.nodes.Element
 import scala.concurrent.duration.*
 import scala.jdk.CollectionConverters.*
-
-import com.intellij.util.ui.Html
-
-import com.wenjunhuang.codeepiphany.settings.ChallengeSettings.TestCase
 
 trait CodeForcesApi {
   def getAllProblemSets: IO[List[(CodeForcesProblem, CodeForcesProblemStatistics)]]

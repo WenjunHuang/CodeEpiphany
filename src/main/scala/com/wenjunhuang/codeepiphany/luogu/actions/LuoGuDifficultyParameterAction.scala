@@ -1,10 +1,9 @@
 package com.wenjunhuang.codeepiphany.luogu.actions
 
 import com.intellij.openapi.actionSystem.DataKey
-
+import com.wenjunhuang.codeepiphany.luogu.actions.LuoGuDifficultyParameterAction.*
 import com.wenjunhuang.codeepiphany.luogu.models.LuoGuDifficulty
-import com.wenjunhuang.codeepiphany.utils.actions.{ ParameterComboBoxAction, ParameterProvider }
-import LuoGuDifficultyParameterAction.*
+import com.wenjunhuang.codeepiphany.utils.actions.{ParameterComboBoxAction, ParameterProvider}
 
 class LuoGuDifficultyParameterAction
     extends ParameterComboBoxAction[LuoGuDifficulty, LuoGuDifficultyParameterProvider](

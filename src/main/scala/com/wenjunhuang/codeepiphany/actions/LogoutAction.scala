@@ -2,7 +2,6 @@ package com.wenjunhuang.codeepiphany.actions
 
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.project.DumbAwareAction
-
 import com.wenjunhuang.codeepiphany.actions.LoginAction.*
 import com.wenjunhuang.codeepiphany.utils.actions.{ActionCompatible, DataKeyNotNull}
 

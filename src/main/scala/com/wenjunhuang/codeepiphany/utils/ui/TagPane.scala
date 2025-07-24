@@ -1,23 +1,22 @@
 package com.wenjunhuang.codeepiphany.utils.ui
 
-import java.awt.{Color, Dimension, Graphics, GridBagConstraints, GridBagLayout}
-import java.awt.event.{ActionEvent, MouseAdapter, MouseEvent}
-import javax.swing.{Icon, JLayeredPane, JPanel, SwingConstants}
-
 import com.intellij.icons.AllIcons
-import com.intellij.openapi.actionSystem.{ActionManager, DefaultActionGroup}
 import com.intellij.openapi.actionSystem.ex.DefaultCustomComponentAction
+import com.intellij.openapi.actionSystem.{ActionManager, DefaultActionGroup}
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.observable.properties.ObservableProperty
 import com.intellij.openapi.ui.popup.IconButton
-import com.intellij.ui.{Gray, InplaceButton, JBColor}
 import com.intellij.ui.components.{JBLabel, JBLayeredPane}
-import com.intellij.util.ui.{GraphicsUtil, JBInsets, JBUI}
+import com.intellij.ui.{Gray, InplaceButton, JBColor}
 import com.intellij.util.ui.components.BorderLayoutPanel
-
-import com.wenjunhuang.codeepiphany.utils.extensions.*
+import com.intellij.util.ui.{GraphicsUtil, JBInsets, JBUI}
 import com.wenjunhuang.codeepiphany.utils.CompatibleUtils
+import com.wenjunhuang.codeepiphany.utils.extensions.*
 import com.wenjunhuang.codeepiphany.utils.syntax.*
+
+import java.awt.event.{ActionEvent, MouseAdapter, MouseEvent}
+import java.awt.{Color, Dimension, Graphics, GridBagConstraints, GridBagLayout}
+import javax.swing.{Icon, JLayeredPane, JPanel, SwingConstants}
 
 
 

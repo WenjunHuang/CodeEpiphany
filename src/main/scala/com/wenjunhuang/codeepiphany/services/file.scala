@@ -1,6 +1,5 @@
 package com.wenjunhuang.codeepiphany.services
 import cats.effect.{IO, Resource}
-import cats.syntax.all.*
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.fileEditor.{FileDocumentManager, FileEditorManager, OpenFileDescriptor}
 import com.intellij.openapi.project.Project
@@ -8,7 +7,6 @@ import com.intellij.openapi.ui.{InputValidator, Messages}
 import com.intellij.openapi.util.io.FileUtilRt
 import com.intellij.openapi.vfs.{LocalFileSystem, VirtualFile}
 import com.wenjunhuang.codeepiphany.utils.syntax.*
-import org.typelevel.log4cats.LoggerFactory
 
 import java.io.{File, PrintWriter}
 

@@ -1,8 +1,8 @@
 package com.wenjunhuang.codeepiphany.vfs
 
-import javax.swing.Icon
-
 import com.intellij.openapi.fileTypes.LanguageFileType
+
+import javax.swing.Icon
 
 class SolutionRemarkFileType(private val myIdeaLanguage: com.intellij.lang.Language)
     extends LanguageFileType(myIdeaLanguage) {
