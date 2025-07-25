@@ -155,7 +155,7 @@ export function intellijStylePrePlugin(): Plugin {
                                     const info = {
                                         'zoom': gState.zoom,
                                         'canZoomIn': gState.zoom < MAX_ZOOM,
-                                        'canZoomOut': gState.zoom > MIN_ZOOM,
+                                        'canZoomOut': gState.zoom > MIN_ZOOM
                                     };
                                     window.sendInfo && window.sendInfo(JSON.stringify(info));
                                 }
