@@ -258,7 +258,8 @@
 
 
     <extensions defaultExtensionNs="com.intellij">
-        <notificationGroup displayType="BALLOON" id="My Plugin Notification"/>
+        <notificationGroup displayType="STICKY_BALLOON" id="Code Epiphany" isLogByDefault="true"/>
+        <postStartupActivity implementation="com.wenjunhuang.codeepiphany.activities.CodeEpiphanyStartupActivity"/>
         <toolWindow factoryClass="com.wenjunhuang.codeepiphany.toolwindows.sidebar.SidebarWindowFactory"
                     id="LeetCode Epiphany Sidebar"
                     secondary="false"
