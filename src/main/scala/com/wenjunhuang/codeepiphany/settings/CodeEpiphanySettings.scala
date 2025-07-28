@@ -1,16 +1,17 @@
 package com.wenjunhuang.codeepiphany.settings
 
+import java.io.File
+import scala.annotation.meta.field
+
 import com.intellij.openapi.components.*
 import com.intellij.openapi.components.Service.Level
 import com.intellij.openapi.project.Project
 import com.intellij.util.messages.Topic
 import com.intellij.util.xmlb.annotations.Attribute
 
-import com.wenjunhuang.codeepiphany.model.{ CodeDojo, Constants }
+import com.wenjunhuang.codeepiphany.model.{CodeDojo, Constants}
 import com.wenjunhuang.codeepiphany.settings.CodeEpiphanySettings.CodeEpiphanySettingsState
-import com.wenjunhuang.codeepiphany.utils.XmlUtils.{ CodeDojoOptionConverter, StringOptionConverter }
-import java.io.File
-import scala.annotation.meta.field
+import com.wenjunhuang.codeepiphany.utils.XmlUtils.CodeDojoOptionConverter
 
 /** 这个对象目前只有settings对话框中使用，ij会确保在主线程中调用它的方法，所以不需要加锁
   */
@@ -47,8 +48,6 @@ object CodeEpiphanySettings {
     @(Attribute @field)(converter = classOf[CodeDojoOptionConverter])
     var latestCodeDojo: Option[CodeDojo] = None
 
-    @(Attribute @field)(converter = classOf[StringOptionConverter])
-    var version: Option[String] = None
 
     def getDatabaseFolder(project: Project): String = {
       PathMacroManager.getInstance(project).expandPath(databaseFolder)
