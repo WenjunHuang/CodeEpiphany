@@ -4,6 +4,7 @@ import './app.css';
 declare global {
     interface Window {
         showYiDunCaptcha: (code: string, state: string, onVerify: (result: string) => void) => void;
+        // provided by NECaptcha
         initNECaptcha: (config: any) => void;
     }
 }
@@ -37,6 +38,6 @@ window.showYiDunCaptcha = async function (code: string, state: string, onVerify:
                 onVerify(result);
             }
         },
-        element: document.getElementById('app'),
+        element: document.getElementById('container'),
     })
 }

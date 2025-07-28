@@ -1,6 +1,7 @@
 package com.wenjunhuang.codeepiphany.luogu.models
 
 import io.circe.{Decoder, Encoder}
+import com.wenjunhuang.codeepiphany.PluginBundle
 
 enum LuoGuDifficulty(val value: Int) {
   case NonRated          extends LuoGuDifficulty(0)
@@ -12,17 +13,9 @@ enum LuoGuDifficulty(val value: Int) {
   case ProvincialMinus   extends LuoGuDifficulty(6)
   case NOIPlus           extends LuoGuDifficulty(7)
 
-  def showAsHtml: String = this match {
-    case NonRated          => "Non-Rated"
-    case Beginner          => "Beginner"
-    case BasicMinus        => "Basic-"
-    case IntermediateMinus => "Intermediate-"
-    case IntermediatePlus  => "Intermediate+"
-    case AdvancedMinus     => "Advanced-"
-    case ProvincialMinus   => "Provincial-"
-    case NOIPlus           => "NOI+"
-  }
+  def showAsHtml: String = PluginBundle.message(s"luogu.difficulty.${this.productPrefix}")
 }
+
 object LuoGuDifficulty {
   implicit val circeEncoder: Encoder[LuoGuDifficulty] = Encoder.encodeInt.contramap(_.value)
   implicit val circeDecoder: Decoder[LuoGuDifficulty] = Decoder.decodeInt.emap {

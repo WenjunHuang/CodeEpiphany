@@ -1,5 +1,7 @@
 import type {Plugin} from 'vite';
 
+const excludes = ['luoguYiDun/index.html'];
+
 /**
  * Vite 插件：自动注入样式表链接和重载功能
  */
@@ -9,7 +11,7 @@ export function intellijStylePostPlugin(): Plugin {
         transformIndexHtml: {
             order: 'post',
             handler: (html, ctx) => {
-                if (ctx.path.endsWith('luoguYiDun/index.html')) {
+                if (excludes.some(exclude => ctx.path.endsWith(exclude))) {
                     return html;
                 }
                 return {
@@ -57,7 +59,7 @@ export function intellijStylePrePlugin(): Plugin {
         transformIndexHtml: {
             order: "pre",
             handler: (html, ctx) => {
-                if (ctx.path.endsWith('luoguYiDun/index.html')) {
+                if (excludes.some(exclude => ctx.path.endsWith(exclude))) {
                     return html;
                 }
                 return {
@@ -153,7 +155,7 @@ export function intellijStylePrePlugin(): Plugin {
                                     const info = {
                                         'zoom': gState.zoom,
                                         'canZoomIn': gState.zoom < MAX_ZOOM,
-                                        'canZoomOut': gState.zoom > MIN_ZOOM,
+                                        'canZoomOut': gState.zoom > MIN_ZOOM
                                     };
                                     window.sendInfo && window.sendInfo(JSON.stringify(info));
                                 }

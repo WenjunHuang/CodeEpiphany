@@ -63,6 +63,8 @@ object CodeEpiphanyIcons {
   val CC: Icon = IconLoader.getIcon("/icons/cc.png", CodeEpiphanyIcons.getClass.getClassLoader)
 
   @static
+  val HEART: Icon = IconLoader.getIcon("/icons/heart.svg", CodeEpiphanyIcons.getClass.getClassLoader)
+  @static
   val LOADING: AnimatedIcon = AnimatedIcon.Default.INSTANCE
 
   object Dojos {
