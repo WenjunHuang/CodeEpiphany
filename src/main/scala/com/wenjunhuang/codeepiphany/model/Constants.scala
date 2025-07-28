@@ -23,7 +23,13 @@ object Constants {
   final val SETTING = PROJECT_ID + ".settings"
 
   @static
+  final val APP_SETTING = PROJECT_ID + ".app.settings"
+
+  @static
   final val SETTING_FILE = SETTINGS_FOLDER + "/settings.xml"
+
+  @static
+  final val APP_SETTING_FILE = PROJECT_NAME + "_app.xml"
 
   @static
   final val CHALLENGE_SETTING = PROJECT_ID + ".challenge.settings"
