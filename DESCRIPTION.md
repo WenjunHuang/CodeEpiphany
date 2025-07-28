@@ -1,9 +1,4 @@
-LeetCode Epiphany
-
-
-**Now available on Android!** 📱 Download our mobile app from [Google Play](https://play.google.com/store/apps/details?id=com.wenjunhuang.codeepiphanyapp) to practice coding challenges on the go.
-
-[<img src="https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png" width="200" alt="Get it on Google Play">](https://play.google.com/store/apps/details?id=com.wenjunhuang.codeepiphanyapp)
+LeetCode LuoGu(洛谷) CodeForces AtCoder HackerRank 
 
 ### Current Supported Platforms
 
@@ -13,6 +8,11 @@ LeetCode Epiphany
 - **[AtCoder](https://atcoder.jp)**
 - **[CodeForces](https://codeforces.com/)**
 - **[HackerRank](https://www.hackerrank.com)**
+ 
+**Now available on Android!** 📱 Download our mobile app from [Google Play](https://play.google.com/store/apps/details?id=com.wenjunhuang.codeepiphanyapp) to practice coding challenges on the go.
+
+[<img src="https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png" width="200" alt="Get it on Google Play">](https://play.google.com/store/apps/details?id=com.wenjunhuang.codeepiphanyapp)
+
  
 ### Ultimate Coding Challenge Assistant
 
@@ -37,6 +37,18 @@ LeetCode Epiphany
 - 📊 More Features Coming Soon: Stay tuned for even more powerful tools to enhance your competitive programming
   experience!
 
+### 🔗 Learn More
+- **[📖Documentation](https://github.com/WenjunHuang/CodeEpiphany/wiki)**
+- **[🐛 Report Issues](https://github.com/WenjunHuang/CodeEpiphany/issues)**
+
+### 当前支持的平台
+
+- **[LeetCode](https://www.leetcode.com)**
+- **[力扣中国](https://www.leetcode.cn)**
+- **[洛谷](https://www.luogu.com.cn/)**
+- **[AtCoder](https://atcoder.jp)**
+- **[CodeForces](https://codeforces.com/)**
+- **[HackerRank](https://www.hackerrank.com)**
 
 **现已推出安卓版本！** 📱 从 [Google Play](https://play.google.com/store/apps/details?id=com.wenjunhuang.codeepiphanyapp) 下载我们的移动应用，随时随地刷题练习。
 
@@ -60,6 +72,6 @@ LeetCode Epiphany
 - ✍️ **多解法支持**: 同一题目支持编写多种解法。您可为每种方案编写代码、测试用例与解题说明，全方位探索不同思路
 - 📊 **持续更新**: 更多强大功能即将上线，全面提升您的编程竞赛体验！
 
-### 🔗 Learn More
-- **[📖Documentation](https://github.com/WenjunHuang/CodeEpiphany/wiki)**
-- **[🐛 Report Issues](https://github.com/WenjunHuang/CodeEpiphany/issues)**
+### 🔗 了解更多
+- **[📖 文档](https://github.com/WenjunHuang/CodeEpiphany/wiki)**
+- **[🐛 提交问题](https://github.com/WenjunHuang/CodeEpiphany/issues)**
