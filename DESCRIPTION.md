@@ -1,4 +1,4 @@
-LeetCode LuoGu(洛谷) CodeForces AtCoder HackerRank 
+LeetCode Epiphany
 
 ### Current Supported Platforms
 
