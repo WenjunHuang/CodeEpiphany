@@ -10,9 +10,9 @@ import com.wenjunhuang.codeepiphany.PluginBundle
 import com.wenjunhuang.codeepiphany.utils.IdeUtils
 
 object CodeEpiphanyNotification {
-  private val NOTIFICATION_GROUP_ID = "Code Epiphany"
-  private val GITHUB_URL            = "https://github.com/WenjunHuang/CodeEpiphany"
-  private val DONATION_URL          = "https://leetcodeepiphany.pages.dev/"
+  val NOTIFICATION_GROUP_ID = "Code Epiphany"
+  val GITHUB_URL            = "https://github.com/WenjunHuang/CodeEpiphany"
+  val DONATION_URL          = "https://leetcodeepiphany.pages.dev/"
 
   def notifyFirstlyDownloaded(project: Project): Unit = {
     val title       = PluginBundle.message("notification.firstlyDownloaded.title")

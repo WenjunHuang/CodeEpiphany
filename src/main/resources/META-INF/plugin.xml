@@ -17,6 +17,9 @@
             <action id="CodeEpiphany.Actions.Refresh"
                     class="com.wenjunhuang.codeepiphany.actions.RefreshAction"
                     icon="AllIcons.Actions.Refresh"/>
+            <action id="CodeEpiphany.Actions.Donation"
+                    class="com.wenjunhuang.codeepiphany.actions.DonationAction"
+                    icon="CodeEpiphanyIcons.HEART"/>
             <action id="CodeEpiphany.Actions.Login"
                     class="com.wenjunhuang.codeepiphany.actions.LoginAction"
                     icon="CodeEpiphanyIcons.LOGIN"/>
@@ -186,6 +189,7 @@
         <group id="CodeEpiphany.Dojos.TitleToolbar">
             <reference ref="CodeEpiphany.Actions.Login"/>
             <reference ref="CodeEpiphany.Actions.Logout"/>
+            <reference ref="CodeEpiphany.Actions.Donation"/>
         </group>
         <group id="CodeEpiphany.Dojos.TitleToolbar.HackerRank">
             <reference ref="CodeEpiphany.Actions.HackerRank.ChangeUI"/>

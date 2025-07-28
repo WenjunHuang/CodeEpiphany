@@ -1,3 +1,8 @@
+## 1.4.0
+### Added
+- Add plugin update notification
+- Add plugin donation link
+ 
 ## 1.3.4
 
 ### Fixed
