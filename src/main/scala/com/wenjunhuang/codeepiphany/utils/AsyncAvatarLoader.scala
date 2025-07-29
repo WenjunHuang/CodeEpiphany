@@ -18,28 +18,31 @@ class AsyncAvatarLoader(username: String, avatarUrl: String, size: Int) extends 
   private val placeholder =
     new AvatarIcon(size, 1.0, username, username.charAt(0).toString, AsyncAvatarLoader.AvatarPalette)
 
-  IO.delay {
-    val url = new URL(avatarUrl)
-    val img = ImageIO.read(url)
-    if (img != null) {
-      val scaled   = ImageUtil.createCircleImage(img).getScaledInstance(size, size, Image.SCALE_SMOOTH)
-      val buffered = new BufferedImage(size, size, BufferedImage.TYPE_INT_ARGB)
-      val g        = buffered.createGraphics()
-      ImageUtil.applyQualityRenderingHints(g)
-      g.drawImage(scaled, 0, 0, null)
-      g.dispose()
-      Some(buffered)
-    } else {
-      None
-    }
-  }.flatMap {
-    case None => IO.unit
-    case Some(buffered) =>
-      IO.delay {
-        image = Some(buffered)
-        listener.foreach(_())
-      }.evalOnEDTAny()
-  }.unsafeRunAndForget()
+  if (avatarUrl.nonEmpty) {
+
+    IO.delay {
+      val url = new URL(avatarUrl)
+      val img = ImageIO.read(url)
+      if (img != null) {
+        val scaled = ImageUtil.createCircleImage(img).getScaledInstance(size, size, Image.SCALE_SMOOTH)
+        val buffered = new BufferedImage(size, size, BufferedImage.TYPE_INT_ARGB)
+        val g = buffered.createGraphics()
+        ImageUtil.applyQualityRenderingHints(g)
+        g.drawImage(scaled, 0, 0, null)
+        g.dispose()
+        Some(buffered)
+      } else {
+        None
+      }
+    }.flatMap {
+      case None => IO.unit
+      case Some(buffered) =>
+        IO.delay {
+          image = Some(buffered)
+          listener.foreach(_())
+        }.evalOnEDTAny()
+    }.unsafeRunAndForget()
+  }
 
   def setListener(newListener: () => Unit): Unit = {
     listener = Some(newListener)

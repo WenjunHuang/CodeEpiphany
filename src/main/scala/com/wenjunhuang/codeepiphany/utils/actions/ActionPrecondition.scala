@@ -25,6 +25,7 @@ trait UserLoggedIn(codeDojo: CodeDojo) extends ProjectNonNull {
   }
 }
 
+// 单个 DataKey 的 trait，保持向后兼容
 trait DataKeyNotNull[T](key: DataKey[T]) extends ActionPrecondition {
   def getValue(event: AnActionEvent): T = getValue(event.getDataContext)
   def getValue(context: DataContext): T = key.getData(context)
@@ -32,6 +33,26 @@ trait DataKeyNotNull[T](key: DataKey[T]) extends ActionPrecondition {
   override def isSatisfied(event: AnActionEvent): Boolean = {
     if super.isSatisfied(event) then key.getData(event.getDataContext) != null
     else false
+  }
+}
+
+// 支持多个 DataKey 的组合 trait
+trait MultipleDataKeysNotNull extends ActionPrecondition {
+  protected def dataKeys: Seq[DataKey[?]]
+
+  override def isSatisfied(event: AnActionEvent): Boolean = {
+    if super.isSatisfied(event) then {
+      dataKeys.forall(key => key.getData(event.getDataContext) != null)
+    } else false
+  }
+
+  def getValue[T](event: AnActionEvent, key: DataKey[T]): T = {
+    this.getValue(event.getDataContext, key)
+  }
+
+  def getValue[T](context: DataContext, key: DataKey[T]): T = {
+    assert(dataKeys.contains(key), s"Key $key is not part of the defined data keys.")
+    key.getData(context)
   }
 }
 

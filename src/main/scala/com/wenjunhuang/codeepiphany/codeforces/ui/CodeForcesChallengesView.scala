@@ -2,37 +2,52 @@ package com.wenjunhuang.codeepiphany.codeforces.ui
 
 import cats.effect.IO
 import cats.syntax.all.*
+
 import com.intellij.ide.util.ChooseElementsDialog
 import com.intellij.openapi.Disposable
-import com.intellij.openapi.actionSystem.{ActionGroup, ActionManager}
+import com.intellij.openapi.actionSystem.{ ActionGroup, ActionManager }
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
+
 import com.wenjunhuang.codeepiphany.PluginBundle
-import com.wenjunhuang.codeepiphany.actions.LoginAction.{LOGIN_LOGOUT_KEY, LoginLogoutProvider}
-import com.wenjunhuang.codeepiphany.codeforces.actions.CodeForcesChangeUIAction.{CODEFORCES_CHANGE_UI_PROVIDER_KEY, CodeForcesChangeUIProvider, CodeForcesUI}
-import com.wenjunhuang.codeepiphany.codeforces.actions.CodeForcesUpdateProblemSetsAction.{CODEFORCES_UPDATE_PROBLEM_SETS_PROVIDER_KEY, CodeForcesUpdateProblemSetsProvider}
+import com.wenjunhuang.codeepiphany.actions.LoginAction.{ LOGIN_LOGOUT_KEY, LoginLogoutProvider }
+import com.wenjunhuang.codeepiphany.codeforces.actions.CodeForcesChangeUIAction.{
+  CODEFORCES_CHANGE_UI_PROVIDER_KEY,
+  CodeForcesChangeUIProvider,
+  CodeForcesUI
+}
+import com.wenjunhuang.codeepiphany.codeforces.actions.CodeForcesUpdateProblemSetsAction.{
+  CODEFORCES_UPDATE_PROBLEM_SETS_PROVIDER_KEY,
+  CodeForcesUpdateProblemSetsProvider
+}
 import com.wenjunhuang.codeepiphany.codeforces.services.CodeForcesApi
 import com.wenjunhuang.codeepiphany.codeforces.services.problemsets.fetchAndUpdateProblemSets
 import com.wenjunhuang.codeepiphany.codeforces.settings.CodeForcesSettings
 import com.wenjunhuang.codeepiphany.database.Tables.CODEFORCES_PROBLEMSETS
 import com.wenjunhuang.codeepiphany.model.Actions.CODEFORCES_TITLE_TOOLBAR_GROUP
 import com.wenjunhuang.codeepiphany.model.CodeDojo.CodeForces
-import com.wenjunhuang.codeepiphany.model.{CodeDojo, Language, LanguageVersion}
+import com.wenjunhuang.codeepiphany.model.{ CodeDojo, Language, LanguageVersion }
 import com.wenjunhuang.codeepiphany.services.*
 import com.wenjunhuang.codeepiphany.utils.actions.DataSink
-import com.wenjunhuang.codeepiphany.utils.competitiveCompanion.CCAction.{CCActionProvider, CC_ACTION_PROVIDER_KEY}
+import com.wenjunhuang.codeepiphany.utils.competitiveCompanion.CCAction.{ CCActionProvider, CC_ACTION_PROVIDER_KEY }
 import com.wenjunhuang.codeepiphany.utils.competitiveCompanion.startCCListening
 import com.wenjunhuang.codeepiphany.utils.extensions.*
 import com.wenjunhuang.codeepiphany.utils.syntax.*
 import com.wenjunhuang.codeepiphany.utils.ui.UnauthenticatedView
 import org.typelevel.ci.CIString
 import org.typelevel.log4cats.LoggerFactory
-
 import java.util.concurrent.atomic.AtomicBoolean
-import javax.swing.{Icon, JComponent}
+import javax.swing.{ Icon, JComponent }
 import scala.concurrent.Future
 import scala.jdk.CollectionConverters.*
 import scala.jdk.OptionConverters.*
+
+import com.intellij.ui.scale.JBUIScale
+
+import com.wenjunhuang.codeepiphany.actions.UserAccountInfoAction.{ USER_ACCOUNT_INFO_KEY, UserInfoProvider }
+import com.wenjunhuang.codeepiphany.codeforces.models.CodeForcesUserInfo
+import com.wenjunhuang.codeepiphany.leetcode.models.LeetCodeUserInfo
+import com.wenjunhuang.codeepiphany.utils.AsyncAvatarLoader
 
 class CodeForcesChallengesView(private val myProject: Project) extends BaseChallengesView[CodeForcesUI] {
 
@@ -68,11 +83,14 @@ class CodeForcesChallengesView(private val myProject: Project) extends BaseChall
               initialize().map { bootstrap =>
                 myQueryParamPresenter = Some(CodeForcesParametersQueryPresenter(myProject, bootstrap))
                 myKeywordSearchPresenter = Some(CodeForcesKeywordQueryPresenter(myProject, bootstrap))
-              } *> IO.delay {
-                AuthService.getInstance(myProject).setLogin(CodeDojo.CodeForces)
-                val gotoUI = loadLastUI().getOrElse(CodeForcesUI.QueryParameters)
-                mySwitchUIProvider.switchTo(gotoUI)
-              }.evalOnEDTAny()
+              } *>
+                CodeForcesApi.getUserInfo.flatMap { userInfo =>
+                  IO.delay {
+                    AuthService.getInstance(myProject).setLogin(CodeDojo.CodeForces, userInfo)
+                    val gotoUI = loadLastUI().getOrElse(CodeForcesUI.QueryParameters)
+                    mySwitchUIProvider.switchTo(gotoUI)
+                  }.evalOnEDTAny()
+                }
                 *> console.info(myProject, PluginBundle.message("console.loggedIn", CodeDojo.CodeForces.show))
             case _ => console.info(myProject, PluginBundle.message("console.loginCancelled", CodeDojo.CodeForces.show))
           }
@@ -101,6 +119,25 @@ class CodeForcesChallengesView(private val myProject: Project) extends BaseChall
     override def hasLoggedIn: Boolean = AuthService.getInstance(myProject).isLoggedIn(CodeDojo.CodeForces)
 
     override def isLoggingIn: Boolean = myIsLoggingIn
+  }
+  private val myUserInfoProvider = new UserInfoProvider {
+    override lazy val avatar: AsyncAvatarLoader =
+      AuthService.getInstance(myProject).getLoginUserInfo(CodeDojo.CodeForces) match {
+        case Some(userInfo: CodeForcesUserInfo) =>
+          AsyncAvatarLoader(userInfo.nickName, userInfo.avatar, JBUIScale.scale(16))
+        case _ =>
+          AsyncAvatarLoader(PluginBundle.message("user.unknown"), "", JBUIScale.scale(16))
+      }
+
+    override lazy val username: String = {
+      AuthService.getInstance(myProject).getLoginUserInfo(CodeDojo.CodeForces) match {
+        case Some(userInfo: CodeForcesUserInfo) =>
+          userInfo.nickName
+        case _ => PluginBundle.message("user.unknown")
+      }
+    }
+
+    override def action: () => Unit = { () => }
   }
 
   private val mySwitchUIProvider = new CodeForcesChangeUIProvider {
@@ -223,6 +260,7 @@ class CodeForcesChallengesView(private val myProject: Project) extends BaseChall
 
   override def uiDataSnapshot(dataSink: DataSink): Unit =
     dataSink.set(LOGIN_LOGOUT_KEY, myLoginLogoutProvider)
+    dataSink.set(USER_ACCOUNT_INFO_KEY, myUserInfoProvider)
     dataSink.set(CODEFORCES_CHANGE_UI_PROVIDER_KEY, mySwitchUIProvider)
     dataSink.set(CODEFORCES_UPDATE_PROBLEM_SETS_PROVIDER_KEY, myUpdateProblemsProvider)
     dataSink.set(CC_ACTION_PROVIDER_KEY, myCCProvider)

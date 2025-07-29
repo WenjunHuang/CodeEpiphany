@@ -186,9 +186,15 @@
             <reference ref="CodeEpiphany.Actions.Refresh"/>
         </group>
 
+        <group id="CodeEpiphany.Dojos.TitleToolbar.Account" popup="true"
+               class="com.wenjunhuang.codeepiphany.actions.AccountActionGroup">
+            <action id="CodeEpiphany.Actions.UserAccountInfo"
+                    class="com.wenjunhuang.codeepiphany.actions.UserAccountInfoAction"/>
+            <reference ref="CodeEpiphany.Actions.Logout"/>
+        </group>
         <group id="CodeEpiphany.Dojos.TitleToolbar">
             <reference ref="CodeEpiphany.Actions.Login"/>
-            <reference ref="CodeEpiphany.Actions.Logout"/>
+            <reference ref="CodeEpiphany.Dojos.TitleToolbar.Account"/>
             <reference ref="CodeEpiphany.Actions.Donation"/>
         </group>
         <group id="CodeEpiphany.Dojos.TitleToolbar.HackerRank">

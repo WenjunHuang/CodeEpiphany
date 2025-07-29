@@ -1,34 +1,38 @@
 package com.wenjunhuang.codeepiphany.codeforces.services
 
 import cats.effect.implicits.*
-import cats.effect.{IO, Temporal}
+import cats.effect.{ IO, Temporal }
 import cats.syntax.all.*
+
 import com.intellij.openapi.util.text.StringUtil
+
 import com.wenjunhuang.codeepiphany.codeforces.models.*
 import com.wenjunhuang.codeepiphany.codeforces.settings.CodeForcesSettingsConfigurable
-import com.wenjunhuang.codeepiphany.model.{ApiError, CodeDojo, SubmissionResult}
+import com.wenjunhuang.codeepiphany.model.{ ApiError, CodeDojo, SubmissionResult }
 import com.wenjunhuang.codeepiphany.services.http.HttpClientManager
 import com.wenjunhuang.codeepiphany.settings.ChallengeSettings.TestCase
 import fs2.Stream
 import io.circe.optics.JsonPath
 import io.circe.parser.parse
 import org.http4s.client.dsl.Http4sClientDsl
-import org.http4s.client.{Client, UnexpectedStatus}
+import org.http4s.client.{ Client, UnexpectedStatus }
 import org.http4s.headers.Referer
 import org.http4s.implicits.uri
-import org.http4s.{Headers, Method, Uri, UrlForm}
+import org.http4s.{ Headers, Method, Uri, UrlForm }
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Element
 import org.typelevel.ci.CIString
 import retry.*
-import retry.ResultHandler.{noop, retryOnAllErrors}
+import retry.ResultHandler.{ noop, retryOnAllErrors }
 import scodec.bits.ByteVector
-
 import java.time.format.DateTimeFormatter
-import java.time.{LocalDateTime, ZoneId}
+import java.time.{ LocalDateTime, ZoneId }
 import java.util.Locale
 import scala.concurrent.duration.*
 import scala.jdk.CollectionConverters.*
+
+import com.wenjunhuang.codeepiphany.atcoder.models.AtCoderUserInfo
+import com.wenjunhuang.codeepiphany.atcoder.services.AtCoderApi.useClient
 
 trait CodeForcesApi {
   def getAllProblemSets: IO[List[(CodeForcesProblem, CodeForcesProblemStatistics)]]
@@ -47,11 +51,33 @@ trait CodeForcesApi {
     programTypeId: String,
     code: String
   ): Stream[IO, CodeForcesSubmissionResponse]
+
+  def getUserInfo: IO[CodeForcesUserInfo]
 }
 
 object CodeForcesApi extends CodeForcesApi with Http4sClientDsl[IO] {
 
   private def useClient[A](fun: Client[IO] => IO[A]): IO[A] = HttpClientManager.getClient.use(fun)
+
+  override def getUserInfo: IO[CodeForcesUserInfo] = useClient { client =>
+    client.expect[String](uri"https://codeforces.com/settings/general").flatMap { content =>
+      Jsoup
+        .parse(content)
+        .select("div.personal-sidebar")
+        .asScala
+        .headOption
+        .map { element =>
+          val username = element.select(".avatar a").get(1).text()
+          val avatar = element
+            .select("img")
+            .get(0)
+            .attr("src")
+          CodeForcesUserInfo(username, avatar)
+        }
+        .toRight(ApiError.NotFound(CodeDojo.CodeForces, "User info not found"))
+        .liftTo[IO]
+    }
+  }
 
   override def getAllProblemSets: IO[List[(CodeForcesProblem, CodeForcesProblemStatistics)]] =
     HttpClientManager.getClient.use { client =>
