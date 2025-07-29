@@ -3,7 +3,7 @@ package com.wenjunhuang.codeepiphany.notifications
 import icons.CodeEpiphanyIcons
 
 import com.intellij.ide.BrowserUtil
-import com.intellij.notification.{Notification, NotificationAction, NotificationGroupManager, NotificationType}
+import com.intellij.notification.{ Notification, NotificationAction, NotificationGroupManager, NotificationType }
 import com.intellij.openapi.project.Project
 
 import com.wenjunhuang.codeepiphany.PluginBundle
@@ -13,6 +13,7 @@ object CodeEpiphanyNotification {
   val NOTIFICATION_GROUP_ID = "Code Epiphany"
   val GITHUB_URL            = "https://github.com/WenjunHuang/CodeEpiphany"
   val DONATION_URL          = "https://leetcodeepiphany.pages.dev/"
+  val GOOGLE_PLAY_URL       = "https://play.google.com/store/apps/details?id=com.wenjunhuang.codeepiphanyapp"
 
   def notifyFirstlyDownloaded(project: Project): Unit = {
     val title       = PluginBundle.message("notification.firstlyDownloaded.title")
@@ -27,7 +28,7 @@ object CodeEpiphanyNotification {
     notification.notify(project)
   }
 
-  def notifyReleaseNote(project:Project):Unit = {
+  def notifyReleaseNote(project: Project): Unit = {
     val title       = PluginBundle.message("notification.releaseNote.title", IdeUtils.pluginVersion)
     val description = PluginBundle.message("whatsNew")
 
@@ -47,6 +48,10 @@ object CodeEpiphanyNotification {
         BrowserUtil.browse(GITHUB_URL)
       }
     )
+
+    val googlePlay = NotificationAction.createSimple("GooglePlay", () => {
+      BrowserUtil.browse(GOOGLE_PLAY_URL)
+    })
     val donation = NotificationAction.createSimple(
       PluginBundle.message("donate"),
       () => {
@@ -55,8 +60,8 @@ object CodeEpiphanyNotification {
     )
 
     notification.addAction(github)
+    notification.addAction(googlePlay)
     notification.addAction(donation)
-
   }
 
 }
