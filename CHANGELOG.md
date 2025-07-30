@@ -1,3 +1,8 @@
+## 1.5.0
+### Added
+- Add user profile view for LeetCode, LeetCodeCN, LuoGu, CodeForces, AtCoder and HackerRank
+- Add submission result view in embedded browser for LeetCode, LeetCodeCN
+ 
 ## 1.4.0
 ### Added
 - Add plugin update notification
