@@ -2,10 +2,10 @@ package com.wenjunhuang.codeepiphany.services
 
 import cats.effect.IO
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.vfs.{VfsUtilCore, VirtualFile}
+import com.intellij.openapi.vfs.{ VfsUtilCore, VirtualFile }
 import com.wenjunhuang.codeepiphany.database.Tables.*
 import com.wenjunhuang.codeepiphany.model.newtypes.SubmissionId
-import com.wenjunhuang.codeepiphany.model.{CodeDojo, Language, SubmissionResult}
+import com.wenjunhuang.codeepiphany.model.{ CodeDojo, Language, SubmissionResult }
 import com.wenjunhuang.codeepiphany.settings.ChallengeSettings
 import com.wenjunhuang.codeepiphany.settings.ChallengeSettings.ChallengeSettingsStateItem
 import com.wenjunhuang.codeepiphany.utils.IdGenerator
@@ -60,7 +60,13 @@ abstract class BaseSubmissionService(protected val myProject: Project, protected
     response: SubmissionResponse
   ): SubmissionResponseInfo
   protected def callApi(basicInfo: SubmissionRequest, processedCode: String): Stream[IO, SubmissionResponse]
-  protected def reportSubmitResult(lastResponseInfo: SubmissionResponseInfo, lastResponse: SubmissionResponse): IO[Unit]
+  protected def reportSubmitResult(
+    basicInfo: SubmissionRequest,
+    submissionId: SubmissionId,
+    processedCode: String,
+    lastResponseInfo: SubmissionResponseInfo,
+    lastResponse: SubmissionResponse
+  ): IO[Unit]
 
   private def executeSubmission(
     basicInfo: SubmissionRequest,
@@ -70,8 +76,9 @@ abstract class BaseSubmissionService(protected val myProject: Project, protected
     callApi(basicInfo, processedCode).evalMap { response =>
       updateSubmissionRecord(submissionId, response).map((_, response))
     }.compile.last.flatMap {
-      case Some((lastResponseInfo, lastResponse)) => reportSubmitResult(lastResponseInfo, lastResponse)
-      case None                                   => IO.unit
+      case Some((lastResponseInfo, lastResponse)) =>
+        reportSubmitResult(basicInfo, submissionId, processedCode, lastResponseInfo, lastResponse)
+      case None => IO.unit
     }
   }
 

@@ -5,6 +5,7 @@ import com.intellij.ide.ui.laf.darcula.ui.DarculaEditorTextFieldBorder;
 import com.intellij.openapi.editor.EditorFactory;
 import com.intellij.openapi.editor.colors.EditorFontType;
 import com.intellij.openapi.fileTypes.FileTypeManager;
+import com.intellij.openapi.project.Project;
 import com.intellij.ui.BrowserHyperlinkListener;
 import com.intellij.ui.EditorTextField;
 import com.intellij.uiDesigner.core.GridConstraints;
@@ -16,6 +17,7 @@ import com.intellij.util.ui.JBUI;
 import com.wenjunhuang.codeepiphany.PluginBundle;
 import com.wenjunhuang.codeepiphany.database.tables.records.LeetcodeSubmissionRecord;
 import com.wenjunhuang.codeepiphany.database.tables.records.SolutionSubmissionRecord;
+import com.wenjunhuang.codeepiphany.leetcode.services.LeetCodeSubmissionService;
 import com.wenjunhuang.codeepiphany.model.CodeDojo;
 import com.wenjunhuang.codeepiphany.model.Language;
 import com.wenjunhuang.codeepiphany.model.LanguageVersion;
@@ -27,6 +29,8 @@ import scala.Option;
 
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
+import javax.swing.event.HyperlinkEvent;
+import javax.swing.event.HyperlinkListener;
 import java.awt.*;
 import java.lang.reflect.Method;
 import java.time.format.DateTimeFormatter;
@@ -42,9 +46,10 @@ public class LeetCodeSubmissionResultForm {
     private JPanel myPanel;
     private JComponent myResultComponent;
     private JLabel myCodeLabel;
-    private JEditorPane myViewInBrowser;
+    private JButton myViewInBrowser;
 
     public LeetCodeSubmissionResultForm(
+            Project project,
             Language language,
             LanguageVersion languageVersion,
             String challengeSlug,
@@ -93,12 +98,9 @@ public class LeetCodeSubmissionResultForm {
                 ));
         var submissionId = submissionRecord.getDojosubmissionid();
         if (submissionId != null) {
-            var link = "https://" + leetCodeDojo.domain().toString() + "/problems/" + challengeSlug + "/submissions/" + submissionId + "/";
-
-            myViewInBrowser.setEditorKit(HTMLEditorKitBuilder.simple());
-            myViewInBrowser.setEditable(false);
-            myViewInBrowser.addHyperlinkListener(new BrowserHyperlinkListener());
-            myViewInBrowser.setText("<html><body><a href='" + link + "'>View In Browser</a></body></html>");
+            myViewInBrowser.addActionListener(e -> {
+                LeetCodeSubmissionService.showSubmissionDetails(project, leetCodeDojo, challengeSlug, submissionId);
+            });
         } else {
             myViewInBrowser.setVisible(false);
         }
@@ -148,8 +150,9 @@ public class LeetCodeSubmissionResultForm {
         myLanguage = new JLabel();
         myLanguage.setText("Label");
         panel1.add(myLanguage, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        myViewInBrowser = new JEditorPane();
-        myPanel.add(myViewInBrowser, new GridConstraints(0, 2, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
+        myViewInBrowser = new JButton();
+        this.$$$loadButtonText$$$(myViewInBrowser, this.$$$getMessageFromBundle$$$("messages/PluginBundle", "submissionResult.viewDetails"));
+        myPanel.add(myViewInBrowser, new GridConstraints(0, 2, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
     }
 
     private static Method $$$cachedGetBundleMethod$$$ = null;
@@ -192,6 +195,33 @@ public class LeetCodeSubmissionResultForm {
         component.setText(result.toString());
         if (haveMnemonic) {
             component.setDisplayedMnemonic(mnemonic);
+            component.setDisplayedMnemonicIndex(mnemonicIndex);
+        }
+    }
+
+    /**
+     * @noinspection ALL
+     */
+    private void $$$loadButtonText$$$(AbstractButton component, String text) {
+        StringBuffer result = new StringBuffer();
+        boolean haveMnemonic = false;
+        char mnemonic = '\0';
+        int mnemonicIndex = -1;
+        for (int i = 0; i < text.length(); i++) {
+            if (text.charAt(i) == '&') {
+                i++;
+                if (i == text.length()) break;
+                if (!haveMnemonic && text.charAt(i) != '&') {
+                    haveMnemonic = true;
+                    mnemonic = text.charAt(i);
+                    mnemonicIndex = result.length();
+                }
+            }
+            result.append(text.charAt(i));
+        }
+        component.setText(result.toString());
+        if (haveMnemonic) {
+            component.setMnemonic(mnemonic);
             component.setDisplayedMnemonicIndex(mnemonicIndex);
         }
     }

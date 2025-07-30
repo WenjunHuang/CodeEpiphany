@@ -26,7 +26,7 @@ import scala.jdk.OptionConverters.*
 
 class SubmissionPresenter(private val myProject: Project) extends Disposable {
   private val mySubmissionLogPresenter = new SubmissionLogPresenter(myProject)
-  private val myView                   = SubmissionView(mySubmissionLogPresenter.getViewComponent)
+  private val myView                   = SubmissionView(myProject,mySubmissionLogPresenter.getViewComponent)
   private val myLogger                 = Logger.getInstance(getClass)
   @volatile
   private var mySelectedSubmissionQueue: Option[Queue[IO, Option[SubmissionLogEntry]]] = None

@@ -1,8 +1,9 @@
 package com.wenjunhuang.codeepiphany.toolwindows.sidebar.submissionlog
 
-import com.intellij.openapi.ui.{SimpleToolWindowPanel, Splitter}
-import com.intellij.ui.components.{JBLabel, JBScrollPane}
+import com.intellij.openapi.ui.{ SimpleToolWindowPanel, Splitter }
+import com.intellij.ui.components.{ JBLabel, JBScrollPane }
 import com.intellij.util.ui.components.BorderLayoutPanel
+
 import com.wenjunhuang.codeepiphany.model.CodeDojo
 import com.wenjunhuang.codeepiphany.toolwindows.sidebar.submissionlog.SubmissionLogPresenter.SubmissionType
 import com.wenjunhuang.codeepiphany.toolwindows.sidebar.submissionlog.SubmissionLogPresenter.SubmissionType.*
@@ -12,12 +13,14 @@ import com.wenjunhuang.codeepiphany.toolwindows.sidebar.submissionlog.codeforces
 import com.wenjunhuang.codeepiphany.toolwindows.sidebar.submissionlog.hackerrank.HackerRankSubmissionResultForm
 import com.wenjunhuang.codeepiphany.toolwindows.sidebar.submissionlog.leetcode.LeetCodeSubmissionResultForm
 import com.wenjunhuang.codeepiphany.toolwindows.sidebar.submissionlog.luogu.LuoGuSubmissionResultForm
-
-import javax.swing.{JComponent, ScrollPaneConstants, SwingConstants}
+import javax.swing.{ JComponent, ScrollPaneConstants, SwingConstants }
 import scala.jdk.CollectionConverters.*
 import scala.jdk.OptionConverters.*
 
-class SubmissionView(submissionLogComponent: JComponent) extends SimpleToolWindowPanel(true, true) {
+import com.intellij.openapi.project.Project
+
+class SubmissionView(private val myProject: Project, submissionLogComponent: JComponent)
+    extends SimpleToolWindowPanel(true, true) {
   private val mySplitter: Splitter = initSplitter()
 
   private def initSplitter(): Splitter = {
@@ -38,6 +41,7 @@ class SubmissionView(submissionLogComponent: JComponent) extends SimpleToolWindo
     val comp = submissionType match {
       case LeetCodeSubmission(language, languageVersion, challengeSlug, submission, leetCodeSubmission) =>
         LeetCodeSubmissionResultForm(
+          myProject,
           language,
           languageVersion,
           challengeSlug,
@@ -47,6 +51,7 @@ class SubmissionView(submissionLogComponent: JComponent) extends SimpleToolWindo
         ).getComponent
       case LeetCodeCNSubmission(language, languageVersion, challengeSlug, submission, leetCodeSubmission) =>
         LeetCodeSubmissionResultForm(
+          myProject,
           language,
           languageVersion,
           challengeSlug,
