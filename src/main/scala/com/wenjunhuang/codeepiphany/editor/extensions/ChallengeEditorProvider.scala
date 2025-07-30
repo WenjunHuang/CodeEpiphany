@@ -20,7 +20,7 @@ import org.jdom.Element
 
 import scala.jdk.CollectionConverters.*
 
-/** 挑战编辑器提供者 负责创建和管理挑战相关的编辑器
+/** 问题编辑器提供者 负责创建和管理问题代码相关的编辑器
   */
 class ChallengeEditorProvider extends FileEditorProviderBridge with DumbAware {
   private val delegate = PsiAwareTextEditorProvider()
@@ -45,7 +45,7 @@ class ChallengeEditorProvider extends FileEditorProviderBridge with DumbAware {
     delegate.writeState(state, project, element)
   }
 
-  override def getEditorTypeId: String = s"LeetCodeEpiphany.${delegate.getEditorTypeId}"
+  override def getEditorTypeId: String = s"CodeEpiphany.${delegate.getEditorTypeId}"
 
   /** 设置编辑器
     * @param editor

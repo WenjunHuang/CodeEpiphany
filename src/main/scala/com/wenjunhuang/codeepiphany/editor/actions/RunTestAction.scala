@@ -36,12 +36,10 @@ object RunTestAction {
   object RunTestProvider {
 
     def createProvider(vf: VirtualFile, project: Project, codeDojo: CodeDojo): RunTestProvider =
-      new RunTestProvider {
-        override def runCurrent(): Unit = {
-          (saveEditedFile(vf) *>
-            runCode(vf, project))
-            .unsafeRunAsBackgroundProgressCancellable(project, "Running Test")
-        }
+      () => {
+        (saveEditedFile(vf) *>
+          runCode(vf, project))
+          .unsafeRunAsBackgroundProgressCancellable(project, "Running Test")
       }
   }
 }

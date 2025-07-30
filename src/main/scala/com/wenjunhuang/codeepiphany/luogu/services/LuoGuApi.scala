@@ -68,7 +68,7 @@ object LuoGuApi extends LuoGuApi with Http4sClientDsl[IO] {
     useClient { client =>
       client.expect[String](Uri.unsafeFromString(s"https://www.luogu.com.cn/")).flatMap { html =>
         val regex = """(?s:.*C3VK=(\w+);.*)""".r
-        html match
+        html match {
           case regex(c3vk) =>
             // 防爬机制
             HttpClientManager.updateCookiesForHost(CodeDojo.LuoGu.domain, List(new HttpCookie("C3VK", c3vk)))
@@ -78,6 +78,7 @@ object LuoGuApi extends LuoGuApi with Http4sClientDsl[IO] {
               val document = Jsoup.parse(html)
               document.select("meta[name=csrf-token]").attr("content")
             }
+        }
       }
     }
 
@@ -227,8 +228,12 @@ object LuoGuApi extends LuoGuApi with Http4sClientDsl[IO] {
             val doc     = Jsoup.parse(html)
             val jsonStr = doc.select("#lentille\\-context").html()
             parse(jsonStr).flatMap { json =>
-              (JsonPath.root.user.name.string.getOption(json), JsonPath.root.user.avatar.string.getOption(json))
-                .mapN((name, avatar) => LuoGuUserInfo(name, avatar))
+              (
+                JsonPath.root.user.uid.int.getOption(json),
+                JsonPath.root.user.name.string.getOption(json),
+                JsonPath.root.user.avatar.string.getOption(json)
+              )
+                .mapN((uid, name, avatar) => LuoGuUserInfo(uid.toString, name, avatar))
                 .toRight(new Exception("Failed to parse json"))
             }.liftTo[IO]
           }
@@ -325,11 +330,10 @@ object LuoGuApi extends LuoGuApi with Http4sClientDsl[IO] {
                   }
                   .flatMap { case (json, errorType) =>
                     if (errorType.contains("InvalidCaptchaException")) {
-                      val yiDunState = JsonPath.root.errorData.interactive.state.string
-                        .getOption(json)
-                      yiDunState match {
+                      JsonPath.root.errorData.interactive.state.string
+                        .getOption(json) match {
                         case Some(state) =>
-                          captchaNeeded(AnswerCaptcha.YiDun(code,state)).flatMap { captcha =>
+                          captchaNeeded(AnswerCaptcha.YiDun(code, state)).flatMap { captcha =>
                             postAnswer(pid, langId, code, Some(captcha), captchaNeeded)
                           }
                         case None =>
@@ -352,7 +356,7 @@ object LuoGuApi extends LuoGuApi with Http4sClientDsl[IO] {
                     } else {
                       IO.raiseError(
                         new Exception(
-                          s"Failed to submit answer: ${JsonPath.root.errorMessage.string.getOption(json).getOrElse("Unknown error")}"
+                          s"${JsonPath.root.errorMessage.string.getOption(json).getOrElse("Unknown error")}"
                         )
                       )
                     }
@@ -362,12 +366,14 @@ object LuoGuApi extends LuoGuApi with Http4sClientDsl[IO] {
                   .as[String]
                   .flatMap { body =>
                     parse(body).flatMap { json =>
-                      JsonPath.root.errorMessage.string.getOption(json).toRight(new Exception("Failed to parse json"))
+                      JsonPath.root.errorMessage.string
+                        .getOption(json)
+                        .toRight(new Exception("Failed to parse response json"))
                     }.liftTo[IO]
                   }
                   .recoverWith(_ => IO.pure(response.status.code.toString))
                   .flatMap { msg =>
-                    IO.raiseError(new Exception(s"Failed to submit answer: $msg"))
+                    IO.raiseError(new Exception(msg))
                   }
           }
       }

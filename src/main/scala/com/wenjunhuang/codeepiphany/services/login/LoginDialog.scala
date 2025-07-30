@@ -264,7 +264,6 @@ class LoginDialog(
                         myLogger.info(s"Browser login $myCodeDojo successful") *>
                           IO.delay(myLoginCallback(Right(AskForLoginResult.Done))) *>
                           IO.delay(close(DialogWrapper.OK_EXIT_CODE)).evalOnEDTAny()
-
                       case false =>
                         myLogger.warn("Browser login failed")
                     }

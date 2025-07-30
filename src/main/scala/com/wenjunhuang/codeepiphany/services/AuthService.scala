@@ -23,7 +23,7 @@ import java.util.concurrent.atomic.AtomicReference
 
 @Service(Array(Level.PROJECT))
 final class AuthService(private val myProject: Project) {
-  private val myLoginCache = AtomicReference[Set[CodeDojo]](Set.empty)
+  private val myLoginCache = AtomicReference[Set[(CodeDojo, AnyRef)]](Set.empty)
 
   def askForLogout(codeDojo: CodeDojo): IO[Unit] =
     (removeAuthentication(codeDojo), HttpClientManager.clearCookiesForHost(codeDojo.domain)).parTupled.void
@@ -47,11 +47,16 @@ final class AuthService(private val myProject: Project) {
       loginResult <- if !r then askForLogin(codeDojo) else IO.delay(AskForLoginResult.Done)
     yield loginResult
 
-  def isLoggedIn(codeDojo: CodeDojo): Boolean = myLoginCache.get().contains(codeDojo)
+  def isLoggedIn(codeDojo: CodeDojo): Boolean = myLoginCache.get().exists(_._1 == codeDojo)
 
-  def setLogin(codeDojo: CodeDojo): Unit = myLoginCache.updateAndGet(_ + codeDojo)
+  def setLogin(codeDojo: CodeDojo, userInfo: AnyRef): Unit = myLoginCache.updateAndGet(_ + (codeDojo -> userInfo))
 
-  def clearLogin(codeDojo: CodeDojo): Unit = myLoginCache.updateAndGet(_ - codeDojo)
+  def getLoginUserInfo(codeDojo: CodeDojo): Option[AnyRef] =
+    myLoginCache.get().find(_._1 == codeDojo).map(_._2)
+
+  def clearLogin(codeDojo: CodeDojo): Unit = myLoginCache.updateAndGet { cache =>
+    cache.filter(_._1 != codeDojo)
+  }
 
   private def isAuthenticated(codeDojo: CodeDojo): IO[Boolean] =
     checkLoginStatus(codeDojo)
