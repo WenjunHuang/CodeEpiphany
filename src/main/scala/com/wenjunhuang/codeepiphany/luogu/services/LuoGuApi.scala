@@ -228,8 +228,12 @@ object LuoGuApi extends LuoGuApi with Http4sClientDsl[IO] {
             val doc     = Jsoup.parse(html)
             val jsonStr = doc.select("#lentille\\-context").html()
             parse(jsonStr).flatMap { json =>
-              (JsonPath.root.user.name.string.getOption(json), JsonPath.root.user.avatar.string.getOption(json))
-                .mapN((name, avatar) => LuoGuUserInfo(name, avatar))
+              (
+                JsonPath.root.user.uid.int.getOption(json),
+                JsonPath.root.user.name.string.getOption(json),
+                JsonPath.root.user.avatar.string.getOption(json)
+              )
+                .mapN((uid, name, avatar) => LuoGuUserInfo(uid.toString, name, avatar))
                 .toRight(new Exception("Failed to parse json"))
             }.liftTo[IO]
           }

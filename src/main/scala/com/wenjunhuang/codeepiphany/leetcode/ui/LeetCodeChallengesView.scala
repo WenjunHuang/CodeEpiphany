@@ -6,26 +6,32 @@ import javax.swing.JComponent
 import org.typelevel.ci.CIString
 import org.typelevel.log4cats.LoggerFactory
 
-import com.intellij.openapi.actionSystem.{ActionGroup, ActionManager}
+import com.intellij.openapi.actionSystem.{ ActionGroup, ActionManager }
 import com.intellij.openapi.project.Project
 import com.intellij.ui.scale.JBUIScale
 
 import com.wenjunhuang.codeepiphany.PluginBundle
-import com.wenjunhuang.codeepiphany.actions.LoginAction.{LOGIN_LOGOUT_KEY, LoginLogoutProvider}
-import com.wenjunhuang.codeepiphany.actions.UserAccountInfoAction.{USER_ACCOUNT_INFO_KEY, UserInfoProvider}
-import com.wenjunhuang.codeepiphany.leetcode.actions.LeetCodeChangeUIAction.{LEETCODE_CHANGE_UI_PROVIDER_KEY, LeetCodeChangeUIProvider, LeetCodeUI}
+import com.wenjunhuang.codeepiphany.actions.LoginAction.{ LOGIN_LOGOUT_KEY, LoginLogoutProvider }
+import com.wenjunhuang.codeepiphany.actions.UserAccountInfoAction.{ USER_ACCOUNT_INFO_KEY, UserInfoProvider }
+import com.wenjunhuang.codeepiphany.leetcode.actions.LeetCodeChangeUIAction.{
+  LEETCODE_CHANGE_UI_PROVIDER_KEY,
+  LeetCodeChangeUIProvider,
+  LeetCodeUI
+}
 import com.wenjunhuang.codeepiphany.leetcode.actions.LeetCodeChangeUIAction.LeetCodeUI.*
 import com.wenjunhuang.codeepiphany.leetcode.models.LeetCodeUserInfo
 import com.wenjunhuang.codeepiphany.leetcode.services.LeetCodeApi
-import com.wenjunhuang.codeepiphany.leetcode.settings.{LeetCodeCNSettings, LeetCodeSettings}
+import com.wenjunhuang.codeepiphany.leetcode.settings.{ LeetCodeCNSettings, LeetCodeSettings }
 import com.wenjunhuang.codeepiphany.model.Actions.LEETCODE_TITLE_TOOLBAR_GROUP
 import com.wenjunhuang.codeepiphany.model.CodeDojo
-import com.wenjunhuang.codeepiphany.services.{console, AskForLoginResult, AuthService, BaseChallengesView}
+import com.wenjunhuang.codeepiphany.services.{ console, AskForLoginResult, AuthService, BaseChallengesView }
+import com.wenjunhuang.codeepiphany.services.http.HttpClientManager
 import com.wenjunhuang.codeepiphany.utils.actions.DataSink
 import com.wenjunhuang.codeepiphany.utils.extensions.*
 import com.wenjunhuang.codeepiphany.utils.syntax.*
 import com.wenjunhuang.codeepiphany.utils.ui.UnauthenticatedView
 import com.wenjunhuang.codeepiphany.utils.AsyncAvatarLoader
+import com.wenjunhuang.codeepiphany.vfs.WebPreviewVirtualFile
 
 class LeetCodeChallengesView(
   private val myProject: Project,
@@ -125,7 +131,26 @@ class LeetCodeChallengesView(
       }
     }
 
-    override def action: () => Unit = { () => }
+    override def action: () => Unit = { () =>
+      AuthService.getInstance(myProject).getLoginUserInfo(myCodeDojo) match {
+        case Some(LeetCodeUserInfo(_, _, Some(username), _, _, Some(userSlug))) =>
+          HttpClientManager
+            .getCookiesForHost(myCodeDojo.domain)
+            .flatMap { cookies =>
+              IO.delay {
+                val file = new WebPreviewVirtualFile(
+                  s"https://${myCodeDojo.domain}/u/$userSlug",
+                  myCodeDojo.domain.toString,
+                  cookies,
+                  myCodeDojo.show
+                )
+                WebPreviewVirtualFile.openEditor(file, myProject)
+              }.evalOnEDTAny()
+            }
+            .unsafeRunAndForget()
+        case _ =>
+      }
+    }
   }
 
   private val mySwitchUIProvider = new LeetCodeChangeUIProvider {

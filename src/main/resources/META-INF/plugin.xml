@@ -349,6 +349,10 @@
         <fileEditorProvider
                 id="CodeEpiphany.EditorProvider"
                 implementation="com.wenjunhuang.codeepiphany.editor.extensions.ChallengeEditorProvider"/>
+        <fileEditorProvider
+                id="CodeEpiphany.WebPreviewEditorProvider"
+                implementation="com.wenjunhuang.codeepiphany.vfs.WebPreviewEditorProvider"/>
+
         <fileEditorProvider id="CodeEpiphany.SubmissionCodeEditorProvider"
                             implementation="com.wenjunhuang.codeepiphany.vfs.SubmissionCodeEditorProvider"/>
         <vfs.asyncListener implementation="com.wenjunhuang.codeepiphany.editor.extensions.ChallengeFileRenameListener"/>

@@ -4,28 +4,21 @@ import cats.effect.IO
 import cats.syntax.all.*
 
 import com.intellij.openapi.Disposable
-import com.intellij.openapi.actionSystem.{ ActionGroup, ActionManager }
+import com.intellij.openapi.actionSystem.{ActionGroup, ActionManager}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
 
 import com.wenjunhuang.codeepiphany.PluginBundle
-import com.wenjunhuang.codeepiphany.actions.LoginAction.{ LOGIN_LOGOUT_KEY, LoginLogoutProvider }
-import com.wenjunhuang.codeepiphany.atcoder.actions.AtCoderChangeUIAction.{
-  ATCODER_CHANGE_UI_PROVIDER_KEY,
-  AtCoderChangeUIProvider,
-  AtCoderUI
-}
-import com.wenjunhuang.codeepiphany.atcoder.actions.AtCoderUpdateProblemSetsAction.{
-  ATCODER_UPDATE_PROBLEM_SETS_PROVIDER_KEY,
-  AtCoderUpdateProblemSetsProvider
-}
+import com.wenjunhuang.codeepiphany.actions.LoginAction.{LOGIN_LOGOUT_KEY, LoginLogoutProvider}
+import com.wenjunhuang.codeepiphany.atcoder.actions.AtCoderChangeUIAction.{ATCODER_CHANGE_UI_PROVIDER_KEY, AtCoderChangeUIProvider, AtCoderUI}
+import com.wenjunhuang.codeepiphany.atcoder.actions.AtCoderUpdateProblemSetsAction.{ATCODER_UPDATE_PROBLEM_SETS_PROVIDER_KEY, AtCoderUpdateProblemSetsProvider}
 import com.wenjunhuang.codeepiphany.atcoder.services.AtCoderApi
 import com.wenjunhuang.codeepiphany.atcoder.services.problemsets.fetchAndUpdateProblemSets
 import com.wenjunhuang.codeepiphany.atcoder.settings.AtCoderSettings
 import com.wenjunhuang.codeepiphany.model.Actions.ATCODER_TITLE_TOOLBAR_GROUP
 import com.wenjunhuang.codeepiphany.model.CodeDojo
 import com.wenjunhuang.codeepiphany.model.CodeDojo.AtCoder
-import com.wenjunhuang.codeepiphany.services.{ console, AskForLoginResult, AuthService, BaseChallengesView }
+import com.wenjunhuang.codeepiphany.services.{console, AskForLoginResult, AuthService, BaseChallengesView}
 import com.wenjunhuang.codeepiphany.utils.actions.DataSink
 import com.wenjunhuang.codeepiphany.utils.extensions.*
 import com.wenjunhuang.codeepiphany.utils.syntax.*
@@ -37,10 +30,12 @@ import javax.swing.JComponent
 
 import com.intellij.ui.scale.JBUIScale
 
-import com.wenjunhuang.codeepiphany.actions.UserAccountInfoAction.{ USER_ACCOUNT_INFO_KEY, UserInfoProvider }
+import com.wenjunhuang.codeepiphany.actions.UserAccountInfoAction.{USER_ACCOUNT_INFO_KEY, UserInfoProvider}
 import com.wenjunhuang.codeepiphany.atcoder.models.AtCoderUserInfo
 import com.wenjunhuang.codeepiphany.codeforces.models.CodeForcesUserInfo
+import com.wenjunhuang.codeepiphany.services.http.HttpClientManager
 import com.wenjunhuang.codeepiphany.utils.AsyncAvatarLoader
+import com.wenjunhuang.codeepiphany.vfs.WebPreviewVirtualFile
 
 class AtCoderChallengesView(private val myProject: Project) extends BaseChallengesView[AtCoderUI] {
   private val myUnauthenticatedView =
@@ -129,7 +124,27 @@ class AtCoderChallengesView(private val myProject: Project) extends BaseChalleng
       }
     }
 
-    override def action: () => Unit = { () => }
+    override def action: () => Unit = { () =>
+
+      AuthService.getInstance(myProject).getLoginUserInfo(CodeDojo.AtCoder) match {
+        case Some(AtCoderUserInfo(nickName,_)) =>
+          HttpClientManager
+            .getCookiesForHost(CodeDojo.AtCoder.domain)
+            .flatMap { cookies =>
+              IO.delay {
+                val file = new WebPreviewVirtualFile(
+                  s"https://atcoder.jp/users/${nickName}",
+                  CodeDojo.AtCoder.domain.toString,
+                  cookies,
+                  CodeDojo.AtCoder.show
+                )
+                WebPreviewVirtualFile.openEditor(file, myProject)
+              }.evalOnEDTAny()
+            }
+            .unsafeRunAndForget()
+        case _ =>
+      }
+    }
   }
 
   private val mySwitchUIProvider = new AtCoderChangeUIProvider {
