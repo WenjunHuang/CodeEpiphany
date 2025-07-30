@@ -58,6 +58,9 @@ class LuoGuSubmissionService(project: Project) extends BaseSubmissionService(pro
   }
 
   override protected def reportSubmitResult(
+    basicInfo: SubmissionRequest,
+    submissionId: SubmissionId,
+    processedCode: String,
     lastResponseInfo: SubmissionResponseInfo,
     lastResponse: SubmissionResponse
   ): IO[Unit] = {

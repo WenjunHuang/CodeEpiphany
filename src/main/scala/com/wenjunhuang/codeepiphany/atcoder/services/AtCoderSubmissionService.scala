@@ -6,14 +6,14 @@ import com.intellij.openapi.project.Project
 import com.wenjunhuang.codeepiphany.PluginBundle
 import com.wenjunhuang.codeepiphany.atcoder.models.AtCoderSubmissionResponse
 import com.wenjunhuang.codeepiphany.atcoder.settings.AtCoderSettingsConfigurable
-import com.wenjunhuang.codeepiphany.database.Tables.{ATCODER_CHALLENGE, CHALLENGE, CHALLENGE_LANGUAGE}
+import com.wenjunhuang.codeepiphany.database.Tables.{ ATCODER_CHALLENGE, CHALLENGE, CHALLENGE_LANGUAGE }
 import com.wenjunhuang.codeepiphany.model.CodeDojo.AtCoder
 import com.wenjunhuang.codeepiphany.model.newtypes.SubmissionId
-import com.wenjunhuang.codeepiphany.model.{Language, LanguageVersion, SubmissionResult}
-import com.wenjunhuang.codeepiphany.services.{BaseSubmissionService, ChallengeRepository, console}
+import com.wenjunhuang.codeepiphany.model.{ Language, LanguageVersion, SubmissionResult }
+import com.wenjunhuang.codeepiphany.services.{ console, BaseSubmissionService, ChallengeRepository }
 import com.wenjunhuang.codeepiphany.settings.ChallengeSettings.ChallengeSettingsStateItem
 import fs2.Stream
-import org.jooq.{DSLContext, Record}
+import org.jooq.{ DSLContext, Record }
 import org.typelevel.ci.CIString
 
 import scala.jdk.OptionConverters.*
@@ -38,6 +38,9 @@ class AtCoderSubmissionService(project: Project) extends BaseSubmissionService(p
     AtCoderApi.submitAnswer(basicInfo.contestId, basicInfo.problemId, basicInfo.languageId, processedCode)
 
   override protected def reportSubmitResult(
+    basicInfo: SubmissionRequest,
+    submissionId: SubmissionId,
+    processedCode: String,
     lastResponseInfo: SubmissionResponseInfo,
     lastResponse: AtCoderSubmissionResponse
   ): IO[Unit] = {

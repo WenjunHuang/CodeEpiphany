@@ -83,11 +83,13 @@
           </component>
         </children>
       </grid>
-      <component id="5926e" class="javax.swing.JEditorPane" binding="myViewInBrowser">
+      <component id="d672" class="javax.swing.JButton" binding="myViewInBrowser">
         <constraints>
-          <grid row="0" column="2" row-span="1" col-span="1" vsize-policy="6" hsize-policy="6" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+          <grid row="0" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
-        <properties/>
+        <properties>
+          <text resource-bundle="messages/PluginBundle" key="submissionResult.viewDetails"/>
+        </properties>
       </component>
     </children>
   </grid>

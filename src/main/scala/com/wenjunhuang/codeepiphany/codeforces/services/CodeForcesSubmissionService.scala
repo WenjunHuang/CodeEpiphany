@@ -6,13 +6,13 @@ import com.intellij.openapi.project.Project
 import com.wenjunhuang.codeepiphany.PluginBundle
 import com.wenjunhuang.codeepiphany.codeforces.models.CodeForcesSubmissionResponse
 import com.wenjunhuang.codeepiphany.codeforces.settings.CodeForcesSettingsConfigurable
-import com.wenjunhuang.codeepiphany.database.Tables.{CHALLENGE, CHALLENGE_LANGUAGE, CODEFORCES_CHALLENGE}
+import com.wenjunhuang.codeepiphany.database.Tables.{ CHALLENGE, CHALLENGE_LANGUAGE, CODEFORCES_CHALLENGE }
 import com.wenjunhuang.codeepiphany.model.CodeDojo.CodeForces
 import com.wenjunhuang.codeepiphany.model.newtypes.SubmissionId
-import com.wenjunhuang.codeepiphany.model.{Language, LanguageVersion, SubmissionResult}
-import com.wenjunhuang.codeepiphany.services.{BaseSubmissionService, ChallengeRepository, console}
+import com.wenjunhuang.codeepiphany.model.{ Language, LanguageVersion, SubmissionResult }
+import com.wenjunhuang.codeepiphany.services.{ console, BaseSubmissionService, ChallengeRepository }
 import com.wenjunhuang.codeepiphany.settings.ChallengeSettings.ChallengeSettingsStateItem
-import org.jooq.{DSLContext, Record}
+import org.jooq.{ DSLContext, Record }
 import org.typelevel.ci.CIString
 
 import scala.jdk.OptionConverters.*
@@ -46,6 +46,9 @@ class CodeForcesSubmissionService(project: Project) extends BaseSubmissionServic
     )
 
   override protected def reportSubmitResult(
+    basicInfo: SubmissionRequest,
+    submissionId: SubmissionId,
+    processedCode: String,
     lastResponseInfo: SubmissionResponseInfo,
     lastResponse: CodeForcesSubmissionResponse
   ): IO[Unit] = {

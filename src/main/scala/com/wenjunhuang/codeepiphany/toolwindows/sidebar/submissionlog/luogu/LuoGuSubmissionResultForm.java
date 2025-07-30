@@ -27,6 +27,8 @@ import scala.Option;
 
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
+import javax.swing.event.HyperlinkEvent;
+import javax.swing.event.HyperlinkListener;
 import java.awt.*;
 import java.lang.reflect.Method;
 import java.time.format.DateTimeFormatter;
