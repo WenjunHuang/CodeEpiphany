@@ -15,7 +15,6 @@ class WebPreviewVirtualFile(
 ) extends LightVirtualFile {
   setFileType(WebPreviewFileType)
   setWritable(false)
-  putUserData(FileEditorManagerImpl.FORBID_PREVIEW_TAB, true)
 
   override def getName: String = myTitle
 
