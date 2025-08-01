@@ -60,7 +60,7 @@ class LuoGuChallengesView(private val myProject: Project) extends BaseChallenges
   private val myLoginLogoutProvider = new LoginLogoutProvider {
     override def login(): Unit = {
       myIsLoggingIn = true
-      (console.info(myProject, s"Logging in to ${CodeDojo.LuoGu.show}...") *>
+      (console.info(myProject, LuoGu, s"Logging in to ${CodeDojo.LuoGu.show}...") *>
         AuthService
           .getInstance(myProject)
           .loadAuthenticationMayAskForLogin(CodeDojo.LuoGu)
@@ -77,12 +77,12 @@ class LuoGuChallengesView(private val myProject: Project) extends BaseChallenges
                     mySwitchUIProvider.switchTo(gotoUI)
                   }.evalOnEDTAny()
                 }
-                *> console.info(myProject, s"Logged in to ${CodeDojo.LuoGu.show}.")
-            case _ => console.info(myProject, s"Login to ${CodeDojo.LuoGu.show} canceled.")
+                *> console.info(myProject, LuoGu, s"Logged in to ${CodeDojo.LuoGu.show}.")
+            case _ => console.info(myProject, LuoGu, s"Login to ${CodeDojo.LuoGu.show} canceled.")
           }
           .handleErrorWith { e =>
             myLogger.warn(e)("Failed to login") *>
-              console.error(myProject, s"Login failed because of \"${e.getMessage}\"")
+              console.error(myProject, LuoGu, s"Login failed because of \"${e.getMessage}\"")
           })
         .guarantee(IO.delay { myIsLoggingIn = false })
         .unsafeRunAsBackgroundProgressCancellable(myProject, s"Logging in to ${CodeDojo.LuoGu.show}...")

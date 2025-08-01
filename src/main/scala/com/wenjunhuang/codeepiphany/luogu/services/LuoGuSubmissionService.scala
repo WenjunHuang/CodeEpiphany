@@ -66,9 +66,9 @@ class LuoGuSubmissionService(project: Project) extends BaseSubmissionService(pro
   ): IO[Unit] = {
     lastResponseInfo.result match
       case SubmissionResult.Success =>
-        console.info(project, PluginBundle.message("submission.passed"))
+        console.info(project, myCodeDojo, PluginBundle.message("submission.passed"))
       case _ =>
-        console.error(project, s"${lastResponseInfo.result.show}\n${lastResponseInfo.message}")
+        console.error(project, myCodeDojo, s"${lastResponseInfo.result.show}\n${lastResponseInfo.message}")
   }
 
   private def createRequest(item: ChallengeSettingsStateItem, client: DSLContext): Request = {

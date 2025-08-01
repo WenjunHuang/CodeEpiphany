@@ -64,6 +64,7 @@ class CodeForcesSubmissionService(project: Project) extends BaseSubmissionServic
       case SubmissionResult.Success =>
         console.info(
           project,
+          CodeForces,
           MessageSeg.Hyperlink(
             PluginBundle.message("submissionResult.viewDetails"),
             { link =>

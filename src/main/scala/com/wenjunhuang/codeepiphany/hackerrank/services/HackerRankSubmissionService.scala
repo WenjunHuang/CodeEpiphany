@@ -85,9 +85,9 @@ class HackerRankSubmissionService(project: Project) extends BaseSubmissionServic
   ): IO[Unit] = {
     lastResponseInfo.result match
       case Success =>
-        console.info(project, PluginBundle.message("submission.passed"))
+        console.info(project, myCodeDojo, PluginBundle.message("submission.passed"))
       case _ =>
-        console.error(project, s"${lastResponseInfo.result.show}\n${lastResponseInfo.message}")
+        console.error(project, myCodeDojo, s"${lastResponseInfo.result.show}\n${lastResponseInfo.message}")
   }
 
   private def toSubmissionResult(status: String): SubmissionResult = {

@@ -4,15 +4,15 @@ import cats.effect.IO
 import cats.syntax.all.*
 import com.intellij.openapi.project.Project
 import com.wenjunhuang.codeepiphany.PluginBundle
-import com.wenjunhuang.codeepiphany.database.Tables.{CHALLENGE, CHALLENGE_LANGUAGE, LEETCODE_CHALLENGE}
+import com.wenjunhuang.codeepiphany.database.Tables.{ CHALLENGE, CHALLENGE_LANGUAGE, LEETCODE_CHALLENGE }
 import com.wenjunhuang.codeepiphany.leetcode.models.*
 import com.wenjunhuang.codeepiphany.leetcode.models.runCode.LeetCodeRunResult
 import com.wenjunhuang.codeepiphany.model.*
 import com.wenjunhuang.codeepiphany.model.SubmissionResult.Processing
-import com.wenjunhuang.codeepiphany.services.{BaseCodeEvaluationService, ChallengeRepository, console}
+import com.wenjunhuang.codeepiphany.services.{ console, BaseCodeEvaluationService, ChallengeRepository }
 import com.wenjunhuang.codeepiphany.settings.ChallengeSettings
-import com.wenjunhuang.codeepiphany.settings.ChallengeSettings.{ChallengeSettingsStateItem, TestCase}
-import org.jooq.{DSLContext, Record}
+import com.wenjunhuang.codeepiphany.settings.ChallengeSettings.{ ChallengeSettingsStateItem, TestCase }
+import org.jooq.{ DSLContext, Record }
 import org.typelevel.ci.CIString
 
 import scala.jdk.OptionConverters.*
@@ -108,7 +108,7 @@ class LeetCodeEvaluationService(
             case SubmissionResult.Success if success.correctAnswer.contains(true) =>
               PluginBundle.message("submission.passed")
             case SubmissionResult.Failure =>
-              s"${formatResultDiff(success, customTestCases.map(tc=>tc.map(_.input)).getOrElse(request.testCase.split("\n").toList))}"
+              s"${formatResultDiff(success, customTestCases.map(tc => tc.map(_.input)).getOrElse(request.testCase.split("\n").toList))}"
             case result =>
               formatErrorMessage(result, success)
           EvaluationResponseInfo(result, message)
@@ -130,9 +130,9 @@ class LeetCodeEvaluationService(
   private def formatResultDiff(result: LeetCodeRunResult.Success, testCases: List[String]): String = {
     val comparisons = testCases.zip(result.codeAnswer.zip(result.expectedCodeAnswer))
 
-    comparisons.zipWithIndex.map{ case ((testCase, (output, expected)), index) =>
+    comparisons.zipWithIndex.map { case ((testCase, (output, expected)), index) =>
       s"""
-          |${PluginBundle.message("testcases.title",index+1)}
+          |${PluginBundle.message("testcases.title", index + 1)}
           |=========================
           |${PluginBundle.message("leetcode.submissionResult.wrongAnswer.input.text")}:
           |$testCase
@@ -161,9 +161,9 @@ class LeetCodeEvaluationService(
   ): IO[Unit] = {
     lastResponseInfo.result match
       case SubmissionResult.Success =>
-        console.info(project, s"${SubmissionResult.Success.show}\n${lastResponseInfo.message}")
+        console.info(project, myCodeDojo, s"${SubmissionResult.Success.show}\n${lastResponseInfo.message}")
       case result =>
-        console.error(project, s"${result.show}\n${lastResponseInfo.message}")
+        console.error(project, myCodeDojo, s"${result.show}\n${lastResponseInfo.message}")
   }
 
   case class LeetCodeEvaluationRequest(

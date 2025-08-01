@@ -1,25 +1,26 @@
 package com.wenjunhuang.codeepiphany.services.http
 
-import cats.effect.std.Dispatcher
 import cats.effect.{IO, Resource}
+import cats.effect.std.Dispatcher
 import cats.syntax.all.*
-import com.intellij.openapi.diagnostic.Logger
-import com.wenjunhuang.codeepiphany.services.http.OkHttpBuilder.*
-import com.wenjunhuang.codeepiphany.utils.syntax.*
 import fs2.io.readInputStream
-import okhttp3.{Call, Callback, OkHttpClient, Protocol, RequestBody, Headers as OKHeaders, MediaType as OKMediaType, Request as OKRequest, Response as OKResponse}
-import okio.BufferedSink
-import org.http4s.client.Client
-import org.http4s.headers.{Location, `Content-Type`}
-import org.http4s.{Headers, HttpVersion, Method, Request, Response, Status, Uri}
-import org.typelevel.ci.CIString
-import org.typelevel.log4cats.LoggerFactory
-
 import java.io.IOException
 import java.net.HttpCookie
 import java.util.concurrent.atomic.AtomicBoolean
+import okhttp3.{Call, Callback, OkHttpClient, Protocol, RequestBody, Headers as OKHeaders, MediaType as OKMediaType, Request as OKRequest, Response as OKResponse}
+import okio.BufferedSink
+import org.http4s.{Headers, HttpVersion, Method, Request, Response, Status, Uri}
+import org.http4s.client.Client
+import org.http4s.headers.{`Content-Type`, Location}
+import org.typelevel.ci.CIString
+import org.typelevel.log4cats.LoggerFactory
 import scala.jdk.CollectionConverters.*
 import scala.util.control.NonFatal
+
+import com.intellij.openapi.diagnostic.Logger
+
+import com.wenjunhuang.codeepiphany.services.http.OkHttpBuilder.*
+import com.wenjunhuang.codeepiphany.utils.syntax.*
 
 /** A builder for [[org.http4s.client.Client]] with an OkHttp backend.
   *
@@ -33,21 +34,14 @@ sealed abstract class OkHttpBuilder private (val okHttpClient: OkHttpClient) {
   private val myLogger       = LoggerFactory.getLogger[IO]
   private val myUnPureLogger = Logger.getInstance(getClass.getName)
 
-  private def invokeCallback(result: Result, cb: Result => Unit, dispatcher: Dispatcher[IO]): Unit = {
-    val f = logTap(result).flatMap(r => IO.delay(cb(r)))
-    dispatcher.unsafeRunAndForget(f)
+  private def invokeCallback(result: Result, cb: Result => Unit): Unit = {
+    logTap(result).flatMap(r => IO.delay(cb(r))).unsafeRunAndForget()
   }
 
-  /** Creates the [[org.http4s.client.Client]]
-    *
-    * The shutdown method on this client is a no-op. $WHYNOSHUTDOWN
-    */
-  private def create(dispatcher: Dispatcher[IO]): Client[IO] = Client(run(dispatcher))
-
   def resource: Resource[IO, Client[IO]] =
-    Dispatcher.parallel[IO].flatMap(dispatcher => Resource.make(IO.delay(create(dispatcher)))(_ => IO.unit))
+    Dispatcher.parallel[IO].flatMap(dispatcher => Resource.make(IO.delay(Client(run)))(_ => IO.unit))
 
-  private def run(dispatcher: Dispatcher[IO])(req: Request[IO]): Resource[IO, Response[IO]] = {
+  private def run(req: Request[IO]): Resource[IO, Response[IO]] = {
     val addCookiesToRequest = req.uri.host
       .map(host => HttpClientManager.getCookiesForHost(CIString(host.value)))
       .getOrElse(List.empty[HttpCookie].pure[IO])
@@ -58,7 +52,7 @@ sealed abstract class OkHttpBuilder private (val okHttpClient: OkHttpClient) {
         IO.async[Resource[IO, Response[IO]]] { cb =>
           IO.delay {
             val cancelledSignal = AtomicBoolean(false)
-            okHttpClient.newCall(toOkHttpRequest(req, dispatcher)).enqueue(handler(cb, dispatcher, cancelledSignal))
+            okHttpClient.newCall(toOkHttpRequest(req)).enqueue(handler(cb, cancelledSignal))
 
             IO.delay { cancelledSignal.set(true) }.some // finalizer to cancel the request
           }
@@ -74,9 +68,7 @@ sealed abstract class OkHttpBuilder private (val okHttpClient: OkHttpClient) {
             case Status.Redirection =>
               val newLocation = response.headers.get[Location].get.uri
               // 重定向用get方法，符合浏览器行为
-              run(dispatcher)(
-                Request(Method.GET, req.uri.resolve(newLocation), headers = req.headers.removePayloadHeaders)
-              )
+              run(Request(Method.GET, req.uri.resolve(newLocation), headers = req.headers.removePayloadHeaders))
             case _ =>
               Resource.eval(IO.pure(response))
         }
@@ -94,12 +86,11 @@ sealed abstract class OkHttpBuilder private (val okHttpClient: OkHttpClient) {
 
   private def handler(
     cb: Result => Unit,
-    dispatcher: Dispatcher[IO],
     cancelledSignal: AtomicBoolean // a signal that indicates if the request has been cancelled before the callback is invoked
   ): Callback =
     new Callback {
       override def onFailure(call: Call, e: IOException): Unit =
-        invokeCallback(Left(e), cb, dispatcher)
+        invokeCallback(Left(e), cb)
 
       override def onResponse(call: Call, response: OKResponse): Unit = {
         if cancelledSignal.get() then
@@ -141,7 +132,7 @@ sealed abstract class OkHttpBuilder private (val okHttpClient: OkHttpClient) {
               catch { case _: Throwable => }
               t
             }
-          invokeCallback(r, cb, dispatcher)
+          invokeCallback(r, cb)
       }
     }
 
@@ -150,7 +141,7 @@ sealed abstract class OkHttpBuilder private (val okHttpClient: OkHttpClient) {
       response.headers().values(k).asScala.map(k -> _)
     })
 
-  private def toOkHttpRequest(req: Request[IO], dispatcher: Dispatcher[IO]): OKRequest = {
+  private def toOkHttpRequest(req: Request[IO]): OKRequest = {
     val body = req match {
       // if it's a GET or HEAD, okhttp wants us to pass null
       case _ if req.method == Method.GET || req.method == Method.HEAD => null
@@ -165,14 +156,14 @@ sealed abstract class OkHttpBuilder private (val okHttpClient: OkHttpClient) {
           override def writeTo(sink: BufferedSink): Unit = {
             // This has to be synchronous with this method, or else
             // chunks get silently dropped.
-            val f = req.body.chunks
+            req.body.chunks
               .map(_.toArray)
-              .evalScan(sink) { (oldSink, b) =>
-                IO.delay(oldSink.write(b))
+              .scan(sink) { (oldSink, b) =>
+                oldSink.write(b)
               }
               .compile
               .drain
-            dispatcher.unsafeRunSync(f)
+              .unsafeRunSync()
           }
         }
       // for anything else we can pass a body which produces no output

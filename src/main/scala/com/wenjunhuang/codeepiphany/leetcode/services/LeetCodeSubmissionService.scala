@@ -108,6 +108,7 @@ class LeetCodeSubmissionService(
       case SubmissionResult.Success =>
         console.info(
           project,
+          myLeetCode,
           PluginBundle.message("submission.passed") + s"\n${lastResponseInfo.message}",
           "\n",
           Hyperlink(
@@ -125,6 +126,7 @@ class LeetCodeSubmissionService(
       case _ =>
         console.error(
           project,
+          myLeetCode,
           Hyperlink(
             PluginBundle.message("submissionResult.viewDetails"),
             (project: Project) => {

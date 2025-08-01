@@ -3,14 +3,14 @@ package com.wenjunhuang.codeepiphany.hackerrank.services
 import cats.effect.IO
 import cats.syntax.all.*
 import com.intellij.openapi.project.Project
-import com.wenjunhuang.codeepiphany.database.Tables.{CHALLENGE, CHALLENGE_LANGUAGE, HACKERRANK_CHALLENGE}
-import com.wenjunhuang.codeepiphany.hackerrank.models.{HackerRankContest, HackerRankRunCodeResponse}
+import com.wenjunhuang.codeepiphany.database.Tables.{ CHALLENGE, CHALLENGE_LANGUAGE, HACKERRANK_CHALLENGE }
+import com.wenjunhuang.codeepiphany.hackerrank.models.{ HackerRankContest, HackerRankRunCodeResponse }
 import com.wenjunhuang.codeepiphany.model.*
 import com.wenjunhuang.codeepiphany.model.CodeDojo.HackerRank
-import com.wenjunhuang.codeepiphany.services.{BaseCodeEvaluationService, ChallengeRepository, console}
-import com.wenjunhuang.codeepiphany.settings.ChallengeSettings.{ChallengeSettingsStateItem, TestCase}
+import com.wenjunhuang.codeepiphany.services.{ console, BaseCodeEvaluationService, ChallengeRepository }
+import com.wenjunhuang.codeepiphany.settings.ChallengeSettings.{ ChallengeSettingsStateItem, TestCase }
 import fs2.Stream
-import org.jooq.{DSLContext, Record}
+import org.jooq.{ DSLContext, Record }
 import org.typelevel.ci.CIString
 
 import scala.jdk.OptionConverters.*
@@ -31,7 +31,7 @@ class HackerRankEvaluationService(project: Project) extends BaseCodeEvaluationSe
   override protected def callApi(
     request: HREvaluationRequest,
     code: String,
-    customTestCases:Option[List[TestCase]]
+    customTestCases: Option[List[TestCase]]
   ): Stream[IO, HackerRankRunCodeResponse] =
     HackerRankApi.runAnswer(request.slug, request.contest, request.language, request.languageVersion, code)
 
@@ -58,9 +58,9 @@ class HackerRankEvaluationService(project: Project) extends BaseCodeEvaluationSe
   ): IO[Unit] = {
     lastResponseInfo.result match
       case SubmissionResult.Success =>
-        console.info(myProject, "🎉 Passed!")
+        console.info(myProject, myCodeDojo, "🎉 Passed!")
       case _ =>
-        console.error(myProject, s"${lastResponseInfo.result.show}: ${lastResponseInfo.message}")
+        console.error(myProject, myCodeDojo, s"${lastResponseInfo.result.show}: ${lastResponseInfo.message}")
   }
 
   private def queryChallengeBasicInfo(item: ChallengeSettingsStateItem, client: DSLContext): HREvaluationRequest = {

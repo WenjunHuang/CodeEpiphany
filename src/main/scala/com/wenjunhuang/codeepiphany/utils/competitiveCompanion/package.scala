@@ -1,10 +1,10 @@
 package com.wenjunhuang.codeepiphany.utils
 
 import cats.effect.std.Queue
-import cats.effect.{IO, Resource}
+import cats.effect.{ IO, Resource }
 import cats.syntax.all.*
 import com.intellij.openapi.project.Project
-import com.sun.net.httpserver.{HttpExchange, HttpHandler, HttpServer}
+import com.sun.net.httpserver.{ HttpExchange, HttpHandler, HttpServer }
 import com.wenjunhuang.codeepiphany.model.CodeDojo
 import com.wenjunhuang.codeepiphany.services.console
 import com.wenjunhuang.codeepiphany.utils.syntax.*
@@ -13,6 +13,7 @@ import io.circe.generic.auto.*
 import io.circe.parser.decode
 
 import scala.io.Source
+
 package object competitiveCompanion {
 
   final val defaultPorts = List(1327, 4244, 6174, 10042, 10043, 10045, 27121)
@@ -55,11 +56,12 @@ package object competitiveCompanion {
       .evalTap { _ =>
         console.info(
           project,
+          codeDojo,
           s"Competitive Companion server started on port $port. Listening for ${codeDojo.show} problem creation..."
         )
       }
       .onFinalize(
-        console.info(project, s"Competitive Companion server on port $port for ${codeDojo.show} stopped.")
+        console.info(project, codeDojo, s"Competitive Companion server on port $port for ${codeDojo.show} stopped.")
       )
       .flatMap { queue =>
         Stream.fromQueueUnterminated(queue)
