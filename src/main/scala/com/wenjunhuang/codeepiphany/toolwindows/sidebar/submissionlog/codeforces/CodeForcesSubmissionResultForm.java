@@ -5,15 +5,15 @@ import com.intellij.ide.ui.laf.darcula.ui.DarculaEditorTextFieldBorder;
 import com.intellij.openapi.editor.EditorFactory;
 import com.intellij.openapi.editor.colors.EditorFontType;
 import com.intellij.openapi.fileTypes.FileTypeManager;
-import com.intellij.ui.BrowserHyperlinkListener;
+import com.intellij.openapi.project.Project;
 import com.intellij.ui.EditorTextField;
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.uiDesigner.core.Spacer;
-import com.intellij.util.ui.HTMLEditorKitBuilder;
 import com.intellij.util.ui.JBFont;
 import com.intellij.util.ui.JBUI;
 import com.wenjunhuang.codeepiphany.PluginBundle;
+import com.wenjunhuang.codeepiphany.codeforces.services.CodeForcesSubmissionService;
 import com.wenjunhuang.codeepiphany.database.tables.records.SolutionSubmissionRecord;
 import com.wenjunhuang.codeepiphany.model.Language;
 import com.wenjunhuang.codeepiphany.model.LanguageVersion;
@@ -42,14 +42,15 @@ public class CodeForcesSubmissionResultForm {
     private JPanel myPanel;
     private JLabel myCodeLabel;
     private BackgroundRoundedPanel myMessagePane;
-    private JEditorPane myViewInBrowser;
+    private JButton myViewInBrowser;
 
     public CodeForcesSubmissionResultForm(
+            Project project,
             Language language,
             LanguageVersion languageVersion,
             SolutionSubmissionRecord submissionRecord,
             Long contestId,
-            Optional<String> problemsetName
+            Option<String> problemSetName
     ) {
         mySubmitCode = new EditorTextField(
                 EditorFactory.getInstance().createDocument(submissionRecord.getSubmitcode()), null, FileTypeManager.getInstance().getFileTypeByExtension(language.fileExt()), true, false);
@@ -74,14 +75,9 @@ public class CodeForcesSubmissionResultForm {
 
         var submissionId = submissionRecord.getDojosubmissionid();
         if (submissionId != null) {
-            var link = problemsetName
-                    .map(name -> "https://codeforces.com/problemsets/" + name + "/submission/" + contestId + "/" + submissionRecord.getDojosubmissionid())
-                    .orElse("https://codeforces.com/problemset/submission/" + contestId + "/" + submissionRecord.getDojosubmissionid());
-
-            myViewInBrowser.setEditorKit(HTMLEditorKitBuilder.simple());
-            myViewInBrowser.setEditable(false);
-            myViewInBrowser.addHyperlinkListener(new BrowserHyperlinkListener());
-            myViewInBrowser.setText("<html><body><a href='" + link + "'>View In Browser</a></body></html>");
+            myViewInBrowser.addActionListener(e -> {
+                CodeForcesSubmissionService.showSubmissionDetails(project, problemSetName, contestId.toString(), submissionId);
+            });
         } else {
             myViewInBrowser.setVisible(false);
         }
@@ -141,9 +137,8 @@ public class CodeForcesSubmissionResultForm {
         myLanguage.setText("Label");
         panel1.add(myLanguage, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         myPanel.add(myMessagePane, new GridConstraints(2, 0, 1, 3, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
-        myViewInBrowser = new JEditorPane();
-        myViewInBrowser.setContentType("text/html");
-        myViewInBrowser.setText("<html>\r\n  <head>\r\n    \r\n  </head>\r\n  <body>\r\n  </body>\r\n</html>\r\n");
+        myViewInBrowser = new JButton();
+        this.$$$loadButtonText$$$(myViewInBrowser, this.$$$getMessageFromBundle$$$("messages/PluginBundle", "submissionResult.viewDetails"));
         myPanel.add(myViewInBrowser, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
     }
 
@@ -187,6 +182,33 @@ public class CodeForcesSubmissionResultForm {
         component.setText(result.toString());
         if (haveMnemonic) {
             component.setDisplayedMnemonic(mnemonic);
+            component.setDisplayedMnemonicIndex(mnemonicIndex);
+        }
+    }
+
+    /**
+     * @noinspection ALL
+     */
+    private void $$$loadButtonText$$$(AbstractButton component, String text) {
+        StringBuffer result = new StringBuffer();
+        boolean haveMnemonic = false;
+        char mnemonic = '\0';
+        int mnemonicIndex = -1;
+        for (int i = 0; i < text.length(); i++) {
+            if (text.charAt(i) == '&') {
+                i++;
+                if (i == text.length()) break;
+                if (!haveMnemonic && text.charAt(i) != '&') {
+                    haveMnemonic = true;
+                    mnemonic = text.charAt(i);
+                    mnemonicIndex = result.length();
+                }
+            }
+            result.append(text.charAt(i));
+        }
+        component.setText(result.toString());
+        if (haveMnemonic) {
+            component.setMnemonic(mnemonic);
             component.setDisplayedMnemonicIndex(mnemonicIndex);
         }
     }
