@@ -1,68 +1,30 @@
 package com.wenjunhuang.codeepiphany.utils
 
 import cats.effect.IO
-import cats.effect.kernel.Resource.ExitCase
-import cats.effect.kernel.Resource.ExitCase.{ Canceled, Errored, Succeeded }
-import com.intellij.openapi.diagnostic.Logger
-import com.intellij.openapi.progress.{ PerformInBackgroundOption, ProgressIndicator, ProgressManager, Task }
-import com.intellij.openapi.project.Project
-import com.wenjunhuang.codeepiphany.utils.syntax.*
-
 import scala.concurrent.duration.*
+
+import com.intellij.openapi.diagnostic.Logger
+import com.intellij.openapi.progress.{ProgressIndicator, Task}
+import com.intellij.openapi.project.Project
+
+import com.wenjunhuang.codeepiphany.utils.syntax.*
 
 trait IOExtensionsOps {
   private val myLogger = Logger.getInstance(getClass.getName)
+
   extension [A](io: IO[A]) {
-    def unsafeRunAsConditionalModal(project: Project, taskName: String): Unit = ProgressManager
-      .getInstance()
-      .run(new Task.ConditionalModal(project, taskName, false, PerformInBackgroundOption.DEAF) {
-        override def run(indicator: ProgressIndicator): Unit = io.unsafeRunSync()
-      })
+    def unsafeRunAsBackgroundProgressCancellable(project: Project, taskName: String): Unit =
+      evalAsBackgroundProgressCancellable(project, taskName).unsafeRunSync()
 
-    def unsafeRunAsConditionalModalCancellable(project: Project, taskName: String): Unit = ProgressManager
-      .getInstance()
-      .run(new Task.ConditionalModal(project, taskName, true, PerformInBackgroundOption.DEAF) {
-        override def run(indicator: ProgressIndicator): Unit = runCancellable(io, indicator)
-      })
-
-    def unsafeRunAsModal(project: Project, taskName: String): Unit = ProgressManager
-      .getInstance()
-      .run(new Task.Modal(project, taskName, false) {
-        override def run(indicator: ProgressIndicator): Unit = io.unsafeRunSync()
-      })
-
-    def unsafeRunAsModalCancellable(project: Project, taskName: String): Unit = ProgressManager
-      .getInstance()
-      .run(new Task.Modal(project, taskName, true) {
-        override def run(indicator: ProgressIndicator): Unit = runCancellable(io, indicator)
-      })
-
-    def unsafeRunAsBackgroundProgress(project: Project, taskName: String): Unit = ProgressManager
-      .getInstance()
-      .run(new Task.Backgroundable(project, taskName, false) {
-        override def run(indicator: ProgressIndicator): Unit = {
-          io.unsafeRunSync()
-        }
-      })
-
-    def unsafeRunAsBackgroundProgressCancellable(project: Project, taskName: String): Unit = ProgressManager
-      .getInstance()
-      .run(new Task.Backgroundable(project, taskName) {
-        override def run(indicator: ProgressIndicator): Unit = {
-          runCancellable(io, indicator)
-        }
-      })
-
-    def evalAsBackgroundProgressCancellable(project: Project, taskName: String): IO[Unit] =
+    def evalAsBackgroundProgressCancellable(project: Project, taskName: String): IO[Unit] = {
       IO.delay {
-        ProgressManager
-          .getInstance()
-          .run(new Task.Backgroundable(project, taskName) {
-            override def run(indicator: ProgressIndicator): Unit = {
-              runCancellable(io, indicator)
-            }
-          })
+        new Task.Backgroundable(project, taskName) {
+          override def run(indicator: ProgressIndicator): Unit = {
+            runCancellable(io, indicator)
+          }
+        }.queue()
       }.void
+    }
   }
 
   private def runCancellable[A](io: IO[A], indicator: ProgressIndicator): Unit = {

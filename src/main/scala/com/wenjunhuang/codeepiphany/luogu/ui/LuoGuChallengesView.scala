@@ -7,36 +7,29 @@ import org.typelevel.ci.CIString
 import org.typelevel.log4cats.LoggerFactory
 
 import com.intellij.openapi.Disposable
-import com.intellij.openapi.actionSystem.{ ActionGroup, ActionManager }
-import com.intellij.openapi.fileEditor.FileEditorManager
-import com.intellij.openapi.fileEditor.ex.FileEditorManagerEx
-import com.intellij.openapi.fileEditor.impl.FileEditorOpenOptions
+import com.intellij.openapi.actionSystem.{ActionGroup, ActionManager}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
 import com.intellij.ui.scale.JBUIScale
 
-import com.wenjunhuang.codeepiphany.actions.LoginAction.{ LOGIN_LOGOUT_KEY, LoginLogoutProvider }
-import com.wenjunhuang.codeepiphany.luogu.actions.LuoGuChangeUIAction.{
-  LUOGU_CHANGE_UI_PROVIDER_KEY,
-  LuoGuChangeUIProvider,
-  LuoGuUI
-}
+import com.wenjunhuang.codeepiphany.actions.LoginAction.{LOGIN_LOGOUT_KEY, LoginLogoutProvider}
+import com.wenjunhuang.codeepiphany.luogu.actions.LuoGuChangeUIAction.{LUOGU_CHANGE_UI_PROVIDER_KEY, LuoGuChangeUIProvider, LuoGuUI}
 import com.wenjunhuang.codeepiphany.luogu.services.LuoGuApi
 import com.wenjunhuang.codeepiphany.luogu.settings.LuoGuSettings
 import com.wenjunhuang.codeepiphany.model.Actions.LUOGU_TITLE_TOOLBAR_GROUP
 import com.wenjunhuang.codeepiphany.model.CodeDojo
-import com.wenjunhuang.codeepiphany.model.CodeDojo.{ show, LuoGu }
-import com.wenjunhuang.codeepiphany.services.{ console, AskForLoginResult, AuthService, BaseChallengesView }
+import com.wenjunhuang.codeepiphany.model.CodeDojo.LuoGu
+import com.wenjunhuang.codeepiphany.services.{console, AskForLoginResult, AuthService, BaseChallengesView}
 import com.wenjunhuang.codeepiphany.utils.actions.DataSink
 import com.wenjunhuang.codeepiphany.utils.extensions.*
 import com.wenjunhuang.codeepiphany.utils.syntax.*
 import com.wenjunhuang.codeepiphany.utils.ui.UnauthenticatedView
 import com.wenjunhuang.codeepiphany.PluginBundle
-import com.wenjunhuang.codeepiphany.actions.UserAccountInfoAction.{ USER_ACCOUNT_INFO_KEY, UserInfoProvider }
+import com.wenjunhuang.codeepiphany.actions.UserAccountInfoAction.{USER_ACCOUNT_INFO_KEY, UserInfoProvider}
 import com.wenjunhuang.codeepiphany.luogu.models.LuoGuUserInfo
 import com.wenjunhuang.codeepiphany.services.http.HttpClientManager
 import com.wenjunhuang.codeepiphany.utils.AsyncAvatarLoader
-import com.wenjunhuang.codeepiphany.vfs.{ WebPreviewFileEditor, WebPreviewVirtualFile }
+import com.wenjunhuang.codeepiphany.vfs.WebPreviewVirtualFile
 
 class LuoGuChallengesView(private val myProject: Project) extends BaseChallengesView[LuoGuUI] {
 
