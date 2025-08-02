@@ -91,9 +91,12 @@ class LeetCodeChallengesView(
                   }.evalOnEDTAny()
                 }
                 *> console.info(myProject, myCodeDojo, PluginBundle.message("console.loggedIn", myCodeDojo.show))
-            case _ =>
+            case AskForLoginResult.Cancelled =>
               console.info(myProject, myCodeDojo, PluginBundle.message("console.loginCancelled", myCodeDojo.show))
           }
+          .onCancel(
+            console.info(myProject, myCodeDojo, PluginBundle.message("console.loginCancelled", myCodeDojo.show))
+          )
           .handleErrorWith { e =>
             myLogger.warn(e)("Failed to login") *>
               console.error(

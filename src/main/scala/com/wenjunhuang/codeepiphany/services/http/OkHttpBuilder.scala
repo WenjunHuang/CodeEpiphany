@@ -6,7 +6,6 @@ import cats.syntax.all.*
 import fs2.io.readInputStream
 import java.io.IOException
 import java.net.HttpCookie
-import java.util.concurrent.atomic.AtomicBoolean
 import okhttp3.{Call, Callback, OkHttpClient, Protocol, RequestBody, Headers as OKHeaders, MediaType as OKMediaType, Request as OKRequest, Response as OKResponse}
 import okio.BufferedSink
 import org.http4s.{Headers, HttpVersion, Method, Request, Response, Status, Uri}
@@ -51,10 +50,10 @@ sealed abstract class OkHttpBuilder private (val okHttpClient: OkHttpClient) {
       .suspend(addCookiesToRequest.flatMap { req =>
         IO.async[Resource[IO, Response[IO]]] { cb =>
           IO.delay {
-            val cancelledSignal = AtomicBoolean(false)
-            okHttpClient.newCall(toOkHttpRequest(req)).enqueue(handler(cb, cancelledSignal))
+            val call = okHttpClient.newCall(toOkHttpRequest(req))
+            call.enqueue(handler(cb))
 
-            IO.delay { cancelledSignal.set(true) }.some // finalizer to cancel the request
+            IO.delay { call.cancel() }.void.some // finalizer to cancel the request
           }
         }
       })
@@ -84,16 +83,13 @@ sealed abstract class OkHttpBuilder private (val okHttpClient: OkHttpClient) {
       .traverse(identity) *> IO.pure(response)
   }
 
-  private def handler(
-    cb: Result => Unit,
-    cancelledSignal: AtomicBoolean // a signal that indicates if the request has been cancelled before the callback is invoked
-  ): Callback =
+  private def handler(cb: Result => Unit): Callback =
     new Callback {
       override def onFailure(call: Call, e: IOException): Unit =
         invokeCallback(Left(e), cb)
 
       override def onResponse(call: Call, response: OKResponse): Unit = {
-        if cancelledSignal.get() then
+        if call.isCanceled then
           // if the request has been cancelled, we should not invoke the callback
           myUnPureLogger.trace(
             "Request was cancelled before onResponse is called, so close the response and do nothing"

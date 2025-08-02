@@ -127,7 +127,7 @@ abstract class BaseQueryPresenter[UIBoostrapParameters, T, ResultItem](
         myLoggerIO.warn(e)("Failed to execute query") *>
           console.error(myProject, PluginBundle.message("query.error", e.getMessage))
       }
-      .evalAsBackgroundProgress(myProject, PluginBundle.message("query.progress.title", queryTitle))
+      .evalAsBackgroundProgressCancellable(myProject, PluginBundle.message("query.progress.title", queryTitle))
   }
 
   private def processQuery(ctx: CancellableStream.StreamContext[QueryContext[T]]): IO[Unit] = {

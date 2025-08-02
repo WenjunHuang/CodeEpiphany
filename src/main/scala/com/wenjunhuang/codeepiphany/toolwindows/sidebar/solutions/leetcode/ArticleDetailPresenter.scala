@@ -67,7 +67,7 @@ class ArticleDetailPresenter(
               myView.setArticleContent(Some((content, myCodeDojo)))
             }.evalOnEDTDefault()
           }
-          .evalAsBackgroundProgress(myProject, s"Opening ${myCodeDojo.show} solution article")
+          .evalAsBackgroundProgressCancellable(myProject, s"Opening ${myCodeDojo.show} solution article")
           .recoverWith { e =>
             myLogger.error(e)(s"Failed to show ${myCodeDojo.show} solutions of ${articleItem.title}")
           }
