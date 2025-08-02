@@ -2,7 +2,6 @@ package com.wenjunhuang.codeepiphany.vfs
 
 import java.net.HttpCookie
 
-import com.intellij.openapi.fileEditor.impl.FileEditorManagerImpl
 import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.project.Project
 import com.intellij.testFramework.LightVirtualFile
