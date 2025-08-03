@@ -5,8 +5,11 @@ import sbtjooq.codegen.CodegenMode.Unmanaged
 import scala.io.Source
 import scala.sys.process.*
 import scala.util.Using
+import java.io.File
+import java.nio.file.Files
+import java.nio.charset.StandardCharsets
 
-val pluginVersion: String = "1.5.0"
+val pluginVersion: String = "1.6.0"
 
 ThisBuild / scalaVersion     := "3.7.0"
 ThisBuild / intellijPlatform := versions.intellijPlatform
@@ -34,6 +37,50 @@ ThisBuild / intellijBuild := {
   }
 
   selectedBuild
+}
+
+// 自定义任务：生成BuildConfig类
+lazy val generateBuildConfig = taskKey[Unit]("Generate BuildConfig class with environment variables")
+
+generateBuildConfig := {
+  val log    = streams.value.log
+  val genDir = target.value / "gen" / "com" / "wenjunhuang" / "codeepiphany"
+
+  // 确保目录存在
+  genDir.mkdirs()
+
+  // 获取环境变量
+  val googleAnalysisToken = sys.env
+    .get("CE_GOOGLE_ANALYSIS_TOKEN")
+    .map(_.split(";").toList)
+    .getOrElse(Nil)
+
+  log.info(s"Generating BuildConfig class...")
+  log.info(s"CE_GOOGLE_ANALYSIS_TOKEN: ${if (googleAnalysisToken.nonEmpty) "***" else "not set"}")
+
+  val template = """
+                  |package com.wenjunhuang.codeepiphany
+                  |case class GoogleAnalysisToken(measurementId:String,secret:String,clientId:String)
+                  |object BuildConfig {
+                  |  val GOOGLE_ANALYSIS_TOKEN: Option[GoogleAnalysisToken] = {{PLACE_HOLDER}}
+                  |}""".stripMargin
+  // 生成BuildConfig的Scala object代码
+  val buildConfigContent = googleAnalysisToken match {
+    case Nil =>
+      template.replace("{{PLACE_HOLDER}}", "None")
+    case tokens if tokens.size == 3 =>
+      val token = tokens.map(_.trim).mkString("GoogleAnalysisToken(", ", ", ")")
+      template.replace("{{PLACE_HOLDER}}", s"Some($token)")
+    case _ =>
+      log.warn("CE_GOOGLE_ANALYSIS_TOKEN environment variable should contain exactly 3 values separated by semicolons.")
+      template.replace("{{PLACE_HOLDER}}", "None")
+  }
+
+  // 写入文件
+  val buildConfigFile = genDir / "BuildConfig.scala"
+  Files.write(buildConfigFile.toPath, buildConfigContent.getBytes(StandardCharsets.UTF_8))
+
+  log.info(s"BuildConfig class generated at: ${buildConfigFile.getAbsolutePath}")
 }
 
 def markdownToHtml(file: File): String = {
@@ -127,9 +174,10 @@ lazy val codeEpiphany = (project in file("."))
       xml.changeNotes = s"<![CDATA[${markdownToHtml(baseDirectory.value / "CHANGELOG.md")}]]>"
       xml.pluginDescription = s"<![CDATA[${markdownToHtml(baseDirectory.value / "DESCRIPTION.md")}]]>"
     },
-    // Make buildWebview run before compile
-    Compile / unmanagedResources := (Compile / unmanagedResources).dependsOn(buildWebview).value,
+    // Make buildWebview and generateBuildConfig run before compile
+    Compile / unmanagedResources := (Compile / unmanagedResources).dependsOn(buildWebview, generateBuildConfig).value,
     Compile / unmanagedSourceDirectories += baseDirectory.value / "gen",
+    Compile / unmanagedSourceDirectories += target.value / "gen",
     Compile / unmanagedSourceDirectories += baseDirectory.value / "src" / "main" / "jooq-generated",
     Compile / unmanagedResourceDirectories += target.value / "webviewResources",
     Compile / unmanagedSourceDirectories ++= {
