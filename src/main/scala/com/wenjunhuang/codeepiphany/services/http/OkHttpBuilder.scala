@@ -1,16 +1,26 @@
 package com.wenjunhuang.codeepiphany.services.http
 
-import cats.effect.{IO, Resource}
+import cats.effect.{ IO, Resource }
 import cats.effect.std.Dispatcher
 import cats.syntax.all.*
 import fs2.io.readInputStream
 import java.io.IOException
 import java.net.HttpCookie
-import okhttp3.{Call, Callback, OkHttpClient, Protocol, RequestBody, Headers as OKHeaders, MediaType as OKMediaType, Request as OKRequest, Response as OKResponse}
+import okhttp3.{
+  Call,
+  Callback,
+  Headers as OKHeaders,
+  MediaType as OKMediaType,
+  OkHttpClient,
+  Protocol,
+  Request as OKRequest,
+  RequestBody,
+  Response as OKResponse
+}
 import okio.BufferedSink
-import org.http4s.{Headers, HttpVersion, Method, Request, Response, Status, Uri}
+import org.http4s.{ Headers, HttpVersion, Method, Request, Response, Status, Uri }
 import org.http4s.client.Client
-import org.http4s.headers.{`Content-Type`, Location}
+import org.http4s.headers.{ `Content-Type`, Location }
 import org.typelevel.ci.CIString
 import org.typelevel.log4cats.LoggerFactory
 import scala.jdk.CollectionConverters.*
@@ -19,6 +29,7 @@ import scala.util.control.NonFatal
 import com.intellij.openapi.diagnostic.Logger
 
 import com.wenjunhuang.codeepiphany.services.http.OkHttpBuilder.*
+import com.wenjunhuang.codeepiphany.services.AuthService
 import com.wenjunhuang.codeepiphany.utils.syntax.*
 
 /** A builder for [[org.http4s.client.Client]] with an OkHttp backend.
@@ -75,12 +86,13 @@ sealed abstract class OkHttpBuilder private (val okHttpClient: OkHttpClient) {
   }
 
   private def updateCookies(uri: Uri, response: Response[IO]): IO[Response[IO]] = {
-    uri.host
-      .map(host =>
-        HttpClientManager
-          .updateCookiesForHost(CIString(host.value), response.cookies.map(c => HttpCookie(c.name, c.content)))
-      )
-      .traverse(identity) *> IO.pure(response)
+    uri.host.map { host =>
+      HttpClientManager
+        .updateCookiesForHost(CIString(host.value), response.cookies.map(c => HttpCookie(c.name, c.content)))
+        *> HttpClientManager.getCookiesForHost(CIString(host.value)).flatMap { cookies =>
+          AuthService.saveAuthentication(host.value, cookies)
+        }
+    }.traverse(identity) *> IO.pure(response)
   }
 
   private def handler(cb: Result => Unit): Callback =

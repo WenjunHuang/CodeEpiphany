@@ -3,9 +3,11 @@ package com.wenjunhuang.codeepiphany.services
 import cats.effect.IO
 import cats.effect.implicits.*
 import cats.syntax.all.*
+
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.components.Service.Level
 import com.intellij.openapi.project.Project
+
 import com.wenjunhuang.codeepiphany.atcoder.services.AtCoderApi
 import com.wenjunhuang.codeepiphany.codeforces.services.CodeForcesApi
 import com.wenjunhuang.codeepiphany.hackerrank.services.HackerRankApi
@@ -17,9 +19,11 @@ import com.wenjunhuang.codeepiphany.services.http.HttpClientManager
 import com.wenjunhuang.codeepiphany.services.login.LoginDialog
 import com.wenjunhuang.codeepiphany.utils.CookieUtil
 import com.wenjunhuang.codeepiphany.utils.syntax.*
-
 import java.net.HttpCookie
 import java.util.concurrent.atomic.AtomicReference
+import org.typelevel.ci.CIString
+
+import AuthService.*
 
 @Service(Array(Level.PROJECT))
 final class AuthService(private val myProject: Project) {
@@ -61,24 +65,6 @@ final class AuthService(private val myProject: Project) {
   private def isAuthenticated(codeDojo: CodeDojo): IO[Boolean] =
     checkLoginStatus(codeDojo)
 
-  private def loadAuthentication(codeDojo: CodeDojo): IO[Unit] =
-    IO.blocking(SensitiveDataStore.loadData(codeDojo.value)).flatMap {
-      case Some(authCookies) =>
-        IO
-          .delay(CookieUtil.parseCookies(authCookies))
-          .flatMap(HttpClientManager.updateCookiesForHost(codeDojo.domain, _))
-      case None => IO.unit
-    }
-
-  private def saveAuthentication(codeDojo: CodeDojo, authCookies: List[HttpCookie]): IO[Unit] =
-    IO.blocking {
-      SensitiveDataStore.saveData(codeDojo.value, CookieUtil.encodeCookies(authCookies))
-    }
-
-  private def removeAuthentication(codeDojo: CodeDojo): IO[Unit] = IO.blocking {
-    SensitiveDataStore.removeData(codeDojo.value)
-  }
-
   private def askForLogin(codeDojo: CodeDojo): IO[AskForLoginResult] =
     IO
       .async_[AskForLoginResult] { cb =>
@@ -99,4 +85,30 @@ final class AuthService(private val myProject: Project) {
 
 object AuthService {
   def getInstance(project: Project): AuthService = project.getService(classOf[AuthService])
+
+  def saveAuthentication(codeDojo: CodeDojo, authCookies: List[HttpCookie]): IO[Unit] =
+    IO.blocking {
+      SensitiveDataStore.saveData(codeDojo.value, CookieUtil.encodeCookies(authCookies))
+    }
+
+  def saveAuthentication(host: String, authCookies: List[HttpCookie]): IO[Unit] =
+    IO.blocking {
+      CodeDojo.fromCIHostname(CIString(host)) match {
+        case Some(codeDojo) => SensitiveDataStore.saveData(codeDojo.value, CookieUtil.encodeCookies(authCookies))
+        case None           => IO.unit
+      }
+    }
+
+  def loadAuthentication(codeDojo: CodeDojo): IO[Unit] =
+    IO.blocking(SensitiveDataStore.loadData(codeDojo.value)).flatMap {
+      case Some(authCookies) =>
+        IO
+          .delay(CookieUtil.parseCookies(authCookies))
+          .flatMap(HttpClientManager.updateCookiesForHost(codeDojo.domain, _))
+      case None => IO.unit
+    }
+
+  def removeAuthentication(codeDojo: CodeDojo): IO[Unit] = IO.blocking {
+    SensitiveDataStore.removeData(codeDojo.value)
+  }
 }
