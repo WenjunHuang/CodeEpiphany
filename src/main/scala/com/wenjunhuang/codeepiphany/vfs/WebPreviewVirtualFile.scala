@@ -2,7 +2,6 @@ package com.wenjunhuang.codeepiphany.vfs
 
 import java.net.HttpCookie
 
-import com.intellij.openapi.fileEditor.impl.FileEditorManagerImpl
 import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.project.Project
 import com.intellij.testFramework.LightVirtualFile
@@ -26,11 +25,10 @@ class WebPreviewVirtualFile(
   override def hashCode(): Int = myPreviewUrl.hashCode
 
   override def equals(obj: Any): Boolean = {
-    obj match {
+    obj.asInstanceOf[Matchable] match {
       case that: WebPreviewVirtualFile =>
         (that eq this) || (this.myPreviewUrl == that.myPreviewUrl &&
           this.myDomain == that.myDomain &&
-          this.myCookies == that.myCookies &&
           this.myTitle == that.myTitle)
       case _ => false
     }

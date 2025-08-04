@@ -1,20 +1,25 @@
 package com.wenjunhuang.codeepiphany.utils
 
-import cats.effect.IO
-import com.sun.net.httpserver.{HttpExchange, HttpHandler, HttpServer}
-import com.wenjunhuang.codeepiphany.utils.syntax.*
-import org.typelevel.log4cats.LoggerFactory
-
-import java.net.{InetSocketAddress, URL}
+import cats.effect.{ IO, Resource }
+import com.sun.net.httpserver.{ HttpExchange, HttpHandler, HttpServer }
+import java.net.{ InetSocketAddress, URL }
 import java.nio.charset.StandardCharsets
+import org.apache.commons.io.IOUtils
+import org.typelevel.log4cats.LoggerFactory
 import scala.collection.mutable
+import scala.util.Using
+
+import com.wenjunhuang.codeepiphany.utils.syntax.*
 
 class ResourceHttpServer(private val myRootResourcePath: String, private val myPort: Int) {
-  private val myLogger                   = LoggerFactory.getLogger[IO]
+  private val myLogger = LoggerFactory.getLogger[IO]
+
+  @volatile
   private var server: Option[HttpServer] = None
 
   private case class CustomResponse(content: Array[Byte], contentType: String)
   private case class DynamicResponse(generator: () => Array[Byte], contentType: String)
+
   private val customResponses: mutable.Map[String, CustomResponse]   = mutable.Map.empty
   private val dynamicResponses: mutable.Map[String, DynamicResponse] = mutable.Map.empty
 
@@ -24,13 +29,13 @@ class ResourceHttpServer(private val myRootResourcePath: String, private val myP
 
   def addTemplateResponse(
     path: String,
-    templatePath: String,
+    contentTemplatePath: String,
     contentType: String,
     variableProvider: () => Map[String, String | (() => String)] = () => Map.empty
   ): Unit = {
-    val templateUrl = getClass.getClassLoader.getResource(s"$myRootResourcePath/$templatePath")
+    val templateUrl = getClass.getClassLoader.getResource(s"$myRootResourcePath/$contentTemplatePath")
     if (templateUrl == null) {
-      myLogger.error(s"Template not found: $templatePath").unsafeRunSync()
+      myLogger.error(s"Template not found: $contentTemplatePath").unsafeRunSync()
       return
     }
 
@@ -50,84 +55,66 @@ class ResourceHttpServer(private val myRootResourcePath: String, private val myP
     )
   }
 
-  def addCustomResponse(
-    path: String,
-    content: String,
-    contentType: String,
-    variableProvider: () => Map[String, String] = () => Map.empty
-  ): Unit = {
-    addCustomResponse(
-      path,
-      () => {
-        val processedContent = variableProvider().foldLeft(content) { case (acc, (key, value)) =>
-          acc.replace(key, value)
-        }
-        processedContent.getBytes("UTF-8")
-      },
-      contentType
-    )
-  }
-
   def addCustomResponse(path: String, content: Array[Byte], contentType: String): Unit = {
     customResponses += (path -> CustomResponse(content, contentType))
   }
 
-  def addCustomResponse(path: String, generator: () => Array[Byte], contentType: String): Unit = {
-    dynamicResponses += (path -> DynamicResponse(generator, contentType))
+  def addCustomResponse(path: String, contentGenerator: () => Array[Byte], contentType: String): Unit = {
+    dynamicResponses += (path -> DynamicResponse(contentGenerator, contentType))
   }
 
   private class FileHandler extends HttpHandler {
     override def handle(exchange: HttpExchange): Unit = {
-      try {
-        val requestPath = exchange.getRequestURI.getPath
-
-        // 首先检查动态响应
-        dynamicResponses.get(requestPath) match {
-          case Some(response) =>
-            // 使用动态生成的内容
-            val content = response.generator()
-            exchange.getResponseHeaders.set("Content-Type", response.contentType)
-            exchange.sendResponseHeaders(200, content.length)
-            exchange.getResponseBody.write(content)
-            exchange.getResponseBody.close()
-          case None =>
-            // 然后检查静态响应
-            customResponses.get(requestPath) match {
+      Resource
+        .fromAutoCloseable(IO.pure(exchange))
+        .use { exchange =>
+          IO.delay {
+            val requestPath = exchange.getRequestURI.getPath
+            // 首先检查动态响应
+            dynamicResponses.get(requestPath) match {
               case Some(response) =>
-                // 使用静态响应
+                // 使用动态生成的内容
+                val content = response.generator()
                 exchange.getResponseHeaders.set("Content-Type", response.contentType)
-                exchange.sendResponseHeaders(200, response.content.length)
-                exchange.getResponseBody.write(response.content)
-                exchange.getResponseBody.close()
+                exchange.sendResponseHeaders(200, content.length)
+                exchange.getResponseBody.write(content)
               case None =>
-                // 使用默认的资源处理逻辑
-                val resourcePath = if (requestPath.startsWith("/")) {
-                  requestPath.substring(1)
-                } else {
-                  requestPath
-                }
-
-                val fullResourcePath = if (myRootResourcePath.endsWith("/")) {
-                  myRootResourcePath + resourcePath
-                } else {
-                  myRootResourcePath + "/" + resourcePath
-                }
-
-                Option(getClass.getClassLoader.getResource(fullResourcePath)) match {
+                // 然后检查静态响应
+                customResponses.get(requestPath) match {
+                  case Some(response) =>
+                    // 使用静态响应
+                    exchange.getResponseHeaders.set("Content-Type", response.contentType)
+                    exchange.sendResponseHeaders(200, response.content.length)
+                    exchange.getResponseBody.write(response.content)
                   case None =>
-                    sendError(exchange, 404, "Resource not found")
-                  case Some(url) =>
-                    handleResource(exchange, url)
+                    // 使用默认的资源处理逻辑
+                    val resourcePath = if (requestPath.startsWith("/")) {
+                      requestPath.substring(1)
+                    } else {
+                      requestPath
+                    }
+
+                    val fullResourcePath = if (myRootResourcePath.endsWith("/")) {
+                      myRootResourcePath + resourcePath
+                    } else {
+                      myRootResourcePath + "/" + resourcePath
+                    }
+
+                    Option(getClass.getClassLoader.getResource(fullResourcePath)) match {
+                      case None =>
+                        sendError(exchange, 404, "Resource not found")
+                      case Some(url) =>
+                        handleResource(exchange, url)
+                    }
                 }
             }
+          }.handleErrorWith { e =>
+            myLogger.error(e)(s"Error handling request for ${exchange.getRequestURI}") *> IO.delay {
+              sendError(exchange, 500, "Internal Server Error")
+            }
+          }
         }
-      } catch {
-        case e: Exception =>
-          e.printStackTrace()
-          sendError(exchange, 500, "Internal Server Error")
-      } finally {
-        exchange.close()
-      }
+        .unsafeRunSync()
     }
 
     private def handleResource(exchange: HttpExchange, resourceUrl: URL): Unit = {
@@ -167,18 +154,8 @@ class ResourceHttpServer(private val myRootResourcePath: String, private val myP
         exchange.sendResponseHeaders(200, 0)
       }
 
-      val inputStream = connection.getInputStream
-      try {
-        val os        = exchange.getResponseBody
-        val buffer    = new Array[Byte](4096)
-        var bytesRead = inputStream.read(buffer)
-        while (bytesRead != -1) {
-          os.write(buffer, 0, bytesRead)
-          bytesRead = inputStream.read(buffer)
-        }
-        os.close()
-      } finally {
-        inputStream.close()
+      Using.resources(connection.getInputStream, exchange.getResponseBody) { (in, out) =>
+        IOUtils.copy(in, out, 4096)
       }
     }
 

@@ -7,8 +7,8 @@ import com.intellij.openapi.vfs.VirtualFile
 import com.wenjunhuang.codeepiphany.PluginBundle
 import com.wenjunhuang.codeepiphany.atcoder.services.AtCoderSubmissionService
 import com.wenjunhuang.codeepiphany.codeforces.services.CodeForcesSubmissionService
-import com.wenjunhuang.codeepiphany.hackerrank.services.{HackerRankEvaluationService, HackerRankSubmissionService}
-import com.wenjunhuang.codeepiphany.leetcode.services.{LeetCodeEvaluationService, LeetCodeSubmissionService}
+import com.wenjunhuang.codeepiphany.hackerrank.services.{ HackerRankEvaluationService, HackerRankSubmissionService }
+import com.wenjunhuang.codeepiphany.leetcode.services.{ LeetCodeEvaluationService, LeetCodeSubmissionService }
 import com.wenjunhuang.codeepiphany.luogu.services.LuoGuSubmissionService
 import com.wenjunhuang.codeepiphany.model.CodeDojo
 import com.wenjunhuang.codeepiphany.services.console
@@ -20,9 +20,9 @@ import org.typelevel.log4cats.LoggerFactory
 import scala.jdk.CollectionConverters.*
 
 object services {
-  def runCode(vf: VirtualFile, project: Project): IO[Unit] = {
+  def runCode(vf: VirtualFile, codeDojo: CodeDojo, project: Project): IO[Unit] = {
     showConsole(project)
-      *> console.info(project, PluginBundle.message("test.code.start", vf.getName))
+      *> console.info(project, codeDojo, PluginBundle.message("test.code.start", vf.getName))
       *> IO.delay {
         val settings = ChallengeSettings.getInstance(project)
         settings.findChallengeId(vf)
@@ -54,13 +54,14 @@ object services {
       }
   }
 
-  def submitCode(vf: VirtualFile, project: Project): IO[Unit] = {
+  def submitCode(vf: VirtualFile, codeDojo: CodeDojo, project: Project): IO[Unit] = {
     val logger   = LoggerFactory.getLogger[IO]
     val settings = ChallengeSettings.getInstance(project)
     (settings.findChallengeId(vf) match
       case Some(item) =>
         showConsole(project) *> console.info(
           project,
+          codeDojo,
           PluginBundle.message("submit.code.start", vf.getName, item.dojo.show)
         ) >>
           (

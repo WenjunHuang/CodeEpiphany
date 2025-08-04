@@ -3,6 +3,7 @@ package com.wenjunhuang.codeepiphany.settings.dojo;
 import com.intellij.codeInsight.hint.EditorFragmentComponent;
 import com.intellij.icons.AllIcons;
 import com.intellij.ide.IdeBundle;
+import com.intellij.ide.plugins.PluginManager;
 import com.intellij.ide.ui.laf.darcula.ui.DarculaEditorTextFieldBorder;
 import com.intellij.openapi.actionSystem.*;
 import com.intellij.openapi.actionSystem.ex.ActionManagerEx;
@@ -11,16 +12,22 @@ import com.intellij.openapi.editor.EditorFactory;
 import com.intellij.openapi.editor.colors.EditorFontType;
 import com.intellij.openapi.editor.event.DocumentEvent;
 import com.intellij.openapi.editor.event.DocumentListener;
+import com.intellij.openapi.extensions.PluginId;
+import com.intellij.openapi.fileChooser.FileChooserDescriptor;
 import com.intellij.openapi.fileChooser.FileChooserDescriptorFactory;
 import com.intellij.openapi.fileTypes.FileTypes;
 import com.intellij.openapi.options.ConfigurationException;
+import com.intellij.openapi.progress.ProgressIndicator;
+import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.DumbAwareAction;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.ui.ComponentValidator;
-import com.intellij.openapi.ui.Splitter;
-import com.intellij.openapi.ui.TextFieldWithBrowseButton;
-import com.intellij.openapi.ui.ValidationInfo;
+import com.intellij.openapi.ui.*;
+import com.intellij.openapi.util.NlsContexts;
 import com.intellij.openapi.util.text.StringUtil;
+import com.intellij.openapi.vcs.AbstractVcs;
+import com.intellij.openapi.vcs.VcsBundle;
+import com.intellij.openapi.vcs.impl.VcsDescriptor;
+import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.ui.BrowserHyperlinkListener;
 import com.intellij.ui.EditorTextField;
 import com.intellij.uiDesigner.core.GridConstraints;
@@ -36,6 +43,7 @@ import com.wenjunhuang.codeepiphany.model.Language;
 import com.wenjunhuang.codeepiphany.model.LanguageVersion;
 import com.wenjunhuang.codeepiphany.model.template.ChallengeFileTemplateHighlighter;
 import com.wenjunhuang.codeepiphany.settings.SettingsUi;
+import com.wenjunhuang.codeepiphany.utils.IdeUtils;
 import com.wenjunhuang.codeepiphany.utils.JavaUtils;
 import com.wenjunhuang.codeepiphany.utils.template.VelocityUtils;
 import org.apache.commons.io.IOUtils;
@@ -52,8 +60,11 @@ import java.lang.reflect.Method;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Paths;
 import java.util.*;
+import java.util.List;
 import java.util.function.BiFunction;
 import java.util.stream.Stream;
+
+import static com.intellij.util.containers.UtilKt.getIfSingle;
 
 public class LanguageSettingsPanel extends SettingsUi<BaseCodeDojoSettings.LanguageSettingsState> {
     private TextFieldWithBrowseButton mySourceFolder;
@@ -87,9 +98,13 @@ public class LanguageSettingsPanel extends SettingsUi<BaseCodeDojoSettings.Langu
 
         $$$setupUI$$$();
 
-        mySourceFolder.addBrowseFolderListener(PluginBundle.message("ui.settings.sourceFolder.title"),
+//        mySourceFolder.addBrowseFolderListener(PluginBundle.message("ui.settings.sourceFolder.title"),
+//                null,
+//                project, FileChooserDescriptorFactory.createSingleFolderDescriptor());
+        mySourceFolder.addActionListener(new MyBrowseFolderListener(PluginBundle.message("ui.settings.sourceFolder.title"),
                 null,
-                project, FileChooserDescriptorFactory.createSingleFolderDescriptor());
+                mySourceFolder,
+                project, FileChooserDescriptorFactory.createSingleFolderDescriptor()));
 
 
         new ComponentValidator(this)
@@ -122,8 +137,8 @@ public class LanguageSettingsPanel extends SettingsUi<BaseCodeDojoSettings.Langu
         myDescription.addHyperlinkListener(new BrowserHyperlinkListener());
 
         // get current ide locale
-        var localeString = Locale.getDefault().getLanguage();
-        var file = "/settings/CodeTemplate_" + myCodeDojo.value() + localeString + ".html";
+        var i18nLang = IdeUtils.i18nLanguage();
+        var file = "/settings/CodeTemplate_" + myCodeDojo.value() + "_" + i18nLang + ".html";
         var fallbackFile = "/settings/CodeTemplate_" + myCodeDojo.value() + ".html";
         try (var fileStream = getClass().getResourceAsStream(file);
              var fallbackStream = getClass().getResourceAsStream(fallbackFile)) {
@@ -456,6 +471,30 @@ public class LanguageSettingsPanel extends SettingsUi<BaseCodeDojoSettings.Langu
         JavaUtils.toOptional(state.sourceFolder()).ifPresent(mySourceFolder::setText);
         JavaUtils.toOptional(state.codeTemplate()).ifPresent(myCodeTemplateEditor::setText);
         JavaUtils.toOptional(state.fileNameTemplate()).ifPresent(myFileNameEditor::setText);
+    }
+
+    private class MyBrowseFolderListener extends ComponentWithBrowseButton.BrowseFolderActionListener<JTextField> {
+
+        MyBrowseFolderListener(@NlsContexts.DialogTitle String title,
+                               @NlsContexts.Label String description,
+                               TextFieldWithBrowseButton textField,
+                               Project project,
+                               FileChooserDescriptor fileChooserDescriptor) {
+            super(title, description, textField, project, fileChooserDescriptor, TextComponentAccessor.TEXT_FIELD_WHOLE_TEXT);
+        }
+
+        @Override
+        protected VirtualFile getInitialFile() {
+            // suggest project base dir only if nothing is typed in the component.
+            String text = getComponentText();
+            if (text.isEmpty()) {
+                VirtualFile file = myProject().getBaseDir();
+                if (file != null) {
+                    return file;
+                }
+            }
+            return super.getInitialFile();
+        }
     }
 
     /**

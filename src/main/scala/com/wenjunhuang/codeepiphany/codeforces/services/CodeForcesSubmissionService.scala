@@ -2,7 +2,9 @@ package com.wenjunhuang.codeepiphany.codeforces.services
 
 import cats.effect.IO
 import cats.syntax.all.*
+
 import com.intellij.openapi.project.Project
+
 import com.wenjunhuang.codeepiphany.PluginBundle
 import com.wenjunhuang.codeepiphany.codeforces.models.CodeForcesSubmissionResponse
 import com.wenjunhuang.codeepiphany.codeforces.settings.CodeForcesSettingsConfigurable
@@ -14,8 +16,14 @@ import com.wenjunhuang.codeepiphany.services.{ console, BaseSubmissionService, C
 import com.wenjunhuang.codeepiphany.settings.ChallengeSettings.ChallengeSettingsStateItem
 import org.jooq.{ DSLContext, Record }
 import org.typelevel.ci.CIString
-
 import scala.jdk.OptionConverters.*
+
+import com.intellij.execution.filters.HyperlinkInfo
+
+import com.wenjunhuang.codeepiphany.services.console.MessageSeg
+import com.wenjunhuang.codeepiphany.services.http.HttpClientManager
+import com.wenjunhuang.codeepiphany.vfs.WebPreviewVirtualFile
+import com.wenjunhuang.codeepiphany.utils.syntax.*
 
 class CodeForcesSubmissionService(project: Project) extends BaseSubmissionService(project, CodeForces) {
   override type SubmissionRequest  = CFRequest
@@ -40,7 +48,7 @@ class CodeForcesSubmissionService(project: Project) extends BaseSubmissionServic
     CodeForcesApi.submitAnswer(
       basicInfo.contestId,
       basicInfo.index,
-      basicInfo.problemsetName,
+      basicInfo.problemSetName,
       basicInfo.programTypeId,
       processedCode
     )
@@ -54,9 +62,40 @@ class CodeForcesSubmissionService(project: Project) extends BaseSubmissionServic
   ): IO[Unit] = {
     lastResponseInfo.result match
       case SubmissionResult.Success =>
-        console.info(project, PluginBundle.message("submission.passed") + "\n${lastResponse.message}")
+        console.info(
+          project,
+          CodeForces,
+          MessageSeg.Hyperlink(
+            PluginBundle.message("submissionResult.viewDetails"),
+            { link =>
+              CodeForcesSubmissionService.showSubmissionDetails(
+                project,
+                basicInfo.problemSetName,
+                basicInfo.contestId.toString,
+                lastResponse.submissionId.toString
+              )
+            }
+          ),
+          "\n",
+          PluginBundle.message("submission.passed") + "\n${lastResponse.message}"
+        )
       case _ =>
-        console.error(project, s"${lastResponseInfo.result.show}\n${lastResponse.message}")
+        console.error(
+          project,
+          MessageSeg.Hyperlink(
+            PluginBundle.message("submissionResult.viewDetails"),
+            { link =>
+              CodeForcesSubmissionService.showSubmissionDetails(
+                project,
+                basicInfo.problemSetName,
+                basicInfo.contestId.toString,
+                lastResponse.submissionId.toString
+              )
+            }
+          ),
+          "\n",
+          s"${lastResponseInfo.result.show}\n${lastResponse.message}"
+        )
   }
 
   private def createCFRequest(item: ChallengeSettingsStateItem, client: DSLContext): CFRequest = {
@@ -97,9 +136,32 @@ class CodeForcesSubmissionService(project: Project) extends BaseSubmissionServic
   case class CFRequest(
     contestId: Long,
     index: String,
-    problemsetName: Option[String],
+    problemSetName: Option[String],
     language: Language,
     langVer: LanguageVersion,
     programTypeId: String
   )
+}
+object CodeForcesSubmissionService {
+  def showSubmissionDetails(
+    project: Project,
+    problemSetName: Option[String],
+    contestId: String,
+    submissionId: String
+  ): Unit = {
+    val link = problemSetName
+      .map((name: String) =>
+        "https://codeforces.com/problemsets/" + name + "/submission/" + contestId + "/" + submissionId
+      )
+      .getOrElse("https://codeforces.com/problemset/submission/" + contestId + "/" + submissionId)
+    HttpClientManager
+      .getCookiesForHost(CodeForces.domain)
+      .flatMap { cookies =>
+        IO.delay {
+          val file = new WebPreviewVirtualFile(link, CodeForces.domain.toString, cookies, submissionId)
+          WebPreviewVirtualFile.openEditor(file, project)
+        }.evalOnEDTAny()
+      }
+      .unsafeRunAndForget()
+  }
 }

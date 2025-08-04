@@ -1,9 +1,9 @@
 package com.wenjunhuang.codeepiphany.model.template.lexer
 
+import scala.annotation.static
+
 import com.intellij.lang.Language
 import com.intellij.psi.tree.IElementType
-
-import scala.annotation.static
 
 class ChallengeFileTemplateTokenType {}
 object ChallengeFileTemplateTokenType {

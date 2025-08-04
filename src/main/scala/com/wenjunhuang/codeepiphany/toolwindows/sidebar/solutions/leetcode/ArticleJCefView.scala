@@ -11,7 +11,7 @@ import com.wenjunhuang.codeepiphany.utils.syntax.*
 import org.cef.browser.CefFrame
 import org.cef.network.CefRequest
 import org.http4s.headers.`Content-Type`
-import org.http4s.{Headers, MediaType}
+import org.http4s.{ Headers, MediaType }
 import org.typelevel.ci.CIString
 
 import java.nio.charset.StandardCharsets
@@ -29,9 +29,7 @@ class ArticleJCefView(
   override protected def setupHttpServer(): Unit = {
     myHttpServer.addCustomResponse(
       "/intellijStyle.css",
-      { () =>
-        styleProvider.baseStyle.getBytes(StandardCharsets.UTF_8)
-      },
+      () => styleProvider.baseStyle.getBytes(StandardCharsets.UTF_8),
       "text/css"
     )
     myHttpServer.addTemplateResponse(

@@ -1,21 +1,23 @@
 package com.wenjunhuang.codeepiphany.codeforces.services
 
 import cats.effect.IO
-import com.intellij.openapi.project.Project
-import com.wenjunhuang.codeepiphany.PluginBundle
-import com.wenjunhuang.codeepiphany.database.Tables.*
-import com.wenjunhuang.codeepiphany.services.{ChallengeRepository, console}
-import com.wenjunhuang.codeepiphany.utils.IdGenerator
-import com.wenjunhuang.codeepiphany.utils.syntax.*
+import java.time.LocalDateTime
 import org.jooq.impl.DSL
 import org.typelevel.log4cats.LoggerFactory
 
-import java.time.LocalDateTime
+import com.intellij.openapi.project.Project
+
+import com.wenjunhuang.codeepiphany.PluginBundle
+import com.wenjunhuang.codeepiphany.database.Tables.*
+import com.wenjunhuang.codeepiphany.model.CodeDojo.CodeForces
+import com.wenjunhuang.codeepiphany.services.{ console, ChallengeRepository }
+import com.wenjunhuang.codeepiphany.utils.IdGenerator
+import com.wenjunhuang.codeepiphany.utils.syntax.*
 
 object problemsets {
   def fetchAndUpdateProblemSets(project: Project): IO[Unit] = {
     val logger = LoggerFactory.getLogger[IO]
-    console.info(project, PluginBundle.message("codeforces.problemsets.start")) *>
+    console.info(project, CodeForces, PluginBundle.message("codeforces.problemsets.start")) *>
       CodeForcesApi.getAllProblemSets.flatMap { problems =>
         logger.info(s"Got ${problems.size} problems of CodeForces")
         ChallengeRepository
@@ -53,10 +55,10 @@ object problemsets {
           }
       }.attempt.flatMap {
         case Right(count) =>
-          console.info(project, PluginBundle.message("codeforces.problemsets.success", count))
+          console.info(project, CodeForces, PluginBundle.message("codeforces.problemsets.success", count))
         case Left(e) =>
           logger.warn(e)("Error to fetch problem sets of CodeForces") *>
-            console.error(project, PluginBundle.message("codeforces.problemsets.error", e.getMessage))
+            console.error(project, CodeForces, PluginBundle.message("codeforces.problemsets.error", e.getMessage))
       }
   }
 }

@@ -42,7 +42,7 @@ package object ui {
                 console.error(project, e.getMessage) *>
                 logger.warn(e)(s"Failed to open challenge ${selected.slug}")
               )
-              .evalAsBackgroundProgress(project, s"Opening HackerRank challenge '${selected.name}'...")
+              .evalAsBackgroundProgressCancellable(project, s"Opening HackerRank challenge '${selected.name}'...")
               .unsafeRunAndForget()
           case _ => ()
       }

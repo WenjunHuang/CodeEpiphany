@@ -2,6 +2,7 @@ package com.wenjunhuang.codeepiphany.luogu.services
 
 import cats.effect.IO
 import cats.syntax.all.*
+
 import com.intellij.openapi.application.{ ApplicationManager, ModalityState }
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.DialogBuilder
@@ -12,6 +13,7 @@ import com.intellij.ui.jcef.{ JBCefBrowserBase, JBCefJSQuery }
 import com.intellij.util.IconUtil
 import com.intellij.util.ui.JBImageIcon
 import com.intellij.util.ui.components.BorderLayoutPanel
+
 import com.wenjunhuang.codeepiphany.PluginBundle
 import com.wenjunhuang.codeepiphany.database.Tables.{ CHALLENGE, CHALLENGE_LANGUAGE }
 import com.wenjunhuang.codeepiphany.luogu.models.LuoGuSubmissionResponse
@@ -30,11 +32,14 @@ import org.cef.handler.CefLoadHandlerAdapter
 import org.jooq.{ DSLContext, Record }
 import org.typelevel.ci.CIString
 import scodec.bits.ByteVector
-
 import java.util.concurrent.CancellationException
 import javax.imageio.ImageIO
 import javax.swing.event.DocumentEvent
 import scala.jdk.OptionConverters.*
+
+import com.wenjunhuang.codeepiphany.services.console.MessageSeg.Hyperlink
+import com.wenjunhuang.codeepiphany.services.http.HttpClientManager
+import com.wenjunhuang.codeepiphany.vfs.WebPreviewVirtualFile
 
 class LuoGuSubmissionService(project: Project) extends BaseSubmissionService(project, LuoGu) {
   override type SubmissionRequest  = Request
@@ -66,9 +71,33 @@ class LuoGuSubmissionService(project: Project) extends BaseSubmissionService(pro
   ): IO[Unit] = {
     lastResponseInfo.result match
       case SubmissionResult.Success =>
-        console.info(project, PluginBundle.message("submission.passed"))
+        console.info(
+          project,
+          myCodeDojo,
+          PluginBundle.message("submission.passed"),
+          "\n",
+          Hyperlink(
+            PluginBundle.message("submissionResult.viewDetails"),
+            (project: Project) => {
+              LuoGuSubmissionService
+                .showSubmissionDetails(project, lastResponseInfo.dojoSubmissionId)
+            }
+          )
+        )
       case _ =>
-        console.error(project, s"${lastResponseInfo.result.show}\n${lastResponseInfo.message}")
+        console.error(
+          project,
+          myCodeDojo,
+          Hyperlink(
+            PluginBundle.message("submissionResult.viewDetails"),
+            (project: Project) => {
+              LuoGuSubmissionService
+                .showSubmissionDetails(project, lastResponseInfo.dojoSubmissionId)
+            }
+          ),
+          "\n",
+          s"${lastResponseInfo.result.show}\n${lastResponseInfo.message}"
+        )
   }
 
   private def createRequest(item: ChallengeSettingsStateItem, client: DSLContext): Request = {
@@ -187,4 +216,22 @@ class LuoGuSubmissionService(project: Project) extends BaseSubmissionService(pro
   }
 
   case class Request(problemId: String, language: Language, langVer: LanguageVersion, languageId: String)
+}
+object LuoGuSubmissionService {
+  def showSubmissionDetails(project: Project, submissionId: String): Unit = {
+    HttpClientManager
+      .getCookiesForHost(LuoGu.domain)
+      .flatMap { cookies =>
+        IO.delay {
+          val file = new WebPreviewVirtualFile(
+            s"https://${LuoGu.domain.toString}/record/$submissionId",
+            LuoGu.domain.toString,
+            cookies,
+            submissionId
+          )
+          WebPreviewVirtualFile.openEditor(file, project)
+        }.evalOnEDTAny()
+      }
+      .unsafeRunAndForget()
+  }
 }

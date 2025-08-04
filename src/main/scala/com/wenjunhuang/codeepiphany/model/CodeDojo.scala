@@ -92,10 +92,10 @@ object CodeDojo {
   implicit val codeDojoShow: Show[CodeDojo] = Show.show {
     case HackerRank => "HackerRank"
     case LeetCode   => "LeetCode"
-    case LeetCodeCN => "LeetCodeCN"
+    case LeetCodeCN => PluginBundle.message("leetcodecn.settings.displayName")
     case CodeForces => "CodeForces"
     case AtCoder    => "AtCoder"
-    case LuoGu      => PluginBundle.message("codedojo.luogu")
+    case LuoGu      => PluginBundle.message("luogu.settings.displayName")
   }
 
   @static

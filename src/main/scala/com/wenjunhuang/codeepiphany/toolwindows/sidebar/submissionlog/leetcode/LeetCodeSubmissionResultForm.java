@@ -23,6 +23,7 @@ import com.wenjunhuang.codeepiphany.model.Language;
 import com.wenjunhuang.codeepiphany.model.LanguageVersion;
 import com.wenjunhuang.codeepiphany.model.SubmissionResult;
 import com.wenjunhuang.codeepiphany.model.template.ChallengeFileTemplateHighlighter;
+import com.wenjunhuang.codeepiphany.services.AuthService;
 import com.wenjunhuang.codeepiphany.utils.JavaUtils;
 import org.typelevel.ci.CIString;
 import scala.Option;
@@ -97,7 +98,7 @@ public class LeetCodeSubmissionResultForm {
                         JBUI.Borders.emptyLeft(2)
                 ));
         var submissionId = submissionRecord.getDojosubmissionid();
-        if (submissionId != null) {
+        if (submissionId != null && AuthService.getInstance(project).isLoggedIn(leetCodeDojo)) {
             myViewInBrowser.addActionListener(e -> {
                 LeetCodeSubmissionService.showSubmissionDetails(project, leetCodeDojo, challengeSlug, submissionId);
             });

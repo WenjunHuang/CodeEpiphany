@@ -72,7 +72,7 @@ class LeetCodeChallengesView(
   private val myLoginLogoutProvider = new LoginLogoutProvider {
     override def login(): Unit = {
       myIsLoggingIn = true
-      (console.info(myProject, PluginBundle.message("console.loggingIn", myCodeDojo.show)) *>
+      (console.info(myProject, myCodeDojo, PluginBundle.message("console.loggingIn", myCodeDojo.show)) *>
         AuthService
           .getInstance(myProject)
           .loadAuthenticationMayAskForLogin(myCodeDojo)
@@ -90,12 +90,20 @@ class LeetCodeChallengesView(
                     mySwitchUIProvider.switchTo(gotoUI)
                   }.evalOnEDTAny()
                 }
-                *> console.info(myProject, PluginBundle.message("console.loggedIn", myCodeDojo.show))
-            case _ => console.info(myProject, PluginBundle.message("console.loginCancelled", myCodeDojo.show))
+                *> console.info(myProject, myCodeDojo, PluginBundle.message("console.loggedIn", myCodeDojo.show))
+            case AskForLoginResult.Cancelled =>
+              console.info(myProject, myCodeDojo, PluginBundle.message("console.loginCancelled", myCodeDojo.show))
           }
+          .onCancel(
+            console.info(myProject, myCodeDojo, PluginBundle.message("console.loginCancelled", myCodeDojo.show))
+          )
           .handleErrorWith { e =>
             myLogger.warn(e)("Failed to login") *>
-              console.error(myProject, PluginBundle.message("console.loginFailed", myCodeDojo.show, e.getMessage))
+              console.error(
+                myProject,
+                myCodeDojo,
+                PluginBundle.message("console.loginFailed", myCodeDojo.show, e.getMessage)
+              )
           })
         .guarantee(IO.delay { myIsLoggingIn = false })
         .unsafeRunAsBackgroundProgressCancellable(myProject, PluginBundle.message("console.loggingIn", myCodeDojo.show))

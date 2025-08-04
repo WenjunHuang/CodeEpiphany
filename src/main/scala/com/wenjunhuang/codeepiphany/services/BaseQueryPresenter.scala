@@ -1,25 +1,29 @@
 package com.wenjunhuang.codeepiphany.services
 
+import cats.effect.{ IO, SyncIO }
 import cats.effect.std.Queue
-import cats.effect.{IO, SyncIO}
+import fs2.Stream
+import java.util
+import javax.swing.{ JComponent, ListSelectionModel }
+import org.typelevel.log4cats.{ Logger, LoggerFactory }
+import scala.concurrent.duration.*
+import scala.jdk.CollectionConverters.*
+
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
 import com.intellij.ui.SingleSelectionModel
-import com.intellij.util.ui.{ColumnInfo, ListTableModel}
+import com.intellij.util.ui.{ ColumnInfo, ListTableModel }
+
 import com.wenjunhuang.codeepiphany.PluginBundle
-import com.wenjunhuang.codeepiphany.actions.PaginationParameterActionGroup.{PAGINATION_PROVIDER_KEY, PaginationParameterProvider}
+import com.wenjunhuang.codeepiphany.actions.PaginationParameterActionGroup.{
+  PAGINATION_PROVIDER_KEY,
+  PaginationParameterProvider
+}
+import com.wenjunhuang.codeepiphany.utils.{ CancellableStream, OrderByColumnInfo, PageSize, Pagination }
 import com.wenjunhuang.codeepiphany.utils.actions.DataSink
 import com.wenjunhuang.codeepiphany.utils.extensions.*
 import com.wenjunhuang.codeepiphany.utils.syntax.*
-import com.wenjunhuang.codeepiphany.utils.{CancellableStream, OrderByColumnInfo, PageSize, Pagination}
-import fs2.Stream
-import org.typelevel.log4cats.{Logger, LoggerFactory}
-
-import java.util
-import javax.swing.{JComponent, ListSelectionModel}
-import scala.concurrent.duration.*
-import scala.jdk.CollectionConverters.*
 
 case class QueryContext[T](criteria: T, pagination: Pagination) {
   def updateCriteria(f: T => T): QueryContext[T] =
@@ -116,19 +120,12 @@ abstract class BaseQueryPresenter[UIBoostrapParameters, T, ResultItem](
     saveQueryCriteria(updatedCriteria, pagination)
   }.evalOnEDTAny()
 
-  private def executeQueryWithProgress(context: QueryContext[T]): IO[Unit] = {
-    Stream
-      .eval(IO.delay { myIsQuerying = true } *> executeQuery(context))
-      .evalTap { case (pagination, items) => handleQueryResult(pagination, items) }
-      .onFinalize(IO.delay { myIsQuerying = false })
-      .compile
-      .drain
-      .recoverWith { e =>
-        myLoggerIO.warn(e)("Failed to execute query") *>
-          console.error(myProject, PluginBundle.message("query.error", e.getMessage))
-      }
-      .evalAsBackgroundProgress(myProject, PluginBundle.message("query.progress.title", queryTitle))
-  }
+  private def executeQueryWithProgress(context: QueryContext[T]): IO[Unit] =
+    IO.delay { myIsQuerying = true }.bracket { _ =>
+      executeQuery(context).flatMap { case (pagination, items) => handleQueryResult(pagination, items) }
+    } { _ => IO.delay { myIsQuerying = false } }.recoverWith { e =>
+      myLoggerIO.warn(e)("Failed to execute query") *> console.error(myProject, PluginBundle.message("query.error", e.getMessage))
+    }.evalAsBackgroundProgressCancellable(myProject, PluginBundle.message("query.progress.title", queryTitle))
 
   private def processQuery(ctx: CancellableStream.StreamContext[QueryContext[T]]): IO[Unit] = {
     IO.delay { updateQueryUI(ctx.value) }.evalOnEDTAny() *>

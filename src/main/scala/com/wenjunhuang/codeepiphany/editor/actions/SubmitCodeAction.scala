@@ -8,7 +8,7 @@ import com.wenjunhuang.codeepiphany.editor.actions.SubmitCodeAction.*
 import com.wenjunhuang.codeepiphany.editor.services.submitCode
 import com.wenjunhuang.codeepiphany.model.CodeDojo
 import com.wenjunhuang.codeepiphany.services.file.saveEditedFile
-import com.wenjunhuang.codeepiphany.utils.actions.{ActionCompatible, FileEditorKeyNotNull, FileEditorUserLoggedIn}
+import com.wenjunhuang.codeepiphany.utils.actions.{ ActionCompatible, FileEditorKeyNotNull, FileEditorUserLoggedIn }
 import com.wenjunhuang.codeepiphany.utils.extensions.*
 
 class SubmitCodeAction
@@ -37,7 +37,7 @@ object SubmitCodeAction {
       new SubmitCodeProvider {
         override def submitCurrent(): Unit = {
           (saveEditedFile(vf) *>
-            submitCode(vf, project))
+            submitCode(vf, codeDojo, project))
             .unsafeRunAsBackgroundProgressCancellable(project, "Submitting code")
         }
       }

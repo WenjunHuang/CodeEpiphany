@@ -68,18 +68,19 @@ class SubmissionView(private val myProject: Project, submissionLogComponent: JCo
           submission,
           hackerCases.asJavaCollection
         ).getComponent
-      case CodeForcesSubmission(language, languageVersion, submission, contestId, problemsetName) =>
+      case CodeForcesSubmission(language, languageVersion, submission, contestId, problemSetName) =>
         CodeForcesSubmissionResultForm(
+          myProject,
           language,
           languageVersion,
           submission,
           contestId,
-          problemsetName.toJava
+          problemSetName
         ).getComponent
       case AtCoderSubmission(language, languageVersion, submission, contestId, problemId) =>
         AtCoderSubmissionResultForm(language, languageVersion, submission, contestId, problemId).getComponent
       case LuoGuSubmission(language, languageVersion, submission) =>
-        LuoGuSubmissionResultForm(language, languageVersion, submission).getComponent
+        LuoGuSubmissionResultForm(myProject,language, languageVersion, submission).getComponent
     }
     mySplitter.setSecondComponent(
       JBScrollPane(

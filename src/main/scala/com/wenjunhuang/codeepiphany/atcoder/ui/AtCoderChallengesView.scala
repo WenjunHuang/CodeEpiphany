@@ -2,38 +2,42 @@ package com.wenjunhuang.codeepiphany.atcoder.ui
 
 import cats.effect.IO
 import cats.syntax.all.*
+import java.util.concurrent.atomic.AtomicBoolean
+import javax.swing.JComponent
+import org.typelevel.ci.CIString
+import org.typelevel.log4cats.LoggerFactory
 
 import com.intellij.openapi.Disposable
-import com.intellij.openapi.actionSystem.{ActionGroup, ActionManager}
+import com.intellij.openapi.actionSystem.{ ActionGroup, ActionManager }
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
+import com.intellij.ui.scale.JBUIScale
 
 import com.wenjunhuang.codeepiphany.PluginBundle
-import com.wenjunhuang.codeepiphany.actions.LoginAction.{LOGIN_LOGOUT_KEY, LoginLogoutProvider}
-import com.wenjunhuang.codeepiphany.atcoder.actions.AtCoderChangeUIAction.{ATCODER_CHANGE_UI_PROVIDER_KEY, AtCoderChangeUIProvider, AtCoderUI}
-import com.wenjunhuang.codeepiphany.atcoder.actions.AtCoderUpdateProblemSetsAction.{ATCODER_UPDATE_PROBLEM_SETS_PROVIDER_KEY, AtCoderUpdateProblemSetsProvider}
+import com.wenjunhuang.codeepiphany.actions.LoginAction.{ LOGIN_LOGOUT_KEY, LoginLogoutProvider }
+import com.wenjunhuang.codeepiphany.actions.UserAccountInfoAction.{ USER_ACCOUNT_INFO_KEY, UserInfoProvider }
+import com.wenjunhuang.codeepiphany.atcoder.actions.AtCoderChangeUIAction.{
+  ATCODER_CHANGE_UI_PROVIDER_KEY,
+  AtCoderChangeUIProvider,
+  AtCoderUI
+}
+import com.wenjunhuang.codeepiphany.atcoder.actions.AtCoderUpdateProblemSetsAction.{
+  ATCODER_UPDATE_PROBLEM_SETS_PROVIDER_KEY,
+  AtCoderUpdateProblemSetsProvider
+}
+import com.wenjunhuang.codeepiphany.atcoder.models.AtCoderUserInfo
 import com.wenjunhuang.codeepiphany.atcoder.services.AtCoderApi
 import com.wenjunhuang.codeepiphany.atcoder.services.problemsets.fetchAndUpdateProblemSets
 import com.wenjunhuang.codeepiphany.atcoder.settings.AtCoderSettings
 import com.wenjunhuang.codeepiphany.model.Actions.ATCODER_TITLE_TOOLBAR_GROUP
 import com.wenjunhuang.codeepiphany.model.CodeDojo
 import com.wenjunhuang.codeepiphany.model.CodeDojo.AtCoder
-import com.wenjunhuang.codeepiphany.services.{console, AskForLoginResult, AuthService, BaseChallengesView}
+import com.wenjunhuang.codeepiphany.services.{ console, AskForLoginResult, AuthService, BaseChallengesView }
+import com.wenjunhuang.codeepiphany.services.http.HttpClientManager
 import com.wenjunhuang.codeepiphany.utils.actions.DataSink
 import com.wenjunhuang.codeepiphany.utils.extensions.*
 import com.wenjunhuang.codeepiphany.utils.syntax.*
 import com.wenjunhuang.codeepiphany.utils.ui.UnauthenticatedView
-import org.typelevel.ci.CIString
-import org.typelevel.log4cats.LoggerFactory
-import java.util.concurrent.atomic.AtomicBoolean
-import javax.swing.JComponent
-
-import com.intellij.ui.scale.JBUIScale
-
-import com.wenjunhuang.codeepiphany.actions.UserAccountInfoAction.{USER_ACCOUNT_INFO_KEY, UserInfoProvider}
-import com.wenjunhuang.codeepiphany.atcoder.models.AtCoderUserInfo
-import com.wenjunhuang.codeepiphany.codeforces.models.CodeForcesUserInfo
-import com.wenjunhuang.codeepiphany.services.http.HttpClientManager
 import com.wenjunhuang.codeepiphany.utils.AsyncAvatarLoader
 import com.wenjunhuang.codeepiphany.vfs.WebPreviewVirtualFile
 
@@ -59,10 +63,10 @@ class AtCoderChallengesView(private val myProject: Project) extends BaseChalleng
   private val myLoginLogoutProvider = new LoginLogoutProvider {
     override def login(): Unit = {
       myIsLoggingIn = true
-      (console.info(myProject, PluginBundle.message("console.loggingIn", CodeDojo.AtCoder.show)) *>
+      (console.info(myProject, AtCoder, PluginBundle.message("console.loggingIn", AtCoder.show)) *>
         AuthService
           .getInstance(myProject)
-          .loadAuthenticationMayAskForLogin(CodeDojo.AtCoder)
+          .loadAuthenticationMayAskForLogin(AtCoder)
           .flatMap {
             case AskForLoginResult.Done =>
               initialize().map { bootstrap =>
@@ -71,27 +75,29 @@ class AtCoderChallengesView(private val myProject: Project) extends BaseChalleng
               } *>
                 AtCoderApi.getUserInfo.flatMap { userInfo =>
                   IO.delay {
-                    AuthService.getInstance(myProject).setLogin(CodeDojo.AtCoder, userInfo)
+                    AuthService.getInstance(myProject).setLogin(AtCoder, userInfo)
                     val gotoUI = loadLastUI().getOrElse(AtCoderUI.QueryParameters)
                     mySwitchUIProvider.switchTo(gotoUI)
                   }.evalOnEDTAny() *> console.info(
                     myProject,
+                    AtCoder,
                     PluginBundle.message("console.loggedIn", CodeDojo.AtCoder.show)
                   )
                 }
-            case _ => console.info(myProject, PluginBundle.message("console.loginCancelled", CodeDojo.AtCoder.show))
+            case _ => console.info(myProject, AtCoder, PluginBundle.message("console.loginCancelled", AtCoder.show))
           }
           .handleErrorWith { e =>
             myLogger
               .warn(e)(s"Failed to login ${CodeDojo.AtCoder.show}") *> console.error(
               myProject,
-              PluginBundle.message("console.loginFailed", CodeDojo.AtCoder.show, e.getMessage)
+              AtCoder,
+              PluginBundle.message("console.loginFailed", AtCoder.show, e.getMessage)
             )
           })
         .guarantee(IO.delay { myIsLoggingIn = false })
         .unsafeRunAsBackgroundProgressCancellable(
           myProject,
-          PluginBundle.message("console.loggingIn", CodeDojo.AtCoder.show)
+          PluginBundle.message("console.loggingIn",AtCoder.show)
         )
     }
 
@@ -125,9 +131,8 @@ class AtCoderChallengesView(private val myProject: Project) extends BaseChalleng
     }
 
     override def action: () => Unit = { () =>
-
       AuthService.getInstance(myProject).getLoginUserInfo(CodeDojo.AtCoder) match {
-        case Some(AtCoderUserInfo(nickName,_)) =>
+        case Some(AtCoderUserInfo(nickName, _)) =>
           HttpClientManager
             .getCookiesForHost(CodeDojo.AtCoder.domain)
             .flatMap { cookies =>

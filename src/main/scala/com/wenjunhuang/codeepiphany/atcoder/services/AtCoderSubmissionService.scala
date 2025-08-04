@@ -46,9 +46,9 @@ class AtCoderSubmissionService(project: Project) extends BaseSubmissionService(p
   ): IO[Unit] = {
     lastResponseInfo.result match
       case SubmissionResult.Success =>
-        console.info(project, PluginBundle.message("submission.passed"))
+        console.info(project, AtCoder, PluginBundle.message("submission.passed"))
       case _ =>
-        console.error(project, s"${lastResponseInfo.result.show}\n${lastResponseInfo.message}")
+        console.error(project, AtCoder, s"${lastResponseInfo.result.show}\n${lastResponseInfo.message}")
   }
 
   private def createRequest(item: ChallengeSettingsStateItem, client: DSLContext): Request = {
