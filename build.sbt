@@ -175,9 +175,9 @@ lazy val codeEpiphany = (project in file("."))
       xml.pluginDescription = s"<![CDATA[${markdownToHtml(baseDirectory.value / "DESCRIPTION.md")}]]>"
     },
     // Make buildWebview and generateBuildConfig run before compile
-    Compile / unmanagedResources := (Compile / unmanagedResources).dependsOn(buildWebview, generateBuildConfig).value,
+    Compile / unmanagedResources := (Compile / unmanagedResources).dependsOn(buildWebview).value,
     Compile / unmanagedSourceDirectories += baseDirectory.value / "gen",
-    Compile / unmanagedSourceDirectories += target.value / "gen",
+    // Compile / unmanagedSourceDirectories += target.value / "gen",
     Compile / unmanagedSourceDirectories += baseDirectory.value / "src" / "main" / "jooq-generated",
     Compile / unmanagedResourceDirectories += target.value / "webviewResources",
     Compile / unmanagedSourceDirectories ++= {
@@ -205,7 +205,7 @@ lazy val codeEpiphany = (project in file("."))
     jooqCodegenMode   := Unmanaged,
     libraryDependencies ++= Seq(
       // add scala reflect
-      "org.typelevel"           %% "cats-effect"              % "3.6.2",
+      "org.typelevel"           %% "cats-effect"              % "3.6.3",
       "org.typelevel"           %% "cats-core"                % "2.13.0",
       "org.typelevel"           %% "cats-mtl"                 % "1.5.0",
       "io.circe"                %% "circe-core"               % "0.14.14",
@@ -220,7 +220,8 @@ lazy val codeEpiphany = (project in file("."))
       "org.http4s"              %% "http4s-client"            % "0.23.30",
       "org.http4s"              %% "http4s-dsl"               % "0.23.30",
       "org.http4s"              %% "http4s-circe"             % "0.23.30",
-      "com.squareup.okhttp3"     % "okhttp"                   % "4.12.0",
+      "com.squareup.okhttp3"     % "okhttp-jvm"                   % "5.1.0",
+//      "com.squareup.okhttp3"     % "okhttp"                   % "4.12.0",
       "org.jsoup"                % "jsoup"                    % "1.21.1",
       "com.vladsch.flexmark"     % "flexmark"                 % "0.64.8",
       "com.vladsch.flexmark"     % "flexmark-util-data"       % "0.64.8",
@@ -239,7 +240,7 @@ lazy val codeEpiphany = (project in file("."))
       "io.monix"                %% "newtypes-circe-v0-14"     % "0.3.0",
       "com.github.cb372"        %% "cats-retry"               % "4.0.0",
       "com.github.weisj"         % "jsvg"                     % "2.0.0",
-      "org.apache.commons"       % "commons-text"             % "1.13.1",
+      "org.apache.commons"       % "commons-text"             % "1.14.0",
       // add jooq and sqlite,
       "org.jooq"            % "jooq"                          % "3.19.18",
       "org.reactivestreams" % "reactive-streams"              % "1.0.4",

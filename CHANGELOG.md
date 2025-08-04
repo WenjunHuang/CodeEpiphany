@@ -1,3 +1,6 @@
+## 1.6.0
+### Added
+- Add submission result view in embedded browser for CodeForces, LuoGu
 ## 1.5.0
 ### Added
 - Add user profile view for LeetCode, LeetCodeCN, LuoGu, CodeForces, AtCoder and HackerRank

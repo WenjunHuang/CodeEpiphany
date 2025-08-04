@@ -15,10 +15,12 @@ import com.intellij.util.ui.JBUI;
 import com.wenjunhuang.codeepiphany.PluginBundle;
 import com.wenjunhuang.codeepiphany.codeforces.services.CodeForcesSubmissionService;
 import com.wenjunhuang.codeepiphany.database.tables.records.SolutionSubmissionRecord;
+import com.wenjunhuang.codeepiphany.model.CodeDojo;
 import com.wenjunhuang.codeepiphany.model.Language;
 import com.wenjunhuang.codeepiphany.model.LanguageVersion;
 import com.wenjunhuang.codeepiphany.model.SubmissionResult;
 import com.wenjunhuang.codeepiphany.model.template.ChallengeFileTemplateHighlighter;
+import com.wenjunhuang.codeepiphany.services.AuthService;
 import com.wenjunhuang.codeepiphany.toolwindows.sidebar.submissionlog.SubmissionResultHelper;
 import com.wenjunhuang.codeepiphany.utils.JavaUtils;
 import com.wenjunhuang.codeepiphany.utils.ui.BackgroundRoundedPanel;
@@ -74,7 +76,7 @@ public class CodeForcesSubmissionResultForm {
         $$$setupUI$$$();
 
         var submissionId = submissionRecord.getDojosubmissionid();
-        if (submissionId != null) {
+        if (submissionId != null && AuthService.getInstance(project).isLoggedIn(CodeDojo.valueOf("CodeForces"))) {
             myViewInBrowser.addActionListener(e -> {
                 CodeForcesSubmissionService.showSubmissionDetails(project, problemSetName, contestId.toString(), submissionId);
             });

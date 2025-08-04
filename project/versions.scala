@@ -1,7 +1,7 @@
 import org.jetbrains.sbtidea.IntelliJPlatform
 
 object versions {
-  val intellijPlatform: IntelliJPlatform = IntelliJPlatform.IdeaUltimate
+  val intellijPlatform: IntelliJPlatform = IntelliJPlatform.IdeaCommunity
   val intellijBuild233                   = "233.11799.241"
   val intellijBuild241                   = "241.14494.240"
   var intellijBuild252                   = "252.13776.59"

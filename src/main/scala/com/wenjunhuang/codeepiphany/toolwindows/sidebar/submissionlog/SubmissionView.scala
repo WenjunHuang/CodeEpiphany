@@ -80,7 +80,7 @@ class SubmissionView(private val myProject: Project, submissionLogComponent: JCo
       case AtCoderSubmission(language, languageVersion, submission, contestId, problemId) =>
         AtCoderSubmissionResultForm(language, languageVersion, submission, contestId, problemId).getComponent
       case LuoGuSubmission(language, languageVersion, submission) =>
-        LuoGuSubmissionResultForm(language, languageVersion, submission).getComponent
+        LuoGuSubmissionResultForm(myProject,language, languageVersion, submission).getComponent
     }
     mySplitter.setSecondComponent(
       JBScrollPane(

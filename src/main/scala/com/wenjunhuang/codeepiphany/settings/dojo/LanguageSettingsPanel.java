@@ -3,6 +3,7 @@ package com.wenjunhuang.codeepiphany.settings.dojo;
 import com.intellij.codeInsight.hint.EditorFragmentComponent;
 import com.intellij.icons.AllIcons;
 import com.intellij.ide.IdeBundle;
+import com.intellij.ide.plugins.PluginManager;
 import com.intellij.ide.ui.laf.darcula.ui.DarculaEditorTextFieldBorder;
 import com.intellij.openapi.actionSystem.*;
 import com.intellij.openapi.actionSystem.ex.ActionManagerEx;
@@ -11,6 +12,7 @@ import com.intellij.openapi.editor.EditorFactory;
 import com.intellij.openapi.editor.colors.EditorFontType;
 import com.intellij.openapi.editor.event.DocumentEvent;
 import com.intellij.openapi.editor.event.DocumentListener;
+import com.intellij.openapi.extensions.PluginId;
 import com.intellij.openapi.fileChooser.FileChooserDescriptor;
 import com.intellij.openapi.fileChooser.FileChooserDescriptorFactory;
 import com.intellij.openapi.fileTypes.FileTypes;
@@ -41,6 +43,7 @@ import com.wenjunhuang.codeepiphany.model.Language;
 import com.wenjunhuang.codeepiphany.model.LanguageVersion;
 import com.wenjunhuang.codeepiphany.model.template.ChallengeFileTemplateHighlighter;
 import com.wenjunhuang.codeepiphany.settings.SettingsUi;
+import com.wenjunhuang.codeepiphany.utils.IdeUtils;
 import com.wenjunhuang.codeepiphany.utils.JavaUtils;
 import com.wenjunhuang.codeepiphany.utils.template.VelocityUtils;
 import org.apache.commons.io.IOUtils;
@@ -134,8 +137,8 @@ public class LanguageSettingsPanel extends SettingsUi<BaseCodeDojoSettings.Langu
         myDescription.addHyperlinkListener(new BrowserHyperlinkListener());
 
         // get current ide locale
-        var localeString = Locale.getDefault().getLanguage();
-        var file = "/settings/CodeTemplate_" + myCodeDojo.value() + localeString + ".html";
+        var i18nLang = IdeUtils.i18nLanguage();
+        var file = "/settings/CodeTemplate_" + myCodeDojo.value() + "_" + i18nLang + ".html";
         var fallbackFile = "/settings/CodeTemplate_" + myCodeDojo.value() + ".html";
         try (var fileStream = getClass().getResourceAsStream(file);
              var fallbackStream = getClass().getResourceAsStream(fallbackFile)) {
