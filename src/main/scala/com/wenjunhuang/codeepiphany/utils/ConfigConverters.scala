@@ -5,7 +5,7 @@ import com.intellij.util.xmlb.Converter
 import com.wenjunhuang.codeepiphany.model.{CodeDojo, Language, LanguageVersion}
 import org.typelevel.ci.CIString
 
-object XmlUtils {
+object ConfigConverters {
 
   class LanguageConverter extends Converter[Language] {
     override def fromString(value: String): Language = Language.fromCIString(CIString(value)).orNull

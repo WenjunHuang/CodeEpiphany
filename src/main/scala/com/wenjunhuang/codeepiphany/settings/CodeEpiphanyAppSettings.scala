@@ -8,7 +8,7 @@ import com.intellij.openapi.components.Service.Level
 import com.intellij.util.xmlb.annotations.Attribute
 
 import com.wenjunhuang.codeepiphany.model.Constants
-import com.wenjunhuang.codeepiphany.utils.XmlUtils.StringOptionConverter
+import com.wenjunhuang.codeepiphany.utils.ConfigConverters.StringOptionConverter
 
 @Service(Array(Level.APP))
 @State(name = Constants.APP_SETTING, storages = Array(new Storage(Constants.APP_SETTING_FILE)) )

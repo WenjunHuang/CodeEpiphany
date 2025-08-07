@@ -5,7 +5,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.util.xmlb.annotations.Attribute
 import com.wenjunhuang.codeepiphany.model.{Language, LanguageVersion}
 import com.wenjunhuang.codeepiphany.settings.dojo.BaseCodeDojoSettings.*
-import com.wenjunhuang.codeepiphany.utils.XmlUtils.*
+import com.wenjunhuang.codeepiphany.utils.ConfigConverters.*
 
 import java.util as ju
 import scala.annotation.meta.field
