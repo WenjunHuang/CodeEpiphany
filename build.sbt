@@ -221,7 +221,6 @@ lazy val codeEpiphany = (project in file("."))
       "org.http4s"              %% "http4s-dsl"               % "0.23.30",
       "org.http4s"              %% "http4s-circe"             % "0.23.30",
       "com.squareup.okhttp3"     % "okhttp-jvm"                   % "5.1.0",
-//      "com.squareup.okhttp3"     % "okhttp"                   % "4.12.0",
       "org.jsoup"                % "jsoup"                    % "1.21.1",
       "com.vladsch.flexmark"     % "flexmark"                 % "0.64.8",
       "com.vladsch.flexmark"     % "flexmark-util-data"       % "0.64.8",
