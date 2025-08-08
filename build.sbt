@@ -161,7 +161,8 @@ lazy val codeEpiphany = (project in file("."))
       xms = 256,
       defaultOptions = intellijVMOptions.value.defaultOptions ++ Seq(
         "--add-opens=java.management/sun.management=ALL-UNNAMED",
-        "--add-opens=java.desktop/javax.swing.text=ALL-UNNAMED" // apple m4 need this parameter
+        "--add-opens=java.desktop/javax.swing.text=ALL-UNNAMED", // apple m4 need this parameter
+        "--add-opens=java.desktop/javax.swing.text.html.parser=ALL-UNNAMED", // apple m4 need this parameter
       )
     ),
     patchPluginXml := pluginXmlOptions { xml =>

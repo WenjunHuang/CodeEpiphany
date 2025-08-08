@@ -4,7 +4,7 @@ import com.intellij.openapi.actionSystem.{AnActionEvent, DataKey, DefaultActionG
 
 import com.wenjunhuang.codeepiphany.actions.LoginAction.LOGIN_LOGOUT_KEY
 import com.wenjunhuang.codeepiphany.actions.UserAccountInfoAction.USER_ACCOUNT_INFO_KEY
-import com.wenjunhuang.codeepiphany.utils.actions.{ActionCompatible, MultipleDataKeysNotNull, UserLoggedIn}
+import com.wenjunhuang.codeepiphany.utils.actions.{ActionCompatible, MultipleDataKeysNotNull}
 
 class AccountActionGroup extends DefaultActionGroup with ActionCompatible with MultipleDataKeysNotNull  {
   override protected def dataKeys: Seq[DataKey[?]] = Seq(LOGIN_LOGOUT_KEY, USER_ACCOUNT_INFO_KEY)

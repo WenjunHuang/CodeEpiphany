@@ -1,16 +1,17 @@
 package com.wenjunhuang.codeepiphany.settings.dojo
 
-import com.intellij.openapi.components.PersistentStateComponent
-import com.intellij.openapi.project.Project
-import com.intellij.util.xmlb.annotations.Attribute
-import com.wenjunhuang.codeepiphany.model.{Language, LanguageVersion}
-import com.wenjunhuang.codeepiphany.settings.dojo.BaseCodeDojoSettings.*
-import com.wenjunhuang.codeepiphany.utils.ConfigConverters.*
-
 import java.util as ju
 import scala.annotation.meta.field
 import scala.beans.BeanProperty
 import scala.jdk.CollectionConverters.*
+
+import com.intellij.openapi.components.PersistentStateComponent
+import com.intellij.openapi.project.Project
+import com.intellij.util.xmlb.annotations.Attribute
+
+import com.wenjunhuang.codeepiphany.model.{Language, LanguageVersion}
+import com.wenjunhuang.codeepiphany.settings.dojo.BaseCodeDojoSettings.*
+import com.wenjunhuang.codeepiphany.utils.ConfigConverters.*
 
 /** Base class for code dojo settings. It provides the common functionality for similar code dojo settings.
   */
@@ -41,6 +42,8 @@ object BaseCodeDojoSettings {
     var languageSettings: ju.List[LanguageSettingsState] = new ju.ArrayList[LanguageSettingsState]()
     @BeanProperty
     var queryCriteria: ju.Map[String, String] = new ju.HashMap[String, String]()
+    @BeanProperty
+    var extras: ju.Map[String, String] = new ju.HashMap[String, String]()
   }
 
   class LanguageSettingsState {

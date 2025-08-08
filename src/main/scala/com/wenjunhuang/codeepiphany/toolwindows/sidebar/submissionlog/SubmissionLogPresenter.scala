@@ -2,6 +2,7 @@ package com.wenjunhuang.codeepiphany.toolwindows.sidebar.submissionlog
 
 import cats.effect.IO
 import cats.syntax.all.*
+
 import com.intellij.diff.DiffContentFactory
 import com.intellij.diff.actions.CompareFilesAction
 import com.intellij.diff.requests.SimpleDiffRequest
@@ -11,6 +12,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.util.ui.table.IconTableCellRenderer
+
 import com.wenjunhuang.codeepiphany.PluginBundle
 import com.wenjunhuang.codeepiphany.actions.CodeDojoParameterAction.{CODEDOJO_PROVIDER_KEY, CodeDojoParameterProvider}
 import com.wenjunhuang.codeepiphany.actions.LanguageParameterAction.{LANGUAGE_PROVIDER_KEY, LanguageParameterProvider}
@@ -26,9 +28,8 @@ import com.wenjunhuang.codeepiphany.utils.{OrderByColumnInfo, Pagination}
 import com.wenjunhuang.codeepiphany.vfs.SubmissionCodeFileSystem
 import com.wenjunhuang.codeepiphany.vfs.SubmissionCodeFileSystem.SubmissionCodeFilePath
 import monocle.syntax.all.*
-import org.jooq.SelectOnConditionStep
+import org.jooq.{SelectLimitStep, SelectOnConditionStep}
 import org.typelevel.ci.CIString
-
 import java.time.format.DateTimeFormatter
 import javax.swing.table.TableCellRenderer
 import javax.swing.{DefaultListSelectionModel, Icon, JTable, ListSelectionModel}
@@ -442,14 +443,18 @@ object SubmissionLogPresenter {
     case LuoGuSubmission(language: Language, languageVersion: LanguageVersion, record: SolutionSubmissionRecord)
   }
 
-  private val EMPTY_QUERY_PARAMS = QueryParams(dojos = List.empty, languages = List.empty, orderBy = None)
+  private val EMPTY_QUERY_PARAMS = QueryParams(
+    dojos = List.empty,
+    languages = List.empty,
+    orderBy = Some((SubmissionLogOrderBy.SubmissionDateTimeField, OrderDirection.Descending))
+  )
 
   case class QueryParams(
     dojos: List[CodeDojo],
     languages: List[Language],
     orderBy: Option[(SubmissionLogOrderBy, OrderDirection)]
   ) {
-    def fillQueryConditions(base: SelectOnConditionStep[?]) = {
+    def fillQueryConditions(base: SelectOnConditionStep[?]): SelectLimitStep[?] = {
       var query = base
       if dojos.nonEmpty then query = query.and(CHALLENGE.DOJO.in(dojos.map(_.value).asJava))
       if languages.nonEmpty then query = query.and(CHALLENGE_LANGUAGE.LANGUAGE.in(languages.map(_.value).asJava))

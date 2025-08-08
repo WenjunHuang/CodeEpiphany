@@ -1,23 +1,23 @@
 package com.wenjunhuang.codeepiphany.services.http
 
-import cats.effect.{ IO, Ref, Resource }
-import com.intellij.openapi.util.io.FileUtil
-import com.wenjunhuang.codeepiphany.model.CodeDojo
-import com.wenjunhuang.codeepiphany.utils.CompatibleUtils
-import com.wenjunhuang.codeepiphany.utils.syntax.*
+import cats.effect.{IO, Ref, Resource}
+import java.net
+import java.net.HttpCookie
+import java.security.cert.X509Certificate
+import javax.net.ssl.{SSLContext, TrustManager, X509TrustManager}
 import okhttp3.*
 import org.http4s.client.Client
 import org.typelevel.ci.CIString
-
-import java.io.IOException
-import java.net.{ HttpCookie, ProxySelector, SocketAddress, URI }
-import java.security.cert.X509Certificate
-import java.{ net, util }
-import javax.net.ssl.{ SSLContext, TrustManager, X509TrustManager }
 import scala.annotation.static
 import scala.concurrent.duration.*
 import scala.jdk.CollectionConverters.*
 import scala.util.boundary
+
+import com.intellij.openapi.util.io.FileUtil
+
+import com.wenjunhuang.codeepiphany.model.CodeDojo
+import com.wenjunhuang.codeepiphany.utils.CompatibleUtils
+import com.wenjunhuang.codeepiphany.utils.syntax.*
 
 type CookieJar = Map[CodeDojo, Map[CIString, HttpCookie]]
 

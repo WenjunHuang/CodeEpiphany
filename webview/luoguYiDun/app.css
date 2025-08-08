@@ -1,6 +1,5 @@
 .yidun.yidun--light.yidun--avoid.yidun--button .yidun_tips .yidun_tips__icon, .yidun.yidun--light.yidun--error.yidun--avoid .yidun_tips .yidun_tips__icon, .yidun.yidun--light.yidun--error.yidun--icon_point .yidun_tips .yidun_tips__icon, .yidun.yidun--light.yidun--error.yidun--inference .yidun_tips .yidun_tips__icon, .yidun.yidun--light.yidun--error.yidun--maxerror .yidun_tips .yidun_tips__icon, .yidun.yidun--light.yidun--error.yidun--point .yidun_tips .yidun_tips__icon, .yidun.yidun--light.yidun--error.yidun--sms .yidun_tips .yidun_tips__icon, .yidun.yidun--light.yidun--error.yidun--space .yidun_tips .yidun_tips__icon, .yidun.yidun--light.yidun--error.yidun--voice .yidun_tips .yidun_tips__icon, .yidun.yidun--light.yidun--error.yidun--word_group .yidun_tips .yidun_tips__icon, .yidun.yidun--light.yidun--error.yidun--word_order .yidun_tips .yidun_tips__icon, .yidun.yidun--light.yidun--icon_point.yidun--button .yidun_tips .yidun_tips__icon, .yidun.yidun--light.yidun--inference.yidun--button .yidun_tips .yidun_tips__icon, .yidun.yidun--light.yidun--point.yidun--button .yidun_tips .yidun_tips__icon, .yidun.yidun--light.yidun--space.yidun--button .yidun_tips .yidun_tips__icon, .yidun.yidun--light.yidun--success.yidun--avoid .yidun_tips .yidun_tips__icon, .yidun.yidun--light.yidun--success.yidun--icon_point .yidun_tips .yidun_tips__icon, .yidun.yidun--light.yidun--success.yidun--inference .yidun_tips .yidun_tips__icon, .yidun.yidun--light.yidun--success.yidun--point .yidun_tips .yidun_tips__icon, .yidun.yidun--light.yidun--success.yidun--sms .yidun_tips .yidun_tips__icon, .yidun.yidun--light.yidun--success.yidun--space .yidun_tips .yidun_tips__icon, .yidun.yidun--light.yidun--success.yidun--voice .yidun_tips .yidun_tips__icon, .yidun.yidun--light.yidun--success.yidun--word_group .yidun_tips .yidun_tips__icon, .yidun.yidun--light.yidun--success.yidun--word_order .yidun_tips .yidun_tips__icon, .yidun.yidun--light.yidun--word_group.yidun--button .yidun_tips .yidun_tips__icon, .yidun.yidun--light.yidun--word_order.yidun--button .yidun_tips .yidun_tips__icon, .yidun.yidun--light .yidun_loadbox .yidun_loadbox__inner, .yidun.yidun--light .yidun_loadbox .yidun_loadbox__inner .yidun_loadicon, .yidun.yidun--light .yidun_tips__answer, .yidun.yidun--light .yidun_tips__before, .yidun.yidun--light .yidun_tips__content, .yidun_intellisense--light .yidun_classic-tips .yidun_tips__icon, .yidun_intellisense--light .yidun_intelli-icon, .yidun_popup.yidun_popup--light .yidun_modal, .yidun_popup.yidun_popup--light .yidun_modal__before, .yidun_popup.yidun_popup--light .yidun_modal__sibling, .yidun_popup.yidun_popup--light .yidun_modal__title {
     display: inline-block;
-    *display: inline;
     zoom: 1;
     vertical-align: top
 }
@@ -1118,17 +1117,12 @@
     right: 0;
     top: 0;
     max-width: 98px;
-    *max-width: 68px;
     z-index: 2;
     background-color: rgba(0, 0, 0, .12);
-    *background-color: transparent;
-    _background-color: transparent
 }
 
 .yidun.yidun--light .yidun_top:hover {
     background-color: rgba(0, 0, 0, .2);
-    *background-color: transparent;
-    _background-color: transparent
 }
 
 .yidun.yidun--light .yidun_top__right {
@@ -3108,7 +3102,6 @@
 }
 
 .yidun_popup.yidun_popup--light .yidun_modal__body .yidun {
-    *margin: 0
 }
 
 .yidun_popup.yidun_popup--shifting {
@@ -3120,21 +3113,15 @@
 
 .yidun_popup.yidun_popup--auto .yidun_modal {
     top: auto;
-    *top: -50%
 }
 
 .yidun_popup.yidun_popup--auto .yidun_modal__wrap {
     display: table;
-    *position: relative
 }
 
 .yidun_popup.yidun_popup--auto .yidun_modal__subwrap {
     display: table-cell;
     vertical-align: middle;
-    *height: auto;
-    *position: absolute;
-    *top: 50%;
-    *left: 0
 }
 
 @supports (display:flex) {
