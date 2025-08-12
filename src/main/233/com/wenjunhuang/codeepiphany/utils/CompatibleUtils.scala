@@ -15,9 +15,12 @@ object CompatibleUtils {
   }
 
   inline def getIdeaProxyPasswordAuthentication(url: URL): PasswordAuthentication = {
-    val httpConfigurable = HttpConfigurable.getInstance()
-    val ideaAuthenticator = IdeaWideAuthenticator(httpConfigurable)
-    ideaAuthenticator.getPasswordAuthentication
+    val httpConfigurable  = HttpConfigurable.getInstance()
+    (httpConfigurable.getProxyLogin,httpConfigurable.getPlainProxyPassword) match {
+      case (null, null) => null
+      case (login, password) =>
+        PasswordAuthentication(login, password.toCharArray)
+    }
   }
 
   inline def getIdeaProxySelector: ProxySelector = {

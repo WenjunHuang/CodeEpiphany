@@ -1,3 +1,9 @@
+## 1.6.1
+### Fixed
+- Fix proxy username and password not working issue
+### Changed
+- Optimize compatibility with JetBrains IDEs 2025.2
+ 
 ## 1.6.0
 ### Added
 - Add submission result view in embedded browser for CodeForces, LuoGu

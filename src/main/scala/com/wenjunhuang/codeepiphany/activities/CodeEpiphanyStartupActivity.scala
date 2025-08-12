@@ -6,7 +6,7 @@ import com.intellij.openapi.project.{DumbAware, Project}
 import com.intellij.openapi.startup.ProjectActivity
 
 import com.wenjunhuang.codeepiphany.notifications.CodeEpiphanyNotification
-import com.wenjunhuang.codeepiphany.settings.{CodeEpiphanyAppSettings, CodeEpiphanySettings}
+import com.wenjunhuang.codeepiphany.settings.CodeEpiphanyAppSettings
 import com.wenjunhuang.codeepiphany.utils.IdeUtils
 
 class CodeEpiphanyStartupActivity extends ProjectActivity with DumbAware{

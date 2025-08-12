@@ -15,15 +15,17 @@ object CompatibleUtils {
     toolBar.updateActionsAsync()
   }
 
-  inline def getIdeaProxyPasswordAuthentication(url: URL) = {
+  inline def getIdeaProxyPasswordAuthentication(url: URL): PasswordAuthentication = {
     val httpConfigurable  = HttpConfigurable.getInstance()
-    val ideaAuthenticator = IdeaWideAuthenticator(httpConfigurable)
-    ideaAuthenticator.getPasswordAuthentication
+    (httpConfigurable.getProxyLogin,httpConfigurable.getPlainProxyPassword) match {
+      case (null, null) => null
+      case (login, password) =>
+        PasswordAuthentication(login, password.toCharArray)
+    }
   }
 
   inline def getIdeaProxySelector: ProxySelector = {
     val httpConfigurable  = HttpConfigurable.getInstance()
-    val ideaAuthenticator = IdeaWideAuthenticator(httpConfigurable)
     val ideaProxySelector = IdeaWideProxySelector(httpConfigurable) // IntelliJ proxy selector
     ideaProxySelector
   }

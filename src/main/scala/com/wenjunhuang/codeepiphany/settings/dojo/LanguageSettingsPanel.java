@@ -3,7 +3,6 @@ package com.wenjunhuang.codeepiphany.settings.dojo;
 import com.intellij.codeInsight.hint.EditorFragmentComponent;
 import com.intellij.icons.AllIcons;
 import com.intellij.ide.IdeBundle;
-import com.intellij.ide.plugins.PluginManager;
 import com.intellij.ide.ui.laf.darcula.ui.DarculaEditorTextFieldBorder;
 import com.intellij.openapi.actionSystem.*;
 import com.intellij.openapi.actionSystem.ex.ActionManagerEx;
@@ -12,21 +11,15 @@ import com.intellij.openapi.editor.EditorFactory;
 import com.intellij.openapi.editor.colors.EditorFontType;
 import com.intellij.openapi.editor.event.DocumentEvent;
 import com.intellij.openapi.editor.event.DocumentListener;
-import com.intellij.openapi.extensions.PluginId;
 import com.intellij.openapi.fileChooser.FileChooserDescriptor;
 import com.intellij.openapi.fileChooser.FileChooserDescriptorFactory;
 import com.intellij.openapi.fileTypes.FileTypes;
 import com.intellij.openapi.options.ConfigurationException;
-import com.intellij.openapi.progress.ProgressIndicator;
-import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.DumbAwareAction;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.*;
 import com.intellij.openapi.util.NlsContexts;
 import com.intellij.openapi.util.text.StringUtil;
-import com.intellij.openapi.vcs.AbstractVcs;
-import com.intellij.openapi.vcs.VcsBundle;
-import com.intellij.openapi.vcs.impl.VcsDescriptor;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.ui.BrowserHyperlinkListener;
 import com.intellij.ui.EditorTextField;
@@ -59,12 +52,12 @@ import java.awt.*;
 import java.lang.reflect.Method;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Paths;
-import java.util.*;
-import java.util.List;
+import java.util.ArrayList;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.ResourceBundle;
 import java.util.function.BiFunction;
 import java.util.stream.Stream;
-
-import static com.intellij.util.containers.UtilKt.getIfSingle;
 
 public class LanguageSettingsPanel extends SettingsUi<BaseCodeDojoSettings.LanguageSettingsState> {
     private TextFieldWithBrowseButton mySourceFolder;
@@ -74,11 +67,9 @@ public class LanguageSettingsPanel extends SettingsUi<BaseCodeDojoSettings.Langu
     private EditorTextField myCodeTemplatePreview;
     private JPanel rootPanel;
     private Splitter myFileNameSplitter;
-    private ActionToolbar myFileNameToolbar;
     private JComponent myFileNameToolbarComponent;
     private JPanel myFileNameLabel;
     private JPanel myCodeTemplateLabel;
-    private ActionToolbar myCodeTemplateToolbar;
     private JComponent myCodeTemplateToolbarComponent;
     private Splitter myCodeTemplateSplitter;
     private JEditorPane myDescription;
@@ -86,7 +77,7 @@ public class LanguageSettingsPanel extends SettingsUi<BaseCodeDojoSettings.Langu
     private LanguageVersion myLanguageVersion;
     private final BiFunction<Language, LanguageVersion, Object> myDemoTemplateSupplier;
     private final CodeDojo myCodeDojo;
-    private Logger myLogger = Logger.getInstance(LanguageSettingsPanel.class);
+    private final Logger myLogger = Logger.getInstance(LanguageSettingsPanel.class);
 
     public LanguageSettingsPanel(Project project,
                                  CodeDojo codeDojo,
@@ -201,12 +192,12 @@ public class LanguageSettingsPanel extends SettingsUi<BaseCodeDojoSettings.Langu
         myCodeTemplateSplitter.setSecondComponent(myCodeTemplatePreview);
         var actionGroup = createCodeTemplateActionGroup();
 
-        myCodeTemplateToolbar = ((ActionManagerEx) ActionManager
+        var codeTemplateToolbar = ((ActionManagerEx) ActionManager
                 .getInstance())
                 .createActionToolbar("CodeTemplate", actionGroup, true, false, false);
-        myCodeTemplateToolbarComponent = myCodeTemplateToolbar.getComponent();
+        myCodeTemplateToolbarComponent = codeTemplateToolbar.getComponent();
         myCodeTemplateToolbarComponent.setBorder(JBUI.Borders.empty());
-        myCodeTemplateToolbar.setTargetComponent(myCodeTemplateEditor);
+        codeTemplateToolbar.setTargetComponent(myCodeTemplateEditor);
     }
 
     @NotNull
@@ -344,13 +335,12 @@ public class LanguageSettingsPanel extends SettingsUi<BaseCodeDojoSettings.Langu
         myFileNameSplitter.setSecondComponent(myFileNamePreview);
         var actionGroup = createFileNameActionGroup();
 
-        myFileNameToolbar = ((ActionManagerEx) ActionManager
+        var fileNameToolbar = ((ActionManagerEx) ActionManager
                 .getInstance())
-                .createActionToolbar("HackerRankSetting.FileName", actionGroup, true, false, false);
-//        myFileNameToolbar.setActionButtonBorder(JBUI.Borders.emptyRight(5));
-        myFileNameToolbarComponent = myFileNameToolbar.getComponent();
+                .createActionToolbar("CodeDojoSetting.FileName", actionGroup, true, false, false);
+        myFileNameToolbarComponent = fileNameToolbar.getComponent();
         myFileNameToolbarComponent.setBorder(JBUI.Borders.empty());
-        myFileNameToolbar.setTargetComponent(myFileNameEditor);
+        fileNameToolbar.setTargetComponent(myFileNameEditor);
     }
 
     @NotNull

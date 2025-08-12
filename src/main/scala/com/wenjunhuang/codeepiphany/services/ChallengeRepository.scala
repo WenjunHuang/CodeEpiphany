@@ -12,11 +12,11 @@ import com.wenjunhuang.codeepiphany.model.Constants
 import com.wenjunhuang.codeepiphany.settings.CodeEpiphanySettings
 import com.wenjunhuang.codeepiphany.utils.isDebug
 import com.wenjunhuang.codeepiphany.utils.syntax.*
-import com.zaxxer.hikari.{HikariConfig, HikariDataSource}
+import com.zaxxer.hikari.{ HikariConfig, HikariDataSource }
 import org.flywaydb.core.Flyway
 import org.jooq.impl.DSL
 import org.jooq.tools.JooqLogger
-import org.jooq.{DSLContext, Log, SQLDialect}
+import org.jooq.{ DSLContext, Log, SQLDialect }
 
 import java.io.File
 
@@ -26,13 +26,7 @@ final class ChallengeRepository(private val myProject: Project) extends Disposab
 
   myProject.getMessageBus
     .connect(this)
-    .subscribe(
-      CodeEpiphanySettings.DATABASE_FOLDER_TOPIC,
-      _ => {
-        closeDataSource(false)
-        myDataSource = None
-      }
-    )
+    .subscribe(CodeEpiphanySettings.DATABASE_FOLDER_TOPIC, { file => closeDataSource(false) })
 
   @volatile
   private var myDataSource: Option[HikariDataSource] = None
@@ -44,7 +38,6 @@ final class ChallengeRepository(private val myProject: Project) extends Disposab
       config.setDriverClassName("org.sqlite.JDBC")
       config.setJdbcUrl(s"jdbc:sqlite:${dbFile.getCanonicalPath}")
       config.setPoolName("CodeEpiphanyHikariPool")
-      config.setRegisterMbeans(true)
 
       val ds = HikariDataSource(config)
       val flyway = Flyway

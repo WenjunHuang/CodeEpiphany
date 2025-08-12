@@ -9,7 +9,7 @@ import com.wenjunhuang.codeepiphany.PluginBundle
 import com.wenjunhuang.codeepiphany.model.newtypes.*
 import com.wenjunhuang.codeepiphany.model.{CodeDojo, Constants, Language}
 import com.wenjunhuang.codeepiphany.settings.ChallengeSettings.{ChallengeSettingsState, ChallengeSettingsStateItem, TestCase}
-import com.wenjunhuang.codeepiphany.utils.XmlUtils.{CodeDojoConverter, LanguageConverter}
+import com.wenjunhuang.codeepiphany.utils.ConfigConverters.{CodeDojoConverter, LanguageConverter}
 
 import java.util as ju
 import scala.annotation.meta.{beanGetter, beanSetter}

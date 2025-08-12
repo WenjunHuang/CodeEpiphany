@@ -9,7 +9,7 @@ import java.io.File
 import java.nio.file.Files
 import java.nio.charset.StandardCharsets
 
-val pluginVersion: String = "1.6.0"
+val pluginVersion: String = "1.6.1"
 
 ThisBuild / scalaVersion     := "3.7.0"
 ThisBuild / intellijPlatform := versions.intellijPlatform
@@ -161,7 +161,8 @@ lazy val codeEpiphany = (project in file("."))
       xms = 256,
       defaultOptions = intellijVMOptions.value.defaultOptions ++ Seq(
         "--add-opens=java.management/sun.management=ALL-UNNAMED",
-        "--add-opens=java.desktop/javax.swing.text=ALL-UNNAMED" // apple m4 need this parameter
+        "--add-opens=java.desktop/javax.swing.text=ALL-UNNAMED", // apple m4 need this parameter
+        "--add-opens=java.desktop/javax.swing.text.html.parser=ALL-UNNAMED", // apple m4 need this parameter
       )
     ),
     patchPluginXml := pluginXmlOptions { xml =>
@@ -221,7 +222,6 @@ lazy val codeEpiphany = (project in file("."))
       "org.http4s"              %% "http4s-dsl"               % "0.23.30",
       "org.http4s"              %% "http4s-circe"             % "0.23.30",
       "com.squareup.okhttp3"     % "okhttp-jvm"                   % "5.1.0",
-//      "com.squareup.okhttp3"     % "okhttp"                   % "4.12.0",
       "org.jsoup"                % "jsoup"                    % "1.21.1",
       "com.vladsch.flexmark"     % "flexmark"                 % "0.64.8",
       "com.vladsch.flexmark"     % "flexmark-util-data"       % "0.64.8",

@@ -34,7 +34,7 @@ package object ui {
               .openChallenge(LeetCodeOpenChallengeRequest(selected.titleSlug), language, languageVersion)
               .handleErrorWith { e =>
                 console.showConsole(project) *>
-                  console.error(project, e.getMessage) *> logger.warn(e)("Failed to open challenge")
+                console.error(project, e.getMessage) *> logger.warn(e)("Failed to open challenge")
               }
               .evalAsBackgroundProgressCancellable(project, s"Opening challenge ${selected.title}...")
               .unsafeRunAndForget()

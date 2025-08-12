@@ -15,6 +15,7 @@ export const definedViteConfig = defineConfig({
     build: {
         target: 'ES2022',
         outDir: "../target/webviewResources/webview",
+        chunkSizeWarningLimit: 1000, // 提高警告阈值到1MB
         rollupOptions: {
             input: {
                 challengeDescription: resolve(__dirname, 'challengeDescription/index.html'),

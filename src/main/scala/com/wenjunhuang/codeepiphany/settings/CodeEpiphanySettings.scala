@@ -11,7 +11,7 @@ import com.intellij.util.xmlb.annotations.Attribute
 
 import com.wenjunhuang.codeepiphany.model.{CodeDojo, Constants}
 import com.wenjunhuang.codeepiphany.settings.CodeEpiphanySettings.CodeEpiphanySettingsState
-import com.wenjunhuang.codeepiphany.utils.XmlUtils.CodeDojoOptionConverter
+import com.wenjunhuang.codeepiphany.utils.ConfigConverters.CodeDojoOptionConverter
 
 /** 这个对象目前只有settings对话框中使用，ij会确保在主线程中调用它的方法，所以不需要加锁
   */
