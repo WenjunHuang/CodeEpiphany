@@ -2,21 +2,39 @@ package com.wenjunhuang.codeepiphany.atcoder.services
 
 import cats.effect.IO
 import cats.syntax.all.*
+import fs2.Stream
+import java.util.concurrent.CancellationException
+import org.cef.browser.{ CefBrowser, CefFrame }
+import org.cef.handler.CefLoadHandlerAdapter
+import org.cef.network.CefRequest
+import org.jooq.{ DSLContext, Record }
+import org.typelevel.ci.CIString
+import scala.jdk.OptionConverters.*
+
+import com.intellij.openapi.application.{ ApplicationManager, ModalityState }
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.ui.DialogBuilder
+import com.intellij.openapi.util.Disposer
+import com.intellij.ui.jcef.{ JBCefBrowserBase, JBCefCookie, JBCefJSQuery }
+
+import com.wenjunhuang.codeepiphany.utils.extensions.*
 import com.wenjunhuang.codeepiphany.PluginBundle
 import com.wenjunhuang.codeepiphany.atcoder.models.AtCoderSubmissionResponse
 import com.wenjunhuang.codeepiphany.atcoder.settings.AtCoderSettingsConfigurable
 import com.wenjunhuang.codeepiphany.database.Tables.{ ATCODER_CHALLENGE, CHALLENGE, CHALLENGE_LANGUAGE }
+import com.wenjunhuang.codeepiphany.model.{ CodeDojo, Language, LanguageVersion, SubmissionResult }
 import com.wenjunhuang.codeepiphany.model.CodeDojo.AtCoder
 import com.wenjunhuang.codeepiphany.model.newtypes.SubmissionId
-import com.wenjunhuang.codeepiphany.model.{ Language, LanguageVersion, SubmissionResult }
-import com.wenjunhuang.codeepiphany.services.{ console, BaseSubmissionService, ChallengeRepository }
+import com.wenjunhuang.codeepiphany.services.{
+  console,
+  BaseSubmissionService,
+  ChallengeRepository,
+  WebViewStyleProvider
+}
+import com.wenjunhuang.codeepiphany.services.http.HttpClientManager
 import com.wenjunhuang.codeepiphany.settings.ChallengeSettings.ChallengeSettingsStateItem
-import fs2.Stream
-import org.jooq.{ DSLContext, Record }
-import org.typelevel.ci.CIString
-
-import scala.jdk.OptionConverters.*
+import com.wenjunhuang.codeepiphany.utils.jcef.BaseJCefWebView
+import com.wenjunhuang.codeepiphany.utils.syntax.*
 
 class AtCoderSubmissionService(project: Project) extends BaseSubmissionService(project, AtCoder) {
   override type SubmissionRequest  = Request
@@ -35,7 +53,13 @@ class AtCoderSubmissionService(project: Project) extends BaseSubmissionService(p
   ): SubmissionResponseInfo = SubmissionResponseInfo(response.result, response.message, response.submissionId)
 
   override protected def callApi(basicInfo: Request, processedCode: String): Stream[IO, AtCoderSubmissionResponse] =
-    AtCoderApi.submitAnswer(basicInfo.contestId, basicInfo.problemId, basicInfo.languageId, processedCode)
+    AtCoderApi.submitAnswer(
+      basicInfo.contestId,
+      basicInfo.problemId,
+      basicInfo.languageId,
+      processedCode,
+      showCloudflare(basicInfo)
+    )
 
   override protected def reportSubmitResult(
     basicInfo: SubmissionRequest,
@@ -82,6 +106,111 @@ class AtCoderSubmissionService(project: Project) extends BaseSubmissionService(p
   }
   private def resolveLanguageId(language: Language, version: LanguageVersion): Option[String] =
     AtCoderSettingsConfigurable.ATCODER_LANGUAGES.get((language, version))
+
+  private def showCloudflare(request: Request): IO[String] = {
+    HttpClientManager
+      .getCookiesForHost(CodeDojo.AtCoder.domain)
+      .flatMap { cookies =>
+        IO.async_[String] { cb =>
+          val dialog           = DialogBuilder(myProject)
+          val browserComponent = BaseJCefWebView.createBrowser()
+
+          val jsQuery = JBCefJSQuery.create(browserComponent.asInstanceOf[JBCefBrowserBase])
+          jsQuery.addHandler { (s: String) =>
+            ApplicationManager.getApplication.invokeLater(
+              { () =>
+                dialog.getDialogWrapper.close(0, true)
+                cb(Right(s))
+              },
+              ModalityState.any()
+            )
+            JBCefJSQuery.Response(null)
+          }
+
+          browserComponent.getJBCefClient
+            .addLoadHandler(
+              new CefLoadHandlerAdapter {
+                override def onLoadStart(
+                  browser: CefBrowser,
+                  frame: CefFrame,
+                  transitionType: CefRequest.TransitionType
+                ): Unit = {
+                  if (frame.isMain) {
+                    ApplicationManager.getApplication.invokeLater(
+                      new Runnable {
+                        override def run(): Unit = {
+                          browserComponent.getComponent.setVisible(false)
+                        }
+                      },
+                      ModalityState.any()
+                    )
+                  }
+                }
+                override def onLoadEnd(browser: CefBrowser, frame: CefFrame, httpStatusCode: Int): Unit = {
+                  if (frame.isMain) {
+                    // language=JavaScript
+                    val js =
+                      s"""
+                         |document.documentElement.style = "overflow: hidden;";
+                         |const node = document.querySelector("div.cf-challenge");
+                         |if (node != null) {
+                         |   node.parentElement.removeChild(node);
+                         |   const mask = document.createElement("div");
+                         |   mask.setAttribute("id","cf-turnstile-mask");
+                         |   mask.style = "position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background-color: ${WebViewStyleProvider.DEFAULT.panelBackground
+                          .webRgba(1.0)}; z-index: 9999;display: flex; align-items: center; justify-content: center;";
+                         |   document.body.append(mask);
+                         |   turnstile.render('#cf-turnstile-mask', {
+                         |      sitekey: '0x4AAAAAAA6HJUmmLP7mLxx0',
+                         |      callback: function(result) {
+                         |        console.log('Success:',result);
+                         |        ${jsQuery.inject("result")}
+                         |   }});
+                         |}
+                         |""".stripMargin
+                    browser.executeJavaScript(js, browser.getURL, 0)
+                    ApplicationManager.getApplication.invokeLater(
+                      new Runnable {
+                        override def run(): Unit = {
+                          browserComponent.getComponent.setVisible(true)
+                        }
+                      },
+                      ModalityState.any()
+                    )
+                  }
+                }
+              },
+              browserComponent.getCefBrowser
+            )
+
+          cookies.foreach { cookie =>
+            val jbcefCookie =
+              JBCefCookie(cookie.getName, cookie.getValue, CodeDojo.AtCoder.domain.toString, "/", true, false)
+            browserComponent.getJBCefCookieManager
+              .setCookie(
+                s"https://${CodeDojo.AtCoder.domain.toString}/contests/${request.contestId}/submit",
+                jbcefCookie
+              )
+              .cancel(true)
+          }
+
+          browserComponent.getComponent.setBackground(WebViewStyleProvider.DEFAULT.panelBackground)
+          dialog
+            .centerPanel(browserComponent.getComponent)
+          dialog.setTitle(PluginBundle.message("atcoder.cloudflare.turnstile"))
+          dialog.addCancelAction()
+          dialog.getDialogWrapper.setSize(400, 400)
+
+          Disposer.register(browserComponent, jsQuery)
+          Disposer.register(dialog, browserComponent)
+          browserComponent.loadURL(s"https://${CodeDojo.AtCoder.domain.toString}/contests/${request.contestId}/submit")
+
+          if !dialog.showAndGet() then
+            cb(Left(CancellationException(PluginBundle.message("atcoder.cloudflare.cancelled"))))
+        }
+      }
+      .evalOnEDTDefault()
+  }
 
   case class Request(
     contestId: String,

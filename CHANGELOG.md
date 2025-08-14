@@ -1,3 +1,7 @@
+## 1.6.2
+### Fixed
+- Fix AtCode submission with cloudflare turnstile issue. [#62](https://github.com/WenjunHuang/CodeEpiphany/issues/62) 
+ 
 ## 1.6.1
 ### Fixed
 - Fix proxy username and password not working issue

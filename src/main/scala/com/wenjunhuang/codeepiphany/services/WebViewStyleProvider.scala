@@ -97,4 +97,8 @@ object WebViewStyleProvider {
   def apply(body: (Int, Int, Int, Int)): WebViewStyleProvider = new WebViewStyleProvider {
     override def bodyPadding: Option[(Int, Int, Int, Int)] = Some(body)
   }
+
+  val DEFAULT: WebViewStyleProvider = new WebViewStyleProvider {
+    override def bodyPadding: Option[(Int, Int, Int, Int)] = None
+  }
 }
