@@ -31,7 +31,8 @@ trait AtCoderApi {
     contestId: String,
     problemId: String,
     languageId: String,
-    code: String
+    code: String,
+    turnstile:IO[String]
   ): Stream[IO, AtCoderSubmissionResponse]
 }
 
@@ -177,7 +178,8 @@ object AtCoderApi extends AtCoderApi with Http4sClientDsl[IO] {
     contestId: String,
     problemId: String,
     languageId: String,
-    code: String
+    code: String,
+    getTurnstile: IO[String]
   ): Stream[IO, AtCoderSubmissionResponse] =
     Stream
       .eval(useClient { client =>
@@ -191,41 +193,44 @@ object AtCoderApi extends AtCoderApi with Http4sClientDsl[IO] {
         }
       })
       .evalMap { csrfToken =>
-        useClient { client =>
-          client
-            .expect[String](
-              Method
-                .POST(uri"https://atcoder.jp/contests" / contestId / "submit")
-                .withEntity(
-                  UrlForm(
-                    "data.TaskScreenName" -> problemId,
-                    "data.LanguageId"     -> languageId,
-                    "sourceCode"          -> code,
-                    "csrf_token"          -> csrfToken
+        getTurnstile.flatMap { turnstile =>
+          useClient { client =>
+            client
+              .expect[String](
+                Method
+                  .POST(uri"https://atcoder.jp/contests" / contestId / "submit")
+                  .withEntity(
+                    UrlForm(
+                      "data.TaskScreenName" -> problemId,
+                      "data.LanguageId" -> languageId,
+                      "sourceCode" -> code,
+                      "csrf_token" -> csrfToken,
+                      "cf-turnstile-response" -> turnstile
+                    )
                   )
-                )
-            )
-            .map { html =>
-              val doc = Jsoup
-                .parse(html)
-              val maybeError = doc
-                .select("div[role='alert']")
-                .asScala
-                .headOption
-                .map(elem => StringUtil.trim(elem.ownText()))
-              maybeError match
-                case Some(error) =>
-                  throw ApiError.BadRequest(CodeDojo.AtCoder, error)
-                case None =>
-                  val submissionId =
-                    doc
-                      .select("td.submission-score[data-id]")
-                      .asScala
-                      .headOption
-                      .map(_.attr("data-id"))
-                      .getOrElse(throw ApiError.NotFound(CodeDojo.AtCoder, "Submission ID not found"))
-                  (csrfToken, AtCoderSubmissionResponse(submissionId, contestId, 0, SubmissionResult.Processing, ""))
-            }
+              )
+              .map { html =>
+                val doc = Jsoup
+                  .parse(html)
+                val maybeError = doc
+                  .select("div[role='alert']")
+                  .asScala
+                  .headOption
+                  .map(elem => StringUtil.trim(elem.ownText()))
+                maybeError match
+                  case Some(error) =>
+                    throw ApiError.BadRequest(CodeDojo.AtCoder, error)
+                  case None =>
+                    val submissionId =
+                      doc
+                        .select("td.submission-score[data-id]")
+                        .asScala
+                        .headOption
+                        .map(_.attr("data-id"))
+                        .getOrElse(throw ApiError.NotFound(CodeDojo.AtCoder, "Submission ID not found"))
+                    (csrfToken, AtCoderSubmissionResponse(submissionId, contestId, 0, SubmissionResult.Processing, ""))
+              }
+          }
         }
       }
       .flatMap { (csrfToken, response) =>

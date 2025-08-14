@@ -132,6 +132,7 @@ class LuoGuSubmissionService(project: Project) extends BaseSubmissionService(pro
         showYiDunCaptcha(code, state)
     }
   }
+
   private def showYiDunCaptcha(code: String, state: String): IO[String] = {
     IO.async_[String] { cb =>
       val httpServer = ResourceHttpServer("webview", 0)
@@ -189,8 +190,8 @@ class LuoGuSubmissionService(project: Project) extends BaseSubmissionService(pro
 
       if !dialog.showAndGet() then cb(Left(CancellationException(PluginBundle.message("luogu.captcha.cancelled"))))
     }.evalOnEDTDefault()
-
   }
+
   private def showImageCaptcha(captcha: ByteVector): IO[String] = {
     IO.delay {
       val captchaImage = ImageIO.read(captcha.toInputStream)
