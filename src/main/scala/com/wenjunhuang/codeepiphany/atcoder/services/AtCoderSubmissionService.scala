@@ -58,7 +58,7 @@ class AtCoderSubmissionService(project: Project) extends BaseSubmissionService(p
       basicInfo.problemId,
       basicInfo.languageId,
       processedCode,
-      showCloudflare(basicInfo)
+      getCSRFAndCloudflare(basicInfo)
     )
 
   override protected def reportSubmitResult(
@@ -107,20 +107,24 @@ class AtCoderSubmissionService(project: Project) extends BaseSubmissionService(p
   private def resolveLanguageId(language: Language, version: LanguageVersion): Option[String] =
     AtCoderSettingsConfigurable.ATCODER_LANGUAGES.get((language, version))
 
-  private def showCloudflare(request: Request): IO[String] = {
+  private def getCSRFAndCloudflare(request: Request): IO[(String, String)] = {
     HttpClientManager
       .getCookiesForHost(CodeDojo.AtCoder.domain)
       .flatMap { cookies =>
-        IO.async_[String] { cb =>
+        IO.async_[(String, String)] { cb =>
           val dialog           = DialogBuilder(myProject)
           val browserComponent = BaseJCefWebView.createBrowser()
 
           val jsQuery = JBCefJSQuery.create(browserComponent.asInstanceOf[JBCefBrowserBase])
           jsQuery.addHandler { (s: String) =>
+            val (csrf, turnstile) = s.split(",") match {
+              case Array(c, t) => (c, t)
+              case _           => throw new IllegalArgumentException("Invalid CSRF and Turnstile response format")
+            }
             ApplicationManager.getApplication.invokeLater(
               { () =>
                 dialog.getDialogWrapper.close(0, true)
-                cb(Right(s))
+                cb(Right((csrf, turnstile)))
               },
               ModalityState.any()
             )
@@ -160,10 +164,13 @@ class AtCoderSubmissionService(project: Project) extends BaseSubmissionService(p
                          |   mask.style = "position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background-color: ${WebViewStyleProvider.DEFAULT.panelBackground
                           .webRgba(1.0)}; z-index: 9999;display: flex; align-items: center; justify-content: center;";
                          |   document.body.append(mask);
+                         |   const csrf = document.querySelector("input[name='csrf_token']").value;
                          |   turnstile.render('#cf-turnstile-mask', {
                          |      sitekey: '0x4AAAAAAA6HJUmmLP7mLxx0',
-                         |      callback: function(result) {
-                         |        console.log('Success:',result);
+                         |      theme: ${if (WebViewStyleProvider.DEFAULT.isDarkMode) "'dark'" else "'light'"},
+                         |      callback: function(turnstile) {
+                         |        const result = csrf + "," + turnstile;
+                         |        console.log("CSRF and Turnstile result: " , result);
                          |        ${jsQuery.inject("result")}
                          |   }});
                          |}

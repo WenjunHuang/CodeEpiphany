@@ -1,19 +1,19 @@
 package com.wenjunhuang.codeepiphany.atcoder.services
 
-import cats.effect.{IO, Temporal}
+import cats.effect.{ IO, Temporal }
 import cats.syntax.all.*
 import com.intellij.openapi.util.text.StringUtil
 import com.wenjunhuang.codeepiphany.atcoder.models.*
 import com.wenjunhuang.codeepiphany.atcoder.settings.AtCoderSettingsConfigurable.ATCODER_LANGUAGES_REVERSE
-import com.wenjunhuang.codeepiphany.model.{ApiError, CodeDojo, SubmissionResult}
+import com.wenjunhuang.codeepiphany.model.{ ApiError, CodeDojo, SubmissionResult }
 import com.wenjunhuang.codeepiphany.services.http.HttpClientManager
 import com.wenjunhuang.codeepiphany.settings.ChallengeSettings
 import fs2.Stream
 import io.circe.JsonObject
 import org.http4s.client.dsl.Http4sClientDsl
-import org.http4s.client.{Client, UnexpectedStatus}
+import org.http4s.client.{ Client, UnexpectedStatus }
 import org.http4s.implicits.uri
-import org.http4s.{Method, UrlForm}
+import org.http4s.{ Method, UrlForm }
 import org.jsoup.Jsoup
 import org.typelevel.ci.CIString
 
@@ -32,7 +32,7 @@ trait AtCoderApi {
     problemId: String,
     languageId: String,
     code: String,
-    turnstile:IO[String]
+    getCSRFAndTurnstile: IO[(String, String)]
   ): Stream[IO, AtCoderSubmissionResponse]
 }
 
@@ -179,58 +179,47 @@ object AtCoderApi extends AtCoderApi with Http4sClientDsl[IO] {
     problemId: String,
     languageId: String,
     code: String,
-    getTurnstile: IO[String]
+    getCSRFAndTurnstile: IO[(String, String)]
   ): Stream[IO, AtCoderSubmissionResponse] =
     Stream
-      .eval(useClient { client =>
-        client.expect[String](uri"https://atcoder.jp/contests" / contestId / "tasks" / problemId).map { html =>
-          Jsoup
-            .parse(html)
-            .select("input[name='csrf_token']")
-            .asScala
-            .collectFirst { case element if StringUtil.isNotEmpty(element.attr("value")) => element.attr("value") }
-            .getOrElse(throw ApiError.NotFound(CodeDojo.AtCoder, "CSRF token not found"))
-        }
-      })
-      .evalMap { csrfToken =>
-        getTurnstile.flatMap { turnstile =>
-          useClient { client =>
-            client
-              .expect[String](
-                Method
-                  .POST(uri"https://atcoder.jp/contests" / contestId / "submit")
-                  .withEntity(
-                    UrlForm(
-                      "data.TaskScreenName" -> problemId,
-                      "data.LanguageId" -> languageId,
-                      "sourceCode" -> code,
-                      "csrf_token" -> csrfToken,
-                      "cf-turnstile-response" -> turnstile
-                    )
+      .eval(getCSRFAndTurnstile)
+      .evalMap { case (csrfToken, turnstile) =>
+        useClient { client =>
+          client
+            .expect[String](
+              Method
+                .POST(uri"https://atcoder.jp/contests" / contestId / "submit")
+                .withEntity(
+                  UrlForm(
+                    "data.TaskScreenName"   -> problemId,
+                    "data.LanguageId"       -> languageId,
+                    "sourceCode"            -> code,
+                    "csrf_token"            -> csrfToken,
+                    "cf-turnstile-response" -> turnstile
                   )
-              )
-              .map { html =>
-                val doc = Jsoup
-                  .parse(html)
-                val maybeError = doc
-                  .select("div[role='alert']")
-                  .asScala
-                  .headOption
-                  .map(elem => StringUtil.trim(elem.ownText()))
-                maybeError match
-                  case Some(error) =>
-                    throw ApiError.BadRequest(CodeDojo.AtCoder, error)
-                  case None =>
-                    val submissionId =
-                      doc
-                        .select("td.submission-score[data-id]")
-                        .asScala
-                        .headOption
-                        .map(_.attr("data-id"))
-                        .getOrElse(throw ApiError.NotFound(CodeDojo.AtCoder, "Submission ID not found"))
-                    (csrfToken, AtCoderSubmissionResponse(submissionId, contestId, 0, SubmissionResult.Processing, ""))
-              }
-          }
+                )
+            )
+            .map { html =>
+              val doc = Jsoup
+                .parse(html)
+              val maybeError = doc
+                .select("div[role='alert']")
+                .asScala
+                .headOption
+                .map(elem => StringUtil.trim(elem.ownText()))
+              maybeError match
+                case Some(error) =>
+                  throw ApiError.BadRequest(CodeDojo.AtCoder, error)
+                case None =>
+                  val submissionId =
+                    doc
+                      .select("td.submission-score[data-id]")
+                      .asScala
+                      .headOption
+                      .map(_.attr("data-id"))
+                      .getOrElse(throw ApiError.NotFound(CodeDojo.AtCoder, "Submission ID not found"))
+                  (csrfToken, AtCoderSubmissionResponse(submissionId, contestId, 0, SubmissionResult.Processing, ""))
+            }
         }
       }
       .flatMap { (csrfToken, response) =>
