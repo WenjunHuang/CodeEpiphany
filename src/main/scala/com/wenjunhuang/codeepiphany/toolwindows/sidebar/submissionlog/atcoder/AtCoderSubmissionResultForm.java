@@ -5,20 +5,22 @@ import com.intellij.ide.ui.laf.darcula.ui.DarculaEditorTextFieldBorder;
 import com.intellij.openapi.editor.EditorFactory;
 import com.intellij.openapi.editor.colors.EditorFontType;
 import com.intellij.openapi.fileTypes.FileTypeManager;
-import com.intellij.ui.BrowserHyperlinkListener;
+import com.intellij.openapi.project.Project;
 import com.intellij.ui.EditorTextField;
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.uiDesigner.core.Spacer;
-import com.intellij.util.ui.HTMLEditorKitBuilder;
 import com.intellij.util.ui.JBFont;
 import com.intellij.util.ui.JBUI;
 import com.wenjunhuang.codeepiphany.PluginBundle;
+import com.wenjunhuang.codeepiphany.atcoder.services.AtCoderSubmissionService;
 import com.wenjunhuang.codeepiphany.database.tables.records.SolutionSubmissionRecord;
+import com.wenjunhuang.codeepiphany.model.CodeDojo;
 import com.wenjunhuang.codeepiphany.model.Language;
 import com.wenjunhuang.codeepiphany.model.LanguageVersion;
 import com.wenjunhuang.codeepiphany.model.SubmissionResult;
 import com.wenjunhuang.codeepiphany.model.template.ChallengeFileTemplateHighlighter;
+import com.wenjunhuang.codeepiphany.services.AuthService;
 import com.wenjunhuang.codeepiphany.toolwindows.sidebar.submissionlog.SubmissionResultHelper;
 import com.wenjunhuang.codeepiphany.utils.JavaUtils;
 import com.wenjunhuang.codeepiphany.utils.ui.BackgroundRoundedPanel;
@@ -41,9 +43,10 @@ public class AtCoderSubmissionResultForm {
     private JPanel myPanel;
     private JLabel myCodeLabel;
     private BackgroundRoundedPanel myMessagePane;
-    private JEditorPane myViewInBrowser;
+    private JButton myViewInBrowser;
 
     public AtCoderSubmissionResultForm(
+            Project project,
             Language language,
             LanguageVersion languageVersion,
             SolutionSubmissionRecord submissionRecord,
@@ -72,23 +75,22 @@ public class AtCoderSubmissionResultForm {
         $$$setupUI$$$();
 
         var submissionId = submissionRecord.getDojosubmissionid();
-        if (submissionId != null) {
-            var link = "https://atcoder.jp/contests/" + contestId + "/submissions/" + submissionId;
-
-            myViewInBrowser.setEditorKit(HTMLEditorKitBuilder.simple());
-            myViewInBrowser.setEditable(false);
-            myViewInBrowser.addHyperlinkListener(new BrowserHyperlinkListener());
-            myViewInBrowser.setText("<html><body><a href='" + link + "'>View In Browser</a></body></html>");
+        if (submissionId != null && AuthService.getInstance(project).isLoggedIn(CodeDojo.valueOf("AtCoder"))) {
+            myViewInBrowser.addActionListener(e -> {
+                AtCoderSubmissionService.showSubmissionDetails(project, submissionId,contestId);
+            });
         } else {
             myViewInBrowser.setVisible(false);
         }
+
+
 
         myResult.setText(JavaUtils.toOptional(result).map(SubmissionResult::showAsHtml).orElse("Unknown"));
         myResult.setFont(JBFont.create(myResult.getFont()).biggerOn(1.5f));
         mySubmitDateTime.setText(PluginBundle.message("codeforces.submissionResult.submitDateTime.text", submissionRecord.getSubmitdatetime().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))));
 
         myCodeLabel.setBorder(JBUI.Borders.emptyRight(2));
-        myLanguage.setText(Language.prettyPrint(language,languageVersion));
+        myLanguage.setText(Language.prettyPrint(language, languageVersion));
         myLanguage.setBorder(
                 JBUI.Borders.compound(
                         JBUI.Borders.customLine(JBUI.CurrentTheme.CustomFrameDecorations.separatorForeground(), 0, 1, 0, 0),
@@ -138,9 +140,8 @@ public class AtCoderSubmissionResultForm {
         myLanguage.setText("Label");
         panel1.add(myLanguage, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         myPanel.add(myMessagePane, new GridConstraints(2, 0, 1, 3, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
-        myViewInBrowser = new JEditorPane();
-        myViewInBrowser.setContentType("text/html");
-        myViewInBrowser.setText("<html>\r\n  <head>\r\n\r\n  </head>\r\n  <body>\r\n    <p style=\"margin-top: 0\">\r\n      \r\n    </p>\r\n  </body>\r\n</html>\r\n");
+        myViewInBrowser = new JButton();
+        this.$$$loadButtonText$$$(myViewInBrowser, this.$$$getMessageFromBundle$$$("messages/PluginBundle", "submissionResult.viewDetails"));
         myPanel.add(myViewInBrowser, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
     }
 
@@ -184,6 +185,33 @@ public class AtCoderSubmissionResultForm {
         component.setText(result.toString());
         if (haveMnemonic) {
             component.setDisplayedMnemonic(mnemonic);
+            component.setDisplayedMnemonicIndex(mnemonicIndex);
+        }
+    }
+
+    /**
+     * @noinspection ALL
+     */
+    private void $$$loadButtonText$$$(AbstractButton component, String text) {
+        StringBuffer result = new StringBuffer();
+        boolean haveMnemonic = false;
+        char mnemonic = '\0';
+        int mnemonicIndex = -1;
+        for (int i = 0; i < text.length(); i++) {
+            if (text.charAt(i) == '&') {
+                i++;
+                if (i == text.length()) break;
+                if (!haveMnemonic && text.charAt(i) != '&') {
+                    haveMnemonic = true;
+                    mnemonic = text.charAt(i);
+                    mnemonicIndex = result.length();
+                }
+            }
+            result.append(text.charAt(i));
+        }
+        component.setText(result.toString());
+        if (haveMnemonic) {
+            component.setMnemonic(mnemonic);
             component.setDisplayedMnemonicIndex(mnemonicIndex);
         }
     }

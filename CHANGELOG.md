@@ -1,3 +1,9 @@
+## 1.7.0
+### Added
+- Add submission result view in embedded browser for AtCoder
+### Fixed
+- Automatically create missing directories when creating new code file
+ 
 ## 1.6.2
 ### Fixed
 - Fix AtCode submission with cloudflare turnstile issue. [#62](https://github.com/WenjunHuang/CodeEpiphany/issues/62) 

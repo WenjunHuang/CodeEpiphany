@@ -9,14 +9,18 @@ import com.intellij.openapi.ui.MessageDialogBuilder
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.vfs.VirtualFile
 import com.wenjunhuang.codeepiphany.database.Tables.*
-import com.wenjunhuang.codeepiphany.database.tables.records.{ChallengeLanguageRecord, ChallengeRecord}
+import com.wenjunhuang.codeepiphany.database.tables.records.{ ChallengeLanguageRecord, ChallengeRecord }
 import com.wenjunhuang.codeepiphany.model.newtypes.*
-import com.wenjunhuang.codeepiphany.model.{CodeDojo, Language, LanguageVersion}
+import com.wenjunhuang.codeepiphany.model.{ CodeDojo, Language, LanguageVersion }
 import com.wenjunhuang.codeepiphany.services.BaseOpenChallengeService.TestCasesHolder
 import com.wenjunhuang.codeepiphany.services.database.getOrCreateDefaultSolution
-import com.wenjunhuang.codeepiphany.services.file.{openTextEditor, refreshAndFindFileByIoFile, saveTextWithConflictResolution}
+import com.wenjunhuang.codeepiphany.services.file.{
+  openTextEditor,
+  refreshAndFindFileByIoFile,
+  saveTextWithConflictResolution
+}
 import com.wenjunhuang.codeepiphany.settings.ChallengeSettings
-import com.wenjunhuang.codeepiphany.settings.ChallengeSettings.{ChallengeSettingsStateItem, TestCase}
+import com.wenjunhuang.codeepiphany.settings.ChallengeSettings.{ ChallengeSettingsStateItem, TestCase }
 import com.wenjunhuang.codeepiphany.settings.dojo.BaseCodeDojoSettings.LanguageSettingsState
 import com.wenjunhuang.codeepiphany.settings.dojo.BaseSettingsConfigurable
 import com.wenjunhuang.codeepiphany.utils.IdGenerator
@@ -248,7 +252,7 @@ abstract class BaseOpenChallengeService[Req, Template: TestCasesHolder](
     language: Language,
     languageVersion: LanguageVersion
   ): Boolean = {
-    state.sourceFolder.exists(it => File(it).isDirectory) &&
+    state.sourceFolder.exists(it => File(it).isDirectory || File(it).mkdirs()) &&
     state.language.contains(language) &&
     state.languageVersion.contains(languageVersion) &&
     state.fileNameTemplate.nonEmpty &&
