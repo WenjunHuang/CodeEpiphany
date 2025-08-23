@@ -1,7 +1,7 @@
 package com.wenjunhuang.codeepiphany.toolwindows.sidebar.submissionlog
 
-import com.intellij.openapi.ui.{ SimpleToolWindowPanel, Splitter }
-import com.intellij.ui.components.{ JBLabel, JBScrollPane }
+import com.intellij.openapi.ui.{SimpleToolWindowPanel, Splitter}
+import com.intellij.ui.components.{JBLabel, JBScrollPane}
 import com.intellij.util.ui.components.BorderLayoutPanel
 
 import com.wenjunhuang.codeepiphany.model.CodeDojo
@@ -13,11 +13,13 @@ import com.wenjunhuang.codeepiphany.toolwindows.sidebar.submissionlog.codeforces
 import com.wenjunhuang.codeepiphany.toolwindows.sidebar.submissionlog.hackerrank.HackerRankSubmissionResultForm
 import com.wenjunhuang.codeepiphany.toolwindows.sidebar.submissionlog.leetcode.LeetCodeSubmissionResultForm
 import com.wenjunhuang.codeepiphany.toolwindows.sidebar.submissionlog.luogu.LuoGuSubmissionResultForm
-import javax.swing.{ JComponent, ScrollPaneConstants, SwingConstants }
+import javax.swing.{JComponent, ScrollPaneConstants, SwingConstants}
 import scala.jdk.CollectionConverters.*
 import scala.jdk.OptionConverters.*
 
 import com.intellij.openapi.project.Project
+
+import com.wenjunhuang.codeepiphany.PluginBundle
 
 class SubmissionView(private val myProject: Project, submissionLogComponent: JComponent)
     extends SimpleToolWindowPanel(true, true) {
@@ -78,9 +80,9 @@ class SubmissionView(private val myProject: Project, submissionLogComponent: JCo
           problemSetName
         ).getComponent
       case AtCoderSubmission(language, languageVersion, submission, contestId, problemId) =>
-        AtCoderSubmissionResultForm(language, languageVersion, submission, contestId, problemId).getComponent
+        AtCoderSubmissionResultForm(myProject, language, languageVersion, submission, contestId, problemId).getComponent
       case LuoGuSubmission(language, languageVersion, submission) =>
-        LuoGuSubmissionResultForm(myProject,language, languageVersion, submission).getComponent
+        LuoGuSubmissionResultForm(myProject, language, languageVersion, submission).getComponent
     }
     mySplitter.setSecondComponent(
       JBScrollPane(
@@ -94,6 +96,6 @@ class SubmissionView(private val myProject: Project, submissionLogComponent: JCo
 
 object SubmissionView {
   val EMPTY_FORM: JComponent = BorderLayoutPanel().addToCenter(
-    new JBLabel("Please select a submission to view the result.", SwingConstants.CENTER)
+    new JBLabel(PluginBundle.message("submission.view.empty"), SwingConstants.CENTER)
   )
 }

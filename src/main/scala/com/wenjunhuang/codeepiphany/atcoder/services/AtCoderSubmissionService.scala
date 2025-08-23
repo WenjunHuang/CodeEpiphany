@@ -31,10 +31,12 @@ import com.wenjunhuang.codeepiphany.services.{
   ChallengeRepository,
   WebViewStyleProvider
 }
+import com.wenjunhuang.codeepiphany.services.console.MessageSeg
 import com.wenjunhuang.codeepiphany.services.http.HttpClientManager
 import com.wenjunhuang.codeepiphany.settings.ChallengeSettings.ChallengeSettingsStateItem
 import com.wenjunhuang.codeepiphany.utils.jcef.BaseJCefWebView
 import com.wenjunhuang.codeepiphany.utils.syntax.*
+import com.wenjunhuang.codeepiphany.vfs.WebPreviewVirtualFile
 
 class AtCoderSubmissionService(project: Project) extends BaseSubmissionService(project, AtCoder) {
   override type SubmissionRequest  = Request
@@ -70,9 +72,30 @@ class AtCoderSubmissionService(project: Project) extends BaseSubmissionService(p
   ): IO[Unit] = {
     lastResponseInfo.result match
       case SubmissionResult.Success =>
-        console.info(project, AtCoder, PluginBundle.message("submission.passed"))
+        console.info(
+          project,
+          CodeDojo.AtCoder,
+          MessageSeg.Hyperlink(
+            PluginBundle.message("submissionResult.viewDetails"),
+            { link =>
+              AtCoderSubmissionService.showSubmissionDetails(project, lastResponse.submissionId, basicInfo.contestId)
+            }
+          ),
+          "\n",
+          PluginBundle.message("submission.passed") + "\n${lastResponse.message}"
+        )
       case _ =>
-        console.error(project, AtCoder, s"${lastResponseInfo.result.show}\n${lastResponseInfo.message}")
+        console.error(
+          project,
+          MessageSeg.Hyperlink(
+            PluginBundle.message("submissionResult.viewDetails"),
+            { link =>
+              AtCoderSubmissionService.showSubmissionDetails(project, lastResponse.submissionId, basicInfo.contestId)
+            }
+          ),
+          "\n",
+          s"${lastResponseInfo.result.show}\n${lastResponse.message}"
+        )
   }
 
   private def createRequest(item: ChallengeSettingsStateItem, client: DSLContext): Request = {
@@ -226,4 +249,22 @@ class AtCoderSubmissionService(project: Project) extends BaseSubmissionService(p
     langVer: LanguageVersion,
     languageId: String
   )
+}
+object AtCoderSubmissionService {
+  def showSubmissionDetails(project: Project, submissionId: String, contestId: String): Unit = {
+    HttpClientManager
+      .getCookiesForHost(CodeDojo.AtCoder.domain)
+      .flatMap { cookies =>
+        IO.delay {
+          val file = new WebPreviewVirtualFile(
+            s"https://${CodeDojo.AtCoder.domain.toString}/contests/$contestId/submissions/$submissionId/",
+            CodeDojo.AtCoder.domain.toString,
+            cookies,
+            submissionId
+          )
+          WebPreviewVirtualFile.openEditor(file, project)
+        }.evalOnEDTAny()
+      }
+      .unsafeRunAndForget()
+  }
 }
