@@ -8,7 +8,7 @@ object versions {
 
   def getBuildPart(build: String): (String, String, String) = {
     if (build == intellijBuild233) {
-      (intellijBuild233, "233.0", "240.*")
+      (intellijBuild233, "233.0", "233.*")
     } else if (build == intellijBuild241) {
       (intellijBuild241, "241.0", "251.*")
     } else if (build == intellijBuild252) {
