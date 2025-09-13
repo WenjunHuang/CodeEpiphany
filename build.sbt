@@ -9,7 +9,7 @@ import java.io.File
 import java.nio.file.Files
 import java.nio.charset.StandardCharsets
 
-val pluginVersion: String = "1.7.0"
+val pluginVersion: String = "1.7.2"
 
 ThisBuild / scalaVersion     := "3.7.0"
 ThisBuild / intellijPlatform := versions.intellijPlatform
@@ -161,8 +161,8 @@ lazy val codeEpiphany = (project in file("."))
       xms = 256,
       defaultOptions = intellijVMOptions.value.defaultOptions ++ Seq(
         "--add-opens=java.management/sun.management=ALL-UNNAMED",
-        "--add-opens=java.desktop/javax.swing.text=ALL-UNNAMED", // apple m4 need this parameter
-        "--add-opens=java.desktop/javax.swing.text.html.parser=ALL-UNNAMED", // apple m4 need this parameter
+        "--add-opens=java.desktop/javax.swing.text=ALL-UNNAMED",
+        "--add-opens=java.desktop/javax.swing.text.html.parser=ALL-UNNAMED"
       )
     ),
     patchPluginXml := pluginXmlOptions { xml =>
@@ -208,7 +208,7 @@ lazy val codeEpiphany = (project in file("."))
       // add scala reflect
       "org.typelevel"           %% "cats-effect"              % "3.6.3",
       "org.typelevel"           %% "cats-core"                % "2.13.0",
-      "org.typelevel"           %% "cats-mtl"                 % "1.5.0",
+      "org.typelevel"           %% "cats-mtl"                 % "1.6.0",
       "io.circe"                %% "circe-core"               % "0.14.14",
       "io.circe"                %% "circe-generic"            % "0.14.14",
       "io.circe"                %% "circe-parser"             % "0.14.14",
@@ -221,7 +221,7 @@ lazy val codeEpiphany = (project in file("."))
       "org.http4s"              %% "http4s-client"            % "0.23.30",
       "org.http4s"              %% "http4s-dsl"               % "0.23.30",
       "org.http4s"              %% "http4s-circe"             % "0.23.30",
-      "com.squareup.okhttp3"     % "okhttp-jvm"                   % "5.1.0",
+      "com.squareup.okhttp3"     % "okhttp-jvm"               % "5.1.0",
       "org.jsoup"                % "jsoup"                    % "1.21.1",
       "com.vladsch.flexmark"     % "flexmark"                 % "0.64.8",
       "com.vladsch.flexmark"     % "flexmark-util-data"       % "0.64.8",
@@ -264,12 +264,3 @@ lazy val codeEpiphany = (project in file("."))
     )
   )
   .enablePlugins(SbtIdeaPlugin, JooqCodegenPlugin)
-
-// 集成测试任务
-lazy val integrationTest = taskKey[Unit]("运行集成测试")
-integrationTest := (Test / testOnly).toTask(" integration.*").value
-
-// 添加用于运行集成测试的任务别名
-addCommandAlias("testOnly", "test:testOnly")
-addCommandAlias("integrationTest", "integrationTest")
-addCommandAlias("integrationTestOnly", "test:testOnly integration.*")

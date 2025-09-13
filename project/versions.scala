@@ -8,11 +8,11 @@ object versions {
 
   def getBuildPart(build: String): (String, String, String) = {
     if (build == intellijBuild233) {
-      (intellijBuild233, intellijBuild233, intellijBuild241)
+      (intellijBuild233, "233.0", "233.*")
     } else if (build == intellijBuild241) {
-      (intellijBuild241, intellijBuild241, "251.*")
+      (intellijBuild241, "241.0", "251.*")
     } else if (build == intellijBuild252) {
-      (intellijBuild252, intellijBuild252, null)
+      (intellijBuild252, "252.0", "252.*")
     } else {
       throw new IllegalArgumentException(s"Unsupported IntelliJ build: $build")
     }

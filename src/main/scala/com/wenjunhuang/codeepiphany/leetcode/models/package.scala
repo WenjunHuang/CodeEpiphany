@@ -28,7 +28,7 @@ package object models {
       case ChallengeStatus.Solved   => "AC"
       case ChallengeStatus.Tried    => "TRIED"
 
-    def leetCodeStatusForCompanySearch(status:ChallengeStatus):String = status match
+    def leetCodeStatusForCompanySearch(status: ChallengeStatus): String = status match
       case ChallengeStatus.Unsolved => "TO_DO"
       case ChallengeStatus.Solved   => "SOLVED"
       case ChallengeStatus.Tried    => "ATTEMPTED"
@@ -47,14 +47,17 @@ package object models {
       case a if a == CIString("ASCENDING")  => OrderDirection.Ascending
       case b if b == CIString("DESCENDING") => OrderDirection.Descending
 
-    def leetCodeLanguage(language: Language, languageVersion: LanguageVersion): String =
-      s"${language.value}${languageVersion.version}"
+    def leetCodeLanguage(language: Language, languageVersion: LanguageVersion): String = {
+      if (language == Language.GO) s"golang${languageVersion.version}"
+      else s"${language.value}${languageVersion.version}"
+    }
 
     def fromLeetCodeLanguage(language: String): Option[(Language, LanguageVersion)] = {
       val pattern = """^([a-zA-Z]*)(\d*)$""".r
       language match
         case pattern(lang, ver) =>
-          Language.fromCIString(CIString(lang)).map { lang =>
+          val langValue = if (lang == "golang") Language.GO.value else lang
+          Language.fromCIString(CIString(langValue)).map { lang =>
             (lang, LanguageVersion.fromString(ver))
           }
         case _ => None

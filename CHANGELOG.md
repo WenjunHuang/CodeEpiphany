@@ -1,4 +1,8 @@
 ## 1.7.0
+### Fixed
+- Fix leetcode Golang question issue
+ 
+## 1.7.0
 ### Added
 - Add submission result view in embedded browser for AtCoder
 ### Fixed
