@@ -1,4 +1,8 @@
-## 1.7.0
+## 1.7.3
+### Fixed
+- Fix luogu 2-factor-login issue
+ 
+## 1.7.2
 ### Fixed
 - Fix leetcode Golang question issue
  

@@ -45,7 +45,7 @@ enum CodeDojo(val domain: CIString, val value: String) {
     case LuoGu      => "https://www.luogu.com.cn/auth/login"
   }
 
-  def loginCandidateCookies(cookies: List[HttpCookie]): Boolean = this match {
+  def loginCandidateCookies(cookies: List[HttpCookie], content: String): Boolean = this match {
     case HackerRank => cookies.exists(_.getName == "remember_hacker_token")
     case LeetCode   => cookies.exists(cookie => cookie.getName == "LEETCODE_SESSION" && cookie.getValue.nonEmpty)
     case LeetCodeCN => cookies.exists(cookie => cookie.getName == "LEETCODE_SESSION" && cookie.getValue.nonEmpty)
@@ -55,7 +55,9 @@ enum CodeDojo(val domain: CIString, val value: String) {
         cookie.getName == "REVEL_SESSION" && cookie.getValue.nonEmpty && cookie.getValue.contains("SessionKey")
       )
     case LuoGu =>
-      cookies.exists(cookie => cookie.getName == "_uid" && cookie.getValue.nonEmpty && (cookie.getValue != "0"))
+      cookies.exists(cookie =>
+        cookie.getName == "_uid" && cookie.getValue.nonEmpty && (cookie.getValue != "0") && content.contains("欢迎回来")
+      )
   }
 
   def requiresCodeRegionEnclosure: Boolean = {
