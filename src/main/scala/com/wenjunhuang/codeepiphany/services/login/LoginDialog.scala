@@ -10,11 +10,11 @@ import java.awt.event.ActionEvent
 import java.net.HttpCookie
 import javax.swing.*
 import javax.swing.event.DocumentEvent
-import org.cef.browser.CefBrowser
+import org.cef.browser.{ CefBrowser, CefFrame }
 import org.cef.callback.{ CefCookieVisitor, CefStringVisitor }
 import org.cef.handler.CefLoadHandlerAdapter
 import org.cef.misc.BoolRef
-import org.cef.network.CefCookie
+import org.cef.network.{ CefCookie, CefRequest }
 import org.typelevel.ci.CIString
 import org.typelevel.log4cats.LoggerFactory
 
@@ -276,26 +276,45 @@ class LoginDialog(
       yield ()).unsafeRunCancelable()
 
     val loadHandler = new CefLoadHandlerAdapter {
+      override def onLoadStart(
+        browser: CefBrowser,
+        frame: CefFrame,
+        transitionType: CefRequest.TransitionType
+      ): Unit = {
+        if (frame.isMain) checkCookies(browser)
+      }
+
       override def onLoadingStateChange(
         cefBrowser: CefBrowser,
         isLoading: Boolean,
         canGoBack: Boolean,
         canGoForward: Boolean
       ): Unit = {
-        cefBrowser.getText((content: String) => {
+        checkCookies(cefBrowser)
+      }
+
+      override def onLoadEnd(browser: CefBrowser, frame: CefFrame, httpStatusCode: Int): Unit = {
+        if (frame.isMain) checkCookies(browser)
+      }
+
+      def checkCookies(cefBrowser: CefBrowser): Unit = {
+        cefBrowser.getSource((content: String) => {
           browser.getJBCefCookieManager.getCefCookieManager.visitAllCookies {
             (cefCookie: CefCookie, count: Int, total: Int, _: BoolRef) =>
-              if CIString(cefCookie.domain).contains(myCodeDojo.domain) then
+              val appendToQueue = if (CIString(cefCookie.domain).contains(myCodeDojo.domain)) {
                 val cookie = new HttpCookie(cefCookie.name, cefCookie.value)
                 cookie.setDomain(cefCookie.domain)
                 cookie.setPath(cefCookie.path)
-
-                if count == total - 1 then
-                  myQueueHandle.foreach(q =>
-                    (q.offer(CookieCheck.Add(cookie, content)) *> q.offer(CookieCheck.Check(content)))
-                      .unsafeRunAndForget()
-                  )
-                else myQueueHandle.foreach(_.offer(CookieCheck.Add(cookie, content)).unsafeRunAndForget())
+                myQueueHandle.fold(IO.unit)(q => q.offer(CookieCheck.Add(cookie, content)))
+              } else {
+                IO.unit
+              }
+              if (count == total - 1) {
+                (appendToQueue *>
+                  myQueueHandle.fold(IO.unit)(q => q.offer(CookieCheck.Check(content)))).unsafeRunAndForget()
+              } else {
+                appendToQueue.unsafeRunAndForget()
+              }
               true
           }
         })

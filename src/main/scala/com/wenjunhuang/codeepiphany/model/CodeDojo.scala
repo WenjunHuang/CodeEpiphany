@@ -2,12 +2,13 @@ package com.wenjunhuang.codeepiphany.model
 
 import cats.Show
 import cats.syntax.all.*
+
 import com.wenjunhuang.codeepiphany.PluginBundle
 import com.wenjunhuang.codeepiphany.atcoder.models.AtCoderDifficulty
 import org.typelevel.ci.CIString
-
 import java.net.HttpCookie
 import javax.swing.Icon
+import org.jsoup.Jsoup
 import scala.annotation.static
 
 enum CodeDojo(val domain: CIString, val value: String) {
@@ -49,7 +50,21 @@ enum CodeDojo(val domain: CIString, val value: String) {
     case HackerRank => cookies.exists(_.getName == "remember_hacker_token")
     case LeetCode   => cookies.exists(cookie => cookie.getName == "LEETCODE_SESSION" && cookie.getValue.nonEmpty)
     case LeetCodeCN => cookies.exists(cookie => cookie.getName == "LEETCODE_SESSION" && cookie.getValue.nonEmpty)
-    case CodeForces => cookies.exists(cookie => cookie.getName == "X-User" && cookie.getValue.nonEmpty)
+    case CodeForces =>
+      if (cookies.exists(cookie => cookie.getName == "X-User" && cookie.getValue.nonEmpty)) true
+      else {
+        try {
+          val document = Jsoup.parse(content)
+          document.select("a[href^=/profile]").first() match {
+            case null => false
+            case profile =>
+              val userName = profile.text()
+              userName.nonEmpty && profile.attr("href") == s"/profile/$userName"
+          }
+        } catch {
+          case _: Throwable => false
+        }
+      }
     case AtCoder =>
       cookies.exists(cookie =>
         cookie.getName == "REVEL_SESSION" && cookie.getValue.nonEmpty && cookie.getValue.contains("SessionKey")
