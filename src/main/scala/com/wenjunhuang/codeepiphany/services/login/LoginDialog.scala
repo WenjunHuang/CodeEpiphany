@@ -10,11 +10,11 @@ import java.awt.event.ActionEvent
 import java.net.HttpCookie
 import javax.swing.*
 import javax.swing.event.DocumentEvent
-import org.cef.browser.CefBrowser
-import org.cef.callback.CefCookieVisitor
+import org.cef.browser.{ CefBrowser, CefFrame }
+import org.cef.callback.{ CefCookieVisitor, CefStringVisitor }
 import org.cef.handler.CefLoadHandlerAdapter
 import org.cef.misc.BoolRef
-import org.cef.network.CefCookie
+import org.cef.network.{ CefCookie, CefRequest }
 import org.typelevel.ci.CIString
 import org.typelevel.log4cats.LoggerFactory
 
@@ -226,8 +226,8 @@ class LoginDialog(
       .build()
 
     enum CookieCheck {
-      case Add(cookie: HttpCookie)
-      case Check
+      case Add(cookie: HttpCookie, content: String)
+      case Check(content: String)
     }
 
     @volatile
@@ -242,16 +242,16 @@ class LoginDialog(
           .evalTap { cc =>
             myLogger.info(s"Cookie processing stream received $cc")
           }
-          .mapAccumulate(Nil: List[HttpCookie]) {
-            case (acc, CookieCheck.Add(cookie)) =>
-              (cookie +: acc, None)
-            case (acc, CookieCheck.Check) =>
-              (Nil, Some(acc))
+          .mapAccumulate((Nil, ""): (List[HttpCookie], String)) {
+            case ((acc, _), CookieCheck.Add(cookie, content)) =>
+              ((cookie +: acc, content), None)
+            case ((acc, _), CookieCheck.Check(content)) =>
+              ((Nil, content), Some(acc))
           }
-          .collect { case (_, Some(cookies)) => cookies }
-          .evalTap { cookies =>
+          .collect { case ((_, content), Some(cookies)) => (content, cookies) }
+          .evalTap { (content, cookies) =>
             IO.delay {
-              myCodeDojo.loginCandidateCookies(cookies)
+              myCodeDojo.loginCandidateCookies(cookies, content)
             }.flatMap { result =>
               if result then
                 // found a candidate cookie, but need to test it to see if it's valid
@@ -276,26 +276,48 @@ class LoginDialog(
       yield ()).unsafeRunCancelable()
 
     val loadHandler = new CefLoadHandlerAdapter {
+      override def onLoadStart(
+        browser: CefBrowser,
+        frame: CefFrame,
+        transitionType: CefRequest.TransitionType
+      ): Unit = {
+        if (frame.isMain) checkCookies(browser)
+      }
+
       override def onLoadingStateChange(
         cefBrowser: CefBrowser,
         isLoading: Boolean,
         canGoBack: Boolean,
         canGoForward: Boolean
       ): Unit = {
-        browser.getJBCefCookieManager.getCefCookieManager.visitAllCookies {
-          (cefCookie: CefCookie, count: Int, total: Int, _: BoolRef) =>
-            if CIString(cefCookie.domain).contains(myCodeDojo.domain) then
-              val cookie = new HttpCookie(cefCookie.name, cefCookie.value)
-              cookie.setDomain(cefCookie.domain)
-              cookie.setPath(cefCookie.path)
+        checkCookies(cefBrowser)
+      }
 
-              if count == total - 1 then
-                myQueueHandle.foreach(q =>
-                  (q.offer(CookieCheck.Add(cookie)) *> q.offer(CookieCheck.Check)).unsafeRunAndForget()
-                )
-              else myQueueHandle.foreach(_.offer(CookieCheck.Add(cookie)).unsafeRunAndForget())
-            true
-        }
+      override def onLoadEnd(browser: CefBrowser, frame: CefFrame, httpStatusCode: Int): Unit = {
+        if (frame.isMain) checkCookies(browser)
+      }
+
+      def checkCookies(cefBrowser: CefBrowser): Unit = {
+        cefBrowser.getSource((content: String) => {
+          browser.getJBCefCookieManager.getCefCookieManager.visitAllCookies {
+            (cefCookie: CefCookie, count: Int, total: Int, _: BoolRef) =>
+              val appendToQueue = if (CIString(cefCookie.domain).contains(myCodeDojo.domain)) {
+                val cookie = new HttpCookie(cefCookie.name, cefCookie.value)
+                cookie.setDomain(cefCookie.domain)
+                cookie.setPath(cefCookie.path)
+                myQueueHandle.fold(IO.unit)(q => q.offer(CookieCheck.Add(cookie, content)))
+              } else {
+                IO.unit
+              }
+              if (count == total - 1) {
+                (appendToQueue *>
+                  myQueueHandle.fold(IO.unit)(q => q.offer(CookieCheck.Check(content)))).unsafeRunAndForget()
+              } else {
+                appendToQueue.unsafeRunAndForget()
+              }
+              true
+          }
+        })
       }
     }
     browser.getJBCefClient.addLoadHandler(loadHandler, browser.getCefBrowser)

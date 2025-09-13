@@ -85,7 +85,7 @@ object LuoGuApi extends LuoGuApi with Http4sClientDsl[IO] {
   override def checkLogin(): IO[Boolean] = useClient { client =>
     getCSRFTokenAndPassAntiCrawler.flatMap { csrfToken =>
       client
-        .expect[String](Uri.unsafeFromString("https://www.luogu.com.cn/user/setting"))
+        .expect[String](Uri.unsafeFromString("https://www.luogu.com.cn/user/setting?_contentOnly=1"))
         .map { html =>
           val doc   = Jsoup.parse(html)
           val title = doc.select("title").text()
