@@ -1,3 +1,7 @@
+## 1.7.4
+### Fixed
+- Fix luogu template document issue
+ 
 ## 1.7.3
 ### Fixed
 - Fix luogu 2-factor-login issue
