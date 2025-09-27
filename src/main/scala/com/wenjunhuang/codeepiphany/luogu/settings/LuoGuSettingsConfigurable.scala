@@ -66,7 +66,7 @@ object LuoGuSettingsConfigurable {
     title = "[THUPC 2025 初赛] 检查站",
     language = Language.Cpp,
     languageVersion = LanguageVersion.SpecificVersion("17"),
-    description = "",
+    description = "检查站",
     testCases = List(
       ChallengeSettings.TestCase(input = "3 2\n1 2 3\n1 2\n", expectedOutput = "1 2\n"),
       ChallengeSettings.TestCase(input = "5 3\n1 2 3 4 5\n1 2 3\n", expectedOutput = "1 2 3\n")

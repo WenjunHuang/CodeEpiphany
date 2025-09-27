@@ -4,12 +4,14 @@ import com.intellij.openapi.actionSystem.*
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Key
 import com.intellij.openapi.vfs.VirtualFile
+
 import com.wenjunhuang.codeepiphany.editor.actions.SubmitCodeAction.*
 import com.wenjunhuang.codeepiphany.editor.services.submitCode
 import com.wenjunhuang.codeepiphany.model.CodeDojo
 import com.wenjunhuang.codeepiphany.services.file.saveEditedFile
 import com.wenjunhuang.codeepiphany.utils.actions.{ ActionCompatible, FileEditorKeyNotNull, FileEditorUserLoggedIn }
 import com.wenjunhuang.codeepiphany.utils.extensions.*
+import com.wenjunhuang.codeepiphany.PluginBundle
 
 class SubmitCodeAction
     extends AnAction
@@ -34,12 +36,10 @@ object SubmitCodeAction {
   object SubmitCodeProvider {
 
     def createProvider(vf: VirtualFile, project: Project, codeDojo: CodeDojo): SubmitCodeProvider =
-      new SubmitCodeProvider {
-        override def submitCurrent(): Unit = {
-          (saveEditedFile(vf) *>
-            submitCode(vf, codeDojo, project))
-            .unsafeRunAsBackgroundProgressCancellable(project, "Submitting code")
-        }
+      () => {
+        (saveEditedFile(vf) *>
+          submitCode(vf, codeDojo, project))
+          .unsafeRunAsBackgroundProgressCancellable(project, PluginBundle.message("background.submittingCode"))
       }
 
   }
