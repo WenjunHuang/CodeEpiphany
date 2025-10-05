@@ -49,6 +49,7 @@ package object models {
 
     def leetCodeLanguage(language: Language, languageVersion: LanguageVersion): String = {
       if (language == Language.GO) s"golang${languageVersion.version}"
+      else if (language == Language.Pandas) "pythondata"
       else s"${language.value}${languageVersion.version}"
     }
 
@@ -56,7 +57,7 @@ package object models {
       val pattern = """^([a-zA-Z]*)(\d*)$""".r
       language match
         case pattern(lang, ver) =>
-          val langValue = if (lang == "golang") Language.GO.value else lang
+          val langValue = if (lang == "golang") Language.GO.value else if (language=="pythondata") Language.Pandas.value else lang
           Language.fromCIString(CIString(langValue)).map { lang =>
             (lang, LanguageVersion.fromString(ver))
           }

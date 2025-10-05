@@ -1,3 +1,7 @@
+## 1.8.0
+### Added
+- Add leetcode sql question support
+ 
 ## 1.7.4
 ### Fixed
 - Fix luogu template document issue

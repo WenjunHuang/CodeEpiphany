@@ -2,17 +2,25 @@ package com.wenjunhuang.codeepiphany.atcoder.services
 
 import cats.effect.IO
 import cats.syntax.all.*
+
 import com.intellij.openapi.project.Project
+
 import com.wenjunhuang.codeepiphany.atcoder.models.AtCoderChallengeCodeTemplate
-import com.wenjunhuang.codeepiphany.atcoder.settings.{AtCoderSettings, AtCoderSettingsConfigurable}
+import com.wenjunhuang.codeepiphany.atcoder.settings.{ AtCoderSettings, AtCoderSettingsConfigurable }
 import com.wenjunhuang.codeepiphany.database.Tables.*
-import com.wenjunhuang.codeepiphany.database.tables.records.{AtcoderProblemsRecord, ChallengeLanguageRecord, ChallengeRecord}
+import com.wenjunhuang.codeepiphany.database.tables.records.{
+  AtcoderProblemsRecord,
+  ChallengeLanguageRecord,
+  ChallengeRecord
+}
 import com.wenjunhuang.codeepiphany.model.newtypes.CodeDojoChallengeId
-import com.wenjunhuang.codeepiphany.model.{ChallengeDifficulty, CodeDojo, Language, LanguageVersion}
+import com.wenjunhuang.codeepiphany.model.{ ChallengeDifficulty, CodeDojo, Language, LanguageVersion }
 import com.wenjunhuang.codeepiphany.services.BaseOpenChallengeService
 import com.wenjunhuang.codeepiphany.settings.dojo.BaseCodeDojoSettings
 import com.wenjunhuang.codeepiphany.utils.template.VelocityTool
 import org.jooq.DSLContext
+
+import com.wenjunhuang.codeepiphany.PluginBundle
 
 class AtCoderOpenChallengeService(project: Project)
     extends BaseOpenChallengeService[AtcoderProblemsRecord, AtCoderChallengeCodeTemplate](
@@ -86,7 +94,9 @@ class AtCoderOpenChallengeService(project: Project)
             )
           )
         else
-          IO.raiseError(new Exception(s"This challenge does not support ${language.show} ${languageVersion.version}"))
+          IO.raiseError(
+            new Exception(PluginBundle.message("error.notSupportLanguage", language.show, languageVersion.version))
+          )
       }
   }
 }

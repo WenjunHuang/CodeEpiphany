@@ -73,6 +73,11 @@ enum Language(val value: String, val fileExt: String, val show: String, val icon
   case Lisp       extends Language("lisp", "lisp", "Lisp", CodeEpiphanyIcons.Languages.LISP)
   case ReasonML   extends Language("reasonml", "re", "ReasonML", CodeEpiphanyIcons.Languages.REASONML)
   case Octave     extends Language("octave", "m", "Octave", CodeEpiphanyIcons.Languages.OCTAVE)
+  case MySQL      extends Language("mysql", "sql", "MySQL", CodeEpiphanyIcons.Languages.MYSQL)
+  case PostgreSQL extends Language("postgresql", "sql", "PostgreSQL", CodeEpiphanyIcons.Languages.POSTGRESQL)
+  case OracleSQL  extends Language("oraclesql", "sql", "OracleSQL", CodeEpiphanyIcons.Languages.ORACLESQL)
+  case MSSQL      extends Language("mssql", "sql", "MSSQL", CodeEpiphanyIcons.Languages.MSSQL)
+  case Pandas     extends Language("pandas", "py", "Pandas", CodeEpiphanyIcons.Languages.PANDAS)
 
   private def singleLineCommentPrefix(): String = this match
     case C | Cpp | CSharp | D | GO | Java | Kotlin | ObjectiveC | PHP | Rust | Scala | Swift | Dart | Javascript |
@@ -80,9 +85,9 @@ enum Language(val value: String, val fileExt: String, val show: String, val icon
       "//"
     case Clojure | Racket | Asm | LLVM | Lisp =>
       ";"
-    case Pypy | Python | Ruby | Julia | Perl | R | Elixir =>
+    case Pypy | Python | Ruby | Julia | Perl | R | Elixir | Pandas =>
       "#"
-    case Haskell | Lua =>
+    case Haskell | Lua | MySQL | PostgreSQL | OracleSQL | MSSQL =>
       "--"
     case Erlang | Octave =>
       "%"
