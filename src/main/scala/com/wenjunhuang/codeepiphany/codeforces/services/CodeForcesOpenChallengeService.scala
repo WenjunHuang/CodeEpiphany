@@ -2,17 +2,25 @@ package com.wenjunhuang.codeepiphany.codeforces.services
 
 import cats.effect.IO
 import cats.syntax.all.*
+
 import com.intellij.openapi.project.Project
-import com.wenjunhuang.codeepiphany.codeforces.models.{CodeForcesChallengeCodeTemplate, codeForcesRatingToDifficulty}
-import com.wenjunhuang.codeepiphany.codeforces.settings.{CodeForcesSettings, CodeForcesSettingsConfigurable}
+
+import com.wenjunhuang.codeepiphany.codeforces.models.{ codeForcesRatingToDifficulty, CodeForcesChallengeCodeTemplate }
+import com.wenjunhuang.codeepiphany.codeforces.settings.{ CodeForcesSettings, CodeForcesSettingsConfigurable }
 import com.wenjunhuang.codeepiphany.database.Tables.*
-import com.wenjunhuang.codeepiphany.database.tables.records.{ChallengeLanguageRecord, ChallengeRecord, CodeforcesProblemsetsRecord}
+import com.wenjunhuang.codeepiphany.database.tables.records.{
+  ChallengeLanguageRecord,
+  ChallengeRecord,
+  CodeforcesProblemsetsRecord
+}
 import com.wenjunhuang.codeepiphany.model.newtypes.CodeDojoChallengeId
-import com.wenjunhuang.codeepiphany.model.{ApiError, CodeDojo, Language, LanguageVersion}
+import com.wenjunhuang.codeepiphany.model.{ ApiError, CodeDojo, Language, LanguageVersion }
 import com.wenjunhuang.codeepiphany.services.BaseOpenChallengeService
 import com.wenjunhuang.codeepiphany.settings.dojo.BaseCodeDojoSettings
 import com.wenjunhuang.codeepiphany.utils.template.VelocityTool
 import org.jooq.DSLContext
+
+import com.wenjunhuang.codeepiphany.PluginBundle
 
 class CodeForcesOpenChallengeService(project: Project)
     extends BaseOpenChallengeService[CodeforcesProblemsetsRecord, CodeForcesChallengeCodeTemplate](
@@ -82,7 +90,7 @@ class CodeForcesOpenChallengeService(project: Project)
           IO.raiseError(
             ApiError.InvalidContent(
               CodeDojo.CodeForces,
-              s"This challenge does not support ${language.show}${languageVersion.version}"
+              PluginBundle.message("error.notSupportLanguage", language.show, languageVersion.version)
             )
           )
       }

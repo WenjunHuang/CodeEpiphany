@@ -155,8 +155,17 @@ object CodeEpiphanyIcons {
       IconLoader.getIcon("/icons/languages/lisp.svg", CodeEpiphanyIcons.getClass.getClassLoader)
     final val REASONML: Icon =
       IconLoader.getIcon("/icons/languages/reasonml.svg", CodeEpiphanyIcons.getClass.getClassLoader)
-
     final val OCTAVE: Icon =
       IconLoader.getIcon("/icons/languages/octave.svg", CodeEpiphanyIcons.getClass.getClassLoader)
+    final val MYSQL: Icon =
+      IconLoader.getIcon("/icons/languages/mysql.svg", CodeEpiphanyIcons.getClass.getClassLoader)
+    final val MSSQL: Icon =
+      IconLoader.getIcon("/icons/languages/mssql.svg", CodeEpiphanyIcons.getClass.getClassLoader)
+    final val POSTGRESQL: Icon =
+      IconLoader.getIcon("/icons/languages/postgresql.svg", CodeEpiphanyIcons.getClass.getClassLoader)
+    final val ORACLESQL: Icon =
+      IconLoader.getIcon("/icons/languages/oraclesql.svg", CodeEpiphanyIcons.getClass.getClassLoader)
+    final val PANDAS: Icon =
+      IconLoader.getIcon("/icons/languages/pandas.svg", CodeEpiphanyIcons.getClass.getClassLoader)
   }
 }

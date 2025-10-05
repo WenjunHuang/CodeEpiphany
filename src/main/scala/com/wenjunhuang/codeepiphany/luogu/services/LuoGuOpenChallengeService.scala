@@ -1,7 +1,9 @@
 package com.wenjunhuang.codeepiphany.luogu.services
 
 import cats.effect.IO
+
 import com.intellij.openapi.project.Project
+
 import com.wenjunhuang.codeepiphany.database.tables.records.{ChallengeLanguageRecord, ChallengeRecord}
 import com.wenjunhuang.codeepiphany.luogu.models.{LuoGuChallengeCodeTemplate, LuoGuChallengeItem}
 import com.wenjunhuang.codeepiphany.luogu.settings.{LuoGuSettings, LuoGuSettingsConfigurable}
@@ -11,6 +13,8 @@ import com.wenjunhuang.codeepiphany.services.BaseOpenChallengeService
 import com.wenjunhuang.codeepiphany.settings.dojo.BaseCodeDojoSettings
 import com.wenjunhuang.codeepiphany.utils.template.VelocityTool
 import org.jooq.DSLContext
+
+import com.wenjunhuang.codeepiphany.PluginBundle
 
 class LuoGuOpenChallengeService(project: Project)
     extends BaseOpenChallengeService[LuoGuChallengeItem, LuoGuChallengeCodeTemplate](
@@ -69,7 +73,7 @@ class LuoGuOpenChallengeService(project: Project)
           IO.raiseError(
             ApiError.InvalidContent(
               CodeDojo.LuoGu,
-              s"This challenge does not support ${language.show} ${languageVersion.version}"
+              PluginBundle.message("error.notSupportLanguage",language.show,languageVersion.version)
             )
           )
       }

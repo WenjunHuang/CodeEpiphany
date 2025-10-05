@@ -9,7 +9,7 @@ import java.io.File
 import java.nio.file.Files
 import java.nio.charset.StandardCharsets
 
-val pluginVersion: String = "1.7.4"
+val pluginVersion: String = "1.8.0"
 
 ThisBuild / scalaVersion     := "3.7.0"
 ThisBuild / intellijPlatform := versions.intellijPlatform
@@ -209,20 +209,20 @@ lazy val codeEpiphany = (project in file("."))
       "org.typelevel"           %% "cats-effect"              % "3.6.3",
       "org.typelevel"           %% "cats-core"                % "2.13.0",
       "org.typelevel"           %% "cats-mtl"                 % "1.6.0",
-      "io.circe"                %% "circe-core"               % "0.14.14",
-      "io.circe"                %% "circe-generic"            % "0.14.14",
-      "io.circe"                %% "circe-parser"             % "0.14.14",
+      "io.circe"                %% "circe-core"               % "0.14.15",
+      "io.circe"                %% "circe-generic"            % "0.14.15",
+      "io.circe"                %% "circe-parser"             % "0.14.15",
       "io.circe"                %% "circe-optics"             % "0.15.1",
-      "co.fs2"                  %% "fs2-core"                 % "3.12.0",
+      "co.fs2"                  %% "fs2-core"                 % "3.12.2",
       "dev.optics"              %% "monocle-core"             % "3.3.0",
       "dev.optics"              %% "monocle-macro"            % "3.3.0",
       "org.typelevel"           %% "log4cats-core"            % "2.7.1",
       "org.typelevel"           %% "case-insensitive"         % "1.5.0",
-      "org.http4s"              %% "http4s-client"            % "0.23.30",
-      "org.http4s"              %% "http4s-dsl"               % "0.23.30",
-      "org.http4s"              %% "http4s-circe"             % "0.23.30",
+      "org.http4s"              %% "http4s-client"            % "0.23.32",
+      "org.http4s"              %% "http4s-dsl"               % "0.23.32",
+      "org.http4s"              %% "http4s-circe"             % "0.23.32",
       "com.squareup.okhttp3"     % "okhttp-jvm"               % "5.1.0",
-      "org.jsoup"                % "jsoup"                    % "1.21.1",
+      "org.jsoup"                % "jsoup"                    % "1.21.2",
       "com.vladsch.flexmark"     % "flexmark"                 % "0.64.8",
       "com.vladsch.flexmark"     % "flexmark-util-data"       % "0.64.8",
       "com.vladsch.flexmark"     % "flexmark-util-ast"        % "0.64.8",
@@ -256,7 +256,7 @@ lazy val codeEpiphany = (project in file("."))
       "org.hamcrest"        % "hamcrest"                      % "3.0"      % Test,
       "com.novocode"        % "junit-interface"               % "0.11"     % Test,
       "org.opentest4j"      % "opentest4j"                    % "1.3.0"    % Test,
-      "org.typelevel"      %% "cats-effect-testing-scalatest" % "1.6.0"    % Test
+      "org.typelevel"      %% "cats-effect-testing-scalatest" % "1.7.0"    % Test
     ).map(
       _.exclude("org.slf4j", "*")
         .exclude("org.typelevel", "log4cats-slf4j_3")

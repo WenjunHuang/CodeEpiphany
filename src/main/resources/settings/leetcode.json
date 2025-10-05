@@ -18,5 +18,10 @@
   "racket": "(define/contract (find-median-sorted-arrays nums1 nums2)\n  (-> (listof exact-integer?) (listof exact-integer?) flonum?)\n  )",
   "erlang": "-spec find_median_sorted_arrays(Nums1 :: [integer()], Nums2 :: [integer()]) -> float().\nfind_median_sorted_arrays(Nums1, Nums2) ->\n  .",
   "elixir": "defmodule Solution do\n  @spec find_median_sorted_arrays(nums1 :: [integer], nums2 :: [integer]) :: float\n  def find_median_sorted_arrays(nums1, nums2) do\n    \n  end\nend",
-  "cangjie": "class Solution {\n    func findMedianSortedArrays(nums1: Array<Int64>, nums2: Array<Int64>): Float64 {\n\n    }\n}"
+  "cangjie": "class Solution {\n    func findMedianSortedArrays(nums1: Array<Int64>, nums2: Array<Int64>): Float64 {\n\n    }\n}",
+  "mysql": "-- Write your MySQL query statement below\n",
+  "mssql": "-- Write your MSSQL query statement below\n",
+  "oraclesql": "-- Write your OracleSQL query statement below\n",
+  "postgresql": "-- Write your PostgreSQL query statement below\n",
+  "pandas": "import pandas as pd\n\ndef most_friends(request_accepted: pd.DataFrame) -> pd.DataFrame:\n\n"
 }
