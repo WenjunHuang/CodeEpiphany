@@ -9,7 +9,7 @@ import java.io.File
 import java.nio.file.Files
 import java.nio.charset.StandardCharsets
 
-val pluginVersion: String = "1.8.0"
+val pluginVersion: String = "1.9.0"
 
 ThisBuild / scalaVersion     := "3.7.0"
 ThisBuild / intellijPlatform := versions.intellijPlatform

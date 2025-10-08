@@ -1,3 +1,10 @@
+## 1.9.0
+### Added
+- HackerRank submission result support
+- HackerRank user profile view support
+### Fixed
+- HackerRank login issue
+ 
 ## 1.8.0
 ### Added
 - Add leetcode sql question support
