@@ -136,7 +136,7 @@ class LuoGuChallengesView(private val myProject: Project) extends BaseChallenges
                   CodeDojo.LuoGu.show
                 )
                 WebPreviewVirtualFile.openEditor(file, myProject)
-              }.evalOnEDTAny()
+              }.evalOnEDTWithWrite()
             }
             .unsafeRunAndForget()
         case _ =>

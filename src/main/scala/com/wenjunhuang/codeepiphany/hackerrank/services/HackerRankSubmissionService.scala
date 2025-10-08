@@ -2,7 +2,9 @@ package com.wenjunhuang.codeepiphany.hackerrank.services
 
 import cats.effect.IO
 import cats.syntax.all.*
+
 import com.intellij.openapi.project.Project
+
 import com.wenjunhuang.codeepiphany.PluginBundle
 import com.wenjunhuang.codeepiphany.database.Tables.*
 import com.wenjunhuang.codeepiphany.hackerrank.models.{ HackerRankContest, HackerRankSubmissionResponse }
@@ -16,8 +18,14 @@ import com.wenjunhuang.codeepiphany.utils.IdGenerator
 import fs2.Stream
 import org.jooq.{ DSLContext, Record }
 import org.typelevel.ci.CIString
-
 import scala.jdk.OptionConverters.*
+
+import com.wenjunhuang.codeepiphany.hackerrank.models.HackerRankContest.ProjectEuler
+import com.wenjunhuang.codeepiphany.leetcode.services.LeetCodeSubmissionService
+import com.wenjunhuang.codeepiphany.services.console.MessageSeg.Hyperlink
+import com.wenjunhuang.codeepiphany.services.http.HttpClientManager
+import com.wenjunhuang.codeepiphany.utils.syntax.*
+import com.wenjunhuang.codeepiphany.vfs.WebPreviewVirtualFile
 
 class HackerRankSubmissionService(project: Project) extends BaseSubmissionService(project, HackerRank) {
   override type SubmissionRequest  = HRSubmissionRequest
@@ -85,9 +93,47 @@ class HackerRankSubmissionService(project: Project) extends BaseSubmissionServic
   ): IO[Unit] = {
     lastResponseInfo.result match
       case Success =>
-        console.info(project, myCodeDojo, PluginBundle.message("submission.passed"))
+        console.info(
+          project,
+          myCodeDojo,
+          PluginBundle.message("submission.passed"),
+          "\n",
+          Hyperlink(
+            PluginBundle.message("submissionResult.viewDetails"),
+            (project: Project) => {
+              HackerRankSubmissionService.showSubmissionDetails(
+                project,
+                basicInfo.contest match {
+                  case HackerRankContest.Master       => None
+                  case HackerRankContest.ProjectEuler => Some(HackerRankContest.ProjectEuler.slug)
+                },
+                basicInfo.slug,
+                lastResponseInfo.dojoSubmissionId
+              )
+            }
+          )
+        )
       case _ =>
-        console.error(project, myCodeDojo, s"${lastResponseInfo.result.show}\n${lastResponseInfo.message}")
+        console.error(
+          project,
+          myCodeDojo,
+          Hyperlink(
+            PluginBundle.message("submissionResult.viewDetails"),
+            (project: Project) => {
+              HackerRankSubmissionService.showSubmissionDetails(
+                project,
+                basicInfo.contest match {
+                  case HackerRankContest.Master       => None
+                  case HackerRankContest.ProjectEuler => Some(HackerRankContest.ProjectEuler.slug)
+                },
+                basicInfo.slug,
+                lastResponseInfo.dojoSubmissionId
+              )
+            }
+          ),
+          "\n",
+          s"${lastResponseInfo.result.show}\n${lastResponseInfo.message}"
+        )
   }
 
   private def toSubmissionResult(status: String): SubmissionResult = {
@@ -136,4 +182,28 @@ class HackerRankSubmissionService(project: Project) extends BaseSubmissionServic
     languageVersion: LanguageVersion,
     slug: String
   )
+}
+object HackerRankSubmissionService {
+  def showSubmissionDetails(
+    project: Project,
+    contestSlug: Option[String],
+    challengeSlug: String,
+    submissionId: String
+  ): Unit = {
+    val link = contestSlug match {
+      case Some(slug) =>
+        s"https://${CodeDojo.HackerRank.domain.toString}/contests/${slug}/challenges/${challengeSlug}/submissions/code/${submissionId}"
+      case None =>
+        s"https://${CodeDojo.HackerRank.domain.toString}/challenges/${challengeSlug}/submissions/code/${submissionId}"
+    }
+    HttpClientManager
+      .getCookiesForHost(CodeDojo.HackerRank.domain)
+      .flatMap { cookies =>
+        IO.delay {
+          val file = new WebPreviewVirtualFile(link, CodeDojo.HackerRank.domain.toString, cookies, submissionId)
+          WebPreviewVirtualFile.openEditor(file, project)
+        }.evalOnEDTWithWrite()
+      }
+      .unsafeRunAndForget()
+  }
 }

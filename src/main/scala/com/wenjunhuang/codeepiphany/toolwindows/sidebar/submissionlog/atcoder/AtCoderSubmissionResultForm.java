@@ -77,13 +77,11 @@ public class AtCoderSubmissionResultForm {
         var submissionId = submissionRecord.getDojosubmissionid();
         if (submissionId != null && AuthService.getInstance(project).isLoggedIn(CodeDojo.valueOf("AtCoder"))) {
             myViewInBrowser.addActionListener(e -> {
-                AtCoderSubmissionService.showSubmissionDetails(project, submissionId,contestId);
+                AtCoderSubmissionService.showSubmissionDetails(project, submissionId, contestId);
             });
         } else {
             myViewInBrowser.setVisible(false);
         }
-
-
 
         myResult.setText(JavaUtils.toOptional(result).map(SubmissionResult::showAsHtml).orElse("Unknown"));
         myResult.setFont(JBFont.create(myResult.getFont()).biggerOn(1.5f));

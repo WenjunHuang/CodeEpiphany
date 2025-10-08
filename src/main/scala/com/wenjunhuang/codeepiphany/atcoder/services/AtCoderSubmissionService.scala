@@ -263,7 +263,7 @@ object AtCoderSubmissionService {
             submissionId
           )
           WebPreviewVirtualFile.openEditor(file, project)
-        }.evalOnEDTAny()
+        }.evalOnEDTWithWrite()
       }
       .unsafeRunAndForget()
   }

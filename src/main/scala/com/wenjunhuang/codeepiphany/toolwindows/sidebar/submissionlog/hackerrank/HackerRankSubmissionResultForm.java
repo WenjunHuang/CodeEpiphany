@@ -5,21 +5,23 @@ import com.intellij.ide.ui.laf.darcula.ui.DarculaEditorTextFieldBorder;
 import com.intellij.openapi.editor.EditorFactory;
 import com.intellij.openapi.editor.colors.EditorFontType;
 import com.intellij.openapi.fileTypes.FileTypeManager;
-import com.intellij.ui.BrowserHyperlinkListener;
+import com.intellij.openapi.project.Project;
 import com.intellij.ui.EditorTextField;
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.uiDesigner.core.Spacer;
-import com.intellij.util.ui.HTMLEditorKitBuilder;
 import com.intellij.util.ui.JBFont;
 import com.intellij.util.ui.JBUI;
 import com.wenjunhuang.codeepiphany.PluginBundle;
 import com.wenjunhuang.codeepiphany.database.tables.records.HackerrankSubmissionCaseRecord;
 import com.wenjunhuang.codeepiphany.database.tables.records.SolutionSubmissionRecord;
+import com.wenjunhuang.codeepiphany.hackerrank.services.HackerRankSubmissionService;
+import com.wenjunhuang.codeepiphany.model.CodeDojo;
 import com.wenjunhuang.codeepiphany.model.Language;
 import com.wenjunhuang.codeepiphany.model.LanguageVersion;
 import com.wenjunhuang.codeepiphany.model.SubmissionResult;
 import com.wenjunhuang.codeepiphany.model.template.ChallengeFileTemplateHighlighter;
+import com.wenjunhuang.codeepiphany.services.AuthService;
 import com.wenjunhuang.codeepiphany.toolwindows.sidebar.submissionlog.SubmissionResultHelper;
 import com.wenjunhuang.codeepiphany.utils.JavaUtils;
 import com.wenjunhuang.codeepiphany.utils.ui.BackgroundRoundedPanel;
@@ -32,7 +34,6 @@ import java.awt.*;
 import java.lang.reflect.Method;
 import java.time.format.DateTimeFormatter;
 import java.util.Collection;
-import java.util.Optional;
 import java.util.ResourceBundle;
 
 public class HackerRankSubmissionResultForm {
@@ -45,13 +46,14 @@ public class HackerRankSubmissionResultForm {
     private JPanel myPanel;
     private JLabel myCodeLabel;
     private BackgroundRoundedPanel myMessagePane;
-    private JEditorPane myViewInBrowser;
+    private JButton myViewInBrowser;
 
     public HackerRankSubmissionResultForm(
+            Project project,
             Language language,
             LanguageVersion languageVersion,
             String challengeSlug,
-            Optional<String> contestSlug,
+            Option<String> contestSlug,
             SolutionSubmissionRecord submissionRecord,
             Collection<HackerrankSubmissionCaseRecord> hackerrankCases
     ) {
@@ -95,14 +97,10 @@ public class HackerRankSubmissionResultForm {
                         JBUI.Borders.emptyLeft(2)
                 ));
         var submissionId = submissionRecord.getDojosubmissionid();
-        if (submissionId != null) {
-            var link = contestSlug.map((c) -> "https://www.hackerrank.com/contests/" + c + "/challenges/" + challengeSlug + "/submissions/code/" + submissionId)
-                    .orElse("https://www.hackerrank.com/challenges/" + challengeSlug + "/submissions/code/" + submissionId);
-
-            myViewInBrowser.setEditorKit(HTMLEditorKitBuilder.simple());
-            myViewInBrowser.setEditable(false);
-            myViewInBrowser.addHyperlinkListener(new BrowserHyperlinkListener());
-            myViewInBrowser.setText("<html><body><a href='" + link + "'>View In Browser</a></body></html>");
+        if (submissionId != null && AuthService.getInstance(project).isLoggedIn(CodeDojo.valueOf("HackerRank"))) {
+            myViewInBrowser.addActionListener(e -> {
+                HackerRankSubmissionService.showSubmissionDetails(project, contestSlug, challengeSlug, submissionId);
+            });
         } else {
             myViewInBrowser.setVisible(false);
         }
@@ -152,7 +150,8 @@ public class HackerRankSubmissionResultForm {
         myLanguage.setText("Label");
         panel1.add(myLanguage, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         myPanel.add(myMessagePane, new GridConstraints(2, 0, 1, 4, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
-        myViewInBrowser = new JEditorPane();
+        myViewInBrowser = new JButton();
+        this.$$$loadButtonText$$$(myViewInBrowser, this.$$$getMessageFromBundle$$$("messages/PluginBundle", "submissionResult.viewDetails"));
         myPanel.add(myViewInBrowser, new GridConstraints(0, 2, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
     }
 
@@ -196,6 +195,33 @@ public class HackerRankSubmissionResultForm {
         component.setText(result.toString());
         if (haveMnemonic) {
             component.setDisplayedMnemonic(mnemonic);
+            component.setDisplayedMnemonicIndex(mnemonicIndex);
+        }
+    }
+
+    /**
+     * @noinspection ALL
+     */
+    private void $$$loadButtonText$$$(AbstractButton component, String text) {
+        StringBuffer result = new StringBuffer();
+        boolean haveMnemonic = false;
+        char mnemonic = '\0';
+        int mnemonicIndex = -1;
+        for (int i = 0; i < text.length(); i++) {
+            if (text.charAt(i) == '&') {
+                i++;
+                if (i == text.length()) break;
+                if (!haveMnemonic && text.charAt(i) != '&') {
+                    haveMnemonic = true;
+                    mnemonic = text.charAt(i);
+                    mnemonicIndex = result.length();
+                }
+            }
+            result.append(text.charAt(i));
+        }
+        component.setText(result.toString());
+        if (haveMnemonic) {
+            component.setMnemonic(mnemonic);
             component.setDisplayedMnemonicIndex(mnemonicIndex);
         }
     }

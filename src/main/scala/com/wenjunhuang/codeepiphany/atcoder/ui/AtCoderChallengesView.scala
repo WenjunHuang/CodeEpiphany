@@ -144,7 +144,7 @@ class AtCoderChallengesView(private val myProject: Project) extends BaseChalleng
                   CodeDojo.AtCoder.show
                 )
                 WebPreviewVirtualFile.openEditor(file, myProject)
-              }.evalOnEDTAny()
+              }.evalOnEDTWithWrite()
             }
             .unsafeRunAndForget()
         case _ =>

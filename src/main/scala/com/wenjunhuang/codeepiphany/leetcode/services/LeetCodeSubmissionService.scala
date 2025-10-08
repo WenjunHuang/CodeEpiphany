@@ -228,7 +228,7 @@ object LeetCodeSubmissionService {
             submissionId
           )
           WebPreviewVirtualFile.openEditor(file, project)
-        }.evalOnEDTAny()
+        }.evalOnEDTWithWrite()
       }
       .unsafeRunAndForget()
   }
