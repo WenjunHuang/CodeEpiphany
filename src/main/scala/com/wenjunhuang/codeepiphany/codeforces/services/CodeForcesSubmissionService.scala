@@ -160,7 +160,7 @@ object CodeForcesSubmissionService {
         IO.delay {
           val file = new WebPreviewVirtualFile(link, CodeForces.domain.toString, cookies, submissionId)
           WebPreviewVirtualFile.openEditor(file, project)
-        }.evalOnEDTAny()
+        }.evalOnEDTWithWrite()
       }
       .unsafeRunAndForget()
   }

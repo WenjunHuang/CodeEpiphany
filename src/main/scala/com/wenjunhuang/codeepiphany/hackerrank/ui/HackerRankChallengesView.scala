@@ -25,11 +25,13 @@ import com.wenjunhuang.codeepiphany.model.Actions.HACKERRANK_TITLE_TOOLBAR_GROUP
 import com.wenjunhuang.codeepiphany.model.CodeDojo
 import com.wenjunhuang.codeepiphany.model.CodeDojo.HackerRank
 import com.wenjunhuang.codeepiphany.services.{ console, AskForLoginResult, AuthService, BaseChallengesView }
+import com.wenjunhuang.codeepiphany.services.http.HttpClientManager
 import com.wenjunhuang.codeepiphany.utils.actions.DataSink
 import com.wenjunhuang.codeepiphany.utils.extensions.*
 import com.wenjunhuang.codeepiphany.utils.syntax.*
 import com.wenjunhuang.codeepiphany.utils.ui.UnauthenticatedView
 import com.wenjunhuang.codeepiphany.utils.AsyncAvatarLoader
+import com.wenjunhuang.codeepiphany.vfs.WebPreviewVirtualFile
 
 class HackerRankChallengesView(private val myProject: Project) extends BaseChallengesView[HackerRankUI] {
 
@@ -76,7 +78,26 @@ class HackerRankChallengesView(private val myProject: Project) extends BaseChall
       }
     }
 
-    override def action: () => Unit = { () => }
+    override def action: () => Unit = { () =>
+      AuthService.getInstance(myProject).getLoginUserInfo(CodeDojo.HackerRank) match {
+        case Some(HackerRankUserInfo(username, _, _)) =>
+          HttpClientManager
+            .getCookiesForHost(CodeDojo.HackerRank.domain)
+            .flatMap { cookies =>
+              IO.delay {
+                val file = new WebPreviewVirtualFile(
+                  s"https://www.hackerrank.com/profile/${username}",
+                  CodeDojo.HackerRank.domain.toString,
+                  cookies,
+                  CodeDojo.HackerRank.show
+                )
+                WebPreviewVirtualFile.openEditor(file, myProject)
+              }.evalOnEDTWithWrite()
+            }
+            .unsafeRunAndForget()
+        case _ =>
+      }
+    }
   }
   private val mySwitchUIProvider = new ChangeChallengesUIProvider {
     override def switchTo(ui: HackerRankUI): Unit = {

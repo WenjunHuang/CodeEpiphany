@@ -1,9 +1,9 @@
 package com.wenjunhuang.codeepiphany.hackerrank.services
 
-import cats.effect.{IO, Temporal}
+import cats.effect.{ IO, Temporal }
 import cats.syntax.all.*
 import com.wenjunhuang.codeepiphany.hackerrank.models.*
-import com.wenjunhuang.codeepiphany.hackerrank.models.HackerRankContest.{Master, ProjectEuler}
+import com.wenjunhuang.codeepiphany.hackerrank.models.HackerRankContest.{ Master, ProjectEuler }
 import com.wenjunhuang.codeepiphany.model.*
 import com.wenjunhuang.codeepiphany.model.CodeDojo.HackerRank
 import com.wenjunhuang.codeepiphany.services.http.HttpClientManager
@@ -18,7 +18,7 @@ import org.http4s.circe.CirceEntityEncoder.*
 import org.http4s.client.Client
 import org.http4s.client.dsl.Http4sClientDsl
 import org.http4s.implicits.uri
-import org.http4s.{Headers, Method, Request, Uri}
+import org.http4s.{ Headers, Method, Request, Uri }
 import org.jsoup.Jsoup
 
 import scala.concurrent.duration.*
@@ -150,10 +150,15 @@ object HackerRankApi extends HackerRankApi with Http4sClientDsl[IO] {
                             .toList
 
                           content.copy(testCases = if (testCases.isEmpty) {
-                            document.select(".challenge-body-html pre").asScala.toList.grouped(2).collect {
-                              case Seq(input, output) =>
+                            document
+                              .select(".challenge-body-html pre")
+                              .asScala
+                              .toList
+                              .grouped(2)
+                              .collect { case Seq(input, output) =>
                                 ChallengeSettings.TestCase(input.text(), output.text())
-                            }.toList
+                              }
+                              .toList
                           } else testCases)
                         }
                         .leftMap(e => ApiError.InvalidContent(HackerRank, e.getMessage))
@@ -249,54 +254,43 @@ object HackerRankApi extends HackerRankApi with Http4sClientDsl[IO] {
         .expect[String](request)
         .flatMap { response =>
           val doc = Jsoup.parse(response)
-          (Option(doc.selectFirst("script[id=initialUserData]")), Option(doc.selectFirst("script[id=initialData]")))
-            .mapN(_ -> _)
+          Option(doc.selectFirst("script[id=__NEXT_DATA__]"))
             .toRight(
               ApiError
                 .InvalidContent(HackerRank, "The dashboard HTML does not include initialUserData or initialData.")
             )
-            .flatMap { case (initialUserData, initialData) =>
-              (
-                parse(Uri.decode(initialUserData.html)).leftMap(e =>
-                  ApiError
-                    .InvalidContent(HackerRank, s"The initialUserData script is not valid JSON for ${e.getMessage}")
-                ),
-                parse(Uri.decode(initialData.html)).leftMap(e =>
-                  ApiError.InvalidContent(HackerRank, s"The initialData script is not valid JSON for ${e.getMessage}")
-                )
-              ).flatMapN { case (userData, data) =>
+            .flatMap { initialData =>
+              parse(Uri.decode(initialData.html)).leftMap { e =>
+                ApiError.InvalidContent(HackerRank, s"The initialData script is not valid JSON for ${e.getMessage}")
+              }.flatMap { data =>
                 (
-                  userData.as[HackerRankUserInfo],
-                  (
-                    JsonPath.root.community.domains.list.arr.getOption(data),
-                    JsonPath.root.community.domains.dict.as[Map[String, Json]].getOption(data)
-                  ).mapN((_, _)).toRight(ApiError.InvalidContent(HackerRank, "invalid challenges list json"))
-                ).mapN { case (userInfo, (domains, dict)) => (userInfo, domains, dict) }
+                  JsonPath.root.props.pageProps.prefetchedData.profile.json
+                    .getOption(data)
+                    .toRight(ApiError.InvalidContent(HackerRank, "invalid user data json"))
+                    .flatMap(_.as[HackerRankUserInfo].leftMap(e => ApiError.InvalidContent(HackerRank, e.getMessage))),
+                  JsonPath.root.props.pageProps.prefetchedData.contest.categories.arr
+                    .getOption(data)
+                    .toRight(ApiError.InvalidContent(HackerRank, "invalid challenges list json"))
+                ).mapN { case (userInfo, domains) => (userInfo, domains) }
               }
             }
-            .map { case (userInfo, domains, dict) =>
+            .map { case (userInfo, domains) =>
               (
                 userInfo,
                 domains.mapFilter { domain =>
                   for {
-                    id   <- JsonPath.root.id.int.getOption(domain)
-                    name <- JsonPath.root.name.string.getOption(domain)
-                    slug <- JsonPath.root.slug.string.getOption(domain)
+                    id       <- JsonPath.root.id.int.getOption(domain)
+                    name     <- JsonPath.root.name.string.getOption(domain)
+                    slug     <- JsonPath.root.slug.string.getOption(domain)
+                    children <- JsonPath.root.children.arr.getOption(domain)
                   } yield HackerRankChallengeDomain(
                     id,
                     name,
                     slug,
                     HackerRankContest.Master,
-                    dict
-                      .get(slug)
-                      .map { d =>
-                        JsonPath.root.chapters.arr
-                          .getOption(d)
-                          .getOrElse(Vector.empty)
-                          .mapFilter(d => d.as[HackerRankChallengeSubdomain].toOption)
-                          .toList
-                      }
-                      .getOrElse(Nil)
+                    children.toList.flatMap { d =>
+                      d.as[HackerRankChallengeSubdomain].toOption.toList
+                    }
                   )
                 }.toList
               )

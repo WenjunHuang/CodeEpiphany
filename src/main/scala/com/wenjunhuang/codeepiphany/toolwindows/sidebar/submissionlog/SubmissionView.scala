@@ -63,10 +63,11 @@ class SubmissionView(private val myProject: Project, submissionLogComponent: JCo
         ).getComponent
       case HackerRankSubmission(language, languageVersion, challengeSlug, contestSlug, submission, hackerCases) =>
         HackerRankSubmissionResultForm(
+          myProject,
           language,
           languageVersion,
           challengeSlug,
-          contestSlug.toJava,
+          contestSlug,
           submission,
           hackerCases.asJavaCollection
         ).getComponent

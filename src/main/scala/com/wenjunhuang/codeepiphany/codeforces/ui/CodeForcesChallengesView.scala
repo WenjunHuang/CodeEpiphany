@@ -152,7 +152,7 @@ class CodeForcesChallengesView(private val myProject: Project) extends BaseChall
                   CodeForces.show
                 )
                 WebPreviewVirtualFile.openEditor(file, myProject)
-              }.evalOnEDTAny()
+              }.evalOnEDTWithWrite()
             }
             .unsafeRunAndForget()
         case _ =>

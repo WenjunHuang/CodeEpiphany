@@ -231,7 +231,7 @@ object LuoGuSubmissionService {
             submissionId
           )
           WebPreviewVirtualFile.openEditor(file, project)
-        }.evalOnEDTAny()
+        }.evalOnEDTWithWrite()
       }
       .unsafeRunAndForget()
   }

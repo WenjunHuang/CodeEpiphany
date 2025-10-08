@@ -153,7 +153,7 @@ class LeetCodeChallengesView(
                   myCodeDojo.show
                 )
                 WebPreviewVirtualFile.openEditor(file, myProject)
-              }.evalOnEDTAny()
+              }.evalOnEDTWithWrite()
             }
             .unsafeRunAndForget()
         case _ =>
