@@ -3,42 +3,53 @@ package com.wenjunhuang.codeepiphany.leetcode.ui
 import cats.effect.IO
 import cats.syntax.all.*
 import com.intellij.icons.AllIcons
-import com.intellij.openapi.actionSystem.{ActionGroup, ActionManager}
+import com.intellij.openapi.actionSystem.{ ActionGroup, ActionManager }
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.util.ui.table.IconTableCellRenderer
 import com.wenjunhuang.codeepiphany.PluginBundle
-import com.wenjunhuang.codeepiphany.actions.DifficultyParameterAction.{DIFFICULTIES_PROVIDER_KEY, DifficultyParameterProvider}
-import com.wenjunhuang.codeepiphany.actions.StatusParameterAction.{STATUS_PROVIDER_KEY, StatusParameterProvider}
+import com.wenjunhuang.codeepiphany.actions.DifficultyParameterAction.{
+  DIFFICULTIES_PROVIDER_KEY,
+  DifficultyParameterProvider
+}
+import com.wenjunhuang.codeepiphany.actions.StatusParameterAction.{ STATUS_PROVIDER_KEY, StatusParameterProvider }
 import com.wenjunhuang.codeepiphany.actions.TagsAction.*
-import com.wenjunhuang.codeepiphany.actions.{OpenChallengeActionGroup, TagsAction}
-import com.wenjunhuang.codeepiphany.leetcode.actions.FavoriteParameterAction.{FAVORITE_PROVIDER_KEY, FavoriteParameterProvider}
-import com.wenjunhuang.codeepiphany.leetcode.actions.LeetCodeCategoryParameterAction.{LEETCODE_CATEGORY_PROVIDER_KEY, LeetCodeCategoryProvider}
+import com.wenjunhuang.codeepiphany.actions.{ OpenChallengeActionGroup, TagsAction }
+import com.wenjunhuang.codeepiphany.leetcode.actions.FavoriteParameterAction.{
+  FAVORITE_PROVIDER_KEY,
+  FavoriteParameterProvider
+}
+import com.wenjunhuang.codeepiphany.leetcode.actions.LeetCodeCategoryParameterAction.{
+  LEETCODE_CATEGORY_PROVIDER_KEY,
+  LeetCodeCategoryProvider
+}
 import com.wenjunhuang.codeepiphany.leetcode.models.*
-import com.wenjunhuang.codeepiphany.leetcode.services.{LeetCodeApi, LeetCodeSearchOrderBy}
-import com.wenjunhuang.codeepiphany.leetcode.settings.{LeetCodeCNSettings, LeetCodeSettings}
+import com.wenjunhuang.codeepiphany.leetcode.services.{ LeetCodeApi, LeetCodeSearchOrderBy }
+import com.wenjunhuang.codeepiphany.leetcode.settings.{ LeetCodeCNSettings, LeetCodeSettings }
 import com.wenjunhuang.codeepiphany.leetcode.ui.LeetCodeParametersQueryPresenter.*
 import com.wenjunhuang.codeepiphany.model.*
-import com.wenjunhuang.codeepiphany.services.{ParametersQueryPresenter, QueryContext}
+import com.wenjunhuang.codeepiphany.services.{ ParametersQueryPresenter, QueryContext }
 import com.wenjunhuang.codeepiphany.utils.actions.DataSink
 import com.wenjunhuang.codeepiphany.utils.ui.TagPaneAction
-import com.wenjunhuang.codeepiphany.utils.{OrderByColumnInfo, PageSize, Pagination}
+import com.wenjunhuang.codeepiphany.utils.{ OrderByColumnInfo, PageSize, Pagination }
 import io.circe.*
 import io.circe.parser.*
 import io.circe.syntax.*
 import monocle.syntax.all.*
 
-import javax.swing.table.{DefaultTableCellRenderer, TableCellRenderer}
-import javax.swing.{Icon, JTable, SwingConstants}
+import javax.swing.table.{ DefaultTableCellRenderer, TableCellRenderer }
+import javax.swing.{ Icon, JTable, SwingConstants }
 
 class LeetCodeParametersQueryPresenter(
   project: Project,
   boostrap: LeetCodeBootstrapParameters,
   private val myLeetCodeDojo: CodeDojo.LeetCode.type | CodeDojo.LeetCodeCN.type
 ) extends ParametersQueryPresenter[LeetCodeBootstrapParameters, LeetCodeQueryCriteria, LeetCodeChallengeListItem](
-      project, boostrap) {
+      project,
+      boostrap
+    ) {
 
-  override def queryTitle: String = PluginBundle.message("query.challenge.title",myLeetCodeDojo.show)
+  override def queryTitle: String = PluginBundle.message("query.challenge.title", myLeetCodeDojo.show)
 
   override protected def prepareProviders(
     getter: () => QueryContext[LeetCodeQueryCriteria],
@@ -408,7 +419,7 @@ class LeetCodeParametersQueryPresenter(
       !item.paidOnly || (item.paidOnly && userIsPremium)
     }
 
-    Array(
+    val columns = List(
       new OrderByColumnInfo[LeetCodeChallengeListItem, Icon](Status.title) {
         override def valueOf(item: LeetCodeChallengeListItem): Icon =
           if item.paidOnly && !userIsPremium then AllIcons.Diff.Lock
@@ -453,7 +464,7 @@ class LeetCodeParametersQueryPresenter(
           }
       },
       new OrderByColumnInfo[LeetCodeChallengeListItem, String](Solution.title) {
-        override def valueOf(item: LeetCodeChallengeListItem): String = item.solutionNum.toString
+        override def valueOf(item: LeetCodeChallengeListItem): String = item.solutionNum.map(_.toString).getOrElse("")
 
         override def getPreferredStringValue: String = Solution.title
 
@@ -530,6 +541,13 @@ class LeetCodeParametersQueryPresenter(
           setDirectionOf(LeetCodeSearchOrderBy.Frequency, filter)
       }
     )
+    myLeetCodeDojo match {
+      case CodeDojo.LeetCodeCN =>
+        columns.toArray
+      case CodeDojo.LeetCode =>
+        columns.filterNot(c => c.name == Solution.title).toArray
+    }
+
   }
 }
 

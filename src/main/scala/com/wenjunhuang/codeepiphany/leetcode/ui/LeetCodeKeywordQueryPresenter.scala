@@ -7,21 +7,21 @@ import com.intellij.openapi.util.text.StringUtil
 import com.intellij.util.ui.table.IconTableCellRenderer
 import com.wenjunhuang.codeepiphany.actions.OpenChallengeActionGroup
 import com.wenjunhuang.codeepiphany.leetcode.models.*
-import com.wenjunhuang.codeepiphany.leetcode.services.{LeetCodeApi, LeetCodeSearchOrderBy}
-import com.wenjunhuang.codeepiphany.leetcode.settings.{LeetCodeCNSettings, LeetCodeSettings}
+import com.wenjunhuang.codeepiphany.leetcode.services.{ LeetCodeApi, LeetCodeSearchOrderBy }
+import com.wenjunhuang.codeepiphany.leetcode.settings.{ LeetCodeCNSettings, LeetCodeSettings }
 import com.wenjunhuang.codeepiphany.leetcode.ui.LeetCodeKeywordQueryPresenter.LeetCodeKeywordQueryParams
 import com.wenjunhuang.codeepiphany.model.*
-import com.wenjunhuang.codeepiphany.services.{KeywordQueryPresenter, QueryContext}
+import com.wenjunhuang.codeepiphany.services.{ KeywordQueryPresenter, QueryContext }
 import com.wenjunhuang.codeepiphany.utils.actions.DataSink
-import com.wenjunhuang.codeepiphany.utils.{OrderByColumnInfo, PageSize, Pagination}
+import com.wenjunhuang.codeepiphany.utils.{ OrderByColumnInfo, PageSize, Pagination }
 import io.circe.*
 import io.circe.generic.semiauto.*
 import io.circe.parser.*
 import io.circe.syntax.*
 import monocle.syntax.all.*
 
-import javax.swing.table.{DefaultTableCellRenderer, TableCellRenderer}
-import javax.swing.{Icon, JTable, SwingConstants}
+import javax.swing.table.{ DefaultTableCellRenderer, TableCellRenderer }
+import javax.swing.{ Icon, JTable, SwingConstants }
 
 class LeetCodeKeywordQueryPresenter(
   project: Project,
@@ -90,7 +90,7 @@ class LeetCodeKeywordQueryPresenter(
   override def getQueryResultColumns: Array[OrderByColumnInfo[LeetCodeChallengeListItem, ?]] = {
     import LeetCodeTableColumnTitle.*
     val userIsPremium = myBoostrapParameters.userInfo.isPremium.getOrElse(false)
-    Array(
+    val columns = List(
       new OrderByColumnInfo[LeetCodeChallengeListItem, Icon](Status.title) {
         override def valueOf(item: LeetCodeChallengeListItem): Icon =
           if item.paidOnly && !userIsPremium then AllIcons.Diff.Lock
@@ -135,7 +135,7 @@ class LeetCodeKeywordQueryPresenter(
           }
       },
       new OrderByColumnInfo[LeetCodeChallengeListItem, String](Solution.title) {
-        override def valueOf(item: LeetCodeChallengeListItem): String = item.solutionNum.toString
+        override def valueOf(item: LeetCodeChallengeListItem): String = item.solutionNum.map(_.toString).getOrElse("")
 
         override def getPreferredStringValue: String = Solution.title
 
@@ -204,6 +204,10 @@ class LeetCodeKeywordQueryPresenter(
           setDirectionOf(LeetCodeSearchOrderBy.Frequency, filter)
       }
     )
+    myLeetCodeDojo match {
+      case CodeDojo.LeetCodeCN => columns.toArray
+      case CodeDojo.LeetCode   => columns.filterNot(_.name == Solution.title).toArray
+    }
   }
 
   private def getDirectionOf(field: LeetCodeSearchOrderBy): Option[OrderDirection] =
