@@ -178,7 +178,7 @@ class LeetcodeApiIntegrationTest extends BasePlatformTestCase {
     val leetCodeCNApi = LeetCodeApi(LeetCodeCN)
     println(
       (setCookie() *> leetCodeCNApi
-        .searchCompanyChallenges(0, 20, "thirty-days", List("bytedance"), Nil, None, None, Nil, None))
+        .searchCompanyChallenges(0, 20, Some("thirty-days"), List("bytedance"), Nil, None, None, Nil, None))
         .unsafeRunSync()
     )
 //    val leetCodeApi = LeetCodeApi[IO](LeetCode)

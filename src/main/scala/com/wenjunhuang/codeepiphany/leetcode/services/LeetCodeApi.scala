@@ -1,14 +1,18 @@
 package com.wenjunhuang.codeepiphany.leetcode.services
 
-import cats.effect.{IO, Resource, Temporal}
+import cats.effect.{ IO, Resource, Temporal }
 import cats.syntax.all.*
 import com.intellij.util.LineSeparator
 import com.wenjunhuang.codeepiphany.leetcode.models
 import com.wenjunhuang.codeepiphany.leetcode.models.*
 import com.wenjunhuang.codeepiphany.leetcode.models.runCode.*
-import com.wenjunhuang.codeepiphany.leetcode.models.submitAnswer.{LeetCodeSubmitAnswerRequest, LeetCodeSubmitAnswerResponse, LeetCodeSubmitAnswerResult}
+import com.wenjunhuang.codeepiphany.leetcode.models.submitAnswer.{
+  LeetCodeSubmitAnswerRequest,
+  LeetCodeSubmitAnswerResponse,
+  LeetCodeSubmitAnswerResult
+}
 import com.wenjunhuang.codeepiphany.model.*
-import com.wenjunhuang.codeepiphany.model.CodeDojo.{LeetCode, LeetCodeCN}
+import com.wenjunhuang.codeepiphany.model.CodeDojo.{ LeetCode, LeetCodeCN }
 import com.wenjunhuang.codeepiphany.services.http.HttpClientManager
 import fs2.Stream
 import io.circe.*
@@ -16,13 +20,13 @@ import io.circe.optics.JsonPath
 import io.circe.syntax.*
 import org.http4s.circe.CirceEntityCodec.*
 import org.http4s.client.dsl.Http4sClientDsl
-import org.http4s.client.{Client, UnexpectedStatus}
+import org.http4s.client.{ Client, UnexpectedStatus }
 import org.http4s.headers.Referer
-import org.http4s.{Headers, Method, Uri}
+import org.http4s.{ Headers, Method, Uri }
 import org.typelevel.ci.CIString
 
 import scala.concurrent.duration.*
-import scala.io.{BufferedSource, Source}
+import scala.io.{ BufferedSource, Source }
 
 enum LeetCodeSearchOrderBy(val value: String) {
   case FontEndId   extends LeetCodeSearchOrderBy("FRONTEND_ID")
@@ -75,7 +79,7 @@ trait LeetCodeApi {
   def searchCompanyChallenges(
     offset: Int,
     limit: Int,
-    interviewPeriodSlug: String,
+    interviewPeriodSlug: Option[String],
     companySlugs: List[String],
     positionSlugs: List[String],
     difficulty: Option[ChallengeDifficulty],
@@ -540,40 +544,121 @@ object LeetCodeApi {
       status: Option[ChallengeStatus],
       tags: List[LeetCodeTag],
       orderBy: Option[(LeetCodeSearchOrderBy, OrderDirection)]
-    ): IO[LeetCodeChallengeList] =
-      useClient { client =>
-        openGraphQLFile(dojo, "problemsetQuestionList").flatMap { file =>
-          getCSRFToken.flatMap { csrfToken =>
-            client
-              .expect[Json](
-                Method
-                  .POST(
-                    Uri.unsafeFromString(s"https://${dojo.domain.toString}/graphql/"),
-                    headers = commonHeaders(csrfToken)
-                  )
-                  .withEntity(
-                    LeetCodeGraphQLRequest(
-                      operationName = "problemsetQuestionList",
-                      query = file,
-                      variables = Map(
-                        "skip"         -> offset.asJson,
-                        "limit"        -> limit.asJson,
-                        "categorySlug" -> category.map(_.slug).getOrElse("all-code-essentials").asJson,
-                        "filters"      -> createSearchChallengesFilterJson(favorite, difficulty, status, tags, orderBy)
-                      ).asJsonObject
+    ): IO[LeetCodeChallengeList] = {
+      if (dojo == CodeDojo.LeetCode && favorite.nonEmpty) {
+        searchCompanyChallenges(offset, limit, None, List(favorite.map(_.id).get), Nil, difficulty, status, tags, orderBy).map { result =>
+          LeetCodeChallengeList(questions = result.questions.map { q =>
+            LeetCodeChallengeListItem(
+              acRate = q.acRate,
+              difficulty = q.difficulty,
+              freqBar = q.freqBar,
+              paidOnly = q.paidOnly,
+              solutionNum = None,
+              status = q.status,
+              frontendQuestionId = q.questionFrontendId,
+              title = q.title,
+              titleCn = None,
+              titleSlug = q.titleSlug
+            )
+          },total=result.total)
+        }
+
+      } else {
+        val fileName = dojo match {
+          case CodeDojo.LeetCodeCN => "problemsetQuestionList"
+          case CodeDojo.LeetCode   => "problemsetQuestionListV2"
+        }
+        useClient { client =>
+          openGraphQLFile(dojo, fileName).flatMap { file =>
+            getCSRFToken.flatMap { csrfToken =>
+              client
+                .expect[Json](
+                  Method
+                    .POST(
+                      Uri.unsafeFromString(s"https://${dojo.domain.toString}/graphql/"),
+                      headers = commonHeaders(csrfToken)
                     )
-                  )
-              )
-              .flatMap { json =>
-                JsonPath.root.data.problemsetQuestionList.json
-                  .getOption(json)
-                  .toRight(ApiError.InvalidContent(dojo, "can not find 'problemsetQuestionList' in json"))
-                  .flatMap(_.as[LeetCodeChallengeList])
-                  .liftTo
-              }
+                    .withEntity(
+                      LeetCodeGraphQLRequest(
+                        operationName = fileName,
+                        query = file,
+                        variables = dojo match {
+                          case CodeDojo.LeetCodeCN =>
+                            Map(
+                              "skip"         -> offset.asJson,
+                              "limit"        -> limit.asJson,
+                              "categorySlug" -> category.map(_.slug).getOrElse("all-code-essentials").asJson,
+                              "filters" -> createSearchChallengesFilterJson(favorite, difficulty, status, tags, orderBy)
+                            ).asJsonObject
+                          case CodeDojo.LeetCode =>
+                            Map(
+                              "skip"         -> offset.asJson,
+                              "limit"        -> limit.asJson,
+                              "categorySlug" -> category.map(_.slug).getOrElse("all-code-essentials").asJson,
+                              "filters" -> Map(
+                                "companyFilter" -> Map(
+                                  "companySlugs" -> List.empty[String].asJson,
+                                  "operator"     -> "IS".asJson
+                                ).asJson,
+                                "positionFilter" -> Map(
+                                  "positionSlugs" -> List.empty[String].asJson,
+                                  "operator"      -> "IS".asJson
+                                ).asJson,
+                                "acceptanceFilter" -> Map.empty[String, String].asJson,
+                                "frequencyFilter"  -> Map.empty[String, String].asJson,
+                                "languageFilter" -> Map(
+                                  "languageSlugs" -> List.empty[String].asJson,
+                                  "operator"      -> "IS".asJson
+                                ).asJson,
+                                "difficultyFilter" -> Map(
+                                  "difficulties" -> difficulty.map(dojo.leetCodeDifficulty).toList.asJson,
+                                  "operator"     -> "IS".asJson
+                                ).asJson,
+                                "premiumFilter" -> Map(
+                                  "premiumStatus" -> List.empty[String].asJson,
+                                  "operator"      -> "IS".asJson
+                                ).asJson,
+                                "statusFilter" -> Map(
+                                  "questionStatuses" -> status.map(dojo.leetCodeStatusForCompanySearch).toList.asJson,
+                                  "operator"         -> "IS".asJson
+                                ).asJson,
+                                "topicFilter" -> Map(
+                                  "topicSlugs" -> tags.map(_.slug).asJson,
+                                  "operator"   -> "IS".asJson
+                                ).asJson,
+                                "filterCombineType" -> "ALL".asJson
+                              ).asJson,
+                              "sortBy" -> createSortField(
+                                orderBy,
+                                Map("sortField" -> "CUSTOM".asJson, "sortOrder" -> "ASCENDING".asJson).asJsonObject
+                              ).asJson,
+                              "searchKeyword" -> "".asJson
+                            ).asJsonObject
+                        }
+                      )
+                    )
+                )
+                .flatMap { json =>
+                  JsonPath.root.data
+                    .selectDynamic(fileName)
+                    .json
+                    .getOption(json)
+                    .toRight(ApiError.InvalidContent(dojo, s"can not find ${fileName} in json"))
+                    .flatMap { json =>
+                      dojo match {
+                        case CodeDojo.LeetCodeCN =>
+                          json.as[LeetCodeChallengeList]
+                        case CodeDojo.LeetCode =>
+                          json.as[LeetCodeChallengeListV2].map(_.toV1)
+                      }
+                    }
+                    .liftTo
+                }
+            }
           }
         }
       }
+    }
 
     private def createOrderBy(
       orderBy: Option[(LeetCodeSearchOrderBy, OrderDirection)],
@@ -605,7 +690,7 @@ object LeetCodeApi {
     override def searchCompanyChallenges(
       offset: Int,
       limit: Int,
-      interviewPeriodSlug: String,
+      interviewPeriodSlug: Option[String],
       companySlugs: List[String],
       positionSlugs: List[String],
       difficulty: Option[ChallengeDifficulty],
@@ -628,7 +713,7 @@ object LeetCodeApi {
                     variables = Map(
                       "skip"         -> offset.asJson,
                       "limit"        -> limit.asJson,
-                      "favoriteSlug" -> s"$favorite-$interviewPeriodSlug".asJson,
+                      "favoriteSlug" -> interviewPeriodSlug.map(it => s"$favorite-$it").getOrElse(favorite).asJson,
                       "filtersV2" -> Map(
                         "companyFilter" -> Map("companySlugs" -> rest.asJson, "operator" -> "IS".asJson).asJson,
                         "positionFilter" -> Map(

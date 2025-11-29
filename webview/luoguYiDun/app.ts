@@ -9,13 +9,12 @@ declare global {
     }
 }
 
-
 function base64url(wordArray: CryptoJS.lib.WordArray) {
     let b64 = CryptoJS.enc.Base64.stringify(wordArray);
     return b64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
 }
 
-window.showYiDunCaptcha = async function (code: string, state: string, onVerify: (result: string) => void) {
+window.showYiDunCaptcha = async (code: string, state: string, onVerify: (result: string) => void)=> {
     const key = CryptoJS.enc.Hex.parse(state);
     const hmac = CryptoJS.HmacSHA256(code, key);
     const extra = base64url(hmac);

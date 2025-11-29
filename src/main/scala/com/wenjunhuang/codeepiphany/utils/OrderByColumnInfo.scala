@@ -4,7 +4,7 @@ import com.intellij.util.ui.{ColumnInfo, UIUtil}
 import com.wenjunhuang.codeepiphany.model.OrderDirection
 import com.wenjunhuang.codeepiphany.model.OrderDirection.*
 
-abstract class OrderByColumnInfo[Item, Aspect](name: String) extends ColumnInfo[Item, Aspect](name) {
+abstract class OrderByColumnInfo[Item, Aspect](val name: String) extends ColumnInfo[Item, Aspect](name) {
   def enableOrderBy: Boolean = false
 
   def getOrderFilter: Option[OrderDirection] = None

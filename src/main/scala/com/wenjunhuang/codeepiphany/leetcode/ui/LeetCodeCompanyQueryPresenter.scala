@@ -393,7 +393,7 @@ class LeetCodeCompanyQueryPresenter(
         .searchCompanyChallenges(
           pageSize.value * (currentPage - 1),
           pageSize.value,
-          context.criteria.selectedInterviewPeriod.slug,
+          context.criteria.selectedInterviewPeriod.slug.some,
           context.criteria.selectedCompanies.map(_.slug).toList,
           context.criteria.selectedPositions.map(_.slug),
           context.criteria.selectedDifficulty,
@@ -410,7 +410,7 @@ class LeetCodeCompanyQueryPresenter(
                 companyItem.difficulty,
                 companyItem.freqBar,
                 companyItem.paidOnly,
-                0,
+                None,
                 companyItem.status,
                 companyItem.frontendQuestionId,
                 companyItem.title,

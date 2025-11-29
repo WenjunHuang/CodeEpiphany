@@ -135,7 +135,7 @@ class LeetCodeKeywordQueryPresenter(
           }
       },
       new OrderByColumnInfo[LeetCodeChallengeListItem, String](Solution.title) {
-        override def valueOf(item: LeetCodeChallengeListItem): String = item.solutionNum.toString
+        override def valueOf(item: LeetCodeChallengeListItem): String = item.solutionNum.map(_.toString).getOrElse("")
 
         override def getPreferredStringValue: String = Solution.title
 

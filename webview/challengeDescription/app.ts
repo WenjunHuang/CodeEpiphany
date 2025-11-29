@@ -2,4 +2,5 @@
 const initialize = () => {
 }
 
-export default initialize;
+
+initialize();
