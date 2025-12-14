@@ -1,4 +1,4 @@
-## 1.9.2
+## 1.9.3
 ### Fixed
 - Fix illegal characters in file name which come from some challenge titles   
  
