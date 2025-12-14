@@ -1,3 +1,7 @@
+## 1.9.2
+### Fixed
+- Fix illegal characters in file name which come from some challenge titles   
+ 
 ## 1.9.0
 ### Added
 - HackerRank submission result support

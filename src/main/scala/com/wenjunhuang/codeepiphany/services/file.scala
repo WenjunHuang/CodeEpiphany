@@ -1,14 +1,17 @@
 package com.wenjunhuang.codeepiphany.services
 import cats.effect.{IO, Resource}
+
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.fileEditor.{FileDocumentManager, FileEditorManager, OpenFileDescriptor}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.{InputValidator, Messages}
 import com.intellij.openapi.util.io.FileUtilRt
 import com.intellij.openapi.vfs.{LocalFileSystem, VirtualFile}
-import com.wenjunhuang.codeepiphany.utils.syntax.*
 
+import com.wenjunhuang.codeepiphany.utils.syntax.*
 import java.io.{File, PrintWriter}
+
+import com.wenjunhuang.codeepiphany.PluginBundle
 
 object file {
   def saveTextWithConflictResolution(file: File, content: String): IO[Option[File]] = {
@@ -22,8 +25,8 @@ object file {
         val nameWithoutExt = FileUtilRt.getNameWithoutExtension(file.getName)
         Option(
           Messages.showInputDialog(
-            "File already exists. Please enter a new name:",
-            "File Already Exists",
+            PluginBundle.message("file.creation.exists"),
+            PluginBundle.message("file.creation.exists.title"),
             Messages.getQuestionIcon,
             nameWithoutExt,
             new InputValidator {
