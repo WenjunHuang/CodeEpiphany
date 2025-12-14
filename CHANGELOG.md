@@ -2,6 +2,11 @@
 ### Fixed
 - Fix illegal characters in file name which come from some challenge titles   
  
+
+## 1.9.1
+### Fixed
+- LeetCode: Use v2 api to query questions 
+
 ## 1.9.0
 ### Added
 - HackerRank submission result support
