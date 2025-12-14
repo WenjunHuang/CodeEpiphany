@@ -12,7 +12,7 @@ object versions {
     } else if (build == intellijBuild241) {
       (intellijBuild241, "241.0", "251.*")
     } else if (build == intellijBuild252) {
-      (intellijBuild252, "252.0", "252.*")
+      (intellijBuild252, "252.0", null)
     } else {
       throw new IllegalArgumentException(s"Unsupported IntelliJ build: $build")
     }
