@@ -2,31 +2,35 @@ package com.wenjunhuang.codeepiphany.services
 
 import cats.data.ReaderT
 import cats.effect.IO
+import cats.implicits.*
 import cats.syntax.all.*
-import java.io.File
-import org.jooq.DSLContext
-import scala.jdk.OptionConverters.*
-
 import com.intellij.openapi.options.ShowSettingsUtil
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.MessageDialogBuilder
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.vfs.VirtualFile
-
 import com.wenjunhuang.codeepiphany.database.Tables.*
-import com.wenjunhuang.codeepiphany.database.tables.records.{ChallengeLanguageRecord, ChallengeRecord}
-import com.wenjunhuang.codeepiphany.model.{CodeDojo, Language, LanguageVersion}
+import com.wenjunhuang.codeepiphany.database.tables.records.{ ChallengeLanguageRecord, ChallengeRecord }
 import com.wenjunhuang.codeepiphany.model.newtypes.*
+import com.wenjunhuang.codeepiphany.model.{ CodeDojo, Language, LanguageVersion }
 import com.wenjunhuang.codeepiphany.services.BaseOpenChallengeService.TestCasesHolder
 import com.wenjunhuang.codeepiphany.services.database.getOrCreateDefaultSolution
-import com.wenjunhuang.codeepiphany.services.file.{openTextEditor, refreshAndFindFileByIoFile, saveTextWithConflictResolution}
+import com.wenjunhuang.codeepiphany.services.file.{
+  openTextEditor,
+  refreshAndFindFileByIoFile,
+  saveTextWithConflictResolution
+}
 import com.wenjunhuang.codeepiphany.settings.ChallengeSettings
-import com.wenjunhuang.codeepiphany.settings.ChallengeSettings.{ChallengeSettingsStateItem, TestCase}
+import com.wenjunhuang.codeepiphany.settings.ChallengeSettings.{ ChallengeSettingsStateItem, TestCase }
 import com.wenjunhuang.codeepiphany.settings.dojo.BaseCodeDojoSettings.LanguageSettingsState
 import com.wenjunhuang.codeepiphany.settings.dojo.BaseSettingsConfigurable
 import com.wenjunhuang.codeepiphany.utils.syntax.*
 import com.wenjunhuang.codeepiphany.utils.template.VelocityUtils
-import com.wenjunhuang.codeepiphany.utils.{FileUtils, IdGenerator}
+import com.wenjunhuang.codeepiphany.utils.{ FileUtils, IdGenerator }
+import org.jooq.DSLContext
+
+import java.io.File
+import scala.jdk.OptionConverters.*
 
 abstract class BaseOpenChallengeService[Req, Template: TestCasesHolder](
   protected val myProject: Project,
@@ -69,48 +73,35 @@ abstract class BaseOpenChallengeService[Req, Template: TestCasesHolder](
 
   private def processChallenge(): ReaderT[IO, ServiceState, Unit] = {
     for {
-      state            <- ReaderT.ask[IO, ServiceState]
-      (fileName, code) <- generateFileContent()
-      codeFile         <- createNewChallenge(buildFileObject(state.sourceFolder, fileName, state.language), code)
-      _                <- ReaderT.liftF(openTextEditor(codeFile, myProject))
+      state             <- ReaderT.ask[IO, ServiceState]
+      (filePaths, code) <- generateFileContent()
+      codeFile          <- createNewChallenge(buildFileObject(state.sourceFolder, filePaths, state.language), code)
+      _                 <- ReaderT.liftF(openTextEditor(codeFile, myProject))
     } yield ()
   }
 
-  private def buildFileObject(sourceFolder: File, fileName: String, language: Language) = {
-    new File(sourceFolder, s"${FileUtils.sanitizeFilename(StringUtil.trim(fileName))}.${language.fileExt}")
+  private def buildFileObject(sourceFolder: File, filePaths: List[String], language: Language): File = {
+    new File(
+      sourceFolder,
+      filePaths.mkString(start = "", sep = File.separator, end = s".${language.fileExt}")
+    ).getAbsoluteFile
   }
 
-//  private def handleFileOperations(file: File, code: String): ReaderT[IO, ServiceState, VirtualFile] = {
-//    ChallengeSettings.getInstance(myProject).findChallengeId(file.getCanonicalPath) match {
-//      case Some(challenge) =>
-//        for {
-//          vf <- ReaderT.liftF(
-//            refreshAndFindFileByIoFile(file)
-//              .map(_.some)
-//              .recoverWith(e =>
-//                IO.delay {
-//                  ChallengeSettings.getInstance(myProject).removeChallenge(file.getCanonicalPath)
-//                  None
-//                }.evalOnEDTAny()
-//              )
-//          )
-//          r <- vf match {
-//            case Some(vf) =>
-//              ReaderT.liftF(IO.pure(vf))
-//            case None =>
-//              createNewChallenge(file, code)
-//          }
-//        } yield r
-//      case None => createNewChallenge(file, code)
-//    }
-//  }
-
-  private def generateFileContent(): ReaderT[IO, ServiceState, (String, String)] = {
+  private def generateFileContent(): ReaderT[IO, ServiceState, (List[String], String)] = {
     for {
       state <- ReaderT.ask[IO, ServiceState]
       result <- ReaderT.liftF(
         (
-          VelocityUtils.generateContent(state.fileNameTemplate.value, state.language, state.template),
+          state.fileNameTemplate.value
+            .split("[\\\\/]")
+            .toList
+            .filterNot(_.isEmpty)
+            .map { path =>
+              VelocityUtils
+                .generateContent(path, state.language, state.template)
+                .map(FileUtils.sanitizeFilename compose StringUtil.trim)
+            }
+            .traverse(identity),
           VelocityUtils.generateContent(state.codeTemplate.value, state.language, state.template)
         ).mapN((_, _)).liftTo[IO]
       )

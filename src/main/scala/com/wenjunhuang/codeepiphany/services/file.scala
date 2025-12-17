@@ -16,11 +16,11 @@ import com.wenjunhuang.codeepiphany.PluginBundle
 object file {
   def saveTextWithConflictResolution(file: File, content: String): IO[Option[File]] = {
     IO.delay {
-      if file.exists() then
+      if (file.exists()) {
         // show a rename dialog
         val extWithDot = FileUtilRt.getExtension(file.getName) match
           case "" => ""
-          case e  => s".$e"
+          case e => s".$e"
 
         val nameWithoutExt = FileUtilRt.getNameWithoutExtension(file.getName)
         Option(
@@ -37,7 +37,11 @@ object file {
             }
           )
         ).map { newName => File(file.getParentFile, s"${newName}${extWithDot}") }
-      else Some(file)
+      }
+      else {
+        FileUtilRt.createParentDirs(file)
+        Some(file)
+      }
     }.evalOnEDTAny().flatMap {
       case None          => IO.pure(None)
       case Some(newFile) => saveTextToFile(newFile, content).map(Some(_))
