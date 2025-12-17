@@ -2,30 +2,26 @@ package com.wenjunhuang.codeepiphany.hackerrank.services
 
 import cats.effect.IO
 import cats.syntax.all.*
-
 import com.intellij.openapi.project.Project
-
 import com.wenjunhuang.codeepiphany.PluginBundle
 import com.wenjunhuang.codeepiphany.database.Tables.*
-import com.wenjunhuang.codeepiphany.hackerrank.models.{ HackerRankContest, HackerRankSubmissionResponse }
+import com.wenjunhuang.codeepiphany.hackerrank.models.{HackerRankContest, HackerRankSubmissionResponse}
 import com.wenjunhuang.codeepiphany.model.*
 import com.wenjunhuang.codeepiphany.model.CodeDojo.HackerRank
 import com.wenjunhuang.codeepiphany.model.SubmissionResult.Success
 import com.wenjunhuang.codeepiphany.model.newtypes.SubmissionId
-import com.wenjunhuang.codeepiphany.services.{ console, BaseSubmissionService, ChallengeRepository }
-import com.wenjunhuang.codeepiphany.settings.ChallengeSettings.ChallengeSettingsStateItem
-import com.wenjunhuang.codeepiphany.utils.IdGenerator
-import fs2.Stream
-import org.jooq.{ DSLContext, Record }
-import org.typelevel.ci.CIString
-import scala.jdk.OptionConverters.*
-
-import com.wenjunhuang.codeepiphany.hackerrank.models.HackerRankContest.ProjectEuler
-import com.wenjunhuang.codeepiphany.leetcode.services.LeetCodeSubmissionService
 import com.wenjunhuang.codeepiphany.services.console.MessageSeg.Hyperlink
 import com.wenjunhuang.codeepiphany.services.http.HttpClientManager
+import com.wenjunhuang.codeepiphany.services.{BaseSubmissionService, ChallengeRepository, console}
+import com.wenjunhuang.codeepiphany.settings.ChallengeSettings.ChallengeSettingsStateItem
+import com.wenjunhuang.codeepiphany.utils.IdGenerator
 import com.wenjunhuang.codeepiphany.utils.syntax.*
 import com.wenjunhuang.codeepiphany.vfs.WebPreviewVirtualFile
+import fs2.Stream
+import org.jooq.{DSLContext, Record}
+import org.typelevel.ci.CIString
+
+import scala.jdk.OptionConverters.*
 
 class HackerRankSubmissionService(project: Project) extends BaseSubmissionService(project, HackerRank) {
   override type SubmissionRequest  = HRSubmissionRequest
