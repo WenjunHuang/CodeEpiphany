@@ -77,7 +77,7 @@ public class TestCaseItemPanel {
             editor.setBackgroundColor(EditorFragmentComponent.getBackgroundColor(editor, false));
             editor.setBorder(new DarculaEditorTextFieldBorder(myInputValueEditor, editor));
         });
-        var f = myInputValueEditor.getPreferredSize();
+//        var f = myInputValueEditor.getPreferredSize();
 //        myInputValueEditor.setSize()
 
         myExpectedValueEditor = new EditorTextField(EditorFactory.getInstance().createDocument(StringUtil.convertLineSeparators(myInitialExpectedValue)), myProject, FileTypes.PLAIN_TEXT,

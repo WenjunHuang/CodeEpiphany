@@ -178,6 +178,7 @@ lazy val codeEpiphany = (project in file("."))
       "com.squareup.okhttp3"     % "okhttp-jvm"               % "5.2.0",
       "org.jsoup"                % "jsoup"                    % "1.21.2",
       "com.vladsch.flexmark"     % "flexmark"                 % "0.64.8",
+      "com.vladsch.flexmark"     % "flexmark-ext-attributes"  % "0.64.8",
       "com.vladsch.flexmark"     % "flexmark-util-data"       % "0.64.8",
       "com.vladsch.flexmark"     % "flexmark-util-ast"        % "0.64.8",
       "com.vladsch.flexmark"     % "flexmark-util-misc"       % "0.64.8",

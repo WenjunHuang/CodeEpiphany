@@ -1,9 +1,11 @@
 package com.wenjunhuang.codeepiphany.leetcode.services
 
 import cats.effect.IO
-
 import com.intellij.openapi.project.Project
-
+import com.vladsch.flexmark.ext.attributes.AttributesExtension
+import com.vladsch.flexmark.html.HtmlRenderer
+import com.vladsch.flexmark.parser.Parser
+import com.vladsch.flexmark.util.data.MutableDataSet
 import com.wenjunhuang.codeepiphany.database.Tables.*
 import com.wenjunhuang.codeepiphany.database.tables.records.{ ChallengeLanguageRecord, ChallengeRecord }
 import com.wenjunhuang.codeepiphany.leetcode.models.*
@@ -22,8 +24,8 @@ import com.wenjunhuang.codeepiphany.settings.dojo.BaseCodeDojoSettings
 import org.jooq.DSLContext
 import org.jsoup.Jsoup
 import org.jsoup.nodes.TextNode
-import scala.jdk.CollectionConverters.*
 
+import scala.jdk.CollectionConverters.*
 import com.wenjunhuang.codeepiphany.PluginBundle
 
 case class LeetCodeOpenChallengeRequest(questionSlug: String)
@@ -96,10 +98,20 @@ class LeetCodeOpenChallengeService(
           )
         case Some((content, codeSnippet)) =>
           IO.delay {
-            val inputs = content.exampleTestcaseList
+            val inputs  = content.exampleTestcaseList
+            val options = new MutableDataSet()
+            options.set(Parser.EXTENSIONS, List(AttributesExtension.create()).asJavaCollection)
+            val parser          = Parser.builder(options).build()
+            val renderer        = HtmlRenderer.builder(options).build()
+            val document        = parser.parse(content.translatedContent.filter(_.nonEmpty).getOrElse(content.content))
+            val descriptionHtml = renderer.render(document)
+
             val expectedOutputs =
-              if (myCodeDojo == LeetCodeCN && content.content.contains("English description is not available for the problem")) {
-                val document       = Jsoup.parse(content.translatedContent.getOrElse(""))
+              if (
+                myCodeDojo == LeetCodeCN
+//                  && content.content.contains("English description is not available for the problem")
+              ) {
+                val document       = Jsoup.parse(descriptionHtml)
                 val outputElements = document.select("pre strong:containsOwn(输出)")
                 if (outputElements.isEmpty) {
                   document
@@ -128,7 +140,7 @@ class LeetCodeOpenChallengeService(
                   }.toList
                 }
               } else {
-                val document       = Jsoup.parse(content.content)
+                val document       = Jsoup.parse(descriptionHtml)
                 val outputElements = document.select("pre strong:containsOwn(Output)")
                 if (outputElements.isEmpty) {
                   document
@@ -157,7 +169,7 @@ class LeetCodeOpenChallengeService(
                 name = content.translatedTitle.filter(_.nonEmpty).getOrElse(content.title),
                 code = codeSnippet.code,
                 slug = content.titleSlug,
-                description = content.translatedContent.filter(_.nonEmpty).getOrElse(content.content),
+                description = descriptionHtml,
                 difficulty = myLeetCodeDojo.fromLeetCodeDifficulty(content.difficulty).value,
                 language = language,
                 languageVersion = languageVersion,
