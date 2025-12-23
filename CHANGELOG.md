@@ -1,3 +1,7 @@
+## 1.10.1
+### Fixed
+- Fix rendering issues in some LeetCode problem descriptions that use Markdown format.
+
 ## 1.10.0
 ### Added
 - File names can be paths and support Velocity templates.
