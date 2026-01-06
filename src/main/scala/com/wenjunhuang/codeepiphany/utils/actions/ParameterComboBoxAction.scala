@@ -1,10 +1,10 @@
 package com.wenjunhuang.codeepiphany.utils.actions
 
 import com.intellij.openapi.actionSystem.*
-import com.intellij.openapi.actionSystem.ex.{CheckboxAction, ComboBoxAction}
+import com.intellij.openapi.actionSystem.ex.{ CheckboxAction, ComboBoxAction }
 import com.wenjunhuang.codeepiphany.utils.actions.ParameterComboBoxAction.QueryParamSubAction
 
-import javax.swing.{Icon, JComponent}
+import javax.swing.{ Icon, JComponent }
 
 abstract class ParameterComboBoxAction[P, T <: ParameterProvider[P]](
   private val key: DataKey[T],
@@ -15,7 +15,7 @@ abstract class ParameterComboBoxAction[P, T <: ParameterProvider[P]](
     with DataKeyNotNull[T](key)
     with ActionCompatible {
   override def update(e: AnActionEvent): Unit = {
-    if isSatisfied(e) then e.getPresentation.setEnabledAndVisible(true)
+    if (isSatisfied(e)) e.getPresentation.setEnabledAndVisible(true)
     else e.getPresentation.setEnabledAndVisible(false)
   }
 

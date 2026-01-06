@@ -46,7 +46,8 @@ trait CodeForcesApi {
     index: String,
     problemsetName: Option[String],
     programTypeId: String,
-    code: String
+    code: String,
+    getCSRFAndTurnstile: IO[(String, String,String,String)]
   ): Stream[IO, CodeForcesSubmissionResponse]
 
   def getUserInfo: IO[CodeForcesUserInfo]
@@ -327,11 +328,13 @@ object CodeForcesApi extends CodeForcesApi with Http4sClientDsl[IO] {
     index: String,
     problemsetName: Option[String],
     programTypeId: String,
-    code: String
+    code: String,
+    getCSRFAndTurnstile: IO[(String, String,String,String)]
   ): Stream[IO, CodeForcesSubmissionResponse] =
     Stream
-      .eval(prepareSubmitAnswer())
-      .evalMap { case (csrfToken, ftaa, bfaa) =>
+      .eval(getCSRFAndTurnstile)
+//      .eval(prepareSubmitAnswer())
+      .evalMap { case (csrfToken,turnstile, ftaa, bfaa) =>
         useClient { client =>
           client
             .expect[String](
@@ -342,6 +345,8 @@ object CodeForcesApi extends CodeForcesApi with Http4sClientDsl[IO] {
                 })
                 .withEntity(
                   UrlForm(
+                    "turnstileToken" -> turnstile,
+                    "cf-turnstile-response" -> turnstile,
                     "csrf_token"            -> csrfToken,
                     "ftaa"                  -> ftaa,
                     "bfaa"                  -> bfaa,

@@ -2,28 +2,41 @@ package com.wenjunhuang.codeepiphany.codeforces.services
 
 import cats.effect.IO
 import cats.syntax.all.*
-
 import com.intellij.openapi.project.Project
-
 import com.wenjunhuang.codeepiphany.PluginBundle
 import com.wenjunhuang.codeepiphany.codeforces.models.CodeForcesSubmissionResponse
 import com.wenjunhuang.codeepiphany.codeforces.settings.CodeForcesSettingsConfigurable
 import com.wenjunhuang.codeepiphany.database.Tables.{ CHALLENGE, CHALLENGE_LANGUAGE, CODEFORCES_CHALLENGE }
 import com.wenjunhuang.codeepiphany.model.CodeDojo.CodeForces
 import com.wenjunhuang.codeepiphany.model.newtypes.SubmissionId
-import com.wenjunhuang.codeepiphany.model.{ Language, LanguageVersion, SubmissionResult }
-import com.wenjunhuang.codeepiphany.services.{ console, BaseSubmissionService, ChallengeRepository }
+import com.wenjunhuang.codeepiphany.model.{ CodeDojo, Language, LanguageVersion, SubmissionResult }
+import com.wenjunhuang.codeepiphany.services.{
+  console,
+  BaseSubmissionService,
+  ChallengeRepository,
+  WebViewStyleProvider
+}
 import com.wenjunhuang.codeepiphany.settings.ChallengeSettings.ChallengeSettingsStateItem
 import org.jooq.{ DSLContext, Record }
 import org.typelevel.ci.CIString
+
 import scala.jdk.OptionConverters.*
-
 import com.intellij.execution.filters.HyperlinkInfo
-
+import com.intellij.openapi.application.{ ApplicationManager, ModalityState }
+import com.intellij.openapi.ui.DialogBuilder
+import com.intellij.openapi.util.Disposer
+import com.intellij.ui.jcef.{ JBCefBrowserBase, JBCefCookie, JBCefJSQuery }
 import com.wenjunhuang.codeepiphany.services.console.MessageSeg
 import com.wenjunhuang.codeepiphany.services.http.HttpClientManager
+import com.wenjunhuang.codeepiphany.utils.extensions.webRgba
+import com.wenjunhuang.codeepiphany.utils.jcef.BaseJCefWebView
 import com.wenjunhuang.codeepiphany.vfs.WebPreviewVirtualFile
 import com.wenjunhuang.codeepiphany.utils.syntax.*
+import org.cef.browser.{ CefBrowser, CefFrame }
+import org.cef.handler.CefLoadHandlerAdapter
+import org.cef.network.CefRequest
+
+import java.util.concurrent.CancellationException
 
 class CodeForcesSubmissionService(project: Project) extends BaseSubmissionService(project, CodeForces) {
   override type SubmissionRequest  = CFRequest
@@ -50,7 +63,8 @@ class CodeForcesSubmissionService(project: Project) extends BaseSubmissionServic
       basicInfo.index,
       basicInfo.problemSetName,
       basicInfo.programTypeId,
-      processedCode
+      processedCode,
+      getCSRFAndCloudflare(basicInfo)
     )
 
   override protected def reportSubmitResult(
@@ -132,6 +146,117 @@ class CodeForcesSubmissionService(project: Project) extends BaseSubmissionServic
   }
   private def resolveProgramType(language: Language, version: LanguageVersion): Option[String] =
     CodeForcesSettingsConfigurable.CODEFORCES_LANGUAGES.get((language, version))
+
+  private def getCSRFAndCloudflare(request: CFRequest): IO[(String, String,String,String)] = {
+    HttpClientManager
+      .getCookiesForHost(CodeDojo.CodeForces.domain)
+      .flatMap { cookies =>
+        IO.async_[(String, String, String, String)] { cb =>
+          val dialog           = DialogBuilder(myProject)
+          val browserComponent = BaseJCefWebView.createBrowser()
+
+          val jsQuery = JBCefJSQuery.create(browserComponent.asInstanceOf[JBCefBrowserBase])
+          jsQuery.addHandler { (s: String) =>
+            val (csrf, turnstile, ftaa, bfaa) = s.split(",") match {
+              case Array(c, t, f, b) => (c, t, f, b)
+              case _                 => throw new IllegalArgumentException("Invalid CSRF and Turnstile response format")
+            }
+            ApplicationManager.getApplication.invokeLater(
+              { () =>
+                dialog.getDialogWrapper.close(0, true)
+                cb(Right((csrf, turnstile, ftaa, bfaa)))
+              },
+              ModalityState.any()
+            )
+            JBCefJSQuery.Response(null)
+          }
+
+          browserComponent.getJBCefClient
+            .addLoadHandler(
+              new CefLoadHandlerAdapter {
+                override def onLoadStart(
+                  browser: CefBrowser,
+                  frame: CefFrame,
+                  transitionType: CefRequest.TransitionType
+                ): Unit = {
+                  if (frame.isMain) {
+                    ApplicationManager.getApplication.invokeLater(
+                      new Runnable {
+                        override def run(): Unit = {
+                          browserComponent.getComponent.setVisible(false)
+                        }
+                      },
+                      ModalityState.any()
+                    )
+                  }
+                }
+                override def onLoadEnd(browser: CefBrowser, frame: CefFrame, httpStatusCode: Int): Unit = {
+                  if (frame.isMain) {
+                    // language=JavaScript
+                    val js =
+                      s"""
+                         |document.documentElement.style = "overflow: hidden;";
+                         |const node = document.querySelector("div.turnstile-container");
+                         |if (node != null) {
+                         |   node.parentElement.removeChild(node);
+                         |   const mask = document.createElement("div");
+                         |   mask.setAttribute("id","cf-turnstile-mask");
+                         |   mask.style = "position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background-color: ${WebViewStyleProvider.DEFAULT.panelBackground
+                          .webRgba(1.0)}; z-index: 9999;display: flex; align-items: center; justify-content: center;";
+                         |   document.body.append(mask);
+                         |   const csrf = document.querySelector("input[name='csrf_token']").value;
+                         |   const ftaa = window._ftaa;
+                         |   const bfaa = window._bfaa;
+                         |   turnstile.render('#cf-turnstile-mask', {
+                         |      sitekey: '0x4AAAAAACDz1ltMYNJCAQZS',
+                         |      theme: ${if (WebViewStyleProvider.DEFAULT.isDarkMode) "'dark'" else "'light'"},
+                         |      callback: function(turnstile) {
+                         |        const result = csrf + "," + turnstile + "," + ftaa + "," + bfaa;
+                         |        console.log("CSRF,Turnstile,FTAA,BFAA result: " , result);
+                         |        ${jsQuery.inject("result")}
+                         |   }});
+                         |}
+                         |""".stripMargin
+                    browser.executeJavaScript(js, browser.getURL, 0)
+                    ApplicationManager.getApplication.invokeLater(
+                      new Runnable {
+                        override def run(): Unit = {
+                          browserComponent.getComponent.setVisible(true)
+                        }
+                      },
+                      ModalityState.any()
+                    )
+                  }
+                }
+              },
+              browserComponent.getCefBrowser
+            )
+
+          cookies.foreach { cookie =>
+            val jbcefCookie =
+              JBCefCookie(cookie.getName, cookie.getValue, CodeDojo.CodeForces.domain.toString, "/", true, false)
+            browserComponent.getJBCefCookieManager
+              .setCookie(s"https://${CodeDojo.CodeForces.domain.toString}/problemset/submit", jbcefCookie)
+              .cancel(true)
+          }
+
+          browserComponent.getComponent.setBackground(WebViewStyleProvider.DEFAULT.panelBackground)
+          dialog
+            .centerPanel(browserComponent.getComponent)
+          dialog.setTitle(PluginBundle.message("atcoder.cloudflare.turnstile"))
+          dialog.addCancelAction()
+          dialog.getDialogWrapper.setSize(400, 400)
+
+          Disposer.register(browserComponent, jsQuery)
+          Disposer.register(dialog, browserComponent)
+          browserComponent.loadURL(s"https://${CodeDojo.CodeForces.domain.toString}/problemset/submit")
+
+          if !dialog.showAndGet() then
+            cb(Left(CancellationException(PluginBundle.message("atcoder.cloudflare.cancelled"))))
+        }
+      }
+      .evalOnEDTDefault()
+  }
 
   case class CFRequest(
     contestId: Long,

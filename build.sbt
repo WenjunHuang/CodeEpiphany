@@ -1,13 +1,14 @@
 import com.vladsch.flexmark.html.HtmlRenderer
 import com.vladsch.flexmark.parser.Parser
 import com.vladsch.flexmark.util.data.MutableDataSet
-import java.io.File
 import sbtjooq.codegen.CodegenMode.Unmanaged
+
+import java.io.File
 import scala.io.Source
 import scala.sys.process.*
 import scala.util.Using
 
-val pluginVersion: String = "1.10.1"
+val pluginVersion: String = "1.10.2"
 
 ThisBuild / scalaVersion     := "3.7.0"
 ThisBuild / intellijPlatform := versions.intellijPlatform
@@ -159,7 +160,6 @@ lazy val codeEpiphany = (project in file("."))
     jooqCodegenConfig := file("jooq-codegen.xml"),
     jooqCodegenMode   := Unmanaged,
     libraryDependencies ++= Seq(
-      // add scala reflect
       "org.typelevel"           %% "cats-effect"              % "3.6.3",
       "org.typelevel"           %% "cats-core"                % "2.13.0",
       "org.typelevel"           %% "cats-mtl"                 % "1.6.0",
@@ -172,11 +172,11 @@ lazy val codeEpiphany = (project in file("."))
       "dev.optics"              %% "monocle-macro"            % "3.3.0",
       "org.typelevel"           %% "log4cats-core"            % "2.7.1",
       "org.typelevel"           %% "case-insensitive"         % "1.5.0",
-      "org.http4s"              %% "http4s-client"            % "0.23.32",
-      "org.http4s"              %% "http4s-dsl"               % "0.23.32",
-      "org.http4s"              %% "http4s-circe"             % "0.23.32",
-      "com.squareup.okhttp3"     % "okhttp-jvm"               % "5.2.0",
-      "org.jsoup"                % "jsoup"                    % "1.21.2",
+      "org.http4s"              %% "http4s-client"            % "0.23.33",
+      "org.http4s"              %% "http4s-dsl"               % "0.23.33",
+      "org.http4s"              %% "http4s-circe"             % "0.23.33",
+      "com.squareup.okhttp3"     % "okhttp-jvm"               % "5.3.2",
+      "org.jsoup"                % "jsoup"                    % "1.22.1",
       "com.vladsch.flexmark"     % "flexmark"                 % "0.64.8",
       "com.vladsch.flexmark"     % "flexmark-ext-attributes"  % "0.64.8",
       "com.vladsch.flexmark"     % "flexmark-util-data"       % "0.64.8",
@@ -195,12 +195,12 @@ lazy val codeEpiphany = (project in file("."))
       "io.monix"                %% "newtypes-circe-v0-14"     % "0.3.0",
       "com.github.cb372"        %% "cats-retry"               % "4.0.0",
       "com.github.weisj"         % "jsvg"                     % "2.0.0",
-      "org.apache.commons"       % "commons-text"             % "1.14.0",
+      "org.apache.commons"       % "commons-text"             % "1.15.0",
       // add jooq and sqlite,
       "org.jooq"            % "jooq"                          % "3.19.18",
       "org.reactivestreams" % "reactive-streams"              % "1.0.4",
       "io.r2dbc"            % "r2dbc-spi"                     % "1.0.0.RELEASE",
-      "org.xerial"          % "sqlite-jdbc"                   % "3.50.3.0",
+      "org.xerial"          % "sqlite-jdbc"                   % "3.51.1.0",
       "org.jooq"            % "jooq-meta"                     % "3.19.18"  % JooqCodegen,
       "org.jooq"            % "jooq-codegen"                  % "3.19.18"  % JooqCodegen,
       "org.xerial"          % "sqlite-jdbc"                   % "3.50.3.0" % JooqCodegen,
