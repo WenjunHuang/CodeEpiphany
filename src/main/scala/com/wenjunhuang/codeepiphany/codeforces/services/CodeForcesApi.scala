@@ -184,34 +184,6 @@ object CodeForcesApi extends CodeForcesApi with Http4sClientDsl[IO] {
 
   }
 
-  private def prepareSubmitAnswer(): IO[(String, String, String)] = {
-    HttpClientManager.getClient.use { client =>
-      client.expect[String](Method.GET(uri"https://codeforces.com/problemset/submit")).map { content =>
-        val doc       = Jsoup.parse(content)
-        val csrfToken = doc.select("meta[name=X-Csrf-Token]").attr("content")
-        var ftaa      = ""
-        var bfaa      = ""
-        doc
-          .select("script")
-          .not("[src]")
-          .asScala
-          .toList
-          .foreach { element =>
-            val value = element.html()
-            FTAA_REGEX
-              .findFirstMatchIn(value)
-              .map { m =>
-                ftaa = m.group(m.groupCount)
-              }
-              .orElse(BFAA_REGEX.findFirstMatchIn(value).map { m =>
-                bfaa = m.group(m.groupCount)
-              })
-          }
-        (csrfToken, ftaa, bfaa)
-      }
-    }
-  }
-
   private def extractSubmissionResult(content: String): IO[CodeForcesSubmissionResponse] = {
     IO.delay {
       val parsed = Jsoup.parse(content)
@@ -272,7 +244,7 @@ object CodeForcesApi extends CodeForcesApi with Http4sClientDsl[IO] {
             .POST(
               uri"https://codeforces.com/data/submitSource"
                 .withQueryParam("rv", scala.util.Random.nextLong().toHexString.substring(0, 9)),
-              headers = Headers(Referer(uri"https://codeforces.com/contest/2115/my"), "x-csrf-token" -> csrfToken)
+              headers = Headers(Referer(Uri.unsafeFromString(s"https://${CodeDojo.CodeForces.domain}/contest/${oldResponse.problemContestIdIndex}/my")), "x-csrf-token" -> csrfToken)
             )
             .withEntity(UrlForm("submissionId" -> oldResponse.submissionId.toString, "csrf_token" -> csrfToken))
         )
@@ -333,15 +305,16 @@ object CodeForcesApi extends CodeForcesApi with Http4sClientDsl[IO] {
   ): Stream[IO, CodeForcesSubmissionResponse] =
     Stream
       .eval(getCSRFAndTurnstile)
-//      .eval(prepareSubmitAnswer())
       .evalMap { case (csrfToken,turnstile, ftaa, bfaa) =>
         useClient { client =>
           client
             .expect[String](
               Method
                 .POST(problemsetName match {
-                  case None        => uri"https://codeforces.com/problemset/submit"
-                  case Some(value) => uri"https://codeforces.com/problemsets" / value / "submit"
+                  case None        =>
+                    Uri.unsafeFromString(s"https://${CodeDojo.CodeForces.domain}/problemset/submit")
+                  case Some(value) =>
+                    Uri.unsafeFromString(s"https://${CodeDojo.CodeForces.domain}/problemsets/$value/submit")
                 })
                 .withEntity(
                   UrlForm(
@@ -381,7 +354,4 @@ object CodeForcesApi extends CodeForcesApi with Http4sClientDsl[IO] {
           }
           .unNoneTerminate
       }
-
-  private val FTAA_REGEX = """window\._ftaa\s*=\s*"([^"]*)"""".r
-  private val BFAA_REGEX = """window\._bfaa\s*=\s*"([^"]*)"""".r
 }
