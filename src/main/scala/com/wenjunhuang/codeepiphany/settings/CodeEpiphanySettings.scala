@@ -9,7 +9,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.util.messages.Topic
 import com.intellij.util.xmlb.annotations.Attribute
 
-import com.wenjunhuang.codeepiphany.model.{CodeDojo, Constants}
+import com.wenjunhuang.codeepiphany.model.{ CodeDojo, Constants }
 import com.wenjunhuang.codeepiphany.settings.CodeEpiphanySettings.CodeEpiphanySettingsState
 import com.wenjunhuang.codeepiphany.utils.ConfigConverters.CodeDojoOptionConverter
 
@@ -23,9 +23,9 @@ final class CodeEpiphanySettings(private val myProject: Project)
 
   override def getState: CodeEpiphanySettingsState = state
 
-  override def loadState(newState: CodeEpiphanySettingsState): Unit =
+  override def loadState(newState: CodeEpiphanySettingsState): Unit = {
     state = newState
-
+  }
 }
 
 object CodeEpiphanySettings {
@@ -47,7 +47,6 @@ object CodeEpiphanySettings {
 
     @(Attribute @field)(converter = classOf[CodeDojoOptionConverter])
     var latestCodeDojo: Option[CodeDojo] = None
-
 
     def getDatabaseFolder(project: Project): String = {
       PathMacroManager.getInstance(project).expandPath(databaseFolder)

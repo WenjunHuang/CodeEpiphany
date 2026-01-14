@@ -66,10 +66,12 @@ public class CodeDojoSettingsForm extends SettingsUi<BaseCodeDojoSettings.CodeDo
 
     private void createUIComponents() {
         myTabs = (JBTabsEx) JBTabsFactory.createTabs(myProject());
-        myInitTab = new TabInfo(new BorderLayoutPanel().addToTop(
-                        new JBLabel(PluginBundle.message("configure.addLanguage.label")).setAllowAutoWrapping(true))
-                .addToCenter(new Spacer())
-                .withBorder(JBUI.Borders.emptyTop(5))).setText(PluginBundle.message("configure.addLanguage.text"))
+        myInitTab = new TabInfo(
+                new BorderLayoutPanel()
+                        .addToTop(new JBLabel(PluginBundle.message("configure.addLanguage.label")).setAllowAutoWrapping(true))
+                        .addToCenter(new Spacer())
+                        .withBorder(JBUI.Borders.emptyTop(5)))
+                .setText(PluginBundle.message("configure.addLanguage.text"))
                 .setIcon(AllIcons.General.Information)
                 .setTabPaneActions(new DefaultActionGroup(myLanguagesActionGroup));
 
