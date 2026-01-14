@@ -153,7 +153,7 @@ class CodeForcesSubmissionService(project: Project) extends BaseSubmissionServic
       .flatMap { cookies =>
         IO.async_[(String, String, String, String)] { cb =>
           val dialog           = DialogBuilder(myProject)
-          val browserComponent = BaseJCefWebView.createBrowser()
+          val browserComponent = BaseJCefWebView.createDefaultBrowser()
 
           val jsQuery = JBCefJSQuery.create(browserComponent.asInstanceOf[JBCefBrowserBase])
           jsQuery.addHandler { (s: String) =>

@@ -34,7 +34,7 @@ abstract class BaseSettingsConfigurable(
     SettingsTabPanel(
       myProject,
       myCodeDojo,
-      supportedLanguages.asJava,
+      supportedLanguages,
       { (language, languageVersion) => createDemoTemplate(language, languageVersion).get },
       myDisposable
     )

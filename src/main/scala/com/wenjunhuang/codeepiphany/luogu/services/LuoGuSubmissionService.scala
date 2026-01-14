@@ -139,7 +139,7 @@ class LuoGuSubmissionService(project: Project) extends BaseSubmissionService(pro
       httpServer.start()
 
       val dialog  = DialogBuilder(myProject)
-      val browser = BaseJCefWebView.createBrowser()
+      val browser = BaseJCefWebView.createDefaultBrowser()
 
       val jsQuery = JBCefJSQuery.create(browser.asInstanceOf[JBCefBrowserBase])
       jsQuery.addHandler { (s: String) =>

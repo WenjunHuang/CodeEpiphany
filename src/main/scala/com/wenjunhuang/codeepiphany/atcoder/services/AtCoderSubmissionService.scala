@@ -136,7 +136,7 @@ class AtCoderSubmissionService(project: Project) extends BaseSubmissionService(p
       .flatMap { cookies =>
         IO.async_[(String, String)] { cb =>
           val dialog           = DialogBuilder(myProject)
-          val browserComponent = BaseJCefWebView.createBrowser()
+          val browserComponent = BaseJCefWebView.createDefaultBrowser()
 
           val jsQuery = JBCefJSQuery.create(browserComponent.asInstanceOf[JBCefBrowserBase])
           jsQuery.addHandler { (s: String) =>

@@ -24,7 +24,7 @@ import org.intellij.lang.annotations.Language
 import org.typelevel.log4cats.{Logger, LoggerFactory}
 import javax.swing.JComponent
 
-import com.wenjunhuang.codeepiphany.utils.jcef.BaseJCefWebView.createBrowser
+import com.wenjunhuang.codeepiphany.utils.jcef.BaseJCefWebView.createDefaultBrowser
 
 /** Abstract base class for JCef-based web views. Provides common functionality for browser setup, event handling, and
   * resource management.
@@ -55,7 +55,7 @@ abstract class BaseJCefWebView(
   protected val myHttpServer: ResourceHttpServer = ResourceHttpServer(resourcePath, 0)
 
   // Browser and state management
-  private val myBrowser: JBCefBrowser = createBrowser()
+  private val myBrowser: JBCefBrowser = createDefaultBrowser()
   protected var myState: ViewerState  = ViewerState()
   private val myViewerStateJSQuery    = createJSQuery()
 
@@ -171,7 +171,7 @@ abstract class BaseJCefWebView(
 object BaseJCefWebView {
   case class ViewerState(zoom: Double = 100.0, canZoomIn: Boolean = true, canZoomOut: Boolean = true)
 
-  def createBrowser(): JBCefBrowser = {
+  def createDefaultBrowser(): JBCefBrowser = {
     val builder = JBCefBrowser.createBuilder()
 
     if isDebug then
