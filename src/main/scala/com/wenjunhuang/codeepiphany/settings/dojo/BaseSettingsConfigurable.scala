@@ -13,7 +13,7 @@ abstract class BaseSettingsConfigurable(
   id: String,
   displayName: String,
   helpTopic: String
-) extends ConfigurableBase[CodeDojoSettingsForm, BaseCodeDojoSettings.CodeDojoSettingsState](
+) extends ConfigurableBase[SettingsTabPanel, BaseCodeDojoSettings.CodeDojoSettingsState](
       id,
       displayName,
       helpTopic
@@ -30,8 +30,8 @@ abstract class BaseSettingsConfigurable(
 
   def createDemoTemplate(language: Language, languageVersion: LanguageVersion): Option[Any]
 
-  override def createUi(): CodeDojoSettingsForm =
-    CodeDojoSettingsForm(
+  override def createUi(): SettingsTabPanel =
+    SettingsTabPanel(
       myProject,
       myCodeDojo,
       supportedLanguages.asJava,

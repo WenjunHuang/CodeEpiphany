@@ -35,7 +35,7 @@ import java.util.Map;
 import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 
-public class CodeDojoSettingsForm extends SettingsUi<BaseCodeDojoSettings.CodeDojoSettingsState> {
+public class SettingsTabPanel extends SettingsUi<BaseCodeDojoSettings.CodeDojoSettingsState> {
     private JBTabsEx myTabs;
     private JPanel rootPanel;
     private final DefaultActionGroup myLanguagesActionGroup;
@@ -44,11 +44,11 @@ public class CodeDojoSettingsForm extends SettingsUi<BaseCodeDojoSettings.CodeDo
     private final BiFunction<Language, LanguageVersion, Object> myDemoTemplateSupplier;
     private final CodeDojo myCodeDojo;
 
-    public CodeDojoSettingsForm(Project project,
-                                CodeDojo codeDojo,
-                                Collection<Tuple2<Language, LanguageVersion>> languages,
-                                BiFunction<Language, LanguageVersion, Object> demoTemplateSupplier,
-                                Disposable parentDisposable) {
+    public SettingsTabPanel(Project project,
+                            CodeDojo codeDojo,
+                            Collection<Tuple2<Language, LanguageVersion>> languages,
+                            BiFunction<Language, LanguageVersion, Object> demoTemplateSupplier,
+                            Disposable parentDisposable) {
         super(project);
         Disposer.register(parentDisposable, this);
 
