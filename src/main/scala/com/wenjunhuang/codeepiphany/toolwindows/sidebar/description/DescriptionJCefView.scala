@@ -21,7 +21,9 @@ class DescriptionJCefView(
     myHttpServer.addCustomResponse(
       "/intellijStyle.css",
       { () =>
-        ChallengeDescriptionStyle.getStyle(styleProvider, myContent.map(_._2)).getBytes(StandardCharsets.UTF_8)
+        (ChallengeDescriptionStyle
+          .getStyle(styleProvider, myContent.map(_._3)) + "\n" + myContent.map(_._2).getOrElse(""))
+          .getBytes(StandardCharsets.UTF_8)
       },
       "text/css"
     )
@@ -32,7 +34,7 @@ class DescriptionJCefView(
       () =>
         Map(
           DESCRIPTION_CONTENT -> myContent.map(_._1).getOrElse("No challenge selected 🌟"),
-          EXTRA_HEADER        -> myContent.map(_._2).map(CodoDojoHeaders.getHeader).getOrElse("")
+          EXTRA_HEADER        -> myContent.map(_._3).map(CodoDojoHeaders.getHeader).getOrElse("")
         )
     )
   }
@@ -44,11 +46,12 @@ class DescriptionJCefView(
   override protected def getIndexPath: String = "challengeDescription/index.html"
 
   @volatile
-  var myContent: Option[(String, CodeDojo)] = None
-  def setDescription(content: Option[(String, CodeDojo)]): Unit = {
+  var myContent: Option[(String, String, CodeDojo)] = None
+  def setDescription(content: Option[(String, String, CodeDojo)]): Unit = {
     myContent = content
     reload()
   }
+
 }
 
 object DescriptionJCefView {

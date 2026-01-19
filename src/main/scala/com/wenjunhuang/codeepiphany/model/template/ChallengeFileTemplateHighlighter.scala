@@ -12,6 +12,8 @@ import com.intellij.testFramework.LightVirtualFile
 import com.wenjunhuang.codeepiphany.model.Language
 import com.wenjunhuang.codeepiphany.model.template.lexer.{ChallengeFileTemplateTextLexer, ChallengeFileTemplateTokenType}
 
+import scala.annotation.{StaticAnnotation, static}
+
 class ChallengeFileTemplateHighlighter extends SyntaxHighlighterBase {
   private val myLexer = ChallengeFileTemplateTextLexer()
 
@@ -19,10 +21,8 @@ class ChallengeFileTemplateHighlighter extends SyntaxHighlighterBase {
 
   override def getTokenHighlights(tokenType: IElementType): Array[TextAttributesKey] =
     tokenType match {
-      case ChallengeFileTemplateTokenType.START_REF |
-          ChallengeFileTemplateTokenType.START_REF_FORMAL |
-          ChallengeFileTemplateTokenType.START_REF_SILENT |
-          ChallengeFileTemplateTokenType.START_REF_SILENT_FORMAL |
+      case ChallengeFileTemplateTokenType.START_REF | ChallengeFileTemplateTokenType.START_REF_FORMAL |
+          ChallengeFileTemplateTokenType.START_REF_SILENT | ChallengeFileTemplateTokenType.START_REF_SILENT_FORMAL |
           ChallengeFileTemplateTokenType.END_REF_FORMAL =>
         SyntaxHighlighterBase.pack(DefaultLanguageHighlighterColors.KEYWORD)
       case ChallengeFileTemplateTokenType.DIRECTIVE =>
@@ -59,10 +59,7 @@ object ChallengeFileTemplateHighlighter {
         ChallengeFileTemplateHighlighter(),
         EditorColorsManager.getInstance().getGlobalScheme
       )
-      editorHighlighter.registerLayer(
-        ChallengeFileTemplateTokenType.TEXT,
-        LayerDescriptor(syntaxHighlighter, "")
-      )
+      editorHighlighter.registerLayer(ChallengeFileTemplateTokenType.TEXT, LayerDescriptor(syntaxHighlighter, ""))
 
       editorHighlighter
   }
@@ -72,10 +69,7 @@ object ChallengeFileTemplateHighlighter {
     if velocityFiletype != FileTypes.UNKNOWN then
       EditorHighlighterFactory
         .getInstance()
-        .createEditorHighlighter(
-          project,
-          LightVirtualFile(s"template.${FileTypes.PLAIN_TEXT.getDefaultExtension}.ft")
-        )
+        .createEditorHighlighter(project, LightVirtualFile(s"template.${FileTypes.PLAIN_TEXT.getDefaultExtension}.ft"))
     else
       val syntaxHighlighter =
         SyntaxHighlighterFactory.getSyntaxHighlighter(FileTypes.PLAIN_TEXT, project, null)
@@ -83,31 +77,41 @@ object ChallengeFileTemplateHighlighter {
         ChallengeFileTemplateHighlighter(),
         EditorColorsManager.getInstance().getGlobalScheme
       )
-      editorHighlighter.registerLayer(
-        ChallengeFileTemplateTokenType.TEXT,
-        LayerDescriptor(syntaxHighlighter, "")
-      )
+      editorHighlighter.registerLayer(ChallengeFileTemplateTokenType.TEXT, LayerDescriptor(syntaxHighlighter, ""))
 
       editorHighlighter
 
   }
 
-  def createLanguageEditorHighlighter(
-    project: Project,
-    language: Option[Language]
-  ): EditorHighlighter = {
+  def createLanguageEditorHighlighter(project: Project, language: Option[Language]): EditorHighlighter = {
     val syntaxHighlighter = createLanguageSyntaxHighlighter(project, language)
     LexerEditorHighlighter(syntaxHighlighter, EditorColorsManager.getInstance().getGlobalScheme)
   }
+  
+  @static
+  def createLanguageEditorHighlighterByExtension(project: Project, extension: Option[String]): EditorHighlighter = {
+    val syntaxHighlighter = createLanguageSyntaxHighlighterByExtension(project, extension)
+    LexerEditorHighlighter(syntaxHighlighter, EditorColorsManager.getInstance().getGlobalScheme)
+  }
 
-  def createLanguageSyntaxHighlighter(
-    project: Project,
-    language: Option[Language]
-  ): SyntaxHighlighter = {
+  def createLanguageSyntaxHighlighter(project: Project, language: Option[Language]): SyntaxHighlighter = {
     val fileType = language match
       case None => FileTypes.PLAIN_TEXT
       case Some(lang) =>
         Option(FileTypeManager.getInstance().getFileTypeByExtension(lang.fileExt)).map { fileType =>
+          if fileType == FileTypes.UNKNOWN then FileTypes.PLAIN_TEXT else fileType
+        }.getOrElse(FileTypes.PLAIN_TEXT)
+
+    Option(SyntaxHighlighterFactory.getSyntaxHighlighter(fileType, project, null))
+      .getOrElse(PlainSyntaxHighlighter())
+  }
+
+  @static
+  def createLanguageSyntaxHighlighterByExtension(project: Project, extension: Option[String]): SyntaxHighlighter = {
+    val fileType = extension match
+      case None => FileTypes.PLAIN_TEXT
+      case Some(lang) =>
+        Option(FileTypeManager.getInstance().getFileTypeByExtension(lang)).map { fileType =>
           if fileType == FileTypes.UNKNOWN then FileTypes.PLAIN_TEXT else fileType
         }.getOrElse(FileTypes.PLAIN_TEXT)
 

@@ -66,8 +66,9 @@ class ChallengeDescriptionView(private val myPresenter: ChallengeDescriptionPres
     myViewer.preferredFocusedComponent.removeMouseWheelListener(MOUSE_WHEEL_LISTENER)
     Disposer.dispose(myViewer)
 
-  def setDescription(content: Option[(String, CodeDojo)]): Unit =
+  def setDescription(content: Option[(String,String, CodeDojo)]): Unit =
     myViewer.setDescription(content)
+
 
   override def zoomIn(): Unit = myViewer.zoomIn()
 

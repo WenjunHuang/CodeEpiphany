@@ -2,11 +2,11 @@ package com.wenjunhuang.codeepiphany.toolwindows.sidebar.description
 
 import cats.effect.kernel.Resource.ExitCase
 import cats.effect.std.Queue
-import cats.effect.{Async, IO}
+import cats.effect.{ Async, IO }
 import cats.syntax.all.*
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.diagnostic.Logger
-import com.intellij.openapi.fileEditor.{FileEditorManagerEvent, FileEditorManagerListener}
+import com.intellij.openapi.fileEditor.{ FileEditorManagerEvent, FileEditorManagerListener }
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
 import com.wenjunhuang.codeepiphany.database.Tables.CHALLENGE
@@ -14,6 +14,7 @@ import com.wenjunhuang.codeepiphany.model.CodeDojo
 import com.wenjunhuang.codeepiphany.model.newtypes.ChallengeId
 import com.wenjunhuang.codeepiphany.services.ChallengeRepository
 import com.wenjunhuang.codeepiphany.settings.ChallengeSettings
+import com.wenjunhuang.codeepiphany.settings.dojo.BaseCodeDojoSettings
 import com.wenjunhuang.codeepiphany.utils.BrowserUtils
 import com.wenjunhuang.codeepiphany.utils.syntax.*
 import com.wenjunhuang.codeepiphany.utils.walkaround.FileEditorManagerListenerBridge
@@ -73,7 +74,8 @@ class ChallengeDescriptionPresenter(private val myProject: Project) extends Disp
             }.flatMap { record =>
               IO.delay {
                 record.map { description =>
-                  myDescriptionView.setDescription(Some(description, dojo))
+                  val customCSS = BaseCodeDojoSettings.getInstance(myProject, dojo).getState.descriptionCSS
+                  myDescriptionView.setDescription(Some(description, customCSS, dojo))
                 }
               }.evalOnEDTDefault()
             }.void

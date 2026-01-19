@@ -33,15 +33,13 @@ class SettingsTabPanel(
   private val myLanguagesPanels      = mutable.Map[(Language, LanguageVersion), LanguageSettingsPanel]()
   private val myLanguagesActionGroup = new DefaultActionGroup("Languages", null, AllIcons.General.Add)
 
-  private val myTabs = JBTabsFactory.createTabs(myProject).asInstanceOf[JBTabsEx]
-  private val myInitTab = new TabInfo(
-    new BorderLayoutPanel()
-      .addToTop(new JBLabel(PluginBundle.message("configure.addLanguage.label")).setAllowAutoWrapping(true))
-      .addToCenter(new Spacer)
-      .withBorder(JBUI.Borders.emptyTop(5))
-  ).setText(PluginBundle.message("configure.addLanguage.text"))
-    .setIcon(AllIcons.General.Information)
+  private val myTabs                 = JBTabsFactory.createTabs(myProject).asInstanceOf[JBTabsEx]
+  private val myGeneralSettingsPanel = new GeneralSettingsPanel(myProject)
+  private val myInitTab = new TabInfo(myGeneralSettingsPanel.getComponent)
+    .setText(PluginBundle.message("configure.general.text"))
+    .setIcon(AllIcons.General.Gear)
     .setTabPaneActions(new DefaultActionGroup(myLanguagesActionGroup))
+
   private val rootPanel = new BorderLayoutPanel().addToCenter(myTabs.getComponent)
 
   languages.foreach(language => myLanguagesActionGroup.add(new LanguageAction(language._1, language._2)))
@@ -70,6 +68,7 @@ class SettingsTabPanel(
   override def reset(@NotNull settings: BaseCodeDojoSettings.CodeDojoSettingsState): Unit = {
     myTabs.removeAllTabs()
     myTabs.addTab(myInitTab)
+    myGeneralSettingsPanel.reset(settings)
     settings.languageSettings.forEach(this.addNewLanguageSetting)
   }
 
@@ -80,6 +79,7 @@ class SettingsTabPanel(
 
     val newLangs = myLanguagesPanels.keySet
     boundary {
+      if (myGeneralSettingsPanel.isModified(settings)) boundary.break(true)
       if (oldLangs != newLangs) boundary.break(true)
       else {
         for (languageSettings <- settings.languageSettings.asScala) {
@@ -98,6 +98,7 @@ class SettingsTabPanel(
   override def apply(settings: BaseCodeDojoSettings.CodeDojoSettingsState): Unit = {
     val states = new util.ArrayList[BaseCodeDojoSettings.LanguageSettingsState]
     boundary {
+      myGeneralSettingsPanel.apply(settings)
       for ((key, value) <- myLanguagesPanels) {
         try {
           val state = new BaseCodeDojoSettings.LanguageSettingsState

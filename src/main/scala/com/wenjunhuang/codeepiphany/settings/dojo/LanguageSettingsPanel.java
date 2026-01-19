@@ -89,9 +89,6 @@ public class LanguageSettingsPanel extends SettingsUi<BaseCodeDojoSettings.Langu
 
         $$$setupUI$$$();
 
-//        mySourceFolder.addBrowseFolderListener(PluginBundle.message("ui.settings.sourceFolder.title"),
-//                null,
-//                project, FileChooserDescriptorFactory.createSingleFolderDescriptor());
         mySourceFolder.addActionListener(new MyBrowseFolderListener(PluginBundle.message("ui.settings.sourceFolder.title"),
                 null,
                 mySourceFolder,
