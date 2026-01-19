@@ -1,19 +1,31 @@
 package com.wenjunhuang.codeepiphany.toolwindows.sidebar.solutions.luogu
 
 import cats.effect.IO
+import com.intellij.icons.AllIcons
 import com.intellij.openapi.Disposable
+import com.intellij.openapi.actionSystem.{
+  ActionManager,
+  ActionUpdateThread,
+  AnAction,
+  AnActionEvent,
+  DefaultActionGroup
+}
+import com.intellij.openapi.actionSystem.ex.ActionManagerEx
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
+import com.intellij.tools.SimpleActionGroup
 import com.intellij.ui.AnimatedIcon
 import com.intellij.ui.components.JBLabel
-import com.intellij.ui.jcef.{JBCefBrowser, JBCefCookie}
+import com.intellij.ui.jcef.{ JBCefBrowser, JBCefCookie }
+import com.intellij.util.ui.JBUI
+import com.intellij.util.ui.JBUI.CurrentTheme.Toolbar
 import com.intellij.util.ui.components.BorderLayoutPanel
 import com.wenjunhuang.codeepiphany.database.Tables.CHALLENGE
 import com.wenjunhuang.codeepiphany.model.CodeDojo
 import com.wenjunhuang.codeepiphany.model.CodeDojo.LuoGu
 import com.wenjunhuang.codeepiphany.model.newtypes.ChallengeId
 import com.wenjunhuang.codeepiphany.services.http.HttpClientManager
-import com.wenjunhuang.codeepiphany.services.{AuthService, ChallengeRepository}
+import com.wenjunhuang.codeepiphany.services.{ AuthService, ChallengeRepository }
 import com.wenjunhuang.codeepiphany.utils.isDebug
 import com.wenjunhuang.codeepiphany.utils.syntax.*
 import com.wenjunhuang.codeepiphany.utils.ui.UnauthenticatedView
@@ -21,13 +33,13 @@ import org.cef.browser.CefBrowser
 import org.cef.handler.CefLoadHandlerAdapter
 import org.typelevel.log4cats.LoggerFactory
 
-import javax.swing.{JComponent, SwingConstants}
+import javax.swing.{ JButton, JComponent, SwingConstants }
 import scala.jdk.OptionConverters.*
 
 class LuoGuSolutionPresenter(private val myChallengeId: ChallengeId, private val myProject: Project)
     extends Disposable {
   private val myLogger = LoggerFactory.getLogger[IO]
-  private val myView = new BorderLayoutPanel()
+  private val myView   = new BorderLayoutPanel()
 
   private val myBrowser = createBrowser()
 
@@ -52,6 +64,7 @@ class LuoGuSolutionPresenter(private val myChallengeId: ChallengeId, private val
               .getOrElse(throw new NoSuchElementException(s"No challenge found for ID: ${myChallengeId.value}"))
           }.handleErrorWith { error =>
             IO.delay {
+
               myView.addToCenter(
                 new JBLabel(
                   s"Error fetching challenge slug: ${error.getMessage}",
@@ -120,6 +133,24 @@ class LuoGuSolutionPresenter(private val myChallengeId: ChallengeId, private val
                 myBrowser.getCefBrowser
               )
             myView.removeAll()
+
+            val actionGroup = DefaultActionGroup(new AnAction(AllIcons.Actions.Back) {
+              override def actionPerformed(e: AnActionEvent): Unit = {
+                if (myBrowser.getCefBrowser.canGoBack) myBrowser.getCefBrowser.goBack()
+              }
+              override def update(e: AnActionEvent): Unit = {
+                e.getPresentation.setEnabled(myBrowser.getCefBrowser.canGoBack)
+              }
+              override def getActionUpdateThread: ActionUpdateThread = ActionUpdateThread.EDT
+            })
+
+            val codeTemplateToolbar = ActionManager
+              .getInstance()
+              .asInstanceOf[ActionManagerEx]
+              .createActionToolbar("LuoGuSolution", actionGroup, true, false, false);
+            codeTemplateToolbar.setTargetComponent(myBrowser.getComponent)
+            myView.addToTop(codeTemplateToolbar.getComponent)
+
             myView.addToCenter(myBrowser.getComponent)
             myBrowser.loadURL(s"https://www.luogu.com.cn/problem/solution/${pid}")
           }.evalOnEDTAny()
