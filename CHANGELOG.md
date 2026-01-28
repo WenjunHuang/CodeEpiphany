@@ -1,3 +1,8 @@
+## 1.11.0
+### Added
+- Add custom style support for challenge description rendering.
+- Add go-back button in LuoGu solution webview.
+ 
 ## 1.10.2
 ### Fixed
 - Resolve Cloudflare Turnstile verification issue on CodeForces submissions.

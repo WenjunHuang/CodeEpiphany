@@ -1,7 +1,6 @@
 package com.wenjunhuang.codeepiphany.utils.jcef
 
 import cats.effect.{IO, SyncIO}
-
 import com.intellij.ide.ui.LafManagerListener
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.application.ApplicationManager
@@ -9,10 +8,10 @@ import com.intellij.openapi.editor.colors.{EditorColorsListener, EditorColorsMan
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
 import com.intellij.ui.jcef.*
-
 import com.wenjunhuang.codeepiphany.services.WebViewStyleProvider
+import com.wenjunhuang.codeepiphany.utils.jcef.BaseJCefWebView.createDefaultBrowser
 import com.wenjunhuang.codeepiphany.utils.syntax.*
-import com.wenjunhuang.codeepiphany.utils.{isDebug, ResourceHttpServer}
+import com.wenjunhuang.codeepiphany.utils.{ResourceHttpServer, isDebug}
 import io.circe.*
 import io.circe.generic.auto.*
 import io.circe.parser.parse
@@ -20,11 +19,9 @@ import org.cef.browser.*
 import org.cef.handler.*
 import org.cef.network.CefRequest
 import org.http4s.Headers
-import org.intellij.lang.annotations.Language
 import org.typelevel.log4cats.{Logger, LoggerFactory}
-import javax.swing.JComponent
 
-import com.wenjunhuang.codeepiphany.utils.jcef.BaseJCefWebView.createDefaultBrowser
+import javax.swing.JComponent
 
 /** Abstract base class for JCef-based web views. Provides common functionality for browser setup, event handling, and
   * resource management.
@@ -156,7 +153,7 @@ abstract class BaseJCefWebView(
   protected def requestFilter(frame: CefFrame, req: CefRequest): Boolean = true
   protected def createHeaders(request: CefRequest): IO[Headers]          = IO.pure(Headers.empty)
 
-  protected def execute(@Language("javascript") script: String): Unit =
+  protected def execute(script: String): Unit =
     myBrowser.getCefBrowser.executeJavaScript(script, myBrowser.getCefBrowser.getURL, 0)
 
   override def dispose(): Unit = {
@@ -174,11 +171,11 @@ object BaseJCefWebView {
   def createDefaultBrowser(): JBCefBrowser = {
     val builder = JBCefBrowser.createBuilder()
 
-    if isDebug then
+    if (isDebug)
       builder
         .setOffScreenRendering(false)
         .setEnableOpenDevToolsMenuItem(true)
-    else builder.setOffScreenRendering(true)
+   else builder.setOffScreenRendering(true)
 
     builder.build()
   }
