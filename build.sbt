@@ -19,16 +19,16 @@ ThisBuild / intellijBuild := {
 
   val selectedBuild = requestedVersion match {
     case Some("233") =>
-      println(s"Using IntelliJ version 233 (${versions.intellijBuild233})")
+      println(s"Using ${versions.intellijPlatform.name} version 233 (${versions.intellijBuild233})")
       versions.intellijBuild233
     case Some("241") =>
-      println(s"Using IntelliJ version 241 (${versions.intellijBuild241})")
+      println(s"Using ${versions.intellijPlatform.name} version 241 (${versions.intellijBuild241})")
       versions.intellijBuild241
     case Some("252") =>
-      println(s"Using IntelliJ version 252 (${versions.intellijBuild252})")
+      println(s"Using ${versions.intellijPlatform.name} version 252 (${versions.intellijBuild252})")
       versions.intellijBuild252
     case Some(other) =>
-      println(s"Warning: Unknown IntelliJ version '$other', falling back to default (252)")
+      println(s"Warning: Unknown ${versions.intellijPlatform.name} version '$other', falling back to default (252)")
       versions.intellijBuild252
     case None =>
       println(s"No IntelliJ version specified, using default (252: ${versions.intellijBuild252})")
