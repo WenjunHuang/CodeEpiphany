@@ -13,6 +13,12 @@ object IdeUtils {
   def pluginVersion: String =
     Option(PluginManagerCore.getPlugin(PluginId.getId("com.wenjunhuang.codeepiphany"))).map(_.getVersion).getOrElse("")
 
+  def isRunningInCLion: Boolean = {
+    val appName = ApplicationInfo.getInstance.getVersionName
+    // The version name for CLion typically contains "CLion"
+    appName != null && appName.contains("CLion")
+  }
+
   def i18nLanguage: String = PluginBundle.message("locale")
 
 }

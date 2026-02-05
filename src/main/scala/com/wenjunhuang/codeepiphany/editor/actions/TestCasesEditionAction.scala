@@ -1,10 +1,15 @@
 package com.wenjunhuang.codeepiphany.editor.actions
 
-import com.intellij.openapi.actionSystem.{AnAction, AnActionEvent}
+import com.intellij.openapi.actionSystem.{ AnAction, AnActionEvent }
 import com.intellij.openapi.util.Key
-import com.wenjunhuang.codeepiphany.editor.actions.TestCasesEditionAction.{TESTCASES_PROVIDER_KEY, TestCasesEditionProvider}
+
+import com.wenjunhuang.codeepiphany.editor.actions.TestCasesEditionAction.{
+  TESTCASES_PROVIDER_KEY,
+  TestCasesEditionProvider
+}
+import com.wenjunhuang.codeepiphany.model.{ CodeDojo, Language, LanguageVersion }
 import com.wenjunhuang.codeepiphany.settings.ChallengeSettings
-import com.wenjunhuang.codeepiphany.utils.actions.{ActionCompatible, FileEditorKeyNotNull, ProjectNonNull}
+import com.wenjunhuang.codeepiphany.utils.actions.{ ActionCompatible, FileEditorKeyNotNull, ProjectNonNull }
 import com.wenjunhuang.codeepiphany.utils.testCases.TestCasesDialog
 
 class TestCasesEditionAction
@@ -16,10 +21,23 @@ class TestCasesEditionAction
   override def actionPerformed(e: AnActionEvent): Unit = {
     val testCases        = getValue(e).getTestCases
     val defaultTestCases = getValue(e).getDefaultTestCases
+    val language         = getValue(e).getLanguage
+    val codeDojo         = getValue(e).getCodeDojo
+    val runConfigTitle   = getValue(e).getRunConfigurationTitle
+    val sourceFile = getValue(e).getSourceFile
+
     val dialog =
-      TestCasesDialog(myProject = e.getProject, myTestCases = testCases, myDefaultTestCases = defaultTestCases)
+      TestCasesDialog(
+        myProject = e.getProject,
+        myTestCases = testCases,
+        myDefaultTestCases = defaultTestCases,
+        myLanguage = language,
+        myCodeDojo = codeDojo,
+        myRunConfigTitle = runConfigTitle,
+        mySourceFile = sourceFile
+      )
     if (dialog.showAndGet()) {
-      val updatedTestCases = dialog.getTestCases()
+      val updatedTestCases = dialog.getTestCases
       getValue(e).updateTestCases(updatedTestCases)
     }
   }
@@ -36,5 +54,9 @@ object TestCasesEditionAction {
     def getDefaultTestCases: List[ChallengeSettings.TestCase]
     def getTestCases: List[ChallengeSettings.TestCase]
     def updateTestCases(testCases: List[ChallengeSettings.TestCase]): Unit
+    def getRunConfigurationTitle: String
+    def getSourceFile:String
+    def getLanguage: Language
+    def getCodeDojo: CodeDojo
   }
 }
