@@ -1,9 +1,7 @@
-val requestedVersion = sys.props.get("intellij.platform")
-if (requestedVersion.contains("clion")) {
-  println("Using sbt-idea-plugin 4.1.17 for CLion")
+val requestedVersion = sys.props.get("intellij.version")
+if (requestedVersion.contains("252")) {
   addSbtPlugin("org.jetbrains" % "sbt-idea-plugin" % "4.1.17")
 } else {
-  println("Using sbt-idea-plugin 3.26.2 for non-CLion IDEs")
   addSbtPlugin("org.jetbrains" % "sbt-idea-plugin" % "3.26.2")
 }
 

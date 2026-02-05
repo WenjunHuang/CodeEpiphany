@@ -13,6 +13,7 @@ import com.intellij.ui.EditorTextField;
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.uiDesigner.core.Spacer;
+import com.wenjunhuang.codeepiphany.PluginBundle;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -96,22 +97,22 @@ public class TestCaseItemPanel {
         });
 
         var toolbar = ActionManager.getInstance().createActionToolbar("TestCaseItemPanelToolbar", new DefaultActionGroup(
-                new AnAction("Delete", "Delete", AllIcons.General.Remove) {
+                new AnAction(PluginBundle.message("deleteTestCase"), null, AllIcons.General.Remove) {
                     @Override
                     public void actionPerformed(@NotNull AnActionEvent e) {
                         myDeleteAction.run();
                     }
                 },
-                new AnAction("Run Test", "Run Test", AllIcons.Actions.RunAll) {
+                new AnAction(PluginBundle.message("runTestCase"), null, AllIcons.Actions.Execute) {
                     @Override
                     public void actionPerformed(@NotNull AnActionEvent e) {
-                        if (myRunTestAction!=null)
+                        if (myRunTestAction != null)
                             myRunTestAction.accept(myInputValueEditor.getText());
                     }
 
                     @Override
                     public @NotNull ActionUpdateThread getActionUpdateThread() {
-                       return ActionUpdateThread.EDT; 
+                        return ActionUpdateThread.EDT;
                     }
 
                     @Override
