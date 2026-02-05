@@ -12,6 +12,7 @@ val pluginVersion: String = "1.11.0"
 
 ThisBuild / scalaVersion     := "3.7.0"
 ThisBuild / intellijPlatform := versions.intellijPlatform
+ThisBuild / intellijAttachSources := true
 
 // 动态设置IntelliJ版本
 ThisBuild / intellijBuild := {

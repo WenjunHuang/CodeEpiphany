@@ -3,6 +3,8 @@ package com.wenjunhuang.codeepiphany.utils.testCases
 import java.awt.{ GridBagConstraints, GridBagLayout }
 import java.awt.event.ActionEvent
 import java.io.File
+import java.net.{ URI, URLDecoder }
+import java.nio.file.{ FileSystem, FileSystems }
 import javax.swing.{ JComponent, JPanel, ScrollPaneConstants }
 import org.apache.commons.io.IOUtils
 import scala.collection.mutable
@@ -20,6 +22,7 @@ import com.intellij.execution.{ ExecutionManager, ExecutorRegistry, ProgramRunne
 import com.intellij.execution.executors.DefaultRunExecutor
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.util.io.IOUtil
+import com.intellij.util.UriUtil
 
 import com.wenjunhuang.codeepiphany.{ settings, PluginBundle }
 import com.wenjunhuang.codeepiphany.model.{ CodeDojo, Language }
@@ -112,14 +115,22 @@ class TestCasesDialog(
                         val runConfig = factory.createTemplateConfiguration(myProject)
                         val cls       = runConfig.getClass
                         runConfig.setName(s"$myRunConfigTitle")
-                        cls
+                        val option = cls.getMethod("getInputRedirectOptions").invoke(runConfig)
+                        option.getClass
                           .getMethod("setRedirectInput", classOf[Boolean])
-                          .invoke(runConfig, true.asInstanceOf[Object])
-                        cls
+                          .invoke(option, true.asInstanceOf[Object])
+                        option.getClass
                           .getMethod("setRedirectInputPath", classOf[String])
-                          .invoke(runConfig, stdinFile.getAbsolutePath)
-                        val option = cls.getMethod("getOptions").invoke(runConfig)
-                        option.getClass.getMethod("setSourceFile", classOf[String]).invoke(option, mySourceFile)
+                          .invoke(option, stdinFile.getAbsolutePath)
+                        cls
+                          .getMethod("setMainClassName", classOf[String])
+                          .invoke(runConfig, FileUtils.getJavaMainClassName(mySourceFile))
+                        cls
+                          .getMethod("setScratchFileUrl", classOf[String])
+                          .invoke(
+                            runConfig,
+                            URLDecoder.decode(new File(mySourceFile).toPath.toAbsolutePath.toUri.toString, "UTF-8")
+                          )
 
                         val rm               = RunManager.getInstance(myProject)
                         val runnerAndSetting = rm.createConfiguration(runConfig, factory)
