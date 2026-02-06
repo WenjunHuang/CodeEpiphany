@@ -2,18 +2,15 @@ package com.wenjunhuang.codeepiphany.settings.dojo
 
 import com.intellij.icons.AllIcons
 import com.intellij.openapi.Disposable
-import com.intellij.openapi.actionSystem.{ ActionUpdateThread, AnActionEvent, DefaultActionGroup }
+import com.intellij.openapi.actionSystem.{ActionUpdateThread, AnActionEvent, DefaultActionGroup}
 import com.intellij.openapi.options.ConfigurationException
-import com.intellij.openapi.project.{ DumbAwareAction, Project }
+import com.intellij.openapi.project.{DumbAwareAction, Project}
 import com.intellij.openapi.util.Disposer
-import com.intellij.ui.components.JBLabel
-import com.intellij.ui.tabs.{ JBTabsEx, JBTabsFactory, TabInfo }
-import com.intellij.uiDesigner.core.Spacer
-import com.intellij.util.ui.JBUI
+import com.intellij.ui.tabs.{JBTabsEx, JBTabsFactory, TabInfo}
 import com.intellij.util.ui.components.BorderLayoutPanel
 import com.wenjunhuang.codeepiphany.PluginBundle
-import com.wenjunhuang.codeepiphany.model.{ CodeDojo, Language, LanguageVersion }
-import com.wenjunhuang.codeepiphany.settings.{ CodeEpiphanySettings, SettingsUi }
+import com.wenjunhuang.codeepiphany.model.{CodeDojo, Language, LanguageVersion}
+import com.wenjunhuang.codeepiphany.settings.{CodeEpiphanySettings, SettingsUi}
 import org.jetbrains.annotations.NotNull
 
 import java.util

@@ -1,34 +1,29 @@
 package com.wenjunhuang.codeepiphany.utils.testCases
 
-import java.awt.{ GridBagConstraints, GridBagLayout }
-import java.awt.event.ActionEvent
-import java.io.File
-import java.net.{ URI, URLDecoder }
-import java.nio.file.{ FileSystem, FileSystems }
-import javax.swing.{ JComponent, JPanel, ScrollPaneConstants }
-import org.apache.commons.io.IOUtils
-import scala.collection.mutable
-
-import com.intellij.execution.configurations.{ ConfigurationType, ConfigurationTypeUtil, RunConfiguration }
+import com.intellij.execution.configurations.{ConfigurationFactory, ConfigurationType, ConfigurationTypeUtil, RunConfiguration}
+import com.intellij.execution.executors.DefaultRunExecutor
+import com.intellij.execution.{ExecutorRegistry, ProgramRunnerUtil, RunManager}
 import com.intellij.icons.AllIcons
-import com.intellij.openapi.actionSystem.{ ActionManager, AnAction, AnActionEvent, DefaultActionGroup }
-import com.intellij.openapi.application.{ ApplicationManager, ModalityState }
+import com.intellij.openapi.actionSystem.{ActionManager, AnAction, AnActionEvent, DefaultActionGroup}
+import com.intellij.openapi.application.{ApplicationManager, ModalityState}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.DialogWrapper
-import com.intellij.ui.ScrollPaneFactory
-import scala.jdk.FunctionConverters.*
-
-import com.intellij.execution.{ ExecutionManager, ExecutorRegistry, ProgramRunnerUtil, RunManager }
-import com.intellij.execution.executors.DefaultRunExecutor
 import com.intellij.openapi.util.io.FileUtil
-import com.intellij.util.io.IOUtil
-import com.intellij.util.UriUtil
-
-import com.wenjunhuang.codeepiphany.{ settings, PluginBundle }
-import com.wenjunhuang.codeepiphany.model.{ CodeDojo, Language }
+import com.intellij.openapi.vfs.LocalFileSystem
+import com.intellij.ui.ScrollPaneFactory
+import com.wenjunhuang.codeepiphany.model.{CodeDojo, Language}
 import com.wenjunhuang.codeepiphany.settings.ChallengeSettings
+import com.wenjunhuang.codeepiphany.utils.FileUtils
 import com.wenjunhuang.codeepiphany.utils.walkaround.DialogWrapperBridge
-import com.wenjunhuang.codeepiphany.utils.{ FileUtils, IdeUtils }
+import com.wenjunhuang.codeepiphany.{PluginBundle, settings}
+
+import java.awt.event.ActionEvent
+import java.awt.{GridBagConstraints, GridBagLayout}
+import java.io.File
+import java.net.URLDecoder
+import javax.swing.{JComponent, JPanel, ScrollPaneConstants}
+import scala.collection.mutable
+import scala.jdk.FunctionConverters.*
 
 object TestCasesDialog {
   private val DIALOG_WIDTH  = 600
@@ -98,95 +93,149 @@ class TestCasesDialog(
       case CodeDojo.LeetCode | CodeDojo.LeetCodeCN =>
         null
       case _ =>
-        val el = ConfigurationType.CONFIGURATION_TYPE_EP.getExtensionList
         myLanguage match {
-          case Language.Java =>
-            ConfigurationTypeUtil.findConfigurationType("Java Scratch") match {
-              case null => null
-              case javaConfigType =>
-                (input: String) =>
-                  ApplicationManager.getApplication.invokeLater(
-                    new Runnable {
-                      override def run(): Unit = {
-                        val stdinFile =
-                          new File(new File(mySourceFile).getParentFile, s"${myRunConfigTitle}_test.txt")
-                        FileUtil.writeToFile(stdinFile, input)
-                        val factory   = javaConfigType.getConfigurationFactories.head
-                        val runConfig = factory.createTemplateConfiguration(myProject)
-                        val cls       = runConfig.getClass
-                        runConfig.setName(s"$myRunConfigTitle")
-                        val option = cls.getMethod("getInputRedirectOptions").invoke(runConfig)
-                        option.getClass
-                          .getMethod("setRedirectInput", classOf[Boolean])
-                          .invoke(option, true.asInstanceOf[Object])
-                        option.getClass
-                          .getMethod("setRedirectInputPath", classOf[String])
-                          .invoke(option, stdinFile.getAbsolutePath)
-                        cls
-                          .getMethod("setMainClassName", classOf[String])
-                          .invoke(runConfig, FileUtils.getJavaMainClassName(mySourceFile))
-                        cls
-                          .getMethod("setScratchFileUrl", classOf[String])
-                          .invoke(
-                            runConfig,
-                            URLDecoder.decode(new File(mySourceFile).toPath.toAbsolutePath.toUri.toString, "UTF-8")
-                          )
-
-                        val rm               = RunManager.getInstance(myProject)
-                        val runnerAndSetting = rm.createConfiguration(runConfig, factory)
-                        rm.addConfiguration(runnerAndSetting)
-                        rm.setSelectedConfiguration(runnerAndSetting)
-
-                        val executor = ExecutorRegistry.getInstance().getExecutorById(DefaultRunExecutor.EXECUTOR_ID)
-                        ProgramRunnerUtil.executeConfiguration(runnerAndSetting, executor)
-
-                        close(0, true)
-                      }
-                    },
-                    ModalityState.any()
-                  )
-            }
-          case Language.Cpp | Language.C =>
-            ConfigurationTypeUtil.findConfigurationType("CppFileRunConfiguration") match {
-              case null => null
-              case cppConfigType =>
-                (input: String) =>
-                  ApplicationManager.getApplication.invokeLater(
-                    new Runnable {
-                      override def run(): Unit = {
-                        val stdinFile =
-                          new File(new File(mySourceFile).getParentFile, s"${myRunConfigTitle}_test.txt")
-                        FileUtil.writeToFile(stdinFile, input)
-                        val factory   = cppConfigType.getConfigurationFactories.head
-                        val runConfig = factory.createTemplateConfiguration(myProject)
-                        val cls       = runConfig.getClass
-                        runConfig.setName(s"$myRunConfigTitle")
-                        cls
-                          .getMethod("setRedirectInput", classOf[Boolean])
-                          .invoke(runConfig, true.asInstanceOf[Object])
-                        cls
-                          .getMethod("setRedirectInputPath", classOf[String])
-                          .invoke(runConfig, stdinFile.getAbsolutePath)
-                        val option = cls.getMethod("getOptions").invoke(runConfig)
-                        option.getClass.getMethod("setSourceFile", classOf[String]).invoke(option, mySourceFile)
-
-                        val rm               = RunManager.getInstance(myProject)
-                        val runnerAndSetting = rm.createConfiguration(runConfig, factory)
-                        rm.addConfiguration(runnerAndSetting)
-                        rm.setSelectedConfiguration(runnerAndSetting)
-
-                        val executor = ExecutorRegistry.getInstance().getExecutorById(DefaultRunExecutor.EXECUTOR_ID)
-                        ProgramRunnerUtil.executeConfiguration(runnerAndSetting, executor)
-
-                        close(0, true)
-                      }
-                    },
-                    ModalityState.any()
-                  )
-            }
-          case _ => null
+          case Language.Python           => createPythonTestRunner()
+          case Language.Java             => createJavaTestRunner()
+          case Language.Cpp | Language.C => createCppTestRunner()
+          case Language.GO               => createGoTestRunner()
+          case _                         => null
         }
     }
+  }
+
+  private def createPythonTestRunner(): String => Unit = {
+    ConfigurationTypeUtil.findConfigurationType("PythonConfigurationType") match {
+      case null => null
+      case pythonConfigType =>
+        (input: String) => runPythonTest(input, pythonConfigType)
+    }
+  }
+
+  private def createJavaTestRunner(): String => Unit = {
+    ConfigurationTypeUtil.findConfigurationType("Java Scratch") match {
+      case null => null
+      case javaConfigType =>
+        (input: String) => runJavaTest(input, javaConfigType)
+    }
+  }
+
+  private def createCppTestRunner(): String => Unit = {
+    ConfigurationTypeUtil.findConfigurationType("CppFileRunConfiguration") match {
+      case null => null
+      case cppConfigType =>
+        (input: String) => runCppTest(input, cppConfigType)
+    }
+  }
+
+  private def createGoTestRunner(): String => Unit = {
+    ConfigurationTypeUtil.findConfigurationType("GoApplicationRunConfiguration") match {
+      case null => null
+      case goConfigType =>
+        (input: String) => runGoTest(input, goConfigType)
+    }
+  }
+
+  private def runPythonTest(input: String, configType: ConfigurationType): Unit = {
+    runTest(
+      input,
+      configType,
+      (runConfig, stdinFile) => {
+        val cls = runConfig.getClass
+        cls.getMethod("setRedirectInput", classOf[Boolean]).invoke(runConfig, true.asInstanceOf[Object])
+        cls.getMethod("setScriptName", classOf[String]).invoke(runConfig, new File(mySourceFile).getAbsolutePath)
+        cls.getMethod("setInputFile", classOf[String]).invoke(runConfig, stdinFile.getAbsolutePath)
+      }
+    )
+  }
+
+  private def runJavaTest(input: String, configType: ConfigurationType): Unit = {
+    runTest(
+      input,
+      configType,
+      (runConfig, stdinFile) => {
+        val cls    = runConfig.getClass
+        val option = cls.getMethod("getInputRedirectOptions").invoke(runConfig)
+        option.getClass
+          .getMethod("setRedirectInput", classOf[Boolean])
+          .invoke(option, true.asInstanceOf[Object])
+        option.getClass
+          .getMethod("setRedirectInputPath", classOf[String])
+          .invoke(option, stdinFile.getAbsolutePath)
+        cls
+          .getMethod("setMainClassName", classOf[String])
+          .invoke(runConfig, FileUtils.getJavaMainClassName(mySourceFile))
+        cls
+          .getMethod("setScratchFileUrl", classOf[String])
+          .invoke(runConfig, URLDecoder.decode(new File(mySourceFile).toPath.toAbsolutePath.toUri.toString, "UTF-8"))
+      }
+    )
+  }
+
+  private def runCppTest(input: String, configType: ConfigurationType): Unit = {
+    runTest(
+      input,
+      configType,
+      (runConfig, stdinFile) => {
+        val cls = runConfig.getClass
+        cls.getMethod("setRedirectInput", classOf[Boolean]).invoke(runConfig, true.asInstanceOf[Object])
+        cls.getMethod("setRedirectInputPath", classOf[String]).invoke(runConfig, stdinFile.getAbsolutePath)
+        val option = cls.getMethod("getOptions").invoke(runConfig)
+        option.getClass.getMethod("setSourceFile", classOf[String]).invoke(option, mySourceFile)
+      }
+    )
+  }
+
+  private def runGoTest(input: String, configType: ConfigurationType): Unit = {
+    runTest(
+      input,
+      configType,
+      (runConfig, stdinFile) => {
+        val cls = runConfig.getClass
+        cls.getMethod("setRedirectInput", classOf[Boolean]).invoke(runConfig, true.asInstanceOf[Object])
+        cls.getMethod("setRedirectInputPath", classOf[String]).invoke(runConfig, stdinFile.getAbsolutePath)
+        cls.getMethod("setFilePathsString", classOf[String]).invoke(runConfig, new File(mySourceFile).getAbsolutePath)
+      }
+    )
+  }
+
+  private type Configurator = (RunConfiguration, File) => Unit
+
+  private def runTest(input: String, configType: ConfigurationType, configure: Configurator): Unit = {
+    close(DialogWrapper.OK_EXIT_CODE, true)
+    ApplicationManager.getApplication.invokeLater(
+      new Runnable {
+        override def run(): Unit = {
+          val stdinFile = createStdinFile(input)
+          val factory   = configType.getConfigurationFactories.head
+          val runConfig = factory.createTemplateConfiguration(myProject)
+          val cls       = runConfig.getClass
+          runConfig.setName(s"$myRunConfigTitle")
+
+          // Apply language-specific configuration
+          configure(runConfig, stdinFile)
+
+          executeRunConfiguration(runConfig, factory)
+        }
+      },
+      ModalityState.nonModal()
+    )
+  }
+
+  private def createStdinFile(input: String): File = {
+    val stdinFile = new File(new File(mySourceFile).getParentFile, s"${myRunConfigTitle}_test.txt")
+    FileUtil.writeToFile(stdinFile, input)
+    LocalFileSystem.getInstance().refreshAndFindFileByIoFile(stdinFile)
+    stdinFile
+  }
+
+  private def executeRunConfiguration(runConfig: RunConfiguration, factory: ConfigurationFactory): Unit = {
+    val rm               = RunManager.getInstance(myProject)
+    val runnerAndSetting = rm.createConfiguration(runConfig, factory)
+    rm.addConfiguration(runnerAndSetting)
+    rm.setSelectedConfiguration(runnerAndSetting)
+
+    val executor = ExecutorRegistry.getInstance().getExecutorById(DefaultRunExecutor.EXECUTOR_ID)
+    ProgramRunnerUtil.executeConfiguration(runnerAndSetting, executor)
   }
 
   private def createTestCasesPanel(): JComponent = {
