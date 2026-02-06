@@ -135,6 +135,7 @@ class TestCasesDialog(
                         val rm               = RunManager.getInstance(myProject)
                         val runnerAndSetting = rm.createConfiguration(runConfig, factory)
                         rm.addConfiguration(runnerAndSetting)
+                        rm.setSelectedConfiguration(runnerAndSetting)
 
                         val executor = ExecutorRegistry.getInstance().getExecutorById(DefaultRunExecutor.EXECUTOR_ID)
                         ProgramRunnerUtil.executeConfiguration(runnerAndSetting, executor)
@@ -172,6 +173,7 @@ class TestCasesDialog(
                         val rm               = RunManager.getInstance(myProject)
                         val runnerAndSetting = rm.createConfiguration(runConfig, factory)
                         rm.addConfiguration(runnerAndSetting)
+                        rm.setSelectedConfiguration(runnerAndSetting)
 
                         val executor = ExecutorRegistry.getInstance().getExecutorById(DefaultRunExecutor.EXECUTOR_ID)
                         ProgramRunnerUtil.executeConfiguration(runnerAndSetting, executor)

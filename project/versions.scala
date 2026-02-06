@@ -9,7 +9,7 @@ object versions {
     }
   val intellijBuild233 = "233.11799.241"
   val intellijBuild241 = "241.14494.240"
-  def intellijBuild252: String = {
+  lazy val intellijBuild252: String = {
     if (intellijPlatform == IntelliJPlatform.CLion)
       "2025.2.6"
     else "252.23892.409"
