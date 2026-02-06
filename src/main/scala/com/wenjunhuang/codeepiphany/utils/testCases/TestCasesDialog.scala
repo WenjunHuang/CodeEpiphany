@@ -205,14 +205,12 @@ class TestCasesDialog(
     ApplicationManager.getApplication.invokeLater(
       new Runnable {
         override def run(): Unit = {
-          val stdinFile = createStdinFile(input)
           val factory   = configType.getConfigurationFactories.head
           val runConfig = factory.createTemplateConfiguration(myProject)
-          val cls       = runConfig.getClass
           runConfig.setName(s"$myRunConfigTitle")
 
           // Apply language-specific configuration
-          configure(runConfig, stdinFile)
+          configure(runConfig, createStdinFile(input))
 
           executeRunConfiguration(runConfig, factory)
         }
