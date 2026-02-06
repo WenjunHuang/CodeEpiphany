@@ -5,7 +5,7 @@ object versions {
   lazy val intellijPlatform: IntelliJPlatform =
     platform match {
       case Some("clion") => IntelliJPlatform.CLion
-      case _             => IntelliJPlatform.IdeaUltimate
+      case _             => IntelliJPlatform.IdeaCommunity
     }
   val intellijBuild233 = "233.11799.241"
   val intellijBuild241 = "241.14494.240"

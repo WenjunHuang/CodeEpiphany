@@ -1,3 +1,7 @@
+## 1.12.0
+### Added
+- Add run configuration creation support for ACM-liked challenges with test case as input.
+ 
 ## 1.11.0
 ### Added
 - Add custom style support for challenge description rendering.
