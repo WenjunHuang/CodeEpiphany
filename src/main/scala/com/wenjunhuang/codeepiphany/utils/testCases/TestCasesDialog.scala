@@ -1,18 +1,34 @@
 package com.wenjunhuang.codeepiphany.utils.testCases
 
+import java.awt.{ GridBagConstraints, GridBagLayout }
+import java.awt.event.ActionEvent
+import java.io.File
+import java.net.{ URI, URLDecoder }
+import java.nio.file.{ FileSystem, FileSystems }
+import javax.swing.{ JComponent, JPanel, ScrollPaneConstants }
+import org.apache.commons.io.IOUtils
+import scala.collection.mutable
+
+import com.intellij.execution.configurations.{ ConfigurationType, ConfigurationTypeUtil, RunConfiguration }
 import com.intellij.icons.AllIcons
-import com.intellij.openapi.actionSystem.{ActionManager, AnAction, AnActionEvent, DefaultActionGroup}
+import com.intellij.openapi.actionSystem.{ ActionManager, AnAction, AnActionEvent, DefaultActionGroup }
+import com.intellij.openapi.application.{ ApplicationManager, ModalityState }
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.DialogWrapper
 import com.intellij.ui.ScrollPaneFactory
+import scala.jdk.FunctionConverters.*
+
+import com.intellij.execution.{ ExecutionManager, ExecutorRegistry, ProgramRunnerUtil, RunManager }
+import com.intellij.execution.executors.DefaultRunExecutor
+import com.intellij.openapi.util.io.FileUtil
+import com.intellij.util.io.IOUtil
+import com.intellij.util.UriUtil
+
+import com.wenjunhuang.codeepiphany.{ settings, PluginBundle }
+import com.wenjunhuang.codeepiphany.model.{ CodeDojo, Language }
 import com.wenjunhuang.codeepiphany.settings.ChallengeSettings
 import com.wenjunhuang.codeepiphany.utils.walkaround.DialogWrapperBridge
-import com.wenjunhuang.codeepiphany.{PluginBundle, settings}
-
-import java.awt.event.ActionEvent
-import java.awt.{GridBagConstraints, GridBagLayout}
-import javax.swing.{JComponent, JPanel, ScrollPaneConstants}
-import scala.collection.mutable
+import com.wenjunhuang.codeepiphany.utils.{ FileUtils, IdeUtils }
 
 object TestCasesDialog {
   private val DIALOG_WIDTH  = 600
@@ -32,7 +48,11 @@ object TestCasesDialog {
 class TestCasesDialog(
   private val myProject: Project,
   private val myTestCases: List[ChallengeSettings.TestCase],
-  private val myDefaultTestCases: List[ChallengeSettings.TestCase]
+  private val myDefaultTestCases: List[ChallengeSettings.TestCase],
+  private val myLanguage: Language,
+  private val myCodeDojo: CodeDojo,
+  private val myRunConfigTitle: String,
+  private val mySourceFile: String
 ) extends DialogWrapperBridge(myProject, false, DialogWrapper.IdeModalityType.IDE) {
   import TestCasesDialog.*
 
@@ -64,9 +84,107 @@ class TestCasesDialog(
       () => {
         myTestCaseItemPanels.remove(myTestCaseItemPanels.indexOf(panel))
         refreshTestCaseItemPanels()
+      },
+      createRunTestAction(testCase) match {
+        case null => null
+        case f    => f.asJavaConsumer
       }
     )
     panel
+  }
+
+  private def createRunTestAction(testCase: ChallengeSettings.TestCase): String => Unit = {
+    myCodeDojo match {
+      case CodeDojo.LeetCode | CodeDojo.LeetCodeCN =>
+        null
+      case _ =>
+        val el = ConfigurationType.CONFIGURATION_TYPE_EP.getExtensionList
+        myLanguage match {
+          case Language.Java =>
+            ConfigurationTypeUtil.findConfigurationType("Java Scratch") match {
+              case null => null
+              case javaConfigType =>
+                (input: String) =>
+                  ApplicationManager.getApplication.invokeLater(
+                    new Runnable {
+                      override def run(): Unit = {
+                        val stdinFile =
+                          new File(new File(mySourceFile).getParentFile, s"${myRunConfigTitle}_test.txt")
+                        FileUtil.writeToFile(stdinFile, input)
+                        val factory   = javaConfigType.getConfigurationFactories.head
+                        val runConfig = factory.createTemplateConfiguration(myProject)
+                        val cls       = runConfig.getClass
+                        runConfig.setName(s"$myRunConfigTitle")
+                        val option = cls.getMethod("getInputRedirectOptions").invoke(runConfig)
+                        option.getClass
+                          .getMethod("setRedirectInput", classOf[Boolean])
+                          .invoke(option, true.asInstanceOf[Object])
+                        option.getClass
+                          .getMethod("setRedirectInputPath", classOf[String])
+                          .invoke(option, stdinFile.getAbsolutePath)
+                        cls
+                          .getMethod("setMainClassName", classOf[String])
+                          .invoke(runConfig, FileUtils.getJavaMainClassName(mySourceFile))
+                        cls
+                          .getMethod("setScratchFileUrl", classOf[String])
+                          .invoke(
+                            runConfig,
+                            URLDecoder.decode(new File(mySourceFile).toPath.toAbsolutePath.toUri.toString, "UTF-8")
+                          )
+
+                        val rm               = RunManager.getInstance(myProject)
+                        val runnerAndSetting = rm.createConfiguration(runConfig, factory)
+                        rm.addConfiguration(runnerAndSetting)
+
+                        val executor = ExecutorRegistry.getInstance().getExecutorById(DefaultRunExecutor.EXECUTOR_ID)
+                        ProgramRunnerUtil.executeConfiguration(runnerAndSetting, executor)
+
+                        close(0, true)
+                      }
+                    },
+                    ModalityState.any()
+                  )
+            }
+          case Language.Cpp | Language.C =>
+            ConfigurationTypeUtil.findConfigurationType("CppFileRunConfiguration") match {
+              case null => null
+              case cppConfigType =>
+                (input: String) =>
+                  ApplicationManager.getApplication.invokeLater(
+                    new Runnable {
+                      override def run(): Unit = {
+                        val stdinFile =
+                          new File(new File(mySourceFile).getParentFile, s"${myRunConfigTitle}_test.txt")
+                        FileUtil.writeToFile(stdinFile, input)
+                        val factory   = cppConfigType.getConfigurationFactories.head
+                        val runConfig = factory.createTemplateConfiguration(myProject)
+                        val cls       = runConfig.getClass
+                        runConfig.setName(s"$myRunConfigTitle")
+                        cls
+                          .getMethod("setRedirectInput", classOf[Boolean])
+                          .invoke(runConfig, true.asInstanceOf[Object])
+                        cls
+                          .getMethod("setRedirectInputPath", classOf[String])
+                          .invoke(runConfig, stdinFile.getAbsolutePath)
+                        val option = cls.getMethod("getOptions").invoke(runConfig)
+                        option.getClass.getMethod("setSourceFile", classOf[String]).invoke(option, mySourceFile)
+
+                        val rm               = RunManager.getInstance(myProject)
+                        val runnerAndSetting = rm.createConfiguration(runConfig, factory)
+                        rm.addConfiguration(runnerAndSetting)
+
+                        val executor = ExecutorRegistry.getInstance().getExecutorById(DefaultRunExecutor.EXECUTOR_ID)
+                        ProgramRunnerUtil.executeConfiguration(runnerAndSetting, executor)
+
+                        close(0, true)
+                      }
+                    },
+                    ModalityState.any()
+                  )
+            }
+          case _ => null
+        }
+    }
   }
 
   private def createTestCasesPanel(): JComponent = {
@@ -87,7 +205,7 @@ class TestCasesDialog(
     myScrollPane.setViewportView(createTestCasesPanel())
   }
 
-  def getTestCases(): List[ChallengeSettings.TestCase] = {
+  def getTestCases: List[ChallengeSettings.TestCase] = {
     myTestCaseItemPanels.map(item => ChallengeSettings.TestCase(item.getInputValue, item.getExpectedValue)).toList
   }
 

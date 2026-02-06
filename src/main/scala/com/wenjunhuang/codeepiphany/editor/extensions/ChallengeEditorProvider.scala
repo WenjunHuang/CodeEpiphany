@@ -6,6 +6,7 @@ import com.intellij.openapi.fileEditor.impl.text.PsiAwareTextEditorProvider
 import com.intellij.openapi.project.{DumbAware, Project}
 import com.intellij.openapi.util.Key
 import com.intellij.openapi.vfs.VirtualFile
+
 import com.wenjunhuang.codeepiphany.editor.actions.RunTestAction.{RUNTEST_PROVIDER_KEY, RunTestProvider}
 import com.wenjunhuang.codeepiphany.editor.actions.SolutionSelectionAction.SOLUTION_PROVIDER_KEY
 import com.wenjunhuang.codeepiphany.editor.actions.SubmitCodeAction.{SUBMITCODE_PROVIDER_KEY, SubmitCodeProvider}
@@ -13,11 +14,10 @@ import com.wenjunhuang.codeepiphany.editor.actions.SurroundSubmissionRegionActio
 import com.wenjunhuang.codeepiphany.editor.actions.TestCasesEditionAction.TESTCASES_PROVIDER_KEY
 import com.wenjunhuang.codeepiphany.editor.actions.{SolutionSelectionAction, SurroundSubmissionRegionAction, TestCasesEditionAction}
 import com.wenjunhuang.codeepiphany.editor.extensions.ChallengeEditorProvider.FILEEDITOR_CODEDOJO_KEY
-import com.wenjunhuang.codeepiphany.model.CodeDojo
+import com.wenjunhuang.codeepiphany.model.{CodeDojo, Language, LanguageVersion}
 import com.wenjunhuang.codeepiphany.settings.ChallengeSettings
 import com.wenjunhuang.codeepiphany.utils.walkaround.FileEditorProviderBridge
 import org.jdom.Element
-
 import scala.jdk.CollectionConverters.*
 
 /** 问题编辑器提供者 负责创建和管理问题代码相关的编辑器
@@ -109,6 +109,14 @@ class ChallengeEditorProvider extends FileEditorProviderBridge with DumbAware {
         override def updateTestCases(testCases: List[ChallengeSettings.TestCase]): Unit = {
           ChallengeSettings.getInstance(project).updateChallengeTestCases(file, testCases.asJava)
         }
+
+        override def getRunConfigurationTitle: String = file.getNameWithoutExtension
+
+        override def getLanguage: Language = challenge.language
+
+        override def getCodeDojo: CodeDojo = challenge.dojo
+
+        override def getSourceFile: String = file.getPath
       }
     )
 

@@ -3,10 +3,7 @@ package com.wenjunhuang.codeepiphany.utils.testCases;
 import com.intellij.codeInsight.hint.EditorFragmentComponent;
 import com.intellij.icons.AllIcons;
 import com.intellij.ide.ui.laf.darcula.ui.DarculaEditorTextFieldBorder;
-import com.intellij.openapi.actionSystem.ActionManager;
-import com.intellij.openapi.actionSystem.AnAction;
-import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.actionSystem.DefaultActionGroup;
+import com.intellij.openapi.actionSystem.*;
 import com.intellij.openapi.editor.EditorFactory;
 import com.intellij.openapi.editor.colors.EditorFontType;
 import com.intellij.openapi.fileTypes.FileTypes;
@@ -16,7 +13,9 @@ import com.intellij.ui.EditorTextField;
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.uiDesigner.core.Spacer;
+import com.wenjunhuang.codeepiphany.PluginBundle;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
@@ -26,15 +25,18 @@ import java.awt.*;
 import java.lang.reflect.Method;
 import java.util.Locale;
 import java.util.ResourceBundle;
+import java.util.function.Consumer;
+import java.util.function.Function;
 
 public class TestCaseItemPanel {
     private JLabel myName;
     private EditorTextField myInputValueEditor;
     private EditorTextField myExpectedValueEditor;
-    private JComponent myDeleteButton;
+    private JComponent myTestCaseToolBar;
     private JPanel myRootPanel;
     private final Project myProject;
     private final Runnable myDeleteAction;
+    private final Consumer<String> myRunTestAction;
     private String myInitialInputValue;
     private String myInitialExpectedValue;
 
@@ -42,11 +44,14 @@ public class TestCaseItemPanel {
                              String name,
                              String initialInputValue,
                              String initialExpectedValue,
-                             Runnable deleteAction) {
+                             Runnable deleteAction,
+                             @Nullable
+                             Consumer<String> runTestAction) {
         myProject = project;
         myDeleteAction = deleteAction;
         myInitialInputValue = initialInputValue;
         myInitialExpectedValue = initialExpectedValue;
+        myRunTestAction = runTestAction;
 
         $$$setupUI$$$();
 
@@ -92,15 +97,32 @@ public class TestCaseItemPanel {
         });
 
         var toolbar = ActionManager.getInstance().createActionToolbar("TestCaseItemPanelToolbar", new DefaultActionGroup(
-                new AnAction("Delete", "Delete", AllIcons.General.Remove) {
+                new AnAction(PluginBundle.message("deleteTestCase"), null, AllIcons.General.Remove) {
                     @Override
                     public void actionPerformed(@NotNull AnActionEvent e) {
                         myDeleteAction.run();
                     }
+                },
+                new AnAction(PluginBundle.message("runTestCase"), null, AllIcons.Actions.Execute) {
+                    @Override
+                    public void actionPerformed(@NotNull AnActionEvent e) {
+                        if (myRunTestAction != null)
+                            myRunTestAction.accept(myInputValueEditor.getText());
+                    }
+
+                    @Override
+                    public @NotNull ActionUpdateThread getActionUpdateThread() {
+                        return ActionUpdateThread.EDT;
+                    }
+
+                    @Override
+                    public void update(@NotNull AnActionEvent e) {
+                        e.getPresentation().setEnabledAndVisible(myRunTestAction != null);
+                    }
                 }
         ), true);
         toolbar.setTargetComponent(myRootPanel);
-        myDeleteButton = toolbar.getComponent();
+        myTestCaseToolBar = toolbar.getComponent();
     }
 
     /**
@@ -130,7 +152,7 @@ public class TestCaseItemPanel {
         final JLabel label2 = new JLabel();
         this.$$$loadLabelText$$$(label2, this.$$$getMessageFromBundle$$$("messages/PluginBundle", "leetcode.submissionResult.wrongAnswer.expected.text"));
         myRootPanel.add(label2, new GridConstraints(3, 0, 1, 3, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        myRootPanel.add(myDeleteButton, new GridConstraints(0, 2, 1, 1, GridConstraints.ANCHOR_EAST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        myRootPanel.add(myTestCaseToolBar, new GridConstraints(0, 2, 1, 1, GridConstraints.ANCHOR_EAST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
     }
 
     /**

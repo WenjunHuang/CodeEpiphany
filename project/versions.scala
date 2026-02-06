@@ -1,10 +1,19 @@
 import org.jetbrains.sbtidea.IntelliJPlatform
 
 object versions {
-  val intellijPlatform: IntelliJPlatform = IntelliJPlatform.IdeaCommunity
-  val intellijBuild233                   = "233.11799.241"
-  val intellijBuild241                   = "241.14494.240"
-  var intellijBuild252                   = "252.23892.409"
+  val platform: Option[String] = sys.props.get("intellij.platform")
+  lazy val intellijPlatform: IntelliJPlatform =
+    platform match {
+      case Some("clion") => IntelliJPlatform.CLion
+      case _             => IntelliJPlatform.IdeaCommunity
+    }
+  val intellijBuild233 = "233.11799.241"
+  val intellijBuild241 = "241.14494.240"
+  def intellijBuild252: String = {
+    if (intellijPlatform == IntelliJPlatform.CLion)
+      "2025.2.6"
+    else "252.23892.409"
+  }
 
   def getBuildPart(build: String): (String, String, String) = {
     if (build == intellijBuild233) {
