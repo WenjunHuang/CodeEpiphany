@@ -169,16 +169,21 @@ class ResourceHttpServer(private val myRootResourcePath: String, private val myP
   }
 
   def start(): Unit = {
-    val newServer = HttpServer.create(new InetSocketAddress("127.0.0.1", myPort), 0)
-    newServer.createContext("/", new FileHandler)
-    newServer.setExecutor(intellijComputeContext) // 使用默认执行器
-    newServer.start()
-    server = Some(newServer)
+    server match {
+      case None =>
+        val newServer = HttpServer.create(new InetSocketAddress("127.0.0.1", myPort), 0)
+        newServer.createContext("/", new FileHandler)
+        newServer.setExecutor(intellijComputeContext) // 使用默认执行器
+        newServer.start()
+        server = Some(newServer)
+      case _ =>
+    }
   }
 
   def stop(): Unit = {
-    server.foreach { s =>
-      s.stop(0) // 立即停止
+    server match {
+      case Some(s) => s.stop(0)
+      case None    =>
     }
     server = None
   }
