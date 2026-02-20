@@ -2,7 +2,7 @@ import {Marked} from 'marked'
 import {markedHighlight} from "marked-highlight";
 import hljs from 'highlight.js';
 import './app.scss';
-import 'katex/dist/katex.min.css';
+import 'katex/dist/katex.css';
 import renderMathInElement from 'katex/contrib/auto-render';
 import katex_extension from "./katex_extension";
 

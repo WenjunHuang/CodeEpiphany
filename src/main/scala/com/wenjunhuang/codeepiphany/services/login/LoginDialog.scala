@@ -142,7 +142,7 @@ class LoginDialog(
   setTitle(PluginBundle.message("loginDialog.title", myCodeDojo.show))
   setOKButtonText(PluginBundle.message("loginDialog.ok"))
 
-  if !isDebug then PopupHandler.installPopupMenu(myCookieText, IdeActions.GROUP_CUT_COPY_PASTE, ActionPlaces.POPUP)
+  if (!isDebug) { PopupHandler.installPopupMenu(myCookieText, IdeActions.GROUP_CUT_COPY_PASTE, ActionPlaces.POPUP) }
 
   override def createCenterPanel(): JComponent = myDialogPane
 

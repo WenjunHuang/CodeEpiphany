@@ -1,3 +1,8 @@
+## 1.12.1
+### Fixed
+- Using local katex for luogu and atcoder description rendering to avoid network issues.
+- Change http referer to no-referer in description and leetcode solution webview to avoid image loading failure.
+ 
 ## 1.12.0
 ### Added
 - Add run configuration creation support for ACM-liked challenges with test case as input.

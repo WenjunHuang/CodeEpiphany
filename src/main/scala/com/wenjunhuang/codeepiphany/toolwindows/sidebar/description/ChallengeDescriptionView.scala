@@ -7,16 +7,16 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.SimpleToolWindowPanel
 import com.intellij.openapi.util.Disposer
 import com.intellij.ui.PopupHandler
-import com.intellij.util.ui.{JBInsets, JBUI}
+import com.intellij.util.ui.{ JBInsets, JBUI }
 import com.wenjunhuang.codeepiphany.actions.webview.WebviewActionProvider
 import com.wenjunhuang.codeepiphany.model.CodeDojo
 import com.wenjunhuang.codeepiphany.services.WebViewStyleProvider
 import com.wenjunhuang.codeepiphany.toolwindows.sidebar.SidebarActions
-import com.wenjunhuang.codeepiphany.utils.actions.{DataSink, UiDataProvider}
+import com.wenjunhuang.codeepiphany.utils.actions.{ DataSink, UiDataProvider }
 import com.wenjunhuang.codeepiphany.utils.isDebug
 
 import java.awt.Insets
-import java.awt.event.{MouseWheelEvent, MouseWheelListener}
+import java.awt.event.{ MouseWheelEvent, MouseWheelListener }
 import javax.swing.JComponent
 
 class ChallengeDescriptionView(private val myPresenter: ChallengeDescriptionPresenter, private val myProject: Project)
@@ -50,12 +50,13 @@ class ChallengeDescriptionView(private val myPresenter: ChallengeDescriptionPres
 
   Disposer.register(myPresenter, this)
 
-  if !isDebug then
+  if (!isDebug) {
     PopupHandler.installPopupMenu(
       myViewer.preferredFocusedComponent,
       SidebarActions.GROUP_POPUP,
       SidebarActions.ACTION_PLACE
     )
+  }
 
   override def uiDataSnapshot(dataSink: DataSink): Unit = {
     dataSink.set(WebviewActionProvider.DATA_KEY, this)
@@ -66,9 +67,8 @@ class ChallengeDescriptionView(private val myPresenter: ChallengeDescriptionPres
     myViewer.preferredFocusedComponent.removeMouseWheelListener(MOUSE_WHEEL_LISTENER)
     Disposer.dispose(myViewer)
 
-  def setDescription(content: Option[(String,String, CodeDojo)]): Unit =
+  def setDescription(content: Option[(String, String, CodeDojo)]): Unit =
     myViewer.setDescription(content)
-
 
   override def zoomIn(): Unit = myViewer.zoomIn()
 

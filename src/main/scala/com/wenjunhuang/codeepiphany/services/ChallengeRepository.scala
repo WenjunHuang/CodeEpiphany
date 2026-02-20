@@ -48,7 +48,7 @@ final class ChallengeRepository(private val myProject: Project) extends Disposab
       flyway.migrate()
       myDataSource = Some(ds)
 
-      if isDebug then JooqLogger.globalThreshold(Log.Level.DEBUG)
+      if (isDebug) { JooqLogger.globalThreshold(Log.Level.DEBUG) }
       ds
     }
   }

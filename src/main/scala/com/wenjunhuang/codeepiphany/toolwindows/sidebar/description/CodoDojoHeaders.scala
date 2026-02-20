@@ -28,10 +28,7 @@ object CodoDojoHeaders {
   private def getAtCoderHeader: String =
     // language=HTML
     """
-      |<script src="https://img.atcoder.jp/public/c84259b/js/lib/jquery-1.9.1.min.js"></script>
-      |<link rel="stylesheet" href="https://img.atcoder.jp/public/c84259b/css/cdn/katex.min.css">
-      |<script defer src="https://img.atcoder.jp/public/c84259b/js/cdn/katex.min.js"></script>
-      |<script defer src="https://img.atcoder.jp/public/c84259b/js/cdn/auto-render.min.js"></script>
+      |<script src="atcoder/jquery-1.9.1.min.js"></script>
       |<script>$(function(){$('var').each(function(){var html=$(this).html().replace(/<sub>/g,'_{').replace(/<\/sub>/g,'}');$(this).html('\\('+html+'\\)');});});</script>
       |<script>
       |			var katexOptions = {
@@ -67,11 +64,11 @@ object CodoDojoHeaders {
       |""".stripMargin
 
   private def getLuoGuHeader: String =
+//    |<link rel="stylesheet" href="luogu/katex.min.css">
+//      |<script defer src="luogu/katex.min.js"></script>
+//      |<script defer src="luogu/auto-render.min.js"></script>
     // language=html
     """
-    |<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.css">
-    |<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.js"></script>
-    |<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/auto-render.min.js"></script>
     |<script>
     |    document.addEventListener("DOMContentLoaded", function() {
     |        renderMathInElement(document.body, {

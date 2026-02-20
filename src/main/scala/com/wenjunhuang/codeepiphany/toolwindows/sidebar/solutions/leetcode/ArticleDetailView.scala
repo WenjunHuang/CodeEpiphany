@@ -50,12 +50,13 @@ class ArticleDetailView(private val myPresenter: ArticleDetailPresenter, private
 
   Disposer.register(myPresenter, this)
 
-  if !isDebug then
+  if (!isDebug) {
     PopupHandler.installPopupMenu(
       myView.preferredFocusedComponent,
       SidebarActions.GROUP_POPUP,
       SidebarActions.ACTION_PLACE
     )
+  }
 
   override def uiDataSnapshot(dataSink: DataSink): Unit = {
     dataSink.set(WebviewActionProvider.DATA_KEY, this)

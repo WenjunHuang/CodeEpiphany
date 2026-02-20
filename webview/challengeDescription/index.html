@@ -3,11 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <title>Description Viewer</title>
-    {{extraHeader}}
+    <meta name="referrer" content="no-referrer" />
+    <script type="module">
+        import renderMathInElement from 'katex/contrib/auto-render';
+        import 'katex/dist/katex.css';
+
+        window.renderMathInElement = renderMathInElement;
+    </script>
+    <!--extraHeader-->
 </head>
 <body data-overlayscrollbars-initialize>
 <div id="container">
-    {{descriptionContent}}
+    <!--descriptionContent-->
 </div>
 </body>
 </html>

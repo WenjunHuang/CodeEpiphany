@@ -164,11 +164,11 @@ class LuoGuSolutionPresenter(private val myChallengeId: ChallengeId, private val
   private def createBrowser(): JBCefBrowser = {
     val builder = JBCefBrowser.createBuilder()
 
-    if isDebug then
+    if (isDebug) {
       builder
         .setOffScreenRendering(false)
         .setEnableOpenDevToolsMenuItem(true)
-    else builder.setOffScreenRendering(true)
+    } else builder.setOffScreenRendering(true)
 
     builder.build()
   }

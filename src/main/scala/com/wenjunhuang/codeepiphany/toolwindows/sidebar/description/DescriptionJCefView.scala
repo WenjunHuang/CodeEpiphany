@@ -55,6 +55,6 @@ class DescriptionJCefView(
 }
 
 object DescriptionJCefView {
-  private val DESCRIPTION_CONTENT = "{{descriptionContent}}"
-  private val EXTRA_HEADER        = "{{extraHeader}}"
+  private val DESCRIPTION_CONTENT = "<!--descriptionContent-->"
+  private val EXTRA_HEADER        = "<!--extraHeader-->"
 }

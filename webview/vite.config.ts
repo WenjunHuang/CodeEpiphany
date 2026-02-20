@@ -8,6 +8,7 @@ import importMetaUrlPlugin from '@codingame/esbuild-import-meta-url-plugin';
 import {dirname, resolve} from 'node:path'
 import {fileURLToPath} from "node:url";
 import {intellijStylePrePlugin,intellijStylePostPlugin} from './plugin/intellijStylePlugin';
+import { viteStaticCopy } from 'vite-plugin-static-copy';
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 
@@ -51,7 +52,15 @@ export const definedViteConfig = defineConfig({
     },
     plugins: [
         intellijStylePrePlugin(),
-        intellijStylePostPlugin()
+        intellijStylePostPlugin(),
+        viteStaticCopy({
+            targets: [
+                {
+                    src: 'challengeDescription/atcoder/*',
+                    dest: 'challengeDescription/atcoder'
+                }
+            ]
+        })
     ],
     define: {
         rootDirectory: JSON.stringify(__dirname),
