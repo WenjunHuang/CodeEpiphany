@@ -34,7 +34,7 @@ class DescriptionJCefView(
       () =>
         Map(
           DESCRIPTION_CONTENT -> myContent.map(_._1).getOrElse("No challenge selected 🌟"),
-          EXTRA_HEADER        -> myContent.map(_._3).map(CodoDojoHeaders.getHeader).getOrElse("")
+          EXTRA_HEADER        -> myContent.map(_._3).map(CodeDojoHeaders.getHeader).getOrElse("")
         )
     )
   }

@@ -3,7 +3,7 @@ package com.wenjunhuang.codeepiphany.toolwindows.sidebar.description
 import com.wenjunhuang.codeepiphany.model.CodeDojo
 import com.wenjunhuang.codeepiphany.model.CodeDojo.{AtCoder, CodeForces, LuoGu}
 
-object CodoDojoHeaders {
+object CodeDojoHeaders {
   def getHeader(codeDojo: CodeDojo): String =
     codeDojo match
       case CodeForces => getCodeForcesHeader
@@ -64,9 +64,6 @@ object CodoDojoHeaders {
       |""".stripMargin
 
   private def getLuoGuHeader: String =
-//    |<link rel="stylesheet" href="luogu/katex.min.css">
-//      |<script defer src="luogu/katex.min.js"></script>
-//      |<script defer src="luogu/auto-render.min.js"></script>
     // language=html
     """
     |<script>

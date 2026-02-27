@@ -32,7 +32,8 @@ export function intellijStylePostPlugin(): Plugin {
                                         .trim() === '1';
                                     document.documentElement.setAttribute('data-theme', isDarkMode ? 'dark' : 'light');
                                 }
-                            `
+                            `,
+                            injectTo:'head'
                         },
                         {
                             tag: 'link',
@@ -42,7 +43,8 @@ export function intellijStylePostPlugin(): Plugin {
                                 type: 'text/css',
                                 href: '/intellijStyle.css',
                                 onload: 'onIntellijStyleLoaded()'
-                            }
+                            },
+                            injectTo:'head'
                         }
                     ]
                 }
@@ -164,7 +166,8 @@ export function intellijStylePrePlugin(): Plugin {
                                 window.zoomOut = zoomOut;
                                 window.actualZoom = actualZoom;
                                 window.reloadStyles = reloadStyles;
-                            `
+                            `,
+                            injectTo: 'head'
                         }
                     ]
                 };

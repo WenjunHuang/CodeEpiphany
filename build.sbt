@@ -10,8 +10,8 @@ import scala.util.Using
 
 val pluginVersion: String = "1.12.1"
 
-ThisBuild / scalaVersion     := "3.7.0"
-ThisBuild / intellijPlatform := versions.intellijPlatform
+ThisBuild / scalaVersion          := "3.7.0"
+ThisBuild / intellijPlatform      := versions.intellijPlatform
 ThisBuild / intellijAttachSources := true
 
 // 动态设置IntelliJ版本
@@ -191,6 +191,7 @@ lazy val codeEpiphany = (project in file("."))
       "com.vladsch.flexmark"     % "flexmark-util-html"       % "0.64.8",
       "com.vladsch.flexmark"     % "flexmark-util-options"    % "0.64.8",
       "com.vladsch.flexmark"     % "flexmark-util-visitor"    % "0.64.8",
+      "com.vladsch.flexmark"     % "flexmark-ext-tables"      % "0.64.8",
       "com.softwaremill.common" %% "id-generator"             % "1.4.0",
       "io.monix"                %% "newtypes-core"            % "0.3.0",
       "io.monix"                %% "newtypes-circe-v0-14"     % "0.3.0",
