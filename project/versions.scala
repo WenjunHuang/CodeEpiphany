@@ -14,6 +14,9 @@ object versions {
       "2025.2.6"
     else "252.23892.409"
   }
+  lazy val intellijBuild262: String = {
+    "2026.2.4"
+  }
 
   def getBuildPart(build: String): (String, String, String) = {
     if (build == intellijBuild233) {
@@ -22,6 +25,8 @@ object versions {
       (intellijBuild241, "241.0", "251.*")
     } else if (build == intellijBuild252) {
       (intellijBuild252, "252.0", null)
+    } else if (build == intellijBuild262) {
+      (intellijBuild262, "262.0", null)
     } else {
       throw new IllegalArgumentException(s"Unsupported IntelliJ build: $build")
     }

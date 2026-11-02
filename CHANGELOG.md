@@ -1,3 +1,7 @@
+## 1.12.2
+### Fixed
+- Fix JCEF dependency issue
+ 
 ## 1.12.1
 ### Fixed
 - Using local katex for luogu and atcoder description rendering to avoid network issues.

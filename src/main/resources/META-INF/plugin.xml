@@ -10,6 +10,7 @@
     <idea-version since-build="233.3"/>
 
     <depends>com.intellij.modules.platform</depends>
+    <depends optional="true" config-file="jcef.xml">com.intellij.modules.jcef</depends>
 
     <resource-bundle>messages.PluginBundle</resource-bundle>
     <actions>

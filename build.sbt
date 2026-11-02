@@ -5,10 +5,10 @@ import sbtjooq.codegen.CodegenMode.Unmanaged
 
 import java.io.File
 import scala.io.Source
-import scala.sys.process.*
+import scala.sys.process.Process
 import scala.util.Using
 
-val pluginVersion: String = "1.12.1"
+val pluginVersion: String = "1.12.2"
 
 ThisBuild / scalaVersion          := "3.7.0"
 ThisBuild / intellijPlatform      := versions.intellijPlatform
@@ -32,8 +32,8 @@ ThisBuild / intellijBuild := {
       println(s"Warning: Unknown ${versions.intellijPlatform.name} version '$other', falling back to default (252)")
       versions.intellijBuild252
     case None =>
-      println(s"No IntelliJ version specified, using default (252: ${versions.intellijBuild252})")
-      versions.intellijBuild252
+      println(s"No IntelliJ version specified, using default (262: ${versions.intellijBuild262})")
+      versions.intellijBuild262
   }
 
   selectedBuild
@@ -118,9 +118,19 @@ lazy val codeEpiphany = (project in file("."))
       defaultOptions = intellijVMOptions.value.defaultOptions ++ Seq(
         "--add-opens=java.management/sun.management=ALL-UNNAMED",
         "--add-opens=java.desktop/javax.swing.text=ALL-UNNAMED",
+        "--add-opens=java.desktop/sun.swing.text=ALL-UNNAMED",
+        "--add-opens=java.base/jdk.internal.ref=ALL-UNNAMED",
         "--add-opens=java.desktop/javax.swing.text.html.parser=ALL-UNNAMED"
       )
     ),
+    intellijPlugins ++= {
+      if (
+        VersionNumber((ThisBuild / intellijBuild).value)
+          .matchesSemVer(SemanticSelector(s">=${versions.intellijBuild262}"))
+      ) {
+        Seq("com.intellij.modules.jcef".toPlugin)
+      } else { Nil }
+    },
     patchPluginXml := pluginXmlOptions { xml =>
       val currentBuild                = (ThisBuild / intellijBuild).value
       val (_, sinceBuild, untilBuild) = versions.getBuildPart(currentBuild)
@@ -160,6 +170,7 @@ lazy val codeEpiphany = (project in file("."))
     jooqVersion       := "3.19.18",
     jooqCodegenConfig := file("jooq-codegen.xml"),
     jooqCodegenMode   := Unmanaged,
+    javacOptions ++= Seq("-source", "17", "-target", "17"),
     libraryDependencies ++= Seq(
       "org.typelevel"           %% "cats-effect"              % "3.6.3",
       "org.typelevel"           %% "cats-core"                % "2.13.0",

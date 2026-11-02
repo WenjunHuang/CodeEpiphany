@@ -1,17 +1,17 @@
 package com.wenjunhuang.codeepiphany.utils.jcef
 
-import cats.effect.{IO, SyncIO}
+import cats.effect.{ IO, SyncIO }
 import com.intellij.ide.ui.LafManagerListener
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.application.ApplicationManager
-import com.intellij.openapi.editor.colors.{EditorColorsListener, EditorColorsManager}
+import com.intellij.openapi.editor.colors.{ EditorColorsListener, EditorColorsManager }
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
 import com.intellij.ui.jcef.*
 import com.wenjunhuang.codeepiphany.services.WebViewStyleProvider
 import com.wenjunhuang.codeepiphany.utils.jcef.BaseJCefWebView.createDefaultBrowser
 import com.wenjunhuang.codeepiphany.utils.syntax.*
-import com.wenjunhuang.codeepiphany.utils.{ResourceHttpServer, isDebug}
+import com.wenjunhuang.codeepiphany.utils.{ isDebug, ResourceHttpServer }
 import io.circe.*
 import io.circe.generic.auto.*
 import io.circe.parser.parse
@@ -19,7 +19,7 @@ import org.cef.browser.*
 import org.cef.handler.*
 import org.cef.network.CefRequest
 import org.http4s.Headers
-import org.typelevel.log4cats.{Logger, LoggerFactory}
+import org.typelevel.log4cats.{ Logger, LoggerFactory }
 
 import javax.swing.JComponent
 
@@ -52,9 +52,20 @@ abstract class BaseJCefWebView(
   protected val myHttpServer: ResourceHttpServer = ResourceHttpServer(resourcePath, 0)
 
   // Browser and state management
-  private val myBrowser: JBCefBrowser = createDefaultBrowser()
-  protected var myState: ViewerState  = ViewerState()
-  private val myViewerStateJSQuery    = createJSQuery()
+  private lazy val myBrowser: JBCefBrowser = {
+    val browser = createDefaultBrowser()
+    // Initialize the browser client with handlers
+    browser.getJBCefClient
+      .addLoadHandler(myLoadHandler, browser.getCefBrowser)
+      .addRequestHandler(myRequestHandlerAdapter, browser.getCefBrowser)
+      .addLifeSpanHandler(myLifeSpanHandler, browser.getCefBrowser)
+    browser.getJBCefClient
+      .setProperty(JBCefClient.Properties.JS_QUERY_POOL_SIZE, 10)
+    browser
+  }
+
+  protected var myState: ViewerState    = ViewerState()
+  private lazy val myViewerStateJSQuery = createJSQuery()
 
   // Event handlers
   private val myLoadHandler = new CefLoadHandlerAdapter {
@@ -90,12 +101,6 @@ abstract class BaseJCefWebView(
     }
   }
 
-  // Initialize the browser client with handlers
-  myBrowser.getJBCefClient
-    .addLoadHandler(myLoadHandler, myBrowser.getCefBrowser)
-    .addRequestHandler(myRequestHandlerAdapter, myBrowser.getCefBrowser)
-    .addLifeSpanHandler(myLifeSpanHandler, myBrowser.getCefBrowser)
-
   // Abstract methods that subclasses must implement
   protected def setupHttpServer(): Unit
   protected def onUserClickedLink(url: String): Unit
@@ -104,8 +109,6 @@ abstract class BaseJCefWebView(
   // Initialize HTTP server
   setupHttpServer()
   myHttpServer.start()
-
-
 
   private def createJSQuery(): JBCefJSQuery = {
     val jsQuery = JBCefJSQuery.create(myBrowser.asInstanceOf[JBCefBrowserBase])
@@ -175,7 +178,7 @@ object BaseJCefWebView {
       builder
         .setOffScreenRendering(false)
         .setEnableOpenDevToolsMenuItem(true)
-   else builder.setOffScreenRendering(true)
+    else builder.setOffScreenRendering(true)
 
     builder.build()
   }
