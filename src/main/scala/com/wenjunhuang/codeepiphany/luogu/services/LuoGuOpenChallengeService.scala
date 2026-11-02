@@ -45,8 +45,8 @@ class LuoGuOpenChallengeService(project: Project)
     )
     record.setDojo(CodeDojo.LuoGu.value)
     record.setDojoid(state.req.pid)
-    record.setSlug(VelocityTool.slugify(state.req.title))
-    record.setTitle(state.req.title)
+    record.setSlug(VelocityTool.slugify(state.req.name))
+    record.setTitle(state.req.name)
   }
 
   override protected def createTemplate(
@@ -62,7 +62,7 @@ class LuoGuOpenChallengeService(project: Project)
             CodeDojoChallengeId(req.pid),
             LuoGuChallengeCodeTemplate(
               req.pid,
-              content.title,
+              content.name,
               language,
               languageVersion,
               content.description,

@@ -189,13 +189,13 @@ object LuoGuApi extends LuoGuApi with Http4sClientDsl[IO] {
               val description = makeDescriptionHtml(json)
               (
                 JsonPath.root.data.problem.pid.string.getOption(json),
-                JsonPath.root.data.problem.title.string.getOption(json),
+                JsonPath.root.data.problem.name.string.getOption(json),
                 JsonPath.root.data.problem.acceptLanguages.as[List[Int]].getOption(json),
                 JsonPath.root.data.problem.samples.arr.getOption(json)
-              ).mapN { (pid, title, acceptLanguages, samples) =>
+              ).mapN { (pid, name, acceptLanguages, samples) =>
                 LuoGuChallengeData(
                   pid,
-                  title,
+                  name,
                   description,
                   acceptLanguages
                     .map(_.toString)
@@ -387,11 +387,12 @@ object LuoGuApi extends LuoGuApi with Http4sClientDsl[IO] {
       client
         .expect[String](uri"https://www.luogu.com.cn/record" / oldResponse.submissionId)
         .flatMap { html =>
-          val regex = """(?s:.*decodeURIComponent\("(.*)"\).*)""".r
-          html match
-            case regex(encoded) =>
-              parse(URLDecoder.decode(encoded, "UTF-8")).map { json =>
-                JsonPath.root.currentData.record.status.int
+//          val regex = """(?s:.*decodeURIComponent\("(.*)"\).*)""".r
+          Jsoup.parse(html).select("script#lentille-context[type=\"application/json\"]").html() match
+            case "" => IO.raiseError(new Exception("Failed to parse submission result"))
+            case encoded =>
+              parse(encoded).map { json =>
+                JsonPath.root.data.record.status.int
                   .getOption(json)
                   .map { status =>
                     val submissionResult = luoguSubmissionStatus(status) match
@@ -416,7 +417,6 @@ object LuoGuApi extends LuoGuApi with Http4sClientDsl[IO] {
                   }
                   .getOrElse(oldResponse)
               }.liftTo[IO]
-            case _ => IO.raiseError(new Exception("Failed to parse submission result"))
         }
         .recoverWith {
           case e: UnexpectedStatus if e.status.code == 503 =>

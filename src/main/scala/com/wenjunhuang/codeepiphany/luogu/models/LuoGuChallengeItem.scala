@@ -4,7 +4,7 @@ import io.circe.derivation.ConfiguredDecoder
 
 case class LuoGuChallengeItem(
   pid: String,
-  title: String,
+  name: String,
   difficulty: LuoGuDifficulty,
   `type`: LuoGuQuestionBank,
   totalSubmit: Int,

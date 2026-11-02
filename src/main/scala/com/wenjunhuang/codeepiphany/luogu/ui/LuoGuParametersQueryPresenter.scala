@@ -232,7 +232,7 @@ class LuoGuParametersQueryPresenter(project: Project, bootstrap: LuoGuBootstrapP
         setDirectionOf(LuoGuSearchOrderBy.PID, filter)
     },
     new OrderByColumnInfo[LuoGuChallengeItem, String]("Title") {
-      override def valueOf(item: LuoGuChallengeItem): String = item.title
+      override def valueOf(item: LuoGuChallengeItem): String = item.name
 
       override def getPreferredStringValue: String = StringUtil.repeat("W", 20)
 

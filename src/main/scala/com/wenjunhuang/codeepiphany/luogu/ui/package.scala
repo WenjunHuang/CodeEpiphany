@@ -35,7 +35,7 @@ package object ui {
                 console.showConsole(project) *>
                   console.error(project, e.getMessage) *> logger.warn(e)("Failed to open challenge")
               }
-              .evalAsBackgroundProgressCancellable(project, s"Opening challenge ${selected.title}...")
+              .evalAsBackgroundProgressCancellable(project, s"Opening challenge ${selected.name}...")
               .unsafeRunAndForget()
           case _ => ()
       }

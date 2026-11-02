@@ -1,6 +1,7 @@
 ## 1.12.2
 ### Fixed
 - Fix JCEF dependency issue
+- Fix luogo data problems
  
 ## 1.12.1
 ### Fixed

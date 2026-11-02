@@ -83,7 +83,7 @@ class LuoGuKeywordQueryPresenter(project: Project, bootstrap: LuoGuBootstrapPara
       override def enableOrderBy: Boolean          = false
     },
     new OrderByColumnInfo[LuoGuChallengeItem, String]("Title") {
-      override def valueOf(item: LuoGuChallengeItem): String = item.title
+      override def valueOf(item: LuoGuChallengeItem): String = item.name
 
       override def getPreferredStringValue: String = StringUtil.repeat("W", 30)
 
