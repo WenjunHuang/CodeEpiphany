@@ -19,15 +19,15 @@ enum ChallengeDifficulty(val value: String) {
   def showAsHtml: String =
     this match
       case Easy =>
-        s"<html><font color='${DIFFICULTY_EASY_COLOR}'>${this.show}</font></html>"
+        DifficultyColors.makeColorHtml(DIFFICULTY_EASY_COLOR, this.show)
       case Medium =>
-        s"<html><font color='${DIFFICULTY_MEDIUM_COLOR}'>${this.show}</font></html>"
+        DifficultyColors.makeColorHtml(DIFFICULTY_MEDIUM_COLOR, this.show)
       case Hard =>
-        s"<html><font color='${DIFFICULTY_HARD_COLOR}'>${this.show}</font></html>"
+        DifficultyColors.makeColorHtml(DIFFICULTY_HARD_COLOR, this.show)
       case Advanced =>
-        s"<html><font color='${DIFFICULTY_ADVANCED_COLOR}'>${this.show}</font></html>"
+        DifficultyColors.makeColorHtml(DIFFICULTY_ADVANCED_COLOR, this.show)
       case Expert =>
-        s"<html><font color='${DIFFICULTY_EXPERT_COLOR}'>${this.show}</font></html>"
+        DifficultyColors.makeColorHtml(DIFFICULTY_EXPERT_COLOR, this.show)
       case CodeDojoDefined(codeDojo, codeDojoValue) =>
         codeDojo.difficultyShowAsHtml(codeDojoValue)
 }
@@ -76,4 +76,8 @@ object DifficultyColors {
   val DIFFICULTY_HARD_COLOR     = "#F44336"
   val DIFFICULTY_ADVANCED_COLOR = "#7C4DFF"
   val DIFFICULTY_EXPERT_COLOR   = "#FF6D00"
+
+  def makeColorHtml(color: String, text: String): String = {
+    s"<html><font color='$color'>$text</font></html>"
+  }
 }
