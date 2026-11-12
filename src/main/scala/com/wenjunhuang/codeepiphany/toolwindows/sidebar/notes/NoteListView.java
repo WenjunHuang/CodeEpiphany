@@ -16,7 +16,6 @@ import com.intellij.uiDesigner.core.Spacer;
 import com.intellij.util.ui.JBUI;
 import com.wenjunhuang.codeepiphany.model.CodeDojo;
 import com.wenjunhuang.codeepiphany.utils.ui.TagUI;
-import org.apache.commons.collections.CollectionUtils;
 import org.jetbrains.annotations.NotNull;
 import scala.Option;
 
@@ -24,6 +23,7 @@ import javax.swing.*;
 import javax.swing.border.TitledBorder;
 import javax.swing.tree.DefaultMutableTreeNode;
 import java.awt.*;
+import java.util.Collection;
 
 public class NoteListView {
 
@@ -40,6 +40,12 @@ public class NoteListView {
         myPresenter = presenter;
         $$$setupUI$$$();
     }
+    public static boolean isEmpty(final Collection<?> coll) {
+        return coll == null || coll.isEmpty();
+    }
+    public static boolean isNotEmpty(final Collection<?> coll) {
+        return !isEmpty(coll);
+    }
 
     private void createUIComponents() {
         myDifficulty = new TagUI("", "", Option.empty(), 0.5f, Option.empty(), Option.empty());
@@ -55,7 +61,7 @@ public class NoteListView {
                             @Override
                             public void actionPerformed(@NotNull AnActionEvent e) {
                                 var selected = myTreeTable.getSelection();
-                                if (CollectionUtils.isNotEmpty(selected)) {
+                                if (isNotEmpty(selected)) {
                                     if (selected.get(0) instanceof DefaultMutableTreeNode node && node.getUserObject() instanceof NoteEntry.NoteNode solution) {
                                         if (!solution.isDefault()) {
                                             var result = Messages.showInputDialog(myPresenter.myProject(), "Modify solution name", "Modify Solution Name", null, solution.title(), new InputValidator() {
@@ -81,7 +87,7 @@ public class NoteListView {
                             @Override
                             public void update(@NotNull AnActionEvent e) {
                                 var selected = myTreeTable.getSelection();
-                                if (CollectionUtils.isNotEmpty(selected)) {
+                                if (isNotEmpty(selected)) {
                                     e.getPresentation().setEnabled(selected.get(0) instanceof DefaultMutableTreeNode node && node.getUserObject() instanceof NoteEntry.NoteNode);
                                 } else {
                                     e.getPresentation().setEnabled(false);
@@ -97,7 +103,7 @@ public class NoteListView {
                             @Override
                             public void actionPerformed(@NotNull AnActionEvent e) {
                                 var selected = myTreeTable.getSelection();
-                                if (CollectionUtils.isNotEmpty(selected)) {
+                                if (isNotEmpty(selected)) {
                                     if (selected.get(0) instanceof DefaultMutableTreeNode node && node.getUserObject() instanceof NoteEntry.NoteNode solution) {
                                         myPresenter.openSolutionRemarkEditor(solution.solutionId());
                                     }
@@ -107,7 +113,7 @@ public class NoteListView {
                             @Override
                             public void update(@NotNull AnActionEvent e) {
                                 var selected = myTreeTable.getSelection();
-                                if (CollectionUtils.isNotEmpty(selected)) {
+                                if (isNotEmpty(selected)) {
                                     e.getPresentation().setEnabled(selected.get(0) instanceof DefaultMutableTreeNode node && node.getUserObject() instanceof NoteEntry.NoteNode);
                                 } else {
                                     e.getPresentation().setEnabled(false);
