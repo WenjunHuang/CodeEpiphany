@@ -1,3 +1,7 @@
+## 1.12.3
+### Fixed
+- Update some dependent libs
+ 
 ## 1.12.2
 ### Fixed
 - Fix JCEF dependency issue

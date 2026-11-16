@@ -8,7 +8,7 @@ import scala.io.Source
 import scala.sys.process.Process
 import scala.util.Using
 
-val pluginVersion: String = "1.12.2"
+val pluginVersion: String = "1.12.3"
 
 ThisBuild / scalaVersion          := "3.7.0"
 ThisBuild / intellijPlatform      := versions.intellijPlatform
