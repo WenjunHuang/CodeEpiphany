@@ -2,7 +2,6 @@ package com.wenjunhuang.codeepiphany.settings.dojo;
 
 import com.intellij.codeInsight.hint.EditorFragmentComponent;
 import com.intellij.icons.AllIcons;
-import com.intellij.ide.IdeBundle;
 import com.intellij.ide.ui.laf.darcula.ui.DarculaEditorTextFieldBorder;
 import com.intellij.openapi.actionSystem.*;
 import com.intellij.openapi.actionSystem.ex.ActionManagerEx;
@@ -137,7 +136,7 @@ public class LanguageSettingsPanel extends SettingsUi<BaseCodeDojoSettings.Langu
                 var description =
                         StringUtil.join(IOUtils.readLines(Objects.requireNonNull(input), StandardCharsets.UTF_8), "");
                 description = XmlStringUtil.stripHtml(description);
-                description = IdeBundle.message("http.velocity", description);
+                description = PluginBundle.message("http.velocity",description);
                 myDescription.setText(description);
                 myDescription.setCaretPosition(0);
             }
